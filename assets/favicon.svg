@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="情報Ⅰ Study Atlas">
+  <circle cx="32" cy="32" r="30" fill="#102f35" />
+  <circle cx="32" cy="32" r="24" fill="none" stroke="#f5f3ed" stroke-opacity=".25" />
+  <path d="M29 17h14l-1 4h-4l-6 25h5l-1 4H21l1-4h4l6-25h-4z" fill="#f5f3ed" />
+  <circle cx="47" cy="17" r="5" fill="#e96f51" />
+</svg>

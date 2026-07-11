@@ -1,19 +1,73 @@
-# mei-chan-nel.github.io
+# 情報Ⅰ Study Atlas — ポータル
 
-「めいちゃんねる Webアプリ集」のGitHub Pages用ファイルです。
+`https://mei-chan-nel.github.io/` で公開するサイト全体の入口です。
 
-## 公開方法
+このリポジトリでは次を管理します。
 
-1. GitHubで `mei-chan-nel.github.io` という名前の公開リポジトリを作成します。
-2. このフォルダ内のファイルを、リポジトリの最上位へ入れます。
-3. GitHub Desktopでコミットし、GitHubへプッシュします。
-4. リポジトリの `Settings` → `Pages` を開きます。
-5. `Deploy from a branch`、`main`、`/(root)` を選びます。
-6. `https://mei-chan-nel.github.io/` で公開を確認します。
+- 学習ポータルトップ
+- このサイトについて
+- 全体プライバシーポリシー
+- 共通デザイン
+- ホスト直下の `ads.txt` と `robots.txt`
+- ポータルとアプリ／問題一覧をまとめたサイトマップ
+- AdSense再審査の設定・検証記録
 
-## AdSense
+学習アプリ、問題データ、問題一覧ページは、別リポジトリ [`info1-quiz-app`](https://github.com/mei-chan-nel/info1-quiz-app) で管理します。
 
-AdSenseから確認用メタタグまたはスクリプトが表示されたら、
-`index.html`、`about.html`、`privacy.html` の `<head>` 内にあるコメントの直下へ貼り付けます。
+## フォルダ構成
 
-`ads.txt` は、AdSenseから実際の内容が表示された後に、このリポジトリの最上位へ作成してください。
+```text
+index.html
+about.html
+privacy.html
+assets/
+  site.css
+  favicon.svg
+docs/
+  ADSENSE_CONFIGURATION.md
+  IMPLEMENTATION_LOG.md
+  REVIEW_READINESS.md
+scripts/
+  update_sitemap.py
+  validate_portal.py
+ads.txt
+robots.txt
+sitemap.xml
+```
+
+## サイトマップ更新
+
+ローカルで2リポジトリが同じ親フォルダにある場合は、アプリ側のサイトマップを取り込んで全体サイトマップを更新できます。
+
+```powershell
+python scripts/update_sitemap.py
+```
+
+別の場所にある場合は明示します。
+
+```powershell
+python scripts/update_sitemap.py --app-sitemap <info1-quiz-appのsitemap.xml>
+```
+
+## 検証
+
+```powershell
+python scripts/validate_portal.py
+```
+
+検証はポータル3ページ、広告コード範囲、内部リンク、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、アプリ側サイトマップとの一致も確認します。
+
+## 公開
+
+GitHub Pagesの公開元は `main` ブランチのリポジトリルートです。
+
+```text
+https://mei-chan-nel.github.io/
+```
+
+問題一覧とアプリは次のパスへリンクします。
+
+```text
+https://mei-chan-nel.github.io/info1-quiz-app/questions/
+https://mei-chan-nel.github.io/info1-quiz-app/app/
+```

@@ -1,0 +1,72 @@
+# AdSense再審査の自己評価
+
+評価日: 2026-07-12
+
+## 評価基準
+
+Googleの公式案内に基づき、次を確認する。
+
+- 独自性と利用者への価値があり、読む目的が明確か
+- ナビゲーションが分かりやすいか
+- 低価値、未完成、案内だけの画面に広告を出していないか
+- 自動生成したページを無検証で公開していないか
+- 制作者、作成方法、目的、出典、問い合わせ先が分かるか
+- 広告が本文や操作を妨げないか
+- Search Consoleが発見できるサイトマップがあるか
+
+参照:
+
+- [Make sure your site's pages are ready for AdSense](https://support.google.com/adsense/answer/7299563?hl=ja)
+- [Google-served ads on screens without publisher-content](https://support.google.com/publisherpolicies/answer/11112688?hl=ja)
+- [Creating helpful, reliable, people-first content](https://developers.google.com/search/docs/fundamentals/creating-helpful-content?hl=ja)
+- [Build and submit a sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap?hl=ja)
+
+## 監査1: 改修前
+
+評価: **再審査不可**
+
+理由:
+
+- アプリのプロジェクトルートには入口がなく、ポータル側にも読む学習コンテンツへの十分な導線がなかった。
+- 問題を一覧で読めず、サイトの内容と規模を把握しにくかった。
+- 分類値が全問未設定で、継続的なページ生成に使えなかった。
+- 案内・規約ページにも広告コードがあり、管理画面の除外確認記録がなかった。
+
+対応: 分類、学習コンテンツ、ポータル、案内ページ、サイトマップ、広告範囲の設計を実施した。
+
+## 監査2: ローカル実装後
+
+評価: **再審査前に追加対応が必要**
+
+改善済み:
+
+- 861問すべてを6分野に分類した。
+- 32ページへ最大30問ずつ掲載し、正答・解説・出典・タグを読めるようにした。
+- ポータルリポジトリにトップ、分野紹介、作成方針、運営者、問い合わせ、プライバシーを整備し、アプリリポジトリに問題一覧を配置した。
+- 学習ページだけに広告コードを置き、新設案内・規約ページは広告なしとした。
+- 自動検証と実ブラウザ確認に合格した。
+- 既存アプリ全ファイルが作業開始時のハッシュと一致した。
+
+残る外部作業:
+
+1. `info1-quiz-app` と `mei-chan-nel.github.io` の変更を、それぞれGitHub Pagesへ公開する。
+2. `docs/ADSENSE_CONFIGURATION.md` の管理画面設定を適用する。
+3. 公開URLでリンク、広告範囲、モバイル表示を再確認する。
+4. Google Search Consoleへ `sitemap.xml` を送信し、処理結果を確認する。
+5. AdSenseの「サイト」またはポリシーセンターに表示された今回の具体的な不備が解消済みか照合する。
+
+## 再審査申請の判定条件
+
+次をすべて満たした時点で、評価を **再審査を申請できる状態** に更新する。
+
+- 公開サイトのルートが200で学習トップを表示する
+- ポータル3ページと問題一覧33ページが、それぞれの公開URLで閲覧できる
+- 4 URLの完全一致除外が管理画面で確認できる
+- アプリ操作領域にページ内自動広告が入らない
+- アンカー・全画面などのオーバーレイ形式がオフになっている
+- 案内・プライバシーページで広告が出ない
+- `ads.txt` と `sitemap.xml` が公開URLから200で取得できる
+- Search Consoleでサイトマップの取得結果に重大なエラーがない
+- AdSenseが示した個別の不備と矛盾する未対応項目がない
+
+ローカル実装の品質評価は合格だが、公開と管理画面設定を確認するまでは、再審査可能と断定しない。

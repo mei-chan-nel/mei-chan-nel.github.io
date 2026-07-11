@@ -1,0 +1,14 @@
+{
+  "status": "pass",
+  "html_pages_checked": 3,
+  "sitemap_urls": 37,
+  "errors": [],
+  "warnings": [],
+  "checks": [
+    "titles, descriptions, canonical URLs, and one h1 per portal page",
+    "portal and cross-repository links and fragments",
+    "AdSense only on the content-rich portal top",
+    "host-root ads.txt and robots.txt",
+    "sitemap synchronization with info1-quiz-app"
+  ]
+}
