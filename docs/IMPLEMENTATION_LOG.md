@@ -27,7 +27,7 @@
 
 ## 変更禁止範囲
 
-既存学習アプリの表示・遷移・集計処理は変更しない。`info1-quiz-app/docs/reports/app-baseline-sha256.json` に開始時SHA-256を保存し、問題一覧検証時に一致を確認する。
+既存学習アプリの出題・遷移・集計処理は変更しない。案内リンク統合後の `app/index.html` と、不変の `app.js`、`startup.js`、`styles.css` のSHA-256を `info1-quiz-app/docs/reports/app-core-baseline-sha256.json` に保存し、問題一覧検証時に一致を確認する。
 
 ## 第1段階: 問題分類
 
@@ -73,7 +73,7 @@
 
 - ポータルトップ、問題一覧トップ、32分野ページ、既存アプリ本体を広告対象とした。
 - ポータルの案内・プライバシーページは広告コードなしとした。
-- 既存 `app/about.html` と `app/privacy.html` はAdSense管理画面の完全一致除外対象とした。
+- サイト案内とプライバシーポリシーをポータルへ統合し、アプリのフッターからポータルのトップ・案内・プライバシーへ直接リンクした。
 - ホスト単位で参照される `ads.txt` と `robots.txt` は `mei-chan-nel.github.io` だけに置いた。
 - `info1-quiz-app` のビルド記録から公開ページ一覧を読み、`mei-chan-nel.github.io/sitemap.xml` に両リポジトリの37 URLを収録する。
 
@@ -89,7 +89,7 @@
 - ポータルまで生成していた旧 `scripts/generate_site.py`
 - ポータルまで検証していた旧 `scripts/validate_site.py`
 
-既存の `app/about.html` と `app/privacy.html` はアプリのフッターから利用するため残した。
+旧 `app/about.html` と `app/privacy.html` の固有情報をポータルへ統合し、参照をポータルへ切り替えた後に両ファイルを削除した。
 
 追加の重複監査で、問題一覧側に残っていた完全一致のCSS・faviconと、URLが全体サイトマップへ重複していたプロジェクトサイトマップを削除した。空の `参照テスト.txt` も参照がないため削除した。
 

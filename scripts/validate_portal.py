@@ -156,6 +156,13 @@ def main() -> int:
             expected_urls = [SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", *(f"{SITE_ORIGIN}info1-quiz-app/{path}" for path in app_paths)]
             if portal_urls != list(dict.fromkeys(expected_urls)):
                 errors.append("sitemap.xml is not synchronized with the question-library build report")
+            for obsolete_app_page in (APP_ROOT / "app" / "about.html", APP_ROOT / "app" / "privacy.html"):
+                if obsolete_app_page.exists():
+                    errors.append(f"Obsolete app information page still exists: {obsolete_app_page.name}")
+            app_index_text = (APP_ROOT / "app" / "index.html").read_text(encoding="utf-8")
+            for expected_href in (SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html"):
+                if f'href="{expected_href}"' not in app_index_text:
+                    errors.append(f"App footer is missing portal link: {expected_href}")
         else:
             warnings.append("App build report not found beside the portal; cross-repository sitemap comparison skipped")
     except (ET.ParseError, OSError) as exc:
