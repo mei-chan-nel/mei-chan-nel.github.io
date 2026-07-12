@@ -1,40 +1,45 @@
 from __future__ import annotations
 
 import argparse
-import xml.etree.ElementTree as ET
+import json
 from datetime import date
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_APP_SITEMAP = ROOT.parent / "info1-quiz-app" / "sitemap.xml"
+DEFAULT_APP_ROOT = ROOT.parent / "info1-quiz-app"
 OUTPUT_PATH = ROOT / "sitemap.xml"
 SITE_ORIGIN = "https://mei-chan-nel.github.io/"
 LASTMOD = date(2026, 7, 12).isoformat()
 PORTAL_URLS = [SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html"]
 
 
-def read_urls(path: Path) -> list[str]:
-    namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    tree = ET.parse(path)
-    urls = [node.text.strip() for node in tree.findall("s:url/s:loc", namespace) if node.text]
-    if not urls:
-        raise ValueError(f"No URLs found in {path}")
-    for url in urls:
-        if not url.startswith(f"{SITE_ORIGIN}info1-quiz-app/"):
-            raise ValueError(f"App sitemap contains an out-of-scope URL: {url}")
-    return urls
+def read_app_urls(app_root: Path) -> list[str]:
+    report_path = app_root / "docs" / "reports" / "question-library-build.json"
+    if not report_path.is_file():
+        raise ValueError(f"Question-library build report not found: {report_path}")
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    paths = [*report.get("learning_pages", []), report.get("related_app_page", "")]
+    if not paths or any(not isinstance(path, str) or not path for path in paths):
+        raise ValueError(f"Invalid public page list in {report_path}")
+    for relative in paths:
+        target = app_root / relative
+        if target.is_dir():
+            target = target / "index.html"
+        if not target.is_file():
+            raise ValueError(f"Public app path does not exist: {relative}")
+    return [f"{SITE_ORIGIN}info1-quiz-app/{relative}" for relative in paths]
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Merge the portal and app sitemaps.")
-    parser.add_argument("--app-sitemap", type=Path, default=DEFAULT_APP_SITEMAP)
+    parser.add_argument("--app-root", type=Path, default=DEFAULT_APP_ROOT)
     args = parser.parse_args()
-    app_sitemap = args.app_sitemap.resolve()
-    if not app_sitemap.is_file():
-        raise SystemExit(f"App sitemap not found: {app_sitemap}")
+    app_root = args.app_root.resolve()
+    if not app_root.is_dir():
+        raise SystemExit(f"App repository not found: {app_root}")
 
-    urls = list(dict.fromkeys([*PORTAL_URLS, *read_urls(app_sitemap)]))
+    urls = list(dict.fromkeys([*PORTAL_URLS, *read_app_urls(app_root)]))
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',

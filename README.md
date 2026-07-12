@@ -37,7 +37,7 @@ sitemap.xml
 
 ## サイトマップ更新
 
-ローカルで2リポジトリが同じ親フォルダにある場合は、アプリ側のサイトマップを取り込んで全体サイトマップを更新できます。
+ローカルで2リポジトリが同じ親フォルダにある場合は、アプリ側の問題一覧ビルド記録を取り込んで全体サイトマップを更新できます。
 
 ```powershell
 python scripts/update_sitemap.py
@@ -46,7 +46,7 @@ python scripts/update_sitemap.py
 別の場所にある場合は明示します。
 
 ```powershell
-python scripts/update_sitemap.py --app-sitemap <info1-quiz-appのsitemap.xml>
+python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリルート>
 ```
 
 ## 検証
@@ -55,7 +55,7 @@ python scripts/update_sitemap.py --app-sitemap <info1-quiz-appのsitemap.xml>
 python scripts/validate_portal.py
 ```
 
-検証はポータル3ページ、広告コード範囲、内部リンク、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、アプリ側サイトマップとの一致も確認します。
+検証はポータル3ページ、広告コード範囲、内部リンク、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
 
 ## 公開
 

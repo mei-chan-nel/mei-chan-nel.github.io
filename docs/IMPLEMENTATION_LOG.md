@@ -23,7 +23,7 @@
 - 問題一覧トップと6分野の生成ページ
 - 問題一覧用デザイン
 - 問題一覧生成・分類・検証
-- アプリ／問題一覧だけを収録したプロジェクト `sitemap.xml`
+- ポータルのサイトマップ生成へ渡す問題一覧ビルド記録
 
 ## 変更禁止範囲
 
@@ -66,7 +66,7 @@
 - ポータルトップを学習コンテンツ中心の構成へ刷新した。
 - 6分野の紹介、学習方法、問題作成方針、問題一覧・アプリへの導線を追加した。
 - サイト案内とプライバシーポリシーを整備した。
-- `assets/site.css` と `assets/favicon.svg` をポータル所有とした。
+- `assets/site.css` と `assets/favicon.svg` をポータルだけの共通資産とし、問題一覧から同じ公開URLを参照する。
 - 旧 `styles.css` は参照されなくなったため削除した。
 
 ## 第4段階: 広告と機械可読ファイル
@@ -75,8 +75,7 @@
 - ポータルの案内・プライバシーページは広告コードなしとした。
 - 既存 `app/about.html` と `app/privacy.html` はAdSense管理画面の完全一致除外対象とした。
 - ホスト単位で参照される `ads.txt` と `robots.txt` は `mei-chan-nel.github.io` だけに置いた。
-- `info1-quiz-app/sitemap.xml` は問題一覧とアプリだけを収録する。
-- `mei-chan-nel.github.io/sitemap.xml` は両リポジトリの37 URLを収録する。
+- `info1-quiz-app` のビルド記録から公開ページ一覧を読み、`mei-chan-nel.github.io/sitemap.xml` に両リポジトリの37 URLを収録する。
 
 ## 移動後にアプリ側から削除したもの
 
@@ -85,12 +84,14 @@
 - `privacy.html`
 - `ads.txt`
 - `robots.txt`
-- `assets/site.css`（問題一覧用は `assets/questions.css` として独立）
+- アプリ側へ一時的に置いた共通CSS・favicon（ポータルの公開URL参照へ統一）
 - ポータル全体のAdSense・実装・再審査文書
 - ポータルまで生成していた旧 `scripts/generate_site.py`
 - ポータルまで検証していた旧 `scripts/validate_site.py`
 
 既存の `app/about.html` と `app/privacy.html` はアプリのフッターから利用するため残した。
+
+追加の重複監査で、問題一覧側に残っていた完全一致のCSS・faviconと、URLが全体サイトマップへ重複していたプロジェクトサイトマップを削除した。空の `参照テスト.txt` も参照がないため削除した。
 
 ## 再生成・検証
 

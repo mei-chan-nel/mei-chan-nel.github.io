@@ -149,13 +149,15 @@ def main() -> int:
         missing_required = sorted(required - set(portal_urls))
         if missing_required:
             errors.append(f"sitemap.xml is missing required URLs: {missing_required}")
-        app_sitemap = APP_ROOT / "sitemap.xml"
-        if app_sitemap.exists():
-            expected_urls = [SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", *sitemap_urls(app_sitemap)]
+        app_report = APP_ROOT / "docs" / "reports" / "question-library-build.json"
+        if app_report.exists():
+            report = json.loads(app_report.read_text(encoding="utf-8"))
+            app_paths = [*report.get("learning_pages", []), report.get("related_app_page", "")]
+            expected_urls = [SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", *(f"{SITE_ORIGIN}info1-quiz-app/{path}" for path in app_paths)]
             if portal_urls != list(dict.fromkeys(expected_urls)):
-                errors.append("sitemap.xml is not synchronized with the app repository sitemap")
+                errors.append("sitemap.xml is not synchronized with the question-library build report")
         else:
-            warnings.append("App repository not found beside the portal; cross-repository sitemap comparison skipped")
+            warnings.append("App build report not found beside the portal; cross-repository sitemap comparison skipped")
     except (ET.ParseError, OSError) as exc:
         errors.append(f"Invalid sitemap.xml: {exc}")
         portal_urls = []
@@ -171,7 +173,7 @@ def main() -> int:
             "portal and cross-repository links and fragments",
             "AdSense only on the content-rich portal top",
             "host-root ads.txt and robots.txt",
-            "sitemap synchronization with info1-quiz-app",
+            "sitemap synchronization with the info1-quiz-app build report",
         ],
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
