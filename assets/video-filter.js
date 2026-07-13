@@ -6,12 +6,14 @@
 
   const parameter = root.dataset.filterParam || "keyword";
   const results = root.querySelector("[data-filter-results]");
+  const resultsSection = root.querySelector(".filter-results");
   const heading = root.querySelector("[data-filter-heading]");
   const summary = root.querySelector("[data-filter-summary]");
   const search = root.querySelector("[data-facet-search]");
   const clear = root.querySelector("[data-filter-clear]");
   let payload = null;
   let selected = [];
+  let focusNumber = null;
 
   const element = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -25,11 +27,17 @@
     return [...new Set(params.getAll(parameter).map((value) => value.trim()).filter(Boolean))];
   };
 
-  const filterHref = (values) => {
+  const readFocus = () => {
+    const value = new URL(window.location.href).searchParams.get("question");
+    return value ? Number(value) : null;
+  };
+
+  const filterHref = (values, questionNumber = null) => {
     const params = new URLSearchParams();
     values.forEach((value) => params.append(parameter, value));
+    if (questionNumber !== null) params.set("question", String(questionNumber));
     const query = params.toString();
-    return `keywords.html${query ? `?${query}` : ""}`;
+    return `keywords.html${query ? `?${query}` : ""}${questionNumber !== null ? "#filter-results-heading" : ""}`;
   };
 
   const toggledSelection = (value) => {
@@ -53,12 +61,11 @@
     }
   };
 
-  const appendKeywords = (container, keywords) => {
+  const appendKeywords = (container, keywords, questionNumber) => {
     keywords.forEach((keyword) => {
       const item = element("li");
       const link = element("a", "keyword-link", keyword);
-      link.href = filterHref(toggledSelection(keyword));
-      link.dataset.facetValue = keyword;
+      link.href = filterHref([keyword], questionNumber);
       item.append(link);
       container.append(item);
     });
@@ -67,6 +74,7 @@
   const renderQuestion = (question) => {
     const article = element("article", "video-question-card filtered-question-card");
     article.id = `filtered-q-${question.number}`;
+    if (focusNumber === question.number) article.classList.add("is-origin-question");
 
     const meta = element("div", "video-question-meta");
     meta.append(element("span", "", `${question.section_label} · QUESTION ${String(question.number).padStart(3, "0")}`));
@@ -98,7 +106,7 @@
     const keywordRow = element("div", "video-keywords");
     keywordRow.append(element("span", "", "キーワード"));
     const keywords = element("ul");
-    appendKeywords(keywords, question.keywords);
+    appendKeywords(keywords, question.keywords, question.number);
     keywordRow.append(keywords);
     tools.append(keywordRow);
 
@@ -134,6 +142,10 @@
     const matches = payload.questions.filter((question) =>
       question.keywords.some((keyword) => selected.includes(keyword)),
     );
+    if (focusNumber !== null) {
+      const originIndex = matches.findIndex((question) => question.number === focusNumber);
+      if (originIndex > 0) matches.unshift(...matches.splice(originIndex, 1));
+    }
     heading.textContent = `「${selected.join("」「")}」の問題`;
     summary.textContent = `${selected.length}キーワードのOR検索で${matches.length}問が見つかりました。`;
     if (matches.length === 0) {
@@ -144,10 +156,14 @@
     matches.forEach((question) => fragment.append(renderQuestion(question)));
     results.append(fragment);
     syncFacetLinks();
+    if (focusNumber !== null && matches.some((question) => question.number === focusNumber)) {
+      window.requestAnimationFrame(() => resultsSection.scrollIntoView({ block: "start" }));
+    }
   };
 
   const setSelection = (values, push = true) => {
     selected = [...new Set(values)];
+    focusNumber = null;
     if (push) window.history.pushState({}, "", filterHref(selected));
     render();
   };
@@ -171,15 +187,22 @@
       root.querySelectorAll(".facet-links > .facet-link").forEach((link) => {
         link.hidden = Boolean(query) && !link.dataset.facetValue.toLocaleLowerCase("ja").includes(query);
       });
+      root.querySelectorAll("[data-facet-group]").forEach((group) => {
+        const visible = [...group.querySelectorAll(".facet-link")].some((link) => !link.hidden);
+        group.hidden = Boolean(query) && !visible;
+        if (query && visible) group.open = true;
+      });
     });
   }
 
   window.addEventListener("popstate", () => {
     selected = readSelection();
+    focusNumber = readFocus();
     render();
   });
 
   selected = readSelection();
+  focusNumber = readFocus();
   syncFacetLinks();
   fetch(root.dataset.filterData)
     .then((response) => {

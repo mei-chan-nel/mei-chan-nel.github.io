@@ -10,9 +10,9 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "video-questions.json"
 REPORT_PATH = ROOT / "docs" / "video-keyword-audit.json"
 
-# Q001～Q330の問題文・答え・分野・対応動画題名を確認して作成した明示表。
-# 旧keywords列の値は、生成にも判定にも使用しない。
-KEYWORD_TEXT = {
+# 2026-07-14の初回監査表。再監査時の比較記録として残すが、
+# 現在のキーワード生成・判定には使用しない。
+PREVIOUS_KEYWORD_TEXT = {
     1: "ソーシャルエンジニアリング|なりすまし",
     2: "肖像権|写真の利用",
     3: "パブリシティ権|著名人",
@@ -346,6 +346,181 @@ KEYWORD_TEXT = {
 }
 
 
+def controlled_keywords(number: int) -> list[str]:
+    """Return the reviewed, reusable learning facets for Q001-Q330.
+
+    The ranges follow the actual question sequence.  Terms are intentionally
+    broader than a question title: every public keyword must connect at least
+    two questions, while the programming range keeps practical subtopics.
+    """
+    keywords: list[str]
+
+    if 1 <= number <= 32:
+        keywords = ["情報社会"]
+        if number in {1, 4}:
+            keywords += ["情報セキュリティ", "サイバー犯罪"]
+        elif number in {2, 3}:
+            keywords += ["知的財産権", "肖像・パブリシティ"]
+        elif 5 <= number <= 7:
+            keywords += ["個人情報", "個人情報保護"]
+        elif number in {8, 9, 21}:
+            keywords += ["知的財産権", "産業財産権"]
+        else:
+            keywords += ["著作権"]
+            if number in {10, 24, 31, 32}:
+                keywords += ["著作権制度"]
+            elif number in {13, 14, 15, 16, 17, 27, 28}:
+                keywords += ["著作物性・二次利用"]
+            elif number in {20, 23}:
+                keywords += ["著作者・実演家"]
+            else:
+                keywords += ["著作物の利用"]
+    elif 33 <= number <= 60:
+        keywords = ["情報デザイン"]
+        if 34 <= number <= 41:
+            keywords += ["アクセシビリティ"]
+            if number in {35, 41}:
+                keywords += ["ユーザインタフェース"]
+            if number in {37, 39}:
+                keywords += ["視覚表現"]
+        elif 42 <= number <= 50:
+            keywords += ["Webデザイン", "HTML・CSS"]
+        elif number in {37, 55, 56, 57}:
+            keywords += ["視覚表現", "色彩・グラフ"]
+        elif number in {51, 35}:
+            keywords += ["ユーザインタフェース"]
+        elif number in {52, 53, 58, 59, 60}:
+            keywords += ["情報整理・サイト構造"]
+        else:
+            keywords += ["情報整理・可視化"]
+    elif number == 61:
+        keywords = ["情報社会", "電子メール・配信サービス"]
+    elif 62 <= number <= 65:
+        keywords = ["問題解決", "発想・品質管理"]
+    elif 66 <= number <= 125:
+        keywords = ["デジタル"]
+        if 66 <= number <= 72:
+            keywords += ["情報量・データ量"]
+            if 66 <= number <= 70:
+                keywords += ["ビット・バイト"]
+                if number == 67:
+                    keywords += ["音声のデジタル化"]
+            elif number in {71, 72}:
+                keywords += ["記憶容量・必要ビット数"]
+        elif 73 <= number <= 80:
+            keywords += ["基数変換", "2進数・16進数"]
+        elif 81 <= number <= 82:
+            keywords += ["数値表現・演算", "2進数の演算"]
+        elif 83 <= number <= 88:
+            keywords += ["数値表現・演算", "浮動小数点数"]
+        elif number == 89:
+            keywords += ["情報量・データ量", "符号化・圧縮"]
+        elif 90 <= number <= 95:
+            keywords += ["論理演算・回路"]
+        elif 96 <= number <= 104:
+            keywords += ["画像・音声・動画"]
+            if number in {96, 97, 98}:
+                keywords += ["画像のデジタル化"]
+            elif number in {67, 99}:
+                keywords += ["音声のデジタル化"]
+            elif number in {100, 103, 104}:
+                keywords += ["動画のデジタル化"]
+            else:
+                keywords += ["符号化・圧縮"]
+        else:
+            keywords += ["コンピュータの仕組み"]
+            if 105 <= number <= 107:
+                keywords += ["装置・インタフェース"]
+            elif 108 <= number <= 110 or number == 122:
+                keywords += ["記憶装置"]
+            elif 111 <= number <= 116:
+                keywords += ["CPU・処理性能"]
+            elif 117 <= number <= 121:
+                keywords += ["OS・ソフトウェア"]
+            else:
+                keywords += ["演算誤差"]
+    elif 126 <= number <= 183:
+        keywords = ["ネットワーク"]
+        if 126 <= number <= 136:
+            keywords += ["ネットワーク基礎・構成"]
+        elif 137 <= number <= 140:
+            keywords += ["分散処理・クラウド"]
+        elif 141 <= number <= 151:
+            keywords += ["インターネット・通信方式"]
+        elif 152 <= number <= 160:
+            keywords += ["IPアドレス・ルーティング"]
+        elif 161 <= number <= 163:
+            keywords += ["TCP・UDP・ポート"]
+        elif 164 <= number <= 171:
+            keywords += ["Web・HTTP"]
+        elif 172 <= number <= 175:
+            keywords += ["電子メール・配信サービス"]
+        else:
+            keywords += ["情報セキュリティ", "ネットワーク安全対策"]
+    elif 184 <= number <= 194:
+        keywords = ["情報システム"]
+        if number <= 189:
+            keywords += ["電子商取引・データ活用"]
+        else:
+            keywords += ["情報検索・Webサービス"]
+    elif 195 <= number <= 204:
+        keywords = ["データ活用", "データベース"]
+        if number in {195, 196, 197, 198, 199}:
+            keywords += ["データ管理"]
+        else:
+            keywords += ["関係データベース"]
+    elif 205 <= number <= 208:
+        keywords = ["データ活用", "AI・IoT・オープンデータ"]
+    elif 209 <= number <= 211:
+        keywords = ["情報システム", "安全設計"]
+    elif 212 <= number <= 215:
+        keywords = ["情報社会", "AI・IoT・分散技術"]
+    elif 216 <= number <= 230:
+        keywords = ["情報セキュリティ"]
+        if number in {216, 217}:
+            keywords += ["アクセス制御・安全対策"]
+        elif 218 <= number <= 221:
+            keywords += ["データ保護・誤り検出"]
+        elif number in {226, 227}:
+            keywords += ["認証・デジタル証明書"]
+        else:
+            keywords += ["暗号技術"]
+    elif 231 <= number <= 330:
+        keywords = ["プログラミング"]
+        if 231 <= number <= 240:
+            keywords += ["変数・データ型"]
+            keywords += ["変数と代入" if number <= 238 else "文字列とデータ型"]
+        elif 241 <= number <= 251:
+            keywords += ["配列", "一次元配列" if number <= 247 else "二次元配列"]
+        elif 252 <= number <= 269:
+            keywords += ["条件分岐", "比較と判定" if number <= 259 else "複合条件・多分岐"]
+        elif 270 <= number <= 292:
+            keywords += ["繰り返し"]
+            if number <= 281:
+                keywords += ["集計と累積"]
+            elif number <= 284:
+                keywords += ["二重ループ"]
+            elif number <= 291:
+                keywords += ["whileループ"]
+            else:
+                keywords += ["配列処理"]
+        elif 293 <= number <= 309:
+            keywords += ["アルゴリズム", "配列"]
+            keywords += ["配列処理" if number <= 300 else "基数変換"]
+        elif 310 <= number <= 314:
+            keywords += ["アルゴリズム", "配列", "整列"]
+        elif 315 <= number <= 317:
+            keywords += ["アルゴリズム", "配列", "探索"]
+        elif 318 <= number <= 322:
+            keywords += ["関数・再帰", "関数" if number <= 320 else "再帰"]
+        else:
+            keywords += ["シミュレーション"]
+    else:
+        raise ValueError(f"Unsupported video question number: {number}")
+
+    return list(dict.fromkeys(keywords))
+
+
 def main() -> int:
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     questions = [
@@ -357,15 +532,10 @@ def main() -> int:
     expected = set(range(1, 331))
     if len(numbers) != 330 or set(numbers) != expected or len(numbers) != len(set(numbers)):
         raise SystemExit("Video questions must uniquely cover Q001 through Q330")
-    if set(KEYWORD_TEXT) != expected:
-        missing = sorted(expected - set(KEYWORD_TEXT))
-        unexpected = sorted(set(KEYWORD_TEXT) - expected)
-        raise SystemExit(f"Keyword table mismatch: missing={missing}, unexpected={unexpected}")
-
     audit_entries: list[dict[str, object]] = []
     for section_id, section_label, question in questions:
         number = int(question["number"])
-        keywords = [item.strip() for item in KEYWORD_TEXT[number].split("|") if item.strip()]
+        keywords = controlled_keywords(number)
         if not 2 <= len(keywords) <= 4 or len(keywords) != len(set(keywords)):
             raise SystemExit(f"Q{number:03d}: keywords must contain 2-4 unique terms")
         question["keywords"] = keywords
@@ -381,6 +551,14 @@ def main() -> int:
             }
         )
 
+    frequencies: dict[str, int] = {}
+    for entry in audit_entries:
+        for keyword in entry["keywords"]:
+            frequencies[keyword] = frequencies.get(keyword, 0) + 1
+    singleton_keywords = sorted(keyword for keyword, count in frequencies.items() if count < 2)
+    if singleton_keywords:
+        raise SystemExit(f"Every keyword must connect multiple questions: {singleton_keywords}")
+
     serialized = json.dumps(data, ensure_ascii=False, indent=2) + "\n"
     DATA_PATH.write_text(serialized, encoding="utf-8")
     report = {
@@ -390,7 +568,13 @@ def main() -> int:
         "unique_keyword_count": len({keyword for entry in audit_entries for keyword in entry["keywords"]}),
         "minimum_keywords_per_question": min(len(entry["keywords"]) for entry in audit_entries),
         "maximum_keywords_per_question": max(len(entry["keywords"]) for entry in audit_entries),
+        "minimum_questions_per_keyword": min(frequencies.values()),
+        "maximum_questions_per_keyword": max(frequencies.values()),
+        "single_question_keyword_count": len(singleton_keywords),
+        "keyword_frequencies": dict(sorted(frequencies.items())),
         "old_keywords_used_as_input": False,
+        "taxonomy_version": 2,
+        "taxonomy_policy": "Every public keyword connects at least two questions; programming keeps reusable subtopics.",
         "classification_inputs": ["question", "answer", "section", "videos.title"],
         "data_sha256": hashlib.sha256(DATA_PATH.read_bytes()).hexdigest(),
         "entries": audit_entries,

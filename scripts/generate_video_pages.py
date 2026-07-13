@@ -89,8 +89,11 @@ def breadcrumb_data(items: list[tuple[str, str]]) -> dict[str, object]:
     }
 
 
-def keyword_filter_href(keyword: str) -> str:
-    return f"keywords.html?keyword={quote(keyword)}"
+def keyword_filter_href(keyword: str, question_number: int | None = None) -> str:
+    href = f"keywords.html?keyword={quote(keyword, safe='')}"
+    if question_number is not None:
+        href += f"&question={question_number}#filter-results-heading"
+    return href
 
 
 def facet_links(counts: Counter[str]) -> str:
@@ -101,19 +104,55 @@ def facet_links(counts: Counter[str]) -> str:
     )
 
 
-def facet_panel(counts: Counter[str], *, open_panel: bool = False, searchable: bool = False) -> str:
+def primary_keyword_groups(sections: list[dict[str, object]]) -> list[tuple[str, Counter[str]]]:
+    counts_by_section = {
+        str(section["id"]): Counter(
+            str(keyword)
+            for question in section["questions"]
+            for keyword in question.get("keywords", [])
+        )
+        for section in sections
+    }
+    overall = Counter(
+        keyword for counts in counts_by_section.values() for keyword, count in counts.items() for _ in range(count)
+    )
+    assigned = {str(section["id"]): Counter() for section in sections}
+    for keyword, total in overall.items():
+        primary = max(sections, key=lambda section: counts_by_section[str(section["id"])][keyword])
+        assigned[str(primary["id"])][keyword] = total
+    return [(str(section["label"]), assigned[str(section["id"])]) for section in sections]
+
+
+def facet_panel(
+    counts: Counter[str],
+    *,
+    open_panel: bool = False,
+    searchable: bool = False,
+    groups: list[tuple[str, Counter[str]]] | None = None,
+) -> str:
     search = (
         '<label class="facet-search"><span>キーワード内を検索</span>'
         '<input type="search" data-facet-search autocomplete="off" placeholder="例：2進数、著作権、探索" /></label>'
         if searchable
         else ""
     )
+    if groups:
+        facet_markup = "".join(
+            f'''<details class="facet-group" data-facet-group{(" open" if index == 0 else "")}>
+            <summary>{e(label)} <span>{len(group_counts)}種類</span></summary>
+            <div class="facet-links" data-facet-links>{facet_links(group_counts)}</div>
+          </details>'''
+            for index, (label, group_counts) in enumerate(groups)
+            if group_counts
+        )
+    else:
+        facet_markup = f'<div class="facet-links" data-facet-links>{facet_links(counts)}</div>'
     return f'''<details class="facet-panel"{(" open" if open_panel else "")}>
         <summary>キーワード一覧から選ぶ <span>{len(counts)}種類</span></summary>
         <div class="facet-panel-body">
-          <p>複数選ぶと、いずれかのキーワードを含む問題を表示します（OR検索）。</p>
+          <p>キーワードは主に関連する分野へ整理しています。この一覧では複数選択のOR検索、各問題に付くキーワードからはその語だけの検索になります。</p>
           <div class="facet-tools">{search}<a class="facet-clear" href="keywords.html" data-filter-clear>選択を解除</a></div>
-          <div class="facet-links" data-facet-links>{facet_links(counts)}</div>
+          <div class="facet-groups" data-facet-groups>{facet_markup}</div>
         </div>
       </details>'''
 
@@ -282,7 +321,7 @@ def question_card(question: dict[str, object], section_id: str) -> str:
     number = int(question["number"])
     keywords = question.get("keywords") or []
     tags = "".join(
-        f'<li><a class="keyword-link" href="{keyword_filter_href(str(keyword))}">{e(keyword)}</a></li>'
+        f'<li><a class="keyword-link" href="{keyword_filter_href(str(keyword), number)}">{e(keyword)}</a></li>'
         for keyword in keywords
     )
     return f"""        <article class="video-question-card" id="q-{number}">
@@ -340,7 +379,7 @@ def archive_index(data: dict[str, object]) -> str:
         <div><p class="eyebrow">SELECT A FIELD</p><h2 id="archive-fields-heading">分野から選ぶ</h2></div>
         <div class="archive-field-grid">{''.join(cards)}</div>
       </section>
-      {facet_panel(keyword_counts)}
+      {facet_panel(keyword_counts, groups=primary_keyword_groups(sections))}
       <aside class="content-note archive-policy"><h2>掲載内容について</h2><p>各問には問題文・答え・キーワード・対応するYouTube動画を掲載しています。書籍に収録した解説本文は掲載していません。動画は「解説動画を表示」を押したときだけ読み込まれます。</p></aside>
       <section class="next-action"><div><p class="eyebrow">MORE QUESTIONS</p><h2>4択問題にも挑戦する</h2><p>完成済みの1,000問を、6分野の問題一覧または知識問題出題アプリで学べます。</p></div><a class="button button-primary" href="../info1-quiz-app/questions/index.html">問題一覧を開く</a></section>
     </main>
@@ -436,6 +475,16 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
     keyword_counts = Counter(
         keyword for question in payload["questions"] for keyword in question["keywords"]
     )
+    filter_sections = [
+        {
+            "id": definition["id"],
+            "label": definition["label"],
+            "questions": [
+                question for question in payload["questions"] if question["section_id"] == definition["id"]
+            ],
+        }
+        for definition in PUBLIC_SECTION_DEFINITIONS
+    ]
     title = "情報Ⅰ（情報1）の一問一答をキーワードから探す | 共通テスト対策"
     description = (
         f"情報Ⅰの動画付き一問一答{payload['question_count']}問を{payload['keyword_count']}種類のキーワードから検索。"
@@ -471,7 +520,7 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
         <h1>キーワードから<br />動画問題を探す</h1>
         <p>調べたいキーワードを選ぶと、その語を含む情報Ⅰの問題を抽出します。複数選択時は、いずれか一つ以上を含む問題を表示します。</p>
       </section>
-      {facet_panel(keyword_counts, open_panel=True, searchable=True)}
+      {facet_panel(keyword_counts, open_panel=True, searchable=True, groups=primary_keyword_groups(filter_sections))}
       <section class="filter-results" aria-labelledby="filter-results-heading">
         <div class="filter-results-heading"><p class="eyebrow">FILTERED QUESTIONS</p><h2 id="filter-results-heading" data-filter-heading>キーワードを選択してください</h2><p data-filter-summary>{payload['question_count']}問からOR条件で抽出します。</p></div>
         <div class="filter-result-list" data-filter-results></div>

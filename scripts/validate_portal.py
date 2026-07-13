@@ -4,6 +4,7 @@ import json
 import hashlib
 import sys
 import xml.etree.ElementTree as ET
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -186,6 +187,12 @@ def main() -> int:
         errors.append("video-questions.json: every question must have a mapped video")
     if any(not 2 <= len(question.get("keywords") or []) <= 4 for question in video_questions):
         errors.append("video-questions.json: every question must have 2-4 audited keywords")
+    keyword_frequencies = Counter(
+        str(keyword) for question in video_questions for keyword in question.get("keywords", [])
+    )
+    singleton_keywords = sorted(keyword for keyword, count in keyword_frequencies.items() if count < 2)
+    if singleton_keywords:
+        errors.append(f"video-questions.json: keywords must connect multiple questions: {singleton_keywords}")
     keyword_report_path = ROOT / "docs" / "video-keyword-audit.json"
     if not keyword_report_path.is_file():
         errors.append("video-keyword-audit.json: audit report is missing")
@@ -193,6 +200,10 @@ def main() -> int:
         keyword_report = json.loads(keyword_report_path.read_text(encoding="utf-8"))
         if keyword_report.get("question_count") != 330 or keyword_report.get("old_keywords_used_as_input") is not False:
             errors.append("video-keyword-audit.json: audit provenance is invalid")
+        if keyword_report.get("taxonomy_version") != 2 or keyword_report.get("unique_keyword_count") != len(keyword_frequencies):
+            errors.append("video-keyword-audit.json: controlled taxonomy metadata is invalid")
+        if keyword_report.get("minimum_questions_per_keyword", 0) < 2 or keyword_report.get("single_question_keyword_count") != 0:
+            errors.append("video-keyword-audit.json: one-question-only keyword audit failed")
         current_hash = hashlib.sha256((ROOT / "data" / "video-questions.json").read_bytes()).hexdigest()
         if keyword_report.get("data_sha256") != current_hash:
             errors.append("video-keyword-audit.json: data hash does not match video-questions.json")
@@ -229,6 +240,9 @@ def main() -> int:
         errors.append("archive pages: every published keyword must be a link")
     if 'href="keywords.html?keyword=' not in regular_video_html:
         errors.append("archive pages: keywords do not link to the keyword filter")
+    expected_keyword_links = sum(len(question["keywords"]) for question in video_questions)
+    if regular_video_html.count("&question=") != expected_keyword_links:
+        errors.append("archive pages: every keyword link must preserve its source question")
     keyword_page = ROOT / "archive" / "keywords.html"
     keyword_data_path = ROOT / "archive" / "filter-data.json"
     keyword_script_path = ROOT / "assets" / "video-filter.js"
@@ -238,6 +252,8 @@ def main() -> int:
         keyword_text = keyword_page.read_text(encoding="utf-8")
         if keyword_text.count('class="facet-link"') != len(expected_keywords):
             errors.append("keywords.html: expected one link for every unique keyword")
+        if keyword_text.count('class="facet-group"') != 4:
+            errors.append("keywords.html: keywords must be grouped into four learning fields")
         if "data-video-filter" not in keyword_text or 'data-filter-param="keyword"' not in keyword_text:
             errors.append("keywords.html: OR filter configuration is missing")
         payload = json.loads(keyword_data_path.read_text(encoding="utf-8"))
@@ -245,8 +261,11 @@ def main() -> int:
             errors.append("archive/filter-data.json: question or keyword counts are invalid")
         if payload.get("match_mode") != "OR" or len(payload.get("questions", [])) != len(video_questions):
             errors.append("archive/filter-data.json: OR filter payload is invalid")
-        if "URLSearchParams" not in keyword_script_path.read_text(encoding="utf-8"):
+        keyword_script = keyword_script_path.read_text(encoding="utf-8")
+        if "URLSearchParams" not in keyword_script:
             errors.append("video-filter.js: URL-based multi-keyword filter is missing")
+        if "focusNumber" not in keyword_script or "scrollIntoView" not in keyword_script:
+            errors.append("video-filter.js: source-question prioritization or result scrolling is missing")
     stylesheet = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
     if ".question-code" not in stylesheet or "white-space: pre" not in stylesheet or "overflow-x: auto" not in stylesheet:
         errors.append("site.css: non-wrapping horizontally scrollable code-block styles are missing")
@@ -357,9 +376,11 @@ def main() -> int:
             "AdSense on the portal top and learning pages, but not informational or book-guide pages",
             "330 video-question mappings without book explanation text",
             "330 explicitly audited keyword sets independent of the original keyword column",
+            "controlled 90-keyword taxonomy with no one-question-only keywords",
             "privacy-enhanced click-to-load YouTube embeds",
             "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
             "linked keywords, complete keyword index, and multi-keyword OR filtering",
+            "four-field keyword grouping and source-question-first single-keyword navigation",
             "substantive information-I study guide with official references and audience language",
             "top-page counts, three-line slogan, linked app CTA, six app fields, four video fields, and four responsive thumbnail-and-description KDP rows",
             "host-root ads.txt and robots.txt",

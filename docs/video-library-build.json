@@ -51,7 +51,7 @@
   ],
   "explanation_text_published": false,
   "keyword_audit": "docs/video-keyword-audit.json",
-  "keyword_count": 618,
+  "keyword_count": 90,
   "keyword_filter_page": "archive/keywords.html",
   "keyword_filter_data": "archive/filter-data.json",
   "filter_match_mode": "OR",

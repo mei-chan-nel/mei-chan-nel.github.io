@@ -65,7 +65,7 @@ python scripts/rebuild_video_keywords.py
 python scripts/generate_video_pages.py
 ```
 
-通常のHTML再生成は `python scripts/generate_video_pages.py` だけで行えます。キーワード割り当ての根拠とデータハッシュは `docs/video-keyword-audit.json`、HTMLの生成記録は `docs/video-library-build.json` に保存します。
+通常のHTML再生成は `python scripts/generate_video_pages.py` だけで行えます。キーワードは90種類の統制語彙へ整理し、すべて2問以上に関連付けます。特にプログラミングは学習単位を細かく保ちます。割り当ての根拠・出現数・データハッシュは `docs/video-keyword-audit.json`、HTMLの生成記録は `docs/video-library-build.json` に保存します。
 
 ## サイトマップ更新
 
