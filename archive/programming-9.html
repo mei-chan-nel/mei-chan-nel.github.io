@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>プログラミングの一問一答 Q311〜Q320 9ページ目 | 情報Ⅰ</title>
+    <meta name="description" content="情報Ⅰ「プログラミング」の一問一答Q311〜Q320。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="プログラミングの一問一答 Q311〜Q320 9ページ目 | 情報Ⅰ" />
+    <meta property="og:description" content="情報Ⅰ「プログラミング」の一問一答Q311〜Q320。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。" />
+    <meta property="og:url" content="https://mei-chan-nel.github.io/archive/programming-9.html" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://mei-chan-nel.github.io/archive/programming-9.html" />
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/site.css" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../assets/video-embeds.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../index.html" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識問題と解説</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション"><a href="../index.html">学習トップ</a><a href="../info1-quiz-app/questions/index.html">問題一覧</a><a href="./index.html" aria-current="page">動画問題</a><a href="../info1-quiz-app/app/">学習アプリ</a><a href="../about.html">このサイトについて</a></nav>
+      </div>
+    </header>
+    <main id="main-content" class="subpage archive-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><a href="./index.html">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">プログラミング</span></nav>
+      <header class="field-hero archive-field-hero">
+        <div><p class="eyebrow">VIDEO QUESTIONS · 09/10</p><h1>プログラミング</h1><p>Q311〜Q320。まず自分で答えを考え、必要なところだけ解説動画で確かめてください。</p></div>
+        <dl><div><dt>このページ</dt><dd>10問</dd></div><div><dt>分野全体</dt><dd>100問</dd></div></dl>
+      </header>
+      <nav class="pagination" aria-label="ページ送り"><a class="page-direction" href="programming-8.html">← 前へ</a><div class="page-numbers"><a href="programming.html" aria-label="1ページ目">1</a><a href="programming-2.html" aria-label="2ページ目">2</a><a href="programming-3.html" aria-label="3ページ目">3</a><a href="programming-4.html" aria-label="4ページ目">4</a><a href="programming-5.html" aria-label="5ページ目">5</a><a href="programming-6.html" aria-label="6ページ目">6</a><a href="programming-7.html" aria-label="7ページ目">7</a><a href="programming-8.html" aria-label="8ページ目">8</a><span aria-current="page">9</span><a href="programming-10.html" aria-label="10ページ目">10</a></div><a class="page-direction" href="programming-10.html">次へ →</a></nav>
+      <section class="video-question-list" aria-label="プログラミングの問題">        <article class="video-question-card" id="q-311">
+          <div class="video-question-meta"><span>QUESTION 311</span></div>
+          <h2>次のプログラムは配列Arrayを選択ソートで昇順に整列するものである。
+実行回数ができるだけ少なくなるように空欄に入る最も適切なものを選べ。
+ただし、選択ソートとは次の手順により配列の並びを整列するものである。
+・未ソートの部分から最小の要素を見つけ出す。
+・この最小の要素を未ソートの部分の先頭にある要素と交換する。
+・この操作を繰り返し、未ソートの部分がなくなれば終了する。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（01）Array = 【外部からの入力】
+（02）i を （　ア　） まで 1 ずつ増やしながら繰り返す：
+（03）｜ min_index = i 
+（04）｜ j を （　イ　） まで 1 ずつ増やしながら繰り返す：
+（05）｜ ｜ もし Array[j] &lt; Array[min_index]ならば：
+（06）｜ ⎿ ⎿ min_index = j 
+（07）｜ もし min_index != i ならば：
+（08）｜ ｜ tmp = Array[i]
+（09）｜ ｜ Array[i] = Array[min_index]
+（10）⎿ ⎿ Array[min_index] = tmp
+（11）表示する(&quot;選択ソート後：&quot;, Array)
+
+（　ア　）
+1．0 から 要素数(Array) - 1
+2．0 から 要素数(Array) - 2
+3．1 から 要素数(Array) - 1
+4．1 から 要素数(Array) - 2
+（　イ　）
+1．i  から 要素数(Array) - 1
+2．i  から 要素数(Array) - 2
+3．i + 1 から 要素数(Array) - 1
+4．i + 1 から 要素数(Array) - 2</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア2．0 から 要素数(Array) - 2
+イ3．i + 1 から 要素数(Array) - 1</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>繰り返しの変数iは未ソートの部分の先頭の要素の添字であることがわかる。
+よって、繰り返しの変数iは0から始まる。
+また、前回の動画の具体例から繰り返し回数は要素数 - 1回であることがわかる。
+つまり、「ア2．0 から 要素数(Array) - 2」である。
+
+繰り返しの変数jは配列Arrayのi番目以降の要素のうち最小ので最小となる要素の値を探すための変数である。
+よって、変数jはi + 1から配列Arrayの最後の要素の添字（要素数(Array) - 1）まで動く。
+したがって、「イ3．i + 1 から 要素数(Array) - 1」が入る。
+
+アを「1．0 から 要素数(Array) - 1」としたり、イを「1．i から 要素数(Array) - 1」としても選択ソートは正しく行われる。
+しかし、外側の繰り返しでiが要素数(Array) - 1のとき、未ソートの部分は要素数(Array) - 1番目の要素だけであり、これは最大値である。つまり、ソートする必要がない。
+変数jをiから始めても、5行目が「もし Array[i] &lt; Array[i]ならば：」となり、偽となって、次のループに進むだけなので、実行する必要がない。
+したがって、実行回数ができるだけ少なくなる組み合わせは「ア2．0 から 要素数(Array) - 2」「イ3．i + 1 から 要素数(Array) - 1」である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="4XTVSXleAyw" data-video-title="311 2 選択ソートのプログラム：実行回数が最も少なくなるように繰り返しの範囲を定めよう！ #shorts" aria-controls="video-311-1" aria-expanded="false">解説動画を表示 1</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=4XTVSXleAyw" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-311-1" hidden></div>
+            </div>
+<div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="R0jD7slrV7s" data-video-title="311-1 選択ソートの具体例：手作業で選択ソートを実行してみよう！ #shorts" aria-controls="video-311-2" aria-expanded="false">解説動画を表示 2</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=R0jD7slrV7s" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-311-2" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-312">
+          <div class="video-question-meta"><span>QUESTION 312</span></div>
+          <h2>次のプログラムは配列Arrayを挿入ソートで昇順に整列するものである。
+挿入ソートが正しく実行されるように空欄に入る最も適切なものを選べ。
+ただし、挿入ソートとは次の手順により配列の並びを整列するものである。
+・未ソートの部分の最初の要素の値を取得する。
+・この要素を次の手順でソート済み部分の適切な位置に挿入する：
+　・ソート済み部分を後ろから前へ向かって、取得した要素の値と大きさを比較する。
+　　・取得した要素の値のほうが小さい場合、比較された要素を1つ右にシフトする。
+　　・取得した要素の値が比較された要素の値以上である、または配列の先頭に到達した場合、比較を終了し、取得した要素の値を空いた位置（最後にシフトした要素が元いた場所）に代入する。
+・この操作を繰り返し、未ソートの部分がなくなれば終了する。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Array = 【外部からの入力】
+（2）i を 1 から 要素数(Array) - 1 まで 1 ずつ増やしながら繰り返す：
+（3）｜ current = Array[i] 
+（4）｜ j = i - 1
+（5）｜ （　ア　） の間繰り返す：
+（6）｜ ｜ Array[j + 1] = Array[j]
+（7）｜ ⎿ j = j - 1
+（8）⎿ Array[j + 1] = current
+（9）表示する(&quot;挿入ソート後の配列: &quot;, Array)
+
+（　ア　）
+1．j &gt;= 0 and Array[j] &gt; current
+2．j &gt;= 0 or Array[j] &gt; current
+3．j &gt;= 0 and Array[j] &lt;= current
+4．j &gt;= 0 or Array[j] &lt;= current
+
+ただし、論理式は以下のように処理されるものとする。
+「P and Q」は「Pが成立するときにQを評価し、Qも成立したならば、P and Qは真である」という評価をする。Pが成立しなければ、Qを評価することなくP and Qは偽となる。
+「P or Q」は「Pが成立しないときにQを評価し、Qも成立しなければ、P or Qは偽である」という評価を行う。Pが成立したならば、Qを評価することなくP or Qは真である。</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>1．j &gt;= 0 and Array[j] &gt; current</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>プログラムの繰り返し部分（2～8行目）を見る。
+2行目：繰り返しの変数iを1から要素数(Array) - 1まで1ずつ増やしながら3～8行目を繰り返す。
+3行目：変数currentに未ソート部分の最初の要素（i番目の要素）の値を代入する。
+4行目：変数jをi - 1に初期化する。
+5行目：条件（ア）が成立する間、6，7行目を繰り返す。
+6行目：配列のj + 1番目にj番目の要素を代入する。つまり、右へのシフトである。
+7行目：変数jの値を一つ減らして次の繰り返しに進む。
+8行目：配列のj + 1番目（最後に比較した要素の一つ右（または配列の先頭））に変数currentの値を代入する。
+
+シフト操作（5～7行目）の終了条件は、「ソート済みの先頭にたどり着く または 取得してきた値のほうが比較する値より小さい」である。
+（ア）にはシフト操作を続ける条件が入るので、シフト操作の終了条件の否定「ソート済みの先頭より手前 かつ 取得してきた値のほうが比較する値より大きい」つまり「1．j &gt;= 0 and Array[j] &gt; current」が入る。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="yhWLwcVgd78" data-video-title="312 2 挿入ソートのプログラム：条件の否定をうまく作ろう！ #shorts" aria-controls="video-312-1" aria-expanded="false">解説動画を表示 1</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=yhWLwcVgd78" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-312-1" hidden></div>
+            </div>
+<div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="-L-8TMa_i5E" data-video-title="312 1 挿入ソートの具体例：手を動かして納得理解！ #shorts" aria-controls="video-312-2" aria-expanded="false">解説動画を表示 2</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=-L-8TMa_i5E" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-312-2" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-313">
+          <div class="video-question-meta"><span>QUESTION 313</span></div>
+          <h2>次のプログラムはマージソートの処理の主要な部分である。
+2つの昇順にソート済みの配列を併合（マージ）し、1つの昇順にソート済みの配列Mergedを作成する。
+この操作が正しく実行されるように空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素追加(配列, 値)は配列の末尾に新しい要素を追加する関数であり、要素数(配列)は配列の要素数を返すものとする。
+（1）A = [1, 3, 4] , B = [2, 3, 6, 9] , Merged = []
+（2）i = 0 , j = 0
+（3）（　ア　） の間繰り返す：
+（4）｜ もし （　イ　） ならば：
+（5）｜ ｜ 要素追加(Merged, A[i])
+（6）｜ ｜ i = i + 1
+（7）｜ そうでなければ：
+（8）｜ ｜ 要素追加(Merged, B[j])
+（9）⎿ ⎿ j = j + 1
+（10）i &lt; 要素数(A) の間繰り返す：
+（11）｜ 要素追加(Merged, A[i])
+（12）⎿ i = i + 1
+（13）j &lt; 要素数(B) の間繰り返す：
+（14）｜ 要素追加(Merged, B[j])
+（15）⎿ j = j + 1
+（16）表示する(&quot;マージ後の配列：&quot;, Merged)
+
+（　ア　）
+1．i &lt; 要素数(A) and j &lt; 要素数(B)
+2．i &lt;= 要素数(A) and j &lt;= 要素数(B)
+3．i &lt; 要素数(A) or j &lt; 要素数(B)
+4．i &lt;= 要素数(A) or j &lt;= 要素数(B)
+（　イ　）
+1．i &lt;= j
+2．i &gt;= j
+3．A[i] &lt;= B[j]
+4．A[i] &gt;= B[j]</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア　1．i &lt; 要素数(A) and j &lt; 要素数(B)
+イ　3． A[i] &lt;= B[j]</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>この併合は、配列A</li><li>Bそれぞれの先頭の要素の値を比較して小さい方（同じ値ならどちらでもよい）を配列Mergedに追加していくという手順で行う。
+片方の配列の未併合の要素がなくなったら、もう一方の配列の未併合の要素すべてを配列マージドに付け加えて併合を完了する。
+初期値
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = []
+1巡目
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = [1]
+2巡目
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = [1</li><li>2]
+3巡目
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = [1</li><li>2</li><li>3]
+4巡目
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = [1</li><li>2</li><li>3</li><li>3]
+5巡目
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = [1</li><li>2</li><li>3</li><li>3</li><li>4]
+
+A = [1</li><li>3</li><li>4]、B = [2</li><li>3</li><li>6</li><li>9]
+Merged = [1</li><li>2</li><li>3</li><li>3</li><li>4</li><li>6</li><li>9]（併合完了）
+
+変数i</li><li>jはそれぞれ配列A</li><li>Bの添字である。
+繰り返しの終了条件は「配列A</li><li>Bのうち少なくとも一方の配列で未併合の要素がなくなる」つまり「i &gt;= 要素数(A) or j &gt;= 要素数(B)」である。
+（ア）には繰り返しを続ける条件が入るので、
+「i &gt;= 要素数(A) or j &gt;= 要素数(B)」
+↓否定（ド・モルガンの法則）
+「1．i &lt; 要素数(A) and j &lt; 要素数(B)」
+条件分岐（イ）には「A[i]とB[j]を比較して、配列MergedにA[i]を追加する条件」が入る。
+つまり、「3．A[i] &lt;= B[j]」である（&lt;=は&lt;でもよい。選択肢には&lt;=しかないので&lt;=とした）。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="Jo6xZbGZnhI" data-video-title="313 マージソートの主要部分：2つの配列を合体するプログラム #shorts" aria-controls="video-313-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=Jo6xZbGZnhI" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-313-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-314">
+          <div class="video-question-meta"><span>QUESTION 314</span></div>
+          <h2>次のプログラムはクイックソートの処理の主要な部分である。
+配列Arrayの左端の値を基準（ピボット）として、この基準より小さい値の要素を基準の左側に、大きな値の要素を基準の右側に移動するプログラムとなるように空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素追加(配列, 値)は配列の末尾に新しい要素を追加する関数であり、要素数(配列)は配列の要素数を返すものとする。
+さらに、配列結合(配列1, 配列2, ...)は複数の配列の引数の順に結合した配列を返す関数である。
+（1）Array = 【外部からの入力】
+（2）pivot = Array[0]
+（3）Less = [], Equal = [pivot], Greater = []
+（4）i を 1 から 要素数(Array) - 1 まで 1 ずつ増やしながら繰り返す：
+（5）｜ もし （　ア　） ならば：
+（6）｜ ｜ 要素追加(Less, Array[i])
+（7）｜ そうでなくもし （　イ　） ならば：
+（8）｜ ｜ 要素追加(Equal, Array[i])
+（9）｜ そうでなければ：
+（10）｜ ⎿ 要素追加(Greater, Array[i])
+（11）Array = 結合(Less, Equal, Greater)
+（12）表示する(&quot;ピボットによる分割後：&quot;, Array)
+
+（　ア　）（　イ　）
+1．Array[i] &lt; pivot
+2．Array[i] &gt; pivot
+3．Array[i] == pivot
+4．Array[i] != pivot</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 1．Array[i] &lt; pivot　
+イ 3．Array[i] == pivot</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>具体例として[4</li><li>1</li><li>3</li><li>5</li><li>2]でこの操作を行う。
+基準（pivot）は4なので、4より小さい値を配列Less、4と等しい値を配列Equal、4より大きい値を配列Greaterにそれぞれ格納する。
+つまり、Less = [1</li><li>3</li><li>2]</li><li>Equal = [4]</li><li>Greater = [5]である。
+これらを結合して[1</li><li>3</li><li>2</li><li>4</li><li>5]となる。
+プログラムでは、5行目の条件（ア）が成立すると6行目でArray[i]を配列Lessに追加しているので、（ア）には「1．Array[i] &lt; pivot」が入ることがわかる。
+7行目の条件（イ）が成立すると8行目でArray[i]を配列Equalに追加しているので、（イ）には「3．Array[i] == pivot」が入る。
+
+具体例からわかるように、この操作を一度行っただけでは配列をソート仕切ることはできない。
+要素数が2以上の配列Less、配列Greaterに対して繰り返しこの操作を行うことでソートすることができる。
+[4</li><li>1</li><li>3</li><li>5</li><li>2]は以下のようになる。
+1巡目
+[4</li><li>1</li><li>3</li><li>5</li><li>2]→[1</li><li>3</li><li>2]</li><li>[4]</li><li>[5]（順に配列Less</li><li>Equal</li><li>Greater）
+2巡目
+[1</li><li>3</li><li>2]→[]</li><li>[1]</li><li>[3</li><li>2]
+[4]
+[5]
+3巡目
+[1]
+[3</li><li>2]→[2]</li><li>[3]</li><li>[]
+[4]
+[5]
+これらを順に並べて[1</li><li>2</li><li>3</li><li>4</li><li>5]となる。
+このような並べ替え方をクイックソートという。
+このプログラムはわかりやすさのために、配列を複数用意し、分解と結合を行った。この方法は計算資源（メモリ）への負担が大きい。プログラム自体は少し複雑になるが、並び替えをひとつの配列内で行えば、計算資源にとって効率的なプログラムとなる。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="vBj5zffj-Ys" data-video-title="314 クイックソートの主要部分：配列を分割してくっつける #shorts" aria-controls="video-314-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=vBj5zffj-Ys" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-314-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-315">
+          <div class="video-question-meta"><span>QUESTION 315</span></div>
+          <h2>次のプログラムは配列Arrayの中に変数targetの値が存在するかを調べる線形探索のものである。
+線形探索が正しく実行されるように空欄に入る最も適切なものを選べ。
+線形探索とは次の手順で配列の要素の値を探索するものである。
+・配列の要素を前から順にひとつずつ調べていく。
+・変数targetの値と等しい要素の値を見つけたら、要素の番号を表示する。
+・配列の中に変数targetの値と等しい要素の値が存在しなければ、存在しない旨を表示する。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（01）Array = 【外部からの入力】
+（02）target = 【外部からの入力】
+（03）found = -1
+（04）iを 0 から 要素数(Array) - 1 まで 1 ずつ増やしながら繰り返す：
+（05）｜ もし （　ア　）ならば：
+（06）⎿ ⎿ found = i
+（07）もし （　イ　） ならば：
+（08）｜ 表示する(target, &quot;は配列の&quot;, found, &quot;番目の要素です&quot;)
+（09）そうでなければ：
+（10）⎿ 表示する(target, &quot;は配列の中に存在しません&quot;) 
+
+（　ア　）
+1．Array[i] == target
+2．Array[i] != target
+3．Array[i] &gt;= target
+4．Array[i] &lt;= target
+
+（　イ　）
+1．found == -1
+2．found != -1
+3．found == 0
+4．found != 0</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 1．Array[i] == target
+イ 2．found != -1</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="z7B7Nhdz1Mc" data-video-title="315 線形探索：頭から最後まで一つずつ確認する探し方 #shorts" aria-controls="video-315-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=z7B7Nhdz1Mc" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-315-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-316">
+          <div class="video-question-meta"><span>QUESTION 316</span></div>
+          <h2>次のプログラムは配列Arrayの中に変数targetの値が存在するかを調べる線形探索のものである。
+線形探索が正しく実行されるように空欄に入る最も適切なものを選べ。
+線形探索とは次の手順で配列の要素の値を探索するものである。
+・配列の要素を前から順にひとつずつ調べていく。
+・変数targetの値と等しい要素の値を見つけたら、探索を打ち切り、要素の番号を表示する。
+・配列の中に変数targetの値と等しい要素の値が存在しなければ、存在しない旨を表示する。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Array = 【外部からの入力】
+（2）target = 【外部からの入力】
+（3）i = 0 , n = 要素数(Array)
+（4）（　ア　） の間繰り返す：
+（5）⎿ i = i + 1
+（6）もし （　イ　） ならば：
+（7）｜ 表示する(target, &quot;は配列の&quot;, i, &quot;番目の要素です&quot;)
+（8）そうでなければ：
+（9）⎿ 表示する(target, &quot;は配列の中に存在しません&quot;)
+
+（　ア　）
+1．i &lt; n and Array[i] == target
+2．i &lt; n or Array[i] == target
+3．i &lt;= n and Array[i] == target
+4．i &lt;= n or Array[i] == target
+5．i &lt; n and Array[i] != target
+6．i &lt; n or Array[i] != target
+7．i &lt;= n and Array[i] != target
+8．i &lt;= n or Array[i] != target
+（　イ　）
+1．i &lt; n
+2．i &lt;= n
+3．i &gt; n
+4．i &gt;= n
+
+ただし、論理式は以下のように処理されるものとする。
+「P and Q」は「Pが成立するときにQを評価し、Qも成立したならば、P and Qは真である」という評価をする。Pが成立しなければ、Qを評価することなくP and Qは偽となる。
+「P or Q」は「Pが成立しないときにQを評価し、Qも成立しなければ、P or Qは偽である」という評価を行う。Pが成立したならば、Qを評価することなくP or Qは真である。</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 5．i &lt; n and Array[i] != target
+イ 1．i &lt; n</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="lyV1GYto3lY" data-video-title="316 線形探索と短絡評価：「かつ」「または」の効率的な評価 #shorts" aria-controls="video-316-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=lyV1GYto3lY" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-316-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-317">
+          <div class="video-question-meta"><span>QUESTION 317</span></div>
+          <h2>次のプログラムは整列済みの配列Arrayの中に変数targetの値が存在するかを調べる二分探索のものである。
+二分探索が正しく実行されるように空欄に入る最も適切なものを選べ。
+二分探索とは次の手順で配列の要素の値を探索するものである。
+・配列の真ん中の要素の値と変数targetの値を比較する。
+　・この2つが一致していれば、探索を終了し、配列内に目的の値が見つかった旨を表示する。
+　・要素の値が変数targetの値より小さければ、変数targetの値が存在するなら真ん中より右側にあることがわかる。
+　　→探索する範囲の左端を真ん中の要素の1つ次の要素に更新して、もう一度探索を行う。
+　・要素の値が変数targetの値より大きければ、変数targetの値が存在するなら真ん中より左側にあることがわかる。
+　　→探索する範囲の右端を真ん中の要素の1つ前の要素に更新して、もう一度探索を行う。
+・探索する範囲がなくなれば、探索を終了し、配列内に目的の値が見つからなかった旨を表示する。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（01）Array = 【外部からの入力】
+（02）target = 【外部からの入力】
+（03）low = 0 , high = 要素数(Array) - 1
+（04）found = 0
+（05）low &lt;= highの間繰り返す：
+（06）｜ mid = (low + high) ÷ 2 #(low + high)を2で割った商
+（07）｜ もし Array[mid] == target ならば：
+（08）｜ ｜ found = 1
+（09）｜ ｜ low = high + 1
+（10）｜ そうでなくもし Array[mid] &lt; target ならば：
+（11）｜ ｜ （　ア　）
+（12）｜ そうでなければ：
+（13）⎿ ⎿ （　イ　）
+（14）もし found == 1 ならば：
+（15）｜ 表示する(target, &quot;は配列の&quot;, mid, &quot;番目の要素です&quot;)
+（16）そうでなければ：
+（17）⎿ 表示する(target, &quot;は配列の中に存在しません&quot;)
+
+（　ア　）（　イ　）
+1．low = mid
+2．low = mid - 1
+3．low = mid + 1
+4．high = mid
+5．high = mid - 1
+6．high = mid + 1</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．low = mid + 1
+イ 5．high = mid - 1</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>ここまで</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="pkJ7dwo5mM4" data-video-title="317 二分探索：調べる範囲を工夫して効率的に値を探す #shorts" aria-controls="video-317-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=pkJ7dwo5mM4" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-317-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-318">
+          <div class="video-question-meta"><span>QUESTION 318</span></div>
+          <h2>乱数()は0以上1未満の実数をランダムに返す関数であり、整数(x)は実数xを超えない最大の整数を返す関数である。
+1から5の整数をランダムに返す関数は次のうちどれか。
+1．5 * 整数(乱数())
+2．5 * 整数(乱数()) + 1
+3．整数(5 * 乱数())
+4．整数(5 * 乱数()) + 1</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>4．整数(5 * 乱数()) + 1</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="_HDV0WJs2sM" data-video-title="318 関数を組み合わせる：1から5の整数をランダムに返す関数 #shorts" aria-controls="video-318-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=_HDV0WJs2sM" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-318-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-319">
+          <div class="video-question-meta"><span>QUESTION 319</span></div>
+          <h2>正の実数aと実数bに対して、べき乗(a, b)はaのb乗を計算して返す関数である。
+正の実数x, yに対して、√(x²+y²)の計算結果を返す関数は次のうちどれか。
+1．(べき乗(x, 2) + べき乗(y, 2)) / 2
+2．べき乗(べき乗(x, 2), 0.5) + べき乗(べき乗(y, 2), 0.5)
+3．べき乗(べき乗(x, 2) + べき乗(y, 2), 0.5)
+4．べき乗(べき乗(x + y, 2), 0.5)</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>3．べき乗(べき乗(x, 2) + べき乗(y, 2), 0.5)</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="0_ePBYSXwd4" data-video-title="319 入れ子になった関数を読み解く：距離を求める関数 #shorts" aria-controls="video-319-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=0_ePBYSXwd4" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-319-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-320">
+          <div class="video-question-meta"><span>QUESTION 320</span></div>
+          <h2>以下のように定義された関数 面積(x, y)を用いた次のプログラムで、aに3、bに4を入力して実行した際の表示結果を答えよ。
+（1）定義する 面積(x, y)
+（2）｜ z = x * y / 2
+（3）⎿ 返す z
+
+プログラム
+（1）a = 【外部からの入力】 #3と入力
+（2）b = 【外部からの入力】 #4と入力
+（3）c = 面積(a, b)
+（4）表示する(&quot;面積は&quot;, c)</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>面積は6</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="TkJ6atQ9fsk" data-video-title="320 関数を定義する：自作関数を作ろう #shorts" aria-controls="video-320-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=TkJ6atQ9fsk" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-320-1" hidden></div>
+            </div>
+          </div>
+        </article></section>
+      <nav class="pagination" aria-label="ページ送り"><a class="page-direction" href="programming-8.html">← 前へ</a><div class="page-numbers"><a href="programming.html" aria-label="1ページ目">1</a><a href="programming-2.html" aria-label="2ページ目">2</a><a href="programming-3.html" aria-label="3ページ目">3</a><a href="programming-4.html" aria-label="4ページ目">4</a><a href="programming-5.html" aria-label="5ページ目">5</a><a href="programming-6.html" aria-label="6ページ目">6</a><a href="programming-7.html" aria-label="7ページ目">7</a><a href="programming-8.html" aria-label="8ページ目">8</a><span aria-current="page">9</span><a href="programming-10.html" aria-label="10ページ目">10</a></div><a class="page-direction" href="programming-10.html">次へ →</a></nav>
+      <aside class="content-note archive-policy"><h2>解説本文について</h2><p>このページでは、問題・答え・キーワードと対応動画だけを掲載しています。書籍に収録した解説本文は掲載していません。</p></aside>
+    </main>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "プログラミングの一問一答 Q311〜Q320 9ページ目 | 情報Ⅰ", "description": "情報Ⅰ「プログラミング」の一問一答Q311〜Q320。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。", "url": "https://mei-chan-nel.github.io/archive/programming-9.html", "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": "https://mei-chan-nel.github.io/"}}</script>
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、繋ぎ、ひろげる。</p></div>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../info1-quiz-app/questions/index.html">問題一覧</a>
+          <a href="./index.html">動画問題</a>
+          <a href="../books/index.html">問題集</a>
+          <a href="../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../about.html">このサイトについて</a>
+          <a href="../privacy.html">プライバシーポリシー</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+  </body>
+</html>

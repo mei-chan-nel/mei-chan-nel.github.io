@@ -6,12 +6,13 @@
 
 ## 1. ページ除外
 
-AdSenseの「広告」→対象サイトの「編集」→「除外ページ」→「管理」で、次の2 URLを追加する。すべて **このページのみ（完全一致）** を選び、セクション全体は選ばない。
+AdSenseの「広告」→対象サイトの「編集」→「除外ページ」→「管理」で、次の3 URLを追加する。すべて **このページのみ（完全一致）** を選び、セクション全体は選ばない。
 
 1. `https://mei-chan-nel.github.io/about.html`
 2. `https://mei-chan-nel.github.io/privacy.html`
+3. `https://mei-chan-nel.github.io/books/`
 
-この2ページには広告コードを置いていないが、将来サイト共通コードを変更した場合にも広告を出さない方針を保つため、除外設定にも登録する。旧 `app/about.html` と `app/privacy.html` はポータルへ統合して削除済みである。
+この3ページには広告コードを置いていないが、将来サイト共通コードを変更した場合にも広告を出さない方針を保つため、除外設定にも登録する。書籍ページは販売先を案内するページであり、学習本文ではないため広告対象外とする。旧 `app/about.html` と `app/privacy.html` はポータルへ統合して削除済みである。
 
 `/app/` セクション全体を除外するとアプリ本体も対象外になるため、指定しない。
 
@@ -53,6 +54,8 @@ Google公式: [自動広告について](https://support.google.com/adsense/answ
 - `https://mei-chan-nel.github.io/`
 - `https://mei-chan-nel.github.io/info1-quiz-app/questions/`
 - `https://mei-chan-nel.github.io/info1-quiz-app/questions/*.html`
+- `https://mei-chan-nel.github.io/archive/`
+- `https://mei-chan-nel.github.io/archive/*.html`
 - `https://mei-chan-nel.github.io/info1-quiz-app/app/`
 
 新設学習ページにはAdSenseコードがあり、本文は問題・選択肢・正答・解説・出典・タグで構成する。案内だけの画面や未完成画面には広告を置かない。
@@ -65,7 +68,7 @@ Google公式: [パブリッシャー コンテンツがない画面上の広告]
 
 | 確認項目 | 完了日 | 確認者 | 結果 |
 |---|---|---|---|
-| 2 URLの完全一致除外 |  |  |  |
+| 3 URLの完全一致除外 |  |  |  |
 | アプリ操作領域の除外 |  |  |  |
 | オーバーレイ形式オフ |  |  |  |
 | 学習ページのプレビュー |  |  |  |

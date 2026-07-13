@@ -5,6 +5,8 @@
 このリポジトリでは次を管理します。
 
 - 学習ポータルトップ
+- 動画で学ぶ一問一答330問
+- Kindle問題集4冊の紹介
 - このサイトについて
 - 全体プライバシーポリシー
 - 共通デザイン
@@ -20,20 +22,41 @@
 index.html
 about.html
 privacy.html
+archive/
+  index.html
+  <5分野・10問区切りの生成ページ>.html
+books/
+  index.html
 assets/
   site.css
   favicon.svg
+  video-embeds.js
+data/
+  video-questions.json
 docs/
   ADSENSE_CONFIGURATION.md
   IMPLEMENTATION_LOG.md
   REVIEW_READINESS.md
 scripts/
+  import_video_questions.py
+  generate_video_pages.py
   update_sitemap.py
   validate_portal.py
 ads.txt
 robots.txt
 sitemap.xml
 ```
+
+## 動画問題の再生成
+
+公開用の `data/video-questions.json` には、問題・答え・キーワード・動画情報だけを保存し、原本Excelの解説本文は保存しません。原本や動画対応を更新するときだけ、読み取り環境で次を実行します。
+
+```powershell
+python scripts/import_video_questions.py <問題集.xlsx> <YouTube公開メタデータ.json>
+python scripts/generate_video_pages.py
+```
+
+通常のHTML再生成は `python scripts/generate_video_pages.py` だけで行えます。生成記録は `docs/video-library-build.json` に保存します。
 
 ## サイトマップ更新
 
@@ -55,7 +78,7 @@ python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリル
 python scripts/validate_portal.py
 ```
 
-検証はポータル3ページ、広告コード範囲、内部リンク、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
+検証はポータル40ページ、広告コード範囲、内部リンク、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
 
 ## 公開
 

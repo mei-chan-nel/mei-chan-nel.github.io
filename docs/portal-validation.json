@@ -1,13 +1,16 @@
 {
   "status": "pass",
-  "html_pages_checked": 3,
-  "sitemap_urls": 37,
+  "html_pages_checked": 40,
+  "sitemap_urls": 78,
   "errors": [],
   "warnings": [],
   "checks": [
     "titles, descriptions, canonical URLs, and one h1 per portal page",
     "portal and cross-repository links and fragments",
-    "AdSense only on the content-rich portal top",
+    "AdSense on the portal top and learning pages, but not informational or book-guide pages",
+    "330 video-question mappings without book explanation text",
+    "privacy-enhanced click-to-load YouTube embeds",
+    "top-page counts, requested copy, six linked fields, and four KDP title links",
     "host-root ads.txt and robots.txt",
     "sitemap synchronization with the info1-quiz-app build report"
   ]

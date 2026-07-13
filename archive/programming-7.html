@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>プログラミングの一問一答 Q291〜Q300 7ページ目 | 情報Ⅰ</title>
+    <meta name="description" content="情報Ⅰ「プログラミング」の一問一答Q291〜Q300。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="プログラミングの一問一答 Q291〜Q300 7ページ目 | 情報Ⅰ" />
+    <meta property="og:description" content="情報Ⅰ「プログラミング」の一問一答Q291〜Q300。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。" />
+    <meta property="og:url" content="https://mei-chan-nel.github.io/archive/programming-7.html" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://mei-chan-nel.github.io/archive/programming-7.html" />
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/site.css" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../assets/video-embeds.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../index.html" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識問題と解説</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション"><a href="../index.html">学習トップ</a><a href="../info1-quiz-app/questions/index.html">問題一覧</a><a href="./index.html" aria-current="page">動画問題</a><a href="../info1-quiz-app/app/">学習アプリ</a><a href="../about.html">このサイトについて</a></nav>
+      </div>
+    </header>
+    <main id="main-content" class="subpage archive-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><a href="./index.html">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">プログラミング</span></nav>
+      <header class="field-hero archive-field-hero">
+        <div><p class="eyebrow">VIDEO QUESTIONS · 07/10</p><h1>プログラミング</h1><p>Q291〜Q300。まず自分で答えを考え、必要なところだけ解説動画で確かめてください。</p></div>
+        <dl><div><dt>このページ</dt><dd>10問</dd></div><div><dt>分野全体</dt><dd>100問</dd></div></dl>
+      </header>
+      <nav class="pagination" aria-label="ページ送り"><a class="page-direction" href="programming-6.html">← 前へ</a><div class="page-numbers"><a href="programming.html" aria-label="1ページ目">1</a><a href="programming-2.html" aria-label="2ページ目">2</a><a href="programming-3.html" aria-label="3ページ目">3</a><a href="programming-4.html" aria-label="4ページ目">4</a><a href="programming-5.html" aria-label="5ページ目">5</a><a href="programming-6.html" aria-label="6ページ目">6</a><span aria-current="page">7</span><a href="programming-8.html" aria-label="8ページ目">8</a><a href="programming-9.html" aria-label="9ページ目">9</a><a href="programming-10.html" aria-label="10ページ目">10</a></div><a class="page-direction" href="programming-8.html">次へ →</a></nav>
+      <section class="video-question-list" aria-label="プログラミングの問題">        <article class="video-question-card" id="q-291">
+          <div class="video-question-meta"><span>QUESTION 291</span></div>
+          <h2>次のプログラムでnに6と入力したときの実行した際の表示結果を答えよ。
+（1）n = 【外部からの入力】 #6と入力
+（2）n != 1 の間繰り返す：
+（3）｜ もし n % 2 == 0 ならば：
+（4）｜ ｜ n = n / 2
+（5）｜ そうでなければ：
+（6）｜ ⎿ n = 3 * n + 1
+（7）⎿ 表示する(&quot;現在のnは&quot;, n)
+（8） 表示する(&quot;処理終了。nの値が1になりました。&quot;)</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>現在のnは3
+現在のnは10
+現在のnは5
+現在のnは16
+現在のnは8
+現在のnは4
+現在のnは2
+現在のnは1
+処理終了。nの値が1になりました。</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>このプログラムはコラッツ予想を検証するものである。
+コラッツ予想とは、正の整数nに対して、
+・nが偶数の場合、nを2で割る
+・nが奇数の場合、nに3をかけて1を足す
+という操作を繰り返し行いnの値を更新していくと、いずれnの値が1に到達するというものである。
+これは数学上の未解決問題のひとつである。
+プログラムは以下の通りである。
+1行目：変数nにユーザが初期値となる整数を入力する。
+2行目：変数nの値が1と等しくない間、3～7行目を繰り返す。
+（この行を実行するときに）変数nの値が1と等しいならば繰り返しを終了し、8行目を実行する。
+3行目：変数nの値が偶数ならば4行目を実行し、奇数ならば6行目を実行する。
+4行目：変数nに現在の変数nの値を2で割ったものを代入し、7行目に飛ぶ。
+6行目：変数nに現在の変数nの値を3倍し1を加えたものを代入し、7行目を実行する。
+7行目：「現在のnは（変数nの値）」と表示し、次の繰り返しに進む（2行目に戻る）。
+8行目：「処理終了。nの値が1になりました。」と表示し、プログラムを終了する。
+
+初期値で変数nに6を入力した場合、以下のように表示される。
+現在のnは3
+現在のnは10
+現在のnは5
+現在のnは16
+現在のnは8
+現在のnは4
+現在のnは2
+現在のnは1
+処理終了。nの値が1になりました。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="_749Jiyqaaw" data-video-title="291 コラッツ予想を検証するプログラム：数学の未解決問題に挑戦！ #shorts" aria-controls="video-291-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=_749Jiyqaaw" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-291-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-292">
+          <div class="video-question-meta"><span>QUESTION 292</span></div>
+          <h2>配列Tokutenには5人の生徒の得点が入力されている。60点以上を合格、59点以下は不合格とする。配列Gouhiに「合格」または「不合格」を入力するプログラムとなるように、空欄に入る最も適切なものを選べ。
+ただし、配列の添字は0から始まるものとし、要素数(配列)は配列の要素数を返すものとする。
+（1）Tokuten = [79, 55, 69, 80, 32]
+（2）Gouhi = [&quot; &quot;, &quot; &quot;, &quot; &quot;, &quot; &quot;, &quot; &quot;]
+（3）i を（　ア　）繰り返す：
+（4）｜ もし（　イ　）ならば：
+（5）｜ ⎿ Gouhi[i] = &quot;合格&quot;
+（6）｜ そうでなければ：
+（7）⎿ ⎿ Gouhi[i] = &quot;不合格&quot;
+
+（　ア　）
+1．0 から 要素数(Tokuten) まで 1 ずつ増やしながら
+2．0 から 要素数(Tokuten) - 1 まで 1 ずつ増やしながら
+3．1 から 要素数(Tokuten) まで 1 ずつ増やしながら
+4．1 から 要素数(Tokuten) - 1 まで 1 ずつ増やしながら
+
+（　イ　）
+1．Tokuten[i] &gt;= 60
+2．Tokuten[i] &lt;= 59
+3．Gouhi[i] == &quot;合格&quot;
+4．Gouhi[i] == &quot;不合格&quot;</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 2．0 から 要素数(Tokuten) - 1 まで 1 ずつ増やしながら
+
+イ 1．Tokuten[i] &gt;= 60</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>添字が0から始まることに注意して適切な条件を選ぶ。
+3行目：繰り返しの条件を指定する。4～7行目を見ると、繰り返しの変数iは配列の添字として使われている。
+配列の添字は0から4であり、要素数(Tokuten)は5であるので、適切な変数iの範囲は「2．0 から 要素数(Tokuten) - 1 まで 1 ずつ増やしながら」である。
+4行目：条件分岐を行う。条件イが成立するとき5行目で配列Gouhiのi番目の要素に「合格」と代入し、成立しないとき7行目で配列Gouhiのi番目の要素に「不合格」と代入する。
+つまり、条件イは合格の条件が入る。
+よって「1．Tokuten[i] &gt;= 60」が適切である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="Z88WtqAg0_4" data-video-title="292 配列・繰り返し・分岐：プログラミングの必須技術詰め合わせ #shorts" aria-controls="video-292-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=Z88WtqAg0_4" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-292-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-293">
+          <div class="video-question-meta"><span>QUESTION 293</span></div>
+          <h2>配列Dataに格納された数のうち最大のものを表示するプログラムとなるように、空欄に入る最も適切なものを選べ。
+ただし、配列の添字は0から始まるものとし、要素数(配列)は配列の要素数を返すものとする。
+（1）Data = [54, 23, 34, 67, 49]
+（2）max_value = Data[0]
+（3）i を（　ア　）まで 1 ずつ増やしながら繰り返す：
+（4）｜ もし（　イ　）ならば：
+（5）⎿ ⎿ max_value = Data[i]
+（6）表示する(&quot;配列Data内の最大の数は&quot;, max_value)
+（　ア　）
+1．0 から 要素数(Data) - 2
+2．1 から 要素数(Data) - 1
+3．2 から 要素数(Data)
+（　イ　）
+1．Data[i] &gt; max_value
+2．Data[i] &lt; max_value
+3．Data[i] &gt; Data[i - 1]
+4．Data[i] &lt; Data[i - 1]</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 2．1 から 要素数(Data) - 1
+イ 1．Data[i] &gt; max_value</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>このプログラムは配列Dataに格納された数のうち最大の数を見つけて表示するものである。
+1行目：配列Dataを初期化する。
+2行目：変数max_valueに配列Dataの0番目の要素の値（54）を代入する。
+3行目：繰り返しの条件を指定する。5行目を見ると繰り返しの変数iは配列Dataの添字として使われている。
+配列Dataの添字は0から4であり、要素数(Data)は5なので、選択肢2「1 から 要素数(Data) - 1」が適切である。
+配列の最初の要素（Data[0]）は2行目で変数max_valueに代入されているので、添字を1から始めて残りの要素を確認している。
+4行目：条件分岐を行う。条件イが成立するとき5行目で変数max_valueの値をData[i]に更新する。条件が成立しないときは何もせずに次の繰り返しに進む（または繰り返しを終了する）。
+つまり、条件イは変数max_valueの値をData[i]に更新する条件なので、「Data[i]が変数max_valueの値より大きい」となっている選択肢1「Data[i] &gt; max_value」が適している。
+なお、他の選択肢については以下の通りで不適切である。
+選択肢2「Data[i] &lt; max_value」：Data[i]が変数max_valueの値より小さいときは変数max_valueの値を更新しないため不適である。
+選択肢3「Data[i] &gt; Data[i - 1]」選択肢4「Data[i] &lt; Data[i - 1]」：配列Dataの隣り合う要素の値を比較しているだけであり、最大のものを見つけることができない。
+
+このプログラムを実行すると変数max_valueの値は以下のように変化する。
+初期値：max_value は54。
+i = 1 ：Data[1] = 23 は max_value より小さいので更新しない。
+i = 2 ：Data[2] = 34 は max_value より小さいので更新しない。
+i = 3 ：Data[3] = 67 は max_value より大きいので、max_value を67に更新する。
+i = 4 ：Data[4] = 49 は max_value より小さいので更新しない。
+よって、6行目では「配列Data内の最大の数は67」と表示する。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="oayLi1c9lBE" data-video-title="293 配列内の最大値を探すプログラム：一つずつ値を確認してmax_valueを更新する #shorts" aria-controls="video-293-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=oayLi1c9lBE" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-293-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-294">
+          <div class="video-question-meta"><span>QUESTION 294</span></div>
+          <h2>入力された配列Dataの要素を1つずつ左にずらし、先頭の要素は配列の末尾に移動するプログラムとなるように、空欄に入る最も適切なものを選べ。
+ただし、配列の添字は0から始まるものとし、要素数(配列)は配列の要素数を返すものとする。
+（1）Data =【外部からの入力】
+（2）tmp = Data[0]
+（3）i を 1 から （　ア　） まで 1 ずつ増やしながら繰り返す：
+（4）⎿ （　　イ　　）
+（5）Data[要素数(Data) - 1] = tmp
+
+（　ア　）
+1．要素数(Data) - 2
+2．要素数(Data) - 1
+3．要素数(Data)
+4．要素数(Data) + 1
+
+（　　イ　　）
+1．Data[i - 1] = Data[i]
+2．Data[i] = Data[i - 1]
+3．Data[i + 1] = Data[i]
+4．Data[i] = Data[i + 1]</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 2．要素数(Data) - 1
+イ 1．Data[i - 1] = Data[i]</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>例えば、[0</li><li>1</li><li>2</li><li>3</li><li>4]を[1</li><li>2</li><li>3</li><li>4</li><li>0]にするというプログラムである。
+要素の値を1つ左の要素に代入していく操作と、0番目の要素の値を最後の要素に代入する操作の2つが必要である。
+1行目：配列Dataの初期値が初期化される。
+2行目：配列Dataの0番目の要素の値（Data[0]）を変数tmpに代入して、退避させる。
+3，4行目：要素の値を1つ左の要素に代入していく。
+3行目：繰り返しの変数iの値の更新を行う。
+繰り返しの回数は1から（ア）までの（ア）回である。
+上の例の配列では4回のシフトを行うので、配列Dataの要素数（5） - 1である「2．要素数(Data) - 1」が（ア）に入る。
+4行目：各繰り返しで行う処理（イ）である。つまり、要素の値を左にシフトする命令が入る。
+具体的には
+i = 1：Data[0]にData[1]を代入（Data[0] = Data[1]）
+i = 2：Data[1]にData[2]を代入（Data[1] = Data[2]）
+i = 3：Data[2]にData[3]を代入（Data[2] = Data[3]）
+i = 4：Data[3]にData[4]を代入（Data[3] = Data[4]）
+が行われる。
+よって、（イ）には「1．Data[i - 1] = Data[i]」が入る。
+5行目：配列Dataの最後の要素に変数tmpに退避していた値（元のData[0]の値）を代入する。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="6qdKAqhitys" data-video-title="294 配列のデータを一つ左にずらすプログラム：2つの操作の組み合わせ #shorts" aria-controls="video-294-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=6qdKAqhitys" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-294-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-295">
+          <div class="video-question-meta"><span>QUESTION 295</span></div>
+          <h2>入力された配列Dataの要素の並びを逆順にするプログラムとなるように、空欄に入る最も適切なものを選べ。
+a ÷ bはaをbで割ったときの商を返す。
+配列の添字は0から始まるものとし、要素数(配列)は配列の要素数を返すものとする。
+（1）Data = 【外部からの入力】
+（2）i を 0 から（ ア ） まで 1 ずつ増やしながら繰り返す：
+（3）｜ tmp = Data[i]
+（4）｜ Data[i] = Data[（ イ ）]
+（5）⎿ Data[（ イ ）] = tmp
+
+（ ア ）
+1．要素数(Data)
+2．要素数(Data) - 1
+3．要素数(Data) ÷ 2
+4．要素数(Data) ÷ 2 - 1
+（ イ ）
+1．要素数(Data) - i
+2．要素数(Data) - i + 1
+3．要素数(Data) - i - 1</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 4．要素数(Data) ÷ 2 - 1
+イ 3．要素数(Data) - i - 1</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="5_HOp0wIFK4" data-video-title="295 配列の要素を逆順にする：具体例を使ってプログラムを完成させよう！　#shorts" aria-controls="video-295-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=5_HOp0wIFK4" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-295-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-296">
+          <div class="video-question-meta"><span>QUESTION 296</span></div>
+          <h2>1から100の整数のうちで、2の倍数または3の倍数であるが5の倍数でも7の倍数でもないものの個数を数えるプログラムとなるように、空欄に入る最も適切なものを選べ。
+（1）count = 0
+（2）i を 1 から 100 まで 1 ずつ増やしながら繰り返す：
+（3）｜ もし （　ア　） ならば：
+（4）｜ ｜ もし （　イ　） ならば：
+（5）⎿ ⎿ ⎿ count = count + 1
+（6）表示する(&quot;条件を満たす数は&quot;, count, &quot;個あります&quot;)
+
+（　ア　）
+1．(i % 2 == 0) and (i % 3 == 0)
+2．(i % 2 == 0) or (i % 3 == 0)
+3．not((i % 2 == 0) and (i % 3 == 0))
+4．not((i % 2 == 0) or (i % 3 == 0))
+
+（　イ　）
+1．(i % 5 == 0) and (i % 7 == 0)
+2．(i % 5 == 0) or (i % 7 == 0)
+3．not((i % 5 == 0) and (i % 7 == 0))
+4．not((i % 5 == 0) or (i % 7 == 0))</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 2．(i % 2 == 0) or (i % 3 == 0)
+イ 4．not((i % 5 == 0) or (i % 7 == 0))</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>1行目：変数countを初期化する。
+2行目：繰り返しの変数iを1から100まで1ずつ増やしながら、3～5行目を実行する。
+3行目：1つ目の条件（ア）を判定する。
+4行目：2つ目の条件（イ）を判定する。
+5行目：2つの条件がともに成立した回数を数える。
+6行目：結果を表示する。
+
+つまり、（ア）には「2の倍数である または 3の倍数である」ことを判定する条件が入る。
+選択肢では「2．(i % 2 == 0) or (i % 3 == 0)」である。
+（イ）は（ア）の条件が成立したもののうちでさらに条件を絞るものである。
+つまり、（イ）には「5の倍数でも7の倍数でもない」ことを判定する条件が入る。
+この条件は「5の倍数でない かつ 7の倍数でない」ということであり、条件としては「(i % 5 != 0) and (i % 7 !=0)」や「not(i % 5 == 0) and not(i % 7 ==0)」であるが、選択肢にない。
+「not(i % 5 == 0) and not(i % 7 ==0)」に対してド・モルガンの法則を適応して「4．not((i % 5 == 0) or (i % 7 ==0))」であることがわかる。
+※ ド・モルガンの法則は数学の集合論で登場するもので、「not(A or B) = not(A) and not(B)」「not(A and B) = not(A) or not(B)」が成り立つというものである。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="Mjucokr4auk" data-video-title="296 特定の倍数の個数を数えるプログラム：こんなときにも役に立つ！ ド・モルガンの法則！！ #shorts" aria-controls="video-296-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=Mjucokr4auk" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-296-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-297">
+          <div class="video-question-meta"><span>QUESTION 297</span></div>
+          <h2>このプログラムは次の3つの性質を使ってユーザによって入力された2つの正の整数x, yの最大公約数を求めるものである。
+性質1）xとyの値が等しいとき、xとyの最大公約数はxである。
+性質2）xがyより大きいとき、xとyの最大公約数は(x - y)とyの最大公約数に等しい。
+性質3）xがyより小さいとき、xとyの最大公約数はxと(y - x)の最大公約数に等しい。
+空欄に入る最も適切なものを選べ。
+（1）x = 【外部からの入力】
+（2）y = 【外部からの入力】
+（3）（　　ア　　）
+（4）｜ もし（　イ　）ならば：
+（5）｜ ｜ x = x - y
+（6）｜ そうでなければ：
+（7）⎿ ⎿ y = y - x
+（8）表示する(&quot;入力された2数の最大公約数は&quot;, x)
+
+（　　ア　　）
+1．もし x != y ならば：
+2．もし x == y ならば：
+3．x != y の間繰り返す：
+4．x == y の間繰り返す：
+
+（　イ　）
+1．x != y
+2．x == y
+3．x &gt; y
+4．x &lt; y</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．x != y の間繰り返す：
+イ 3．x &gt; y</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>このプログラムはユークリッドの互除法を使って入力された2つの整数の最大公約数を求めるものである。
+例えば、xに32、yに20が入力された場合を考える。
+性質2）x &gt; y なので、32と20の最大公約数は、12と20の最大公約数に等しい。
+ここで、xを12に更新する。つまり、xが12、yが20である。
+性質3）x &lt; y なので、12と20の最大公約数は、12と8の最大公約数に等しい。
+ここで、yを8に更新する。つまり、xが12、yが8である。
+性質2）x &gt; y なので、12と8の最大公約数は、4と8の最大公約数に等しい。
+ここで、xを4に更新する。つまり、xが4、yが8である。
+性質3）x &lt; y なので、4と8の最大公約数は、4と4の最大公約数に等しい。
+ここで、yを4に更新する。つまり、xが4、yが4である。
+性質1）x == y なので、4と4の最大公約数は4である。
+（32と20の最大公約数）＝（12と20の最大公約数）＝（12と8の最大公約数）＝（4と8の最大公約数）＝（4と4の最大公約数）＝4 と求まった。
+このアルゴリズムをプログラムにしたものがこの問題である。
+5行目：変数xをx - yの計算結果に更新する。つまり、性質2を相当する。
+7行目：変数yをy - xの計算結果に更新する。つまり、性質3に相当する。
+つまり、4行目の条件（イ）には、性質2を使うかを判定する「3．x &gt; y」が入ることがわかる。
+3行目の（ア）は4～7行目を、x == yとなるまで（x != y の間）繰り返すという指示が入るので「3．x != y の間繰り返す：」である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="-UtYLFQ-QXQ" data-video-title="297 ユークリッドの互除法1：引き算だけを使って最大公約数を求めよう！ #shorts" aria-controls="video-297-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=-UtYLFQ-QXQ" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-297-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-298">
+          <div class="video-question-meta"><span>QUESTION 298</span></div>
+          <h2>このプログラムは次の2つの性質を使ってユーザによって入力された2つの正の整数x, yの最大公約数を求めるものである。
+ただし、x % yはxをyで割ったあまりを求める演算である。
+性質1）x % yが0と等しいとき、xとyの最大公約数はyである。
+性質2）x % yが0と異なるとき、xとyの最大公約数はyと(x % y)の最大公約数に等しい。
+空欄に入る最も適切なものを選べ。
+（1）x = 【外部からの入力】
+（2）y = 【外部からの入力】
+（3）r = x % y
+（4）（　ア　）の間繰り返す：
+（5）｜ x = y
+（6）｜ y = r
+（7）⎿ r = x % y
+（8）表示する(&quot;入力された2数の最大公約数は&quot;, （　イ　）)
+
+（　ア　）
+1．r = 0
+2．r != 0
+3．x = 0
+4．x != 0
+
+（　イ　）
+1．x
+2．y
+3．r
+4．x % y</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 2．r != 0
+イ 2．y</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>例えば、xを32、yを20とすると
+（32と20の最大公約数）＝（20と12の最大公約数）＝（12と8の最大公約数）＝（8と4の最大公約数）＝4であることがわかる。
+3行目：変数rに「x % y（xをyでわったあまり）」の計算結果を代入する。
+性質1）rが0であればyが最大公約数である。
+性質2）rが0でなければ、変数xに変数yの値、変数yに変数rの値を代入して更新する。（図）
+つまり、性質1は終了条件、性質2は繰り返しの処理内容である。
+3行目：繰り返す条件は「2．r != 0」である。
+5～7行目：性質2の内容を実行している。
+8行目：最大公約数は、rが0となった（4～7行目の繰り返しを終了した）ときの変数yの値（2．y）である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="Xwp5Cbv5OpQ" data-video-title="298 ユークリッドの互除法2：余りを計算して効率的に最大公約数を求めよう！ #shorts" aria-controls="video-298-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=Xwp5Cbv5OpQ" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-298-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-299">
+          <div class="video-question-meta"><span>QUESTION 299</span></div>
+          <h2>このプログラムはユーザによって入力された12桁の整数を1桁ずつに分解し、要素数が12の配列ISBNcodeに格納するものである。
+配列の要素番号は0から始まるものとし、0番目の要素に整数の12桁目、1番目の要素に整数の11桁目、……という形で格納する。
+a % bはaをbで割ったときのあまりを返し、a ÷ bはaをbで割ったときの商を返す。
+空欄に入る最も適切なものを選べ。
+（1）number = 【外部からの入力】
+（2）ISBNcode = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #配列を初期化
+（3）i を 0 から 11 まで 1 ずつ増やしながら繰り返す： 
+（4）｜ （　　ア　　）
+（5）⎿ （　　イ　　）
+（6）表示する(&quot;配列ISBNcodeは&quot;, ISBNcode)
+（　ア　）（　イ　）
+1．ISBNcode[i] = number % 10
+2．ISBNcode[i] = number ÷ 10
+3．ISBNcode[11 - i] = number % 10
+4．ISBNcode[11 - i] = number ÷ 10
+5．number = number % 10
+6．number = number ÷ 10</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．ISBNcode[11 - i] = number % 10
+イ 6．number = number ÷ 10</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>例えば、numberの値が12345だとすると、12345を10で割った商（12345 ÷ 10）は1234、あまり（12345 % 10）が5である。
+
+よって、number % 10はnumberの値の下一桁を取り出す操作であり、number ÷ 10はnumberの値の下一桁を消去して桁数を一つ少なくした整数を作る操作である。
+
+3～5行目の繰り返しで、変数numberの値の各桁を配列ISBNcodeに代入していく。
+1巡目の繰り返し（i = 0）のときに、変数numberの下一桁目が取り出され、それを配列ISBNcodeの添字11の要素に代入する。
+つまり、ISBNcode[11] = number % 10となる。
+選択肢内の計算は「ISBNcode[11 - i] = number % 10」である。
+配列への代入が終われば、変数numberの下一桁目の数を取り払った10桁の整数を変数numberに代入して値を更新する。
+つまり、number = number ÷ 10を行う。
+2巡目以降もこの操作を繰り返し行えば、目標通り、変数numberの各桁の値を配列ISBNcodeに代入できる。
+つまり、ア「3．ISBNcode[11 - i] = number % 10」イ「6．number = number ÷ 10」である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="tk1MNgt3DZ4" data-video-title="299 数を1桁ずつに分解して配列に格納する：商とあまりをフル活用！ #shorts" aria-controls="video-299-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=tk1MNgt3DZ4" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-299-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-300">
+          <div class="video-question-meta"><span>QUESTION 300</span></div>
+          <h2>配列ISBNcodeは要素数が12で、各要素には0から9の整数値が入る。
+与えられた配列ISBNcodeに対するチェックデジットを求めるプログラムとなるように、空欄に入る最も適切なものを選べ。
+ここで、配列の要素番号は0から始まる。
+チェックデジットは以下の方法で計算される数である。
+1．要素の添字が奇数なら要素の値に1、偶数なら要素の値に3をかける。
+2．それらの和を求める。
+3．その和を10で割ったあまりを求める。
+4．10からあまりを引く。ただし、あまりが0のときは0とする。
+（1）ISBNcode =【外部からの入力】
+（2）total_sum = 0
+（3）i を 0 から 11 まで 1 ずつ増やしながら繰り返す：
+（4）⎿ total_sum =  total_sum + ISBNcode[i] *（　ア　）
+（5）check_digit = （　イ　）
+（6）表示する(&quot;チェックデジットは&quot;, check_digit)
+（　ア　）
+1．1
+2．3
+3． (2 + (-1) ** i)
+4． (2 + (-1) ** (i + 1))
+
+（　イ　）
+1．total_sum % 10
+2．10 - (total_sum % 10)
+3．(total_sum % 10) - 10
+4．(10 - (total_sum % 10)) % 10</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 3． (2 + (-1) ** i)
+イ 4．(10 - (total_sum % 10)) % 10</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>3，4行目：この繰り返しは、チェックデジットを求める操作の「1．要素の添字が奇数なら要素の値に1、偶数なら要素の値に3をかける」「2．それらの和を求める」を行うものである。
+「(-1) ** i」（-1のi乗）はiが奇数のときに-1、偶数のときに1となる。
+よって、「3．(2 + (-1) ** i)」は変数iの値が奇数なら1、偶数なら3となり適切である。
+
+5行目：チェックデジットを求める操作の「3．その和を10で割ったあまりを求める」「4．10からあまりを引く。ただし、あまりが0のときは0とする」が入る。
+「3．その和を10で割ったあまりを求める」に対応する計算は「total_sum % 10」である。
+「4．10からあまりを引く」は先程の計算式を10から引くので「10 - (total_sum % 10)」である。
+あまり（total_sum % 10）が0のとき「10 - (total_sum % 10)」は10となる。
+これを0にして、その他（1から9）はそのままにする計算として「4．(10 - (total_sum % 10)) % 10」が適切である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="GqCSK0EadjY" data-video-title="300 ISBNのチェックデジットを計算する：手順をプログラムに置き換えていこう！ #shorts" aria-controls="video-300-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=GqCSK0EadjY" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-300-1" hidden></div>
+            </div>
+          </div>
+        </article></section>
+      <nav class="pagination" aria-label="ページ送り"><a class="page-direction" href="programming-6.html">← 前へ</a><div class="page-numbers"><a href="programming.html" aria-label="1ページ目">1</a><a href="programming-2.html" aria-label="2ページ目">2</a><a href="programming-3.html" aria-label="3ページ目">3</a><a href="programming-4.html" aria-label="4ページ目">4</a><a href="programming-5.html" aria-label="5ページ目">5</a><a href="programming-6.html" aria-label="6ページ目">6</a><span aria-current="page">7</span><a href="programming-8.html" aria-label="8ページ目">8</a><a href="programming-9.html" aria-label="9ページ目">9</a><a href="programming-10.html" aria-label="10ページ目">10</a></div><a class="page-direction" href="programming-8.html">次へ →</a></nav>
+      <aside class="content-note archive-policy"><h2>解説本文について</h2><p>このページでは、問題・答え・キーワードと対応動画だけを掲載しています。書籍に収録した解説本文は掲載していません。</p></aside>
+    </main>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "プログラミングの一問一答 Q291〜Q300 7ページ目 | 情報Ⅰ", "description": "情報Ⅰ「プログラミング」の一問一答Q291〜Q300。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。", "url": "https://mei-chan-nel.github.io/archive/programming-7.html", "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": "https://mei-chan-nel.github.io/"}}</script>
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、繋ぎ、ひろげる。</p></div>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../info1-quiz-app/questions/index.html">問題一覧</a>
+          <a href="./index.html">動画問題</a>
+          <a href="../books/index.html">問題集</a>
+          <a href="../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../about.html">このサイトについて</a>
+          <a href="../privacy.html">プライバシーポリシー</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+  </body>
+</html>

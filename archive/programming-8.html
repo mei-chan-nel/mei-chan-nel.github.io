@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>プログラミングの一問一答 Q301〜Q310 8ページ目 | 情報Ⅰ</title>
+    <meta name="description" content="情報Ⅰ「プログラミング」の一問一答Q301〜Q310。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="プログラミングの一問一答 Q301〜Q310 8ページ目 | 情報Ⅰ" />
+    <meta property="og:description" content="情報Ⅰ「プログラミング」の一問一答Q301〜Q310。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。" />
+    <meta property="og:url" content="https://mei-chan-nel.github.io/archive/programming-8.html" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://mei-chan-nel.github.io/archive/programming-8.html" />
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/site.css" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../assets/video-embeds.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../index.html" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識問題と解説</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション"><a href="../index.html">学習トップ</a><a href="../info1-quiz-app/questions/index.html">問題一覧</a><a href="./index.html" aria-current="page">動画問題</a><a href="../info1-quiz-app/app/">学習アプリ</a><a href="../about.html">このサイトについて</a></nav>
+      </div>
+    </header>
+    <main id="main-content" class="subpage archive-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><a href="./index.html">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">プログラミング</span></nav>
+      <header class="field-hero archive-field-hero">
+        <div><p class="eyebrow">VIDEO QUESTIONS · 08/10</p><h1>プログラミング</h1><p>Q301〜Q310。まず自分で答えを考え、必要なところだけ解説動画で確かめてください。</p></div>
+        <dl><div><dt>このページ</dt><dd>10問</dd></div><div><dt>分野全体</dt><dd>100問</dd></div></dl>
+      </header>
+      <nav class="pagination" aria-label="ページ送り"><a class="page-direction" href="programming-7.html">← 前へ</a><div class="page-numbers"><a href="programming.html" aria-label="1ページ目">1</a><a href="programming-2.html" aria-label="2ページ目">2</a><a href="programming-3.html" aria-label="3ページ目">3</a><a href="programming-4.html" aria-label="4ページ目">4</a><a href="programming-5.html" aria-label="5ページ目">5</a><a href="programming-6.html" aria-label="6ページ目">6</a><a href="programming-7.html" aria-label="7ページ目">7</a><span aria-current="page">8</span><a href="programming-9.html" aria-label="9ページ目">9</a><a href="programming-10.html" aria-label="10ページ目">10</a></div><a class="page-direction" href="programming-9.html">次へ →</a></nav>
+      <section class="video-question-list" aria-label="プログラミングの問題">        <article class="video-question-card" id="q-301">
+          <div class="video-question-meta"><span>QUESTION 301</span></div>
+          <h2>次のプログラムは、配列 Tokuten に格納されたテストの素点をもとに、階級が0～9、10～19、……、80～89、90～の度数分布を作成するものである。
+度数分布は配列Dosuに格納する。Dosu[0]に階級0～9の度数、Dosu[1]に階級10～19の度数、……、Dosu[9]に階級90～の度数を格納する。
+素点は0から100の整数値である。
+a % bはaをbで割ったときのあまりを返し、a ÷ bはaをbで割ったときの商を返す。
+配列の添字は0から始まるものとし、要素数(配列)は配列の要素数を返すものとする。
+空欄に入る最も適切なものを選べ。
+（1）Tokuten = 【外部からの入力】
+（2）Dosu = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0] #配列を初期化
+（3）i を 0 から 要素数(Tokuten) - 1 まで 1 ずつ増やしながら繰り返す：
+（4）｜ もし Tokuten[i] == 100 ならば：
+（5）｜ ｜ index = （　ア　）
+（6）｜ そうでなければ：
+（7）｜ ⎿ index = （　イ　）
+（8）⎿ Dosu[index] = Dosu[index] + 1
+（9）表示する(&quot;度数分布は&quot;, Dosu)
+
+1．ア 9　イ Tokuten[i] % 10
+2．ア 9　イ Tokuten[i] ÷ 10
+3．ア 10　イ Tokuten[i] % 10
+4．ア 10　イ Tokuten[i] ÷ 10</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>2．ア 9　イ Tokuten[i] ÷ 10</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>3～8行目では、Tokuten[i]の値に応じて配列Dosuの要素の値を1ずつ増やす操作を繰り返している。
+問題文より、配列Tokutenの要素の値が
+0～9ならDosu[0]
+10～19ならDosu[1]
+…
+90～100ならDosu[9]
+の値を1つ増やすことになる。
+つまり、配列Dosuの添字（変数indexの値）は「Tokuten[i] ÷ 10」で計算できる。
+ただし、100点のときのみ例外である。
+100 ÷ 10は10であるが、Dosu[9]でカウントされる。
+この例外は4，5行目で処理される。つまり、（ア）には「9」が入る。
+4行目：Tokuten[i]が100ならば5行目を実行し、そうでなければ6，7行目を実行する。
+5行目：Tokuten[i]が100のときに実行される。（ア）は「9」である。
+6，7行目：Tokuten[i]が100でないと気に実行される。（イ）は「Tokuten[i] ÷ 10」である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="YQY1JBqkDck" data-video-title="301 度数分布表を作成するプログラム：狙い通りの階級に入れる方法は？ #shorts" aria-controls="video-301-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=YQY1JBqkDck" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-301-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-302">
+          <div class="video-question-meta"><span>QUESTION 302</span></div>
+          <h2>支払い額に対して、その支払いに必要な一万円札、五千円札、千円札、五百円硬貨、百円硬貨、五十円硬貨、十円硬貨、五円硬貨、一円硬貨の最小枚数を計算するプログラムである。
+a % bはaをbで割ったときのあまりを返し、a ÷ bはaをbで割ったときの商を返す。
+配列の添字は0から始まるものとし、要素数(配列)は配列の要素数を返すものとする。
+空欄に入る最も適切なものを選べ。
+（1）kingaku = 【外部からの入力】
+（2）kinsyu = [10000, 5000, 1000, 500, 100, 50, 10, 5, 1]
+（3）i を 0 から 要素数(kinsyu) - 1 まで 1 ずつ増やしながら繰り返す：
+（4）｜ （　ア　）
+（5）｜ （　イ　）
+（6）⎿ 表示する(kinsyu[i], &quot;円は&quot;, maisu, &quot;枚&quot;)
+
+（ ア ）（ イ ）
+1．kingaku = kingaku ÷ kinsyu[i]
+2．kingaku = kingaku % kinsyu[i]
+3．maisu = kingaku ÷ kinsyu[i]
+4．maisu = kingaku % kinsyu[i]</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．maisu = kingaku ÷ kinsyu[i]
+イ 2．kingaku = kingaku % kinsyu[i]</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>例えば、8762円の場合、次のように考えて各金種の枚数を決定する。
+金種|枚数|残り
+一万円|0枚|8762円
+五千円|1枚|3762円
+千円|3枚|762円
+五百円|1枚|262円
+百円|2枚|62円
+五十円|1枚|12円
+十円|1枚|2円
+五円|0枚|2円
+一円|2枚|0円
+つまり、金額の大きな金種から枚数を決定し、その金種で支払った後の残り金額を小さな金種で支払っていく。
+「枚数を決める→残り金額を計算する」という手順でプログラムは進行する。
+よって、4行目で「枚数の決定」、5行目で「残り金額の計算」を行う。
+4行目：各金種での枚数は「3．maisu = kingaku ÷ kinsyu[i]」である。
+5行目：、4行目の金種で支払った後の残り金額を計算する。残り金額は「2．kingaku = kingaku % kinsyu[i]」である。
+以上から、ア「3．maisu = kingaku ÷ kinsyu[i]」イ「2．kingaku = kingaku % kinsyu[i]」である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="oFHGH0eEmPw" data-video-title="302 支払いの最小枚数を求めるプログラム：商とあまりを上手に使って枚数と残り金額を計算しよう！ #shorts" aria-controls="video-302-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=oFHGH0eEmPw" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-302-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-303">
+          <div class="video-question-meta"><span>QUESTION 303</span></div>
+          <h2>配列Binaryは与えられた2進数の各桁の値を要素として持つ。例えば、1101(2)に対して配列Binaryは[1, 1, 0, 1]である。
+配列Binaryに入力された2進数を10進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Binary = 【外部からの入力】
+（2）decimal = 0
+（3）i を 0 から 要素数(Binary) - 1 まで 1 ずつ増やしながら繰り返す：
+（4）⎿ decimal = （　ア　）
+（5）表示する(&quot;2進数&quot;, Binary, &quot;を10進数にすると&quot;, decimal)
+
+1．decimal + Binary[i] * 2
+2．decimal + Binary[i] * 2 ** i
+3．decimal + Binary[i] * 2 **(要素数(Binary) - i)
+4．decimal + Binary[i] * 2 **(要素数(Binary) - i - 1)</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>4．decimal + Binary[i] * 2 **(要素数(Binary) - i - 1)</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>1101(2) = 1×2³＋1×2²＋0×2¹＋1×2⁰ = 8＋4＋1 = 13(10)
+つまり、配列Binaryが[1</li><li>1</li><li>0</li><li>1]のときは、0番目の要素の値に2³、1番目の要素の値に2²、2番目の要素の値に2¹、3番めの要素の値に2⁰をかけ合わせたものを足し合わせることになる。
+よって、i番目の要素の値にかける2のべきは「要素数(Binary)  - i - 1」であることがわかる。
+「decimal = decimal + △」は変数decimalに「△」を足し合わせていく操作である。
+4．decimal + Binary[i] * 2 **(要素数(Binary) - i - 1)：i番目の要素の値にかける2のべきが「要素数(Binary) - i - 1」であり、2進数から10進数への変換として正しい。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="Sw7irbkJC0Y" data-video-title="303 2進数を10進数に変換するプログラム：計算方法をそのままプログラムにしよう！ #shorts" aria-controls="video-303-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=Sw7irbkJC0Y" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-303-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-304">
+          <div class="video-question-meta"><span>QUESTION 304</span></div>
+          <h2>配列Binaryは与えられた2進数の各桁の値を要素として持つ。例えば、1101(2)に対して配列Binaryは[1, 1, 0, 1]である。
+配列Binaryに入力された2進数を10進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Binary = 【外部からの入力】
+（2）decimal = 0
+（3）i を 0 から 要素数(Binary) - 1 まで 1 ずつ増やしながら繰り返す：
+（4）⎿ decimal = （　ア　） 
+（5）表示する(&quot;2進数&quot;, Binary, &quot;を10進数にすると&quot;, decimal)
+
+1．decimal + Binary[i]
+2．decimal * 2 + Binary[i]
+3．decimal + Binary[i] * 2
+4．decimal * 2 + Binary[i] * 2</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>2．decimal * 2 + Binary[i]</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>1101(2) = 1×2³＋1×2²＋0×2¹＋1×2⁰ = 8＋4＋1 = 13と計算することで2進数から10進数に変換できる。
+1．decimal + Binary[i]：0 + 1 = 1 → 1 + 1 = 2 → 2 + 0 = 2 → 2 + 1 = 3 なので、最終的な変数decimalの値は3であり、不適切である。
+2．decimal * 2 + Binary[i]：0×2 + 1 = 1 → 1×2 + 1 = 3 → 3×2 + 0 = 6 → 6×2 + 1 = 13 なので、最終的な変数decimalの値が13となり適している。
+3．decimal + Binary[i] * 2：0 + 1×2 = 2 → 2 + 1×2 = 4 → 4 + 0×2 = 4 → 4 + 1×2 = 6 なので、最終的な変数decimalの値は6であり、不適切である。
+4．decimal * 2 + Binary[i] * 2：0×2 + 1×2 = 2 → 2×2 + 1×2 = 6 → 6×2 + 0×2 = 12 → 12×2 + 1×2 = 26 なので、最終的な変数decimalの値は26であり、不適切である。
+よって、空欄には「2．decimal * 2 + Binary[i]」が適する。
+
+補足
+「2．decimal * 2 + Binary[i]」では、
+変数decimalの値は
+Binary[0]
+Binary[0]×2＋Binary[1]
+Binary[0]×2²＋Binary[1]×2＋Binary[2]
+Binary[0]×2³＋Binary[1]×2²＋Binary[2]×2¹＋Binary[3](×2⁰)
+と変化するので、i番目の要素の値にかける2のべきは「要素数(Binary)  - i - 1」であることに合致している。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="FhARDQuLOsc" data-video-title="304 2進数を10進数に変換するプログラム2：前の計算結果を上手に使って計算しよう！ #shorts" aria-controls="video-304-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=FhARDQuLOsc" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-304-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-305">
+          <div class="video-question-meta"><span>QUESTION 305</span></div>
+          <h2>配列Binaryは与えられた2進数の各桁の値を要素として持つ。例えば、1101(2)に対して配列Binaryは[1, 1, 0, 1]である。
+配列Binaryに入力された2進数を10進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Binary = 【外部からの入力】
+（2）decimal = 0 , k = 0
+（3）i を要素数(Binary) - 1 から 0 まで 1 ずつ減らしながら繰り返す：
+（4）｜ decimal = （　ア　）
+（5）⎿ k = k + 1
+（6）表示する(&quot;2進数&quot;, Binary, &quot;を10進数にすると&quot;, decimal)
+
+1．decimal + Binary[i] * 2
+2．decimal + Binary[i] * 2 ** i
+3．decimal + Binary[i] * 2 ** k
+4．decimal + Binary[i] * 2 ** (i + k)</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>3．decimal + Binary[i] * 2 ** k</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>1101(2) = 1×2³＋1×2²＋0×2¹＋1×2⁰ = 8＋4＋1 = 13と計算することで2進数から10進数に変換できる。
+つまり、配列Binaryが[1</li><li>1</li><li>0</li><li>1]のときは、Binary[0]×2³+Binary[1]×2²+Binary[2]×2¹+Binary[3]×2⁰と計算する。
+3行目：繰り返しの変数iの値を要素数(Binary) - 1から0まで1ずつ減らしながら4，5行目を繰り返す。
+5行目：変数kの値を1つ大きくする。
+4行目を実行するときの変数i、変数kの値は以下の通りである。
+1巡目|i = 3</li><li>k = 0
+2巡目|i = 2</li><li>k = 1
+3巡目|i = 1</li><li>k = 2
+4巡目|i = 0</li><li>k = 3
+選択肢から変数iは配列Binaryの要素の番号を指定するもの（Binary[i]）であることがわかる。
+変数kはi番目の要素の値（Binary[i]）にかける2のべきの値である。
+この操作に対応しているのは、「3．decimal + Binary[i] * 2 ** k」である。
+つまり、変数dicimalには次のように値が足し合わされていく。
+
+繰り返し|変数の値|足し合わせる式|decimalの値
+1巡目|i = 3</li><li>k = 0|Binary[3]×2⁰|0＋1×1 = 1
+2巡目|i = 2</li><li>k = 1|Binary[2]×2¹|1＋0×2 = 1
+3巡目|i = 1</li><li>k = 2|Binary[1]×2²|1＋1×4 = 5
+4巡目|i = 0</li><li>k = 3|Binary[0]×2³|5＋1×8 = 13
+
+6行目：結果を表示する。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="Nm8XvYt3EDo" data-video-title="305 2進数を10進数に変換するプログラム3：後ろ向きに進む繰り返し！？ #shorts" aria-controls="video-305-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=Nm8XvYt3EDo" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-305-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-306">
+          <div class="video-question-meta"><span>QUESTION 306</span></div>
+          <h2>入力された正の整数（10進数）を2進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素追加(配列, 値)は配列の末尾に新しい要素を追加する関数であり、逆順(配列)は配列の要素の並び順を逆にする関数である。
+また、a % bはaをbで割ったときのあまりを返し、a ÷ bはaをbで割ったときの商を返す。
+（1）decimal = 【外部からの入力】
+（2）Binary = [] #空のリスト
+（3）decimal &gt; 0 の間繰り返す：
+（4）｜ 追加する(Binary,（　ア　） )
+（5）⎿ decimal = （　イ　）
+（6）逆順(Binary)
+（7）表示する(decimal, &quot;を2進数にすると&quot;, Binary)
+
+（　ア　）（　イ　）
+1．ア decimal % 2　イ decimal % 2
+2．ア decimal % 2　イ decimal ÷ 2
+3．ア decimal ÷ 2　イ decimal % 2
+4．ア decimal ÷ 2　イ decimal ÷ 2</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>2．ア decimal % 2　イ decimal ÷ 2</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>例として、10進数13を2進数に変換する場合以下のように計算し、あまりの部分を下から上に並べる。
+10進数の計算|商|あまり
+13÷2|6|1
+6÷2|3|0
+3÷2|1|1
+1÷2|0|1
+この計算を念頭においてプログラムを見る。
+3～5行目で変数decimalの値を2進数へ変換する計算を行う。
+4行目：配列Binaryには変数decimalの値を2で割ったあまり（decimal % 2）が追加される。
+5行目：次のステップでの割られる数を計算する。つまり、変数decimalの値を「decimal ÷ 2」（2で割った商）に更新する。
+よって、空欄に入る組み合わせは「2．ア decimal % 2　イ decimal ÷ 2」である。
+6行目：ただし、このままでは配列Binaryの要素の順番が逆なので、配列Binaryの要素の並び順を逆にする。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="2vxKVn5spyQ" data-video-title="306 10進数を2進数に変換するプログラム：追加される要素の順番に注意しよう！ #shorts" aria-controls="video-306-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=2vxKVn5spyQ" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-306-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-307">
+          <div class="video-question-meta"><span>QUESTION 307</span></div>
+          <h2>入力された1桁の16進数（0～9，A～F）を10進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+（1）hex = 【外部からの入力】
+（2）Henkan = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;]
+（3）j = 0
+（4）（　ア　）の間繰り返す：
+（5）⎿ j = j + 1
+（6）表示する(&quot;16進数&quot;, hex, &quot;を10進数に変換すると&quot;, j)
+
+（　ア　）
+1．Henkan[j] == hex
+2．Henkan[j] != hex 
+3．Henkan[j] &gt; hex 
+4．Henkan[j] &lt; hex</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>2．Henkan[j] != hex</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>1行目：変数hexに1桁の16進数（0～9，A～F）をユーザが入力する。
+2行目：1桁の16進数（0～9，A～F）を並べた配列Henkanを準備する。配列の添字（10進数）と配列の要素（16進数）が10進数と16進数の変換の対応になっている。
+（参考図）
+Henkan = [0</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>&quot;A&quot;</li><li>&quot;B&quot;</li><li>&quot;C&quot;</li><li>&quot;D&quot;</li><li>&quot;E&quot;</li><li>&quot;F&quot;]
+添字（j）    0</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li><li>11</li><li>12</li><li>13</li><li>14</li><li>15
+3行目：変数jに数値0を代入して初期化する。
+4，5行目では、配列Henkanを検索し、入力された16進数（変数hexの値）が配列のどの要素と一致するかを調べる。
+そのために、一致する要素が見つかるまで、変数jの値（配列の添字）を1つずつ増加させる。
+一致する要素が見つかった時点での変数jの値が、入力された16進数（変数hexの値）を10進数に変換した結果である。
+
+つまり、繰り返しの条件は「2．Henkan[j] != hex」（Henkan[j]の値と変数hexの値が等しくない間繰り返す）である。
+
+6行目：10進数への変換結果として変数jの値を表示する。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="VNbv4U7No18" data-video-title="307 16進数を10進数に変換するプログラム：まずは1桁の変換から！ #shorts" aria-controls="video-307-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=VNbv4U7No18" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-307-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-308">
+          <div class="video-question-meta"><span>QUESTION 308</span></div>
+          <h2>配列Hexは与えられた16進数の各桁の値を要素として持つ。例えば、3AB(16)に対して配列Hexは[3, A, B]である。
+配列Hexに入力された16進数を10進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Hex = 【外部からの入力】
+（2）Henkan = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;]
+（3）decimal = 0
+（4）i を 0 から 要素数(Hex) - 1 まで 1 ずつ増やしながら繰り返す：
+（5）｜ j = 0 
+（6）｜ Henkan[j] != Hex[i]の間繰り返す：
+（7）｜ ⎿ j = j + 1 
+（8）⎿ decimal = decimal + （　ア　） 
+（9）表示する(&quot;16進数&quot;, Hex, &quot;を10進数に変換すると&quot;, decimal)
+
+（　ア　）
+1．j * (16 ** i)
+2．j * (16 ** (i - 1))
+3．j * (16 ** (要素数(Hex) - i))
+4．j * (16 ** (要素数(Hex) - i - 1))</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>4．j * (16 ** (要素数(Hex) - i - 1))</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>3AB(16)＝3×16²＋A×16¹＋B×16⁰＝3×256＋10×16＋11×1＝939
+※ A(16)＝10，B(16)＝11
+つまり、配列Hexのi番目の要素の値にかける16のべきは「要素数(Hex)  - i - 1」であることがわかる。
+プログラムを見る。
+4行目：繰り返しの変数iは配列Hexの添字を表す。
+5～7行目：配列Hexのi番目の要素の値（Hex[i]）に対応する10進数（変数jの値）を求める。
+8行目：変数decimalに（ア）を足し合わせる。
+（ア）には配列Hexのi番目の要素（10進数に変換した後は変数jの値）に16のべき乗をかけ合わせたものである。
+「4．j * (16 ** (要素数(Hex) - i - 1))」</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="3TZHpW-XOfY" data-video-title="308 16進数複数桁を10進数に変換するプログラム：具体例で考えよう！ #shorts" aria-controls="video-308-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=3TZHpW-XOfY" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-308-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-309">
+          <div class="video-question-meta"><span>QUESTION 309</span></div>
+          <h2>入力された正の整数（10進数）を16進数に変換するプログラムとなるように、空欄に入る最も適切なものを選べ。
+配列の添字は左端を0とし、要素追加(配列, 値)は配列の末尾に新しい要素を追加する関数であり、逆順(配列)は配列の要素の並び順を逆にする関数である。
+また、a % bはaをbで割ったときのあまりを返し、a ÷ bはaをbで割ったときの商を返す。
+（1）decimal = 【外部からの入力】
+（2）Hex = [] #空のリスト
+（3）Henkan = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, &quot;A&quot;, &quot;B&quot;, &quot;C&quot;, &quot;D&quot;, &quot;E&quot;, &quot;F&quot;]
+（4）decimal &gt; 0 の間繰り返す：
+（5）｜ 追加する(Hex,（　ア　） )
+（6）⎿ decimal = （　イ　）
+（7）逆順(Hex)
+（8）表示する(decimal, &quot;を2進数にすると&quot;, Binary)
+
+（　ア　）（　イ　）
+1．decimal % 16
+2．decimal ÷ 16
+3．Henkan(decimal ÷ 16)
+4．Henkan(decimal % 16)</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 4．Henkan(decimal % 16)
+イ 2．decimal ÷ 16</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>10進数で939を16進数に変換する場合、以下のように計算する。
+10進数の計算|商|あまり
+939÷16|58|11 = B(16)
+58÷16|3|10 = A(16)
+3÷16|0|3
+あまりの部分を下から上に並べた3ABが939を16進数に変換したものである。
+この計算を念頭においてプログラムを見る。
+4～6行目：変数decimalの値を16進数に変換し、配列Hexの要素として追加する。
+7行目：配列Hexの要素の並び順を逆にする。つまり、4～6行目時点での配列Hexの要素は16進数の逆順になっている。
+
+4～6行目の空欄を先程の10進数から16進数への変換の表を見ながら考える。
+5行目：配列Hexには変数decimalの値を16で割ったあまり（decimal % 16）を16進数にしたもの（対応する配列Henkanの要素の値）が追加されていく。
+Henkan(decimal % 16)
+6行目：次のステップでの割られる数を求める。つまり、変数decimalの値を「decimal ÷ 16」（16で割った商）に更新する。
+よって、空欄に入る組み合わせは「ア4．Henkan(decimal % 16) イ2．decimal ÷ 16」である。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="JjR3MMNgxT4" data-video-title="309 10進数を16進数に変換するプログラム：手順をプログラムにしよう！ #shorts" aria-controls="video-309-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=JjR3MMNgxT4" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-309-1" hidden></div>
+            </div>
+          </div>
+        </article>
+        <article class="video-question-card" id="q-310">
+          <div class="video-question-meta"><span>QUESTION 310</span></div>
+          <h2>次のプログラムは配列Arrayをバブルソートで昇順に整列するものである。
+実行回数ができるだけ少なくなるように空欄に入る最も適切なものを選べ。
+ただし、バブルソートとは次の手順により配列の並びを整列するものである。
+・隣り合う2つの要素の値を比較し、左側のほうが値が大きければ要素の値を交換する。
+・この操作を左から順に行う。
+→配列内の最大の要素が右端に来る。
+・右端を除いた部分（未ソート部分）でこの操作を繰り返す。
+・未ソート部分がなくなれば終了する。
+配列の添字は左端を0とし、要素数(配列)は配列の要素数を返すものとする。
+（1）Array = 【外部からの入力】
+（2）i を 0 から （　ア　） まで 1 ずつ増やしながら繰り返す：
+（3）｜ j を 0 から （　イ　） まで 1 ずつ増やしながら繰り返す：
+（4）｜ ｜ もし Array[j] &gt; Array[j + 1]ならば：
+（5）｜ ｜ ｜ tmp = Array[j]
+（6）｜ ｜ ｜ Array[j] = Array[j + 1]
+（7）⎿ ⎿ ⎿ Array[j + 1] = tmp
+（8）表示する(&quot;バブルソート後：&quot;, Array)
+
+（　ア　）
+1．要素数(Array)
+2．要素数(Array) - 1
+3．要素数(Array) - 2
+4．要素数(Array) - 3
+（　イ　）
+1．要素数(Array) - i
+2．要素数(Array) - i - 1
+3．要素数(Array) - i - 2
+4．要素数(Array) - i - 3</h2>
+          <details class="video-answer-panel">
+            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．要素数(Array) - 2
+イ 3．要素数(Array) - i - 2</strong></p></div>
+          </details>
+          <div class="video-question-tools">
+            <div class="video-keywords"><span>キーワード</span><ul><li>具体例として[4</li><li>5</li><li>1</li><li>3</li><li>2]をバブルソートで並び替える。
+1巡目（i = 0）
+[4</li><li>5</li><li>1</li><li>3</li><li>2]
+↓4と5を比較。4 &lt; 5なので交換は不要（j = 0）
+[4</li><li>5</li><li>1</li><li>3</li><li>2]
+↓5と1を比較。5 &gt; 1なので交換（j = 1）
+[4</li><li>1</li><li>5</li><li>3</li><li>2]
+↓5と3を比較。5 &gt; 3なので交換（j = 2）
+[4</li><li>1</li><li>3</li><li>5</li><li>2]
+↓5と2を比較。5 &gt; 2なので交換（j = 3）
+[4</li><li>1</li><li>3</li><li>2</li><li>5]
+1巡目終了時点：[4</li><li>1</li><li>3</li><li>2</li><li>5]（ソート済み太字）
+2巡目（i = 1）
+[4</li><li>1</li><li>3</li><li>2</li><li>5]
+↓4と1を比較。4 &gt; 1なので交換（j = 0）
+[1</li><li>4</li><li>3</li><li>2</li><li>5]
+↓4と3を比較。4 &gt; 3なので交換（j = 1）
+[1</li><li>3</li><li>4</li><li>2</li><li>5]
+↓4と2を比較。4 &gt; 2なので交換（j = 2）
+[1</li><li>3</li><li>2</li><li>4</li><li>5]
+2巡目終了時点：[1</li><li>3</li><li>2</li><li>4</li><li>5]
+3巡目（i = 2）
+[1</li><li>3</li><li>2</li><li>4</li><li>5]
+↓1と3を比較。1 &lt; 3なので交換は不要（j = 0）
+[1</li><li>3</li><li>2</li><li>4</li><li>5]
+↓3と2を比較。3 &gt; 2なので交換（j = 1）
+[1</li><li>2</li><li>3</li><li>4</li><li>5]
+3巡目終了時点：[1</li><li>2</li><li>3</li><li>4</li><li>5]
+4巡目（i = 3）
+[1</li><li>2</li><li>3</li><li>4</li><li>5]
+↓1と2を比較。1 &lt; 2なので交換は不要（j = 0）
+[1</li><li>2</li><li>3</li><li>4</li><li>5]
+4巡目終了時点：[1</li><li>2</li><li>3</li><li>4</li><li>5]
+→最小値が1に決定するので、[1</li><li>2</li><li>3</li><li>4</li><li>5]すべて整列完了
+
+4～7行目：比較と交換を行う。
+つまり、各繰り返しの中にある処理「↓の部分」を行っている。
+要素数が5の場合、i = 0</li><li>1</li><li>2</li><li>3 の4回繰り返し、
+各繰り返しでの処理jは
+・i = 0のとき：j = 0～3の4回
+・i = 1のとき：j = 0～2の3回
+・i = 2のとき：j = 0</li><li>1の2回
+・i = 3のとき：j = 0の1回
+の繰り返しである。
+つまり、外側の繰り返しの変数iは「0 から 要素数(Array) - 2」（i = 0</li><li>1</li><li>2</li><li>3 の4回）であり、3行目の内側の繰り返しの変数jは「0 から 要素数(Array) - i - 2」である。
+※要素数(Array) - i - 2は、i = 0のとき3、i = 1のとき2、i = 2のとき1、i = 1のとき0となる。</li></ul></div>
+            <div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="sgFj8IQNX1c" data-video-title="310 バブルソート：具体例を見ながらプログラムを完成させよう！ #shorts" aria-controls="video-310-1" aria-expanded="false">解説動画を表示</button>
+              <a class="video-direct-link" href="https://www.youtube.com/watch?v=sgFj8IQNX1c" target="_blank" rel="noopener noreferrer">YouTubeで見る</a>
+              <div class="video-frame" id="video-310-1" hidden></div>
+            </div>
+          </div>
+        </article></section>
+      <nav class="pagination" aria-label="ページ送り"><a class="page-direction" href="programming-7.html">← 前へ</a><div class="page-numbers"><a href="programming.html" aria-label="1ページ目">1</a><a href="programming-2.html" aria-label="2ページ目">2</a><a href="programming-3.html" aria-label="3ページ目">3</a><a href="programming-4.html" aria-label="4ページ目">4</a><a href="programming-5.html" aria-label="5ページ目">5</a><a href="programming-6.html" aria-label="6ページ目">6</a><a href="programming-7.html" aria-label="7ページ目">7</a><span aria-current="page">8</span><a href="programming-9.html" aria-label="9ページ目">9</a><a href="programming-10.html" aria-label="10ページ目">10</a></div><a class="page-direction" href="programming-9.html">次へ →</a></nav>
+      <aside class="content-note archive-policy"><h2>解説本文について</h2><p>このページでは、問題・答え・キーワードと対応動画だけを掲載しています。書籍に収録した解説本文は掲載していません。</p></aside>
+    </main>
+    <script type="application/ld+json">{"@context": "https://schema.org", "@type": "CollectionPage", "name": "プログラミングの一問一答 Q301〜Q310 8ページ目 | 情報Ⅰ", "description": "情報Ⅰ「プログラミング」の一問一答Q301〜Q310。答え・キーワード・YouTube解説動画で学べます。解説本文は掲載していません。", "url": "https://mei-chan-nel.github.io/archive/programming-8.html", "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": "https://mei-chan-nel.github.io/"}}</script>
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、繋ぎ、ひろげる。</p></div>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../info1-quiz-app/questions/index.html">問題一覧</a>
+          <a href="./index.html">動画問題</a>
+          <a href="../books/index.html">問題集</a>
+          <a href="../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../about.html">このサイトについて</a>
+          <a href="../privacy.html">プライバシーポリシー</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+  </body>
+</html>

@@ -82,6 +82,13 @@ def local_target(source: Path, href: str) -> tuple[Path, str] | None:
     else:
         target = source
     target = target.resolve()
+    virtual_app_root = (ROOT / "info1-quiz-app").resolve()
+    try:
+        app_relative = target.relative_to(virtual_app_root)
+    except ValueError:
+        pass
+    else:
+        target = APP_ROOT / app_relative
     if target.is_dir():
         target = target / "index.html"
     return target, unquote(split.fragment)
@@ -93,16 +100,23 @@ def sitemap_urls(path: Path) -> list[str]:
     return [node.text.strip() for node in tree.findall("s:url/s:loc", namespace) if node.text]
 
 
+def public_url(path: Path) -> str:
+    relative = path.relative_to(ROOT).as_posix()
+    if relative == "index.html":
+        return SITE_ORIGIN
+    if relative.endswith("/index.html"):
+        return f"{SITE_ORIGIN}{relative.removesuffix('index.html')}"
+    return f"{SITE_ORIGIN}{relative}"
+
+
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
-    page_paths = [ROOT / "index.html", ROOT / "about.html", ROOT / "privacy.html"]
+    video_report_path = ROOT / "docs" / "video-library-build.json"
+    video_report = json.loads(video_report_path.read_text(encoding="utf-8"))
+    video_page_paths = [ROOT / path for path in video_report.get("learning_pages", [])]
+    page_paths = [ROOT / "index.html", ROOT / "about.html", ROOT / "privacy.html", ROOT / "books" / "index.html", *video_page_paths]
     parsed = {path.resolve(): parse_page(path) for path in page_paths}
-    expected_canonicals = {
-        "index.html": SITE_ORIGIN,
-        "about.html": f"{SITE_ORIGIN}about.html",
-        "privacy.html": f"{SITE_ORIGIN}privacy.html",
-    }
 
     for path in page_paths:
         parser = parsed[path.resolve()]
@@ -110,8 +124,9 @@ def main() -> int:
             errors.append(f"{path.name}: missing title")
         if not parser.description:
             errors.append(f"{path.name}: missing meta description")
-        if parser.canonical != expected_canonicals[path.name]:
-            errors.append(f"{path.name}: unexpected canonical URL: {parser.canonical}")
+        expected_canonical = public_url(path)
+        if parser.canonical != expected_canonical:
+            errors.append(f"{path.relative_to(ROOT)}: unexpected canonical URL: {parser.canonical}")
         if parser.h1_count != 1:
             errors.append(f"{path.name}: expected one h1, found {parser.h1_count}")
 
@@ -129,11 +144,51 @@ def main() -> int:
                 if fragment not in target_parser.ids:
                     errors.append(f"{source.name}: missing fragment target {href}")
 
-    if AD_MARKER not in (ROOT / "index.html").read_text(encoding="utf-8"):
-        errors.append("index.html: AdSense script is missing")
-    for path in (ROOT / "about.html", ROOT / "privacy.html"):
+    ad_pages = [ROOT / "index.html", *video_page_paths]
+    for path in ad_pages:
+        if AD_MARKER not in path.read_text(encoding="utf-8"):
+            errors.append(f"{path.relative_to(ROOT)}: learning page is missing AdSense script")
+    for path in (ROOT / "about.html", ROOT / "privacy.html", ROOT / "books" / "index.html"):
         if AD_MARKER in path.read_text(encoding="utf-8"):
             errors.append(f"{path.name}: informational page must be ad-free")
+
+    video_data = json.loads((ROOT / "data" / "video-questions.json").read_text(encoding="utf-8"))
+    video_questions = [question for section in video_data.get("sections", []) for question in section.get("questions", [])]
+    if video_data.get("question_count") != 330 or len(video_questions) != 330:
+        errors.append("video-questions.json: expected exactly 330 questions")
+    video_numbers = [question.get("number") for question in video_questions]
+    if sorted(video_numbers) != list(range(1, 331)):
+        errors.append("video-questions.json: question numbers must be unique and cover 1 through 330")
+    if any(not str(question.get("answer") or "").strip() for question in video_questions):
+        errors.append("video-questions.json: every question must have an answer")
+    if any("explanation" in question or "解説" in question for question in video_questions):
+        errors.append("video-questions.json: explanation text must not be published")
+    if any(not question.get("videos") for question in video_questions):
+        errors.append("video-questions.json: every question must have a mapped video")
+    if video_report.get("explanation_text_published") is not False:
+        errors.append("video-library-build.json: explanation publication flag must be false")
+    if any("<iframe" in path.read_text(encoding="utf-8").lower() for path in video_page_paths):
+        errors.append("archive pages: video iframes must not load before user interaction")
+    embed_script = (ROOT / "assets" / "video-embeds.js").read_text(encoding="utf-8")
+    if "youtube-nocookie.com/embed/" not in embed_script:
+        errors.append("video-embeds.js: privacy-enhanced YouTube embed URL is missing")
+
+    app_questions = json.loads((APP_ROOT / "data" / "questions" / "completed_questions.json").read_text(encoding="utf-8"))
+    app_question_count = len(app_questions)
+    unique_tags = {str(tag) for question in app_questions for tag in question.get("tags", []) if str(tag).strip()}
+    top_text = (ROOT / "index.html").read_text(encoding="utf-8")
+    if app_question_count != 1000 or "1,000" not in top_text:
+        errors.append("index.html: completed 1,000-question count is not synchronized")
+    if len(unique_tags) != 613 or "613" not in top_text:
+        errors.append("index.html: unique tag count is not synchronized")
+    for obsolete_copy in ("知識を、点でなく地図にする", "問題一覧から読む", "ランダムに挑戦する"):
+        if obsolete_copy in top_text:
+            errors.append(f"index.html: obsolete top-page copy remains: {obsolete_copy}")
+    if top_text.count('class="field-card ') != 6 or top_text.count('class="map-node ') != 6:
+        errors.append("index.html: expected six linked field cards and six linked map nodes")
+    for asin in ("B0CFY4F6TB", "B0CPWBVTRT", "B0DQFKKDST", "B0CTY6G1DG"):
+        if asin not in (ROOT / "books" / "index.html").read_text(encoding="utf-8"):
+            errors.append(f"books/index.html: missing Amazon title link {asin}")
 
     ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
     if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":
@@ -145,7 +200,7 @@ def main() -> int:
         portal_urls = sitemap_urls(ROOT / "sitemap.xml")
         if len(portal_urls) != len(set(portal_urls)):
             errors.append("sitemap.xml contains duplicate URLs")
-        required = {SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", f"{SITE_ORIGIN}info1-quiz-app/app/"}
+        required = {SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", f"{SITE_ORIGIN}books/", f"{SITE_ORIGIN}archive/", f"{SITE_ORIGIN}info1-quiz-app/app/"}
         missing_required = sorted(required - set(portal_urls))
         if missing_required:
             errors.append(f"sitemap.xml is missing required URLs: {missing_required}")
@@ -153,7 +208,7 @@ def main() -> int:
         if app_report.exists():
             report = json.loads(app_report.read_text(encoding="utf-8"))
             app_paths = [*report.get("learning_pages", []), report.get("related_app_page", "")]
-            expected_urls = [SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", *(f"{SITE_ORIGIN}info1-quiz-app/{path}" for path in app_paths)]
+            expected_urls = [*(public_url(path) for path in page_paths), *(f"{SITE_ORIGIN}info1-quiz-app/{path}" for path in app_paths)]
             if portal_urls != list(dict.fromkeys(expected_urls)):
                 errors.append("sitemap.xml is not synchronized with the question-library build report")
             for obsolete_app_page in (APP_ROOT / "app" / "about.html", APP_ROOT / "app" / "privacy.html"):
@@ -178,7 +233,10 @@ def main() -> int:
         "checks": [
             "titles, descriptions, canonical URLs, and one h1 per portal page",
             "portal and cross-repository links and fragments",
-            "AdSense only on the content-rich portal top",
+            "AdSense on the portal top and learning pages, but not informational or book-guide pages",
+            "330 video-question mappings without book explanation text",
+            "privacy-enhanced click-to-load YouTube embeds",
+            "top-page counts, requested copy, six linked fields, and four KDP title links",
             "host-root ads.txt and robots.txt",
             "sitemap synchronization with the info1-quiz-app build report",
         ],
