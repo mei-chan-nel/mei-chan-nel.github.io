@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import sys
 import xml.etree.ElementTree as ET
 from html.parser import HTMLParser
@@ -38,6 +39,8 @@ class PageParser(HTMLParser):
         if tag == "link" and values.get("href"):
             self.assets.append(values["href"])
         if tag == "script" and values.get("src"):
+            self.assets.append(values["src"])
+        if tag == "img" and values.get("src"):
             self.assets.append(values["src"])
         if tag == "a" and values.get("href"):
             self.links.append(values["href"])
@@ -115,7 +118,7 @@ def main() -> int:
     video_report_path = ROOT / "docs" / "video-library-build.json"
     video_report = json.loads(video_report_path.read_text(encoding="utf-8"))
     video_page_paths = [ROOT / path for path in video_report.get("learning_pages", [])]
-    page_paths = [ROOT / "index.html", ROOT / "about.html", ROOT / "privacy.html", ROOT / "books" / "index.html", *video_page_paths]
+    page_paths = [ROOT / "index.html", ROOT / "about.html", ROOT / "privacy.html", ROOT / "sitemap.html", ROOT / "books" / "index.html", *video_page_paths]
     parsed = {path.resolve(): parse_page(path) for path in page_paths}
 
     for path in page_paths:
@@ -129,6 +132,8 @@ def main() -> int:
             errors.append(f"{path.relative_to(ROOT)}: unexpected canonical URL: {parser.canonical}")
         if parser.h1_count != 1:
             errors.append(f"{path.name}: expected one h1, found {parser.h1_count}")
+        if "sitemap.html" not in path.read_text(encoding="utf-8"):
+            errors.append(f"{path.relative_to(ROOT)}: footer sitemap link is missing")
 
     for source, parser in parsed.items():
         for href in parser.links + parser.assets:
@@ -148,7 +153,7 @@ def main() -> int:
     for path in ad_pages:
         if AD_MARKER not in path.read_text(encoding="utf-8"):
             errors.append(f"{path.relative_to(ROOT)}: learning page is missing AdSense script")
-    for path in (ROOT / "about.html", ROOT / "privacy.html", ROOT / "books" / "index.html"):
+    for path in (ROOT / "about.html", ROOT / "privacy.html", ROOT / "sitemap.html", ROOT / "books" / "index.html"):
         if AD_MARKER in path.read_text(encoding="utf-8"):
             errors.append(f"{path.name}: informational page must be ad-free")
 
@@ -165,10 +170,40 @@ def main() -> int:
         errors.append("video-questions.json: explanation text must not be published")
     if any(not question.get("videos") for question in video_questions):
         errors.append("video-questions.json: every question must have a mapped video")
+    if any(not 2 <= len(question.get("keywords") or []) <= 4 for question in video_questions):
+        errors.append("video-questions.json: every question must have 2-4 audited keywords")
+    keyword_report_path = ROOT / "docs" / "video-keyword-audit.json"
+    if not keyword_report_path.is_file():
+        errors.append("video-keyword-audit.json: audit report is missing")
+    else:
+        keyword_report = json.loads(keyword_report_path.read_text(encoding="utf-8"))
+        if keyword_report.get("question_count") != 330 or keyword_report.get("old_keywords_used_as_input") is not False:
+            errors.append("video-keyword-audit.json: audit provenance is invalid")
+        current_hash = hashlib.sha256((ROOT / "data" / "video-questions.json").read_bytes()).hexdigest()
+        if keyword_report.get("data_sha256") != current_hash:
+            errors.append("video-keyword-audit.json: data hash does not match video-questions.json")
+        audited = {int(entry["number"]): entry.get("keywords") for entry in keyword_report.get("entries", [])}
+        current = {int(question["number"]): question.get("keywords") for question in video_questions}
+        if audited != current:
+            errors.append("video-keyword-audit.json: audited keywords do not match public data")
     if video_report.get("explanation_text_published") is not False:
         errors.append("video-library-build.json: explanation publication flag must be false")
+    if video_report.get("page_size") != 10 or len(video_report.get("field_counts", {})) != 4:
+        errors.append("video-library-build.json: expected four public fields with 10 questions per page")
+    if video_report.get("youtube_direct_links_published") is not False:
+        errors.append("video-library-build.json: YouTube direct links must not be published")
+    if video_report.get("programming_code_blocks") != 100:
+        errors.append("video-library-build.json: expected 100 programming code blocks")
     if any("<iframe" in path.read_text(encoding="utf-8").lower() for path in video_page_paths):
         errors.append("archive pages: video iframes must not load before user interaction")
+    video_html = "\n".join(path.read_text(encoding="utf-8") for path in video_page_paths)
+    if "YouTubeで見る" in video_html or "video-direct-link" in video_html or "youtube.com/watch?v=" in video_html:
+        errors.append("archive pages: obsolete YouTube direct links remain")
+    if video_html.count('<pre class="question-code"') != 100:
+        errors.append("archive pages: every programming question must contain one code block")
+    stylesheet = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
+    if ".question-code" not in stylesheet or "white-space: pre" not in stylesheet or "overflow-x: auto" not in stylesheet:
+        errors.append("site.css: non-wrapping horizontally scrollable code-block styles are missing")
     embed_script = (ROOT / "assets" / "video-embeds.js").read_text(encoding="utf-8")
     if "youtube-nocookie.com/embed/" not in embed_script:
         errors.append("video-embeds.js: privacy-enhanced YouTube embed URL is missing")
@@ -184,8 +219,14 @@ def main() -> int:
     for obsolete_copy in ("知識を、点でなく地図にする", "問題一覧から読む", "ランダムに挑戦する"):
         if obsolete_copy in top_text:
             errors.append(f"index.html: obsolete top-page copy remains: {obsolete_copy}")
-    if top_text.count('class="field-card ') != 6 or top_text.count('class="map-node ') != 6:
+    if top_text.count('class="field-card accent-') != 6 or top_text.count('class="map-node ') != 6:
         errors.append("index.html: expected six linked field cards and six linked map nodes")
+    if top_text.count('class="field-card compact-field-card ') != 4:
+        errors.append("index.html: expected four linked video-question category cards")
+    if top_text.count('class="book-showcase-card"') != 4 or top_text.count('assets/books/') != 4:
+        errors.append("index.html: expected four linked book cards with local cover images")
+    if 'class="app-cta app-cta-link"' not in top_text or "知識・計算問題の学習用アプリ" not in top_text:
+        errors.append("index.html: linked learning-app CTA is missing")
     for asin in ("B0CFY4F6TB", "B0CPWBVTRT", "B0DQFKKDST", "B0CTY6G1DG"):
         if asin not in (ROOT / "books" / "index.html").read_text(encoding="utf-8"):
             errors.append(f"books/index.html: missing Amazon title link {asin}")
@@ -200,7 +241,7 @@ def main() -> int:
         portal_urls = sitemap_urls(ROOT / "sitemap.xml")
         if len(portal_urls) != len(set(portal_urls)):
             errors.append("sitemap.xml contains duplicate URLs")
-        required = {SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", f"{SITE_ORIGIN}books/", f"{SITE_ORIGIN}archive/", f"{SITE_ORIGIN}info1-quiz-app/app/"}
+        required = {SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", f"{SITE_ORIGIN}sitemap.html", f"{SITE_ORIGIN}books/", f"{SITE_ORIGIN}archive/", f"{SITE_ORIGIN}info1-quiz-app/app/"}
         missing_required = sorted(required - set(portal_urls))
         if missing_required:
             errors.append(f"sitemap.xml is missing required URLs: {missing_required}")
@@ -235,8 +276,10 @@ def main() -> int:
             "portal and cross-repository links and fragments",
             "AdSense on the portal top and learning pages, but not informational or book-guide pages",
             "330 video-question mappings without book explanation text",
+            "330 explicitly audited keyword sets independent of the original keyword column",
             "privacy-enhanced click-to-load YouTube embeds",
-            "top-page counts, requested copy, six linked fields, and four KDP title links",
+            "formatted question text, 100 non-wrapping programming code blocks, and no YouTube direct links",
+            "top-page counts, linked app CTA, six app fields, four video fields, and four illustrated KDP title links",
             "host-root ads.txt and robots.txt",
             "sitemap synchronization with the info1-quiz-app build report",
         ],

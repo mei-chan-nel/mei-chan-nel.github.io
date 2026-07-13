@@ -35,10 +35,6 @@ def parse_number(value: object) -> int | None:
     return int(match.group(1)) if match else None
 
 
-def split_keywords(value: object) -> list[str]:
-    return [item.strip() for item in str(value or "").split(",") if item.strip()]
-
-
 def read_videos(path: Path) -> dict[int, list[dict[str, str]]]:
     videos = json.loads(path.read_text(encoding="utf-8"))
     mapped: dict[int, list[dict[str, str]]] = {}
@@ -82,7 +78,6 @@ def main() -> int:
             number = parse_number(row[0] if row else None)
             question = str(row[1] or "").strip() if len(row) > 1 else ""
             answer = str(row[2] or "").strip() if len(row) > 2 else ""
-            keywords = split_keywords(row[4] if len(row) > 4 else None)
             if number is None or not question:
                 continue
             if number in seen_numbers:
@@ -96,7 +91,9 @@ def main() -> int:
                     "number": number,
                     "question": question,
                     "answer": answer,
-                    "keywords": keywords,
+                    # The workbook keyword column is not a reliable source.
+                    # scripts/rebuild_video_keywords.py replaces this empty list.
+                    "keywords": [],
                     "videos": videos_by_number.get(number, []),
                 }
             )
@@ -122,7 +119,7 @@ def main() -> int:
     payload = {
         "generated_on": date.today().isoformat(),
         "question_count": len(seen_numbers),
-        "content_policy": "問題・答え・キーワード・対応動画のみ。解説本文は収録しない。",
+        "content_policy": "問題・答え・対応動画のみを原本から抽出し、キーワードは別の全問監査表から付与する。解説本文は収録しない。",
         "youtube_channel": "https://www.youtube.com/@mei_chan_nel",
         "sections": sections,
     }

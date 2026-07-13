@@ -1,27 +1,25 @@
 {
-  "generated_on": "2026-07-13",
+  "generated_on": "2026-07-14",
   "generator": "scripts/generate_video_pages.py",
   "source": "data/video-questions.json",
   "question_count": 330,
   "video_count": 333,
   "page_size": 10,
   "field_counts": {
-    "information-society": 32,
-    "information-design": 33,
+    "information-society-design": 65,
     "digital": 60,
     "network": 105,
     "programming": 100
   },
   "learning_pages": [
     "archive/index.html",
-    "archive/information-society.html",
-    "archive/information-society-2.html",
-    "archive/information-society-3.html",
-    "archive/information-society-4.html",
-    "archive/information-design.html",
-    "archive/information-design-2.html",
-    "archive/information-design-3.html",
-    "archive/information-design-4.html",
+    "archive/information-society-design.html",
+    "archive/information-society-design-2.html",
+    "archive/information-society-design-3.html",
+    "archive/information-society-design-4.html",
+    "archive/information-society-design-5.html",
+    "archive/information-society-design-6.html",
+    "archive/information-society-design-7.html",
     "archive/digital.html",
     "archive/digital-2.html",
     "archive/digital-3.html",
@@ -50,5 +48,8 @@
     "archive/programming-9.html",
     "archive/programming-10.html"
   ],
-  "explanation_text_published": false
+  "explanation_text_published": false,
+  "keyword_audit": "docs/video-keyword-audit.json",
+  "youtube_direct_links_published": false,
+  "programming_code_blocks": 100
 }
