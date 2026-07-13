@@ -225,11 +225,20 @@ def main() -> int:
         errors.append("index.html: expected four linked video-question category cards")
     if top_text.count('class="book-showcase-card"') != 4 or top_text.count('assets/books/') != 4:
         errors.append("index.html: expected four linked book cards with local cover images")
+    if top_text.count('class="book-showcase-description"') != 4:
+        errors.append("index.html: every book card must contain its own description")
+    if '<h1>知識を、<br /><em>ひろげ、<br />つなげる</em></h1>' not in top_text:
+        errors.append("index.html: the three-line site slogan is missing")
     if 'class="app-cta app-cta-link"' not in top_text or "知識・計算問題の学習用アプリ" not in top_text:
         errors.append("index.html: linked learning-app CTA is missing")
     for asin in ("B0CFY4F6TB", "B0CPWBVTRT", "B0DQFKKDST", "B0CTY6G1DG"):
         if asin not in (ROOT / "books" / "index.html").read_text(encoding="utf-8"):
             errors.append(f"books/index.html: missing Amazon title link {asin}")
+    books_text = (ROOT / "books" / "index.html").read_text(encoding="utf-8")
+    if books_text.count('class="book-visual"') != 4 or books_text.count('class="book-description"') != 4:
+        errors.append("books/index.html: expected four thumbnail-and-description book rows")
+    if "background: #f3f7f6" not in stylesheet or "color: var(--ink)" not in stylesheet:
+        errors.append("site.css: light code-block color scheme is missing")
 
     ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
     if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":
@@ -278,8 +287,8 @@ def main() -> int:
             "330 video-question mappings without book explanation text",
             "330 explicitly audited keyword sets independent of the original keyword column",
             "privacy-enhanced click-to-load YouTube embeds",
-            "formatted question text, 100 non-wrapping programming code blocks, and no YouTube direct links",
-            "top-page counts, linked app CTA, six app fields, four video fields, and four illustrated KDP title links",
+            "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
+            "top-page counts, three-line slogan, linked app CTA, six app fields, four video fields, and four responsive thumbnail-and-description KDP rows",
             "host-root ads.txt and robots.txt",
             "sitemap synchronization with the info1-quiz-app build report",
         ],

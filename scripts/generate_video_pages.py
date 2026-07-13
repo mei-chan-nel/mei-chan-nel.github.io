@@ -125,7 +125,7 @@ def header(current: str) -> str:
 def footer() -> str:
     return """    <footer class="site-footer">
       <div class="footer-grid">
-        <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、繋ぎ、ひろげる。</p></div>
+        <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div>
         <nav aria-label="フッターナビゲーション">
           <a href="../info1-quiz-app/questions/index.html">問題一覧</a>
           <a href="./index.html">動画問題</a>
