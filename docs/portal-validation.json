@@ -1,17 +1,20 @@
 {
   "status": "pass",
-  "html_pages_checked": 40,
-  "sitemap_urls": 144,
+  "html_pages_checked": 42,
+  "sitemap_urls": 147,
   "errors": [],
   "warnings": [],
   "checks": [
     "titles, descriptions, canonical URLs, and one h1 per portal page",
+    "Open Graph and BreadcrumbList structured metadata",
     "portal and cross-repository links and fragments",
     "AdSense on the portal top and learning pages, but not informational or book-guide pages",
     "330 video-question mappings without book explanation text",
     "330 explicitly audited keyword sets independent of the original keyword column",
     "privacy-enhanced click-to-load YouTube embeds",
     "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
+    "linked keywords, complete keyword index, and multi-keyword OR filtering",
+    "substantive information-I study guide with official references and audience language",
     "top-page counts, three-line slogan, linked app CTA, six app fields, four video fields, and four responsive thumbnail-and-description KDP rows",
     "host-root ads.txt and robots.txt",
     "sitemap synchronization with the info1-quiz-app build report"

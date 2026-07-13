@@ -5,6 +5,7 @@
 このリポジトリでは次を管理します。
 
 - 学習ポータルトップ
+- 共通テスト「情報Ⅰ」の勉強法
 - 動画で学ぶ一問一答330問
 - Kindle問題集4冊の紹介
 - このサイトについて
@@ -21,6 +22,7 @@
 
 ```text
 index.html
+study-guide.html
 about.html
 privacy.html
 sitemap.html
@@ -33,6 +35,7 @@ assets/
   site.css
   favicon.svg
   video-embeds.js
+  video-filter.js
   books/
     <書影4点>.jpg
 data/
@@ -84,7 +87,7 @@ python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリル
 python scripts/validate_portal.py
 ```
 
-検証はポータル40ページ、広告コード範囲、内部リンク、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
+検証はポータル42ページ、広告コード範囲、内部リンク、SEOメタ情報、構造化データ、タグ／キーワードOR検索、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
 
 ## 公開
 

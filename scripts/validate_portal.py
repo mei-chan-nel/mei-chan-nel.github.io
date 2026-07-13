@@ -118,7 +118,15 @@ def main() -> int:
     video_report_path = ROOT / "docs" / "video-library-build.json"
     video_report = json.loads(video_report_path.read_text(encoding="utf-8"))
     video_page_paths = [ROOT / path for path in video_report.get("learning_pages", [])]
-    page_paths = [ROOT / "index.html", ROOT / "about.html", ROOT / "privacy.html", ROOT / "sitemap.html", ROOT / "books" / "index.html", *video_page_paths]
+    page_paths = [
+        ROOT / "index.html",
+        ROOT / "study-guide.html",
+        ROOT / "about.html",
+        ROOT / "privacy.html",
+        ROOT / "sitemap.html",
+        ROOT / "books" / "index.html",
+        *video_page_paths,
+    ]
     parsed = {path.resolve(): parse_page(path) for path in page_paths}
 
     for path in page_paths:
@@ -134,6 +142,12 @@ def main() -> int:
             errors.append(f"{path.name}: expected one h1, found {parser.h1_count}")
         if "sitemap.html" not in path.read_text(encoding="utf-8"):
             errors.append(f"{path.relative_to(ROOT)}: footer sitemap link is missing")
+        page_text = path.read_text(encoding="utf-8")
+        for marker in ('property="og:title"', 'property="og:description"', 'property="og:url"'):
+            if marker not in page_text:
+                errors.append(f"{path.relative_to(ROOT)}: missing {marker}")
+        if path.name != "index.html" and '"@type":"BreadcrumbList"' not in page_text:
+            errors.append(f"{path.relative_to(ROOT)}: BreadcrumbList structured data is missing")
 
     for source, parser in parsed.items():
         for href in parser.links + parser.assets:
@@ -149,7 +163,7 @@ def main() -> int:
                 if fragment not in target_parser.ids:
                     errors.append(f"{source.name}: missing fragment target {href}")
 
-    ad_pages = [ROOT / "index.html", *video_page_paths]
+    ad_pages = [ROOT / "index.html", ROOT / "study-guide.html", *video_page_paths]
     for path in ad_pages:
         if AD_MARKER not in path.read_text(encoding="utf-8"):
             errors.append(f"{path.relative_to(ROOT)}: learning page is missing AdSense script")
@@ -196,11 +210,43 @@ def main() -> int:
         errors.append("video-library-build.json: expected 100 programming code blocks")
     if any("<iframe" in path.read_text(encoding="utf-8").lower() for path in video_page_paths):
         errors.append("archive pages: video iframes must not load before user interaction")
+    regular_video_pages = [
+        path for path in video_page_paths if path.name not in {"index.html", "keywords.html"}
+    ]
     video_html = "\n".join(path.read_text(encoding="utf-8") for path in video_page_paths)
     if "YouTubeで見る" in video_html or "video-direct-link" in video_html or "youtube.com/watch?v=" in video_html:
         errors.append("archive pages: obsolete YouTube direct links remain")
     if video_html.count('<pre class="question-code"') != 100:
         errors.append("archive pages: every programming question must contain one code block")
+    expected_keywords = {
+        str(keyword).strip()
+        for question in video_questions
+        for keyword in question.get("keywords", [])
+        if str(keyword).strip()
+    }
+    regular_video_html = "\n".join(path.read_text(encoding="utf-8") for path in regular_video_pages)
+    if regular_video_html.count('class="keyword-link"') != sum(len(question["keywords"]) for question in video_questions):
+        errors.append("archive pages: every published keyword must be a link")
+    if 'href="keywords.html?keyword=' not in regular_video_html:
+        errors.append("archive pages: keywords do not link to the keyword filter")
+    keyword_page = ROOT / "archive" / "keywords.html"
+    keyword_data_path = ROOT / "archive" / "filter-data.json"
+    keyword_script_path = ROOT / "assets" / "video-filter.js"
+    if not keyword_page.is_file() or not keyword_data_path.is_file() or not keyword_script_path.is_file():
+        errors.append("Keyword filter page, data, or script is missing")
+    else:
+        keyword_text = keyword_page.read_text(encoding="utf-8")
+        if keyword_text.count('class="facet-link"') != len(expected_keywords):
+            errors.append("keywords.html: expected one link for every unique keyword")
+        if "data-video-filter" not in keyword_text or 'data-filter-param="keyword"' not in keyword_text:
+            errors.append("keywords.html: OR filter configuration is missing")
+        payload = json.loads(keyword_data_path.read_text(encoding="utf-8"))
+        if payload.get("question_count") != len(video_questions) or payload.get("keyword_count") != len(expected_keywords):
+            errors.append("archive/filter-data.json: question or keyword counts are invalid")
+        if payload.get("match_mode") != "OR" or len(payload.get("questions", [])) != len(video_questions):
+            errors.append("archive/filter-data.json: OR filter payload is invalid")
+        if "URLSearchParams" not in keyword_script_path.read_text(encoding="utf-8"):
+            errors.append("video-filter.js: URL-based multi-keyword filter is missing")
     stylesheet = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
     if ".question-code" not in stylesheet or "white-space: pre" not in stylesheet or "overflow-x: auto" not in stylesheet:
         errors.append("site.css: non-wrapping horizontally scrollable code-block styles are missing")
@@ -227,8 +273,18 @@ def main() -> int:
         errors.append("index.html: expected four linked book cards with local cover images")
     if top_text.count('class="book-showcase-description"') != 4:
         errors.append("index.html: every book card must contain its own description")
-    if '<h1>知識を、<br /><em>ひろげ、<br />つなげる</em></h1>' not in top_text:
+    if '<span class="hero-slogan">知識を、<br /><em>ひろげ、<br />つなげる</em></span>' not in top_text:
         errors.append("index.html: the three-line site slogan is missing")
+    for target_term in ("情報Ⅰ", "情報1", "共通テスト", "高校生", "受験生"):
+        if target_term not in top_text:
+            errors.append(f"index.html: target-audience language is missing: {target_term}")
+    guide_text = (ROOT / "study-guide.html").read_text(encoding="utf-8")
+    for marker in ("情報Ⅰ（情報1）", "勉強法", "3か月", "1か月", "1週間", '"@type":"Article"'):
+        if marker not in guide_text:
+            errors.append(f"study-guide.html: required substantive guide marker is missing: {marker}")
+    for official_host in ("mext.go.jp", "dnc.ac.jp"):
+        if official_host not in guide_text:
+            errors.append(f"study-guide.html: official reference is missing: {official_host}")
     if 'class="app-cta app-cta-link"' not in top_text or "知識・計算問題の学習用アプリ" not in top_text:
         errors.append("index.html: linked learning-app CTA is missing")
     for asin in ("B0CFY4F6TB", "B0CPWBVTRT", "B0DQFKKDST", "B0CTY6G1DG"):
@@ -243,14 +299,28 @@ def main() -> int:
     ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
     if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":
         errors.append("ads.txt contains an unexpected publisher record")
-    if f"Sitemap: {SITE_ORIGIN}sitemap.xml" not in (ROOT / "robots.txt").read_text(encoding="utf-8"):
+    robots_text = (ROOT / "robots.txt").read_text(encoding="utf-8")
+    if f"Sitemap: {SITE_ORIGIN}sitemap.xml" not in robots_text:
         errors.append("robots.txt does not advertise the host-root sitemap")
+    if "User-agent: OAI-SearchBot" not in robots_text:
+        errors.append("robots.txt does not explicitly allow ChatGPT search discovery")
 
     try:
         portal_urls = sitemap_urls(ROOT / "sitemap.xml")
         if len(portal_urls) != len(set(portal_urls)):
             errors.append("sitemap.xml contains duplicate URLs")
-        required = {SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html", f"{SITE_ORIGIN}sitemap.html", f"{SITE_ORIGIN}books/", f"{SITE_ORIGIN}archive/", f"{SITE_ORIGIN}info1-quiz-app/app/"}
+        required = {
+            SITE_ORIGIN,
+            f"{SITE_ORIGIN}study-guide.html",
+            f"{SITE_ORIGIN}about.html",
+            f"{SITE_ORIGIN}privacy.html",
+            f"{SITE_ORIGIN}sitemap.html",
+            f"{SITE_ORIGIN}books/",
+            f"{SITE_ORIGIN}archive/",
+            f"{SITE_ORIGIN}archive/keywords.html",
+            f"{SITE_ORIGIN}info1-quiz-app/questions/tags.html",
+            f"{SITE_ORIGIN}info1-quiz-app/app/",
+        }
         missing_required = sorted(required - set(portal_urls))
         if missing_required:
             errors.append(f"sitemap.xml is missing required URLs: {missing_required}")
@@ -282,12 +352,15 @@ def main() -> int:
         "warnings": warnings,
         "checks": [
             "titles, descriptions, canonical URLs, and one h1 per portal page",
+            "Open Graph and BreadcrumbList structured metadata",
             "portal and cross-repository links and fragments",
             "AdSense on the portal top and learning pages, but not informational or book-guide pages",
             "330 video-question mappings without book explanation text",
             "330 explicitly audited keyword sets independent of the original keyword column",
             "privacy-enhanced click-to-load YouTube embeds",
             "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
+            "linked keywords, complete keyword index, and multi-keyword OR filtering",
+            "substantive information-I study guide with official references and audience language",
             "top-page counts, three-line slogan, linked app CTA, six app fields, four video fields, and four responsive thumbnail-and-description KDP rows",
             "host-root ads.txt and robots.txt",
             "sitemap synchronization with the info1-quiz-app build report",

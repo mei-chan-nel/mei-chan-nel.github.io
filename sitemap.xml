@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://mei-chan-nel.github.io/</loc><lastmod>2026-07-14</lastmod></url>
+  <url><loc>https://mei-chan-nel.github.io/study-guide.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/about.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/privacy.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/sitemap.html</loc><lastmod>2026-07-14</lastmod></url>
@@ -40,6 +41,7 @@
   <url><loc>https://mei-chan-nel.github.io/archive/programming-8.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/archive/programming-9.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/archive/programming-10.html</loc><lastmod>2026-07-14</lastmod></url>
+  <url><loc>https://mei-chan-nel.github.io/archive/keywords.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/index.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/society-security.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/society-security-2.html</loc><lastmod>2026-07-14</lastmod></url>
@@ -143,5 +145,6 @@
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/information-design-5.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/information-design-6.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/information-design-7.html</loc><lastmod>2026-07-14</lastmod></url>
+  <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/questions/tags.html</loc><lastmod>2026-07-14</lastmod></url>
   <url><loc>https://mei-chan-nel.github.io/info1-quiz-app/app/</loc><lastmod>2026-07-14</lastmod></url>
 </urlset>
