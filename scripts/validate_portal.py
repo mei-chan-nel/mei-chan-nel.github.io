@@ -275,12 +275,18 @@ def main() -> int:
 
     app_questions = json.loads((APP_ROOT / "data" / "questions" / "completed_questions.json").read_text(encoding="utf-8"))
     app_question_count = len(app_questions)
-    unique_tags = {str(tag) for question in app_questions for tag in question.get("tags", []) if str(tag).strip()}
+    raw_tag_counts = Counter(
+        str(tag).strip()
+        for question in app_questions
+        for tag in question.get("tags", [])
+        if str(tag).strip()
+    )
+    public_tags = {tag for tag, count in raw_tag_counts.items() if count >= 4}
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     if app_question_count != 1000 or "1,000" not in top_text:
         errors.append("index.html: completed 1,000-question count is not synchronized")
-    if len(unique_tags) != 613 or "613" not in top_text:
-        errors.append("index.html: unique tag count is not synchronized")
+    if len(raw_tag_counts) != 613 or len(public_tags) != 244 or "244" not in top_text:
+        errors.append("index.html: public tag count is not synchronized with the four-question display threshold")
     for obsolete_copy in ("知識を、点でなく地図にする", "問題一覧から読む", "ランダムに挑戦する"):
         if obsolete_copy in top_text:
             errors.append(f"index.html: obsolete top-page copy remains: {obsolete_copy}")
