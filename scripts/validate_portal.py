@@ -217,6 +217,8 @@ def main() -> int:
         errors.append("video-library-build.json: expected four public fields with 10 questions per page")
     if video_report.get("youtube_direct_links_published") is not False:
         errors.append("video-library-build.json: YouTube direct links must not be published")
+    if video_report.get("video_viewer_aspect_ratio") != "9:16":
+        errors.append("video-library-build.json: Shorts viewer must use a 9:16 aspect ratio")
     if video_report.get("programming_code_blocks") != 100:
         errors.append("video-library-build.json: expected 100 programming code blocks")
     if any("<iframe" in path.read_text(encoding="utf-8").lower() for path in video_page_paths):
@@ -272,6 +274,9 @@ def main() -> int:
     embed_script = (ROOT / "assets" / "video-embeds.js").read_text(encoding="utf-8")
     if "youtube-nocookie.com/embed/" not in embed_script:
         errors.append("video-embeds.js: privacy-enhanced YouTube embed URL is missing")
+    video_filter_script = (ROOT / "assets" / "video-filter.js").read_text(encoding="utf-8")
+    if "filter-hit-count" not in video_filter_script:
+        errors.append("video-filter.js: visible filtered-result count is missing from the heading")
 
     app_questions = json.loads((APP_ROOT / "data" / "questions" / "completed_questions.json").read_text(encoding="utf-8"))
     app_question_count = len(app_questions)
@@ -320,6 +325,12 @@ def main() -> int:
         errors.append("books/index.html: expected four thumbnail-and-description book rows")
     if "background: #f3f7f6" not in stylesheet or "color: var(--ink)" not in stylesheet:
         errors.append("site.css: light code-block color scheme is missing")
+    if "aspect-ratio: 9 / 16" not in stylesheet or "width: min(100%, 360px)" not in stylesheet:
+        errors.append("site.css: responsive 9:16 Shorts viewer style is missing")
+    if ".filter-hit-count" not in stylesheet:
+        errors.append("site.css: filtered-result count badge style is missing")
+    if "各ページ10問ずつ掲載しています。" in top_text:
+        errors.append("index.html: obsolete video-question page-size lead remains")
 
     ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
     if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":

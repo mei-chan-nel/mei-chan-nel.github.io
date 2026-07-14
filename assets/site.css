@@ -295,7 +295,7 @@ img { max-width: 100%; }
 .video-trigger { min-height: 42px; padding: 9px 18px; border: 1px solid var(--ink); border-radius: 999px; color: var(--white); background: var(--ink); cursor: pointer; font: inherit; font-size: .78rem; font-weight: 800; }
 .video-trigger:hover { background: #315f66; }
 .video-trigger:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
-.video-frame { width: min(100%, 760px); aspect-ratio: 16 / 9; margin-top: 18px; border-radius: 14px; background: #0a191d; overflow: hidden; }
+.video-frame { width: min(100%, 360px); aspect-ratio: 9 / 16; margin-top: 18px; border-radius: 14px; background: #0a191d; overflow: hidden; }
 .video-frame iframe { width: 100%; height: 100%; border: 0; }
 .question-code { max-width: calc(100% - 64px); margin: 0 32px 28px; padding: 20px 22px; overflow-x: auto; border: 1px solid #c9d9d6; border-radius: 14px; color: var(--ink); background: #f3f7f6; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 65%); font-family: "Cascadia Code", "BIZ UDGothic", Consolas, monospace; font-size: .78rem; line-height: 1.85; white-space: pre; tab-size: 2; scrollbar-color: #78979b #e3ecea; }
 .question-code:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
@@ -331,7 +331,8 @@ img { max-width: 100%; }
 .facet-link[hidden] { display: none; }
 .filter-results { margin-top: 48px; scroll-margin-top: 18px; }
 .filter-results-heading { margin-bottom: 24px; }
-.filter-results-heading h2 { margin: 0; font-family: Georgia, "Yu Mincho", serif; font-size: clamp(1.7rem, 4vw, 2.7rem); font-weight: 500; }
+.filter-results-heading h2 { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; font-family: Georgia, "Yu Mincho", serif; font-size: clamp(1.7rem, 4vw, 2.7rem); font-weight: 500; }
+.filter-hit-count { flex: 0 0 auto; padding: 6px 12px; border: 1px solid #b7ccc8; border-radius: 999px; color: var(--ink); background: #eaf3f1; font-family: Arial, sans-serif; font-size: .78rem; font-weight: 800; line-height: 1; }
 .filter-results-heading > p:last-child { margin: 8px 0 0; color: var(--ink-soft); font-size: .82rem; }
 .filter-result-list { display: grid; gap: 18px; }
 .filtered-question-card.is-origin-question { border-color: var(--coral); box-shadow: 0 0 0 3px rgb(233 111 81 / 14%); }

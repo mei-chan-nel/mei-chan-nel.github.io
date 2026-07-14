@@ -585,6 +585,7 @@ def main() -> int:
         "keyword_filter_data": "archive/filter-data.json",
         "filter_match_mode": "OR",
         "youtube_direct_links_published": False,
+        "video_viewer_aspect_ratio": "9:16",
         "programming_code_blocks": sum(
             len(section["questions"]) for section in sections if section["id"] == "programming"
         ),
