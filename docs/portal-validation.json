@@ -1,7 +1,7 @@
 {
   "status": "pass",
-  "html_pages_checked": 42,
-  "sitemap_urls": 147,
+  "html_pages_checked": 47,
+  "sitemap_urls": 152,
   "errors": [],
   "warnings": [],
   "checks": [
@@ -16,8 +16,10 @@
     "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
     "linked keywords, complete keyword index, and multi-keyword OR filtering",
     "four-field keyword grouping and source-question-first single-keyword navigation",
-    "substantive information-I study guide with official references and audience language",
-    "top-page counts, three-line slogan, linked app CTA, six app fields, four video fields, and four responsive thumbnail-and-description KDP rows",
+    "site-specific information-I study guide with app repetition, programming videos, lecture notes, and official references",
+    "top-page section order, counts, linked app CTA, six app fields, four video fields, five lecture fields, and four responsive book rows",
+    "consistent sticky seven-link global navigation and prohibited public-copy scan",
+    "five lecture-note fields with metadata, local assets, links, and structured breadcrumbs",
     "host-root ads.txt and robots.txt",
     "sitemap synchronization with the info1-quiz-app build report"
   ]

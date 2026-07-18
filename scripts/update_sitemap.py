@@ -22,7 +22,19 @@ def public_url(relative: str) -> str:
 
 
 def read_portal_urls() -> list[str]:
-    paths = ["index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "books/index.html"]
+    paths = [
+        "index.html",
+        "study-guide.html",
+        "about.html",
+        "privacy.html",
+        "sitemap.html",
+        "books/index.html",
+        "LectureNote/index.html",
+        "LectureNote/digital.html",
+        "LectureNote/network.html",
+        "LectureNote/statistics.html",
+        "LectureNote/programming.html",
+    ]
     report_path = ROOT / "docs" / "video-library-build.json"
     if not report_path.is_file():
         raise ValueError(f"Video-library build report not found: {report_path}")

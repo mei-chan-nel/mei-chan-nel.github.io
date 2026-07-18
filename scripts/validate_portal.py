@@ -119,6 +119,13 @@ def main() -> int:
     video_report_path = ROOT / "docs" / "video-library-build.json"
     video_report = json.loads(video_report_path.read_text(encoding="utf-8"))
     video_page_paths = [ROOT / path for path in video_report.get("learning_pages", [])]
+    lecture_page_paths = [
+        ROOT / "LectureNote" / "index.html",
+        ROOT / "LectureNote" / "digital.html",
+        ROOT / "LectureNote" / "network.html",
+        ROOT / "LectureNote" / "statistics.html",
+        ROOT / "LectureNote" / "programming.html",
+    ]
     page_paths = [
         ROOT / "index.html",
         ROOT / "study-guide.html",
@@ -126,6 +133,7 @@ def main() -> int:
         ROOT / "privacy.html",
         ROOT / "sitemap.html",
         ROOT / "books" / "index.html",
+        *lecture_page_paths,
         *video_page_paths,
     ]
     parsed = {path.resolve(): parse_page(path) for path in page_paths}
@@ -149,6 +157,49 @@ def main() -> int:
                 errors.append(f"{path.relative_to(ROOT)}: missing {marker}")
         if path.name != "index.html" and '"@type":"BreadcrumbList"' not in page_text:
             errors.append(f"{path.relative_to(ROOT)}: BreadcrumbList structured data is missing")
+
+    expected_nav_labels = [
+        "トップページ",
+        "学習アプリ",
+        "問題一覧",
+        "動画問題",
+        "講義ノート",
+        "勉強法",
+        "このサイトについて",
+    ]
+    for path in page_paths:
+        page_text = path.read_text(encoding="utf-8")
+        header_start = page_text.find('<header class="site-header">')
+        header_end = page_text.find("</header>", header_start)
+        if header_start < 0 or header_end < 0:
+            errors.append(f"{path.relative_to(ROOT)}: global site header is missing")
+            continue
+        header_text = page_text[header_start:header_end]
+        nav_start = header_text.find('<nav class="global-nav"')
+        nav_end = header_text.find("</nav>", nav_start)
+        nav_text = header_text[nav_start:nav_end]
+        positions = [nav_text.find(f">{label}<") for label in expected_nav_labels]
+        if any(position < 0 for position in positions) or positions != sorted(positions):
+            errors.append(f"{path.relative_to(ROOT)}: global navigation order is invalid")
+
+    all_portal_html = [*ROOT.glob("*.html"), *ROOT.glob("archive/*.html"), *ROOT.glob("books/*.html"), *ROOT.glob("LectureNote/*.html")]
+    for path in all_portal_html:
+        page_text = path.read_text(encoding="utf-8")
+        if "assets/site-header.js" not in page_text:
+            errors.append(f"{path.relative_to(ROOT)}: smart site-header script is missing")
+        if "<strong>情報Ⅰ Study Atlas</strong>" not in page_text or "<small>高校情報Ⅰの学習サイト</small>" not in page_text:
+            errors.append(f"{path.relative_to(ROOT)}: shared Study Atlas branding is missing")
+
+    lecture_html_paths = [*lecture_page_paths, ROOT / "LectureNote" / "society.html"]
+    for path in lecture_html_paths:
+        lecture_text = path.read_text(encoding="utf-8")
+        if any(marker in lecture_text for marker in ('class="lecture-toolbar"', 'class="field-nav"', 'class="brand-copy"')):
+            errors.append(f"{path.relative_to(ROOT)}: obsolete lecture-only header UI remains")
+        aside_start = lecture_text.find('<aside class="section-sidebar"')
+        aside_end = lecture_text.find("</aside>", aside_start)
+        aside_text = lecture_text[aside_start:aside_end]
+        if aside_start < 0 or 'id="lecture-course-nav"' not in aside_text or 'id="cloze-toggle"' not in aside_text:
+            errors.append(f"{path.relative_to(ROOT)}: lecture navigation or cloze control is not contained in the sidebar")
 
     for source, parser in parsed.items():
         for href in parser.links + parser.assets:
@@ -299,6 +350,15 @@ def main() -> int:
         errors.append("index.html: expected six linked field cards and six linked map nodes")
     if top_text.count('class="field-card compact-field-card ') != 4:
         errors.append("index.html: expected four linked video-question category cards")
+    if top_text.count('class="field-card lecture-field-card ') != 5:
+        errors.append("index.html: expected five linked lecture-note field cards")
+    section_positions = [
+        top_text.find('class="section video-library-section"'),
+        top_text.find('class="section lecture-note-section"'),
+        top_text.find('class="section book-showcase-section"'),
+    ]
+    if any(position < 0 for position in section_positions) or section_positions != sorted(section_positions):
+        errors.append("index.html: video, lecture-note, and book sections are not in the required order")
     if top_text.count('class="book-showcase-card"') != 4 or top_text.count('assets/books/') != 4:
         errors.append("index.html: expected four linked book cards with local cover images")
     if top_text.count('class="book-showcase-description"') != 4:
@@ -309,7 +369,14 @@ def main() -> int:
         if target_term not in top_text:
             errors.append(f"index.html: target-audience language is missing: {target_term}")
     guide_text = (ROOT / "study-guide.html").read_text(encoding="utf-8")
-    for marker in ("情報Ⅰ（情報1）", "勉強法", "3か月", "1か月", "1週間", '"@type":"Article"'):
+    for marker in (
+        "学習の基本サイクル",
+        "学習アプリを周回する意味",
+        "動画付き問題とプログラミング",
+        "講義ノートで深く学ぶ",
+        "共通テストへつなげる",
+        '"@type":"Article"',
+    ):
         if marker not in guide_text:
             errors.append(f"study-guide.html: required substantive guide marker is missing: {marker}")
     for official_host in ("mext.go.jp", "dnc.ac.jp"):
@@ -317,6 +384,9 @@ def main() -> int:
             errors.append(f"study-guide.html: official reference is missing: {official_host}")
     if 'class="app-cta app-cta-link"' not in top_text or "知識・計算問題の学習用アプリ" not in top_text:
         errors.append("index.html: linked learning-app CTA is missing")
+    for marker in ("学習アプリが中心", "問題一覧で根拠を確かめ", "講義ノートで仕組みまで深く理解"):
+        if marker not in top_text:
+            errors.append(f"index.html: app-first site introduction is missing: {marker}")
     for asin in ("B0CFY4F6TB", "B0CPWBVTRT", "B0DQFKKDST", "B0CTY6G1DG"):
         if asin not in (ROOT / "books" / "index.html").read_text(encoding="utf-8"):
             errors.append(f"books/index.html: missing Amazon title link {asin}")
@@ -331,6 +401,55 @@ def main() -> int:
         errors.append("site.css: filtered-result count badge style is missing")
     if "各ページ10問ずつ掲載しています。" in top_text:
         errors.append("index.html: obsolete video-question page-size lead remains")
+
+    about_text = (ROOT / "about.html").read_text(encoding="utf-8")
+    if "おすすめの使い方" in about_text:
+        errors.append("about.html: the duplicated recommended-use section remains")
+    for marker in ("サイトの目的", "掲載コンテンツ", "編集方針", "お問い合わせ"):
+        if marker not in about_text:
+            errors.append(f"about.html: required site-information marker is missing: {marker}")
+
+    forbidden_public_copy = (
+        "Word由来",
+        "PDF由来",
+        "PPT由来",
+        "PowerPoint由来",
+        "指導書をまとめ",
+        "元資料の内容をすべて読む",
+        "共通テスト用プログラミング表記",
+        "HOW TO STUDY",
+        "問題を掲載するまで",
+    )
+    public_source_paths = [
+        *ROOT.glob("*.html"),
+        *ROOT.glob("archive/*.html"),
+        *ROOT.glob("books/*.html"),
+        *ROOT.glob("LectureNote/*.html"),
+        *ROOT.glob("LectureNote/*.js"),
+    ]
+    for path in public_source_paths:
+        source_text = path.read_text(encoding="utf-8")
+        for marker in forbidden_public_copy:
+            if marker in source_text:
+                errors.append(f"{path.relative_to(ROOT)}: forbidden public wording remains: {marker}")
+
+    lecture_stylesheet = (ROOT / "LectureNote" / "lecture-note.css").read_text(encoding="utf-8")
+    if "position: sticky" not in stylesheet or "position: sticky" not in lecture_stylesheet:
+        errors.append("site headers must remain sticky in both portal stylesheets")
+    for css_text, css_name in ((stylesheet, "site.css"), (lecture_stylesheet, "lecture-note.css")):
+        if ".site-header.is-header-hidden" not in css_text:
+            errors.append(f"{css_name}: smart header hidden state is missing")
+    if ".header-is-hidden .section-sidebar" not in lecture_stylesheet:
+        errors.append("lecture-note.css: sidebar does not adapt when the smart header is hidden")
+
+    header_script = (ROOT / "assets" / "site-header.js").read_text(encoding="utf-8")
+    for marker in ("requestAnimationFrame", "is-header-hidden", "focusin"):
+        if marker not in header_script:
+            errors.append(f"site-header.js: required smart-header behavior is missing: {marker}")
+    lecture_script = (ROOT / "LectureNote" / "lecture.js").read_text(encoding="utf-8")
+    for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
+        if marker not in lecture_script:
+            errors.append(f"lecture.js: hierarchical course navigation marker is missing: {marker}")
 
     ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
     if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":
@@ -352,6 +471,11 @@ def main() -> int:
             f"{SITE_ORIGIN}privacy.html",
             f"{SITE_ORIGIN}sitemap.html",
             f"{SITE_ORIGIN}books/",
+            f"{SITE_ORIGIN}LectureNote/",
+            f"{SITE_ORIGIN}LectureNote/digital.html",
+            f"{SITE_ORIGIN}LectureNote/network.html",
+            f"{SITE_ORIGIN}LectureNote/statistics.html",
+            f"{SITE_ORIGIN}LectureNote/programming.html",
             f"{SITE_ORIGIN}archive/",
             f"{SITE_ORIGIN}archive/keywords.html",
             f"{SITE_ORIGIN}info1-quiz-app/questions/tags.html",
@@ -398,8 +522,10 @@ def main() -> int:
             "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
             "linked keywords, complete keyword index, and multi-keyword OR filtering",
             "four-field keyword grouping and source-question-first single-keyword navigation",
-            "substantive information-I study guide with official references and audience language",
-            "top-page counts, three-line slogan, linked app CTA, six app fields, four video fields, and four responsive thumbnail-and-description KDP rows",
+            "site-specific information-I study guide with app repetition, programming videos, lecture notes, and official references",
+            "top-page section order, counts, linked app CTA, six app fields, four video fields, five lecture fields, and four responsive book rows",
+            "consistent sticky seven-link global navigation and prohibited public-copy scan",
+            "five lecture-note fields with metadata, local assets, links, and structured breadcrumbs",
             "host-root ads.txt and robots.txt",
             "sitemap synchronization with the info1-quiz-app build report",
         ],
