@@ -25,7 +25,7 @@
   const content = document.querySelector("#lecture-content");
   const courseNav = document.querySelector("#lecture-course-nav");
   const fieldPages = [
-    { id: "society", label: "情報社会", href: "./index.html" },
+    { id: "society", label: "情報社会", href: "./society.html" },
     { id: "digital", label: "デジタル", href: "./digital.html" },
     { id: "network", label: "ネットワーク", href: "./network.html" },
     { id: "statistics", label: "統計", href: "./statistics.html" },

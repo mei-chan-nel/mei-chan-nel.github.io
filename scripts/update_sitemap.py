@@ -30,6 +30,7 @@ def read_portal_urls() -> list[str]:
         "sitemap.html",
         "books/index.html",
         "LectureNote/index.html",
+        "LectureNote/society.html",
         "LectureNote/digital.html",
         "LectureNote/network.html",
         "LectureNote/statistics.html",

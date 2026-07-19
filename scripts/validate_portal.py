@@ -119,13 +119,15 @@ def main() -> int:
     video_report_path = ROOT / "docs" / "video-library-build.json"
     video_report = json.loads(video_report_path.read_text(encoding="utf-8"))
     video_page_paths = [ROOT / path for path in video_report.get("learning_pages", [])]
-    lecture_page_paths = [
-        ROOT / "LectureNote" / "index.html",
+    lecture_index_path = ROOT / "LectureNote" / "index.html"
+    lecture_field_paths = [
+        ROOT / "LectureNote" / "society.html",
         ROOT / "LectureNote" / "digital.html",
         ROOT / "LectureNote" / "network.html",
         ROOT / "LectureNote" / "statistics.html",
         ROOT / "LectureNote" / "programming.html",
     ]
+    lecture_page_paths = [lecture_index_path, *lecture_field_paths]
     page_paths = [
         ROOT / "index.html",
         ROOT / "study-guide.html",
@@ -194,8 +196,7 @@ def main() -> int:
         if "<strong>情報Ⅰ Study Atlas</strong>" not in page_text or "<small>高校情報Ⅰの学習サイト</small>" not in page_text:
             errors.append(f"{path.relative_to(ROOT)}: shared Study Atlas branding is missing")
 
-    lecture_html_paths = [*lecture_page_paths, ROOT / "LectureNote" / "society.html"]
-    for path in lecture_html_paths:
+    for path in lecture_field_paths:
         lecture_text = path.read_text(encoding="utf-8")
         if any(marker in lecture_text for marker in ('class="lecture-toolbar"', 'class="field-nav"', 'class="brand-copy"')):
             errors.append(f"{path.relative_to(ROOT)}: obsolete lecture-only header UI remains")
@@ -356,6 +357,14 @@ def main() -> int:
         errors.append("index.html: expected four linked video-question category cards")
     if top_text.count('class="field-card lecture-field-card ') != 5:
         errors.append("index.html: expected five linked lecture-note field cards")
+    if 'href="./LectureNote/society.html"' not in top_text:
+        errors.append("index.html: lecture-note society card must link directly to society.html")
+    lecture_index_text = lecture_index_path.read_text(encoding="utf-8")
+    if lecture_index_text.count('class="archive-field-card lecture-index-card"') != 5:
+        errors.append("LectureNote/index.html: expected five lecture field cards")
+    for lecture_href in ("./society.html", "./digital.html", "./network.html", "./statistics.html", "./programming.html"):
+        if f'href="{lecture_href}"' not in lecture_index_text:
+            errors.append(f"LectureNote/index.html: missing field link {lecture_href}")
     section_positions = [
         top_text.find('class="section video-library-section"'),
         top_text.find('class="section lecture-note-section"'),
@@ -526,6 +535,7 @@ def main() -> int:
             f"{SITE_ORIGIN}sitemap.html",
             f"{SITE_ORIGIN}books/",
             f"{SITE_ORIGIN}LectureNote/",
+            f"{SITE_ORIGIN}LectureNote/society.html",
             f"{SITE_ORIGIN}LectureNote/digital.html",
             f"{SITE_ORIGIN}LectureNote/network.html",
             f"{SITE_ORIGIN}LectureNote/statistics.html",
