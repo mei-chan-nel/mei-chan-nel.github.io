@@ -58,6 +58,77 @@
     <a href="#${escapeHtml(section.id)}"><span>${String(index + 1).padStart(2, "0")}</span> ${escapeHtml(section.short || section.title)}</a>
   `).join("");
 
+  const rasterFigures = Array.from(content.querySelectorAll(".raster-figure"));
+  if (rasterFigures.length) {
+    const lightbox = document.createElement("dialog");
+    lightbox.className = "figure-lightbox";
+    lightbox.setAttribute("aria-label", "図版を拡大表示");
+    lightbox.innerHTML = `
+      <div class="figure-lightbox__inner">
+        <div class="figure-lightbox__toolbar"><button class="figure-lightbox__close" type="button">閉じる</button></div>
+        <div class="figure-lightbox__viewport"><img alt=""></div>
+        <p class="figure-lightbox__caption"></p>
+      </div>`;
+    document.body.appendChild(lightbox);
+
+    const lightboxImage = lightbox.querySelector("img");
+    const lightboxCaption = lightbox.querySelector(".figure-lightbox__caption");
+    const closeButton = lightbox.querySelector(".figure-lightbox__close");
+    let lastTrigger = null;
+
+    const closeLightbox = () => {
+      if (typeof lightbox.close === "function" && lightbox.open) lightbox.close();
+      else {
+        lightbox.removeAttribute("open");
+        lightbox.classList.remove("is-open");
+        lightboxImage.removeAttribute("src");
+        if (lastTrigger) lastTrigger.focus();
+      }
+    };
+
+    const openLightbox = (trigger, image, caption) => {
+      lastTrigger = trigger;
+      lightboxImage.src = image.currentSrc || image.src;
+      lightboxImage.alt = image.alt;
+      lightboxCaption.textContent = caption;
+      if (typeof lightbox.showModal === "function") lightbox.showModal();
+      else {
+        lightbox.setAttribute("open", "");
+        lightbox.classList.add("is-open");
+      }
+      closeButton.focus();
+    };
+
+    rasterFigures.forEach((figure) => {
+      const image = figure.querySelector("img");
+      if (!image) return;
+      const caption = figure.querySelector("figcaption");
+      const trigger = document.createElement("button");
+      trigger.type = "button";
+      trigger.className = "figure-zoom-trigger";
+      trigger.setAttribute("aria-haspopup", "dialog");
+      trigger.setAttribute("aria-label", `${image.alt}を拡大表示`);
+      image.loading = "lazy";
+      image.decoding = "async";
+      image.replaceWith(trigger);
+      trigger.appendChild(image);
+      trigger.addEventListener("click", () => openLightbox(trigger, image, caption ? caption.textContent.trim() : image.alt));
+    });
+
+    closeButton.addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    lightbox.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      closeLightbox();
+    });
+    lightbox.addEventListener("close", () => {
+      lightboxImage.removeAttribute("src");
+      if (lastTrigger) lastTrigger.focus();
+    });
+  }
+
   const toggle = document.querySelector("#cloze-toggle");
   const allCloze = () => Array.from(document.querySelectorAll(".cloze"));
   const syncToggle = () => {

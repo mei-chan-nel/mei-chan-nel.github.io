@@ -182,7 +182,11 @@ def main() -> int:
         if any(position < 0 for position in positions) or positions != sorted(positions):
             errors.append(f"{path.relative_to(ROOT)}: global navigation order is invalid")
 
-    all_portal_html = [*ROOT.glob("*.html"), *ROOT.glob("archive/*.html"), *ROOT.glob("books/*.html"), *ROOT.glob("LectureNote/*.html")]
+    all_portal_html = [
+        path
+        for path in [*ROOT.glob("*.html"), *ROOT.glob("archive/*.html"), *ROOT.glob("books/*.html"), *ROOT.glob("LectureNote/*.html")]
+        if not path.name.startswith("google")
+    ]
     for path in all_portal_html:
         page_text = path.read_text(encoding="utf-8")
         if "assets/site-header.js" not in page_text:
@@ -450,6 +454,56 @@ def main() -> int:
     for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: hierarchical course navigation marker is missing: {marker}")
+    lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
+    programming_content_text = (ROOT / "LectureNote" / "programming-content.js").read_text(encoding="utf-8")
+    programming_enrichment_text = (ROOT / "LectureNote" / "programming-enrichment.js").read_text(encoding="utf-8")
+    guide_enrichment_text = (ROOT / "LectureNote" / "guide-enrichment.js").read_text(encoding="utf-8")
+    lecture_visual_text = lecture_content_text + programming_content_text + programming_enrichment_text + guide_enrichment_text
+    if lecture_visual_text.count('<figure class="raster-figure"') < 25:
+        errors.append("LectureNote: meaningful graph, animation, circuit, or spatial raster figures are missing")
+    if lecture_visual_text.count('<figure class="html-figure"') < 12:
+        errors.append("LectureNote: semantic HTML figures are missing")
+    for required_figure in (
+        "logic-gate-and.png",
+        "logic-gate-or.png",
+        "logic-gate-not.png",
+        "half-adder-circuit.png",
+        "full-adder.png",
+        "multi-bit-adder.png",
+        "processing-models.png",
+        "email-delivery.png",
+        "shared-key-encryption.gif",
+        "public-key-encryption.gif",
+        "hybrid-encryption.png",
+        "digital-signature.png",
+        "seasonal-adjustment-example.png",
+        "basic-structures.png",
+    ):
+        if required_figure not in lecture_visual_text:
+            errors.append(f"LectureNote: required explanatory figure is missing: {required_figure}")
+    for required_html_figure in ("protocol-figure", "relational-workflow"):
+        if required_html_figure not in lecture_visual_text or required_html_figure not in lecture_stylesheet:
+            errors.append(f"LectureNote: required responsive explanatory figure is missing: {required_html_figure}")
+    for obsolete_image in ("performance-errors.png", "cryptography.png", "sorting-searching.png", "database.png", "values-types.png", "public-data-workflow.png"):
+        if obsolete_image in lecture_visual_text:
+            errors.append(f"LectureNote: redundant raster figure remains: {obsolete_image}")
+    for marker in ("figure-zoom-trigger", "figure-lightbox", "showModal", 'image.loading = "lazy"'):
+        if marker not in lecture_script:
+            errors.append(f"lecture.js: accessible figure enlargement behavior is missing: {marker}")
+    if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
+        errors.append("lecture-note.css: figure enlargement styles are missing")
+    if "figure-zoom-hint" in lecture_script or "figure-zoom-hint" in lecture_stylesheet:
+        errors.append("LectureNote: visible enlargement hint must not be shown over figures")
+    if "PDU" in lecture_visual_text:
+        errors.append("LectureNote: out-of-scope PDU terminology remains")
+    for out_of_scope_logic in ("⊕", "¬"):
+        if out_of_scope_logic in lecture_visual_text:
+            errors.append(f"LectureNote: out-of-scope logic notation remains: {out_of_scope_logic}")
+    for obsolete_section in ('id: "network-rsa"', 'id: "programming-recursion"', 'id: "programming-flowchart"'):
+        if obsolete_section in lecture_visual_text:
+            errors.append(f"LectureNote: obsolete top-level section remains: {obsolete_section}")
+    if ".raster-figure img { width: 1200px" in lecture_stylesheet:
+        errors.append("lecture-note.css: obsolete fixed-width mobile figures remain")
 
     ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
     if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":

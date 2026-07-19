@@ -1,5 +1,5 @@
 {
-  "generated_on": "2026-07-18",
+  "generated_on": "2026-07-19",
   "generator": "scripts/generate_video_pages.py",
   "source": "data/video-questions.json",
   "question_count": 330,

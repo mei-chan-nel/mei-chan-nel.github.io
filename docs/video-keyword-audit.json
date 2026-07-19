@@ -1,5 +1,5 @@
 {
-  "audited_on": "2026-07-14",
+  "audited_on": "2026-07-19",
   "question_count": 330,
   "keyword_count": 898,
   "unique_keyword_count": 90,
@@ -109,7 +109,7 @@
     "section",
     "videos.title"
   ],
-  "data_sha256": "28a3429174972a5a5195f8d2d0ee8cf5002cd0a0f4d0a9f64ced0323485f4fcb",
+  "data_sha256": "423d5329f3aefcef593cca5555a60133eded2cd0f19041cbf3dffd8ed0d9b974",
   "entries": [
     {
       "number": 1,
@@ -3414,10 +3414,10 @@
       "number": 228,
       "section_id": "network",
       "section_label": "ネットワーク",
-      "question": "ハイブリット暗号方式では、公開鍵暗号の秘密鍵を使って共通鍵を暗号化する。◯か✕か。",
+      "question": "ハイブリッド暗号方式では、公開鍵暗号の秘密鍵を使って共通鍵を暗号化する。◯か✕か。",
       "answer": "✕",
       "video_titles": [
-        "228 公開鍵と共通鍵の合せ技ハイブリット暗号方式：具体的な手続きを見て原理を理解しよう！ #shorts"
+        "228 公開鍵と共通鍵の合せ技ハイブリッド暗号方式：具体的な手続きを見て原理を理解しよう！ #shorts"
       ],
       "keywords": [
         "情報セキュリティ",
