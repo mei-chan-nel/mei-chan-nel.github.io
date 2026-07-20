@@ -4,6 +4,23 @@
   const sharedScript = document.currentScript;
   if (!sharedScript?.src) return;
 
+  const GA_MEASUREMENT_ID = "G-JEG0V1ZZF2";
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function gtag() {
+    window.dataLayer.push(arguments);
+  };
+  window.gtag("js", new Date());
+  window.gtag("config", GA_MEASUREMENT_ID);
+
+  if (!document.querySelector(`script[data-site-analytics="ga4"][data-measurement-id="${GA_MEASUREMENT_ID}"]`)) {
+    const analyticsScript = document.createElement("script");
+    analyticsScript.async = true;
+    analyticsScript.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`;
+    analyticsScript.dataset.siteAnalytics = "ga4";
+    analyticsScript.dataset.measurementId = GA_MEASUREMENT_ID;
+    document.head.append(analyticsScript);
+  }
+
   const siteRoot = new URL("../", sharedScript.src);
   const siteUrl = (path) => new URL(path, siteRoot).href;
   const pagePath = window.location.pathname.toLowerCase();
