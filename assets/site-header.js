@@ -1,20 +1,58 @@
 (function () {
   "use strict";
 
-  const header = document.querySelector(".site-header");
-  if (!header) return;
+  const sharedScript = document.currentScript;
+  if (!sharedScript?.src) return;
 
-  // Keep the shared brand wording and footer link in sync across every
-  // static page.  The footer markup is intentionally upgraded here so pages
-  // that use the common shell all receive the same accessible brand link.
-  const headerSubtitle = header.querySelector(".brand small");
-  if (headerSubtitle) headerSubtitle.textContent = "知識を、ひろげ、つなげる";
+  const siteRoot = new URL("../", sharedScript.src);
+  const siteUrl = (path) => new URL(path, siteRoot).href;
+  const pagePath = window.location.pathname.toLowerCase();
+  const siteRootPath = siteRoot.pathname.endsWith("/") ? siteRoot.pathname : `${siteRoot.pathname}/`;
+  const homePaths = new Set([siteRootPath.toLowerCase(), `${siteRootPath}index.html`.toLowerCase()]);
+  const activeSection = pagePath.includes("/info1-quiz-app/app/") || /^\/app\//.test(pagePath)
+    ? "app"
+    : pagePath.includes("/info1-quiz-app/questions/") || /^\/questions\//.test(pagePath)
+      ? "questions"
+      : pagePath.includes("/archive/")
+        ? "archive"
+        : pagePath.includes("/lecturenote/")
+          ? "lecture"
+          : pagePath.endsWith("/study-guide.html")
+            ? "study"
+            : pagePath.endsWith("/about.html")
+              ? "about"
+              : homePaths.has(pagePath)
+                ? "home"
+                : "";
+
+  const header = document.querySelector(".site-header");
+  if (header) {
+    const navItems = [
+      ["home", siteUrl("index.html"), "トップページ"],
+      ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
+      ["questions", siteUrl("info1-quiz-app/questions/index.html"), "問題一覧"],
+      ["archive", siteUrl("archive/index.html"), "動画問題"],
+      ["lecture", siteUrl("LectureNote/index.html"), "講義ノート"],
+      ["study", siteUrl("study-guide.html"), "勉強法"],
+      ["about", siteUrl("about.html"), "このサイトについて"],
+    ];
+    const navHtml = navItems.map(([key, href, label]) => {
+      const current = key === activeSection ? ' aria-current="page"' : "";
+      return `<a href="${href}"${current}>${label}</a>`;
+    }).join("");
+
+    header.innerHTML = `
+      <div class="header-inner">
+        <a class="brand" href="${siteUrl("index.html")}" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">${navHtml}</nav>
+      </div>`;
+  }
 
   const footer = document.querySelector(".site-footer");
-  const sharedScript = document.currentScript;
-  if (footer && sharedScript?.src) {
-    const siteRoot = new URL("../", sharedScript.src);
-    const siteUrl = (path) => new URL(path, siteRoot).href;
+  if (footer) {
 
     footer.innerHTML = `
       <div class="footer-grid">
@@ -36,6 +74,8 @@
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>`;
   }
+
+  if (!header) return;
 
   const root = document.documentElement;
   const directionThreshold = 10;
