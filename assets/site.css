@@ -118,7 +118,7 @@ img { max-width: 100%; }
 .cta-arrow { width: 58px; height: 58px; flex: 0 0 58px; display: grid; place-items: center; border: 1px solid rgb(255 255 255 / 34%); border-radius: 50%; color: var(--white); font-size: 1.5rem; transition: transform .2s ease, background .2s ease; }
 .app-cta-link:hover .cta-arrow { transform: translateX(4px); background: rgb(255 255 255 / 10%); }
 
-.site-footer { padding: 58px 0 24px; color: var(--white); background: var(--ink); }
+.site-footer { padding: 58px 0 24px; color: var(--white); background: var(--ink); font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif; line-height: 1.8; }
 .footer-grid { width: min(1180px, calc(100% - 40px)); margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; }
 .footer-brand { margin: 0; color: var(--white); }
 .footer-brand small { color: rgb(255 255 255 / 60%); }

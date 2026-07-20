@@ -10,17 +10,31 @@
   const headerSubtitle = header.querySelector(".brand small");
   if (headerSubtitle) headerSubtitle.textContent = "知識を、ひろげ、つなげる";
 
-  const footerBrand = document.querySelector(".site-footer .footer-brand");
-  const footerHome = document.querySelector('.site-footer nav[aria-label="フッターナビゲーション"] a');
-  if (footerBrand && footerHome && footerBrand.tagName.toLowerCase() !== "a") {
-    const footerCopy = footerBrand.parentElement?.querySelector(".footer-copy");
-    const brandLink = document.createElement("a");
-    brandLink.className = "brand footer-brand";
-    brandLink.href = footerHome.getAttribute("href") || "./index.html";
-    brandLink.setAttribute("aria-label", "情報Ⅰ Study Atlas トップ");
-    brandLink.innerHTML = '<span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>';
-    footerBrand.replaceWith(brandLink);
-    footerCopy?.remove();
+  const footer = document.querySelector(".site-footer");
+  const sharedScript = document.currentScript;
+  if (footer && sharedScript?.src) {
+    const siteRoot = new URL("../", sharedScript.src);
+    const siteUrl = (path) => new URL(path, siteRoot).href;
+
+    footer.innerHTML = `
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="${siteUrl("index.html")}" aria-label="情報Ⅰ Study Atlas トップ">
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="${siteUrl("index.html")}">トップページ</a>
+          <a href="${siteUrl("info1-quiz-app/app/")}">学習アプリ</a>
+          <a href="${siteUrl("info1-quiz-app/questions/index.html")}">問題一覧</a>
+          <a href="${siteUrl("archive/index.html")}">動画問題</a>
+          <a href="${siteUrl("LectureNote/index.html")}">講義ノート</a>
+          <a href="${siteUrl("study-guide.html")}">勉強法</a>
+          <a href="${siteUrl("books/index.html")}">書籍案内</a>
+          <a href="${siteUrl("about.html")}">このサイトについて</a>
+          <a href="${siteUrl("privacy.html")}">プライバシーポリシー</a>
+          <a href="${siteUrl("sitemap.html")}">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>`;
   }
 
   const root = document.documentElement;
