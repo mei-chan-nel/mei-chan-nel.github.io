@@ -87,6 +87,9 @@
     let imageReady = false;
     let panStart = null;
     let pinchStart = null;
+    let pinchInProgress = false;
+    let lastTap = null;
+    let lastPointerDoubleTapAt = 0;
     const activePointers = new Map();
     let lastTrigger = null;
 
@@ -159,6 +162,7 @@
         imagePointX: (midpointX - offsetX) / zoomScale,
         imagePointY: (midpointY - offsetY) / zoomScale
       };
+      pinchInProgress = true;
       panStart = null;
     };
 
@@ -175,6 +179,15 @@
       offsetY = midpointY - pinchStart.imagePointY * zoomScale;
       clampOffsets();
       renderImage();
+    };
+
+    const toggleDoubleZoom = (clientX, clientY) => {
+      if (!imageReady) return;
+      if (zoomScale > fitScale + 0.001) {
+        resetImageView();
+        return;
+      }
+      zoomAt(clientX, clientY, Math.min(maxZoom(), fitScale * 2));
     };
 
     const closeLightbox = () => {
@@ -248,7 +261,7 @@
     viewport.addEventListener("pointerdown", (event) => {
       if (event.pointerType === "mouse" && event.button !== 0) return;
       event.preventDefault();
-      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY, startX: event.clientX, startY: event.clientY, moved: false });
       viewport.setPointerCapture?.(event.pointerId);
       if (activePointers.size >= 2) beginPinch();
       else panStart = { id: event.pointerId, x: event.clientX, y: event.clientY, offsetX, offsetY };
@@ -257,7 +270,13 @@
     viewport.addEventListener("pointermove", (event) => {
       if (!activePointers.has(event.pointerId)) return;
       event.preventDefault();
-      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const pointer = activePointers.get(event.pointerId);
+      activePointers.set(event.pointerId, {
+        ...pointer,
+        x: event.clientX,
+        y: event.clientY,
+        moved: pointer.moved || Math.hypot(event.clientX - pointer.startX, event.clientY - pointer.startY) > 10
+      });
       if (activePointers.size >= 2) {
         continuePinch();
       } else if (panStart && panStart.id === event.pointerId && imageReady) {
@@ -269,6 +288,8 @@
     });
 
     const endPointer = (event) => {
+      const pointer = activePointers.get(event.pointerId);
+      const wasTap = pointer && !pointer.moved;
       activePointers.delete(event.pointerId);
       if (viewport.hasPointerCapture?.(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
       if (activePointers.size >= 2) {
@@ -280,12 +301,33 @@
       } else {
         panStart = null;
         pinchStart = null;
+        if (event.pointerType !== "mouse") {
+          if (wasTap && !pinchInProgress) {
+            const now = performance.now();
+            const closeToPrevious = lastTap && now - lastTap.time < 360 && Math.hypot(event.clientX - lastTap.x, event.clientY - lastTap.y) < 36;
+            if (closeToPrevious) {
+              lastPointerDoubleTapAt = now;
+              lastTap = null;
+              toggleDoubleZoom(event.clientX, event.clientY);
+            } else {
+              lastTap = { time: now, x: event.clientX, y: event.clientY };
+            }
+          } else {
+            lastTap = null;
+          }
+        }
+        pinchInProgress = false;
       }
     };
 
     viewport.addEventListener("pointerup", endPointer);
     viewport.addEventListener("pointercancel", endPointer);
     viewport.addEventListener("dragstart", (event) => event.preventDefault());
+    viewport.addEventListener("dblclick", (event) => {
+      if (performance.now() - lastPointerDoubleTapAt < 600) return;
+      event.preventDefault();
+      toggleDoubleZoom(event.clientX, event.clientY);
+    });
 
     lightbox.addEventListener("keydown", (event) => {
       if (["+", "=", "-", "0", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) event.preventDefault();
