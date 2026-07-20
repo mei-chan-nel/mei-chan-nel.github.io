@@ -120,7 +120,9 @@ img { max-width: 100%; }
 
 .site-footer { padding: 58px 0 24px; color: var(--white); background: var(--ink); }
 .footer-grid { width: min(1180px, calc(100% - 40px)); margin: 0 auto; display: flex; justify-content: space-between; gap: 40px; }
-.footer-brand { margin: 0; font-family: Georgia, "Yu Mincho", serif; font-size: 1.45rem; }
+.footer-brand { margin: 0; color: var(--white); }
+.footer-brand small { color: rgb(255 255 255 / 60%); }
+.footer-brand:hover { color: var(--white); opacity: .88; }
 .footer-copy { margin: 6px 0 0; color: rgb(255 255 255 / 60%); font-size: .78rem; }
 .footer-grid nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px 26px; }
 .footer-grid nav a { color: rgb(255 255 255 / 78%); font-size: .78rem; text-underline-offset: 5px; }

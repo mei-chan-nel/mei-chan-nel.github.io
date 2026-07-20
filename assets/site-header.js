@@ -4,6 +4,25 @@
   const header = document.querySelector(".site-header");
   if (!header) return;
 
+  // Keep the shared brand wording and footer link in sync across every
+  // static page.  The footer markup is intentionally upgraded here so pages
+  // that use the common shell all receive the same accessible brand link.
+  const headerSubtitle = header.querySelector(".brand small");
+  if (headerSubtitle) headerSubtitle.textContent = "知識を、ひろげ、つなげる";
+
+  const footerBrand = document.querySelector(".site-footer .footer-brand");
+  const footerHome = document.querySelector('.site-footer nav[aria-label="フッターナビゲーション"] a');
+  if (footerBrand && footerHome && footerBrand.tagName.toLowerCase() !== "a") {
+    const footerCopy = footerBrand.parentElement?.querySelector(".footer-copy");
+    const brandLink = document.createElement("a");
+    brandLink.className = "brand footer-brand";
+    brandLink.href = footerHome.getAttribute("href") || "./index.html";
+    brandLink.setAttribute("aria-label", "情報Ⅰ Study Atlas トップ");
+    brandLink.innerHTML = '<span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>';
+    footerBrand.replaceWith(brandLink);
+    footerCopy?.remove();
+  }
+
   const root = document.documentElement;
   const directionThreshold = 10;
   let lastY = Math.max(window.scrollY, 0);
