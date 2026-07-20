@@ -198,6 +198,8 @@
         lightboxImage.removeAttribute("src");
         lightboxImage.classList.remove("is-ready");
         imageReady = false;
+        lastTap = null;
+        pinchInProgress = false;
         if (lastTrigger) lastTrigger.focus();
       }
     };
@@ -205,6 +207,8 @@
     const openLightbox = (trigger, image, caption) => {
       lastTrigger = trigger;
       imageReady = false;
+      lastTap = null;
+      pinchInProgress = false;
       lightboxImage.classList.remove("is-ready");
       lightboxImage.style.width = "";
       lightboxImage.style.height = "";
@@ -249,6 +253,8 @@
       lightboxImage.removeAttribute("src");
       lightboxImage.classList.remove("is-ready");
       imageReady = false;
+      lastTap = null;
+      pinchInProgress = false;
       if (lastTrigger) lastTrigger.focus();
     });
 

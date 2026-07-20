@@ -463,7 +463,7 @@ def main() -> int:
     for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: hierarchical course navigation marker is missing: {marker}")
-    for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', "beginPinch", "pointerDistance"):
+    for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', 'addEventListener("dblclick"', "toggleDoubleZoom", "lastTap", "beginPinch", "pointerDistance"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: interactive figure viewer marker is missing: {marker}")
     lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
