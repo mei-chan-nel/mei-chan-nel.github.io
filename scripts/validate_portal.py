@@ -463,6 +463,9 @@ def main() -> int:
     for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: hierarchical course navigation marker is missing: {marker}")
+    for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', "beginPinch", "pointerDistance"):
+        if marker not in lecture_script:
+            errors.append(f"lecture.js: interactive figure viewer marker is missing: {marker}")
     lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
     programming_content_text = (ROOT / "LectureNote" / "programming-content.js").read_text(encoding="utf-8")
     programming_enrichment_text = (ROOT / "LectureNote" / "programming-enrichment.js").read_text(encoding="utf-8")
@@ -501,6 +504,9 @@ def main() -> int:
             errors.append(f"lecture.js: accessible figure enlargement behavior is missing: {marker}")
     if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
         errors.append("lecture-note.css: figure enlargement styles are missing")
+    for marker in ("touch-action: none", ".figure-lightbox__canvas", ".figure-lightbox__viewport.is-zoomed"):
+        if marker not in lecture_stylesheet:
+            errors.append(f"lecture-note.css: interactive figure viewer marker is missing: {marker}")
     if "figure-zoom-hint" in lecture_script or "figure-zoom-hint" in lecture_stylesheet:
         errors.append("LectureNote: visible enlargement hint must not be shown over figures")
     if "PDU" in lecture_visual_text:

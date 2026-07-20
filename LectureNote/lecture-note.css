@@ -906,6 +906,7 @@ button { font: inherit; }
 
 .figure-lightbox {
   width: min(1600px, calc(100vw - 24px));
+  height: min(900px, calc(100dvh - 24px));
   max-width: none;
   max-height: calc(100dvh - 24px);
   margin: auto;
@@ -918,11 +919,15 @@ button { font: inherit; }
   box-shadow: 0 28px 90px rgba(0, 0, 0, .45);
 }
 .figure-lightbox::backdrop { background: rgba(4, 15, 20, .78); backdrop-filter: blur(4px); }
-.figure-lightbox__inner { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; max-height: calc(100dvh - 24px); }
+.figure-lightbox__inner { position: relative; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; max-height: calc(100dvh - 24px); }
 .figure-lightbox__toolbar { min-height: 48px; display: flex; align-items: center; justify-content: flex-end; padding: 7px 10px; background: #10252d; }
 .figure-lightbox__close { padding: 7px 12px; color: #fff; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.24); border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 800; }
-.figure-lightbox__viewport { min-height: 0; overflow: auto; overscroll-behavior: contain; background: #fff; touch-action: pan-x pan-y pinch-zoom; -webkit-overflow-scrolling: touch; }
-.figure-lightbox__viewport img { display: block; width: auto; max-width: none; height: auto; margin: 0 auto; background: #fff; }
+.figure-lightbox__viewport { position: relative; min-height: 0; overflow: hidden; overscroll-behavior: contain; background: #fff; cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none; }
+.figure-lightbox__viewport:active { cursor: grabbing; }
+.figure-lightbox__viewport.is-zoomed { cursor: grab; }
+.figure-lightbox__canvas { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); transform-origin: center; }
+.figure-lightbox__viewport img { display: block; width: 100%; height: 100%; max-width: none; margin: 0; object-fit: fill; background: #fff; opacity: 0; transition: opacity .16s ease; }
+.figure-lightbox__viewport img.is-ready { opacity: 1; }
 .figure-lightbox__caption { margin: 0; padding: 12px 16px 14px; color: #dce9ee; background: #10252d; font-size: 13px; }
 
 .code-block {
@@ -1140,7 +1145,7 @@ button { font: inherit; }
   .logic-gate-grid, .figure-pair { gap: 14px; margin: 22px 0; }
   .logic-gate-grid .raster-figure, .figure-pair .raster-figure { margin: 0; }
   .raster-figure img { width: 100%; max-width: 100%; height: auto; }
-  .figure-lightbox { width: calc(100vw - 12px); max-height: calc(100dvh - 12px); border-radius: 12px; }
+  .figure-lightbox { width: calc(100vw - 12px); height: calc(100dvh - 12px); max-height: calc(100dvh - 12px); border-radius: 12px; }
   .figure-lightbox__inner { max-height: calc(100dvh - 12px); }
   .deep-dive { margin-inline: -4px; }
   .deep-dive summary { padding-left: 14px; font-size: 14px; }

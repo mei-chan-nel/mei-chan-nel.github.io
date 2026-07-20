@@ -62,19 +62,120 @@
   if (rasterFigures.length) {
     const lightbox = document.createElement("dialog");
     lightbox.className = "figure-lightbox";
-    lightbox.setAttribute("aria-label", "図版を拡大表示");
+    lightbox.setAttribute("aria-label", "図版を拡大表示。マウスホイールまたはピンチ操作で拡大縮小できます");
     lightbox.innerHTML = `
       <div class="figure-lightbox__inner">
         <div class="figure-lightbox__toolbar"><button class="figure-lightbox__close" type="button">閉じる</button></div>
-        <div class="figure-lightbox__viewport"><img alt=""></div>
+        <div class="figure-lightbox__viewport" tabindex="0" role="group" aria-label="図版表示領域">
+          <div class="figure-lightbox__canvas"><img class="figure-lightbox__image" alt=""></div>
+        </div>
         <p class="figure-lightbox__caption"></p>
       </div>`;
     document.body.appendChild(lightbox);
 
-    const lightboxImage = lightbox.querySelector("img");
+    const viewport = lightbox.querySelector(".figure-lightbox__viewport");
+    const canvas = lightbox.querySelector(".figure-lightbox__canvas");
+    const lightboxImage = lightbox.querySelector(".figure-lightbox__image");
     const lightboxCaption = lightbox.querySelector(".figure-lightbox__caption");
     const closeButton = lightbox.querySelector(".figure-lightbox__close");
+    const minZoom = () => fitScale;
+    const maxZoom = () => Math.max(fitScale * 4, fitScale + 0.5);
+    let fitScale = 1;
+    let zoomScale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+    let imageReady = false;
+    let panStart = null;
+    let pinchStart = null;
+    const activePointers = new Map();
     let lastTrigger = null;
+
+    const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
+
+    const clampOffsets = () => {
+      if (!imageReady) return;
+      const maxX = Math.max(0, (lightboxImage.naturalWidth * zoomScale - viewport.clientWidth) / 2);
+      const maxY = Math.max(0, (lightboxImage.naturalHeight * zoomScale - viewport.clientHeight) / 2);
+      offsetX = clamp(offsetX, -maxX, maxX);
+      offsetY = clamp(offsetY, -maxY, maxY);
+    };
+
+    const renderImage = () => {
+      if (!imageReady) return;
+      canvas.style.width = `${lightboxImage.naturalWidth * zoomScale}px`;
+      canvas.style.height = `${lightboxImage.naturalHeight * zoomScale}px`;
+      canvas.style.left = `calc(50% + ${offsetX}px)`;
+      canvas.style.top = `calc(50% + ${offsetY}px)`;
+      viewport.classList.toggle("is-zoomed", zoomScale > fitScale + 0.001);
+    };
+
+    const fitImage = () => {
+      if (!lightboxImage.naturalWidth || !lightboxImage.naturalHeight || !viewport.clientWidth || !viewport.clientHeight) return;
+      fitScale = Math.min(1, viewport.clientWidth / lightboxImage.naturalWidth, viewport.clientHeight / lightboxImage.naturalHeight);
+      zoomScale = fitScale;
+      offsetX = 0;
+      offsetY = 0;
+      imageReady = true;
+      lightboxImage.classList.add("is-ready");
+      renderImage();
+    };
+
+    const resetImageView = () => {
+      zoomScale = fitScale;
+      offsetX = 0;
+      offsetY = 0;
+      renderImage();
+    };
+
+    const zoomAt = (clientX, clientY, requestedScale) => {
+      if (!imageReady) return;
+      const rect = viewport.getBoundingClientRect();
+      const pointerX = clientX - rect.left - rect.width / 2;
+      const pointerY = clientY - rect.top - rect.height / 2;
+      const nextScale = clamp(requestedScale, minZoom(), maxZoom());
+      const imagePointX = (pointerX - offsetX) / zoomScale;
+      const imagePointY = (pointerY - offsetY) / zoomScale;
+      zoomScale = nextScale;
+      offsetX = pointerX - imagePointX * zoomScale;
+      offsetY = pointerY - imagePointY * zoomScale;
+      clampOffsets();
+      renderImage();
+    };
+
+    const pointerDistance = (first, second) => Math.hypot(second.x - first.x, second.y - first.y);
+    const pointerMidpoint = (first, second) => ({ x: (first.x + second.x) / 2, y: (first.y + second.y) / 2 });
+
+    const beginPinch = () => {
+      const points = Array.from(activePointers.values());
+      if (points.length < 2 || !imageReady) return;
+      const [first, second] = points;
+      const midpoint = pointerMidpoint(first, second);
+      const rect = viewport.getBoundingClientRect();
+      const midpointX = midpoint.x - rect.left - rect.width / 2;
+      const midpointY = midpoint.y - rect.top - rect.height / 2;
+      pinchStart = {
+        distance: Math.max(1, pointerDistance(first, second)),
+        scale: zoomScale,
+        imagePointX: (midpointX - offsetX) / zoomScale,
+        imagePointY: (midpointY - offsetY) / zoomScale
+      };
+      panStart = null;
+    };
+
+    const continuePinch = () => {
+      const points = Array.from(activePointers.values());
+      if (points.length < 2 || !pinchStart) return;
+      const [first, second] = points;
+      const midpoint = pointerMidpoint(first, second);
+      const rect = viewport.getBoundingClientRect();
+      const midpointX = midpoint.x - rect.left - rect.width / 2;
+      const midpointY = midpoint.y - rect.top - rect.height / 2;
+      zoomScale = clamp(pinchStart.scale * pointerDistance(first, second) / pinchStart.distance, minZoom(), maxZoom());
+      offsetX = midpointX - pinchStart.imagePointX * zoomScale;
+      offsetY = midpointY - pinchStart.imagePointY * zoomScale;
+      clampOffsets();
+      renderImage();
+    };
 
     const closeLightbox = () => {
       if (typeof lightbox.close === "function" && lightbox.open) lightbox.close();
@@ -82,12 +183,18 @@
         lightbox.removeAttribute("open");
         lightbox.classList.remove("is-open");
         lightboxImage.removeAttribute("src");
+        lightboxImage.classList.remove("is-ready");
+        imageReady = false;
         if (lastTrigger) lastTrigger.focus();
       }
     };
 
     const openLightbox = (trigger, image, caption) => {
       lastTrigger = trigger;
+      imageReady = false;
+      lightboxImage.classList.remove("is-ready");
+      lightboxImage.style.width = "";
+      lightboxImage.style.height = "";
       lightboxImage.src = image.currentSrc || image.src;
       lightboxImage.alt = image.alt;
       lightboxCaption.textContent = caption;
@@ -96,6 +203,7 @@
         lightbox.setAttribute("open", "");
         lightbox.classList.add("is-open");
       }
+      if (lightboxImage.complete) window.requestAnimationFrame(fitImage);
       closeButton.focus();
     };
 
@@ -115,6 +223,7 @@
       trigger.addEventListener("click", () => openLightbox(trigger, image, caption ? caption.textContent.trim() : image.alt));
     });
 
+    lightboxImage.addEventListener("load", fitImage);
     closeButton.addEventListener("click", closeLightbox);
     lightbox.addEventListener("click", (event) => {
       if (event.target === lightbox) closeLightbox();
@@ -125,7 +234,79 @@
     });
     lightbox.addEventListener("close", () => {
       lightboxImage.removeAttribute("src");
+      lightboxImage.classList.remove("is-ready");
+      imageReady = false;
       if (lastTrigger) lastTrigger.focus();
+    });
+
+    viewport.addEventListener("wheel", (event) => {
+      event.preventDefault();
+      const factor = event.deltaY < 0 ? 1.16 : 1 / 1.16;
+      zoomAt(event.clientX, event.clientY, zoomScale * factor);
+    }, { passive: false });
+
+    viewport.addEventListener("pointerdown", (event) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      event.preventDefault();
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      viewport.setPointerCapture?.(event.pointerId);
+      if (activePointers.size >= 2) beginPinch();
+      else panStart = { id: event.pointerId, x: event.clientX, y: event.clientY, offsetX, offsetY };
+    });
+
+    viewport.addEventListener("pointermove", (event) => {
+      if (!activePointers.has(event.pointerId)) return;
+      event.preventDefault();
+      activePointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (activePointers.size >= 2) {
+        continuePinch();
+      } else if (panStart && panStart.id === event.pointerId && imageReady) {
+        offsetX = panStart.offsetX + event.clientX - panStart.x;
+        offsetY = panStart.offsetY + event.clientY - panStart.y;
+        clampOffsets();
+        renderImage();
+      }
+    });
+
+    const endPointer = (event) => {
+      activePointers.delete(event.pointerId);
+      if (viewport.hasPointerCapture?.(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+      if (activePointers.size >= 2) {
+        beginPinch();
+      } else if (activePointers.size === 1) {
+        const [remainingId, remaining] = Array.from(activePointers.entries())[0];
+        panStart = { id: remainingId, x: remaining.x, y: remaining.y, offsetX, offsetY };
+        pinchStart = null;
+      } else {
+        panStart = null;
+        pinchStart = null;
+      }
+    };
+
+    viewport.addEventListener("pointerup", endPointer);
+    viewport.addEventListener("pointercancel", endPointer);
+    viewport.addEventListener("dragstart", (event) => event.preventDefault());
+
+    lightbox.addEventListener("keydown", (event) => {
+      if (["+", "=", "-", "0", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) event.preventDefault();
+      const rect = viewport.getBoundingClientRect();
+      if (event.key === "+" || event.key === "=") zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, zoomScale * 1.16);
+      if (event.key === "-") zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, zoomScale / 1.16);
+      if (event.key === "0") resetImageView();
+      if (event.key === "ArrowLeft") { offsetX += 40; clampOffsets(); renderImage(); }
+      if (event.key === "ArrowRight") { offsetX -= 40; clampOffsets(); renderImage(); }
+      if (event.key === "ArrowUp") { offsetY += 40; clampOffsets(); renderImage(); }
+      if (event.key === "ArrowDown") { offsetY -= 40; clampOffsets(); renderImage(); }
+    });
+
+    window.addEventListener("resize", () => {
+      if (!lightbox.open || !imageReady) return;
+      const wasFit = Math.abs(zoomScale - fitScale) < 0.001;
+      const previousScale = zoomScale;
+      fitScale = Math.min(1, viewport.clientWidth / lightboxImage.naturalWidth, viewport.clientHeight / lightboxImage.naturalHeight);
+      zoomScale = wasFit ? fitScale : Math.max(fitScale, previousScale);
+      clampOffsets();
+      renderImage();
     });
   }
 
