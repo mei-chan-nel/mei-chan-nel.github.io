@@ -343,11 +343,18 @@ def main() -> int:
         if str(tag).strip()
     )
     public_tags = {tag for tag, count in raw_tag_counts.items() if count >= 4}
+    public_tags.update(
+        tag
+        for tag in ("デジタル署名", "公開鍵暗号方式", "デジタル", "Firewall", "JavaScript")
+        if raw_tag_counts[tag]
+    )
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     if app_question_count != 1000 or "1,000" not in top_text:
         errors.append("index.html: completed 1,000-question count is not synchronized")
-    if len(raw_tag_counts) != 613 or len(public_tags) != 244 or "244" not in top_text:
-        errors.append("index.html: public tag count is not synchronized with the four-question display threshold")
+    if len(raw_tag_counts) != 608 or len(public_tags) != 242 or "242" not in top_text:
+        errors.append("index.html: normalized public tag count is not synchronized")
+    if 'class="button button-primary hero-start-button" href="./info1-quiz-app/app/"' not in top_text:
+        errors.append("index.html: first-view learning start button is missing or has the wrong target")
     for obsolete_copy in ("知識を、点でなく地図にする", "問題一覧から読む", "ランダムに挑戦する"):
         if obsolete_copy in top_text:
             errors.append(f"index.html: obsolete top-page copy remains: {obsolete_copy}")
@@ -565,7 +572,7 @@ def main() -> int:
                 if obsolete_app_page.exists():
                     errors.append(f"Obsolete app information page still exists: {obsolete_app_page.name}")
             app_index_text = (APP_ROOT / "app" / "index.html").read_text(encoding="utf-8")
-            for expected_href in (SITE_ORIGIN, f"{SITE_ORIGIN}about.html", f"{SITE_ORIGIN}privacy.html"):
+            for expected_href in ("../../index.html", "../../about.html", "../../privacy.html"):
                 if f'href="{expected_href}"' not in app_index_text:
                     errors.append(f"App footer is missing portal link: {expected_href}")
         else:
