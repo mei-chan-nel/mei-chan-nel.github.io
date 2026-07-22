@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -360,6 +361,19 @@ def main() -> int:
         errors.append("index.html: normalized public tag count is not synchronized")
     if 'class="button button-primary hero-start-button" href="./info1-quiz-app/app/"' not in top_text:
         errors.append("index.html: first-view learning start button is missing or has the wrong target")
+    for marker in ("何から始めますか？", "data-home-start", "data-home-return", "./info1-quiz-app/app/?view=record"):
+        if marker not in top_text:
+            errors.append(f"index.html: first/return-visit navigation marker is missing: {marker}")
+    home_learning_path = ROOT / "assets" / "home-learning.js"
+    if not home_learning_path.exists():
+        errors.append("home-learning.js: return-visit summary script is missing")
+    else:
+        home_learning_text = home_learning_path.read_text(encoding="utf-8")
+        for marker in ('"info1LearningRecord:v1"', "record.v !== 1", "Object.values(record.q)", "if (!attempts) return"):
+            if marker not in home_learning_text:
+                errors.append(f"home-learning.js: safe local summary marker is missing: {marker}")
+        if "fetch(" in home_learning_text or "completed_questions" in home_learning_text:
+            errors.append("home-learning.js: top-page summary must not load the question dataset")
     for obsolete_copy in ("知識を、点でなく地図にする", "問題一覧から読む", "ランダムに挑戦する"):
         if obsolete_copy in top_text:
             errors.append(f"index.html: obsolete top-page copy remains: {obsolete_copy}")
@@ -471,6 +485,9 @@ def main() -> int:
     for marker in ("requestAnimationFrame", "is-header-hidden", "focusin"):
         if marker not in header_script:
             errors.append(f"site-header.js: required smart-header behavior is missing: {marker}")
+    for marker in ("StudyAtlasScrollHints", "horizontal-scroll-cue__edge", "scroll-snap-type", "is-at-start", "is-at-end"):
+        if marker not in header_script:
+            errors.append(f"site-header.js: horizontal scroll guidance is missing: {marker}")
     lecture_script = (ROOT / "LectureNote" / "lecture.js").read_text(encoding="utf-8")
     for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
         if marker not in lecture_script:
@@ -478,6 +495,9 @@ def main() -> int:
     for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', 'addEventListener("dblclick"', "toggleDoubleZoom", "lastTap", "beginPinch", "pointerDistance"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: interactive figure viewer marker is missing: {marker}")
+    for marker in ('"info1LectureProgress:v1"', "mobile-lecture-position", "lecture-back-to-top", "writeProgress", "prefers-reduced-motion", "prepareAnimation"):
+        if marker not in lecture_script:
+            errors.append(f"lecture.js: progress/mobile/media marker is missing: {marker}")
     lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
     programming_content_text = (ROOT / "LectureNote" / "programming-content.js").read_text(encoding="utf-8")
     programming_enrichment_text = (ROOT / "LectureNote" / "programming-enrichment.js").read_text(encoding="utf-8")
@@ -511,9 +531,33 @@ def main() -> int:
     for obsolete_image in ("performance-errors.png", "cryptography.png", "sorting-searching.png", "database.png", "values-types.png", "public-data-workflow.png"):
         if obsolete_image in lecture_visual_text:
             errors.append(f"LectureNote: redundant raster figure remains: {obsolete_image}")
-    for marker in ("figure-zoom-trigger", "figure-lightbox", "showModal", 'image.loading = "lazy"'):
+    for marker in ("figure-zoom-trigger", "figure-lightbox", "showModal"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: accessible figure enlargement behavior is missing: {marker}")
+    lecture_fields = ("society", "digital", "network", "statistics", "programming")
+    generated_lecture_text = ""
+    for field_name in lecture_fields:
+        generated_path = ROOT / "LectureNote" / f"lecture-data-{field_name}.js"
+        if not generated_path.exists():
+            errors.append(f"LectureNote: field-specific data is missing: {generated_path.name}")
+            continue
+        field_text = generated_path.read_text(encoding="utf-8")
+        generated_lecture_text += field_text
+        page_text = (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
+        if f'./lecture-data-{field_name}.js' not in page_text:
+            errors.append(f"LectureNote/{field_name}.html: field-specific data script is missing")
+        for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js"):
+            if f'<script src="./{obsolete_script}' in page_text:
+                errors.append(f"LectureNote/{field_name}.html: monolithic data script remains: {obsolete_script}")
+    for image_tag in re.findall(r"<img [^>]+>", generated_lecture_text):
+        for attribute in ('width=\\"', 'height=\\"', 'loading=\\"lazy\\"', 'decoding=\\"async\\"', 'alt=\\"'):
+            if attribute not in image_tag:
+                errors.append(f"LectureNote: generated image is missing {attribute}: {image_tag[:120]}")
+    if generated_lecture_text.count('<video class=\\"lecture-animation\\"') != 5:
+        errors.append("LectureNote: expected exactly five converted lecture animations")
+    for marker in ('preload=\\"none\\"', 'controls loop muted playsinline', 'data-poster=\\"', 'type=\\"video/webm\\"', 'type=\\"video/mp4\\"'):
+        if marker not in generated_lecture_text:
+            errors.append(f"LectureNote: generated animation behavior is missing: {marker}")
     if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
         errors.append("lecture-note.css: figure enlargement styles are missing")
     for marker in ("touch-action: none", ".figure-lightbox__canvas", ".figure-lightbox__viewport.is-zoomed"):

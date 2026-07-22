@@ -1,9 +1,17 @@
-(function () {
+(async function () {
   "use strict";
 
   const field = document.body.dataset.field || "society";
   const page = window.LECTURE_CONTENT && window.LECTURE_CONTENT[field];
   if (!page) return;
+  const progressKey = "info1LectureProgress:v1";
+  const fieldLabels = {
+    society: "情報社会",
+    digital: "デジタル",
+    network: "ネットワーク",
+    statistics: "統計",
+    programming: "プログラミング"
+  };
 
   const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -21,6 +29,56 @@
   document.querySelector("#hero-title").textContent = page.title;
   document.querySelector("#hero-lead").textContent = page.lead;
   document.querySelector("#hero-meta").innerHTML = `<strong class="hero-meta-label">重要キーワード</strong>${page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}`;
+
+  const readProgress = () => {
+    try {
+      const value = JSON.parse(localStorage.getItem(progressKey));
+      if (!value || !fieldLabels[value.field] || typeof value.sectionId !== "string" || typeof value.sectionTitle !== "string") return null;
+      if (!Number.isInteger(value.sectionIndex) || value.sectionIndex < 0 || typeof value.updatedAt !== "number") return null;
+      if (value.field === field && !page.sections.some((section) => section.id === value.sectionId)) return null;
+      return value;
+    } catch (_error) {
+      return null;
+    }
+  };
+
+  const writeProgress = (section, sectionIndex) => {
+    try {
+      localStorage.setItem(progressKey, JSON.stringify({
+        field,
+        sectionId: section.id,
+        sectionTitle: section.short || section.title,
+        sectionIndex,
+        updatedAt: Date.now()
+      }));
+    } catch (_error) {
+      // Storage can be unavailable in private or restricted browsing modes.
+    }
+  };
+
+  const savedProgress = readProgress();
+  let progressTrackingStarted = Boolean(window.location.hash);
+  if (savedProgress) {
+    const resume = document.createElement("section");
+    resume.className = "lecture-resume";
+    resume.setAttribute("aria-labelledby", "lecture-resume-title");
+    resume.innerHTML = `
+      <div><p class="lecture-resume__label">前回の続き</p><h2 id="lecture-resume-title"></h2><p class="lecture-resume__meta"></p></div>
+      <div class="lecture-resume__actions"><a class="lecture-resume__continue">続きから読む</a><button type="button">最初から読む</button></div>`;
+    resume.querySelector("#lecture-resume-title").textContent = `前回は「${savedProgress.sectionTitle}」まで読みました`;
+    resume.querySelector(".lecture-resume__meta").textContent = `${fieldLabels[savedProgress.field]}・${savedProgress.sectionIndex + 1}節目`;
+    const continueLink = resume.querySelector(".lecture-resume__continue");
+    continueLink.href = savedProgress.field === field
+      ? `#${encodeURIComponent(savedProgress.sectionId)}`
+      : `./${savedProgress.field}.html#${encodeURIComponent(savedProgress.sectionId)}`;
+    continueLink.addEventListener("click", () => { progressTrackingStarted = true; });
+    resume.querySelector("button").addEventListener("click", () => {
+      try { localStorage.removeItem(progressKey); } catch (_error) { /* no-op */ }
+      page.sections[0] && document.querySelector(`#${CSS.escape(page.sections[0].id)}`)?.scrollIntoView();
+      resume.remove();
+    });
+    document.querySelector(".course-hero").after(resume);
+  }
 
   const content = document.querySelector("#lecture-content");
   const courseNav = document.querySelector("#lecture-course-nav");
@@ -40,7 +98,7 @@
   }).join("");
 
   const sectionNav = courseNav.querySelector("#section-nav");
-  content.innerHTML = page.sections.map((section, index) => `
+  const sectionMarkup = page.sections.map((section, index) => `
     <section class="lecture-section" id="${escapeHtml(section.id)}" aria-labelledby="${escapeHtml(section.id)}-title">
       <header class="section-heading">
         <span class="section-number">${String(index + 1).padStart(2, "0")}</span>
@@ -52,11 +110,83 @@
       </header>
       <div class="section-body">${renderMarkup(section.html)}</div>
     </section>
-  `).join("");
+  `);
+  content.replaceChildren();
+  await new Promise((resolve) => {
+    let nextIndex = 0;
+    const appendBatch = () => {
+      const template = document.createElement("template");
+      template.innerHTML = sectionMarkup.slice(nextIndex, nextIndex + 1).join("");
+      content.appendChild(template.content);
+      nextIndex += 1;
+      if (nextIndex < sectionMarkup.length) window.requestAnimationFrame(appendBatch);
+      else resolve();
+    };
+    appendBatch();
+  });
 
   sectionNav.innerHTML = page.sections.map((section, index) => `
     <a href="#${escapeHtml(section.id)}"><span>${String(index + 1).padStart(2, "0")}</span> ${escapeHtml(section.short || section.title)}</a>
   `).join("");
+
+  const sectionScrollCue = window.StudyAtlasScrollHints?.init(sectionNav, { variant: "section", currentSelector: ".is-active" });
+
+  const animations = Array.from(content.querySelectorAll("video.lecture-animation"));
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const prepareAnimation = (video, includeSources) => {
+    if (video.dataset.poster && !video.poster) video.poster = video.dataset.poster;
+    if (!includeSources || video.dataset.sourcesReady) return;
+    video.querySelectorAll("source[data-src]").forEach((source) => {
+      source.src = source.dataset.src;
+      source.removeAttribute("data-src");
+    });
+    video.dataset.sourcesReady = "true";
+    video.load();
+  };
+  const pauseAnimations = () => animations.forEach((video) => video.pause());
+
+  animations.forEach((video) => {
+    const figure = video.closest(".raster-figure");
+    const caption = figure?.querySelector("figcaption");
+    const expandButton = document.createElement("button");
+    expandButton.type = "button";
+    expandButton.className = "lecture-animation__expand";
+    expandButton.textContent = "動画を拡大";
+    expandButton.setAttribute("aria-label", `${video.getAttribute("aria-label") || "アニメーション"}を拡大表示`);
+    (caption || figure || video.parentElement)?.appendChild(expandButton);
+    const loadForUser = () => prepareAnimation(video, true);
+    video.addEventListener("pointerdown", loadForUser, { once: true });
+    video.addEventListener("focus", loadForUser, { once: true });
+    expandButton.addEventListener("click", async () => {
+      prepareAnimation(video, true);
+      try {
+        if (video.requestFullscreen) await video.requestFullscreen();
+        else if (video.webkitEnterFullscreen) video.webkitEnterFullscreen();
+      } catch (_error) {
+        video.scrollIntoView({ block: "center" });
+      }
+    });
+  });
+
+  if ("IntersectionObserver" in window) {
+    const mediaObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (entry.isIntersecting) {
+          prepareAnimation(video, !reduceMotion.matches);
+          if (!reduceMotion.matches) video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+    }, { rootMargin: "320px 0px", threshold: 0.01 });
+    animations.forEach((video) => mediaObserver.observe(video));
+  } else {
+    animations.forEach((video) => prepareAnimation(video, !reduceMotion.matches));
+  }
+  reduceMotion.addEventListener?.("change", (event) => {
+    if (event.matches) pauseAnimations();
+  });
 
   const rasterFigures = Array.from(content.querySelectorAll(".raster-figure"));
   if (rasterFigures.length) {
@@ -225,6 +355,7 @@
     };
 
     rasterFigures.forEach((figure) => {
+      if (figure.querySelector("video")) return;
       const image = figure.querySelector("img");
       if (!image) return;
       const caption = figure.querySelector("figcaption");
@@ -233,10 +364,9 @@
       trigger.className = "figure-zoom-trigger";
       trigger.setAttribute("aria-haspopup", "dialog");
       trigger.setAttribute("aria-label", `${image.alt}を拡大表示`);
-      image.loading = "lazy";
-      image.decoding = "async";
-      image.replaceWith(trigger);
-      trigger.appendChild(image);
+      const media = image.closest("picture") || image;
+      media.replaceWith(trigger);
+      trigger.appendChild(media);
       trigger.addEventListener("click", () => openLightbox(trigger, image, caption ? caption.textContent.trim() : image.alt));
     });
 
@@ -388,18 +518,125 @@
   syncToggle();
 
   const links = Array.from(sectionNav.querySelectorAll("a"));
+  sectionNav.addEventListener("click", (event) => {
+    if (event.target.closest("a")) progressTrackingStarted = true;
+  });
   const linkById = new Map(links.map((link) => [link.getAttribute("href").slice(1), link]));
+  const mobilePosition = document.createElement("div");
+  mobilePosition.className = "mobile-lecture-position";
+  mobilePosition.innerHTML = `
+    <button class="mobile-lecture-position__toggle" type="button" aria-expanded="false" aria-controls="mobile-lecture-sections">
+      <span class="mobile-lecture-position__field">${escapeHtml(fieldLabels[field])}</span>
+      <span class="mobile-lecture-position__count"></span>
+      <strong class="mobile-lecture-position__title"></strong>
+      <span aria-hidden="true">⌄</span>
+    </button>
+    <nav class="mobile-lecture-position__panel" id="mobile-lecture-sections" aria-label="このページの節" hidden>
+      ${page.sections.map((section, index) => `<a href="#${escapeHtml(section.id)}"><span>${index + 1} / ${page.sections.length}</span>${escapeHtml(section.short || section.title)}</a>`).join("")}
+    </nav>`;
+  document.body.appendChild(mobilePosition);
+  const mobileToggle = mobilePosition.querySelector(".mobile-lecture-position__toggle");
+  const mobilePanel = mobilePosition.querySelector(".mobile-lecture-position__panel");
+  const mobileLinks = Array.from(mobilePanel.querySelectorAll("a"));
+  const closeMobilePanel = (restoreFocus = false) => {
+    mobilePanel.hidden = true;
+    mobileToggle.setAttribute("aria-expanded", "false");
+    if (restoreFocus) mobileToggle.focus();
+  };
+  mobileToggle.addEventListener("click", () => {
+    const opening = mobilePanel.hidden;
+    mobilePanel.hidden = !opening;
+    mobileToggle.setAttribute("aria-expanded", String(opening));
+    if (opening) (mobilePanel.querySelector("a[aria-current]") || mobileLinks[0])?.focus();
+  });
+  mobileLinks.forEach((link) => link.addEventListener("click", () => {
+    progressTrackingStarted = true;
+    closeMobilePanel();
+  }));
+  mobilePosition.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || mobilePanel.hidden) return;
+    event.preventDefault();
+    closeMobilePanel(true);
+  });
+
+  const backToTop = document.createElement("button");
+  backToTop.type = "button";
+  backToTop.className = "lecture-back-to-top";
+  backToTop.setAttribute("aria-label", "ページの先頭へ戻る");
+  backToTop.textContent = "↑";
+  backToTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: reduceMotion.matches ? "auto" : "smooth" }));
+  document.body.appendChild(backToTop);
+
+  let activeId = "";
+  const setActiveSection = (section, persist = progressTrackingStarted) => {
+    if (!section || activeId === section.id) return;
+    activeId = section.id;
+    const index = page.sections.findIndex((item) => item.id === section.id);
+    links.forEach((link) => link.classList.toggle("is-active", link === linkById.get(section.id)));
+    mobileLinks.forEach((link) => {
+      const current = link.getAttribute("href") === `#${section.id}`;
+      link.classList.toggle("is-active", current);
+      if (current) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+    mobilePosition.querySelector(".mobile-lecture-position__count").textContent = `${index + 1} / ${page.sections.length}`;
+    mobilePosition.querySelector(".mobile-lecture-position__title").textContent = page.sections[index].short || page.sections[index].title;
+    if (persist) writeProgress(page.sections[index], index);
+    if (progressTrackingStarted && window.matchMedia("(max-width: 680px)").matches) sectionScrollCue?.reveal(linkById.get(section.id));
+  };
+
   if ("IntersectionObserver" in window) {
+    const visibleSections = new Map();
     const observer = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) visibleSections.set(entry.target.id, entry);
+        else visibleSections.delete(entry.target.id);
+      });
+      const readingLine = Math.min(window.innerHeight * 0.34, 300);
+      const visible = Array.from(visibleSections.values()).sort((a, b) => (
+        Math.abs(a.boundingClientRect.top - readingLine) - Math.abs(b.boundingClientRect.top - readingLine)
+      ))[0];
       if (!visible) return;
-      links.forEach((link) => link.classList.remove("is-active"));
-      const active = linkById.get(visible.target.id);
-      if (active) active.classList.add("is-active");
+      setActiveSection(visible.target);
     }, { rootMargin: "-24% 0px -62%", threshold: [0.05, 0.25, 0.5] });
     document.querySelectorAll(".lecture-section").forEach((section) => observer.observe(section));
   }
-  if (links[0]) links[0].classList.add("is-active");
+  const firstSection = document.querySelector(".lecture-section");
+  if (firstSection) setActiveSection(firstSection, false);
+
+  let scrollTicking = false;
+  const initialScrollY = window.scrollY;
+  window.addEventListener("scroll", () => {
+    if (scrollTicking) return;
+    scrollTicking = true;
+    window.requestAnimationFrame(() => {
+      if (Math.abs(window.scrollY - initialScrollY) > 80) progressTrackingStarted = true;
+      const readingLine = Math.min(window.innerHeight * 0.34, 300);
+      const sections = Array.from(document.querySelectorAll(".lecture-section"));
+      const currentSection = sections.find((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= readingLine && rect.bottom >= readingLine;
+      }) || sections.sort((left, right) => (
+        Math.abs(left.getBoundingClientRect().top - readingLine) - Math.abs(right.getBoundingClientRect().top - readingLine)
+      ))[0];
+      setActiveSection(currentSection);
+      backToTop.classList.toggle("is-visible", window.scrollY > 720);
+      scrollTicking = false;
+    });
+  }, { passive: true });
+
+  if (window.location.hash) {
+    const directTarget = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+    if (directTarget) {
+      const revealDirectTarget = () => {
+        setActiveSection(directTarget, true);
+        const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+        document.documentElement.style.scrollBehavior = "auto";
+        directTarget.scrollIntoView({ block: "start" });
+        document.documentElement.style.scrollBehavior = previousScrollBehavior;
+      };
+      window.requestAnimationFrame(revealDirectTarget);
+      window.addEventListener("load", () => window.requestAnimationFrame(revealDirectTarget), { once: true });
+    }
+  }
 })();

@@ -92,6 +92,81 @@
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>`;
   }
 
+  const initHorizontalScrollCue = (scroller, options = {}) => {
+    if (!scroller || scroller.closest(".horizontal-scroll-cue")) return;
+    const shell = document.createElement("div");
+    shell.className = `horizontal-scroll-cue ${options.variant ? `horizontal-scroll-cue--${options.variant}` : ""}`.trim();
+    const leftCue = document.createElement("span");
+    const rightCue = document.createElement("span");
+    leftCue.className = "horizontal-scroll-cue__edge horizontal-scroll-cue__edge--left";
+    rightCue.className = "horizontal-scroll-cue__edge horizontal-scroll-cue__edge--right";
+    leftCue.setAttribute("aria-hidden", "true");
+    rightCue.setAttribute("aria-hidden", "true");
+    scroller.before(shell);
+    shell.append(scroller, leftCue, rightCue);
+
+    const update = () => {
+      const overflow = scroller.scrollWidth - scroller.clientWidth > 2;
+      shell.classList.toggle("has-overflow", overflow);
+      shell.classList.toggle("is-at-start", !overflow || scroller.scrollLeft <= 2);
+      shell.classList.toggle("is-at-end", !overflow || scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2);
+    };
+    const reveal = (target, behavior = "smooth") => {
+      if (!target || scroller.scrollWidth <= scroller.clientWidth) return;
+      const scrollerRect = scroller.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      if (targetRect.left >= scrollerRect.left + 8 && targetRect.right <= scrollerRect.right - 8) return;
+      const left = scroller.scrollLeft + targetRect.left - scrollerRect.left - (scroller.clientWidth - targetRect.width) / 2;
+      scroller.scrollTo({ left, behavior });
+    };
+
+    scroller.addEventListener("scroll", update, { passive: true });
+    scroller.addEventListener("focusin", (event) => reveal(event.target));
+    window.addEventListener("resize", update, { passive: true });
+    shell.classList.add("has-overflow", "is-at-start");
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(update).observe(scroller);
+    } else {
+      window.addEventListener("load", update, { once: true });
+    }
+    const current = scroller.querySelector(options.currentSelector || '[aria-current="page"], .is-active');
+    if (window.matchMedia("(max-width: 680px)").matches) reveal(current, "auto");
+    return { shell, update, reveal };
+  };
+
+  window.StudyAtlasScrollHints = { init: initHorizontalScrollCue };
+  if (!document.querySelector("style[data-horizontal-scroll-cue]")) {
+    const cueStyle = document.createElement("style");
+    cueStyle.dataset.horizontalScrollCue = "";
+    cueStyle.textContent = `
+      .horizontal-scroll-cue { position: relative; min-width: 0; }
+      .horizontal-scroll-cue--global { flex: 1 1 auto; }
+      .horizontal-scroll-cue__edge { position: absolute; top: 0; bottom: 0; z-index: 5; width: 44px; display: none; align-items: center; color: #173042; pointer-events: none; opacity: 0; transition: opacity .18s ease; }
+      .horizontal-scroll-cue__edge::after { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid rgb(23 48 66 / 18%); border-radius: 50%; background: rgb(255 255 255 / 88%); box-shadow: 0 3px 10px rgb(20 48 63 / 12%); font-size: 16px; font-weight: 900; }
+      .horizontal-scroll-cue__edge--left { left: 0; justify-content: flex-start; background: linear-gradient(90deg, #f7f5ef 38%, rgb(247 245 239 / 0%)); }
+      .horizontal-scroll-cue__edge--left::after { content: "‹"; }
+      .horizontal-scroll-cue__edge--right { right: 0; justify-content: flex-end; background: linear-gradient(270deg, #f7f5ef 38%, rgb(247 245 239 / 0%)); }
+      .horizontal-scroll-cue__edge--right::after { content: "›"; }
+      @media (max-width: 1040px) {
+        .horizontal-scroll-cue--section { order: 10; flex: 1 0 100%; width: 100%; }
+      }
+      @media (max-width: 680px) {
+        .horizontal-scroll-cue--global { width: 100%; flex: 1 0 auto; }
+        .horizontal-scroll-cue.has-overflow .horizontal-scroll-cue__edge { display: flex; opacity: 1; }
+        .horizontal-scroll-cue.is-at-start .horizontal-scroll-cue__edge--left,
+        .horizontal-scroll-cue.is-at-end .horizontal-scroll-cue__edge--right { opacity: 0; }
+        .horizontal-scroll-cue > .global-nav,
+        .horizontal-scroll-cue > .section-nav { scroll-snap-type: x proximity; scroll-padding-inline: 14px 42px; }
+        .horizontal-scroll-cue > .global-nav a,
+        .horizontal-scroll-cue > .section-nav a { scroll-snap-align: start; }
+      }
+      @media (prefers-reduced-motion: reduce) { .horizontal-scroll-cue__edge { transition: none; } }
+    `;
+    document.head.append(cueStyle);
+  }
+  const globalNav = header?.querySelector(".global-nav");
+  if (globalNav) initHorizontalScrollCue(globalNav, { variant: "global" });
+
   if (!header) return;
 
   const root = document.documentElement;
