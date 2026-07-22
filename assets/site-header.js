@@ -140,7 +140,7 @@
     cueStyle.dataset.horizontalScrollCue = "";
     cueStyle.textContent = `
       .horizontal-scroll-cue { position: relative; min-width: 0; }
-      .horizontal-scroll-cue--global { flex: 1 1 auto; }
+      .horizontal-scroll-cue--global { min-width: 0; margin-left: auto; flex: 0 1 auto; }
       .horizontal-scroll-cue__edge { position: absolute; top: 0; bottom: 0; z-index: 5; width: 44px; display: none; align-items: center; color: #173042; pointer-events: none; opacity: 0; transition: opacity .18s ease; }
       .horizontal-scroll-cue__edge::after { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid rgb(23 48 66 / 18%); border-radius: 50%; background: rgb(255 255 255 / 88%); box-shadow: 0 3px 10px rgb(20 48 63 / 12%); font-size: 16px; font-weight: 900; }
       .horizontal-scroll-cue__edge--left { left: 0; justify-content: flex-start; background: linear-gradient(90deg, #f7f5ef 38%, rgb(247 245 239 / 0%)); }
@@ -151,7 +151,7 @@
         .horizontal-scroll-cue--section { order: 10; flex: 1 0 100%; width: 100%; }
       }
       @media (max-width: 680px) {
-        .horizontal-scroll-cue--global { width: 100%; flex: 1 0 auto; }
+        .horizontal-scroll-cue--global { width: 100%; margin-left: 0; flex: 1 0 auto; }
         .horizontal-scroll-cue.has-overflow .horizontal-scroll-cue__edge { display: flex; opacity: 1; }
         .horizontal-scroll-cue.is-at-start .horizontal-scroll-cue__edge--left,
         .horizontal-scroll-cue.is-at-end .horizontal-scroll-cue__edge--right { opacity: 0; }

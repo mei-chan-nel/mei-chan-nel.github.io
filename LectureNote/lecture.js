@@ -57,28 +57,45 @@
   };
 
   const savedProgress = readProgress();
-  let progressTrackingStarted = Boolean(window.location.hash);
-  if (savedProgress) {
-    const resume = document.createElement("section");
-    resume.className = "lecture-resume";
-    resume.setAttribute("aria-labelledby", "lecture-resume-title");
-    resume.innerHTML = `
-      <div><p class="lecture-resume__label">前回の続き</p><h2 id="lecture-resume-title"></h2><p class="lecture-resume__meta"></p></div>
-      <div class="lecture-resume__actions"><a class="lecture-resume__continue">続きから読む</a><button type="button">最初から読む</button></div>`;
-    resume.querySelector("#lecture-resume-title").textContent = `前回は「${savedProgress.sectionTitle}」まで読みました`;
-    resume.querySelector(".lecture-resume__meta").textContent = `${fieldLabels[savedProgress.field]}・${savedProgress.sectionIndex + 1}節目`;
-    const continueLink = resume.querySelector(".lecture-resume__continue");
-    continueLink.href = savedProgress.field === field
-      ? `#${encodeURIComponent(savedProgress.sectionId)}`
-      : `./${savedProgress.field}.html#${encodeURIComponent(savedProgress.sectionId)}`;
-    continueLink.addEventListener("click", () => { progressTrackingStarted = true; });
-    resume.querySelector("button").addEventListener("click", () => {
-      try { localStorage.removeItem(progressKey); } catch (_error) { /* no-op */ }
-      page.sections[0] && document.querySelector(`#${CSS.escape(page.sections[0].id)}`)?.scrollIntoView();
-      resume.remove();
-    });
-    document.querySelector(".course-hero").after(resume);
-  }
+  const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+  const keywordGroups = Array.isArray(page.keywordGroups) ? page.keywordGroups : [];
+  const keywords = keywordGroups.flatMap((group) => group.keywords || []);
+  const keywordByTargetId = new Map(keywords.map((keyword) => [keyword.targetId, keyword]));
+  let readingMode = "sequential";
+  let keywordIndexBrowsing = false;
+  let progressTrackingStarted = resumeRequested;
+
+  const learningGuide = document.createElement("section");
+  learningGuide.className = "lecture-learning-guide";
+  learningGuide.setAttribute("aria-labelledby", "lecture-learning-guide-title");
+  const resumeHref = savedProgress
+    ? `./${savedProgress.field}.html?resume=1#${encodeURIComponent(savedProgress.sectionId)}`
+    : "";
+  learningGuide.innerHTML = `
+    <div class="lecture-learning-guide__heading">
+      <p>READING GUIDE</p>
+      <h2 id="lecture-learning-guide-title">学び方を選ぶ</h2>
+    </div>
+    <div class="lecture-learning-guide__choices">
+      <a class="lecture-learning-choice" data-reading-start href="#${escapeHtml(page.sections[0]?.id || "")}">
+        <strong>最初から順に読む</strong><span>基礎から順番に学習します</span>
+      </a>
+      ${savedProgress ? `<a class="lecture-learning-choice" data-reading-resume href="${escapeHtml(resumeHref)}"><strong>前回の続きから読む</strong><span>前回：${escapeHtml(fieldLabels[savedProgress.field])}「${escapeHtml(savedProgress.sectionTitle)}」</span></a>` : ""}
+    </div>
+    <details class="lecture-keyword-index" id="lecture-keyword-index">
+      <summary><span><strong>重要キーワード</strong><small>用語や仕組みを選んで、必要な部分だけ確認します</small></span></summary>
+      <div class="lecture-keyword-index__groups">
+        ${keywordGroups.map((group) => `<section><h3>${escapeHtml(group.title)}</h3><div>${group.keywords.map((keyword) => `<a href="#${escapeHtml(keyword.targetId)}" data-keyword-id="${escapeHtml(keyword.id)}">${escapeHtml(keyword.label)}</a>`).join("")}</div></section>`).join("")}
+      </div>
+    </details>
+    <p class="lecture-reading-state" aria-live="polite">順番に読んでいます</p>`;
+  document.querySelector(".course-hero").after(learningGuide);
+  const readingState = learningGuide.querySelector(".lecture-reading-state");
+  const keywordIndex = learningGuide.querySelector(".lecture-keyword-index");
+  keywordIndex.addEventListener("toggle", () => {
+    keywordIndexBrowsing = keywordIndex.open;
+    if (keywordIndexBrowsing) progressTrackingStarted = false;
+  });
 
   const content = document.querySelector("#lecture-content");
   const courseNav = document.querySelector("#lecture-course-nav");
@@ -124,6 +141,113 @@
     };
     appendBatch();
   });
+
+  const keywordTargets = new Map();
+  const installKeywordTarget = (keyword) => {
+    const section = document.getElementById(keyword.sectionId);
+    const sectionBody = section?.querySelector(".section-body");
+    if (!sectionBody) return null;
+    const walker = document.createTreeWalker(sectionBody, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        if (!node.data.includes(keyword.targetText) || node.parentElement?.closest(".keyword-target")) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let remaining = keyword.occurrence || 0;
+    let node;
+    while ((node = walker.nextNode())) {
+      let fromIndex = 0;
+      let matchIndex = node.data.indexOf(keyword.targetText, fromIndex);
+      while (matchIndex >= 0) {
+        if (remaining === 0) {
+          const matchNode = node.splitText(matchIndex);
+          matchNode.splitText(keyword.targetText.length);
+          const target = document.createElement("span");
+          target.id = keyword.targetId;
+          target.className = "keyword-target";
+          target.tabIndex = -1;
+          target.dataset.keywordId = keyword.id;
+          matchNode.replaceWith(target);
+          target.append(matchNode);
+          return target;
+        }
+        remaining -= 1;
+        fromIndex = matchIndex + keyword.targetText.length;
+        matchIndex = node.data.indexOf(keyword.targetText, fromIndex);
+      }
+    }
+    return null;
+  };
+
+  keywords.forEach((keyword) => {
+    const target = installKeywordTarget(keyword);
+    if (target) keywordTargets.set(keyword.targetId, target);
+    else console.warn(`重要キーワードの移動先を作成できませんでした: ${keyword.id}`);
+  });
+
+  const keywordTools = document.createElement("aside");
+  keywordTools.className = "keyword-reading-tools";
+  keywordTools.hidden = true;
+  keywordTools.setAttribute("aria-live", "polite");
+  keywordTools.innerHTML = `
+    <p><span data-keyword-field></span><span data-keyword-section></span><strong data-keyword-status></strong></p>
+    <nav aria-label="キーワード確認中の操作">
+      <a href="#lecture-keyword-index" data-keyword-index-link>重要キーワード一覧へ戻る</a>
+      <a href="#" data-keyword-section-link>この節の先頭へ</a>
+      <button type="button" data-keyword-sequential>ここから順番に読む</button>
+    </nav>`;
+  let highlightedTarget = null;
+  let highlightTimer = 0;
+
+  const clearKeywordHighlight = () => {
+    window.clearTimeout(highlightTimer);
+    highlightedTarget?.classList.remove("is-keyword-highlighted");
+    highlightedTarget = null;
+  };
+
+  const setReadingMode = (mode, label = "") => {
+    readingMode = mode;
+    if (mode === "keyword") {
+      progressTrackingStarted = false;
+      readingState.textContent = `索引から確認中：${label}`;
+      readingState.classList.add("is-keyword-reading");
+    } else {
+      readingState.textContent = "順番に読んでいます";
+      readingState.classList.remove("is-keyword-reading");
+    }
+  };
+
+  const placeKeywordTools = (target, keyword) => {
+    const section = document.getElementById(keyword.sectionId);
+    const sectionBody = section?.querySelector(".section-body");
+    let block = target;
+    while (block.parentElement && block.parentElement !== sectionBody) block = block.parentElement;
+    if (block.parentElement === sectionBody) block.before(keywordTools);
+    else sectionBody?.prepend(keywordTools);
+    const sectionData = page.sections.find((item) => item.id === keyword.sectionId);
+    keywordTools.querySelector("[data-keyword-field]").textContent = fieldLabels[field];
+    keywordTools.querySelector("[data-keyword-section]").textContent = sectionData?.short || sectionData?.title || "";
+    keywordTools.querySelector("[data-keyword-status]").textContent = `索引から確認中：${keyword.label}`;
+    keywordTools.querySelector("[data-keyword-section-link]").href = `#${keyword.sectionId}`;
+    keywordTools.hidden = false;
+  };
+
+  const showKeyword = (keyword, focusTarget = true) => {
+    const target = keywordTargets.get(keyword.targetId);
+    if (!target) return false;
+    setReadingMode("keyword", keyword.label);
+    placeKeywordTools(target, keyword);
+    clearKeywordHighlight();
+    highlightedTarget = target;
+    target.classList.add("is-keyword-highlighted");
+    target.scrollIntoView({ block: "center", behavior: "auto" });
+    if (focusTarget) target.focus({ preventScroll: true });
+    highlightTimer = window.setTimeout(() => {
+      target.classList.remove("is-keyword-highlighted");
+      if (highlightedTarget === target) highlightedTarget = null;
+    }, 3600);
+    return true;
+  };
 
   sectionNav.innerHTML = page.sections.map((section, index) => `
     <a href="#${escapeHtml(section.id)}"><span>${String(index + 1).padStart(2, "0")}</span> ${escapeHtml(section.short || section.title)}</a>
@@ -519,7 +643,15 @@
 
   const links = Array.from(sectionNav.querySelectorAll("a"));
   sectionNav.addEventListener("click", (event) => {
-    if (event.target.closest("a")) progressTrackingStarted = true;
+    const link = event.target.closest("a");
+    if (!link) return;
+    event.preventDefault();
+    if (readingMode === "sequential") {
+      keywordIndex.open = false;
+      keywordIndexBrowsing = false;
+      progressTrackingStarted = true;
+    }
+    navigateToHash(link.getAttribute("href").slice(1), readingMode);
   });
   const linkById = new Map(links.map((link) => [link.getAttribute("href").slice(1), link]));
   const mobilePosition = document.createElement("div");
@@ -549,9 +681,15 @@
     mobileToggle.setAttribute("aria-expanded", String(opening));
     if (opening) (mobilePanel.querySelector("a[aria-current]") || mobileLinks[0])?.focus();
   });
-  mobileLinks.forEach((link) => link.addEventListener("click", () => {
-    progressTrackingStarted = true;
+  mobileLinks.forEach((link) => link.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (readingMode === "sequential") {
+      keywordIndex.open = false;
+      keywordIndexBrowsing = false;
+      progressTrackingStarted = true;
+    }
     closeMobilePanel();
+    navigateToHash(link.getAttribute("href").slice(1), readingMode);
   }));
   mobilePosition.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || mobilePanel.hidden) return;
@@ -581,7 +719,7 @@
     });
     mobilePosition.querySelector(".mobile-lecture-position__count").textContent = `${index + 1} / ${page.sections.length}`;
     mobilePosition.querySelector(".mobile-lecture-position__title").textContent = page.sections[index].short || page.sections[index].title;
-    if (persist) writeProgress(page.sections[index], index);
+    if (persist && readingMode === "sequential" && !keywordIndexBrowsing) writeProgress(page.sections[index], index);
     if (progressTrackingStarted && window.matchMedia("(max-width: 680px)").matches) sectionScrollCue?.reveal(linkById.get(section.id));
   };
 
@@ -610,7 +748,7 @@
     if (scrollTicking) return;
     scrollTicking = true;
     window.requestAnimationFrame(() => {
-      if (Math.abs(window.scrollY - initialScrollY) > 80) progressTrackingStarted = true;
+      if (readingMode === "sequential" && !keywordIndexBrowsing && Math.abs(window.scrollY - initialScrollY) > 80) progressTrackingStarted = true;
       const readingLine = Math.min(window.innerHeight * 0.34, 300);
       const sections = Array.from(document.querySelectorAll(".lecture-section"));
       const currentSection = sections.find((section) => {
@@ -625,18 +763,108 @@
     });
   }, { passive: true });
 
-  if (window.location.hash) {
-    const directTarget = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-    if (directTarget) {
-      const revealDirectTarget = () => {
-        setActiveSection(directTarget, true);
-        const previousScrollBehavior = document.documentElement.style.scrollBehavior;
-        document.documentElement.style.scrollBehavior = "auto";
-        directTarget.scrollIntoView({ block: "start" });
-        document.documentElement.style.scrollBehavior = previousScrollBehavior;
-      };
-      window.requestAnimationFrame(revealDirectTarget);
-      window.addEventListener("load", () => window.requestAnimationFrame(revealDirectTarget), { once: true });
+  const decodedHash = () => {
+    try {
+      return decodeURIComponent(window.location.hash.slice(1));
+    } catch (_error) {
+      return "";
     }
+  };
+
+  const replaceHistoryState = (mode, url = window.location.href) => {
+    window.history.replaceState({ ...(window.history.state || {}), lectureReading: mode }, "", url);
+  };
+
+  const navigateToHash = (id, mode, replace = false) => {
+    const method = replace ? "replaceState" : "pushState";
+    window.history[method]({ ...(window.history.state || {}), lectureReading: mode }, "", `#${encodeURIComponent(id)}`);
+    revealLocationHash();
+  };
+
+  const beginSequentialReading = (sectionId, replace = false) => {
+    const section = document.getElementById(sectionId);
+    const sectionIndex = page.sections.findIndex((item) => item.id === sectionId);
+    if (!section || sectionIndex < 0) return;
+    setReadingMode("sequential");
+    keywordIndex.open = false;
+    keywordIndexBrowsing = false;
+    progressTrackingStarted = true;
+    keywordTools.hidden = true;
+    clearKeywordHighlight();
+    writeProgress(page.sections[sectionIndex], sectionIndex);
+    setActiveSection(section, false);
+    navigateToHash(sectionId, "sequential", replace);
+  };
+
+  const revealLocationHash = () => {
+    const hashId = decodedHash();
+    if (!hashId) return;
+    if (hashId.startsWith("keyword-")) {
+      const keyword = keywordByTargetId.get(hashId);
+      if (!keyword || !showKeyword(keyword)) {
+        keywordTools.hidden = true;
+        setReadingMode("sequential");
+        progressTrackingStarted = false;
+        window.scrollTo({ top: 0, behavior: "auto" });
+      }
+      return;
+    }
+    if (hashId === "lecture-keyword-index") {
+      keywordIndex.open = true;
+      keywordIndex.scrollIntoView({ block: "start", behavior: "auto" });
+      keywordIndex.querySelector("summary")?.focus({ preventScroll: true });
+      return;
+    }
+    const section = document.getElementById(hashId);
+    if (!section?.classList.contains("lecture-section")) return;
+    const stateMode = window.history.state?.lectureReading === "keyword" ? "keyword" : "sequential";
+    if (stateMode === "sequential") {
+      setReadingMode("sequential");
+      keywordTools.hidden = true;
+      clearKeywordHighlight();
+    } else {
+      readingMode = "keyword";
+    }
+    setActiveSection(section, stateMode === "sequential" && progressTrackingStarted);
+    section.scrollIntoView({ block: "start", behavior: "auto" });
+  };
+
+  learningGuide.querySelector("[data-reading-start]")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    beginSequentialReading(page.sections[0].id);
+  });
+  learningGuide.querySelectorAll("[data-keyword-id]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      navigateToHash(link.getAttribute("href").slice(1), "keyword");
+    });
+  });
+  keywordTools.querySelector("[data-keyword-index-link]").addEventListener("click", (event) => {
+    event.preventDefault();
+    keywordIndex.open = true;
+    navigateToHash("lecture-keyword-index", "keyword");
+  });
+  keywordTools.querySelector("[data-keyword-section-link]").addEventListener("click", (event) => {
+    event.preventDefault();
+    navigateToHash(event.currentTarget.getAttribute("href").slice(1), "keyword");
+  });
+  keywordTools.querySelector("[data-keyword-sequential]").addEventListener("click", () => {
+    const section = keywordTools.closest(".lecture-section");
+    if (section) beginSequentialReading(section.id);
+  });
+
+  const initialHash = decodedHash();
+  const initialMode = initialHash.startsWith("keyword-") ? "keyword" : "sequential";
+  replaceHistoryState(initialMode);
+  window.addEventListener("hashchange", revealLocationHash);
+  window.addEventListener("popstate", revealLocationHash);
+  if (resumeRequested) {
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete("resume");
+    replaceHistoryState("sequential", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
+  }
+  if (initialHash) {
+    window.requestAnimationFrame(revealLocationHash);
+    window.setTimeout(() => window.requestAnimationFrame(revealLocationHash), 180);
   }
 })();

@@ -48,10 +48,20 @@
               <a href="./archive/index.html"><strong>動画問題を見る</strong><span>手順を追って学ぶ</span></a>
             </div>
           </section>
-          <aside class="home-return-card" data-home-return aria-labelledby="home-return-heading" hidden>
-            <div><p>おかえりなさい</p><h2 id="home-return-heading">学習を続けましょう</h2><p data-home-return-summary></p></div>
-            <div><a class="button button-primary" href="./info1-quiz-app/app/">もう5問解く</a><a class="text-link" href="./info1-quiz-app/app/?view=record">学習記録を見る →</a></div>
-          </aside>
+          <section class="home-return" data-home-return aria-labelledby="home-return-heading" hidden>
+            <a class="home-return-card" href="./info1-quiz-app/app/">
+              <span><small>おかえりなさい</small><strong id="home-return-heading">学習を続けましょう</strong><span data-home-return-summary></span></span>
+              <span class="home-return-card__action">アプリへ移動 <b aria-hidden="true">→</b></span>
+            </a>
+            <div class="home-return-guide" aria-labelledby="home-return-guide-heading">
+              <h2 id="home-return-guide-heading">何をしますか？</h2>
+              <div>
+                <a href="./info1-quiz-app/questions/index.html"><strong>問題一覧を見る</strong><span>苦手分野をなくす</span></a>
+                <a href="./archive/index.html"><strong>動画問題を見る</strong><span>仕組みから理解</span></a>
+                <a href="./LectureNote/index.html"><strong>講義ノートを読む</strong><span>手順を追って学ぶ</span></a>
+              </div>
+            </div>
+          </section>
         </div>
         <div class="hero-visual">
           <nav class="hero-map" aria-label="6分野と学習アプリへのショートカット">
@@ -64,14 +74,16 @@
             <a class="map-node node-e" href="./info1-quiz-app/questions/algorithm.html">アルゴ<br />リズム</a>
             <a class="map-node node-f" href="./info1-quiz-app/questions/information-design.html">情報<br />デザイン</a>
           </nav>
-          <a class="button button-primary hero-start-button" href="./info1-quiz-app/app/">5問から始める <span aria-hidden="true">→</span></a>
         </div>
       </section>
 
-      <a class="app-cta app-cta-link" href="./info1-quiz-app/app/" aria-label="学習アプリを開く">
-        <div><p class="eyebrow">MAIN LEARNING TOOL</p><h2>まずは、学習アプリから</h2><p>知識・計算問題の学習用アプリです。分野・回答状況・問題数を選び、5問から反復できます。分野別正答率を見ながら、「間違えたまま」や保存した問題へ戻り、知識を定着させられます。</p></div>
-        <span class="cta-arrow" aria-hidden="true">→</span>
-      </a>
+      <section class="section section-app" aria-labelledby="app-heading">
+        <div class="section-heading section-heading-single"><div><p class="eyebrow">MAIN LEARNING TOOL</p><h2 id="app-heading">学習アプリ</h2></div></div>
+        <a class="app-cta app-cta-link" href="./info1-quiz-app/app/" aria-label="学習アプリを開く">
+          <div><h3>まずは、学習アプリから</h3><p>共通テスト『情報Ⅰ』第1問・第2問の基礎知識と基本計算の練習問題を出題します。分野・回答状況・問題数を選んで学習をしていきます。分野別正答率から苦手を見つけ、繰り返し挑戦することで確かな基礎を築き上げましょう</p></div>
+          <span class="cta-arrow" aria-hidden="true">→</span>
+        </a>
+      </section>
 
       <section class="section section-fields" aria-labelledby="fields-heading">
         <div class="section-heading"><div><p class="eyebrow">1,000 QUESTIONS · 6 FIELDS</p><h2 id="fields-heading">アプリ掲載問題</h2></div><p>アプリに収録している1,000問を6分野に分類しました。カードを選ぶと、正答・解説・出典・タグを掲載した問題ページへ移動します。</p></div>

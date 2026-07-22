@@ -359,9 +359,9 @@ def main() -> int:
         errors.append("index.html: completed 1,000-question count is not synchronized")
     if len(raw_tag_counts) != 608 or len(public_tags) != 242 or "242" not in top_text:
         errors.append("index.html: normalized public tag count is not synchronized")
-    if 'class="button button-primary hero-start-button" href="./info1-quiz-app/app/"' not in top_text:
-        errors.append("index.html: first-view learning start button is missing or has the wrong target")
-    for marker in ("何から始めますか？", "data-home-start", "data-home-return", "./info1-quiz-app/app/?view=record"):
+    if "hero-start-button" in top_text or "5問から始める" in top_text:
+        errors.append("index.html: redundant hero learning-app button remains")
+    for marker in ("何から始めますか？", "data-home-start", "data-home-return", "何をしますか？", "アプリへ移動", "問題一覧を見る", "動画問題を見る", "講義ノートを読む"):
         if marker not in top_text:
             errors.append(f"index.html: first/return-visit navigation marker is missing: {marker}")
     home_learning_path = ROOT / "assets" / "home-learning.js"
@@ -421,7 +421,7 @@ def main() -> int:
     for official_host in ("mext.go.jp", "dnc.ac.jp"):
         if official_host not in guide_text:
             errors.append(f"study-guide.html: official reference is missing: {official_host}")
-    if 'class="app-cta app-cta-link"' not in top_text or "知識・計算問題の学習用アプリ" not in top_text:
+    if 'class="section section-app"' not in top_text or 'class="app-cta app-cta-link"' not in top_text or "確かな基礎を築き上げましょう" not in top_text:
         errors.append("index.html: linked learning-app CTA is missing")
     for marker in ("学習アプリが中心", "問題一覧で根拠を確かめ", "講義ノートで仕組みまで深く理解"):
         if marker not in top_text:
@@ -488,6 +488,8 @@ def main() -> int:
     for marker in ("StudyAtlasScrollHints", "horizontal-scroll-cue__edge", "scroll-snap-type", "is-at-start", "is-at-end"):
         if marker not in header_script:
             errors.append(f"site-header.js: horizontal scroll guidance is missing: {marker}")
+    if ".horizontal-scroll-cue--global { min-width: 0; margin-left: auto; flex: 0 1 auto; }" not in header_script:
+        errors.append("site-header.js: desktop navigation is not right-aligned after the brand")
     lecture_script = (ROOT / "LectureNote" / "lecture.js").read_text(encoding="utf-8")
     for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
         if marker not in lecture_script:
@@ -498,6 +500,9 @@ def main() -> int:
     for marker in ('"info1LectureProgress:v1"', "mobile-lecture-position", "lecture-back-to-top", "writeProgress", "prefers-reduced-motion", "prepareAnimation"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: progress/mobile/media marker is missing: {marker}")
+    for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'readingMode === "sequential"', 'addEventListener("popstate"'):
+        if marker not in lecture_script:
+            errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")
     lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
     programming_content_text = (ROOT / "LectureNote" / "programming-content.js").read_text(encoding="utf-8")
     programming_enrichment_text = (ROOT / "LectureNote" / "programming-enrichment.js").read_text(encoding="utf-8")
@@ -543,6 +548,8 @@ def main() -> int:
             continue
         field_text = generated_path.read_text(encoding="utf-8")
         generated_lecture_text += field_text
+        if field_text.count('"targetId":"keyword-') != 24:
+            errors.append(f"LectureNote/{generated_path.name}: expected 24 curated keyword targets")
         page_text = (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
         if f'./lecture-data-{field_name}.js' not in page_text:
             errors.append(f"LectureNote/{field_name}.html: field-specific data script is missing")
@@ -560,6 +567,9 @@ def main() -> int:
             errors.append(f"LectureNote: generated animation behavior is missing: {marker}")
     if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
         errors.append("lecture-note.css: figure enlargement styles are missing")
+    for marker in (".lecture-learning-guide", ".lecture-keyword-index", ".keyword-target.is-keyword-highlighted", ".keyword-reading-tools"):
+        if marker not in lecture_stylesheet:
+            errors.append(f"lecture-note.css: keyword-index style is missing: {marker}")
     for marker in ("touch-action: none", ".figure-lightbox__canvas", ".figure-lightbox__viewport.is-zoomed"):
         if marker not in lecture_stylesheet:
             errors.append(f"lecture-note.css: interactive figure viewer marker is missing: {marker}")
