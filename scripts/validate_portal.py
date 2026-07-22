@@ -17,6 +17,11 @@ AD_MARKER = "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
 SITE_ORIGIN = "https://mei-chan-nel.github.io/"
 
 
+def normalized_text_sha256(path: Path) -> str:
+    content = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()
+
+
 class PageParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -260,7 +265,7 @@ def main() -> int:
             errors.append("video-keyword-audit.json: controlled taxonomy metadata is invalid")
         if keyword_report.get("minimum_questions_per_keyword", 0) < 2 or keyword_report.get("single_question_keyword_count") != 0:
             errors.append("video-keyword-audit.json: one-question-only keyword audit failed")
-        current_hash = hashlib.sha256((ROOT / "data" / "video-questions.json").read_bytes()).hexdigest()
+        current_hash = normalized_text_sha256(ROOT / "data" / "video-questions.json")
         if keyword_report.get("data_sha256") != current_hash:
             errors.append("video-keyword-audit.json: data hash does not match video-questions.json")
         audited = {int(entry["number"]): entry.get("keywords") for entry in keyword_report.get("entries", [])}

@@ -10,6 +10,11 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "video-questions.json"
 REPORT_PATH = ROOT / "docs" / "video-keyword-audit.json"
 
+
+def normalized_text_sha256(path: Path) -> str:
+    content = path.read_bytes().replace(b"\r\n", b"\n")
+    return hashlib.sha256(content).hexdigest()
+
 # 2026-07-14の初回監査表。再監査時の比較記録として残すが、
 # 現在のキーワード生成・判定には使用しない。
 PREVIOUS_KEYWORD_TEXT = {
@@ -576,7 +581,7 @@ def main() -> int:
         "taxonomy_version": 2,
         "taxonomy_policy": "Every public keyword connects at least two questions; programming keeps reusable subtopics.",
         "classification_inputs": ["question", "answer", "section", "videos.title"],
-        "data_sha256": hashlib.sha256(DATA_PATH.read_bytes()).hexdigest(),
+        "data_sha256": normalized_text_sha256(DATA_PATH),
         "entries": audit_entries,
     }
     REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
