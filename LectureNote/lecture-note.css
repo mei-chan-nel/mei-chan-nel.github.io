@@ -191,13 +191,6 @@ button { font: inherit; }
   flex-wrap: wrap;
   gap: 10px;
 }
-.hero-meta-label {
-  align-self: center;
-  margin-right: 2px;
-  color: #b9d3de;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-}
 .hero-meta span {
   padding: 7px 12px;
   border: 1px solid rgba(255, 255, 255, 0.22);
@@ -217,7 +210,7 @@ button { font: inherit; }
 }
 .lecture-learning-guide__heading p { margin: 0 0 3px; color: var(--accent); font-size: 10px; font-weight: 900; letter-spacing: .15em; }
 .lecture-learning-guide__heading h2 { margin: 0; font-size: clamp(19px, 2.4vw, 26px); line-height: 1.45; }
-.lecture-learning-guide__choices { margin-top: 18px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.lecture-learning-guide__choices { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 10px; }
 .lecture-learning-choice {
   min-height: 72px;
   padding: 14px 16px;

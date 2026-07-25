@@ -30,6 +30,7 @@ class PageParser(HTMLParser):
         self.title_parts: list[str] = []
         self.description = ""
         self.canonical = ""
+        self.og_title = ""
         self.h1_count = 0
         self.links: list[str] = []
         self.assets: list[str] = []
@@ -41,6 +42,8 @@ class PageParser(HTMLParser):
             self.in_title = True
         if tag == "meta" and values.get("name") == "description":
             self.description = values.get("content") or ""
+        if tag == "meta" and values.get("property") == "og:title":
+            self.og_title = values.get("content") or ""
         if tag == "link" and values.get("rel") == "canonical":
             self.canonical = values.get("href") or ""
         if tag == "link" and values.get("href"):
@@ -150,6 +153,10 @@ def main() -> int:
         parser = parsed[path.resolve()]
         if not parser.title:
             errors.append(f"{path.name}: missing title")
+        elif not parser.title.startswith("情報Ⅰ Study Atlas｜"):
+            errors.append(f"{path.relative_to(ROOT)}: title does not use the site hierarchy: {parser.title}")
+        if parser.og_title != parser.title:
+            errors.append(f"{path.relative_to(ROOT)}: og:title does not match title")
         if not parser.description:
             errors.append(f"{path.name}: missing meta description")
         expected_canonical = public_url(path)
@@ -211,6 +218,10 @@ def main() -> int:
         aside_text = lecture_text[aside_start:aside_end]
         if aside_start < 0 or 'id="lecture-course-nav"' not in aside_text or 'id="cloze-toggle"' not in aside_text:
             errors.append(f"{path.relative_to(ROOT)}: lecture navigation or cloze control is not contained in the sidebar")
+        if "../assets/lecture-progress.js" not in lecture_text:
+            errors.append(f"{path.relative_to(ROOT)}: shared field progress script is missing")
+        if 'id="hero-meta" aria-label="この分野のキーワード"' not in lecture_text:
+            errors.append(f"{path.relative_to(ROOT)}: top keyword chips have an obsolete or missing accessible label")
 
     for source, parser in parsed.items():
         for href in parser.links + parser.assets:
@@ -497,9 +508,22 @@ def main() -> int:
     for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', 'addEventListener("dblclick"', "toggleDoubleZoom", "lastTap", "beginPinch", "pointerDistance"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: interactive figure viewer marker is missing: {marker}")
-    for marker in ('"info1LectureProgress:v1"', "mobile-lecture-position", "lecture-back-to-top", "writeProgress", "prefers-reduced-motion", "prepareAnimation"):
+    for marker in ("mobile-lecture-position", "lecture-back-to-top", "writeProgress", "prefers-reduced-motion", "prepareAnimation"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: progress/mobile/media marker is missing: {marker}")
+    if "最初から順に読む" in lecture_script or "hero-meta-label" in lecture_script:
+        errors.append("lecture.js: obsolete explicit sequential-start or hero keyword label remains")
+    for marker in ("sequentialSectionRequested", "startProgressFromUserScroll", 'addEventListener("touchmove"'):
+        if marker not in lecture_script:
+            errors.append(f"lecture.js: explicit sequential-reading intent marker is missing: {marker}")
+    progress_script = (ROOT / "assets" / "lecture-progress.js").read_text(encoding="utf-8")
+    for marker in ('"info1LectureProgress:v1"', "stored?.fields", "normalizeRecord(stored)", "const latest", "const write"):
+        if marker not in progress_script:
+            errors.append(f"lecture-progress.js: field progress compatibility marker is missing: {marker}")
+    home_learning_script = (ROOT / "assets" / "home-learning.js").read_text(encoding="utf-8")
+    for marker in ("StudyAtlasLectureProgress", "data-home-lecture-resume", "前回の続きから読む"):
+        if marker not in home_learning_script and marker not in top_text:
+            errors.append(f"home lecture resume marker is missing: {marker}")
     for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'readingMode === "sequential"', 'addEventListener("popstate"'):
         if marker not in lecture_script:
             errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")

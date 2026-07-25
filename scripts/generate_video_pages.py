@@ -358,18 +358,19 @@ def archive_index(data: dict[str, object]) -> str:
             <span>{index:02d}</span><div><h2>{e(section['label'])}</h2><p>{e(section['description'])}</p><small>{count}問・解説動画つき</small></div><b aria-hidden="true">→</b>
           </a>"""
         )
+    title = "情報Ⅰ Study Atlas｜動画問題"
     description = "高校生・受験生向けの情報Ⅰ（情報1）一問一答330問。共通テスト対策を、答え・キーワード・YouTube解説動画で分野別に無料学習できます。"
     structured = structured_data(
         {
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "name": "動画で学ぶ 情報Ⅰ一問一答",
+            "name": title,
             "description": description,
             "url": f"{SITE_ORIGIN}archive/",
             "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": SITE_ORIGIN},
         },
     ) + structured_data(breadcrumb_data([("学習トップ", SITE_ORIGIN), ("動画問題", f"{SITE_ORIGIN}archive/")]))
-    return f"""{head('情報Ⅰ（情報1）一問一答330問・解説動画 | 共通テスト対策', description, 'archive/')}
+    return f"""{head(title, description, 'archive/')}
 {header('archive')}
     <main id="main-content" class="subpage archive-page">
       <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">動画問題</span></nav>
@@ -398,8 +399,8 @@ def section_page(section: dict[str, object], page_number: int) -> str:
     page_questions = questions[start : start + PAGE_SIZE]
     first_number = page_questions[0]["number"]
     last_number = page_questions[-1]["number"]
-    page_label = f" {page_number}ページ目" if page_number > 1 else ""
-    title = f"情報Ⅰ（情報1）{section['label']}一問一答 Q{first_number}〜Q{last_number}{page_label}"
+    page_label = f"（{page_number}/{page_count}ページ）" if page_count > 1 else ""
+    title = f"情報Ⅰ Study Atlas｜動画問題｜{section['label']}{page_label}"
     description = f"共通テスト情報Ⅰの「{section['label']}」一問一答Q{first_number}〜Q{last_number}。高校生・受験生が答え・キーワード・YouTube解説動画で学べます。"
     cards = "\n".join(question_card(question, str(section["id"])) for question in page_questions)
     nav = pagination(section, page_number, page_count)
@@ -489,7 +490,7 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
         }
         for definition in PUBLIC_SECTION_DEFINITIONS
     ]
-    title = "情報Ⅰ（情報1）の一問一答をキーワードから探す | 共通テスト対策"
+    title = "情報Ⅰ Study Atlas｜動画問題｜キーワード検索"
     description = (
         f"情報Ⅰの動画付き一問一答{payload['question_count']}問を{payload['keyword_count']}種類のキーワードから検索。"
         "複数キーワードはOR条件で抽出し、答えと解説動画まで確認できます。"

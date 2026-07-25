@@ -4,7 +4,7 @@
   const field = document.body.dataset.field || "society";
   const page = window.LECTURE_CONTENT && window.LECTURE_CONTENT[field];
   if (!page) return;
-  const progressKey = "info1LectureProgress:v1";
+  const progressStore = window.StudyAtlasLectureProgress;
   const fieldLabels = {
     society: "情報社会",
     digital: "デジタル",
@@ -24,64 +24,48 @@
 
   const renderMarkup = (markup) => markup.replace(/\{\{([^{}]+)\}\}/g, (_, answer) => clozeMarkup(answer));
 
-  document.title = `${page.title}｜高校情報Ⅰ 講義ノート`;
+  document.title = `情報Ⅰ Study Atlas｜講義ノート｜${page.title}`;
   document.querySelector("#hero-kicker").textContent = page.kicker;
   document.querySelector("#hero-title").textContent = page.title;
   document.querySelector("#hero-lead").textContent = page.lead;
-  document.querySelector("#hero-meta").innerHTML = `<strong class="hero-meta-label">重要キーワード</strong>${page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}`;
-
-  const readProgress = () => {
-    try {
-      const value = JSON.parse(localStorage.getItem(progressKey));
-      if (!value || !fieldLabels[value.field] || typeof value.sectionId !== "string" || typeof value.sectionTitle !== "string") return null;
-      if (!Number.isInteger(value.sectionIndex) || value.sectionIndex < 0 || typeof value.updatedAt !== "number") return null;
-      if (value.field === field && !page.sections.some((section) => section.id === value.sectionId)) return null;
-      return value;
-    } catch (_error) {
-      return null;
-    }
-  };
+  document.querySelector("#hero-meta").innerHTML = page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("");
 
   const writeProgress = (section, sectionIndex) => {
-    try {
-      localStorage.setItem(progressKey, JSON.stringify({
-        field,
-        sectionId: section.id,
-        sectionTitle: section.short || section.title,
-        sectionIndex,
-        updatedAt: Date.now()
-      }));
-    } catch (_error) {
-      // Storage can be unavailable in private or restricted browsing modes.
-    }
+    progressStore?.write(field, section, sectionIndex);
   };
 
-  const savedProgress = readProgress();
+  const candidateProgress = progressStore?.get(field) || null;
+  const savedProgress = candidateProgress && page.sections.some((section) => section.id === candidateProgress.sectionId)
+    ? candidateProgress
+    : null;
   const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+  const initialHashValue = (() => {
+    try {
+      return decodeURIComponent(window.location.hash.slice(1));
+    } catch (_error) {
+      return "";
+    }
+  })();
+  const sequentialSectionRequested = Boolean(initialHashValue)
+    && !initialHashValue.startsWith("keyword-")
+    && initialHashValue !== "lecture-keyword-index";
   const keywordGroups = Array.isArray(page.keywordGroups) ? page.keywordGroups : [];
   const keywords = keywordGroups.flatMap((group) => group.keywords || []);
   const keywordByTargetId = new Map(keywords.map((keyword) => [keyword.targetId, keyword]));
   let readingMode = "sequential";
   let keywordIndexBrowsing = false;
-  let progressTrackingStarted = resumeRequested;
+  let progressTrackingStarted = resumeRequested || sequentialSectionRequested;
 
   const learningGuide = document.createElement("section");
   learningGuide.className = "lecture-learning-guide";
   learningGuide.setAttribute("aria-labelledby", "lecture-learning-guide-title");
-  const resumeHref = savedProgress
-    ? `./${savedProgress.field}.html?resume=1#${encodeURIComponent(savedProgress.sectionId)}`
-    : "";
+  const resumeHref = savedProgress ? `./${field}.html?resume=1#${encodeURIComponent(savedProgress.sectionId)}` : "";
   learningGuide.innerHTML = `
     <div class="lecture-learning-guide__heading">
       <p>READING GUIDE</p>
       <h2 id="lecture-learning-guide-title">学び方を選ぶ</h2>
     </div>
-    <div class="lecture-learning-guide__choices">
-      <a class="lecture-learning-choice" data-reading-start href="#${escapeHtml(page.sections[0]?.id || "")}">
-        <strong>最初から順に読む</strong><span>基礎から順番に学習します</span>
-      </a>
-      ${savedProgress ? `<a class="lecture-learning-choice" data-reading-resume href="${escapeHtml(resumeHref)}"><strong>前回の続きから読む</strong><span>前回：${escapeHtml(fieldLabels[savedProgress.field])}「${escapeHtml(savedProgress.sectionTitle)}」</span></a>` : ""}
-    </div>
+    ${savedProgress ? `<div class="lecture-learning-guide__choices"><a class="lecture-learning-choice" data-reading-resume href="${escapeHtml(resumeHref)}"><strong>前回の続きから読む</strong><span>${escapeHtml(fieldLabels[field])}「${escapeHtml(savedProgress.sectionTitle)}」</span></a></div>` : ""}
     <details class="lecture-keyword-index" id="lecture-keyword-index">
       <summary><span><strong>重要キーワード</strong><small>用語や仕組みを選んで、必要な部分だけ確認します</small></span></summary>
       <div class="lecture-keyword-index__groups">
@@ -743,12 +727,20 @@
   if (firstSection) setActiveSection(firstSection, false);
 
   let scrollTicking = false;
-  const initialScrollY = window.scrollY;
+  const startProgressFromUserScroll = () => {
+    if (readingMode === "sequential" && !keywordIndexBrowsing) progressTrackingStarted = true;
+  };
+  window.addEventListener("wheel", startProgressFromUserScroll, { passive: true });
+  window.addEventListener("touchmove", startProgressFromUserScroll, { passive: true });
+  window.addEventListener("keydown", (event) => {
+    if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
+      startProgressFromUserScroll();
+    }
+  });
   window.addEventListener("scroll", () => {
     if (scrollTicking) return;
     scrollTicking = true;
     window.requestAnimationFrame(() => {
-      if (readingMode === "sequential" && !keywordIndexBrowsing && Math.abs(window.scrollY - initialScrollY) > 80) progressTrackingStarted = true;
       const readingLine = Math.min(window.innerHeight * 0.34, 300);
       const sections = Array.from(document.querySelectorAll(".lecture-section"));
       const currentSection = sections.find((section) => {
@@ -829,10 +821,6 @@
     section.scrollIntoView({ block: "start", behavior: "auto" });
   };
 
-  learningGuide.querySelector("[data-reading-start]")?.addEventListener("click", (event) => {
-    event.preventDefault();
-    beginSequentialReading(page.sections[0].id);
-  });
   learningGuide.querySelectorAll("[data-keyword-id]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
