@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  const storageKey = "info1LectureProgress:v1";
+  const storageKey = "info1LectureBookmark:v1";
   const fields = ["society", "digital", "network", "statistics", "programming"];
 
   const normalizeRecord = (value, expectedField = "") => {
@@ -31,8 +31,8 @@
         });
         return records;
       }
-      const legacyRecord = normalizeRecord(stored);
-      if (legacyRecord) records[legacyRecord.field] = legacyRecord;
+      const singleRecord = normalizeRecord(stored);
+      if (singleRecord) records[singleRecord.field] = singleRecord;
       return records;
     } catch (_error) {
       return {};
@@ -40,11 +40,6 @@
   };
 
   const get = (field) => readAll()[field] || null;
-
-  const latest = () => {
-    const records = Object.values(readAll());
-    return records.sort((left, right) => right.updatedAt - left.updatedAt)[0] || null;
-  };
 
   const write = (field, section, sectionIndex) => {
     if (!fields.includes(field) || !section || typeof section.id !== "string") return;
@@ -63,5 +58,5 @@
     }
   };
 
-  window.StudyAtlasLectureProgress = { storageKey, readAll, get, latest, write };
+  window.StudyAtlasLectureBookmarks = { storageKey, readAll, get, write };
 })();

@@ -5,15 +5,6 @@
   const starter = document.querySelector("[data-home-start]");
   const returnCard = document.querySelector("[data-home-return]");
   const summary = document.querySelector("[data-home-return-summary]");
-  const lectureProgress = window.StudyAtlasLectureProgress?.latest();
-  const lectureLinks = document.querySelectorAll("[data-home-lecture-resume]");
-  if (lectureProgress) {
-    lectureLinks.forEach((link) => {
-      link.href = `./LectureNote/${lectureProgress.field}.html?resume=1#${encodeURIComponent(lectureProgress.sectionId)}`;
-      const label = link.querySelector("[data-home-lecture-resume-label]");
-      if (label) label.textContent = "前回の続きから読む";
-    });
-  }
   if (!starter || !returnCard || !summary) return;
 
   try {
