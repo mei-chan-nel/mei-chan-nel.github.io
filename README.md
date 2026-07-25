@@ -1,6 +1,6 @@
 # 情報Ⅰ Study Atlas — ポータル
 
-`https://mei-chan-nel.github.io/` で公開するサイト全体の入口です。
+`https://mei-chan-nel.com/` で公開するサイト全体の入口です。
 
 このリポジトリでは次を管理します。
 
@@ -45,6 +45,8 @@ docs/
   IMPLEMENTATION_LOG.md
   REVIEW_READINESS.md
 scripts/
+  build_lecture_data.mjs
+  build_lecture_pages.mjs
   import_video_questions.py
   rebuild_video_keywords.py
   generate_video_pages.py
@@ -67,6 +69,22 @@ python scripts/generate_video_pages.py
 
 通常のHTML再生成は `python scripts/generate_video_pages.py` だけで行えます。キーワードは90種類の統制語彙へ整理し、すべて2問以上に関連付けます。特にプログラミングは学習単位を細かく保ちます。割り当ての根拠・出現数・データハッシュは `docs/video-keyword-audit.json`、HTMLの生成記録は `docs/video-library-build.json` に保存します。
 
+## 講義ノートの再生成
+
+講義本文は、教材ソースから分野別の `LectureNote/lecture-data-*.js` を作り、そのデータから5ページの静的HTMLを作る一方向の生成にしています。公開HTMLへ本文を手作業で二重入力しないでください。
+
+```powershell
+node scripts/build_lecture_data.mjs
+node scripts/build_lecture_pages.mjs
+```
+
+生成物が元データと一致しているかは、書き換えを行わない次のコマンドで確認できます。
+
+```powershell
+node scripts/build_lecture_data.mjs --check
+node scripts/build_lecture_pages.mjs --check
+```
+
 ## サイトマップ更新
 
 ローカルで2リポジトリが同じ親フォルダにある場合は、アプリ側の問題一覧ビルド記録を取り込んで全体サイトマップを更新できます。
@@ -87,19 +105,19 @@ python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリル
 python scripts/validate_portal.py
 ```
 
-検証はポータル42ページ、広告コード範囲、内部リンク、SEOメタ情報、構造化データ、タグ／キーワードOR検索、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
+検証はポータル48ページ、広告コード範囲、内部リンク、SEOメタ情報、構造化データ、静的講義本文、タグ／キーワードOR検索、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
 
 ## 公開
 
 GitHub Pagesの公開元は `main` ブランチのリポジトリルートです。
 
 ```text
-https://mei-chan-nel.github.io/
+https://mei-chan-nel.com/
 ```
 
 問題一覧とアプリは次のパスへリンクします。
 
 ```text
-https://mei-chan-nel.github.io/info1-quiz-app/questions/
-https://mei-chan-nel.github.io/info1-quiz-app/app/
+https://mei-chan-nel.com/info1-quiz-app/questions/
+https://mei-chan-nel.com/info1-quiz-app/app/
 ```

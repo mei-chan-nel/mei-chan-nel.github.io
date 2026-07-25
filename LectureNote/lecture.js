@@ -25,10 +25,22 @@
   const renderMarkup = (markup) => markup.replace(/\{\{([^{}]+)\}\}/g, (_, answer) => clozeMarkup(answer));
 
   document.title = `情報Ⅰ Study Atlas｜講義ノート｜${page.title}`;
-  document.querySelector("#hero-kicker").textContent = page.kicker;
-  document.querySelector("#hero-title").textContent = page.title;
-  document.querySelector("#hero-lead").textContent = page.lead;
-  document.querySelector("#hero-meta").innerHTML = page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("");
+  const syncText = (selector, value) => {
+    const element = document.querySelector(selector);
+    if (element && element.textContent !== value) element.textContent = value;
+  };
+  syncText("#hero-kicker", page.kicker);
+  syncText("#hero-title", page.title);
+  syncText("#hero-lead", page.lead);
+  const heroMeta = document.querySelector("#hero-meta");
+  const currentMeta = Array.from(heroMeta?.children || [], (item) => item.textContent);
+  if (heroMeta && (currentMeta.length !== page.meta.length || currentMeta.some((item, index) => item !== page.meta[index]))) {
+    heroMeta.replaceChildren(...page.meta.map((item) => {
+      const meta = document.createElement("span");
+      meta.textContent = item;
+      return meta;
+    }));
+  }
 
   const storedBookmark = bookmarkStore?.get(field) || null;
   const savedBookmark = storedBookmark && page.sections.some((section) => section.id === storedBookmark.sectionId)
@@ -40,26 +52,29 @@
   const keywordByTargetId = new Map(keywords.map((keyword) => [keyword.targetId, keyword]));
   let readingMode = "sequential";
 
-  const learningGuide = document.createElement("section");
-  learningGuide.className = "lecture-learning-guide";
-  learningGuide.setAttribute("aria-labelledby", "lecture-learning-guide-title");
   const bookmarkSection = page.sections.find((section) => section.id === bookmarkId) || page.sections[0];
-  learningGuide.innerHTML = `
-    <div class="lecture-learning-guide__heading">
-      <p>READING GUIDE</p>
-      <h2 id="lecture-learning-guide-title">学び方を選ぶ</h2>
-    </div>
-    <div class="lecture-learning-guide__choices">
-      <a class="lecture-learning-choice" data-reading-bookmark href="#${escapeHtml(bookmarkId)}"><strong>しおりから読む</strong><span>${escapeHtml(fieldLabels[field])}「${escapeHtml(bookmarkSection?.short || bookmarkSection?.title || "")}」</span></a>
-    </div>
-    <details class="lecture-keyword-index" id="lecture-keyword-index">
-      <summary><span><strong>重要キーワード</strong><small>用語や仕組みを選んで、必要な部分だけ確認します</small></span></summary>
-      <div class="lecture-keyword-index__groups">
-        ${keywordGroups.map((group) => `<section><h3>${escapeHtml(group.title)}</h3><div>${group.keywords.map((keyword) => `<a href="#${escapeHtml(keyword.targetId)}" data-keyword-id="${escapeHtml(keyword.id)}">${escapeHtml(keyword.label)}</a>`).join("")}</div></section>`).join("")}
+  let learningGuide = document.querySelector(".lecture-learning-guide");
+  if (!learningGuide) {
+    learningGuide = document.createElement("section");
+    learningGuide.className = "lecture-learning-guide";
+    learningGuide.setAttribute("aria-labelledby", "lecture-learning-guide-title");
+    learningGuide.innerHTML = `
+      <div class="lecture-learning-guide__heading">
+        <p>READING GUIDE</p>
+        <h2 id="lecture-learning-guide-title">学び方を選ぶ</h2>
       </div>
-    </details>
-    <p class="lecture-reading-state" aria-live="polite">順番に読んでいます</p>`;
-  document.querySelector(".course-hero").after(learningGuide);
+      <div class="lecture-learning-guide__choices">
+        <a class="lecture-learning-choice" data-reading-bookmark href="#${escapeHtml(bookmarkId)}"><strong>しおりから読む</strong><span>${escapeHtml(fieldLabels[field])}「${escapeHtml(bookmarkSection?.short || bookmarkSection?.title || "")}」</span></a>
+      </div>
+      <details class="lecture-keyword-index" id="lecture-keyword-index">
+        <summary><span><strong>重要キーワード</strong><small>用語や仕組みを選んで、必要な部分だけ確認します</small></span></summary>
+        <div class="lecture-keyword-index__groups">
+          ${keywordGroups.map((group) => `<section><h3>${escapeHtml(group.title)}</h3><div>${group.keywords.map((keyword) => `<a href="#${escapeHtml(keyword.targetId)}" data-keyword-id="${escapeHtml(keyword.id)}">${escapeHtml(keyword.label)}</a>`).join("")}</div></section>`).join("")}
+        </div>
+      </details>
+      <p class="lecture-reading-state" aria-live="polite">順番に読んでいます</p>`;
+    document.querySelector(".course-hero").after(learningGuide);
+  }
   const readingState = learningGuide.querySelector(".lecture-reading-state");
   const keywordIndex = learningGuide.querySelector(".lecture-keyword-index");
 
@@ -73,14 +88,17 @@
     { id: "programming", label: "プログラミング", href: "./programming.html" }
   ];
 
-  courseNav.innerHTML = fieldPages.map((item) => {
-    const link = `<a class="course-field-link" href="${item.href}"${item.id === field ? ' aria-current="page"' : ""}>${item.label}</a>`;
-    return item.id === field
-      ? `<div class="course-field-group is-current">${link}<div class="section-nav" id="section-nav"></div></div>`
-      : link;
-  }).join("");
+  let sectionNav = courseNav.querySelector("#section-nav");
+  if (courseNav.querySelectorAll(".course-field-link").length !== fieldPages.length || !sectionNav) {
+    courseNav.innerHTML = fieldPages.map((item) => {
+      const link = `<a class="course-field-link" href="${item.href}"${item.id === field ? ' aria-current="page"' : ""}>${item.label}</a>`;
+      return item.id === field
+        ? `<div class="course-field-group is-current">${link}<div class="section-nav" id="section-nav"></div></div>`
+        : link;
+    }).join("");
+    sectionNav = courseNav.querySelector("#section-nav");
+  }
 
-  const sectionNav = courseNav.querySelector("#section-nav");
   const sectionMarkup = page.sections.map((section, index) => `
     <section class="lecture-section" id="${escapeHtml(section.id)}" aria-labelledby="${escapeHtml(section.id)}-title">
       <header class="section-heading">
@@ -95,22 +113,32 @@
       <div class="section-body">${renderMarkup(section.html)}</div>
     </section>
   `);
-  content.replaceChildren();
-  await new Promise((resolve) => {
-    let nextIndex = 0;
-    const appendBatch = () => {
-      const template = document.createElement("template");
-      template.innerHTML = sectionMarkup.slice(nextIndex, nextIndex + 1).join("");
-      content.appendChild(template.content);
-      nextIndex += 1;
-      if (nextIndex < sectionMarkup.length) window.requestAnimationFrame(appendBatch);
-      else resolve();
-    };
-    appendBatch();
-  });
+  const staticSections = Array.from(content.children).filter((element) => element.classList.contains("lecture-section"));
+  const staticContentIsCurrent = staticSections.length === page.sections.length
+    && staticSections.every((element, index) => (
+      element.id === page.sections[index].id
+      && element.querySelector(".section-heading h2")?.textContent === page.sections[index].title
+    ));
+  if (!staticContentIsCurrent) {
+    content.replaceChildren();
+    await new Promise((resolve) => {
+      let nextIndex = 0;
+      const appendBatch = () => {
+        const template = document.createElement("template");
+        template.innerHTML = sectionMarkup.slice(nextIndex, nextIndex + 1).join("");
+        content.appendChild(template.content);
+        nextIndex += 1;
+        if (nextIndex < sectionMarkup.length) window.requestAnimationFrame(appendBatch);
+        else resolve();
+      };
+      appendBatch();
+    });
+  }
 
   const keywordTargets = new Map();
   const installKeywordTarget = (keyword) => {
+    const existingTarget = document.getElementById(keyword.targetId);
+    if (existingTarget?.closest(".lecture-section")?.id === keyword.sectionId) return existingTarget;
     const section = document.getElementById(keyword.sectionId);
     const sectionBody = section?.querySelector(".section-body");
     if (!sectionBody) return null;
@@ -215,9 +243,14 @@
     return true;
   };
 
-  sectionNav.innerHTML = page.sections.map((section, index) => `
-    <a href="#${escapeHtml(section.id)}"><span>${String(index + 1).padStart(2, "0")}</span> ${escapeHtml(section.short || section.title)}</a>
-  `).join("");
+  const staticSectionLinks = Array.from(sectionNav.querySelectorAll("a"));
+  const staticSectionNavIsCurrent = staticSectionLinks.length === page.sections.length
+    && staticSectionLinks.every((link, index) => link.getAttribute("href") === `#${page.sections[index].id}`);
+  if (!staticSectionNavIsCurrent) {
+    sectionNav.innerHTML = page.sections.map((section, index) => `
+      <a href="#${escapeHtml(section.id)}"><span>${String(index + 1).padStart(2, "0")}</span> ${escapeHtml(section.short || section.title)}</a>
+    `).join("");
+  }
 
   const sectionScrollCue = window.StudyAtlasScrollHints?.init(sectionNav, { variant: "section", currentSelector: ".is-active" });
   const bookmarkLink = learningGuide.querySelector("[data-reading-bookmark]");
