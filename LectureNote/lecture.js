@@ -4,7 +4,7 @@
   const field = document.body.dataset.field || "society";
   const page = window.LECTURE_CONTENT && window.LECTURE_CONTENT[field];
   if (!page) return;
-  const progressKey = "info1LectureProgress:v1";
+  const bookmarkStore = window.StudyAtlasLectureBookmarks;
   const fieldLabels = {
     society: "情報社会",
     digital: "デジタル",
@@ -24,63 +24,33 @@
 
   const renderMarkup = (markup) => markup.replace(/\{\{([^{}]+)\}\}/g, (_, answer) => clozeMarkup(answer));
 
-  document.title = `${page.title}｜高校情報Ⅰ 講義ノート`;
+  document.title = `情報Ⅰ Study Atlas｜講義ノート｜${page.title}`;
   document.querySelector("#hero-kicker").textContent = page.kicker;
   document.querySelector("#hero-title").textContent = page.title;
   document.querySelector("#hero-lead").textContent = page.lead;
-  document.querySelector("#hero-meta").innerHTML = `<strong class="hero-meta-label">重要キーワード</strong>${page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}`;
+  document.querySelector("#hero-meta").innerHTML = page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("");
 
-  const readProgress = () => {
-    try {
-      const value = JSON.parse(localStorage.getItem(progressKey));
-      if (!value || !fieldLabels[value.field] || typeof value.sectionId !== "string" || typeof value.sectionTitle !== "string") return null;
-      if (!Number.isInteger(value.sectionIndex) || value.sectionIndex < 0 || typeof value.updatedAt !== "number") return null;
-      if (value.field === field && !page.sections.some((section) => section.id === value.sectionId)) return null;
-      return value;
-    } catch (_error) {
-      return null;
-    }
-  };
-
-  const writeProgress = (section, sectionIndex) => {
-    try {
-      localStorage.setItem(progressKey, JSON.stringify({
-        field,
-        sectionId: section.id,
-        sectionTitle: section.short || section.title,
-        sectionIndex,
-        updatedAt: Date.now()
-      }));
-    } catch (_error) {
-      // Storage can be unavailable in private or restricted browsing modes.
-    }
-  };
-
-  const savedProgress = readProgress();
-  const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+  const storedBookmark = bookmarkStore?.get(field) || null;
+  const savedBookmark = storedBookmark && page.sections.some((section) => section.id === storedBookmark.sectionId)
+    ? storedBookmark
+    : null;
+  let bookmarkId = savedBookmark?.sectionId || page.sections[0]?.id || "";
   const keywordGroups = Array.isArray(page.keywordGroups) ? page.keywordGroups : [];
   const keywords = keywordGroups.flatMap((group) => group.keywords || []);
   const keywordByTargetId = new Map(keywords.map((keyword) => [keyword.targetId, keyword]));
   let readingMode = "sequential";
-  let keywordIndexBrowsing = false;
-  let progressTrackingStarted = resumeRequested;
 
   const learningGuide = document.createElement("section");
   learningGuide.className = "lecture-learning-guide";
   learningGuide.setAttribute("aria-labelledby", "lecture-learning-guide-title");
-  const resumeHref = savedProgress
-    ? `./${savedProgress.field}.html?resume=1#${encodeURIComponent(savedProgress.sectionId)}`
-    : "";
+  const bookmarkSection = page.sections.find((section) => section.id === bookmarkId) || page.sections[0];
   learningGuide.innerHTML = `
     <div class="lecture-learning-guide__heading">
       <p>READING GUIDE</p>
       <h2 id="lecture-learning-guide-title">学び方を選ぶ</h2>
     </div>
     <div class="lecture-learning-guide__choices">
-      <a class="lecture-learning-choice" data-reading-start href="#${escapeHtml(page.sections[0]?.id || "")}">
-        <strong>最初から順に読む</strong><span>基礎から順番に学習します</span>
-      </a>
-      ${savedProgress ? `<a class="lecture-learning-choice" data-reading-resume href="${escapeHtml(resumeHref)}"><strong>前回の続きから読む</strong><span>前回：${escapeHtml(fieldLabels[savedProgress.field])}「${escapeHtml(savedProgress.sectionTitle)}」</span></a>` : ""}
+      <a class="lecture-learning-choice" data-reading-bookmark href="#${escapeHtml(bookmarkId)}"><strong>しおりから読む</strong><span>${escapeHtml(fieldLabels[field])}「${escapeHtml(bookmarkSection?.short || bookmarkSection?.title || "")}」</span></a>
     </div>
     <details class="lecture-keyword-index" id="lecture-keyword-index">
       <summary><span><strong>重要キーワード</strong><small>用語や仕組みを選んで、必要な部分だけ確認します</small></span></summary>
@@ -92,10 +62,6 @@
   document.querySelector(".course-hero").after(learningGuide);
   const readingState = learningGuide.querySelector(".lecture-reading-state");
   const keywordIndex = learningGuide.querySelector(".lecture-keyword-index");
-  keywordIndex.addEventListener("toggle", () => {
-    keywordIndexBrowsing = keywordIndex.open;
-    if (keywordIndexBrowsing) progressTrackingStarted = false;
-  });
 
   const content = document.querySelector("#lecture-content");
   const courseNav = document.querySelector("#lecture-course-nav");
@@ -124,6 +90,7 @@
           <h2 id="${escapeHtml(section.id)}-title">${escapeHtml(section.title)}</h2>
           <p class="section-lead">${escapeHtml(section.lead)}</p>
         </div>
+        <button class="section-bookmark" type="button" data-section-bookmark="${escapeHtml(section.id)}" aria-pressed="false">しおりを挟む</button>
       </header>
       <div class="section-body">${renderMarkup(section.html)}</div>
     </section>
@@ -208,7 +175,6 @@
   const setReadingMode = (mode, label = "") => {
     readingMode = mode;
     if (mode === "keyword") {
-      progressTrackingStarted = false;
       readingState.textContent = `索引から確認中：${label}`;
       readingState.classList.add("is-keyword-reading");
     } else {
@@ -254,6 +220,31 @@
   `).join("");
 
   const sectionScrollCue = window.StudyAtlasScrollHints?.init(sectionNav, { variant: "section", currentSelector: ".is-active" });
+  const bookmarkLink = learningGuide.querySelector("[data-reading-bookmark]");
+  const bookmarkButtons = Array.from(content.querySelectorAll("[data-section-bookmark]"));
+  const syncBookmarkUi = () => {
+    const section = page.sections.find((item) => item.id === bookmarkId) || page.sections[0];
+    bookmarkButtons.forEach((button) => {
+      const isBookmarked = button.dataset.sectionBookmark === bookmarkId;
+      button.classList.toggle("is-bookmarked", isBookmarked);
+      button.setAttribute("aria-pressed", String(isBookmarked));
+      button.textContent = isBookmarked ? "しおりの位置" : "しおりを挟む";
+    });
+    if (bookmarkLink && section) {
+      bookmarkLink.href = `#${encodeURIComponent(section.id)}`;
+      bookmarkLink.querySelector("span").textContent = `${fieldLabels[field]}「${section.short || section.title}」`;
+    }
+  };
+  bookmarkButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const sectionIndex = page.sections.findIndex((section) => section.id === button.dataset.sectionBookmark);
+      if (sectionIndex < 0 || bookmarkId === page.sections[sectionIndex].id) return;
+      bookmarkId = page.sections[sectionIndex].id;
+      bookmarkStore?.write(field, page.sections[sectionIndex], sectionIndex);
+      syncBookmarkUi();
+    });
+  });
+  syncBookmarkUi();
 
   const animations = Array.from(content.querySelectorAll("video.lecture-animation"));
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -648,8 +639,6 @@
     event.preventDefault();
     if (readingMode === "sequential") {
       keywordIndex.open = false;
-      keywordIndexBrowsing = false;
-      progressTrackingStarted = true;
     }
     navigateToHash(link.getAttribute("href").slice(1), readingMode);
   });
@@ -685,8 +674,6 @@
     event.preventDefault();
     if (readingMode === "sequential") {
       keywordIndex.open = false;
-      keywordIndexBrowsing = false;
-      progressTrackingStarted = true;
     }
     closeMobilePanel();
     navigateToHash(link.getAttribute("href").slice(1), readingMode);
@@ -706,7 +693,7 @@
   document.body.appendChild(backToTop);
 
   let activeId = "";
-  const setActiveSection = (section, persist = progressTrackingStarted) => {
+  const setActiveSection = (section) => {
     if (!section || activeId === section.id) return;
     activeId = section.id;
     const index = page.sections.findIndex((item) => item.id === section.id);
@@ -719,8 +706,7 @@
     });
     mobilePosition.querySelector(".mobile-lecture-position__count").textContent = `${index + 1} / ${page.sections.length}`;
     mobilePosition.querySelector(".mobile-lecture-position__title").textContent = page.sections[index].short || page.sections[index].title;
-    if (persist && readingMode === "sequential" && !keywordIndexBrowsing) writeProgress(page.sections[index], index);
-    if (progressTrackingStarted && window.matchMedia("(max-width: 680px)").matches) sectionScrollCue?.reveal(linkById.get(section.id));
+    if (window.matchMedia("(max-width: 680px)").matches) sectionScrollCue?.reveal(linkById.get(section.id));
   };
 
   if ("IntersectionObserver" in window) {
@@ -740,15 +726,13 @@
     document.querySelectorAll(".lecture-section").forEach((section) => observer.observe(section));
   }
   const firstSection = document.querySelector(".lecture-section");
-  if (firstSection) setActiveSection(firstSection, false);
+  if (firstSection) setActiveSection(firstSection);
 
   let scrollTicking = false;
-  const initialScrollY = window.scrollY;
   window.addEventListener("scroll", () => {
     if (scrollTicking) return;
     scrollTicking = true;
     window.requestAnimationFrame(() => {
-      if (readingMode === "sequential" && !keywordIndexBrowsing && Math.abs(window.scrollY - initialScrollY) > 80) progressTrackingStarted = true;
       const readingLine = Math.min(window.innerHeight * 0.34, 300);
       const sections = Array.from(document.querySelectorAll(".lecture-section"));
       const currentSection = sections.find((section) => {
@@ -787,14 +771,15 @@
     if (!section || sectionIndex < 0) return;
     setReadingMode("sequential");
     keywordIndex.open = false;
-    keywordIndexBrowsing = false;
-    progressTrackingStarted = true;
     keywordTools.hidden = true;
     clearKeywordHighlight();
-    writeProgress(page.sections[sectionIndex], sectionIndex);
-    setActiveSection(section, false);
+    setActiveSection(section);
     navigateToHash(sectionId, "sequential", replace);
   };
+  bookmarkLink?.addEventListener("click", (event) => {
+    event.preventDefault();
+    beginSequentialReading(bookmarkId);
+  });
 
   const revealLocationHash = () => {
     const hashId = decodedHash();
@@ -804,7 +789,6 @@
       if (!keyword || !showKeyword(keyword)) {
         keywordTools.hidden = true;
         setReadingMode("sequential");
-        progressTrackingStarted = false;
         window.scrollTo({ top: 0, behavior: "auto" });
       }
       return;
@@ -825,14 +809,10 @@
     } else {
       readingMode = "keyword";
     }
-    setActiveSection(section, stateMode === "sequential" && progressTrackingStarted);
+    setActiveSection(section);
     section.scrollIntoView({ block: "start", behavior: "auto" });
   };
 
-  learningGuide.querySelector("[data-reading-start]")?.addEventListener("click", (event) => {
-    event.preventDefault();
-    beginSequentialReading(page.sections[0].id);
-  });
   learningGuide.querySelectorAll("[data-keyword-id]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
@@ -858,11 +838,6 @@
   replaceHistoryState(initialMode);
   window.addEventListener("hashchange", revealLocationHash);
   window.addEventListener("popstate", revealLocationHash);
-  if (resumeRequested) {
-    const cleanUrl = new URL(window.location.href);
-    cleanUrl.searchParams.delete("resume");
-    replaceHistoryState("sequential", `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
-  }
   if (initialHash) {
     window.requestAnimationFrame(revealLocationHash);
     window.setTimeout(() => window.requestAnimationFrame(revealLocationHash), 180);

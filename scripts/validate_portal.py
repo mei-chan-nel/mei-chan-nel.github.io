@@ -30,6 +30,7 @@ class PageParser(HTMLParser):
         self.title_parts: list[str] = []
         self.description = ""
         self.canonical = ""
+        self.og_title = ""
         self.h1_count = 0
         self.links: list[str] = []
         self.assets: list[str] = []
@@ -41,6 +42,8 @@ class PageParser(HTMLParser):
             self.in_title = True
         if tag == "meta" and values.get("name") == "description":
             self.description = values.get("content") or ""
+        if tag == "meta" and values.get("property") == "og:title":
+            self.og_title = values.get("content") or ""
         if tag == "link" and values.get("rel") == "canonical":
             self.canonical = values.get("href") or ""
         if tag == "link" and values.get("href"):
@@ -150,6 +153,10 @@ def main() -> int:
         parser = parsed[path.resolve()]
         if not parser.title:
             errors.append(f"{path.name}: missing title")
+        elif not parser.title.startswith("情報Ⅰ Study Atlas｜"):
+            errors.append(f"{path.relative_to(ROOT)}: title does not use the site hierarchy: {parser.title}")
+        if parser.og_title != parser.title:
+            errors.append(f"{path.relative_to(ROOT)}: og:title does not match title")
         if not parser.description:
             errors.append(f"{path.name}: missing meta description")
         expected_canonical = public_url(path)
@@ -211,6 +218,10 @@ def main() -> int:
         aside_text = lecture_text[aside_start:aside_end]
         if aside_start < 0 or 'id="lecture-course-nav"' not in aside_text or 'id="cloze-toggle"' not in aside_text:
             errors.append(f"{path.relative_to(ROOT)}: lecture navigation or cloze control is not contained in the sidebar")
+        if "../assets/lecture-bookmark.js" not in lecture_text:
+            errors.append(f"{path.relative_to(ROOT)}: shared field bookmark script is missing")
+        if 'id="hero-meta" aria-label="この分野のキーワード"' not in lecture_text:
+            errors.append(f"{path.relative_to(ROOT)}: top keyword chips have an obsolete or missing accessible label")
 
     for source, parser in parsed.items():
         for href in parser.links + parser.assets:
@@ -497,9 +508,25 @@ def main() -> int:
     for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', 'addEventListener("dblclick"', "toggleDoubleZoom", "lastTap", "beginPinch", "pointerDistance"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: interactive figure viewer marker is missing: {marker}")
-    for marker in ('"info1LectureProgress:v1"', "mobile-lecture-position", "lecture-back-to-top", "writeProgress", "prefers-reduced-motion", "prepareAnimation"):
+    for marker in ("mobile-lecture-position", "lecture-back-to-top", "section-bookmark", "data-reading-bookmark", "bookmarkStore?.write", "prefers-reduced-motion", "prepareAnimation"):
         if marker not in lecture_script:
-            errors.append(f"lecture.js: progress/mobile/media marker is missing: {marker}")
+            errors.append(f"lecture.js: bookmark/mobile/media marker is missing: {marker}")
+    for marker in ("最初から順に読む", "前回の続きから読む", "hero-meta-label", "progressTrackingStarted", "writeProgress", "startProgressFromUserScroll"):
+        if marker in lecture_script:
+            errors.append(f"lecture.js: obsolete automatic progress marker remains: {marker}")
+    bookmark_script = (ROOT / "assets" / "lecture-bookmark.js").read_text(encoding="utf-8")
+    for marker in ('"info1LectureBookmark:v1"', "stored?.fields", "normalizeRecord(stored)", "const get", "const write"):
+        if marker not in bookmark_script:
+            errors.append(f"lecture-bookmark.js: field bookmark marker is missing: {marker}")
+    if "info1LectureProgress:v1" in bookmark_script:
+        errors.append("lecture-bookmark.js: automatic progress data must not be treated as an intentional bookmark")
+    home_learning_script = (ROOT / "assets" / "home-learning.js").read_text(encoding="utf-8")
+    for marker in ("StudyAtlasLectureProgress", "StudyAtlasLectureBookmarks", "data-home-lecture-resume", "前回の続きから読む"):
+        if marker in home_learning_script or marker in top_text:
+            errors.append(f"home lecture link must not use saved progress or bookmarks: {marker}")
+    expected_home_lecture_link = '<a href="./LectureNote/index.html"><strong>講義ノートを読む</strong><span>仕組みから理解</span></a>'
+    if top_text.count(expected_home_lecture_link) != 2:
+        errors.append("index.html: lecture cards must link to the lecture index with the restored subtitle")
     for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'readingMode === "sequential"', 'addEventListener("popstate"'):
         if marker not in lecture_script:
             errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")
