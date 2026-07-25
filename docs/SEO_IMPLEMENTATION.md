@@ -42,7 +42,7 @@
 
 ## 公開後の測定
 
-1. Search Consoleへ`https://mei-chan-nel.github.io/sitemap.xml`を送信する。
+1. Search Consoleへ`https://mei-chan-nel.com/sitemap.xml`を送信する。
 2. URL検査でトップ、勉強法、問題一覧、タグ、動画問題、キーワードの6入口を確認する。
 3. 毎週、検索クエリ別の表示回数、クリック、CTR、平均掲載順位と、ページ別の入口数を記録する。
 4. 「表示はあるがCTRが低い」ページはtitle・descriptionと本文の一致を見直す。

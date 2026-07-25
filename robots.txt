@@ -4,4 +4,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://mei-chan-nel.github.io/sitemap.xml
+Sitemap: https://mei-chan-nel.com/sitemap.xml

@@ -1,6 +1,6 @@
 # AdSense再審査前の設定
 
-対象サイト: `https://mei-chan-nel.github.io/`
+対象サイト: `https://mei-chan-nel.com/`
 
 この文書はコードでは完結しないAdSense管理画面側の設定を記録する。設定後は、管理画面のプレビューと実ページで再確認する。
 
@@ -8,10 +8,10 @@
 
 AdSenseの「広告」→対象サイトの「編集」→「除外ページ」→「管理」で、次の4 URLを追加する。すべて **このページのみ（完全一致）** を選び、セクション全体は選ばない。
 
-1. `https://mei-chan-nel.github.io/about.html`
-2. `https://mei-chan-nel.github.io/privacy.html`
-3. `https://mei-chan-nel.github.io/books/`
-4. `https://mei-chan-nel.github.io/sitemap.html`
+1. `https://mei-chan-nel.com/about.html`
+2. `https://mei-chan-nel.com/privacy.html`
+3. `https://mei-chan-nel.com/books/`
+4. `https://mei-chan-nel.com/sitemap.html`
 
 この4ページには広告コードを置いていないが、将来サイト共通コードを変更した場合にも広告を出さない方針を保つため、除外設定にも登録する。書籍ページは販売先の案内、HTMLサイトマップは移動用のページであり、学習本文ではないため広告対象外とする。旧 `app/about.html` と `app/privacy.html` はポータルへ統合して削除済みである。
 
@@ -21,7 +21,7 @@ Google公式: [特定のページを自動広告の表示対象から除外す�
 
 ## 2. アプリの操作領域を除外
 
-広告設定プレビューで `https://mei-chan-nel.github.io/info1-quiz-app/app/` を開き、「除外エリア」からクイズの操作領域を選ぶ。
+広告設定プレビューで `https://mei-chan-nel.com/info1-quiz-app/app/` を開き、「除外エリア」からクイズの操作領域を選ぶ。
 
 除外対象:
 
@@ -52,12 +52,12 @@ Google公式: [自動広告について](https://support.google.com/adsense/answ
 
 次は除外しない。
 
-- `https://mei-chan-nel.github.io/`
-- `https://mei-chan-nel.github.io/info1-quiz-app/questions/`
-- `https://mei-chan-nel.github.io/info1-quiz-app/questions/*.html`
-- `https://mei-chan-nel.github.io/archive/`
-- `https://mei-chan-nel.github.io/archive/*.html`
-- `https://mei-chan-nel.github.io/info1-quiz-app/app/`
+- `https://mei-chan-nel.com/`
+- `https://mei-chan-nel.com/info1-quiz-app/questions/`
+- `https://mei-chan-nel.com/info1-quiz-app/questions/*.html`
+- `https://mei-chan-nel.com/archive/`
+- `https://mei-chan-nel.com/archive/*.html`
+- `https://mei-chan-nel.com/info1-quiz-app/app/`
 
 新設学習ページにはAdSenseコードがあり、本文は問題・選択肢・正答・解説・出典・タグで構成する。案内だけの画面や未完成画面には広告を置かない。
 

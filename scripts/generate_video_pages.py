@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "video-questions.json"
 OUTPUT_DIR = ROOT / "archive"
 REPORT_PATH = ROOT / "docs" / "video-library-build.json"
-SITE_ORIGIN = "https://mei-chan-nel.github.io/"
+SITE_ORIGIN = "https://mei-chan-nel.com/"
 PAGE_SIZE = 10
 ADSENSE = """    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>"""
 PUBLIC_SECTION_DEFINITIONS = [
@@ -184,7 +184,7 @@ def head(
     <meta name="twitter:card" content="summary" />
     <link rel="canonical" href="{canonical}" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css" />
+    <link rel="stylesheet" href="../assets/site.css?v=2026072606" />
 {ADSENSE}{script}{extra_head}
   </head>"""
 
@@ -207,9 +207,9 @@ def header(current: str) -> str:
     <a class="skip-link" href="#main-content">本文へ移動</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="../index.html" aria-label="情報Ⅰ Study Atlas トップ">
+        <a class="brand" href="../index.html">
           <span class="brand-mark" aria-hidden="true">I</span>
-          <span><strong>情報Ⅰ Study Atlas</strong><small>高校情報Ⅰの学習サイト</small></span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
         <nav class="global-nav" aria-label="メインナビゲーション">{nav}</nav>
       </div>
@@ -235,7 +235,7 @@ def footer() -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js"></script>
+    <script src="../assets/site-header.js?v=2026072606"></script>
   </body>
 </html>
 """

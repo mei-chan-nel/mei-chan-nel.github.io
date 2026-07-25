@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import date
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_APP_ROOT = ROOT.parent / "info1-quiz-app"
 OUTPUT_PATH = ROOT / "sitemap.xml"
-SITE_ORIGIN = "https://mei-chan-nel.github.io/"
-LASTMOD = date.today().isoformat()
+SITE_ORIGIN = "https://mei-chan-nel.com/"
 
 
 def public_url(relative: str) -> str:
@@ -79,7 +77,7 @@ def main() -> int:
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-        *(f"  <url><loc>{url}</loc><lastmod>{LASTMOD}</lastmod></url>" for url in urls),
+        *(f"  <url><loc>{url}</loc></url>" for url in urls),
         "</urlset>",
         "",
     ]
