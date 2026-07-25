@@ -42,38 +42,55 @@
                 ? "home"
                 : "";
 
-  const header = document.querySelector(".site-header");
-  if (header) {
-    const navItems = [
-      ["home", siteUrl("index.html"), "トップページ"],
-      ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
-      ["questions", siteUrl("info1-quiz-app/questions/index.html"), "問題一覧"],
-      ["archive", siteUrl("archive/index.html"), "動画問題"],
-      ["lecture", siteUrl("LectureNote/index.html"), "講義ノート"],
-      ["study", siteUrl("study-guide.html"), "勉強法"],
-      ["about", siteUrl("about.html"), "このサイトについて"],
-    ];
-    const navHtml = navItems.map(([key, href, label]) => {
-      const current = key === activeSection ? ' aria-current="page"' : "";
-      return `<a href="${href}"${current}>${label}</a>`;
-    }).join("");
+  const navItems = [
+    ["home", siteUrl("index.html"), "トップページ"],
+    ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
+    ["questions", siteUrl("info1-quiz-app/questions/index.html"), "問題一覧"],
+    ["archive", siteUrl("archive/index.html"), "動画問題"],
+    ["lecture", siteUrl("LectureNote/index.html"), "講義ノート"],
+    ["study", siteUrl("study-guide.html"), "勉強法"],
+    ["about", siteUrl("about.html"), "このサイトについて"],
+  ];
+  const navHtml = navItems.map(([key, href, label]) => {
+    const current = key === activeSection ? ' aria-current="page"' : "";
+    return `<a href="${href}"${current}>${label}</a>`;
+  }).join("");
 
+  let header = document.querySelector(".site-header");
+  if (!header) {
+    header = document.createElement("header");
+    header.className = "site-header";
     header.innerHTML = `
       <div class="header-inner">
-        <a class="brand" href="${siteUrl("index.html")}" aria-label="情報Ⅰ Study Atlas トップ">
+        <a class="brand" href="${siteUrl("index.html")}">
           <span class="brand-mark" aria-hidden="true">I</span>
           <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
         <nav class="global-nav" aria-label="メインナビゲーション">${navHtml}</nav>
       </div>`;
+    const skipLink = document.querySelector(".skip-link");
+    if (skipLink) skipLink.after(header);
+    else document.body.prepend(header);
+  } else {
+    const expectedPaths = new Map(navItems.map(([key, href]) => [new URL(href).pathname.toLowerCase(), key]));
+    header.querySelectorAll(".global-nav a").forEach((link) => {
+      const key = expectedPaths.get(new URL(link.href).pathname.toLowerCase());
+      if (key === activeSection) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    const subtitle = header.querySelector(".brand small");
+    if (subtitle && subtitle.textContent !== "知識を、ひろげ、つなげる") {
+      subtitle.textContent = "知識を、ひろげ、つなげる";
+    }
   }
 
-  const footer = document.querySelector(".site-footer");
-  if (footer) {
-
+  let footer = document.querySelector(".site-footer");
+  if (!footer) {
+    footer = document.createElement("footer");
+    footer.className = "site-footer";
     footer.innerHTML = `
       <div class="footer-grid">
-        <a class="brand footer-brand" href="${siteUrl("index.html")}" aria-label="情報Ⅰ Study Atlas トップ">
+        <a class="brand footer-brand" href="${siteUrl("index.html")}">
           <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
         <nav aria-label="フッターナビゲーション">
@@ -90,6 +107,7 @@
         </nav>
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>`;
+    document.body.append(footer);
   }
 
   const initHorizontalScrollCue = (scroller, options = {}) => {
@@ -105,11 +123,22 @@
     scroller.before(shell);
     shell.append(scroller, leftCue, rightCue);
 
+    let updateFrame = 0;
     const update = () => {
-      const overflow = scroller.scrollWidth - scroller.clientWidth > 2;
+      updateFrame = 0;
+      const scrollWidth = scroller.scrollWidth;
+      const clientWidth = scroller.clientWidth;
+      const scrollLeft = scroller.scrollLeft;
+      const overflow = scrollWidth - clientWidth > 2;
+      const atStart = !overflow || scrollLeft <= 2;
+      const atEnd = !overflow || scrollLeft + clientWidth >= scrollWidth - 2;
       shell.classList.toggle("has-overflow", overflow);
-      shell.classList.toggle("is-at-start", !overflow || scroller.scrollLeft <= 2);
-      shell.classList.toggle("is-at-end", !overflow || scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 2);
+      shell.classList.toggle("is-at-start", atStart);
+      shell.classList.toggle("is-at-end", atEnd);
+    };
+    const scheduleUpdate = () => {
+      if (updateFrame) return;
+      updateFrame = window.requestAnimationFrame(update);
     };
     const reveal = (target, behavior = "smooth") => {
       if (!target || scroller.scrollWidth <= scroller.clientWidth) return;
@@ -120,50 +149,26 @@
       scroller.scrollTo({ left, behavior });
     };
 
-    scroller.addEventListener("scroll", update, { passive: true });
+    scroller.addEventListener("scroll", scheduleUpdate, { passive: true });
     scroller.addEventListener("focusin", (event) => reveal(event.target));
-    window.addEventListener("resize", update, { passive: true });
+    window.addEventListener("resize", scheduleUpdate, { passive: true });
     shell.classList.add("has-overflow", "is-at-start");
     if ("ResizeObserver" in window) {
-      new ResizeObserver(update).observe(scroller);
+      new ResizeObserver(scheduleUpdate).observe(scroller);
     } else {
-      window.addEventListener("load", update, { once: true });
+      window.addEventListener("load", scheduleUpdate, { once: true });
     }
     const current = scroller.querySelector(options.currentSelector || '[aria-current="page"], .is-active');
-    if (window.matchMedia("(max-width: 680px)").matches) reveal(current, "auto");
-    return { shell, update, reveal };
+    const runInitialUpdate = () => window.requestAnimationFrame(() => {
+      if (window.matchMedia("(max-width: 900px)").matches) reveal(current, "auto");
+      update();
+    });
+    if (document.readyState === "complete") runInitialUpdate();
+    else window.addEventListener("load", runInitialUpdate, { once: true });
+    return { shell, update: scheduleUpdate, reveal };
   };
 
   window.StudyAtlasScrollHints = { init: initHorizontalScrollCue };
-  if (!document.querySelector("style[data-horizontal-scroll-cue]")) {
-    const cueStyle = document.createElement("style");
-    cueStyle.dataset.horizontalScrollCue = "";
-    cueStyle.textContent = `
-      .horizontal-scroll-cue { position: relative; min-width: 0; }
-      .horizontal-scroll-cue--global { min-width: 0; margin-left: auto; flex: 0 1 auto; }
-      .horizontal-scroll-cue__edge { position: absolute; top: 0; bottom: 0; z-index: 5; width: 44px; display: none; align-items: center; color: #173042; pointer-events: none; opacity: 0; transition: opacity .18s ease; }
-      .horizontal-scroll-cue__edge::after { width: 24px; height: 24px; display: grid; place-items: center; border: 1px solid rgb(23 48 66 / 18%); border-radius: 50%; background: rgb(255 255 255 / 88%); box-shadow: 0 3px 10px rgb(20 48 63 / 12%); font-size: 16px; font-weight: 900; }
-      .horizontal-scroll-cue__edge--left { left: 0; justify-content: flex-start; background: linear-gradient(90deg, #f7f5ef 38%, rgb(247 245 239 / 0%)); }
-      .horizontal-scroll-cue__edge--left::after { content: "‹"; }
-      .horizontal-scroll-cue__edge--right { right: 0; justify-content: flex-end; background: linear-gradient(270deg, #f7f5ef 38%, rgb(247 245 239 / 0%)); }
-      .horizontal-scroll-cue__edge--right::after { content: "›"; }
-      @media (max-width: 1040px) {
-        .horizontal-scroll-cue--section { order: 10; flex: 1 0 100%; width: 100%; }
-      }
-      @media (max-width: 680px) {
-        .horizontal-scroll-cue--global { width: 100%; margin-left: 0; flex: 1 0 auto; }
-        .horizontal-scroll-cue.has-overflow .horizontal-scroll-cue__edge { display: flex; opacity: 1; }
-        .horizontal-scroll-cue.is-at-start .horizontal-scroll-cue__edge--left,
-        .horizontal-scroll-cue.is-at-end .horizontal-scroll-cue__edge--right { opacity: 0; }
-        .horizontal-scroll-cue > .global-nav,
-        .horizontal-scroll-cue > .section-nav { scroll-snap-type: x proximity; scroll-padding-inline: 14px 42px; }
-        .horizontal-scroll-cue > .global-nav a,
-        .horizontal-scroll-cue > .section-nav a { scroll-snap-align: start; }
-      }
-      @media (prefers-reduced-motion: reduce) { .horizontal-scroll-cue__edge { transition: none; } }
-    `;
-    document.head.append(cueStyle);
-  }
   const globalNav = header?.querySelector(".global-nav");
   if (globalNav) initHorizontalScrollCue(globalNav, { variant: "global" });
 
@@ -171,10 +176,25 @@
 
   const root = document.documentElement;
   const directionThreshold = 10;
-  let lastY = Math.max(window.scrollY, 0);
+  let lastY = 0;
   let directionAnchor = lastY;
   let direction = 0;
   let ticking = false;
+  let headerHeight = 86;
+  const readHeaderHeight = () => {
+    headerHeight = header.getBoundingClientRect().height;
+  };
+  if ("ResizeObserver" in window) {
+    new ResizeObserver((entries) => {
+      const borderBox = entries[0]?.borderBoxSize;
+      const size = Array.isArray(borderBox) ? borderBox[0]?.blockSize : borderBox?.blockSize;
+      if (size > 0) headerHeight = size;
+    }).observe(header);
+  } else {
+    const scheduleHeaderHeightRead = () => window.requestAnimationFrame(readHeaderHeight);
+    window.addEventListener("load", scheduleHeaderHeightRead, { once: true });
+    window.addEventListener("resize", scheduleHeaderHeightRead, { passive: true });
+  }
 
   const showHeader = () => {
     header.classList.remove("is-header-hidden");
@@ -191,7 +211,7 @@
     const currentY = Math.max(window.scrollY, 0);
     const delta = currentY - lastY;
 
-    if (currentY <= header.offsetHeight) {
+    if (currentY <= headerHeight) {
       showHeader();
       direction = 0;
       directionAnchor = currentY;
