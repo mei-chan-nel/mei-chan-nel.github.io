@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 APP_ROOT = ROOT.parent / "info1-quiz-app"
 REPORT_PATH = ROOT / "docs" / "portal-validation.json"
 AD_MARKER = "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
-SITE_ORIGIN = "https://mei-chan-nel.github.io/"
+SITE_ORIGIN = "https://mei-chan-nel.com/"
 
 
 def normalized_text_sha256(path: Path) -> str:
@@ -30,11 +30,13 @@ class PageParser(HTMLParser):
         self.title_parts: list[str] = []
         self.description = ""
         self.canonical = ""
+        self.og_url = ""
         self.og_title = ""
         self.h1_count = 0
         self.links: list[str] = []
         self.assets: list[str] = []
         self.ids: set[str] = set()
+        self.id_counts: Counter[str] = Counter()
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
@@ -44,6 +46,8 @@ class PageParser(HTMLParser):
             self.description = values.get("content") or ""
         if tag == "meta" and values.get("property") == "og:title":
             self.og_title = values.get("content") or ""
+        if tag == "meta" and values.get("property") == "og:url":
+            self.og_url = values.get("content") or ""
         if tag == "link" and values.get("rel") == "canonical":
             self.canonical = values.get("href") or ""
         if tag == "link" and values.get("href"):
@@ -58,6 +62,7 @@ class PageParser(HTMLParser):
             self.h1_count += 1
         if values.get("id"):
             self.ids.add(values["id"])
+            self.id_counts[values["id"]] += 1
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
@@ -162,14 +167,26 @@ def main() -> int:
         expected_canonical = public_url(path)
         if parser.canonical != expected_canonical:
             errors.append(f"{path.relative_to(ROOT)}: unexpected canonical URL: {parser.canonical}")
+        if parser.og_url != expected_canonical:
+            errors.append(f"{path.relative_to(ROOT)}: og:url does not match canonical: {parser.og_url}")
+        duplicate_ids = sorted(identifier for identifier, count in parser.id_counts.items() if count > 1)
+        if duplicate_ids:
+            errors.append(f"{path.relative_to(ROOT)}: duplicate IDs: {duplicate_ids}")
         if parser.h1_count != 1:
             errors.append(f"{path.name}: expected one h1, found {parser.h1_count}")
         if "sitemap.html" not in path.read_text(encoding="utf-8"):
             errors.append(f"{path.relative_to(ROOT)}: footer sitemap link is missing")
         page_text = path.read_text(encoding="utf-8")
+        if page_text.count('rel="canonical"') != 1:
+            errors.append(f"{path.relative_to(ROOT)}: expected exactly one canonical link")
         for marker in ('property="og:title"', 'property="og:description"', 'property="og:url"'):
             if marker not in page_text:
                 errors.append(f"{path.relative_to(ROOT)}: missing {marker}")
+        for index, payload in enumerate(re.findall(r'<script type="application/ld\+json">([\s\S]*?)</script>', page_text), start=1):
+            try:
+                json.loads(payload)
+            except json.JSONDecodeError as exc:
+                errors.append(f"{path.relative_to(ROOT)}: invalid JSON-LD block {index}: {exc}")
         if path.name != "index.html" and '"@type":"BreadcrumbList"' not in page_text:
             errors.append(f"{path.relative_to(ROOT)}: BreadcrumbList structured data is missing")
 
@@ -206,7 +223,7 @@ def main() -> int:
         page_text = path.read_text(encoding="utf-8")
         if "assets/site-header.js" not in page_text:
             errors.append(f"{path.relative_to(ROOT)}: smart site-header script is missing")
-        if "<strong>情報Ⅰ Study Atlas</strong>" not in page_text or "<small>高校情報Ⅰの学習サイト</small>" not in page_text:
+        if "<strong>情報Ⅰ Study Atlas</strong>" not in page_text or "<small>知識を、ひろげ、つなげる</small>" not in page_text:
             errors.append(f"{path.relative_to(ROOT)}: shared Study Atlas branding is missing")
 
     for path in lecture_field_paths:
@@ -218,6 +235,15 @@ def main() -> int:
         aside_text = lecture_text[aside_start:aside_end]
         if aside_start < 0 or 'id="lecture-course-nav"' not in aside_text or 'id="cloze-toggle"' not in aside_text:
             errors.append(f"{path.relative_to(ROOT)}: lecture navigation or cloze control is not contained in the sidebar")
+        data_text = (ROOT / "LectureNote" / f"lecture-data-{path.stem}.js").read_text(encoding="utf-8")
+        expected_sections = re.findall(r'"id":"([^"]+)","short":', data_text)
+        section_ids = re.findall(r'<section class="lecture-section" id="([^"]+)"', lecture_text)
+        if section_ids != expected_sections:
+            errors.append(f"{path.relative_to(ROOT)}: static lecture sections are missing or stale")
+        if "lecture-content:generated:start" not in lecture_text or "lecture-content:generated:end" not in lecture_text:
+            errors.append(f"{path.relative_to(ROOT)}: static lecture generation markers are missing")
+        if lecture_text.count('class="section-nav" id="section-nav"') != 1:
+            errors.append(f"{path.relative_to(ROOT)}: static section navigation is missing")
         if "../assets/lecture-bookmark.js" not in lecture_text:
             errors.append(f"{path.relative_to(ROOT)}: shared field bookmark script is missing")
         if 'id="hero-meta" aria-label="この分野のキーワード"' not in lecture_text:
@@ -496,11 +522,16 @@ def main() -> int:
     for marker in ("requestAnimationFrame", "is-header-hidden", "focusin"):
         if marker not in header_script:
             errors.append(f"site-header.js: required smart-header behavior is missing: {marker}")
-    for marker in ("StudyAtlasScrollHints", "horizontal-scroll-cue__edge", "scroll-snap-type", "is-at-start", "is-at-end"):
+    for marker in ("StudyAtlasScrollHints", "is-at-start", "is-at-end"):
         if marker not in header_script:
             errors.append(f"site-header.js: horizontal scroll guidance is missing: {marker}")
-    if ".horizontal-scroll-cue--global { min-width: 0; margin-left: auto; flex: 0 1 auto; }" not in header_script:
-        errors.append("site-header.js: desktop navigation is not right-aligned after the brand")
+    for marker in ("horizontal-scroll-cue__edge", "scroll-snap-type", ".horizontal-scroll-cue--global"):
+        if marker not in stylesheet or marker not in lecture_stylesheet:
+            errors.append(f"static stylesheets: horizontal scroll guidance is missing: {marker}")
+    if 'createElement("style")' in header_script or "data-horizontal-scroll-cue" in header_script:
+        errors.append("site-header.js: horizontal scroll styles must not be generated at runtime")
+    if "header.offsetHeight" in header_script:
+        errors.append("site-header.js: header height is read during scrolling instead of using a cache")
     lecture_script = (ROOT / "LectureNote" / "lecture.js").read_text(encoding="utf-8")
     for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
         if marker not in lecture_script:
@@ -580,6 +611,8 @@ def main() -> int:
         page_text = (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
         if f'./lecture-data-{field_name}.js' not in page_text:
             errors.append(f"LectureNote/{field_name}.html: field-specific data script is missing")
+        if page_text.count('class="lecture-section"') == 0:
+            errors.append(f"LectureNote/{field_name}.html: initial HTML has no lecture sections")
         for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js"):
             if f'<script src="./{obsolete_script}' in page_text:
                 errors.append(f"LectureNote/{field_name}.html: monolithic data script remains: {obsolete_script}")
@@ -626,6 +659,13 @@ def main() -> int:
         portal_urls = sitemap_urls(ROOT / "sitemap.xml")
         if len(portal_urls) != len(set(portal_urls)):
             errors.append("sitemap.xml contains duplicate URLs")
+        noncanonical_hosts = sorted(url for url in portal_urls if not url.startswith(SITE_ORIGIN))
+        if noncanonical_hosts:
+            errors.append(f"sitemap.xml contains noncanonical hosts: {noncanonical_hosts}")
+        if any(url.startswith("http://") for url in portal_urls):
+            errors.append("sitemap.xml contains non-HTTPS URLs")
+        if "<lastmod>" in (ROOT / "sitemap.xml").read_text(encoding="utf-8"):
+            errors.append("sitemap.xml contains synthetic lastmod values")
         required = {
             SITE_ORIGIN,
             f"{SITE_ORIGIN}study-guide.html",
