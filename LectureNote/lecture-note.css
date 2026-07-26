@@ -363,14 +363,10 @@ button { font: inherit; }
 .section-heading {
   display: grid;
   grid-template-columns: 58px minmax(0, 1fr) auto;
-  grid-template-areas: "number title bookmark";
   gap: 18px;
   align-items: start;
   margin-bottom: 26px;
 }
-.section-heading > .section-number { grid-area: number; }
-.section-heading > div { grid-area: title; }
-.section-heading > .section-bookmark { grid-area: bookmark; }
 .section-number {
   width: 58px;
   height: 58px;
@@ -1210,8 +1206,8 @@ button { font: inherit; }
   .course-hero { margin-top: 18px; padding: 28px 22px; border-radius: 22px; }
   .course-hero::after { right: -180px; top: -190px; }
   .lecture-section { padding: 24px 18px; border-radius: 18px; scroll-margin-top: 145px; }
-  .section-heading { grid-template-columns: 44px minmax(0, 1fr); grid-template-areas: "number title" ". bookmark"; gap: 12px; }
-  .section-bookmark { justify-self: start; }
+  .section-heading { grid-template-columns: 44px minmax(0, 1fr); gap: 12px; }
+  .section-bookmark { grid-column: 2; justify-self: start; }
   .section-number { width: 44px; height: 44px; border-radius: 13px; }
   .concept-grid, .compare-grid, .three-grid { grid-template-columns: 1fr; }
   .notation-example-grid { grid-template-columns: 1fr; }
@@ -1286,7 +1282,13 @@ button { font: inherit; }
   .lecture-learning-guide { padding: 17px; }
   .lecture-learning-guide__choices, .lecture-keyword-index__groups { grid-template-columns: 1fr; }
   .lecture-learning-choice { min-height: 64px; }
-  .section-heading { grid-template-columns: 1fr; grid-template-areas: "number" "bookmark" "title"; }
+  .section-heading {
+    grid-template-columns: 1fr;
+    grid-template-areas: "number" "bookmark" "title";
+  }
+  .section-heading > .section-number { grid-area: number; }
+  .section-heading > div { grid-area: title; }
+  .section-heading > .section-bookmark { grid-area: bookmark; grid-column: auto; }
   .section-bookmark { width: 100%; }
   .lecture-keyword-index__groups { gap: 4px; }
   .lecture-keyword-index__groups a { min-height: 42px; }
