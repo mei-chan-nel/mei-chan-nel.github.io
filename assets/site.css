@@ -462,6 +462,18 @@ img { max-width: 100%; }
 }
 
 @media (max-width: 680px) {
+  .home-page .hero-visual { display: none; }
+  .home-page .section-app .app-cta p:not(.eyebrow),
+  .home-page .section-fields .field-card > p,
+  .home-page .section-fields .topic-list,
+  .home-page .video-library-section .field-card > p,
+  .home-page .video-library-section .topic-list,
+  .home-page .lecture-note-section .field-card > p,
+  .home-page .lecture-note-section .topic-list,
+  .home-page .study-guide-promo .study-guide-card p:not(.eyebrow) { display: none; }
+  .home-page .section-fields .field-card,
+  .home-page .video-library-section .field-card,
+  .home-page .lecture-note-section .field-card { min-height: 170px; }
   html { scroll-padding-top: 145px; }
   .header-inner { width: min(100% - 24px, 1180px); padding: 12px 0; align-items: flex-start; flex-direction: column; gap: 8px; }
   .brand-mark { width: 36px; height: 36px; }
