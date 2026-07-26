@@ -429,6 +429,10 @@ img { max-width: 100%; }
 .sitemap-group a { color: var(--ink); font-weight: 800; text-underline-offset: 4px; }
 .sitemap-group span { color: var(--ink-soft); font-size: .73rem; text-align: right; }
 
+@media (min-width: 901px) {
+  .home-page .hero-visual { align-self: start; padding-top: 10px; }
+}
+
 @media (max-width: 1040px) {
   .horizontal-scroll-cue--section { order: 10; flex: 1 0 100%; width: 100%; }
 }
