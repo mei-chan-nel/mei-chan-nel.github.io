@@ -135,12 +135,6 @@ const buildPage = (field, page, source) => {
   html = replaceElementContent(html, "p", "hero-kicker", escapeHtml(page.kicker));
   html = replaceElementContent(html, "h1", "hero-title", escapeHtml(page.title));
   html = replaceElementContent(html, "p", "hero-lead", escapeHtml(page.lead));
-  html = replaceElementContent(
-    html,
-    "div",
-    "hero-meta",
-    page.meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")
-  );
   html = replaceElementContent(html, "nav", "lecture-course-nav", renderCourseNav(field, page));
 
   const guide = renderLearningGuide(field, page);

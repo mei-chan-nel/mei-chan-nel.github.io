@@ -32,15 +32,6 @@
   syncText("#hero-kicker", page.kicker);
   syncText("#hero-title", page.title);
   syncText("#hero-lead", page.lead);
-  const heroMeta = document.querySelector("#hero-meta");
-  const currentMeta = Array.from(heroMeta?.children || [], (item) => item.textContent);
-  if (heroMeta && (currentMeta.length !== page.meta.length || currentMeta.some((item, index) => item !== page.meta[index]))) {
-    heroMeta.replaceChildren(...page.meta.map((item) => {
-      const meta = document.createElement("span");
-      meta.textContent = item;
-      return meta;
-    }));
-  }
 
   const storedBookmark = bookmarkStore?.get(field) || null;
   const savedBookmark = storedBookmark && page.sections.some((section) => section.id === storedBookmark.sectionId)

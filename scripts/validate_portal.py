@@ -246,8 +246,8 @@ def main() -> int:
             errors.append(f"{path.relative_to(ROOT)}: static section navigation is missing")
         if "../assets/lecture-bookmark.js" not in lecture_text:
             errors.append(f"{path.relative_to(ROOT)}: shared field bookmark script is missing")
-        if 'id="hero-meta" aria-label="この分野のキーワード"' not in lecture_text:
-            errors.append(f"{path.relative_to(ROOT)}: top keyword chips have an obsolete or missing accessible label")
+        if 'id="hero-meta"' in lecture_text:
+            errors.append(f"{path.relative_to(ROOT)}: obsolete top keyword chips remain")
 
     for source, parser in parsed.items():
         for href in parser.links + parser.assets:
