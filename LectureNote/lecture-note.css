@@ -191,23 +191,6 @@ button { font: inherit; }
   color: #dce9ee;
   font-size: clamp(16px, 2vw, 20px);
 }
-.hero-meta {
-  position: relative;
-  z-index: 1;
-  margin-top: 28px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.hero-meta span {
-  padding: 7px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
-  color: #eaf3f6;
-  background: rgba(255, 255, 255, 0.07);
-  font-size: 13px;
-}
-
 .lecture-learning-guide {
   margin: 0 0 20px;
   padding: clamp(20px, 3vw, 30px);
