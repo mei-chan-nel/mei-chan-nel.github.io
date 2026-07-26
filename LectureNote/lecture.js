@@ -220,6 +220,11 @@
   const showKeyword = (keyword, focusTarget = true) => {
     const target = keywordTargets.get(keyword.targetId);
     if (!target) return false;
+    let parentDetails = target.closest("details");
+    while (parentDetails) {
+      parentDetails.open = true;
+      parentDetails = parentDetails.parentElement?.closest("details") || null;
+    }
     setReadingMode("keyword", keyword.label);
     placeKeywordTools(target, keyword);
     clearKeywordHighlight();
