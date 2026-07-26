@@ -115,6 +115,7 @@ img { max-width: 100%; }
 .field-card-head span { color: var(--accent); font-family: Georgia, serif; font-size: 1.35rem; font-style: italic; }
 .field-card-head p { margin: 0; padding: 3px 10px; border-radius: 999px; color: var(--ink-soft); background: var(--paper); font-size: .72rem; font-weight: 800; }
 .field-card h3 { margin: 23px 0 9px; font-family: Georgia, "Yu Mincho", serif; font-size: 1.65rem; font-weight: 500; }
+.field-card-title-particle, .field-card-title-type { display: none; }
 .field-card > p { margin: 0; color: var(--ink-soft); font-size: .88rem; }
 .topic-list { margin: 20px 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; list-style: none; }
 .topic-list li { padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font-size: .67rem; }
@@ -473,7 +474,25 @@ img { max-width: 100%; }
   .home-page .study-guide-promo .study-guide-card p:not(.eyebrow) { display: none; }
   .home-page .section-fields .field-card,
   .home-page .video-library-section .field-card,
-  .home-page .lecture-note-section .field-card { min-height: 170px; }
+  .home-page .lecture-note-section .field-card {
+    min-height: 148px;
+    padding: 17px 18px;
+  }
+  .home-page .section-fields .field-card h3,
+  .home-page .video-library-section .field-card h3,
+  .home-page .lecture-note-section .field-card h3 { margin: 14px 0 6px; line-height: 1.12; }
+  .home-page .section-fields .field-card-title-particle,
+  .home-page .section-fields .field-card-title-type,
+  .home-page .video-library-section .field-card-title-particle,
+  .home-page .video-library-section .field-card-title-type,
+  .home-page .lecture-note-section .field-card-title-particle,
+  .home-page .lecture-note-section .field-card-title-type { font-size: .72em; font-weight: 500; }
+  .home-page .section-fields .field-card-title-particle,
+  .home-page .video-library-section .field-card-title-particle,
+  .home-page .lecture-note-section .field-card-title-particle { display: inline; }
+  .home-page .section-fields .field-card-title-type,
+  .home-page .video-library-section .field-card-title-type,
+  .home-page .lecture-note-section .field-card-title-type { display: block; margin-top: 2px; line-height: 1.1; }
   html { scroll-padding-top: 145px; }
   .header-inner { width: min(100% - 24px, 1180px); padding: 12px 0; align-items: flex-start; flex-direction: column; gap: 8px; }
   .brand-mark { width: 36px; height: 36px; }
