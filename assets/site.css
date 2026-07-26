@@ -480,7 +480,11 @@ img { max-width: 100%; }
   }
   .home-page .section-fields .field-card h3,
   .home-page .video-library-section .field-card h3,
-  .home-page .lecture-note-section .field-card h3 { margin: 14px 0 6px; line-height: 1.12; }
+  .home-page .lecture-note-section .field-card h3 {
+    margin: 14px 0 6px;
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
   .home-page .section-fields .field-card-title-particle,
   .home-page .section-fields .field-card-title-type,
   .home-page .video-library-section .field-card-title-particle,
@@ -492,7 +496,7 @@ img { max-width: 100%; }
   .home-page .lecture-note-section .field-card-title-particle { display: inline; }
   .home-page .section-fields .field-card-title-type,
   .home-page .video-library-section .field-card-title-type,
-  .home-page .lecture-note-section .field-card-title-type { display: block; margin-top: 2px; line-height: 1.1; }
+  .home-page .lecture-note-section .field-card-title-type { display: inline; margin-top: 0; line-height: inherit; }
   html { scroll-padding-top: 145px; }
   .header-inner { width: min(100% - 24px, 1180px); padding: 12px 0; align-items: flex-start; flex-direction: column; gap: 8px; }
   .brand-mark { width: 36px; height: 36px; }
