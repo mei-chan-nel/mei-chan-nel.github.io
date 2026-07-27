@@ -24,7 +24,7 @@
 
   const renderMarkup = (markup) => markup.replace(/\{\{([^{}]+)\}\}/g, (_, answer) => clozeMarkup(answer));
 
-  document.title = `情報Ⅰ Study Atlas｜講義ノート｜${page.title}`;
+  document.title = `情報Ⅰ Study Atlas｜講義ノート｜${fieldLabels[field] || field}`;
   const syncText = (selector, value) => {
     const element = document.querySelector(selector);
     if (element && element.textContent !== value) element.textContent = value;
