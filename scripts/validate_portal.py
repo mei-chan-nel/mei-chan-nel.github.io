@@ -418,7 +418,7 @@ def main() -> int:
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     if app_question_count != 1000 or "1,000" not in top_text:
         errors.append("index.html: completed 1,000-question count is not synchronized")
-    if len(raw_tag_counts) != 608 or len(public_tags) != 242 or "242" not in top_text:
+    if len(raw_tag_counts) != 606 or len(public_tags) != 243 or "243" not in top_text:
         errors.append("index.html: normalized public tag count is not synchronized")
     if "hero-start-button" in top_text or "5問から始める" in top_text:
         errors.append("index.html: redundant hero learning-app button remains")
@@ -582,9 +582,14 @@ def main() -> int:
     expected_home_lecture_link = '<a href="./LectureNote/"><strong>講義ノートを読む</strong><span>仕組みから理解</span></a>'
     if top_text.count(expected_home_lecture_link) != 2:
         errors.append("index.html: lecture cards must link to the lecture index with the restored subtitle")
-    for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'readingMode === "sequential"', 'addEventListener("popstate"'):
+    for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'navigateToHash(link.getAttribute("href").slice(1))', 'addEventListener("popstate"'):
         if marker not in lecture_script:
             errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")
+    for marker in ("keyword-reading-tools", "ここから順番に読む", "data-keyword-sequential", "keywordTools"):
+        if marker in lecture_script:
+            errors.append(f"lecture.js: obsolete keyword choice behavior remains: {marker}")
+    if lecture_script.count("bookmarkStore?.write(") != 1:
+        errors.append("lecture.js: bookmark writes must be limited to the explicit section-bookmark action")
     lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
     programming_content_text = (ROOT / "LectureNote" / "programming-content.js").read_text(encoding="utf-8")
     programming_enrichment_text = (ROOT / "LectureNote" / "programming-enrichment.js").read_text(encoding="utf-8")
@@ -651,9 +656,11 @@ def main() -> int:
             errors.append(f"LectureNote: generated animation behavior is missing: {marker}")
     if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
         errors.append("lecture-note.css: figure enlargement styles are missing")
-    for marker in (".lecture-learning-guide", ".lecture-keyword-index", ".keyword-target.is-keyword-highlighted", ".keyword-reading-tools"):
+    for marker in (".lecture-learning-guide", ".lecture-keyword-index", ".keyword-target.is-keyword-highlighted"):
         if marker not in lecture_stylesheet:
             errors.append(f"lecture-note.css: keyword-index style is missing: {marker}")
+    if ".keyword-reading-tools" in lecture_stylesheet:
+        errors.append("lecture-note.css: obsolete keyword choice UI styles remain")
     for marker in ("touch-action: none", ".figure-lightbox__canvas", ".figure-lightbox__viewport.is-zoomed"):
         if marker not in lecture_stylesheet:
             errors.append(f"lecture-note.css: interactive figure viewer marker is missing: {marker}")

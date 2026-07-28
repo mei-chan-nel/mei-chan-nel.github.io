@@ -114,6 +114,12 @@ def main() -> int:
             portal_root,
             ["node", "scripts/build_lecture_pages.mjs", "--check"],
         )
+        portal_test_files = sorted((portal_root / "scripts").glob("*.test.mjs"))
+        run_step(
+            "portal JavaScript tests",
+            portal_root,
+            ["node", "--test", *(str(path.relative_to(portal_root)) for path in portal_test_files)],
+        )
         run_step(
             "portal validation",
             portal_root,
@@ -138,6 +144,11 @@ def main() -> int:
                 "--portal-root",
                 str(portal_root),
             ],
+        )
+        run_step(
+            "app Python tests",
+            app_root,
+            [sys.executable, "-m", "unittest", "discover", "-s", "scripts", "-p", "*_test.py"],
         )
         test_files = sorted((app_root / "scripts").glob("*.test.mjs"))
         run_step(

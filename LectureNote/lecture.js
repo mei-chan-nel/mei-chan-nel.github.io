@@ -41,7 +41,6 @@
   const keywordGroups = Array.isArray(page.keywordGroups) ? page.keywordGroups : [];
   const keywords = keywordGroups.flatMap((group) => group.keywords || []);
   const keywordByTargetId = new Map(keywords.map((keyword) => [keyword.targetId, keyword]));
-  let readingMode = "sequential";
 
   const bookmarkSection = page.sections.find((section) => section.id === bookmarkId) || page.sections[0];
   let learningGuide = document.querySelector(".lecture-learning-guide");
@@ -66,7 +65,6 @@
       <p class="lecture-reading-state" aria-live="polite">順番に読んでいます</p>`;
     document.querySelector(".course-hero").after(learningGuide);
   }
-  const readingState = learningGuide.querySelector(".lecture-reading-state");
   const keywordIndex = learningGuide.querySelector(".lecture-keyword-index");
 
   const content = document.querySelector("#lecture-content");
@@ -171,17 +169,6 @@
     else console.warn(`重要キーワードの移動先を作成できませんでした: ${keyword.id}`);
   });
 
-  const keywordTools = document.createElement("aside");
-  keywordTools.className = "keyword-reading-tools";
-  keywordTools.hidden = true;
-  keywordTools.setAttribute("aria-live", "polite");
-  keywordTools.innerHTML = `
-    <p><span data-keyword-field></span><span data-keyword-section></span><strong data-keyword-status></strong></p>
-    <nav aria-label="キーワード確認中の操作">
-      <a href="#lecture-keyword-index" data-keyword-index-link>重要キーワード一覧へ戻る</a>
-      <a href="#" data-keyword-section-link>この節の先頭へ</a>
-      <button type="button" data-keyword-sequential>ここから順番に読む</button>
-    </nav>`;
   let highlightedTarget = null;
   let highlightTimer = 0;
 
@@ -189,32 +176,6 @@
     window.clearTimeout(highlightTimer);
     highlightedTarget?.classList.remove("is-keyword-highlighted");
     highlightedTarget = null;
-  };
-
-  const setReadingMode = (mode, label = "") => {
-    readingMode = mode;
-    if (mode === "keyword") {
-      readingState.textContent = `索引から確認中：${label}`;
-      readingState.classList.add("is-keyword-reading");
-    } else {
-      readingState.textContent = "順番に読んでいます";
-      readingState.classList.remove("is-keyword-reading");
-    }
-  };
-
-  const placeKeywordTools = (target, keyword) => {
-    const section = document.getElementById(keyword.sectionId);
-    const sectionBody = section?.querySelector(".section-body");
-    let block = target;
-    while (block.parentElement && block.parentElement !== sectionBody) block = block.parentElement;
-    if (block.parentElement === sectionBody) block.before(keywordTools);
-    else sectionBody?.prepend(keywordTools);
-    const sectionData = page.sections.find((item) => item.id === keyword.sectionId);
-    keywordTools.querySelector("[data-keyword-field]").textContent = fieldLabels[field];
-    keywordTools.querySelector("[data-keyword-section]").textContent = sectionData?.short || sectionData?.title || "";
-    keywordTools.querySelector("[data-keyword-status]").textContent = `索引から確認中：${keyword.label}`;
-    keywordTools.querySelector("[data-keyword-section-link]").href = `#${keyword.sectionId}`;
-    keywordTools.hidden = false;
   };
 
   const showKeyword = (keyword, focusTarget = true) => {
@@ -225,8 +186,6 @@
       parentDetails.open = true;
       parentDetails = parentDetails.parentElement?.closest("details") || null;
     }
-    setReadingMode("keyword", keyword.label);
-    placeKeywordTools(target, keyword);
     clearKeywordHighlight();
     highlightedTarget = target;
     target.classList.add("is-keyword-highlighted");
@@ -666,10 +625,8 @@
     const link = event.target.closest("a");
     if (!link) return;
     event.preventDefault();
-    if (readingMode === "sequential") {
-      keywordIndex.open = false;
-    }
-    navigateToHash(link.getAttribute("href").slice(1), readingMode);
+    keywordIndex.open = false;
+    navigateToHash(link.getAttribute("href").slice(1));
   });
   const linkById = new Map(links.map((link) => [link.getAttribute("href").slice(1), link]));
   const mobilePosition = document.createElement("div");
@@ -701,11 +658,9 @@
   });
   mobileLinks.forEach((link) => link.addEventListener("click", (event) => {
     event.preventDefault();
-    if (readingMode === "sequential") {
-      keywordIndex.open = false;
-    }
+    keywordIndex.open = false;
     closeMobilePanel();
-    navigateToHash(link.getAttribute("href").slice(1), readingMode);
+    navigateToHash(link.getAttribute("href").slice(1));
   }));
   mobilePosition.addEventListener("keydown", (event) => {
     if (event.key !== "Escape" || mobilePanel.hidden) return;
@@ -784,13 +739,13 @@
     }
   };
 
-  const replaceHistoryState = (mode, url = window.location.href) => {
-    window.history.replaceState({ ...(window.history.state || {}), lectureReading: mode }, "", url);
+  const replaceHistoryState = (url = window.location.href) => {
+    window.history.replaceState(window.history.state || {}, "", url);
   };
 
-  const navigateToHash = (id, mode, replace = false) => {
+  const navigateToHash = (id, replace = false) => {
     const method = replace ? "replaceState" : "pushState";
-    window.history[method]({ ...(window.history.state || {}), lectureReading: mode }, "", `#${encodeURIComponent(id)}`);
+    window.history[method](window.history.state || {}, "", `#${encodeURIComponent(id)}`);
     revealLocationHash();
   };
 
@@ -798,12 +753,10 @@
     const section = document.getElementById(sectionId);
     const sectionIndex = page.sections.findIndex((item) => item.id === sectionId);
     if (!section || sectionIndex < 0) return;
-    setReadingMode("sequential");
     keywordIndex.open = false;
-    keywordTools.hidden = true;
     clearKeywordHighlight();
     setActiveSection(section);
-    navigateToHash(sectionId, "sequential", replace);
+    navigateToHash(sectionId, replace);
   };
   bookmarkLink?.addEventListener("click", (event) => {
     event.preventDefault();
@@ -815,11 +768,7 @@
     if (!hashId) return;
     if (hashId.startsWith("keyword-")) {
       const keyword = keywordByTargetId.get(hashId);
-      if (!keyword || !showKeyword(keyword)) {
-        keywordTools.hidden = true;
-        setReadingMode("sequential");
-        window.scrollTo({ top: 0, behavior: "auto" });
-      }
+      if (!keyword || !showKeyword(keyword)) window.scrollTo({ top: 0, behavior: "auto" });
       return;
     }
     if (hashId === "lecture-keyword-index") {
@@ -830,14 +779,7 @@
     }
     const section = document.getElementById(hashId);
     if (!section?.classList.contains("lecture-section")) return;
-    const stateMode = window.history.state?.lectureReading === "keyword" ? "keyword" : "sequential";
-    if (stateMode === "sequential") {
-      setReadingMode("sequential");
-      keywordTools.hidden = true;
-      clearKeywordHighlight();
-    } else {
-      readingMode = "keyword";
-    }
+    clearKeywordHighlight();
     setActiveSection(section);
     section.scrollIntoView({ block: "start", behavior: "auto" });
   };
@@ -845,26 +787,12 @@
   learningGuide.querySelectorAll("[data-keyword-id]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      navigateToHash(link.getAttribute("href").slice(1), "keyword");
+      navigateToHash(link.getAttribute("href").slice(1));
     });
-  });
-  keywordTools.querySelector("[data-keyword-index-link]").addEventListener("click", (event) => {
-    event.preventDefault();
-    keywordIndex.open = true;
-    navigateToHash("lecture-keyword-index", "keyword");
-  });
-  keywordTools.querySelector("[data-keyword-section-link]").addEventListener("click", (event) => {
-    event.preventDefault();
-    navigateToHash(event.currentTarget.getAttribute("href").slice(1), "keyword");
-  });
-  keywordTools.querySelector("[data-keyword-sequential]").addEventListener("click", () => {
-    const section = keywordTools.closest(".lecture-section");
-    if (section) beginSequentialReading(section.id);
   });
 
   const initialHash = decodedHash();
-  const initialMode = initialHash.startsWith("keyword-") ? "keyword" : "sequential";
-  replaceHistoryState(initialMode);
+  replaceHistoryState();
   window.addEventListener("hashchange", revealLocationHash);
   window.addEventListener("popstate", revealLocationHash);
   if (initialHash) {
