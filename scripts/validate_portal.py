@@ -258,7 +258,8 @@ def main() -> int:
             if not target.exists():
                 errors.append(f"{source.name}: broken local target {href}")
                 continue
-            if fragment and target.suffix.lower() == ".html":
+            is_search_state = fragment.startswith(("tag=", "keyword=", "question="))
+            if fragment and not is_search_state and target.suffix.lower() == ".html":
                 target_parser = parsed.get(target.resolve()) or parse_page(target)
                 if fragment not in target_parser.ids:
                     errors.append(f"{source.name}: missing fragment target {href}")
@@ -339,7 +340,7 @@ def main() -> int:
     regular_video_html = "\n".join(path.read_text(encoding="utf-8") for path in regular_video_pages)
     if regular_video_html.count('class="keyword-link"') != sum(len(question["keywords"]) for question in video_questions):
         errors.append("archive pages: every published keyword must be a link")
-    if 'href="keywords.html?keyword=' not in regular_video_html:
+    if 'href="keywords.html#keyword=' not in regular_video_html:
         errors.append("archive pages: keywords do not link to the keyword filter")
     expected_keyword_links = sum(len(question["keywords"]) for question in video_questions)
     if regular_video_html.count("&question=") != expected_keyword_links:

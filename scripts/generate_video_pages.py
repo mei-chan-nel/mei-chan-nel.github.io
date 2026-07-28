@@ -7,7 +7,7 @@ import re
 from collections import Counter
 from datetime import date
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import urlencode
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,10 +90,10 @@ def breadcrumb_data(items: list[tuple[str, str]]) -> dict[str, object]:
 
 
 def keyword_filter_href(keyword: str, question_number: int | None = None) -> str:
-    href = f"keywords.html?keyword={quote(keyword, safe='')}"
+    params = [("keyword", keyword)]
     if question_number is not None:
-        href += f"&question={question_number}#filter-results-heading"
-    return href
+        params.append(("question", question_number))
+    return f"keywords.html#{urlencode(params)}"
 
 
 def facet_links(counts: Counter[str]) -> str:

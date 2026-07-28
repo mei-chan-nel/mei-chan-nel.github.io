@@ -5,6 +5,7 @@
   if (!root) return;
 
   const parameter = root.dataset.filterParam || "keyword";
+  const searchStateKeys = new Set(["tag", "keyword", "question"]);
   const results = root.querySelector("[data-filter-results]");
   const resultsSection = root.querySelector(".filter-results");
   const heading = root.querySelector("[data-filter-heading]");
@@ -14,6 +15,7 @@
   let payload = null;
   let selected = [];
   let focusNumber = null;
+  let lastAppliedLocation = null;
 
   const element = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -22,22 +24,105 @@
     return node;
   };
 
-  const readSelection = () => {
-    const params = new URL(window.location.href).searchParams;
-    return [...new Set(params.getAll(parameter).map((value) => value.trim()).filter(Boolean))];
-  };
+  const hasStateParameter = (params) =>
+    params.getAll(parameter).some((value) => value.trim()) || Boolean(params.get("question")?.trim());
 
-  const readFocus = () => {
-    const value = new URL(window.location.href).searchParams.get("question");
-    return value ? Number(value) : null;
-  };
+  const hasRecognizedStateParameter = (params) =>
+    [...params.keys()].some((key) => searchStateKeys.has(key));
 
-  const filterHref = (values, questionNumber = null) => {
+  const queryWithoutSearchState = (url = new URL(window.location.href)) => {
     const params = new URLSearchParams();
-    values.forEach((value) => params.append(parameter, value));
-    if (questionNumber !== null) params.set("question", String(questionNumber));
-    const query = params.toString();
-    return `keywords.html${query ? `?${query}` : ""}${questionNumber !== null ? "#filter-results-heading" : ""}`;
+    for (const [key, value] of url.searchParams) {
+      if (!searchStateKeys.has(key)) params.append(key, value);
+    }
+    return params;
+  };
+
+  const preservedQuerySuffix = () => {
+    const query = queryWithoutSearchState().toString();
+    return query ? `?${query}` : "";
+  };
+
+  const parseStateFromParams = (params) => ({
+    selected: [...new Set(params.getAll(parameter).map((value) => value.trim()).filter(Boolean))],
+    question: params.get("question") || null,
+  });
+
+  const parseStateFromLocation = () => {
+    const url = new URL(window.location.href);
+    const hashParams = new URLSearchParams(url.hash.startsWith("#") ? url.hash.slice(1) : "");
+    const useHash = hasStateParameter(hashParams);
+    return {
+      state: parseStateFromParams(useHash ? hashParams : url.searchParams),
+      hasHashState: useHash,
+      hasQueryState: hasStateParameter(url.searchParams),
+    };
+  };
+
+  const serializeStateToHash = (state) => {
+    const params = new URLSearchParams();
+    state.selected.forEach((value) => params.append(parameter, value));
+    if (state.question) params.set("question", state.question);
+    const serialized = params.toString();
+    return serialized ? `#${serialized}` : "";
+  };
+
+  const locationKey = (url = new URL(window.location.href)) =>
+    `${url.pathname}${url.search}${url.hash}`;
+
+  const stateLocationKey = (state) => {
+    const url = new URL(window.location.href);
+    url.search = queryWithoutSearchState(url).toString();
+    url.hash = serializeStateToHash(state);
+    return locationKey(url);
+  };
+
+  const filterHref = (values, questionNumber = null) =>
+    `keywords.html${preservedQuerySuffix()}${serializeStateToHash({
+      selected: values,
+      question: questionNumber === null ? null : String(questionNumber),
+    })}`;
+
+  const synchronizeLocation = (state) => {
+    const current = new URL(window.location.href);
+    const target = new URL(current);
+    target.search = queryWithoutSearchState(current).toString();
+    target.hash = serializeStateToHash(state);
+    const hashParams = new URLSearchParams(current.hash.startsWith("#") ? current.hash.slice(1) : "");
+    const targetKey = locationKey(target);
+    if ((hasRecognizedStateParameter(current.searchParams) || hasRecognizedStateParameter(hashParams)) && locationKey(current) !== targetKey) {
+      window.history.replaceState(window.history.state, "", `${target.pathname}${target.search}${target.hash}`);
+    }
+    return targetKey;
+  };
+
+  const applySearchState = (state) => {
+    selected = [...state.selected];
+    focusNumber = state.question === null ? null : Number(state.question);
+    render();
+  };
+
+  const applyLocationState = () => {
+    const parsed = parseStateFromLocation();
+    const targetKey = synchronizeLocation(parsed.state);
+    if (targetKey === lastAppliedLocation) return;
+    applySearchState(parsed.state);
+    lastAppliedLocation = targetKey;
+  };
+
+  const navigateToSearchState = (state) => {
+    const nextState = {
+      selected: [...new Set(state.selected)],
+      question: state.question || null,
+    };
+    const targetKey = stateLocationKey(nextState);
+    if (targetKey === locationKey()) return;
+    const url = new URL(window.location.href);
+    url.search = queryWithoutSearchState(url).toString();
+    url.hash = serializeStateToHash(nextState);
+    window.history.pushState({}, "", `${url.pathname}${url.search}${url.hash}`);
+    applySearchState(nextState);
+    lastAppliedLocation = targetKey;
   };
 
   const toggledSelection = (value) => {
@@ -164,11 +249,8 @@
     }
   };
 
-  const setSelection = (values, push = true) => {
-    selected = [...new Set(values)];
-    focusNumber = null;
-    if (push) window.history.pushState({}, "", filterHref(selected));
-    render();
+  const setSelection = (values) => {
+    navigateToSearchState({ selected: values, question: null });
   };
 
   root.addEventListener("click", (event) => {
@@ -198,15 +280,10 @@
     });
   }
 
-  window.addEventListener("popstate", () => {
-    selected = readSelection();
-    focusNumber = readFocus();
-    render();
-  });
+  window.addEventListener("popstate", applyLocationState);
+  window.addEventListener("hashchange", applyLocationState);
 
-  selected = readSelection();
-  focusNumber = readFocus();
-  syncFacetLinks();
+  applyLocationState();
   fetch(root.dataset.filterData)
     .then((response) => {
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
