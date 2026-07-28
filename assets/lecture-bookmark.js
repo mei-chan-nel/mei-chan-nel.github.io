@@ -10,13 +10,15 @@
     if (!fields.includes(field) || value.field !== field) return null;
     if (typeof value.sectionId !== "string" || typeof value.sectionTitle !== "string") return null;
     if (!Number.isInteger(value.sectionIndex) || value.sectionIndex < 0) return null;
-    if (typeof value.updatedAt !== "number" || !Number.isFinite(value.updatedAt)) return null;
+    const updatedAt = typeof value.updatedAt === "number" && Number.isFinite(value.updatedAt)
+      ? value.updatedAt
+      : null;
     return {
       field,
       sectionId: value.sectionId,
       sectionTitle: value.sectionTitle,
       sectionIndex: value.sectionIndex,
-      updatedAt: value.updatedAt
+      updatedAt
     };
   };
 

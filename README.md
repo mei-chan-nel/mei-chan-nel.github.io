@@ -71,7 +71,7 @@ python scripts/generate_video_pages.py
 
 ## 講義ノートの再生成
 
-講義本文は、教材ソースから分野別の `LectureNote/lecture-data-*.js` を作り、そのデータから5ページの静的HTMLを作る一方向の生成にしています。公開HTMLへ本文を手作業で二重入力しないでください。
+5ページの静的HTMLを講義本文の正本にしています。`build_lecture_data.mjs` は、静的HTMLに埋め込まれた節・しおり表示・キーワード移動先から、ブラウザの補助機能だけに必要な軽量 `LectureNote/lecture-data-*.js` を生成します。本文をJavaScriptへ複製しないでください。`build_lecture_pages.mjs` は静的HTMLと軽量メタデータの対応、重複ID、未解決の穴抜き記法を読み取り専用で検証します。
 
 ```powershell
 node scripts/build_lecture_data.mjs
@@ -106,6 +106,24 @@ python scripts/validate_portal.py
 ```
 
 検証はポータル48ページ、広告コード範囲、内部リンク、SEOメタ情報、構造化データ、静的講義本文、タグ／キーワードOR検索、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
+
+2リポジトリをまとめて検証するときは、対象を明示します。省略時は従来どおり隣接する
+`info1-quiz-app` を使用します。`--portal-ref` と `--app-ref` を指定すると、各refが現在の
+HEADと一致することも検証します。実行時には両リポジトリの絶対パス、ブランチ、HEAD、
+remote、dirty状態が表示されます。
+
+```powershell
+python scripts/validate_study_atlas.py `
+  --portal-root <mei-chan-nel.github.ioのリポジトリルート> `
+  --app-root <info1-quiz-appのリポジトリルート> `
+  --portal-ref HEAD `
+  --app-ref HEAD
+```
+
+GitHub Actionsの `Integrated Study Atlas validation` も両リポジトリを同じジョブ内へ
+チェックアウトし、同じ統合検証を実行します。別refを組み合わせる場合は
+`workflow_dispatch` の入力で相手側のrefを指定してください。両リポジトリが公開されて
+いない環境では、Actionsのcheckout権限または読み取り用トークンの設定が必要です。
 
 ## 公開
 

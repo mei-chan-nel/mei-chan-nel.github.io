@@ -218,7 +218,7 @@ button { font: inherit; }
 .lecture-learning-choice:hover { border-color: var(--accent); box-shadow: 0 8px 20px rgba(20, 48, 63, .07); transform: translateY(-1px); }
 .lecture-learning-choice strong { font-size: 14px; }
 .lecture-learning-choice span { color: var(--muted); font-size: 11px; }
-.lecture-learning-choice:focus-visible, .lecture-keyword-index summary:focus-visible, .lecture-keyword-index a:focus-visible, .keyword-reading-tools a:focus-visible, .keyword-reading-tools button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 38%, white); outline-offset: 3px; }
+.lecture-learning-choice:focus-visible, .lecture-keyword-index summary:focus-visible, .lecture-keyword-index a:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 38%, white); outline-offset: 3px; }
 .lecture-keyword-index { margin-top: 12px; background: rgb(255 255 255 / 72%); border: 1px solid var(--line); border-radius: 13px; }
 .lecture-keyword-index summary { min-height: 62px; padding: 12px 50px 12px 16px; position: relative; display: grid; align-items: center; cursor: pointer; list-style: none; }
 .lecture-keyword-index summary::-webkit-details-marker { display: none; }
@@ -234,27 +234,9 @@ button { font: inherit; }
 .lecture-keyword-index__groups a { min-height: 38px; padding: 7px 11px; display: inline-flex; align-items: center; color: var(--ink); background: #fff; border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line)); border-radius: 999px; font-size: 12px; font-weight: 800; line-height: 1.45; text-decoration: none; white-space: normal; }
 .lecture-keyword-index__groups a:hover { color: var(--accent); border-color: var(--accent); }
 .lecture-reading-state { width: fit-content; margin: 12px 0 0; padding: 5px 10px; color: var(--muted); background: rgb(255 255 255 / 74%); border-radius: 999px; font-size: 11px; font-weight: 800; }
-.lecture-reading-state.is-keyword-reading { color: var(--accent); }
-
 .keyword-target { scroll-margin-top: 180px; border-radius: 4px; transition: background-color .45s ease, box-shadow .45s ease; }
 .keyword-target:focus { outline: 2px solid color-mix(in srgb, #d49a00 62%, white); outline-offset: 3px; }
 .keyword-target.is-keyword-highlighted { background: #fff0a8; box-shadow: 0 0 0 4px #fff0a8; }
-.keyword-reading-tools {
-  margin: 18px 0;
-  padding: 15px 17px;
-  display: grid;
-  gap: 12px;
-  color: var(--ink);
-  background: #fff9dc;
-  border: 1px solid #dfc76c;
-  border-radius: 13px;
-}
-.keyword-reading-tools[hidden] { display: none; }
-.keyword-reading-tools p { margin: 0; display: grid; gap: 1px; }
-.keyword-reading-tools p span { color: var(--muted); font-size: 10px; font-weight: 800; }
-.keyword-reading-tools p strong { color: #775900; font-size: 13px; }
-.keyword-reading-tools nav { display: flex; flex-wrap: wrap; gap: 7px; }
-.keyword-reading-tools a, .keyword-reading-tools button { min-height: 40px; padding: 8px 11px; color: var(--ink); background: #fff; border: 1px solid #d6c47b; border-radius: 999px; cursor: pointer; font-size: 11px; font-weight: 800; text-decoration: none; }
 
 .cloze-toggle {
   width: 100%;
@@ -364,7 +346,7 @@ button { font: inherit; }
 .section-heading h2 { margin: 0; font-size: clamp(25px, 3.4vw, 38px); line-height: 1.32; letter-spacing: -0.025em; }
 .section-lead { margin: 12px 0 0; color: var(--muted); font-size: 16px; }
 .section-bookmark {
-  min-height: 42px;
+  min-height: 44px;
   padding: 9px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -1176,7 +1158,7 @@ button { font: inherit; }
   .brand-mark { width: 36px; height: 36px; }
   .global-nav { width: 100%; padding-top: 7px; justify-content: flex-start; gap: 18px; overflow-x: auto; border-top: 1px solid var(--line); scrollbar-width: none; }
   .global-nav::-webkit-scrollbar { display: none; }
-  .global-nav a { flex: 0 0 auto; }
+  .global-nav a { min-height: 44px; display: inline-flex; align-items: center; flex: 0 0 auto; }
   .horizontal-scroll-cue--global { width: 100%; margin-left: 0; flex: 1 0 auto; }
   .horizontal-scroll-cue.has-overflow .horizontal-scroll-cue__edge { display: flex; opacity: 1; }
   .horizontal-scroll-cue.is-at-start .horizontal-scroll-cue__edge--left,
@@ -1274,9 +1256,7 @@ button { font: inherit; }
   .section-heading > .section-bookmark { grid-area: bookmark; grid-column: auto; }
   .section-bookmark { width: 100%; }
   .lecture-keyword-index__groups { gap: 4px; }
-  .lecture-keyword-index__groups a { min-height: 42px; }
-  .keyword-reading-tools nav { display: grid; grid-template-columns: 1fr; }
-  .keyword-reading-tools a, .keyword-reading-tools button { width: 100%; border-radius: 10px; text-align: left; }
+  .lecture-keyword-index__groups a { min-height: 44px; }
   .mobile-lecture-position {
     position: fixed;
     right: 8px;
@@ -1314,7 +1294,7 @@ button { font: inherit; }
     border-top: 1px solid rgb(255 255 255 / 16%);
   }
   .mobile-lecture-position__panel[hidden] { display: none; }
-  .mobile-lecture-position__panel a { display: grid; grid-template-columns: 56px 1fr; gap: 8px; padding: 10px 9px; color: rgb(255 255 255 / 84%); border-radius: 9px; text-decoration: none; font-size: 13px; }
+  .mobile-lecture-position__panel a { min-height: 44px; display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: 8px; padding: 10px 9px; color: rgb(255 255 255 / 84%); border-radius: 9px; text-decoration: none; font-size: 13px; }
   .mobile-lecture-position__panel a span { color: #b9d3de; font-size: 10px; font-weight: 800; }
   .mobile-lecture-position__panel a.is-active { color: #fff; background: rgb(255 255 255 / 12%); }
   .lecture-back-to-top { right: 14px; bottom: calc(72px + env(safe-area-inset-bottom)); }
@@ -1323,7 +1303,7 @@ button { font: inherit; }
 }
 
 @media print {
-  .site-header, .section-sidebar, .lecture-learning-guide, .keyword-reading-tools, .section-bookmark, .mobile-lecture-position, .lecture-back-to-top, .lecture-animation__expand, .site-footer { display: none !important; }
+  .site-header, .section-sidebar, .lecture-learning-guide, .section-bookmark, .mobile-lecture-position, .lecture-back-to-top, .lecture-animation__expand, .site-footer { display: none !important; }
   .page-main { width: 100%; }
   .page-layout { display: block; }
   .lecture-section { break-inside: auto; box-shadow: none; }

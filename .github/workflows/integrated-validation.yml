@@ -1,0 +1,50 @@
+name: Integrated Study Atlas validation
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      app_ref:
+        description: Git ref for mei-chan-nel/info1-quiz-app
+        required: false
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out portal
+        uses: actions/checkout@v4
+        with:
+          path: portal
+          persist-credentials: false
+
+      - name: Check out learning app
+        uses: actions/checkout@v4
+        with:
+          repository: mei-chan-nel/info1-quiz-app
+          ref: ${{ inputs.app_ref || github.head_ref || github.ref_name }}
+          path: app
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run integrated validation
+        run: >-
+          python portal/scripts/validate_study_atlas.py
+          --portal-root portal
+          --app-root app
+          --portal-ref HEAD
+          --app-ref HEAD
