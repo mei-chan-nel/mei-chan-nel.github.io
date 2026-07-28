@@ -17,6 +17,10 @@ APP_ROOT = ROOT.parent / "info1-quiz-app"
 REPORT_PATH = ROOT / "docs" / "portal-validation.json"
 AD_MARKER = "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
 SITE_ORIGIN = "https://mei-chan-nel.com/"
+OG_IMAGE_URL = f"{SITE_ORIGIN}assets/og/study-atlas-home-og.png"
+OG_IMAGE_ALT = "情報Ⅰ Study Atlasの学習マップと「知識を、ひろげ、つなげる」のメッセージ"
+OG_IMAGE_WIDTH = "1734"
+OG_IMAGE_HEIGHT = "907"
 
 
 def normalized_text_sha256(path: Path) -> str:
@@ -33,6 +37,8 @@ class PageParser(HTMLParser):
         self.canonical = ""
         self.og_url = ""
         self.og_title = ""
+        self.meta_properties: dict[str, list[str]] = {}
+        self.meta_names: dict[str, list[str]] = {}
         self.h1_count = 0
         self.links: list[str] = []
         self.assets: list[str] = []
@@ -41,6 +47,12 @@ class PageParser(HTMLParser):
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
+        if tag == "meta":
+            content = values.get("content") or ""
+            if values.get("property"):
+                self.meta_properties.setdefault(values["property"], []).append(content)
+            if values.get("name"):
+                self.meta_names.setdefault(values["name"], []).append(content)
         if tag == "title":
             self.in_title = True
         if tag == "meta" and values.get("name") == "description":
@@ -205,6 +217,31 @@ def main() -> int:
         for marker in ('property="og:title"', 'property="og:description"', 'property="og:url"'):
             if marker not in page_text:
                 errors.append(f"{path.relative_to(ROOT)}: missing {marker}")
+        expected_og_properties = {
+            "og:image": OG_IMAGE_URL,
+            "og:image:secure_url": OG_IMAGE_URL,
+            "og:image:type": "image/png",
+            "og:image:width": OG_IMAGE_WIDTH,
+            "og:image:height": OG_IMAGE_HEIGHT,
+            "og:image:alt": OG_IMAGE_ALT,
+        }
+        expected_twitter_names = {
+            "twitter:card": "summary_large_image",
+            "twitter:image": OG_IMAGE_URL,
+            "twitter:image:alt": OG_IMAGE_ALT,
+        }
+        for name, expected in expected_og_properties.items():
+            values = parser.meta_properties.get(name, [])
+            if values != [expected]:
+                errors.append(
+                    f"{path.relative_to(ROOT)}: expected exactly one {name}={expected!r}, found {values!r}"
+                )
+        for name, expected in expected_twitter_names.items():
+            values = parser.meta_names.get(name, [])
+            if values != [expected]:
+                errors.append(
+                    f"{path.relative_to(ROOT)}: expected exactly one {name}={expected!r}, found {values!r}"
+                )
         for index, payload in enumerate(re.findall(r'<script type="application/ld\+json">([\s\S]*?)</script>', page_text), start=1):
             try:
                 json.loads(payload)
@@ -802,6 +839,7 @@ def main() -> int:
         "checks": [
             "titles, descriptions, canonical URLs, and one h1 per portal page",
             "Open Graph and BreadcrumbList structured metadata",
+            "one shared home OGP image and summary-large Twitter card per portal page",
             "portal and cross-repository links and fragments",
             "AdSense on the portal top and learning pages, but not informational or book-guide pages",
             "330 video-question mappings without book explanation text",

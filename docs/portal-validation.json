@@ -7,6 +7,7 @@
   "checks": [
     "titles, descriptions, canonical URLs, and one h1 per portal page",
     "Open Graph and BreadcrumbList structured metadata",
+    "one shared home OGP image and summary-large Twitter card per portal page",
     "portal and cross-repository links and fragments",
     "AdSense on the portal top and learning pages, but not informational or book-guide pages",
     "330 video-question mappings without book explanation text",
