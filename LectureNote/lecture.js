@@ -17,21 +17,7 @@
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
   }[char]));
 
-  const clozeMarkup = (answer) => {
-    const safe = escapeHtml(answer.trim());
-    return `<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">${safe}</span></button>`;
-  };
-
-  const renderMarkup = (markup) => markup.replace(/\{\{([^{}]+)\}\}/g, (_, answer) => clozeMarkup(answer));
-
   document.title = `情報Ⅰ Study Atlas｜講義ノート｜${fieldLabels[field] || field}`;
-  const syncText = (selector, value) => {
-    const element = document.querySelector(selector);
-    if (element && element.textContent !== value) element.textContent = value;
-  };
-  syncText("#hero-kicker", page.kicker);
-  syncText("#hero-title", page.title);
-  syncText("#hero-lead", page.lead);
 
   const storedBookmark = bookmarkStore?.get(field) || null;
   const savedBookmark = storedBookmark && page.sections.some((section) => section.id === storedBookmark.sectionId)
@@ -88,20 +74,6 @@
     sectionNav = courseNav.querySelector("#section-nav");
   }
 
-  const sectionMarkup = page.sections.map((section, index) => `
-    <section class="lecture-section" id="${escapeHtml(section.id)}" aria-labelledby="${escapeHtml(section.id)}-title">
-      <header class="section-heading">
-        <span class="section-number">${String(index + 1).padStart(2, "0")}</span>
-        <div>
-          <p class="section-kicker">${escapeHtml(section.kicker)}</p>
-          <h2 id="${escapeHtml(section.id)}-title">${escapeHtml(section.title)}</h2>
-          <p class="section-lead">${escapeHtml(section.lead)}</p>
-        </div>
-        <button class="section-bookmark" type="button" data-section-bookmark="${escapeHtml(section.id)}" aria-pressed="false">しおりを挟む</button>
-      </header>
-      <div class="section-body">${renderMarkup(section.html)}</div>
-    </section>
-  `);
   const staticSections = Array.from(content.children).filter((element) => element.classList.contains("lecture-section"));
   const staticContentIsCurrent = staticSections.length === page.sections.length
     && staticSections.every((element, index) => (
@@ -109,64 +81,16 @@
       && element.querySelector(".section-heading h2")?.textContent === page.sections[index].title
     ));
   if (!staticContentIsCurrent) {
-    content.replaceChildren();
-    await new Promise((resolve) => {
-      let nextIndex = 0;
-      const appendBatch = () => {
-        const template = document.createElement("template");
-        template.innerHTML = sectionMarkup.slice(nextIndex, nextIndex + 1).join("");
-        content.appendChild(template.content);
-        nextIndex += 1;
-        if (nextIndex < sectionMarkup.length) window.requestAnimationFrame(appendBatch);
-        else resolve();
-      };
-      appendBatch();
-    });
+    console.error("静的な講義本文と講義メタデータが一致しません。");
+    return;
   }
 
   const keywordTargets = new Map();
-  const installKeywordTarget = (keyword) => {
-    const existingTarget = document.getElementById(keyword.targetId);
-    if (existingTarget?.closest(".lecture-section")?.id === keyword.sectionId) return existingTarget;
-    const section = document.getElementById(keyword.sectionId);
-    const sectionBody = section?.querySelector(".section-body");
-    if (!sectionBody) return null;
-    const walker = document.createTreeWalker(sectionBody, NodeFilter.SHOW_TEXT, {
-      acceptNode(node) {
-        if (!node.data.includes(keyword.targetText) || node.parentElement?.closest(".keyword-target")) return NodeFilter.FILTER_REJECT;
-        return NodeFilter.FILTER_ACCEPT;
-      }
-    });
-    let remaining = keyword.occurrence || 0;
-    let node;
-    while ((node = walker.nextNode())) {
-      let fromIndex = 0;
-      let matchIndex = node.data.indexOf(keyword.targetText, fromIndex);
-      while (matchIndex >= 0) {
-        if (remaining === 0) {
-          const matchNode = node.splitText(matchIndex);
-          matchNode.splitText(keyword.targetText.length);
-          const target = document.createElement("span");
-          target.id = keyword.targetId;
-          target.className = "keyword-target";
-          target.tabIndex = -1;
-          target.dataset.keywordId = keyword.id;
-          matchNode.replaceWith(target);
-          target.append(matchNode);
-          return target;
-        }
-        remaining -= 1;
-        fromIndex = matchIndex + keyword.targetText.length;
-        matchIndex = node.data.indexOf(keyword.targetText, fromIndex);
-      }
-    }
-    return null;
-  };
-
   keywords.forEach((keyword) => {
-    const target = installKeywordTarget(keyword);
-    if (target) keywordTargets.set(keyword.targetId, target);
-    else console.warn(`重要キーワードの移動先を作成できませんでした: ${keyword.id}`);
+    const target = document.getElementById(keyword.targetId);
+    const targetIsCurrent = target?.closest(".lecture-section")?.id === keyword.sectionId;
+    if (targetIsCurrent) keywordTargets.set(keyword.targetId, target);
+    else console.warn(`重要キーワードの移動先が見つかりませんでした: ${keyword.id}`);
   });
 
   let highlightedTarget = null;

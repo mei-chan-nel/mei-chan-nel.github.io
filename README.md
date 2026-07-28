@@ -71,7 +71,7 @@ python scripts/generate_video_pages.py
 
 ## 講義ノートの再生成
 
-講義本文は、教材ソースから分野別の `LectureNote/lecture-data-*.js` を作り、そのデータから5ページの静的HTMLを作る一方向の生成にしています。公開HTMLへ本文を手作業で二重入力しないでください。
+5ページの静的HTMLを講義本文の正本にしています。`build_lecture_data.mjs` は、静的HTMLに埋め込まれた節・しおり表示・キーワード移動先から、ブラウザの補助機能だけに必要な軽量 `LectureNote/lecture-data-*.js` を生成します。本文をJavaScriptへ複製しないでください。`build_lecture_pages.mjs` は静的HTMLと軽量メタデータの対応、重複ID、未解決の穴抜き記法を読み取り専用で検証します。
 
 ```powershell
 node scripts/build_lecture_data.mjs

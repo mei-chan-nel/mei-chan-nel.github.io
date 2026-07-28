@@ -582,7 +582,7 @@ def main() -> int:
     expected_home_lecture_link = '<a href="./LectureNote/"><strong>講義ノートを読む</strong><span>仕組みから理解</span></a>'
     if top_text.count(expected_home_lecture_link) != 2:
         errors.append("index.html: lecture cards must link to the lecture index with the restored subtitle")
-    for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'navigateToHash(link.getAttribute("href").slice(1))', 'addEventListener("popstate"'):
+    for marker in ("lecture-learning-guide", "lecture-keyword-index", "keywordTargets", "showKeyword", "beginSequentialReading", 'navigateToHash(link.getAttribute("href").slice(1))', 'addEventListener("popstate"'):
         if marker not in lecture_script:
             errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")
     for marker in ("keyword-reading-tools", "ここから順番に読む", "data-keyword-sequential", "keywordTools"):
@@ -590,11 +590,11 @@ def main() -> int:
             errors.append(f"lecture.js: obsolete keyword choice behavior remains: {marker}")
     if lecture_script.count("bookmarkStore?.write(") != 1:
         errors.append("lecture.js: bookmark writes must be limited to the explicit section-bookmark action")
-    lecture_content_text = (ROOT / "LectureNote" / "lecture-content.js").read_text(encoding="utf-8")
-    programming_content_text = (ROOT / "LectureNote" / "programming-content.js").read_text(encoding="utf-8")
-    programming_enrichment_text = (ROOT / "LectureNote" / "programming-enrichment.js").read_text(encoding="utf-8")
-    guide_enrichment_text = (ROOT / "LectureNote" / "guide-enrichment.js").read_text(encoding="utf-8")
-    lecture_visual_text = lecture_content_text + programming_content_text + programming_enrichment_text + guide_enrichment_text
+    lecture_fields = ("society", "digital", "network", "statistics", "programming")
+    lecture_visual_text = "".join(
+        (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
+        for field_name in lecture_fields
+    )
     if lecture_visual_text.count('<figure class="raster-figure"') < 25:
         errors.append("LectureNote: meaningful graph, animation, circuit, or spatial raster figures are missing")
     if lecture_visual_text.count('<figure class="html-figure"') < 12:
@@ -626,7 +626,6 @@ def main() -> int:
     for marker in ("figure-zoom-trigger", "figure-lightbox", "showModal"):
         if marker not in lecture_script:
             errors.append(f"lecture.js: accessible figure enlargement behavior is missing: {marker}")
-    lecture_fields = ("society", "digital", "network", "statistics", "programming")
     generated_lecture_text = ""
     generated_lecture_pages_text = ""
     for field_name in lecture_fields:
@@ -638,19 +637,27 @@ def main() -> int:
         generated_lecture_text += field_text
         if field_text.count('"targetId":"keyword-') != 24:
             errors.append(f"LectureNote/{generated_path.name}: expected 24 curated keyword targets")
+        for forbidden_key in ('"html":', '"kicker":', '"lead":', '"targetText":', '"occurrence":'):
+            if forbidden_key in field_text:
+                errors.append(f"LectureNote/{generated_path.name}: body data remains in metadata: {forbidden_key}")
         page_text = (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
         generated_lecture_pages_text += page_text
         if f'./lecture-data-{field_name}.js' not in page_text:
             errors.append(f"LectureNote/{field_name}.html: field-specific data script is missing")
         if page_text.count('class="lecture-section"') == 0:
             errors.append(f"LectureNote/{field_name}.html: initial HTML has no lecture sections")
-        for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js"):
+        for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js", "lecture-keywords-source.js"):
             if f'<script src="./{obsolete_script}' in page_text:
                 errors.append(f"LectureNote/{field_name}.html: monolithic data script remains: {obsolete_script}")
-    for image_tag in re.findall(r"<img [^>]+>", generated_lecture_text):
-        for attribute in ('width=\\"', 'height=\\"', 'loading=\\"lazy\\"', 'decoding=\\"async\\"', 'alt=\\"'):
+    for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js", "lecture-keywords-source.js"):
+        if (ROOT / "LectureNote" / obsolete_script).exists():
+            errors.append(f"LectureNote: obsolete lecture source remains: {obsolete_script}")
+    for image_tag in re.findall(r"<img [^>]+>", generated_lecture_pages_text):
+        if "../assets/lecture-v2/" not in image_tag:
+            continue
+        for attribute in ('width="', 'height="', 'loading="lazy"', 'decoding="async"', 'alt="'):
             if attribute not in image_tag:
-                errors.append(f"LectureNote: generated image is missing {attribute}: {image_tag[:120]}")
+                errors.append(f"LectureNote: static image is missing {attribute}: {image_tag[:120]}")
     lecture_asset_root = ROOT / "assets" / "lecture-v2"
     lecture_pngs = sorted(lecture_asset_root.rglob("*.png"))
     lecture_webps = sorted(lecture_asset_root.rglob("*.webp"))
@@ -677,10 +684,10 @@ def main() -> int:
             or not all(image.get("pixel_identical") for image in conversion_report.get("images", []))
         ):
             errors.append("LectureNote: 13-image lossless WebP verification is incomplete")
-    if generated_lecture_text.count('<video class=\\"lecture-animation\\"') != 5:
+    if generated_lecture_pages_text.count('<video class="lecture-animation"') != 5:
         errors.append("LectureNote: expected exactly five converted lecture animations")
-    for marker in ('preload=\\"none\\"', 'controls loop muted playsinline', 'data-poster=\\"', 'type=\\"video/webm\\"', 'type=\\"video/mp4\\"'):
-        if marker not in generated_lecture_text:
+    for marker in ('preload="none"', 'controls loop muted playsinline', 'data-poster="', 'type="video/webm"', 'type="video/mp4"'):
+        if marker not in generated_lecture_pages_text:
             errors.append(f"LectureNote: generated animation behavior is missing: {marker}")
     if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
         errors.append("lecture-note.css: figure enlargement styles are missing")
