@@ -570,18 +570,28 @@ def main() -> int:
         if marker in lecture_script:
             errors.append(f"lecture.js: obsolete automatic progress marker remains: {marker}")
     bookmark_script = (ROOT / "assets" / "lecture-bookmark.js").read_text(encoding="utf-8")
-    for marker in ('"info1LectureBookmark:v1"', "stored?.fields", "normalizeRecord(stored)", "const get", "const write"):
+    for marker in ('"info1LectureBookmark:v1"', "stored?.fields", "normalizeRecord(stored)", "const get", "const write", "updatedAt"):
         if marker not in bookmark_script:
             errors.append(f"lecture-bookmark.js: field bookmark marker is missing: {marker}")
     if "info1LectureProgress:v1" in bookmark_script:
         errors.append("lecture-bookmark.js: automatic progress data must not be treated as an intentional bookmark")
     home_learning_script = (ROOT / "assets" / "home-learning.js").read_text(encoding="utf-8")
-    for marker in ("StudyAtlasLectureProgress", "StudyAtlasLectureBookmarks", "data-home-lecture-resume", "前回の続きから読む"):
-        if marker in home_learning_script or marker in top_text:
-            errors.append(f"home lecture link must not use saved progress or bookmarks: {marker}")
-    expected_home_lecture_link = '<a href="./LectureNote/"><strong>講義ノートを読む</strong><span>仕組みから理解</span></a>'
-    if top_text.count(expected_home_lecture_link) != 2:
-        errors.append("index.html: lecture cards must link to the lecture index with the restored subtitle")
+    if "StudyAtlasLectureProgress" in home_learning_script or "info1LectureProgress:v1" in home_learning_script:
+        errors.append("home-learning.js: automatic reading progress must not be a resume candidate")
+    for marker in ("StudyAtlasLectureBookmarks?.readAll()", "chooseCandidate", "questionTime >= lectureTime", "newestLectureCandidate", "前回の問題演習を続ける", "から読む"):
+        if marker not in home_learning_script:
+            errors.append(f"home-learning.js: recency-based resume marker is missing: {marker}")
+    for marker in ("data-home-return-link", "data-home-return-title", "data-home-return-action"):
+        if marker not in top_text:
+            errors.append(f"index.html: resume card marker is missing: {marker}")
+    if top_text.find("./assets/lecture-bookmark.js") > top_text.find("./assets/home-learning.js"):
+        errors.append("index.html: lecture bookmarks must load before the home resume selector")
+    if top_text.count("<span>動きや時間変化を見ながら理解</span>") != 2:
+        errors.append("index.html: video-learning copy must describe motion and time changes")
+    if top_text.count("<span>用語と仕組みを順序立てて確認</span>") != 2:
+        errors.append("index.html: lecture-learning copy must describe ordered concept review")
+    if "仕組みから理解" in top_text:
+        errors.append("index.html: ambiguous duplicate learning copy remains")
     for marker in ("lecture-learning-guide", "lecture-keyword-index", "keywordTargets", "showKeyword", "beginSequentialReading", 'navigateToHash(link.getAttribute("href").slice(1))', 'addEventListener("popstate"'):
         if marker not in lecture_script:
             errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")
@@ -696,6 +706,12 @@ def main() -> int:
             errors.append(f"lecture-note.css: keyword-index style is missing: {marker}")
     if ".keyword-reading-tools" in lecture_stylesheet:
         errors.append("lecture-note.css: obsolete keyword choice UI styles remain")
+    for marker in (".section-bookmark {\n  min-height: 44px", ".lecture-keyword-index__groups a { min-height: 44px", ".mobile-lecture-position__panel a { min-height: 44px"):
+        if marker not in lecture_stylesheet:
+            errors.append(f"lecture-note.css: 44px touch target is missing: {marker}")
+    for marker in (".global-nav a { min-height: 44px", ".tag-link, .keyword-link { min-height: 44px"):
+        if marker not in stylesheet:
+            errors.append(f"site.css: mobile 44px touch target is missing: {marker}")
     for marker in ("touch-action: none", ".figure-lightbox__canvas", ".figure-lightbox__viewport.is-zoomed"):
         if marker not in lecture_stylesheet:
             errors.append(f"lecture-note.css: interactive figure viewer marker is missing: {marker}")

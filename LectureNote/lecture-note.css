@@ -346,7 +346,7 @@ button { font: inherit; }
 .section-heading h2 { margin: 0; font-size: clamp(25px, 3.4vw, 38px); line-height: 1.32; letter-spacing: -0.025em; }
 .section-lead { margin: 12px 0 0; color: var(--muted); font-size: 16px; }
 .section-bookmark {
-  min-height: 42px;
+  min-height: 44px;
   padding: 9px 14px;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -1158,7 +1158,7 @@ button { font: inherit; }
   .brand-mark { width: 36px; height: 36px; }
   .global-nav { width: 100%; padding-top: 7px; justify-content: flex-start; gap: 18px; overflow-x: auto; border-top: 1px solid var(--line); scrollbar-width: none; }
   .global-nav::-webkit-scrollbar { display: none; }
-  .global-nav a { flex: 0 0 auto; }
+  .global-nav a { min-height: 44px; display: inline-flex; align-items: center; flex: 0 0 auto; }
   .horizontal-scroll-cue--global { width: 100%; margin-left: 0; flex: 1 0 auto; }
   .horizontal-scroll-cue.has-overflow .horizontal-scroll-cue__edge { display: flex; opacity: 1; }
   .horizontal-scroll-cue.is-at-start .horizontal-scroll-cue__edge--left,
@@ -1256,7 +1256,7 @@ button { font: inherit; }
   .section-heading > .section-bookmark { grid-area: bookmark; grid-column: auto; }
   .section-bookmark { width: 100%; }
   .lecture-keyword-index__groups { gap: 4px; }
-  .lecture-keyword-index__groups a { min-height: 42px; }
+  .lecture-keyword-index__groups a { min-height: 44px; }
   .mobile-lecture-position {
     position: fixed;
     right: 8px;
@@ -1294,7 +1294,7 @@ button { font: inherit; }
     border-top: 1px solid rgb(255 255 255 / 16%);
   }
   .mobile-lecture-position__panel[hidden] { display: none; }
-  .mobile-lecture-position__panel a { display: grid; grid-template-columns: 56px 1fr; gap: 8px; padding: 10px 9px; color: rgb(255 255 255 / 84%); border-radius: 9px; text-decoration: none; font-size: 13px; }
+  .mobile-lecture-position__panel a { min-height: 44px; display: grid; grid-template-columns: 56px 1fr; align-items: center; gap: 8px; padding: 10px 9px; color: rgb(255 255 255 / 84%); border-radius: 9px; text-decoration: none; font-size: 13px; }
   .mobile-lecture-position__panel a span { color: #b9d3de; font-size: 10px; font-weight: 800; }
   .mobile-lecture-position__panel a.is-active { color: #fff; background: rgb(255 255 255 / 12%); }
   .lecture-back-to-top { right: 14px; bottom: calc(72px + env(safe-area-inset-bottom)); }

@@ -507,7 +507,8 @@ img { max-width: 100%; }
   .global-nav { width: 100%; padding-top: 7px; gap: 18px; overflow-x: auto; border-top: 1px solid var(--line); }
   .global-nav { scrollbar-width: none; }
   .global-nav::-webkit-scrollbar { display: none; }
-  .global-nav a { flex: 0 0 auto; }
+  .global-nav a { min-height: 44px; display: inline-flex; align-items: center; flex: 0 0 auto; }
+  .tag-link, .keyword-link { min-height: 44px; display: inline-flex; align-items: center; }
   .horizontal-scroll-cue--global { width: 100%; margin-left: 0; flex: 1 0 auto; }
   .horizontal-scroll-cue.has-overflow .horizontal-scroll-cue__edge { display: flex; opacity: 1; }
   .horizontal-scroll-cue.is-at-start .horizontal-scroll-cue__edge--left,
