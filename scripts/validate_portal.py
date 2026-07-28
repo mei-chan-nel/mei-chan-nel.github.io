@@ -628,6 +628,7 @@ def main() -> int:
             errors.append(f"lecture.js: accessible figure enlargement behavior is missing: {marker}")
     lecture_fields = ("society", "digital", "network", "statistics", "programming")
     generated_lecture_text = ""
+    generated_lecture_pages_text = ""
     for field_name in lecture_fields:
         generated_path = ROOT / "LectureNote" / f"lecture-data-{field_name}.js"
         if not generated_path.exists():
@@ -638,6 +639,7 @@ def main() -> int:
         if field_text.count('"targetId":"keyword-') != 24:
             errors.append(f"LectureNote/{generated_path.name}: expected 24 curated keyword targets")
         page_text = (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
+        generated_lecture_pages_text += page_text
         if f'./lecture-data-{field_name}.js' not in page_text:
             errors.append(f"LectureNote/{field_name}.html: field-specific data script is missing")
         if page_text.count('class="lecture-section"') == 0:
@@ -649,6 +651,32 @@ def main() -> int:
         for attribute in ('width=\\"', 'height=\\"', 'loading=\\"lazy\\"', 'decoding=\\"async\\"', 'alt=\\"'):
             if attribute not in image_tag:
                 errors.append(f"LectureNote: generated image is missing {attribute}: {image_tag[:120]}")
+    lecture_asset_root = ROOT / "assets" / "lecture-v2"
+    lecture_pngs = sorted(lecture_asset_root.rglob("*.png"))
+    lecture_webps = sorted(lecture_asset_root.rglob("*.webp"))
+    non_poster_pngs = [path for path in lecture_pngs if not path.name.endswith(".poster.png")]
+    if len(lecture_pngs) != 27 or len(non_poster_pngs) != 22 or len(lecture_webps) != 22:
+        errors.append(
+            "LectureNote: optimized lecture asset inventory must contain "
+            "22 PNG fallbacks, 22 WebP sources, and 5 PNG video posters"
+        )
+    for png_path in non_poster_pngs:
+        if not png_path.with_suffix(".webp").is_file():
+            errors.append(f"LectureNote: PNG fallback has no WebP source: {png_path.relative_to(ROOT)}")
+    if generated_lecture_pages_text.count("<picture>") != 22:
+        errors.append("LectureNote: every static lecture PNG must use a WebP picture source")
+    if generated_lecture_pages_text.count('type="image/webp"') != 22:
+        errors.append("LectureNote: static lecture pages are missing WebP source declarations")
+    conversion_report_path = ROOT / "docs" / "lecture-image-conversion.json"
+    if not conversion_report_path.is_file():
+        errors.append("LectureNote: image conversion report is missing")
+    else:
+        conversion_report = json.loads(conversion_report_path.read_text(encoding="utf-8"))
+        if (
+            conversion_report.get("image_count") != 13
+            or not all(image.get("pixel_identical") for image in conversion_report.get("images", []))
+        ):
+            errors.append("LectureNote: 13-image lossless WebP verification is incomplete")
     if generated_lecture_text.count('<video class=\\"lecture-animation\\"') != 5:
         errors.append("LectureNote: expected exactly five converted lecture animations")
     for marker in ('preload=\\"none\\"', 'controls loop muted playsinline', 'data-poster=\\"', 'type=\\"video/webm\\"', 'type=\\"video/mp4\\"'):
@@ -666,6 +694,10 @@ def main() -> int:
             errors.append(f"lecture-note.css: interactive figure viewer marker is missing: {marker}")
     if "figure-zoom-hint" in lecture_script or "figure-zoom-hint" in lecture_stylesheet:
         errors.append("LectureNote: visible enlargement hint must not be shown over figures")
+    book_pages_text = top_text + (ROOT / "books" / "index.html").read_text(encoding="utf-8")
+    book_image_tags = re.findall(r'<img [^>]*assets/books/[^>]+>', book_pages_text)
+    if len(book_image_tags) != 8 or any('decoding="async"' not in tag for tag in book_image_tags):
+        errors.append("Book pages: all eight cover images must use asynchronous decoding")
     if "PDU" in lecture_visual_text:
         errors.append("LectureNote: out-of-scope PDU terminology remains")
     for out_of_scope_logic in ("⊕", "¬"):
