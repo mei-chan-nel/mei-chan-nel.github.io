@@ -127,6 +127,14 @@ def public_url(path: Path) -> str:
     return f"{SITE_ORIGIN}{relative}"
 
 
+def app_public_url(relative: str) -> str:
+    if relative == "index.html":
+        relative = ""
+    elif relative.endswith("/index.html"):
+        relative = relative.removesuffix("index.html")
+    return f"{SITE_ORIGIN}info1-quiz-app/{relative}"
+
+
 def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
@@ -556,7 +564,7 @@ def main() -> int:
     for marker in ("StudyAtlasLectureProgress", "StudyAtlasLectureBookmarks", "data-home-lecture-resume", "前回の続きから読む"):
         if marker in home_learning_script or marker in top_text:
             errors.append(f"home lecture link must not use saved progress or bookmarks: {marker}")
-    expected_home_lecture_link = '<a href="./LectureNote/index.html"><strong>講義ノートを読む</strong><span>仕組みから理解</span></a>'
+    expected_home_lecture_link = '<a href="./LectureNote/"><strong>講義ノートを読む</strong><span>仕組みから理解</span></a>'
     if top_text.count(expected_home_lecture_link) != 2:
         errors.append("index.html: lecture cards must link to the lecture index with the restored subtitle")
     for marker in ("lecture-learning-guide", "lecture-keyword-index", "installKeywordTarget", "showKeyword", "beginSequentialReading", 'readingMode === "sequential"', 'addEventListener("popstate"'):
@@ -692,14 +700,14 @@ def main() -> int:
         if app_report.exists():
             report = json.loads(app_report.read_text(encoding="utf-8"))
             app_paths = [*report.get("learning_pages", []), report.get("related_app_page", "")]
-            expected_urls = [*(public_url(path) for path in page_paths), *(f"{SITE_ORIGIN}info1-quiz-app/{path}" for path in app_paths)]
+            expected_urls = [*(public_url(path) for path in page_paths), *(app_public_url(path) for path in app_paths)]
             if portal_urls != list(dict.fromkeys(expected_urls)):
                 errors.append("sitemap.xml is not synchronized with the question-library build report")
             for obsolete_app_page in (APP_ROOT / "app" / "about.html", APP_ROOT / "app" / "privacy.html"):
                 if obsolete_app_page.exists():
                     errors.append(f"Obsolete app information page still exists: {obsolete_app_page.name}")
             app_index_text = (APP_ROOT / "app" / "index.html").read_text(encoding="utf-8")
-            for expected_href in ("../../index.html", "../../about.html", "../../privacy.html"):
+            for expected_href in ("../../", "../../about.html", "../../privacy.html"):
                 if f'href="{expected_href}"' not in app_index_text:
                     errors.append(f"App footer is missing portal link: {expected_href}")
         else:

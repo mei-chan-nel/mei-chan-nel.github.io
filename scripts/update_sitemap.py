@@ -19,6 +19,14 @@ def public_url(relative: str) -> str:
     return f"{SITE_ORIGIN}{relative}"
 
 
+def app_public_url(relative: str) -> str:
+    if relative == "index.html":
+        relative = ""
+    elif relative.endswith("/index.html"):
+        relative = relative.removesuffix("index.html")
+    return f"{SITE_ORIGIN}info1-quiz-app/{relative}"
+
+
 def read_portal_urls() -> list[str]:
     paths = [
         "index.html",
@@ -61,7 +69,7 @@ def read_app_urls(app_root: Path) -> list[str]:
             target = target / "index.html"
         if not target.is_file():
             raise ValueError(f"Public app path does not exist: {relative}")
-    return [f"{SITE_ORIGIN}info1-quiz-app/{relative}" for relative in paths]
+    return [app_public_url(relative) for relative in paths]
 
 
 def main() -> int:

@@ -191,11 +191,11 @@ def head(
 
 def header(current: str) -> str:
     links = [
-        ("home", "../index.html", "トップページ"),
+        ("home", "../", "トップページ"),
         ("app", "../info1-quiz-app/app/", "学習アプリ"),
-        ("questions", "../info1-quiz-app/questions/index.html", "問題一覧"),
-        ("archive", "./index.html", "動画問題"),
-        ("lecture", "../LectureNote/index.html", "講義ノート"),
+        ("questions", "../info1-quiz-app/questions/", "問題一覧"),
+        ("archive", "./", "動画問題"),
+        ("lecture", "../LectureNote/", "講義ノート"),
         ("study", "../study-guide.html", "勉強法"),
         ("about", "../about.html", "このサイトについて"),
     ]
@@ -207,7 +207,7 @@ def header(current: str) -> str:
     <a class="skip-link" href="#main-content">本文へ移動</a>
     <header class="site-header">
       <div class="header-inner">
-        <a class="brand" href="../index.html">
+        <a class="brand" href="../">
           <span class="brand-mark" aria-hidden="true">I</span>
           <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
@@ -221,13 +221,13 @@ def footer() -> str:
       <div class="footer-grid">
         <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div>
         <nav aria-label="フッターナビゲーション">
-          <a href="../index.html">トップページ</a>
+          <a href="../">トップページ</a>
           <a href="../info1-quiz-app/app/">学習アプリ</a>
-          <a href="../info1-quiz-app/questions/index.html">問題一覧</a>
-          <a href="./index.html">動画問題</a>
-          <a href="../LectureNote/index.html">講義ノート</a>
+          <a href="../info1-quiz-app/questions/">問題一覧</a>
+          <a href="./">動画問題</a>
+          <a href="../LectureNote/">講義ノート</a>
           <a href="../study-guide.html">勉強法</a>
-          <a href="../books/index.html">書籍案内</a>
+          <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
           <a href="../sitemap.html">サイトマップ</a>
@@ -373,7 +373,7 @@ def archive_index(data: dict[str, object]) -> str:
     return f"""{head(title, description, 'archive/')}
 {header('archive')}
     <main id="main-content" class="subpage archive-page">
-      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">動画問題</span></nav>
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">動画問題</span></nav>
       <header class="page-hero compact-hero">
         <p class="eyebrow">VIDEO QUESTION ARCHIVE</p>
         <h1>動画で学ぶ<br />情報Ⅰ一問一答</h1>
@@ -386,7 +386,7 @@ def archive_index(data: dict[str, object]) -> str:
       </section>
       {facet_panel(keyword_counts, groups=primary_keyword_groups(sections))}
       <aside class="content-note archive-policy"><h2>掲載内容について</h2><p>各問には問題文・答え・キーワード・対応するYouTube動画を掲載しています。書籍に収録した解説本文は掲載していません。動画は「解説動画を表示」を押したときだけ読み込まれます。</p></aside>
-      <section class="next-action"><div><p class="eyebrow">MORE QUESTIONS</p><h2>4択問題にも挑戦する</h2><p>完成済みの1,000問を、6分野の問題一覧または知識問題出題アプリで学べます。</p></div><a class="button button-primary" href="../info1-quiz-app/questions/index.html">問題一覧を開く</a></section>
+      <section class="next-action"><div><p class="eyebrow">MORE QUESTIONS</p><h2>4択問題にも挑戦する</h2><p>完成済みの1,000問を、6分野の問題一覧または知識問題出題アプリで学べます。</p></div><a class="button button-primary" href="../info1-quiz-app/questions/">問題一覧を開く</a></section>
     </main>
     {structured}
 {footer()}"""
@@ -429,7 +429,7 @@ def section_page(section: dict[str, object], page_number: int) -> str:
     return f"""{head(title, description, path, video_script=True)}
 {header('archive')}
     <main id="main-content" class="subpage archive-page">
-      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><a href="./index.html">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">{e(section['label'])}</span></nav>
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><a href="./">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">{e(section['label'])}</span></nav>
       <header class="field-hero archive-field-hero">
         <div><p class="eyebrow">VIDEO QUESTIONS · {page_number:02d}/{page_count:02d}</p><h1>{e(section['label'])}</h1><p>Q{first_number}〜Q{last_number}。まず自分で答えを考え、必要なところだけ解説動画で確かめてください。</p></div>
         <dl><div><dt>このページ</dt><dd>{len(page_questions)}問</dd></div><div><dt>分野全体</dt><dd>{len(questions)}問</dd></div></dl>
@@ -519,7 +519,7 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
     return f"""{head(title, description, 'archive/keywords.html', video_script=True, extra_head=extra_head)}
 {header('archive')}
     <main id="main-content" class="subpage archive-page filter-page" data-video-filter data-filter-data="filter-data.json" data-filter-param="keyword">
-      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../index.html">学習トップ</a><span aria-hidden="true">/</span><a href="./index.html">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">キーワードから探す</span></nav>
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><a href="./">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">キーワードから探す</span></nav>
       <section class="page-hero compact-hero">
         <p class="eyebrow">KEYWORD SEARCH · OR FILTER</p>
         <h1>キーワードから<br />動画問題を探す</h1>
@@ -529,7 +529,7 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
       <section class="filter-results" aria-labelledby="filter-results-heading">
         <div class="filter-results-heading"><p class="eyebrow">FILTERED QUESTIONS</p><h2 id="filter-results-heading" data-filter-heading>キーワードを選択してください</h2><p data-filter-summary>{payload['question_count']}問からOR条件で抽出します。</p></div>
         <div class="filter-result-list" data-filter-results></div>
-        <noscript><p class="filter-message">絞り込み機能を利用するにはJavaScriptを有効にしてください。通常の<a href="index.html">動画問題一覧</a>はJavaScriptなしでも読めます。</p></noscript>
+        <noscript><p class="filter-message">絞り込み機能を利用するにはJavaScriptを有効にしてください。通常の<a href="./">動画問題一覧</a>はJavaScriptなしでも読めます。</p></noscript>
       </section>
       {structured}
     </main>

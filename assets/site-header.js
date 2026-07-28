@@ -43,11 +43,11 @@
                 : "";
 
   const navItems = [
-    ["home", siteUrl("index.html"), "トップページ"],
+    ["home", siteUrl(""), "トップページ"],
     ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
-    ["questions", siteUrl("info1-quiz-app/questions/index.html"), "問題一覧"],
-    ["archive", siteUrl("archive/index.html"), "動画問題"],
-    ["lecture", siteUrl("LectureNote/index.html"), "講義ノート"],
+    ["questions", siteUrl("info1-quiz-app/questions/"), "問題一覧"],
+    ["archive", siteUrl("archive/"), "動画問題"],
+    ["lecture", siteUrl("LectureNote/"), "講義ノート"],
     ["study", siteUrl("study-guide.html"), "勉強法"],
     ["about", siteUrl("about.html"), "このサイトについて"],
   ];
@@ -62,7 +62,7 @@
     header.className = "site-header";
     header.innerHTML = `
       <div class="header-inner">
-        <a class="brand" href="${siteUrl("index.html")}">
+        <a class="brand" href="${siteUrl("")}">
           <span class="brand-mark" aria-hidden="true">I</span>
           <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
@@ -90,17 +90,17 @@
     footer.className = "site-footer";
     footer.innerHTML = `
       <div class="footer-grid">
-        <a class="brand footer-brand" href="${siteUrl("index.html")}">
+        <a class="brand footer-brand" href="${siteUrl("")}">
           <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
         <nav aria-label="フッターナビゲーション">
-          <a href="${siteUrl("index.html")}">トップページ</a>
+          <a href="${siteUrl("")}">トップページ</a>
           <a href="${siteUrl("info1-quiz-app/app/")}">学習アプリ</a>
-          <a href="${siteUrl("info1-quiz-app/questions/index.html")}">問題一覧</a>
-          <a href="${siteUrl("archive/index.html")}">動画問題</a>
-          <a href="${siteUrl("LectureNote/index.html")}">講義ノート</a>
+          <a href="${siteUrl("info1-quiz-app/questions/")}">問題一覧</a>
+          <a href="${siteUrl("archive/")}">動画問題</a>
+          <a href="${siteUrl("LectureNote/")}">講義ノート</a>
           <a href="${siteUrl("study-guide.html")}">勉強法</a>
-          <a href="${siteUrl("books/index.html")}">書籍案内</a>
+          <a href="${siteUrl("books/")}">書籍案内</a>
           <a href="${siteUrl("about.html")}">このサイトについて</a>
           <a href="${siteUrl("privacy.html")}">プライバシーポリシー</a>
           <a href="${siteUrl("sitemap.html")}">サイトマップ</a>
