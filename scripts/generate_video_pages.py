@@ -15,6 +15,10 @@ DATA_PATH = ROOT / "data" / "video-questions.json"
 OUTPUT_DIR = ROOT / "archive"
 REPORT_PATH = ROOT / "docs" / "video-library-build.json"
 SITE_ORIGIN = "https://mei-chan-nel.com/"
+OG_IMAGE_URL = f"{SITE_ORIGIN}assets/og/study-atlas-home-og.png"
+OG_IMAGE_ALT = "情報Ⅰ Study Atlasの学習マップと「知識を、ひろげ、つなげる」のメッセージ"
+OG_IMAGE_WIDTH = 1734
+OG_IMAGE_HEIGHT = 907
 PAGE_SIZE = 10
 ADSENSE = """    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>"""
 PUBLIC_SECTION_DEFINITIONS = [
@@ -181,7 +185,15 @@ def head(
     <meta property="og:title" content="{e(title)}" />
     <meta property="og:description" content="{e(description)}" />
     <meta property="og:url" content="{canonical}" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="{OG_IMAGE_URL}" />
+    <meta property="og:image:secure_url" content="{OG_IMAGE_URL}" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="{OG_IMAGE_WIDTH}" />
+    <meta property="og:image:height" content="{OG_IMAGE_HEIGHT}" />
+    <meta property="og:image:alt" content="{OG_IMAGE_ALT}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="{OG_IMAGE_URL}" />
+    <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{canonical}" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026072606" />
