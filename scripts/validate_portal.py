@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import hashlib
 import re
@@ -135,7 +136,21 @@ def app_public_url(relative: str) -> str:
     return f"{SITE_ORIGIN}info1-quiz-app/{relative}"
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Validate the Study Atlas portal.")
+    parser.add_argument(
+        "--app-root",
+        type=Path,
+        default=APP_ROOT,
+        help="Path to the info1-quiz-app checkout (defaults to the legacy sibling directory).",
+    )
+    return parser.parse_args()
+
+
 def main() -> int:
+    global APP_ROOT
+    args = parse_args()
+    APP_ROOT = args.app_root.expanduser().resolve()
     errors: list[str] = []
     warnings: list[str] = []
     video_report_path = ROOT / "docs" / "video-library-build.json"
