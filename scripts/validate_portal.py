@@ -455,7 +455,7 @@ def main() -> int:
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     if app_question_count != 1000 or "1,000" not in top_text:
         errors.append("index.html: completed 1,000-question count is not synchronized")
-    if len(raw_tag_counts) != 606 or len(public_tags) != 243 or "243" not in top_text:
+    if len(raw_tag_counts) != 225 or len(public_tags) != 165 or "165" not in top_text:
         errors.append("index.html: normalized public tag count is not synchronized")
     if "hero-start-button" in top_text or "5問から始める" in top_text:
         errors.append("index.html: redundant hero learning-app button remains")
