@@ -396,6 +396,7 @@ img { max-width: 100%; }
 .tag-challenge-controls { margin: 24px 0; padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border: 1px solid var(--line); border-radius: 14px; background: var(--white); }
 .tag-challenge-controls[hidden] { display: none; }
 .tag-challenge-count-control { display: flex; align-items: center; gap: 12px; }
+.tag-challenge-count-display { display: inline-flex; align-items: baseline; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
 .tag-challenge-count-label { color: var(--ink); font-size: .8rem; font-weight: 800; }
 .tag-challenge-count-value { min-width: 3.4em; color: var(--ink); font-size: 1.15rem; font-weight: 800; line-height: 1.3; }
 .tag-challenge-stepper { display: grid; gap: 4px; }
