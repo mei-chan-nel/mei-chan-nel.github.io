@@ -103,7 +103,7 @@ def keyword_filter_href(keyword: str, question_number: int | None = None) -> str
 def facet_links(counts: Counter[str]) -> str:
     return "".join(
         f'<a class="facet-link" href="{keyword_filter_href(keyword)}" data-facet-value="{e(keyword)}">'
-        f'<span>{e(keyword)}</span><small>{count}問</small></a>'
+        f'<span>{e(keyword)}</span><small data-facet-count>{count}問</small></a>'
         for keyword, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
     )
 
@@ -131,15 +131,8 @@ def facet_panel(
     counts: Counter[str],
     *,
     open_panel: bool = False,
-    searchable: bool = False,
     groups: list[tuple[str, Counter[str]]] | None = None,
 ) -> str:
-    search = (
-        '<label class="facet-search"><span>キーワード内を検索</span>'
-        '<input type="search" data-facet-search autocomplete="off" placeholder="例：2進数、著作権、探索" /></label>'
-        if searchable
-        else ""
-    )
     if groups:
         facet_markup = "".join(
             f'''<details class="facet-group" data-facet-group{(" open" if index == 0 else "")}>
@@ -154,8 +147,8 @@ def facet_panel(
     return f'''<details class="facet-panel"{(" open" if open_panel else "")}>
         <summary>キーワード一覧から選ぶ <span>{len(counts)}種類</span></summary>
         <div class="facet-panel-body">
-          <p>キーワードは主に関連する分野へ整理しています。この一覧では複数選択のOR検索、各問題に付くキーワードからはその語だけの検索になります。</p>
-          <div class="facet-tools">{search}<a class="facet-clear" href="keywords.html" data-filter-clear>選択を解除</a></div>
+          <p>キーワードは主に関連する分野へ整理しています。この一覧では複数選択のAND検索、各問題に付くキーワードからはその語だけの検索になります。</p>
+          <div class="facet-tools"><a class="facet-clear" href="keywords.html" data-filter-clear>選択を解除</a></div>
           <div class="facet-groups" data-facet-groups>{facet_markup}</div>
         </div>
       </details>'''
@@ -483,7 +476,7 @@ def build_filter_payload(sections: list[dict[str, object]]) -> dict[str, object]
         "generated_on": date.today().isoformat(),
         "question_count": len(items),
         "keyword_count": len(keyword_counts),
-        "match_mode": "OR",
+        "match_mode": "AND",
         "questions": items,
     }
 
@@ -505,7 +498,7 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
     title = "情報Ⅰ Study Atlas｜動画問題｜キーワード検索"
     description = (
         f"情報Ⅰの動画付き一問一答{payload['question_count']}問を{payload['keyword_count']}種類のキーワードから検索。"
-        "複数キーワードはOR条件で抽出し、答えと解説動画まで確認できます。"
+        "複数キーワードはAND条件で抽出し、答えと解説動画まで確認できます。"
     )
     structured = structured_data(
         {
@@ -533,13 +526,13 @@ def keyword_filter_page(payload: dict[str, object]) -> str:
     <main id="main-content" class="subpage archive-page filter-page" data-video-filter data-filter-data="filter-data.json" data-filter-param="keyword">
       <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><a href="./">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">キーワードから探す</span></nav>
       <section class="page-hero compact-hero">
-        <p class="eyebrow">KEYWORD SEARCH · OR FILTER</p>
+        <p class="eyebrow">KEYWORD SEARCH · AND FILTER</p>
         <h1>キーワードから<br />動画問題を探す</h1>
-        <p>調べたいキーワードを選ぶと、その語を含む情報Ⅰの問題を抽出します。複数選択時は、いずれか一つ以上を含む問題を表示します。</p>
+        <p>調べたいキーワードを選ぶと、その語を含む情報Ⅰの問題を抽出します。複数選択時は、すべてを含む問題を表示します。</p>
       </section>
-      {facet_panel(keyword_counts, open_panel=True, searchable=True, groups=primary_keyword_groups(filter_sections))}
+      {facet_panel(keyword_counts, open_panel=True, groups=primary_keyword_groups(filter_sections))}
       <section class="filter-results" aria-labelledby="filter-results-heading">
-        <div class="filter-results-heading"><p class="eyebrow">FILTERED QUESTIONS</p><h2 id="filter-results-heading" data-filter-heading>キーワードを選択してください</h2><p data-filter-summary>{payload['question_count']}問からOR条件で抽出します。</p></div>
+        <div class="filter-results-heading"><p class="eyebrow">FILTERED QUESTIONS</p><h2 id="filter-results-heading" data-filter-heading>キーワードを選択してください</h2><p data-filter-summary>{payload['question_count']}問からAND条件で絞り込みます。</p></div>
         <div class="filter-result-list" data-filter-results></div>
         <noscript><p class="filter-message">絞り込み機能を利用するにはJavaScriptを有効にしてください。通常の<a href="./">動画問題一覧</a>はJavaScriptなしでも読めます。</p></noscript>
       </section>
@@ -600,7 +593,7 @@ def main() -> int:
         "keyword_count": filter_payload["keyword_count"],
         "keyword_filter_page": "archive/keywords.html",
         "keyword_filter_data": "archive/filter-data.json",
-        "filter_match_mode": "OR",
+        "filter_match_mode": "AND",
         "youtube_direct_links_published": False,
         "video_viewer_aspect_ratio": "9:16",
         "programming_code_blocks": sum(

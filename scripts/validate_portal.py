@@ -417,17 +417,19 @@ def main() -> int:
         if keyword_text.count('class="facet-group"') != 4:
             errors.append("keywords.html: keywords must be grouped into four learning fields")
         if "data-video-filter" not in keyword_text or 'data-filter-param="keyword"' not in keyword_text:
-            errors.append("keywords.html: OR filter configuration is missing")
+            errors.append("keywords.html: AND filter configuration is missing")
         payload = json.loads(keyword_data_path.read_text(encoding="utf-8"))
         if payload.get("question_count") != len(video_questions) or payload.get("keyword_count") != len(expected_keywords):
             errors.append("archive/filter-data.json: question or keyword counts are invalid")
-        if payload.get("match_mode") != "OR" or len(payload.get("questions", [])) != len(video_questions):
-            errors.append("archive/filter-data.json: OR filter payload is invalid")
+        if payload.get("match_mode") != "AND" or len(payload.get("questions", [])) != len(video_questions):
+            errors.append("archive/filter-data.json: AND filter payload is invalid")
         keyword_script = keyword_script_path.read_text(encoding="utf-8")
         if "URLSearchParams" not in keyword_script:
             errors.append("video-filter.js: URL-based multi-keyword filter is missing")
         if "focusNumber" not in keyword_script or "scrollIntoView" not in keyword_script:
             errors.append("video-filter.js: source-question prioritization or result scrolling is missing")
+        if "values.every" not in keyword_script or "data-facet-count" not in keyword_script:
+            errors.append("video-filter.js: AND matching or dynamic facet counts are missing")
     stylesheet = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
     if ".question-code" not in stylesheet or "white-space: pre" not in stylesheet or "overflow-x: auto" not in stylesheet:
         errors.append("site.css: non-wrapping horizontally scrollable code-block styles are missing")
@@ -847,7 +849,7 @@ def main() -> int:
             "controlled 90-keyword taxonomy with no one-question-only keywords",
             "privacy-enhanced click-to-load YouTube embeds",
             "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
-            "linked keywords, complete keyword index, and multi-keyword OR filtering",
+            "linked keywords, complete keyword index, and multi-keyword AND filtering",
             "four-field keyword grouping and source-question-first single-keyword navigation",
             "site-specific information-I study guide with app repetition, programming videos, lecture notes, and official references",
             "top-page section order, counts, linked app CTA, six app fields, four video fields, five lecture fields, and four responsive book rows",
