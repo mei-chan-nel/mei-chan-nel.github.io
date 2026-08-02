@@ -10,7 +10,6 @@
   const resultsSection = root.querySelector(".filter-results");
   const heading = root.querySelector("[data-filter-heading]");
   const summary = root.querySelector("[data-filter-summary]");
-  const search = root.querySelector("[data-facet-search]");
   const clear = root.querySelector("[data-filter-clear]");
   let payload = null;
   let selected = [];
@@ -132,6 +131,23 @@
     return [...values];
   };
 
+  const matchesSelection = (question, values) =>
+    values.every((value) => question.keywords.includes(value));
+
+  const countMatches = (values) =>
+    payload ? payload.questions.filter((question) => matchesSelection(question, values)).length : null;
+
+  const syncFacetVisibility = () => {
+    root.querySelectorAll("[data-facet-value]").forEach((link) => {
+      const hasResults = link.dataset.filterZero !== "true";
+      link.hidden = !hasResults;
+    });
+    root.querySelectorAll("[data-facet-group]").forEach((group) => {
+      const visible = [...group.querySelectorAll(".facet-link")].some((link) => !link.hidden);
+      group.hidden = !visible;
+    });
+  };
+
   const syncFacetLinks = () => {
     root.querySelectorAll("[data-facet-value]").forEach((link) => {
       const value = link.dataset.facetValue;
@@ -139,11 +155,28 @@
       link.classList.toggle("is-selected", active);
       link.setAttribute("aria-pressed", String(active));
       link.href = filterHref(toggledSelection(value));
+      const count = link.querySelector("[data-facet-count]");
+      if (count) {
+        if (active) {
+          count.hidden = true;
+          link.dataset.filterZero = "false";
+        } else {
+          const matches = countMatches([...selected, value]);
+          if (matches !== null) {
+            count.textContent = `${matches}問`;
+            link.dataset.filterZero = String(matches === 0);
+          } else {
+            link.dataset.filterZero = "false";
+          }
+          count.hidden = false;
+        }
+      }
     });
     if (clear) {
       clear.hidden = selected.length === 0;
       clear.href = filterHref([]);
     }
+    syncFacetVisibility();
   };
 
   const appendKeywords = (container, keywords, questionNumber) => {
@@ -220,13 +253,11 @@
     if (!payload) return;
     if (selected.length === 0) {
       heading.textContent = "キーワードを選択してください";
-      summary.textContent = `${payload.question_count}問からOR条件で抽出します。`;
+      summary.textContent = `${payload.question_count}問からAND条件で絞り込みます。`;
       results.append(element("p", "filter-message", "上の一覧から、学習したい用語を選んでください。"));
       return;
     }
-    const matches = payload.questions.filter((question) =>
-      question.keywords.some((keyword) => selected.includes(keyword)),
-    );
+    const matches = payload.questions.filter((question) => matchesSelection(question, selected));
     if (focusNumber !== null) {
       const originIndex = matches.findIndex((question) => question.number === focusNumber);
       if (originIndex > 0) matches.unshift(...matches.splice(originIndex, 1));
@@ -235,7 +266,7 @@
       document.createTextNode(`「${selected.join("」「")}」の問題`),
       element("span", "filter-hit-count", `${matches.length}問`),
     );
-    summary.textContent = `${selected.length}キーワードのOR検索で${matches.length}問が見つかりました。`;
+    summary.textContent = `${selected.length}キーワードのAND検索で${matches.length}問が見つかりました。`;
     if (matches.length === 0) {
       results.append(element("p", "filter-message", "条件に合う問題はありません。選び直してください。"));
       return;
@@ -265,20 +296,6 @@
       setSelection([]);
     }
   });
-
-  if (search) {
-    search.addEventListener("input", () => {
-      const query = search.value.trim().toLocaleLowerCase("ja");
-      root.querySelectorAll(".facet-links > .facet-link").forEach((link) => {
-        link.hidden = Boolean(query) && !link.dataset.facetValue.toLocaleLowerCase("ja").includes(query);
-      });
-      root.querySelectorAll("[data-facet-group]").forEach((group) => {
-        const visible = [...group.querySelectorAll(".facet-link")].some((link) => !link.hidden);
-        group.hidden = Boolean(query) && !visible;
-        if (query && visible) group.open = true;
-      });
-    });
-  }
 
   window.addEventListener("popstate", applyLocationState);
   window.addEventListener("hashchange", applyLocationState);
