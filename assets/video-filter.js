@@ -137,6 +137,34 @@
   const countMatches = (values) =>
     payload ? payload.questions.filter((question) => matchesSelection(question, values)).length : null;
 
+  const sortFacetLinks = () => {
+    const selectedOrder = new Map(selected.map((value, index) => [value, index]));
+    root.querySelectorAll("[data-facet-links], [data-facet-list]").forEach((container) => {
+      const links = Array.from(container.children)
+        .filter((child) => child.matches("[data-facet-value]"))
+        .map((link, index) => ({
+          link,
+          index,
+          value: String(link.dataset.facetValue || "").trim(),
+          matchCount: Number(link.dataset.filterMatchCount),
+        }));
+
+      links.sort((left, right) => {
+        const leftSelected = selectedOrder.has(left.value);
+        const rightSelected = selectedOrder.has(right.value);
+        if (leftSelected !== rightSelected) return leftSelected ? -1 : 1;
+        if (leftSelected && rightSelected) {
+          return selectedOrder.get(left.value) - selectedOrder.get(right.value) || left.index - right.index;
+        }
+        const leftCount = Number.isFinite(left.matchCount) ? left.matchCount : -1;
+        const rightCount = Number.isFinite(right.matchCount) ? right.matchCount : -1;
+        return rightCount - leftCount || left.index - right.index;
+      });
+
+      links.forEach(({ link }) => container.append(link));
+    });
+  };
+
   const syncFacetVisibility = () => {
     root.querySelectorAll("[data-facet-value]").forEach((link) => {
       const hasResults = link.dataset.filterZero !== "true";
@@ -164,8 +192,10 @@
           const matches = countMatches([...selected, value]);
           if (matches !== null) {
             count.textContent = `${matches}問`;
+            link.dataset.filterMatchCount = String(matches);
             link.dataset.filterZero = String(matches === 0);
           } else {
+            delete link.dataset.filterMatchCount;
             link.dataset.filterZero = "false";
           }
           count.hidden = false;
@@ -176,6 +206,7 @@
       clear.hidden = selected.length === 0;
       clear.href = filterHref([]);
     }
+    sortFacetLinks();
     syncFacetVisibility();
   };
 
