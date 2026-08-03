@@ -442,22 +442,37 @@ def main() -> int:
 
     app_questions = json.loads((APP_ROOT / "data" / "questions" / "completed_questions.json").read_text(encoding="utf-8"))
     app_question_count = len(app_questions)
+    app_validation_path = APP_ROOT / "docs" / "reports" / "validation.json"
+    app_validation = json.loads(app_validation_path.read_text(encoding="utf-8")) if app_validation_path.is_file() else {}
+    minimum_public_tag_questions = int(app_validation.get("minimum_public_tag_questions", 1))
+    excluded_public_tags = {
+        str(tag).strip()
+        for tag in app_validation.get("excluded_public_tags", [])
+        if str(tag).strip()
+    }
     raw_tag_counts = Counter(
         str(tag).strip()
         for question in app_questions
         for tag in question.get("tags", [])
         if str(tag).strip()
     )
-    public_tags = {tag for tag, count in raw_tag_counts.items() if count >= 4}
+    public_tags = {
+        tag
+        for tag, count in raw_tag_counts.items()
+        if count >= minimum_public_tag_questions and tag not in excluded_public_tags
+    }
     public_tags.update(
         tag
         for tag in ("デジタル署名", "公開鍵暗号方式", "デジタル", "Firewall", "JavaScript")
         if raw_tag_counts[tag]
     )
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
-    if app_question_count != 1000 or "1,000" not in top_text:
-        errors.append("index.html: completed 1,000-question count is not synchronized")
-    if len(raw_tag_counts) != 225 or len(public_tags) != 165 or "165" not in top_text:
+    question_count_text = f"{app_question_count:,}"
+    public_tag_count = len(public_tags)
+    public_tag_count_text = f"{public_tag_count:,}"
+    if question_count_text not in top_text:
+        errors.append("index.html: completed-question count is not synchronized")
+    if public_tag_count_text not in top_text:
         errors.append("index.html: normalized public tag count is not synchronized")
     if "hero-start-button" in top_text or "5問から始める" in top_text:
         errors.append("index.html: redundant hero learning-app button remains")
