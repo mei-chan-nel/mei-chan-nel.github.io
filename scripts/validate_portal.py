@@ -245,6 +245,11 @@ def main() -> int:
     if (ROOT / "docs" / "portal-validation.json").exists():
         errors.append("obsolete docs/portal-validation.json remains; use docs/reports/portal-validation.json")
     genre_counts = {genre["id"]: len(genre.get("numbers", [])) for genre in genres}
+    genre_field_ids = {
+        genre.get("id"): field.get("id")
+        for field in fields
+        for genre in field.get("genres", [])
+    }
     rendered_normal: list[int] = []
     for genre in genres:
         path = archive_dir / f"{genre['id']}.html"
@@ -258,6 +263,15 @@ def main() -> int:
         rendered_normal.extend(ids)
         if "video-genre-back-link" not in text:
             errors.append(f"archive/{genre['id']}.html: the standalone 一覧へ link is missing")
+        top_heading = '<h2 id="genre-navigation-top-heading">テーマ</h2>'
+        bottom_heading = '<h2 id="genre-navigation-bottom-heading">分野</h2>'
+        if top_heading not in text or bottom_heading not in text:
+            errors.append(f"archive/{genre['id']}.html: theme/field navigation headings are incorrect")
+        has_course_link = 'class="video-genre-course-link"' in text
+        if genre_field_ids.get(genre.get("id")) == "programming" and not has_course_link:
+            errors.append(f"archive/{genre['id']}.html: programming shortest-course link is missing")
+        if genre_field_ids.get(genre.get("id")) != "programming" and has_course_link:
+            errors.append(f"archive/{genre['id']}.html: non-programming page has a shortest-course link")
         if any(marker in text for marker in ("video-question-jump", "問題番号", "ジャンルを移動", "一覧へ戻る", "page-direction", "前後のジャンル", "archive-field-hero")):
             errors.append(f"archive/{genre['id']}.html: obsolete video navigation or hero markup remains")
         if "video-keywords" in text or "keyword-link" in text or "keywords.html" in text:
@@ -271,7 +285,7 @@ def main() -> int:
     course_html_ids = re.findall(r'(?:^|\s)id="([^"]+)"', course_text)
     if len(course_html_ids) != len(set(course_html_ids)):
         errors.append("programming-shortest-course.html: duplicate HTML IDs remain")
-    if "video-genre-back-link" not in course_text or any(marker in course_text for marker in ("video-question-jump", "問題番号", "一覧へ戻る", "page-direction", "前後のジャンル", "archive-field-hero")):
+    if "video-genre-back-link" not in course_text or '<h2 id="course-navigation-heading">テーマ</h2>' not in course_text or 'class="video-genre-course-link"' not in course_text or any(marker in course_text for marker in ("video-question-jump", "問題番号", "一覧へ戻る", "page-direction", "前後のジャンル", "archive-field-hero")):
         errors.append("programming-shortest-course.html: obsolete video navigation or hero markup remains")
 
     report_path = ROOT / "docs" / "video-library-build.json"

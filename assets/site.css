@@ -263,6 +263,9 @@ img { max-width: 100%; }
 .video-genre-links a { padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font-size: .7rem; text-decoration: none; }
 .video-genre-links a:hover, .video-genre-links a[aria-current="page"] { border-color: var(--ink); color: var(--white); background: var(--ink); }
 .video-genre-links a:focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+.video-genre-course-link { margin: 12px 0 0 !important; padding-top: 10px; border-top: 1px solid #dbe6e2; }
+.video-genre-course-link a { display: inline-block; padding: 4px 10px; border: 1px solid var(--mint); border-radius: 999px; color: var(--mint-strong); background: #f3f8f5; font-size: .72rem; font-weight: 800; text-decoration: none; }
+.video-genre-course-link a:hover, .video-genre-course-link a:focus-visible { border-color: var(--mint-strong); color: var(--white); background: var(--mint-strong); }
 .video-genre-back-link { margin: 12px 0 0 !important; }
 .video-genre-back-link a { display: inline-block; padding-bottom: 1px; color: var(--coral-strong); font-size: .72rem; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--coral); }
 .video-genre-back-link a:hover, .video-genre-back-link a:focus-visible { color: var(--ink); border-color: var(--ink); }
