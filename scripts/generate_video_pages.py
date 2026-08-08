@@ -271,9 +271,14 @@ def genre_nav(genre: dict[str, object], genres: list[dict[str, object]], positio
         for item in same_field
     )
     heading_id = f"genre-navigation-{position}-heading"
+    heading_label = "テーマ" if position == "top" else "分野"
+    course_link = ""
+    if genre["field_id"] == "programming" and position == "top":
+        course_link = '<p class="video-genre-course-link"><a href="programming-shortest-course.html">最短学習</a></p>'
     return f'''<section class="video-genre-navigation" aria-labelledby="{heading_id}">
-        <h2 id="{heading_id}">分野</h2>
+        <h2 id="{heading_id}">{heading_label}</h2>
         <div class="video-genre-links">{same_field_links}</div>
+        {course_link}
         <p class="video-genre-back-link"><a href="./">一覧へ</a></p>
       </section>'''
 
@@ -285,8 +290,9 @@ def course_nav(genres: list[dict[str, object]]) -> str:
         for genre in programming_genres
     )
     return f'''<section class="video-genre-navigation" aria-labelledby="course-navigation-heading">
-        <h2 id="course-navigation-heading">分野</h2>
+        <h2 id="course-navigation-heading">テーマ</h2>
         <div class="video-genre-links">{genre_links}</div>
+        <p class="video-genre-course-link"><a href="programming-shortest-course.html" aria-current="page">最短学習</a></p>
         <p class="video-genre-back-link"><a href="./">一覧へ</a></p>
       </section>'''
 
