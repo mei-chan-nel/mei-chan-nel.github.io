@@ -1,141 +1,67 @@
 # 情報Ⅰ Study Atlas — ポータル
 
-`https://mei-chan-nel.com/` で公開するサイト全体の入口です。
+`https://mei-chan-nel.com/` の入口、講義ノート、解説動画、書籍案内、サイト情報を管理するリポジトリです。学習アプリとタグ検索のデータ・ページ生成は、隣接する [`info1-quiz-app`](https://github.com/mei-chan-nel/info1-quiz-app) で管理します。
 
-このリポジトリでは次を管理します。
+## 現在の公開構成
 
-- 学習ポータルトップ
-- 共通テスト「情報Ⅰ」の勉強法
-- 動画で学ぶ一問一答330問
-- Kindle問題集4冊の紹介
-- このサイトについて
-- 全体プライバシーポリシー
-- 共通デザイン
-- ホスト直下の `ads.txt` と `robots.txt`
-- ポータルとアプリ／問題一覧をまとめたサイトマップ
-- フッターから利用できるHTMLサイトマップ
-- AdSense再審査の設定・検証記録
+- トップページ：ファーストビュー、学習アプリ、3つの学習導線、使い方・書籍案内。
+- 解説動画：5分野・21ジャンルの通常ページ（330問）と、プログラミング最短学習コース（27問）。各問題の動画はクリック時に読み込みます。
+- 講義ノート：情報社会、デジタル、ネットワーク、統計、プログラミングの5分野。
+- 問題検索：`/info1-quiz-app/questions/` のタグAND検索（1,438問・229タグ）。
 
-学習アプリ、問題データ、問題一覧ページは、別リポジトリ [`info1-quiz-app`](https://github.com/mei-chan-nel/info1-quiz-app) で管理します。
-
-## フォルダ構成
+## 主なファイル
 
 ```text
-index.html
-study-guide.html
-about.html
-privacy.html
-sitemap.html
-archive/
-  index.html
-  <4分野・10問区切りの生成ページ>.html
-books/
-  index.html
-assets/
-  site.css
-  favicon.svg
-  video-embeds.js
-  video-filter.js
-  books/
-    <書影4点>.jpg
-data/
-  video-questions.json
-docs/
-  ADSENSE_CONFIGURATION.md
-  IMPLEMENTATION_LOG.md
-  REVIEW_READINESS.md
-scripts/
-  build_lecture_data.mjs
-  build_lecture_pages.mjs
-  import_video_questions.py
-  rebuild_video_keywords.py
-  generate_video_pages.py
-  update_sitemap.py
-  validate_portal.py
-ads.txt
-robots.txt
-sitemap.xml
+index.html                 ポータルトップ
+archive/                   動画一覧・21ジャンル・最短コース
+LectureNote/               講義ノート5分野
+books/                     書籍案内
+assets/site.css            共通デザイン
+assets/video-embeds.js     クリック時の動画埋め込み
+assets/home-learning.js    学習履歴サマリー
+data/video-questions.json  問題・答え・動画情報
+data/video-curriculum.json 5分野・21ジャンル・最短コースの正本
+scripts/generate_video_pages.py
+scripts/update_sitemap.py
+scripts/validate_portal.py
 ```
 
-## 動画問題の再生成
+## 動画ページの再生成
 
-公開用の `data/video-questions.json` には、問題・答え・監査済みキーワード・動画情報だけを保存し、原本Excelの解説本文は保存しません。原本Excelのキーワード列は品質が一定でないためインポートせず、全330問を問題文・正答・分類・動画題名から個別に割り当てます。原本や動画対応を更新するときだけ、読み取り環境で次を実行します。
+原本と動画メタデータを更新した場合は、次の順で実行します。キーワード専用データや検索ページは現在の構成にありません。
 
 ```powershell
 python scripts/import_video_questions.py <問題集.xlsx> <YouTube公開メタデータ.json>
-python scripts/rebuild_video_keywords.py
 python scripts/generate_video_pages.py
 ```
 
-通常のHTML再生成は `python scripts/generate_video_pages.py` だけで行えます。キーワードは90種類の統制語彙へ整理し、すべて2問以上に関連付けます。出現数が4問以下のキーワードも非表示にせず一覧へ掲載します。特にプログラミングは学習単位を細かく保ちます。割り当ての根拠・出現数・データハッシュは `docs/video-keyword-audit.json`、HTMLの生成記録は `docs/video-library-build.json` に保存します。
+通常の分類・本文の変更は `data/video-curriculum.json` を編集してから `python scripts/generate_video_pages.py` を実行します。生成時にQ1〜Q330の重複、21ジャンルの網羅性、5分野の件数、最短コースの順序を検証します。
 
-## 講義ノートの再生成
-
-5ページの静的HTMLを講義本文の正本にしています。`build_lecture_data.mjs` は、静的HTMLに埋め込まれた節・しおり表示・キーワード移動先から、ブラウザの補助機能だけに必要な軽量 `LectureNote/lecture-data-*.js` を生成します。本文をJavaScriptへ複製しないでください。`build_lecture_pages.mjs` は静的HTMLと軽量メタデータの対応、重複ID、未解決の穴抜き記法を読み取り専用で検証します。
+## 講義ノートとサイトマップ
 
 ```powershell
 node scripts/build_lecture_data.mjs
 node scripts/build_lecture_pages.mjs
-```
-
-生成物が元データと一致しているかは、書き換えを行わない次のコマンドで確認できます。
-
-```powershell
-node scripts/build_lecture_data.mjs --check
-node scripts/build_lecture_pages.mjs --check
-```
-
-## サイトマップ更新
-
-ローカルで2リポジトリが同じ親フォルダにある場合は、アプリ側の問題一覧ビルド記録を取り込んで全体サイトマップを更新できます。
-
-```powershell
-python scripts/update_sitemap.py
-```
-
-別の場所にある場合は明示します。
-
-```powershell
 python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリルート>
 ```
+
+`--check` を付けると生成物を変更せず整合性を検査できます。サイトマップはポータルとアプリのビルドレポートから、現行の公開URLだけを組み立てます。
 
 ## 検証
 
 ```powershell
-python scripts/validate_portal.py
+python scripts/validate_portal.py --app-root <info1-quiz-appのリポジトリルート>
+python scripts/validate_study_atlas.py --portal-root . --app-root <info1-quiz-appのリポジトリルート>
 ```
 
-検証はポータル48ページ、広告コード範囲、内部リンク、SEOメタ情報、構造化データ、静的講義本文、タグ／キーワードAND検索、動画対応、解説本文の非掲載、`ads.txt`、`robots.txt`、全体サイトマップを確認します。同じ親フォルダにアプリリポジトリがある場合は、問題一覧ビルド記録との一致も確認します。
+ポータル検証では、動画の数値・URL・SEOメタデータ・JSON-LD・パンくず・内部リンク・トップ構成・動画キーワード機能の不在・サイトマップ同期を確認します。統合検証では、アプリの1,438問・229タグ、タグAND検索、アプリ復帰URL、学習アプリ本体の保護ハッシュも確認します。
 
-2リポジトリをまとめて検証するときは、対象を明示します。省略時は従来どおり隣接する
-`info1-quiz-app` を使用します。`--portal-ref` と `--app-ref` を指定すると、各refが現在の
-HEADと一致することも検証します。実行時には両リポジトリの絶対パス、ブランチ、HEAD、
-remote、dirty状態が表示されます。
-
-```powershell
-python scripts/validate_study_atlas.py `
-  --portal-root <mei-chan-nel.github.ioのリポジトリルート> `
-  --app-root <info1-quiz-appのリポジトリルート> `
-  --portal-ref HEAD `
-  --app-ref HEAD
-```
-
-GitHub Actionsの `Integrated Study Atlas validation` も両リポジトリを同じジョブ内へ
-チェックアウトし、同じ統合検証を実行します。別refを組み合わせる場合は
-`workflow_dispatch` の入力で相手側のrefを指定してください。両リポジトリが公開されて
-いない環境では、Actionsのcheckout権限または読み取り用トークンの設定が必要です。
-
-## 公開
-
-GitHub Pagesの公開元は `main` ブランチのリポジトリルートです。
+## 公開URL
 
 ```text
 https://mei-chan-nel.com/
-```
-
-問題一覧とアプリは次のパスへリンクします。
-
-```text
 https://mei-chan-nel.com/info1-quiz-app/questions/
 https://mei-chan-nel.com/info1-quiz-app/app/
 ```
+
+公開元は `main` ブランチのリポジトリルートです。

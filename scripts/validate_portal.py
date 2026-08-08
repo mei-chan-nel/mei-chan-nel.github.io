@@ -2,137 +2,107 @@ from __future__ import annotations
 
 import argparse
 import json
-import hashlib
 import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import urlsplit
 
 
 ROOT = Path(__file__).resolve().parents[1]
 APP_ROOT = ROOT.parent / "info1-quiz-app"
-REPORT_PATH = ROOT / "docs" / "portal-validation.json"
-AD_MARKER = "pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
+REPORT_PATH = ROOT / "docs" / "reports" / "portal-validation.json"
 SITE_ORIGIN = "https://mei-chan-nel.com/"
-OG_IMAGE_URL = f"{SITE_ORIGIN}assets/og/study-atlas-home-og.png"
-OG_IMAGE_ALT = "情報Ⅰ Study Atlasの学習マップと「知識を、ひろげ、つなげる」のメッセージ"
-OG_IMAGE_WIDTH = "1734"
-OG_IMAGE_HEIGHT = "907"
-
-
-def normalized_text_sha256(path: Path) -> str:
-    content = path.read_bytes().replace(b"\r\n", b"\n")
-    return hashlib.sha256(content).hexdigest()
+EXPECTED_FIELD_GENRES = {
+    "information-society": ["information-society-morals", "information-society-intellectual-property"],
+    "information-design": ["information-design-communication", "information-design-web", "information-design-organization"],
+    "digital": ["digital-calculation", "digital-logic-circuits", "digital-data", "digital-computers"],
+    "network": ["network-fundamentals", "network-protocols", "network-security", "network-information-systems", "network-databases", "network-safety"],
+    "programming": ["programming-variables-arrays", "programming-branches", "programming-loops", "programming-search-sort", "programming-functions", "programming-simulation"],
+}
+EXPECTED_GENRE_NUMBERS = {
+    "information-society-morals": list(range(1, 8)),
+    "information-society-intellectual-property": list(range(8, 33)),
+    "information-design-communication": list(range(33, 42)),
+    "information-design-web": list(range(42, 51)),
+    "information-design-organization": list(range(51, 66)),
+    "digital-calculation": list(range(66, 90)) + list(range(123, 126)),
+    "digital-logic-circuits": list(range(90, 96)),
+    "digital-data": list(range(96, 105)),
+    "digital-computers": list(range(105, 123)),
+    "network-fundamentals": list(range(126, 161)),
+    "network-protocols": list(range(161, 176)),
+    "network-security": list(range(176, 184)),
+    "network-information-systems": list(range(184, 195)),
+    "network-databases": list(range(195, 209)),
+    "network-safety": list(range(209, 231)),
+    "programming-variables-arrays": list(range(231, 252)),
+    "programming-branches": list(range(252, 270)),
+    "programming-loops": list(range(270, 310)),
+    "programming-search-sort": list(range(310, 318)),
+    "programming-functions": list(range(318, 323)),
+    "programming-simulation": list(range(323, 331)),
+}
 
 
 class PageParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self.in_title = False
-        self.title_parts: list[str] = []
-        self.description = ""
+        self.title = ""
+        self._in_title = False
+        self.h1_count = 0
         self.canonical = ""
         self.og_url = ""
-        self.og_title = ""
-        self.meta_properties: dict[str, list[str]] = {}
-        self.meta_names: dict[str, list[str]] = {}
-        self.h1_count = 0
+        self.description = ""
         self.links: list[str] = []
-        self.assets: list[str] = []
-        self.ids: set[str] = set()
-        self.id_counts: Counter[str] = Counter()
+        self.json_ld: list[str] = []
+        self._json_ld_depth = 0
+        self._json_ld_parts: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         values = dict(attrs)
-        if tag == "meta":
-            content = values.get("content") or ""
-            if values.get("property"):
-                self.meta_properties.setdefault(values["property"], []).append(content)
-            if values.get("name"):
-                self.meta_names.setdefault(values["name"], []).append(content)
         if tag == "title":
-            self.in_title = True
-        if tag == "meta" and values.get("name") == "description":
-            self.description = values.get("content") or ""
-        if tag == "meta" and values.get("property") == "og:title":
-            self.og_title = values.get("content") or ""
-        if tag == "meta" and values.get("property") == "og:url":
-            self.og_url = values.get("content") or ""
-        if tag == "link" and values.get("rel") == "canonical":
-            self.canonical = values.get("href") or ""
-        if tag == "link" and values.get("href"):
-            self.assets.append(values["href"])
-        if tag == "script" and values.get("src"):
-            self.assets.append(values["src"])
-        if tag == "img" and values.get("src"):
-            self.assets.append(values["src"])
-        if tag == "a" and values.get("href"):
-            self.links.append(values["href"])
-        if tag == "h1":
+            self._in_title = True
+        elif tag == "h1":
             self.h1_count += 1
-        if values.get("id"):
-            self.ids.add(values["id"])
-            self.id_counts[values["id"]] += 1
+        elif tag == "meta" and values.get("name") == "description":
+            self.description = values.get("content") or ""
+        elif tag == "meta" and values.get("property") == "og:url":
+            self.og_url = values.get("content") or ""
+        elif tag == "link" and values.get("rel") == "canonical":
+            self.canonical = values.get("href") or ""
+        elif tag == "a" and values.get("href"):
+            self.links.append(values["href"] or "")
+        elif tag == "script" and (values.get("type") or "").lower() == "application/ld+json":
+            self._json_ld_depth = 1
+            self._json_ld_parts = []
+        elif self._json_ld_depth:
+            self._json_ld_depth += 1
 
     def handle_endtag(self, tag: str) -> None:
         if tag == "title":
-            self.in_title = False
+            self._in_title = False
+        if self._json_ld_depth:
+            self._json_ld_depth -= 1
+            if self._json_ld_depth == 0:
+                self.json_ld.append("".join(self._json_ld_parts).strip())
 
     def handle_data(self, data: str) -> None:
-        if self.in_title:
-            self.title_parts.append(data)
-
-    @property
-    def title(self) -> str:
-        return "".join(self.title_parts).strip()
+        if self._in_title:
+            self.title += data
+        if self._json_ld_depth:
+            self._json_ld_parts.append(data)
 
 
-def parse_page(path: Path) -> PageParser:
-    parser = PageParser()
-    parser.feed(path.read_text(encoding="utf-8"))
-    return parser
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Validate the Study Atlas portal and generated video curriculum.")
+    parser.add_argument("--app-root", type=Path, default=APP_ROOT)
+    return parser.parse_args()
 
 
-def local_target(source: Path, href: str) -> tuple[Path, str] | None:
-    split = urlsplit(href)
-    if split.scheme or split.netloc or href.startswith(("mailto:", "tel:", "javascript:")):
-        return None
-    raw_path = unquote(split.path)
-    if raw_path.startswith("/info1-quiz-app/"):
-        target = APP_ROOT / raw_path.removeprefix("/info1-quiz-app/")
-    elif raw_path.startswith("/"):
-        target = ROOT / raw_path.lstrip("/")
-    elif raw_path.startswith("info1-quiz-app/") or raw_path.startswith("./info1-quiz-app/"):
-        relative = raw_path.removeprefix("./").removeprefix("info1-quiz-app/")
-        target = APP_ROOT / relative
-    elif raw_path:
-        target = source.parent / raw_path
-    else:
-        target = source
-    target = target.resolve()
-    virtual_app_root = (ROOT / "info1-quiz-app").resolve()
-    try:
-        app_relative = target.relative_to(virtual_app_root)
-    except ValueError:
-        pass
-    else:
-        target = APP_ROOT / app_relative
-    if target.is_dir():
-        target = target / "index.html"
-    return target, unquote(split.fragment)
-
-
-def sitemap_urls(path: Path) -> list[str]:
-    namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
-    tree = ET.parse(path)
-    return [node.text.strip() for node in tree.findall("s:url/s:loc", namespace) if node.text]
-
-
-def public_url(path: Path) -> str:
-    relative = path.relative_to(ROOT).as_posix()
+def public_url(relative: str) -> str:
     if relative == "index.html":
         return SITE_ORIGIN
     if relative.endswith("/index.html"):
@@ -148,15 +118,64 @@ def app_public_url(relative: str) -> str:
     return f"{SITE_ORIGIN}info1-quiz-app/{relative}"
 
 
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Validate the Study Atlas portal.")
-    parser.add_argument(
-        "--app-root",
-        type=Path,
-        default=APP_ROOT,
-        help="Path to the info1-quiz-app checkout (defaults to the legacy sibling directory).",
-    )
-    return parser.parse_args()
+def flatten_video_questions(data: dict) -> dict[int, dict]:
+    flattened: dict[int, dict] = {}
+    for section in data.get("sections", []):
+        for question in section.get("questions", []):
+            number = int(question.get("number", 0))
+            if number in flattened:
+                raise ValueError(f"duplicate video question number: {number}")
+            flattened[number] = question
+    return flattened
+
+
+def local_target(source: Path, href: str, app_root: Path) -> Path | None:
+    parts = urlsplit(href)
+    if parts.scheme or parts.netloc or href.startswith(("mailto:", "tel:", "javascript:")):
+        return None
+    path_parts = parts.path.split("/")
+    if "info1-quiz-app" in path_parts:
+        app_index = path_parts.index("info1-quiz-app")
+        target = app_root / "/".join(path_parts[app_index + 1:])
+    elif parts.path.startswith("/info1-quiz-app/"):
+        target = app_root / parts.path.removeprefix("/info1-quiz-app/")
+    elif parts.path.startswith("/"):
+        target = ROOT / parts.path.lstrip("/")
+    else:
+        target = source.parent / parts.path
+    target = target.resolve()
+    if target.is_dir():
+        target /= "index.html"
+    return target
+
+
+def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
+    parser = PageParser()
+    parser.feed(text)
+    relative = path.relative_to(ROOT).as_posix()
+    if not parser.title or not parser.description or parser.h1_count != 1:
+        errors.append(f"{relative}: title, description, and exactly one h1 are required")
+    expected = public_url(relative)
+    if parser.canonical != expected or parser.og_url != expected:
+        errors.append(f"{relative}: canonical/og:url must be {expected}")
+    if urlsplit(parser.canonical).query or urlsplit(parser.canonical).fragment:
+        errors.append(f"{relative}: canonical must not include query or fragment")
+    if not parser.json_ld:
+        errors.append(f"{relative}: JSON-LD is missing")
+    has_breadcrumb = False
+    for block in parser.json_ld:
+        try:
+            value = json.loads(block)
+        except json.JSONDecodeError as exc:
+            errors.append(f"{relative}: invalid JSON-LD: {exc}")
+            continue
+        values = value if isinstance(value, list) else [value]
+        for item in values:
+            if isinstance(item, dict) and item.get("@type") == "BreadcrumbList":
+                has_breadcrumb = True
+    if not has_breadcrumb:
+        errors.append(f"{relative}: BreadcrumbList JSON-LD is missing")
+    return parser
 
 
 def main() -> int:
@@ -165,722 +184,217 @@ def main() -> int:
     APP_ROOT = args.app_root.expanduser().resolve()
     errors: list[str] = []
     warnings: list[str] = []
-    video_report_path = ROOT / "docs" / "video-library-build.json"
-    video_report = json.loads(video_report_path.read_text(encoding="utf-8"))
-    video_page_paths = [ROOT / path for path in video_report.get("learning_pages", [])]
-    lecture_index_path = ROOT / "LectureNote" / "index.html"
-    lecture_field_paths = [
-        ROOT / "LectureNote" / "society.html",
-        ROOT / "LectureNote" / "digital.html",
-        ROOT / "LectureNote" / "network.html",
-        ROOT / "LectureNote" / "statistics.html",
-        ROOT / "LectureNote" / "programming.html",
-    ]
-    lecture_page_paths = [lecture_index_path, *lecture_field_paths]
-    page_paths = [
-        ROOT / "index.html",
-        ROOT / "study-guide.html",
-        ROOT / "about.html",
-        ROOT / "privacy.html",
-        ROOT / "sitemap.html",
-        ROOT / "books" / "index.html",
-        *lecture_page_paths,
-        *video_page_paths,
-    ]
-    parsed = {path.resolve(): parse_page(path) for path in page_paths}
 
-    for path in page_paths:
-        parser = parsed[path.resolve()]
-        if not parser.title:
-            errors.append(f"{path.name}: missing title")
-        elif not parser.title.startswith("情報Ⅰ Study Atlas｜"):
-            errors.append(f"{path.relative_to(ROOT)}: title does not use the site hierarchy: {parser.title}")
-        if parser.og_title != parser.title:
-            errors.append(f"{path.relative_to(ROOT)}: og:title does not match title")
-        if not parser.description:
-            errors.append(f"{path.name}: missing meta description")
-        expected_canonical = public_url(path)
-        if parser.canonical != expected_canonical:
-            errors.append(f"{path.relative_to(ROOT)}: unexpected canonical URL: {parser.canonical}")
-        if parser.og_url != expected_canonical:
-            errors.append(f"{path.relative_to(ROOT)}: og:url does not match canonical: {parser.og_url}")
-        duplicate_ids = sorted(identifier for identifier, count in parser.id_counts.items() if count > 1)
-        if duplicate_ids:
-            errors.append(f"{path.relative_to(ROOT)}: duplicate IDs: {duplicate_ids}")
-        if parser.h1_count != 1:
-            errors.append(f"{path.name}: expected one h1, found {parser.h1_count}")
-        if "sitemap.html" not in path.read_text(encoding="utf-8"):
-            errors.append(f"{path.relative_to(ROOT)}: footer sitemap link is missing")
-        page_text = path.read_text(encoding="utf-8")
-        if page_text.count('rel="canonical"') != 1:
-            errors.append(f"{path.relative_to(ROOT)}: expected exactly one canonical link")
-        for marker in ('property="og:title"', 'property="og:description"', 'property="og:url"'):
-            if marker not in page_text:
-                errors.append(f"{path.relative_to(ROOT)}: missing {marker}")
-        expected_og_properties = {
-            "og:image": OG_IMAGE_URL,
-            "og:image:secure_url": OG_IMAGE_URL,
-            "og:image:type": "image/png",
-            "og:image:width": OG_IMAGE_WIDTH,
-            "og:image:height": OG_IMAGE_HEIGHT,
-            "og:image:alt": OG_IMAGE_ALT,
-        }
-        expected_twitter_names = {
-            "twitter:card": "summary_large_image",
-            "twitter:image": OG_IMAGE_URL,
-            "twitter:image:alt": OG_IMAGE_ALT,
-        }
-        for name, expected in expected_og_properties.items():
-            values = parser.meta_properties.get(name, [])
-            if values != [expected]:
-                errors.append(
-                    f"{path.relative_to(ROOT)}: expected exactly one {name}={expected!r}, found {values!r}"
-                )
-        for name, expected in expected_twitter_names.items():
-            values = parser.meta_names.get(name, [])
-            if values != [expected]:
-                errors.append(
-                    f"{path.relative_to(ROOT)}: expected exactly one {name}={expected!r}, found {values!r}"
-                )
-        for index, payload in enumerate(re.findall(r'<script type="application/ld\+json">([\s\S]*?)</script>', page_text), start=1):
-            try:
-                json.loads(payload)
-            except json.JSONDecodeError as exc:
-                errors.append(f"{path.relative_to(ROOT)}: invalid JSON-LD block {index}: {exc}")
-        if path.name != "index.html" and '"@type":"BreadcrumbList"' not in page_text:
-            errors.append(f"{path.relative_to(ROOT)}: BreadcrumbList structured data is missing")
-
-    expected_nav_labels = [
-        "トップページ",
-        "学習アプリ",
-        "問題一覧",
-        "動画問題",
-        "講義ノート",
-        "勉強法",
-        "このサイトについて",
-    ]
-    for path in page_paths:
-        page_text = path.read_text(encoding="utf-8")
-        header_start = page_text.find('<header class="site-header">')
-        header_end = page_text.find("</header>", header_start)
-        if header_start < 0 or header_end < 0:
-            errors.append(f"{path.relative_to(ROOT)}: global site header is missing")
-            continue
-        header_text = page_text[header_start:header_end]
-        nav_start = header_text.find('<nav class="global-nav"')
-        nav_end = header_text.find("</nav>", nav_start)
-        nav_text = header_text[nav_start:nav_end]
-        positions = [nav_text.find(f">{label}<") for label in expected_nav_labels]
-        if any(position < 0 for position in positions) or positions != sorted(positions):
-            errors.append(f"{path.relative_to(ROOT)}: global navigation order is invalid")
-
-    all_portal_html = [
-        path
-        for path in [*ROOT.glob("*.html"), *ROOT.glob("archive/*.html"), *ROOT.glob("books/*.html"), *ROOT.glob("LectureNote/*.html")]
-        if not path.name.startswith("google")
-    ]
-    for path in all_portal_html:
-        page_text = path.read_text(encoding="utf-8")
-        if "assets/site-header.js" not in page_text:
-            errors.append(f"{path.relative_to(ROOT)}: smart site-header script is missing")
-        if "<strong>情報Ⅰ Study Atlas</strong>" not in page_text or "<small>知識を、ひろげ、つなげる</small>" not in page_text:
-            errors.append(f"{path.relative_to(ROOT)}: shared Study Atlas branding is missing")
-
-    for path in lecture_field_paths:
-        lecture_text = path.read_text(encoding="utf-8")
-        if any(marker in lecture_text for marker in ('class="lecture-toolbar"', 'class="field-nav"', 'class="brand-copy"')):
-            errors.append(f"{path.relative_to(ROOT)}: obsolete lecture-only header UI remains")
-        aside_start = lecture_text.find('<aside class="section-sidebar"')
-        aside_end = lecture_text.find("</aside>", aside_start)
-        aside_text = lecture_text[aside_start:aside_end]
-        if aside_start < 0 or 'id="lecture-course-nav"' not in aside_text or 'id="cloze-toggle"' not in aside_text:
-            errors.append(f"{path.relative_to(ROOT)}: lecture navigation or cloze control is not contained in the sidebar")
-        data_text = (ROOT / "LectureNote" / f"lecture-data-{path.stem}.js").read_text(encoding="utf-8")
-        expected_sections = re.findall(r'"id":"([^"]+)","short":', data_text)
-        section_ids = re.findall(r'<section class="lecture-section" id="([^"]+)"', lecture_text)
-        if section_ids != expected_sections:
-            errors.append(f"{path.relative_to(ROOT)}: static lecture sections are missing or stale")
-        if "lecture-content:generated:start" not in lecture_text or "lecture-content:generated:end" not in lecture_text:
-            errors.append(f"{path.relative_to(ROOT)}: static lecture generation markers are missing")
-        if lecture_text.count('class="section-nav" id="section-nav"') != 1:
-            errors.append(f"{path.relative_to(ROOT)}: static section navigation is missing")
-        if "../assets/lecture-bookmark.js" not in lecture_text:
-            errors.append(f"{path.relative_to(ROOT)}: shared field bookmark script is missing")
-        if 'id="hero-meta"' in lecture_text:
-            errors.append(f"{path.relative_to(ROOT)}: obsolete top keyword chips remain")
-
-    for source, parser in parsed.items():
-        for href in parser.links + parser.assets:
-            target_data = local_target(source, href)
-            if target_data is None:
-                continue
-            target, fragment = target_data
-            if not target.exists():
-                errors.append(f"{source.name}: broken local target {href}")
-                continue
-            is_search_state = fragment.startswith(("tag=", "keyword=", "question="))
-            if fragment and not is_search_state and target.suffix.lower() == ".html":
-                target_parser = parsed.get(target.resolve()) or parse_page(target)
-                if fragment not in target_parser.ids:
-                    errors.append(f"{source.name}: missing fragment target {href}")
-
-    ad_pages = [ROOT / "index.html", ROOT / "study-guide.html", *video_page_paths]
-    for path in ad_pages:
-        if AD_MARKER not in path.read_text(encoding="utf-8"):
-            errors.append(f"{path.relative_to(ROOT)}: learning page is missing AdSense script")
-    for path in (ROOT / "about.html", ROOT / "privacy.html", ROOT / "sitemap.html", ROOT / "books" / "index.html"):
-        if AD_MARKER in path.read_text(encoding="utf-8"):
-            errors.append(f"{path.name}: informational page must be ad-free")
-
-    video_data = json.loads((ROOT / "data" / "video-questions.json").read_text(encoding="utf-8"))
-    video_questions = [question for section in video_data.get("sections", []) for question in section.get("questions", [])]
-    if video_data.get("question_count") != 330 or len(video_questions) != 330:
-        errors.append("video-questions.json: expected exactly 330 questions")
-    video_numbers = [question.get("number") for question in video_questions]
-    if sorted(video_numbers) != list(range(1, 331)):
-        errors.append("video-questions.json: question numbers must be unique and cover 1 through 330")
-    if any(not str(question.get("answer") or "").strip() for question in video_questions):
-        errors.append("video-questions.json: every question must have an answer")
-    if any("explanation" in question or "解説" in question for question in video_questions):
-        errors.append("video-questions.json: explanation text must not be published")
-    if any(not question.get("videos") for question in video_questions):
-        errors.append("video-questions.json: every question must have a mapped video")
-    if any(not 2 <= len(question.get("keywords") or []) <= 4 for question in video_questions):
-        errors.append("video-questions.json: every question must have 2-4 audited keywords")
-    keyword_frequencies = Counter(
-        str(keyword) for question in video_questions for keyword in question.get("keywords", [])
-    )
-    singleton_keywords = sorted(keyword for keyword, count in keyword_frequencies.items() if count < 2)
-    if singleton_keywords:
-        errors.append(f"video-questions.json: keywords must connect multiple questions: {singleton_keywords}")
-    keyword_report_path = ROOT / "docs" / "video-keyword-audit.json"
-    if not keyword_report_path.is_file():
-        errors.append("video-keyword-audit.json: audit report is missing")
-    else:
-        keyword_report = json.loads(keyword_report_path.read_text(encoding="utf-8"))
-        if keyword_report.get("question_count") != 330 or keyword_report.get("old_keywords_used_as_input") is not False:
-            errors.append("video-keyword-audit.json: audit provenance is invalid")
-        if keyword_report.get("taxonomy_version") != 2 or keyword_report.get("unique_keyword_count") != len(keyword_frequencies):
-            errors.append("video-keyword-audit.json: controlled taxonomy metadata is invalid")
-        if keyword_report.get("minimum_questions_per_keyword", 0) < 2 or keyword_report.get("single_question_keyword_count") != 0:
-            errors.append("video-keyword-audit.json: one-question-only keyword audit failed")
-        current_hash = normalized_text_sha256(ROOT / "data" / "video-questions.json")
-        if keyword_report.get("data_sha256") != current_hash:
-            errors.append("video-keyword-audit.json: data hash does not match video-questions.json")
-        audited = {int(entry["number"]): entry.get("keywords") for entry in keyword_report.get("entries", [])}
-        current = {int(question["number"]): question.get("keywords") for question in video_questions}
-        if audited != current:
-            errors.append("video-keyword-audit.json: audited keywords do not match public data")
-    if video_report.get("explanation_text_published") is not False:
-        errors.append("video-library-build.json: explanation publication flag must be false")
-    if video_report.get("page_size") != 10 or len(video_report.get("field_counts", {})) != 4:
-        errors.append("video-library-build.json: expected four public fields with 10 questions per page")
-    if video_report.get("youtube_direct_links_published") is not False:
-        errors.append("video-library-build.json: YouTube direct links must not be published")
-    if video_report.get("video_viewer_aspect_ratio") != "9:16":
-        errors.append("video-library-build.json: Shorts viewer must use a 9:16 aspect ratio")
-    if video_report.get("programming_code_blocks") != 100:
-        errors.append("video-library-build.json: expected 100 programming code blocks")
-    if any("<iframe" in path.read_text(encoding="utf-8").lower() for path in video_page_paths):
-        errors.append("archive pages: video iframes must not load before user interaction")
-    regular_video_pages = [
-        path for path in video_page_paths if path.name not in {"index.html", "keywords.html"}
-    ]
-    video_html = "\n".join(path.read_text(encoding="utf-8") for path in video_page_paths)
-    if "YouTubeで見る" in video_html or "video-direct-link" in video_html or "youtube.com/watch?v=" in video_html:
-        errors.append("archive pages: obsolete YouTube direct links remain")
-    if video_html.count('<pre class="question-code"') != 100:
-        errors.append("archive pages: every programming question must contain one code block")
-    expected_keywords = {
-        str(keyword).strip()
-        for question in video_questions
-        for keyword in question.get("keywords", [])
-        if str(keyword).strip()
-    }
-    regular_video_html = "\n".join(path.read_text(encoding="utf-8") for path in regular_video_pages)
-    if regular_video_html.count('class="keyword-link"') != sum(len(question["keywords"]) for question in video_questions):
-        errors.append("archive pages: every published keyword must be a link")
-    if 'href="keywords.html#keyword=' not in regular_video_html:
-        errors.append("archive pages: keywords do not link to the keyword filter")
-    expected_keyword_links = sum(len(question["keywords"]) for question in video_questions)
-    if regular_video_html.count("&question=") != expected_keyword_links:
-        errors.append("archive pages: every keyword link must preserve its source question")
-    keyword_page = ROOT / "archive" / "keywords.html"
-    keyword_data_path = ROOT / "archive" / "filter-data.json"
-    keyword_script_path = ROOT / "assets" / "video-filter.js"
-    if not keyword_page.is_file() or not keyword_data_path.is_file() or not keyword_script_path.is_file():
-        errors.append("Keyword filter page, data, or script is missing")
-    else:
-        keyword_text = keyword_page.read_text(encoding="utf-8")
-        if keyword_text.count('class="facet-link"') != len(expected_keywords):
-            errors.append("keywords.html: expected one link for every unique keyword")
-        if keyword_text.count('class="facet-group"') != 4:
-            errors.append("keywords.html: keywords must be grouped into four learning fields")
-        if "data-video-filter" not in keyword_text or 'data-filter-param="keyword"' not in keyword_text:
-            errors.append("keywords.html: AND filter configuration is missing")
-        payload = json.loads(keyword_data_path.read_text(encoding="utf-8"))
-        if payload.get("question_count") != len(video_questions) or payload.get("keyword_count") != len(expected_keywords):
-            errors.append("archive/filter-data.json: question or keyword counts are invalid")
-        if payload.get("match_mode") != "AND" or len(payload.get("questions", [])) != len(video_questions):
-            errors.append("archive/filter-data.json: AND filter payload is invalid")
-        keyword_script = keyword_script_path.read_text(encoding="utf-8")
-        if "URLSearchParams" not in keyword_script:
-            errors.append("video-filter.js: URL-based multi-keyword filter is missing")
-        if "focusNumber" not in keyword_script or "scrollIntoView" not in keyword_script:
-            errors.append("video-filter.js: source-question prioritization or result scrolling is missing")
-        if "values.every" not in keyword_script or "data-facet-count" not in keyword_script:
-            errors.append("video-filter.js: AND matching or dynamic facet counts are missing")
-    stylesheet = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
-    if ".question-code" not in stylesheet or "white-space: pre" not in stylesheet or "overflow-x: auto" not in stylesheet:
-        errors.append("site.css: non-wrapping horizontally scrollable code-block styles are missing")
-    embed_script = (ROOT / "assets" / "video-embeds.js").read_text(encoding="utf-8")
-    if "youtube-nocookie.com/embed/" not in embed_script:
-        errors.append("video-embeds.js: privacy-enhanced YouTube embed URL is missing")
-    video_filter_script = (ROOT / "assets" / "video-filter.js").read_text(encoding="utf-8")
-    if "filter-hit-count" not in video_filter_script:
-        errors.append("video-filter.js: visible filtered-result count is missing from the heading")
-
-    app_questions = json.loads((APP_ROOT / "data" / "questions" / "completed_questions.json").read_text(encoding="utf-8"))
-    app_question_count = len(app_questions)
-    app_validation_path = APP_ROOT / "docs" / "reports" / "validation.json"
-    app_validation = json.loads(app_validation_path.read_text(encoding="utf-8")) if app_validation_path.is_file() else {}
-    minimum_public_tag_questions = int(app_validation.get("minimum_public_tag_questions", 1))
-    excluded_public_tags = {
-        str(tag).strip()
-        for tag in app_validation.get("excluded_public_tags", [])
-        if str(tag).strip()
-    }
-    raw_tag_counts = Counter(
-        str(tag).strip()
-        for question in app_questions
-        for tag in question.get("tags", [])
-        if str(tag).strip()
-    )
-    public_tags = {
-        tag
-        for tag, count in raw_tag_counts.items()
-        if count >= minimum_public_tag_questions and tag not in excluded_public_tags
-    }
-    public_tags.update(
-        tag
-        for tag in ("デジタル署名", "公開鍵暗号方式", "デジタル", "Firewall", "JavaScript")
-        if raw_tag_counts[tag]
-    )
-    top_text = (ROOT / "index.html").read_text(encoding="utf-8")
-    question_count_text = f"{app_question_count:,}"
-    public_tag_count = len(public_tags)
-    public_tag_count_text = f"{public_tag_count:,}"
-    if question_count_text not in top_text:
-        errors.append("index.html: completed-question count is not synchronized")
-    if public_tag_count_text not in top_text:
-        errors.append("index.html: normalized public tag count is not synchronized")
-    if "hero-start-button" in top_text or "5問から始める" in top_text:
-        errors.append("index.html: redundant hero learning-app button remains")
-    for marker in ("何から始めますか？", "data-home-start", "data-home-return", "何をしますか？", "アプリへ移動", "問題一覧を見る", "動画問題を見る", "講義ノートを読む"):
-        if marker not in top_text:
-            errors.append(f"index.html: first/return-visit navigation marker is missing: {marker}")
-    home_learning_path = ROOT / "assets" / "home-learning.js"
-    if not home_learning_path.exists():
-        errors.append("home-learning.js: return-visit summary script is missing")
-    else:
-        home_learning_text = home_learning_path.read_text(encoding="utf-8")
-        for marker in ('"info1LearningRecord:v1"', "record.v !== 1", "Object.values(record.q)", "if (!attempts) return"):
-            if marker not in home_learning_text:
-                errors.append(f"home-learning.js: safe local summary marker is missing: {marker}")
-        if "fetch(" in home_learning_text or "completed_questions" in home_learning_text:
-            errors.append("home-learning.js: top-page summary must not load the question dataset")
-    for obsolete_copy in ("知識を、点でなく地図にする", "問題一覧から読む", "ランダムに挑戦する"):
-        if obsolete_copy in top_text:
-            errors.append(f"index.html: obsolete top-page copy remains: {obsolete_copy}")
-    if top_text.count('class="field-card accent-') != 6 or top_text.count('class="map-node ') != 6:
-        errors.append("index.html: expected six linked field cards and six linked map nodes")
-    if top_text.count('class="field-card compact-field-card ') != 4:
-        errors.append("index.html: expected four linked video-question category cards")
-    if top_text.count('class="field-card lecture-field-card ') != 5:
-        errors.append("index.html: expected five linked lecture-note field cards")
-    if 'href="./LectureNote/society.html"' not in top_text:
-        errors.append("index.html: lecture-note society card must link directly to society.html")
-    lecture_index_text = lecture_index_path.read_text(encoding="utf-8")
-    if lecture_index_text.count('class="archive-field-card lecture-index-card"') != 5:
-        errors.append("LectureNote/index.html: expected five lecture field cards")
-    for lecture_href in ("./society.html", "./digital.html", "./network.html", "./statistics.html", "./programming.html"):
-        if f'href="{lecture_href}"' not in lecture_index_text:
-            errors.append(f"LectureNote/index.html: missing field link {lecture_href}")
-    section_positions = [
-        top_text.find('class="section video-library-section"'),
-        top_text.find('class="section lecture-note-section"'),
-        top_text.find('class="section book-showcase-section"'),
-    ]
-    if any(position < 0 for position in section_positions) or section_positions != sorted(section_positions):
-        errors.append("index.html: video, lecture-note, and book sections are not in the required order")
-    if top_text.count('class="book-showcase-card"') != 4 or top_text.count('assets/books/') != 4:
-        errors.append("index.html: expected four linked book cards with local cover images")
-    if top_text.count('class="book-showcase-description"') != 4:
-        errors.append("index.html: every book card must contain its own description")
-    if '<span class="hero-slogan">知識を、<br /><em>ひろげ、<br />つなげる</em></span>' not in top_text:
-        errors.append("index.html: the three-line site slogan is missing")
-    for target_term in ("情報Ⅰ", "情報1", "共通テスト", "高校生", "受験生"):
-        if target_term not in top_text:
-            errors.append(f"index.html: target-audience language is missing: {target_term}")
-    guide_text = (ROOT / "study-guide.html").read_text(encoding="utf-8")
-    for marker in (
-        "学習の基本サイクル",
-        "学習アプリを周回する意味",
-        "動画付き問題とプログラミング",
-        "講義ノートで深く学ぶ",
-        "共通テストへつなげる",
-        '"@type":"Article"',
-    ):
-        if marker not in guide_text:
-            errors.append(f"study-guide.html: required substantive guide marker is missing: {marker}")
-    for official_host in ("mext.go.jp", "dnc.ac.jp"):
-        if official_host not in guide_text:
-            errors.append(f"study-guide.html: official reference is missing: {official_host}")
-    if 'class="section section-app"' not in top_text or 'class="app-cta app-cta-link"' not in top_text or "確かな基礎を築き上げましょう" not in top_text:
-        errors.append("index.html: linked learning-app CTA is missing")
-    for marker in ("学習アプリが中心", "問題一覧で根拠を確かめ", "講義ノートで仕組みまで深く理解"):
-        if marker not in top_text:
-            errors.append(f"index.html: app-first site introduction is missing: {marker}")
-    for asin in ("B0CFY4F6TB", "B0CPWBVTRT", "B0DQFKKDST", "B0CTY6G1DG"):
-        if asin not in (ROOT / "books" / "index.html").read_text(encoding="utf-8"):
-            errors.append(f"books/index.html: missing Amazon title link {asin}")
-    books_text = (ROOT / "books" / "index.html").read_text(encoding="utf-8")
-    if books_text.count('class="book-visual"') != 4 or books_text.count('class="book-description"') != 4:
-        errors.append("books/index.html: expected four thumbnail-and-description book rows")
-    if "background: #f3f7f6" not in stylesheet or "color: var(--ink)" not in stylesheet:
-        errors.append("site.css: light code-block color scheme is missing")
-    if "aspect-ratio: 9 / 16" not in stylesheet or "width: min(100%, 360px)" not in stylesheet:
-        errors.append("site.css: responsive 9:16 Shorts viewer style is missing")
-    if ".filter-hit-count" not in stylesheet:
-        errors.append("site.css: filtered-result count badge style is missing")
-    if "各ページ10問ずつ掲載しています。" in top_text:
-        errors.append("index.html: obsolete video-question page-size lead remains")
-
-    about_text = (ROOT / "about.html").read_text(encoding="utf-8")
-    if "おすすめの使い方" in about_text:
-        errors.append("about.html: the duplicated recommended-use section remains")
-    for marker in ("サイトの目的", "掲載コンテンツ", "編集方針", "お問い合わせ"):
-        if marker not in about_text:
-            errors.append(f"about.html: required site-information marker is missing: {marker}")
-
-    forbidden_public_copy = (
-        "Word由来",
-        "PDF由来",
-        "PPT由来",
-        "PowerPoint由来",
-        "指導書をまとめ",
-        "元資料の内容をすべて読む",
-        "共通テスト用プログラミング表記",
-        "HOW TO STUDY",
-        "問題を掲載するまで",
-    )
-    public_source_paths = [
-        *ROOT.glob("*.html"),
-        *ROOT.glob("archive/*.html"),
-        *ROOT.glob("books/*.html"),
-        *ROOT.glob("LectureNote/*.html"),
-        *ROOT.glob("LectureNote/*.js"),
-    ]
-    for path in public_source_paths:
-        source_text = path.read_text(encoding="utf-8")
-        for marker in forbidden_public_copy:
-            if marker in source_text:
-                errors.append(f"{path.relative_to(ROOT)}: forbidden public wording remains: {marker}")
-
-    lecture_stylesheet = (ROOT / "LectureNote" / "lecture-note.css").read_text(encoding="utf-8")
-    if "position: sticky" not in stylesheet or "position: sticky" not in lecture_stylesheet:
-        errors.append("site headers must remain sticky in both portal stylesheets")
-    for css_text, css_name in ((stylesheet, "site.css"), (lecture_stylesheet, "lecture-note.css")):
-        if ".site-header.is-header-hidden" not in css_text:
-            errors.append(f"{css_name}: smart header hidden state is missing")
-    if ".header-is-hidden .section-sidebar" not in lecture_stylesheet:
-        errors.append("lecture-note.css: sidebar does not adapt when the smart header is hidden")
-
-    header_script = (ROOT / "assets" / "site-header.js").read_text(encoding="utf-8")
-    for marker in ("requestAnimationFrame", "is-header-hidden", "focusin"):
-        if marker not in header_script:
-            errors.append(f"site-header.js: required smart-header behavior is missing: {marker}")
-    for marker in ("StudyAtlasScrollHints", "is-at-start", "is-at-end"):
-        if marker not in header_script:
-            errors.append(f"site-header.js: horizontal scroll guidance is missing: {marker}")
-    for marker in ("horizontal-scroll-cue__edge", "scroll-snap-type", ".horizontal-scroll-cue--global"):
-        if marker not in stylesheet or marker not in lecture_stylesheet:
-            errors.append(f"static stylesheets: horizontal scroll guidance is missing: {marker}")
-    if 'createElement("style")' in header_script or "data-horizontal-scroll-cue" in header_script:
-        errors.append("site-header.js: horizontal scroll styles must not be generated at runtime")
-    if "header.offsetHeight" in header_script:
-        errors.append("site-header.js: header height is read during scrolling instead of using a cache")
-    lecture_script = (ROOT / "LectureNote" / "lecture.js").read_text(encoding="utf-8")
-    for marker in ("情報社会", "デジタル", "ネットワーク", "統計", "プログラミング", "course-field-group is-current"):
-        if marker not in lecture_script:
-            errors.append(f"lecture.js: hierarchical course navigation marker is missing: {marker}")
-    for marker in ("figure-lightbox__canvas", "fitScale", 'addEventListener("wheel"', 'addEventListener("pointerdown"', 'addEventListener("dblclick"', "toggleDoubleZoom", "lastTap", "beginPinch", "pointerDistance"):
-        if marker not in lecture_script:
-            errors.append(f"lecture.js: interactive figure viewer marker is missing: {marker}")
-    for marker in ("mobile-lecture-position", "lecture-back-to-top", "section-bookmark", "data-reading-bookmark", "bookmarkStore?.write", "prefers-reduced-motion", "prepareAnimation"):
-        if marker not in lecture_script:
-            errors.append(f"lecture.js: bookmark/mobile/media marker is missing: {marker}")
-    for marker in ("最初から順に読む", "前回の続きから読む", "hero-meta-label", "progressTrackingStarted", "writeProgress", "startProgressFromUserScroll"):
-        if marker in lecture_script:
-            errors.append(f"lecture.js: obsolete automatic progress marker remains: {marker}")
-    bookmark_script = (ROOT / "assets" / "lecture-bookmark.js").read_text(encoding="utf-8")
-    for marker in ('"info1LectureBookmark:v1"', "stored?.fields", "normalizeRecord(stored)", "const get", "const write", "updatedAt"):
-        if marker not in bookmark_script:
-            errors.append(f"lecture-bookmark.js: field bookmark marker is missing: {marker}")
-    if "info1LectureProgress:v1" in bookmark_script:
-        errors.append("lecture-bookmark.js: automatic progress data must not be treated as an intentional bookmark")
-    home_learning_script = (ROOT / "assets" / "home-learning.js").read_text(encoding="utf-8")
-    if "StudyAtlasLectureProgress" in home_learning_script or "info1LectureProgress:v1" in home_learning_script:
-        errors.append("home-learning.js: automatic reading progress must not be a resume candidate")
-    for marker in ("StudyAtlasLectureBookmarks?.readAll()", "chooseCandidate", "questionTime >= lectureTime", "newestLectureCandidate", "前回の問題演習を続ける", "から読む"):
-        if marker not in home_learning_script:
-            errors.append(f"home-learning.js: recency-based resume marker is missing: {marker}")
-    for marker in ("data-home-return-link", "data-home-return-title", "data-home-return-action"):
-        if marker not in top_text:
-            errors.append(f"index.html: resume card marker is missing: {marker}")
-    if top_text.find("./assets/lecture-bookmark.js") > top_text.find("./assets/home-learning.js"):
-        errors.append("index.html: lecture bookmarks must load before the home resume selector")
-    if top_text.count("<span>動きや時間変化を見ながら理解</span>") != 2:
-        errors.append("index.html: video-learning copy must describe motion and time changes")
-    if top_text.count("<span>用語と仕組みを順序立てて確認</span>") != 2:
-        errors.append("index.html: lecture-learning copy must describe ordered concept review")
-    if "仕組みから理解" in top_text:
-        errors.append("index.html: ambiguous duplicate learning copy remains")
-    for marker in ("lecture-learning-guide", "lecture-keyword-index", "keywordTargets", "showKeyword", "beginSequentialReading", 'navigateToHash(link.getAttribute("href").slice(1))', 'addEventListener("popstate"'):
-        if marker not in lecture_script:
-            errors.append(f"lecture.js: keyword-index behavior marker is missing: {marker}")
-    for marker in ("keyword-reading-tools", "ここから順番に読む", "data-keyword-sequential", "keywordTools"):
-        if marker in lecture_script:
-            errors.append(f"lecture.js: obsolete keyword choice behavior remains: {marker}")
-    if lecture_script.count("bookmarkStore?.write(") != 1:
-        errors.append("lecture.js: bookmark writes must be limited to the explicit section-bookmark action")
-    lecture_fields = ("society", "digital", "network", "statistics", "programming")
-    lecture_visual_text = "".join(
-        (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
-        for field_name in lecture_fields
-    )
-    if lecture_visual_text.count('<figure class="raster-figure"') < 25:
-        errors.append("LectureNote: meaningful graph, animation, circuit, or spatial raster figures are missing")
-    if lecture_visual_text.count('<figure class="html-figure"') < 12:
-        errors.append("LectureNote: semantic HTML figures are missing")
-    for required_figure in (
-        "logic-gate-and.png",
-        "logic-gate-or.png",
-        "logic-gate-not.png",
-        "half-adder-circuit.png",
-        "full-adder.png",
-        "multi-bit-adder.png",
-        "processing-models.png",
-        "email-delivery.png",
-        "shared-key-encryption.gif",
-        "public-key-encryption.gif",
-        "hybrid-encryption.png",
-        "digital-signature.png",
-        "seasonal-adjustment-example.png",
-        "basic-structures.png",
-    ):
-        if required_figure not in lecture_visual_text:
-            errors.append(f"LectureNote: required explanatory figure is missing: {required_figure}")
-    for required_html_figure in ("protocol-figure", "relational-workflow"):
-        if required_html_figure not in lecture_visual_text or required_html_figure not in lecture_stylesheet:
-            errors.append(f"LectureNote: required responsive explanatory figure is missing: {required_html_figure}")
-    for obsolete_image in ("performance-errors.png", "cryptography.png", "sorting-searching.png", "database.png", "values-types.png", "public-data-workflow.png"):
-        if obsolete_image in lecture_visual_text:
-            errors.append(f"LectureNote: redundant raster figure remains: {obsolete_image}")
-    for marker in ("figure-zoom-trigger", "figure-lightbox", "showModal"):
-        if marker not in lecture_script:
-            errors.append(f"lecture.js: accessible figure enlargement behavior is missing: {marker}")
-    generated_lecture_text = ""
-    generated_lecture_pages_text = ""
-    for field_name in lecture_fields:
-        generated_path = ROOT / "LectureNote" / f"lecture-data-{field_name}.js"
-        if not generated_path.exists():
-            errors.append(f"LectureNote: field-specific data is missing: {generated_path.name}")
-            continue
-        field_text = generated_path.read_text(encoding="utf-8")
-        generated_lecture_text += field_text
-        if field_text.count('"targetId":"keyword-') != 24:
-            errors.append(f"LectureNote/{generated_path.name}: expected 24 curated keyword targets")
-        for forbidden_key in ('"html":', '"kicker":', '"lead":', '"targetText":', '"occurrence":'):
-            if forbidden_key in field_text:
-                errors.append(f"LectureNote/{generated_path.name}: body data remains in metadata: {forbidden_key}")
-        page_text = (ROOT / "LectureNote" / f"{field_name}.html").read_text(encoding="utf-8")
-        generated_lecture_pages_text += page_text
-        if f'./lecture-data-{field_name}.js' not in page_text:
-            errors.append(f"LectureNote/{field_name}.html: field-specific data script is missing")
-        if page_text.count('class="lecture-section"') == 0:
-            errors.append(f"LectureNote/{field_name}.html: initial HTML has no lecture sections")
-        for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js", "lecture-keywords-source.js"):
-            if f'<script src="./{obsolete_script}' in page_text:
-                errors.append(f"LectureNote/{field_name}.html: monolithic data script remains: {obsolete_script}")
-    for obsolete_script in ("lecture-content.js", "guide-enrichment.js", "programming-content.js", "programming-enrichment.js", "lecture-keywords-source.js"):
-        if (ROOT / "LectureNote" / obsolete_script).exists():
-            errors.append(f"LectureNote: obsolete lecture source remains: {obsolete_script}")
-    for image_tag in re.findall(r"<img [^>]+>", generated_lecture_pages_text):
-        if "../assets/lecture-v2/" not in image_tag:
-            continue
-        for attribute in ('width="', 'height="', 'loading="lazy"', 'decoding="async"', 'alt="'):
-            if attribute not in image_tag:
-                errors.append(f"LectureNote: static image is missing {attribute}: {image_tag[:120]}")
-    lecture_asset_root = ROOT / "assets" / "lecture-v2"
-    lecture_pngs = sorted(lecture_asset_root.rglob("*.png"))
-    lecture_webps = sorted(lecture_asset_root.rglob("*.webp"))
-    non_poster_pngs = [path for path in lecture_pngs if not path.name.endswith(".poster.png")]
-    if len(lecture_pngs) != 27 or len(non_poster_pngs) != 22 or len(lecture_webps) != 22:
-        errors.append(
-            "LectureNote: optimized lecture asset inventory must contain "
-            "22 PNG fallbacks, 22 WebP sources, and 5 PNG video posters"
-        )
-    for png_path in non_poster_pngs:
-        if not png_path.with_suffix(".webp").is_file():
-            errors.append(f"LectureNote: PNG fallback has no WebP source: {png_path.relative_to(ROOT)}")
-    if generated_lecture_pages_text.count("<picture>") != 22:
-        errors.append("LectureNote: every static lecture PNG must use a WebP picture source")
-    if generated_lecture_pages_text.count('type="image/webp"') != 22:
-        errors.append("LectureNote: static lecture pages are missing WebP source declarations")
-    conversion_report_path = ROOT / "docs" / "lecture-image-conversion.json"
-    if not conversion_report_path.is_file():
-        errors.append("LectureNote: image conversion report is missing")
-    else:
-        conversion_report = json.loads(conversion_report_path.read_text(encoding="utf-8"))
-        if (
-            conversion_report.get("image_count") != 13
-            or not all(image.get("pixel_identical") for image in conversion_report.get("images", []))
-        ):
-            errors.append("LectureNote: 13-image lossless WebP verification is incomplete")
-    if generated_lecture_pages_text.count('<video class="lecture-animation"') != 5:
-        errors.append("LectureNote: expected exactly five converted lecture animations")
-    for marker in ('preload="none"', 'controls loop muted playsinline', 'data-poster="', 'type="video/webm"', 'type="video/mp4"'):
-        if marker not in generated_lecture_pages_text:
-            errors.append(f"LectureNote: generated animation behavior is missing: {marker}")
-    if ".figure-lightbox" not in lecture_stylesheet or ".figure-zoom-trigger" not in lecture_stylesheet:
-        errors.append("lecture-note.css: figure enlargement styles are missing")
-    for marker in (".lecture-learning-guide", ".lecture-keyword-index", ".keyword-target.is-keyword-highlighted"):
-        if marker not in lecture_stylesheet:
-            errors.append(f"lecture-note.css: keyword-index style is missing: {marker}")
-    if ".keyword-reading-tools" in lecture_stylesheet:
-        errors.append("lecture-note.css: obsolete keyword choice UI styles remain")
-    for marker in (".section-bookmark {\n  min-height: 44px", ".lecture-keyword-index__groups a { min-height: 44px", ".mobile-lecture-position__panel a { min-height: 44px"):
-        if marker not in lecture_stylesheet:
-            errors.append(f"lecture-note.css: 44px touch target is missing: {marker}")
-    for marker in (".global-nav a { min-height: 44px", ".tag-link, .keyword-link { min-height: 44px"):
-        if marker not in stylesheet:
-            errors.append(f"site.css: mobile 44px touch target is missing: {marker}")
-    for marker in ("touch-action: none", ".figure-lightbox__canvas", ".figure-lightbox__viewport.is-zoomed"):
-        if marker not in lecture_stylesheet:
-            errors.append(f"lecture-note.css: interactive figure viewer marker is missing: {marker}")
-    if "figure-zoom-hint" in lecture_script or "figure-zoom-hint" in lecture_stylesheet:
-        errors.append("LectureNote: visible enlargement hint must not be shown over figures")
-    book_pages_text = top_text + (ROOT / "books" / "index.html").read_text(encoding="utf-8")
-    book_image_tags = re.findall(r'<img [^>]*assets/books/[^>]+>', book_pages_text)
-    if len(book_image_tags) != 8 or any('decoding="async"' not in tag for tag in book_image_tags):
-        errors.append("Book pages: all eight cover images must use asynchronous decoding")
-    if "PDU" in lecture_visual_text:
-        errors.append("LectureNote: out-of-scope PDU terminology remains")
-    for out_of_scope_logic in ("⊕", "¬"):
-        if out_of_scope_logic in lecture_visual_text:
-            errors.append(f"LectureNote: out-of-scope logic notation remains: {out_of_scope_logic}")
-    for obsolete_section in ('id: "network-rsa"', 'id: "programming-recursion"', 'id: "programming-flowchart"'):
-        if obsolete_section in lecture_visual_text:
-            errors.append(f"LectureNote: obsolete top-level section remains: {obsolete_section}")
-    if ".raster-figure img { width: 1200px" in lecture_stylesheet:
-        errors.append("lecture-note.css: obsolete fixed-width mobile figures remain")
-
-    ads_value = (ROOT / "ads.txt").read_text(encoding="utf-8").strip()
-    if ads_value != "google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0":
-        errors.append("ads.txt contains an unexpected publisher record")
-    robots_text = (ROOT / "robots.txt").read_text(encoding="utf-8")
-    if f"Sitemap: {SITE_ORIGIN}sitemap.xml" not in robots_text:
-        errors.append("robots.txt does not advertise the host-root sitemap")
-    if "User-agent: OAI-SearchBot" not in robots_text:
-        errors.append("robots.txt does not explicitly allow ChatGPT search discovery")
-
+    curriculum_path = ROOT / "data" / "video-curriculum.json"
+    video_data_path = ROOT / "data" / "video-questions.json"
     try:
-        portal_urls = sitemap_urls(ROOT / "sitemap.xml")
-        if len(portal_urls) != len(set(portal_urls)):
-            errors.append("sitemap.xml contains duplicate URLs")
-        noncanonical_hosts = sorted(url for url in portal_urls if not url.startswith(SITE_ORIGIN))
-        if noncanonical_hosts:
-            errors.append(f"sitemap.xml contains noncanonical hosts: {noncanonical_hosts}")
-        if any(url.startswith("http://") for url in portal_urls):
-            errors.append("sitemap.xml contains non-HTTPS URLs")
-        if "<lastmod>" in (ROOT / "sitemap.xml").read_text(encoding="utf-8"):
-            errors.append("sitemap.xml contains synthetic lastmod values")
-        required = {
-            SITE_ORIGIN,
-            f"{SITE_ORIGIN}study-guide.html",
-            f"{SITE_ORIGIN}about.html",
-            f"{SITE_ORIGIN}privacy.html",
-            f"{SITE_ORIGIN}sitemap.html",
-            f"{SITE_ORIGIN}books/",
-            f"{SITE_ORIGIN}LectureNote/",
-            f"{SITE_ORIGIN}LectureNote/society.html",
-            f"{SITE_ORIGIN}LectureNote/digital.html",
-            f"{SITE_ORIGIN}LectureNote/network.html",
-            f"{SITE_ORIGIN}LectureNote/statistics.html",
-            f"{SITE_ORIGIN}LectureNote/programming.html",
-            f"{SITE_ORIGIN}archive/",
-            f"{SITE_ORIGIN}archive/keywords.html",
-            f"{SITE_ORIGIN}info1-quiz-app/questions/tags.html",
-            f"{SITE_ORIGIN}info1-quiz-app/app/",
-        }
-        missing_required = sorted(required - set(portal_urls))
-        if missing_required:
-            errors.append(f"sitemap.xml is missing required URLs: {missing_required}")
-        app_report = APP_ROOT / "docs" / "reports" / "question-library-build.json"
-        if app_report.exists():
-            report = json.loads(app_report.read_text(encoding="utf-8"))
-            app_paths = [*report.get("learning_pages", []), report.get("related_app_page", "")]
-            expected_urls = [*(public_url(path) for path in page_paths), *(app_public_url(path) for path in app_paths)]
-            if portal_urls != list(dict.fromkeys(expected_urls)):
-                errors.append("sitemap.xml is not synchronized with the question-library build report")
-            for obsolete_app_page in (APP_ROOT / "app" / "about.html", APP_ROOT / "app" / "privacy.html"):
-                if obsolete_app_page.exists():
-                    errors.append(f"Obsolete app information page still exists: {obsolete_app_page.name}")
-            app_index_text = (APP_ROOT / "app" / "index.html").read_text(encoding="utf-8")
-            for expected_href in ("../../", "../../about.html", "../../privacy.html"):
-                if f'href="{expected_href}"' not in app_index_text:
-                    errors.append(f"App footer is missing portal link: {expected_href}")
-        else:
-            warnings.append("App build report not found beside the portal; cross-repository sitemap comparison skipped")
-    except (ET.ParseError, OSError) as exc:
-        errors.append(f"Invalid sitemap.xml: {exc}")
-        portal_urls = []
+        curriculum = json.loads(curriculum_path.read_text(encoding="utf-8"))
+        video_data = json.loads(video_data_path.read_text(encoding="utf-8"))
+        video_questions = flatten_video_questions(video_data)
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        errors.append(f"video data could not be loaded: {exc}")
+        curriculum = {}
+        video_data = {}
+        video_questions = {}
 
-    report = {
+    if len(video_questions) != 330 or set(video_questions) != set(range(1, 331)):
+        errors.append("video data must contain Q1-Q330 exactly once")
+    if video_data.get("content_policy") != "問題・答え・対応動画のみ。解説本文は収録しない。":
+        errors.append("video data content policy must exclude keyword fields and explanation text")
+    if any("keywords" in question for question in video_questions.values()):
+        errors.append("video data still contains obsolete keyword fields")
+
+    fields = curriculum.get("fields", []) if isinstance(curriculum, dict) else []
+    genres = [genre for field in fields for genre in field.get("genres", [])]
+    field_counts = {field.get("id"): sum(len(genre.get("numbers", [])) for genre in field.get("genres", [])) for field in fields}
+    field_ids = [field.get("id") for field in fields]
+    if field_ids != list(EXPECTED_FIELD_GENRES):
+        errors.append(f"video curriculum field IDs/order are incorrect: {field_ids}")
+    for field in fields:
+        field_id = field.get("id")
+        if field_id not in EXPECTED_FIELD_GENRES:
+            continue
+        genre_ids = [genre.get("id") for genre in field.get("genres", [])]
+        if genre_ids != EXPECTED_FIELD_GENRES[field_id]:
+            errors.append(f"video curriculum genre IDs/order are incorrect for {field_id}: {genre_ids}")
+    for genre in genres:
+        genre_id = genre.get("id")
+        expected_numbers = EXPECTED_GENRE_NUMBERS.get(genre_id)
+        if expected_numbers is None or genre.get("numbers") != expected_numbers:
+            errors.append(f"video curriculum numbers are incorrect for {genre_id}: {genre.get('numbers')}")
+    if len(fields) != 5 or field_counts != {"information-society": 32, "information-design": 33, "digital": 60, "network": 105, "programming": 100}:
+        errors.append(f"video curriculum field counts are incorrect: {field_counts}")
+    if len(genres) != 21 or len({genre.get("id") for genre in genres}) != 21:
+        errors.append("video curriculum must contain 21 unique genres")
+    normal_numbers = [number for genre in genres for number in genre.get("numbers", [])]
+    if sorted(normal_numbers) != list(range(1, 331)) or len(normal_numbers) != len(set(normal_numbers)):
+        errors.append("normal video genres must cover Q1-Q330 exactly once")
+    expected_course = [231, 233, 235, 236, 241, 242, 248, 252, 255, 260, 263, 265, 270, 272, 276, 278, 281, 282, 285, 292, 301, 310, 315, 318, 324, 325, 330]
+    courses = curriculum.get("courses", []) if isinstance(curriculum, dict) else []
+    course_numbers = courses[0].get("numbers", []) if courses else []
+    if course_numbers != expected_course or len(set(course_numbers)) != 27 or any(number not in video_questions for number in course_numbers):
+        errors.append("programming shortest course numbers/order are incorrect")
+
+    archive_dir = ROOT / "archive"
+    archive_html = sorted(path.name for path in archive_dir.glob("*.html"))
+    expected_archive_html = sorted(["index.html", "programming-shortest-course.html", *(f"{genre['id']}.html" for genre in genres)])
+    if archive_html != expected_archive_html:
+        errors.append(f"archive HTML set is incorrect: {archive_html}")
+    if (archive_dir / "keywords.html").exists() or (ROOT / "assets" / "video-filter.js").exists() or (ROOT / "scripts" / "rebuild_video_keywords.py").exists() or (ROOT / "docs" / "video-keyword-audit.json").exists():
+        errors.append("obsolete video keyword files remain")
+    if (ROOT / "docs" / "portal-validation.json").exists():
+        errors.append("obsolete docs/portal-validation.json remains; use docs/reports/portal-validation.json")
+    genre_counts = {genre["id"]: len(genre.get("numbers", [])) for genre in genres}
+    rendered_normal: list[int] = []
+    for genre in genres:
+        path = archive_dir / f"{genre['id']}.html"
+        text = path.read_text(encoding="utf-8") if path.is_file() else ""
+        ids = [int(value) for value in re.findall(r'<article class="video-question-card" id="q-(\d+)"', text)]
+        if ids != genre.get("numbers", []):
+            errors.append(f"archive/{genre['id']}.html: question order/count does not match curriculum")
+        html_ids = re.findall(r'(?:^|\s)id="([^"]+)"', text)
+        if len(html_ids) != len(set(html_ids)):
+            errors.append(f"archive/{genre['id']}.html: duplicate HTML IDs remain")
+        rendered_normal.extend(ids)
+        if "video-genre-back-link" not in text:
+            errors.append(f"archive/{genre['id']}.html: the standalone 一覧へ link is missing")
+        if any(marker in text for marker in ("video-question-jump", "問題番号", "ジャンルを移動", "一覧へ戻る", "page-direction", "前後のジャンル", "archive-field-hero")):
+            errors.append(f"archive/{genre['id']}.html: obsolete video navigation or hero markup remains")
+        if "video-keywords" in text or "keyword-link" in text or "keywords.html" in text:
+            errors.append(f"archive/{genre['id']}.html: obsolete keyword markup remains")
+    if sorted(rendered_normal) != list(range(1, 331)) or len(rendered_normal) != len(set(rendered_normal)):
+        errors.append("rendered normal video pages do not cover Q1-Q330 exactly once")
+    course_text = (archive_dir / "programming-shortest-course.html").read_text(encoding="utf-8") if (archive_dir / "programming-shortest-course.html").is_file() else ""
+    course_rendered = [int(value) for value in re.findall(r'<article class="video-question-card" id="q-(\d+)"', course_text)]
+    if course_rendered != expected_course:
+        errors.append("programming-shortest-course.html: rendered order does not match the 27-question course")
+    course_html_ids = re.findall(r'(?:^|\s)id="([^"]+)"', course_text)
+    if len(course_html_ids) != len(set(course_html_ids)):
+        errors.append("programming-shortest-course.html: duplicate HTML IDs remain")
+    if "video-genre-back-link" not in course_text or any(marker in course_text for marker in ("video-question-jump", "問題番号", "一覧へ戻る", "page-direction", "前後のジャンル", "archive-field-hero")):
+        errors.append("programming-shortest-course.html: obsolete video navigation or hero markup remains")
+
+    report_path = ROOT / "docs" / "video-library-build.json"
+    report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else {}
+    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", False)):
+        if report.get(key) != expected:
+            errors.append(f"video-library-build.json: {key} is out of sync")
+    if report.get("course_question_numbers") != expected_course:
+        errors.append("video-library-build.json: course_question_numbers are out of sync")
+
+    page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
+    parsers: dict[Path, PageParser] = {}
+    for path in page_paths:
+        try:
+            parsers[path.resolve()] = check_metadata(path, path.read_text(encoding="utf-8"), errors)
+        except OSError as exc:
+            errors.append(f"{path.relative_to(ROOT)}: cannot read: {exc}")
+    for source, parser in parsers.items():
+        for href in parser.links:
+            target = local_target(source, href, APP_ROOT)
+            if target is not None and not target.exists():
+                errors.append(f"{source.relative_to(ROOT)}: broken local link {href}")
+
+    top_text = (ROOT / "index.html").read_text(encoding="utf-8")
+    main_match = re.search(r'<main id="main-content">(.*?)</main>', top_text, flags=re.DOTALL)
+    main_text = main_match.group(1) if main_match else ""
+    class_positions = [main_text.find(marker) for marker in ('class="hero"', 'class="section section-app"', 'class="section home-actions-section"', 'class="section home-misc-section"')]
+    if any(position < 0 for position in class_positions) or class_positions != sorted(class_positions):
+        errors.append("index.html: required top-page section order is missing")
+    hero_map_match = re.search(r'<div class="hero-map"[^>]*>.*?</div>\s*</div>', top_text, flags=re.DOTALL)
+    if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
+        errors.append("index.html: counts/history hook/map requirements are not satisfied")
+    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./study-guide.html", "./books/"):
+        if f'href="{href}"' not in top_text:
+            errors.append(f"index.html: primary link is missing: {href}")
+    archive_index_text = (ROOT / "archive" / "index.html").read_text(encoding="utf-8")
+    if '<a class="archive-course-card"' not in archive_index_text or '<aside class="archive-course-card"' in archive_index_text:
+        errors.append("archive/index.html: shortest course must be one linked card")
+    if "掲載内容について" in archive_index_text or "問題を探してアプリで挑戦" in archive_index_text:
+        errors.append("archive/index.html: removed supporting cards remain")
+    books_index_text = (ROOT / "books" / "index.html").read_text(encoding="utf-8")
+    if "このページについて" in books_index_text or "無料コンテンツから始める" in books_index_text:
+        errors.append("books/index.html: removed supporting sections remain")
+    home_learning = (ROOT / "assets" / "home-learning.js").read_text(encoding="utf-8")
+    if "info1LearningRecord:v1" not in home_learning or "summarizeQuestionRecord" not in home_learning or "これまで延べ${attempts}問に解答" not in home_learning or "StudyAtlasLecture" in home_learning:
+        errors.append("home-learning.js: safe question-history summary is missing or lecture state leaked")
+    site_css = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
+    for marker in (".home-action-grid", ".home-misc-grid", ".video-genre-back-link"):
+        if marker not in site_css:
+            errors.append(f"site.css: required reorganized layout style is missing: {marker}")
+    for marker in (".archive-genre-section", ".archive-genre-links", ".archive-genre-link", ".page-numbers", ".page-ellipsis", ".pagination-top", ".field-grid", ".field-card", ".topic-list", ".key-advice"):
+        if marker in site_css:
+            errors.append(f"site.css: obsolete reorganized-page style remains: {marker}")
+    for marker in ("video-keywords", "keyword-link", "video-filter"):
+        if marker in site_css:
+            errors.append(f"site.css: obsolete video keyword style remains: {marker}")
+    lecture_index = (ROOT / "LectureNote" / "index.html").read_text(encoding="utf-8")
+    if "archive-stats" in lecture_index:
+        errors.append("LectureNote/index.html: redundant numeric summary remains")
+
+    sitemap_path = ROOT / "sitemap.xml"
+    sitemap_urls: list[str] = []
+    if sitemap_path.is_file():
+        try:
+            sitemap_urls = [node.text.strip() for node in ET.parse(sitemap_path).getroot().findall(".//{*}loc") if node.text and node.text.strip()]
+        except ET.ParseError as exc:
+            errors.append(f"sitemap.xml: invalid XML: {exc}")
+    else:
+        errors.append("sitemap.xml is missing")
+    if len(sitemap_urls) != len(set(sitemap_urls)):
+        errors.append("sitemap.xml contains duplicate URLs")
+    expected_portal_paths = [
+        "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "books/index.html",
+        "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
+        "LectureNote/statistics.html", "LectureNote/programming.html", *report.get("learning_pages", []),
+    ]
+    expected_app_paths: list[str] = []
+    app_report_path = APP_ROOT / "docs" / "reports" / "question-library-build.json"
+    if app_report_path.is_file():
+        app_report = json.loads(app_report_path.read_text(encoding="utf-8"))
+        expected_app_paths = [*app_report.get("learning_pages", []), app_report.get("related_app_page", "")]
+    expected_sitemap = [public_url(path) for path in dict.fromkeys(expected_portal_paths)] + [app_public_url(path) for path in dict.fromkeys(expected_app_paths)]
+    if sitemap_urls != expected_sitemap:
+        errors.append("sitemap.xml is not synchronized with the current portal/app build reports")
+    if any("archive/keywords.html" in url or "questions/tags.html" in url for url in sitemap_urls):
+        errors.append("sitemap.xml contains an obsolete keyword or legacy question URL")
+
+    forbidden_files = ("archive/keywords.html", "archive/information-society-design.html", "archive/digital.html", "archive/network.html", "archive/programming.html")
+    scanned_files = [path for path in ROOT.rglob("*") if path.is_file() and path.suffix.lower() in {".html", ".js", ".json", ".md", ".py", ".xml"} and path.name not in {"validate_portal.py"} and path.relative_to(ROOT).as_posix() != "docs/reports/portal-validation.json"]
+    for path in scanned_files:
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for token in forbidden_files:
+            if token in text:
+                errors.append(f"obsolete URL remains in {path.relative_to(ROOT)}: {token}")
+    if not (ROOT / "robots.txt").is_file() or f"Sitemap: {SITE_ORIGIN}sitemap.xml" not in (ROOT / "robots.txt").read_text(encoding="utf-8"):
+        errors.append("robots.txt does not advertise sitemap.xml")
+
+    report_out = {
         "status": "pass" if not errors else "fail",
         "html_pages_checked": len(page_paths),
-        "sitemap_urls": len(portal_urls),
+        "archive_html": len(archive_html),
+        "normal_video_questions": len(rendered_normal),
+        "shortest_course_questions": len(course_rendered),
+        "field_counts": field_counts,
+        "genre_counts": genre_counts,
+        "sitemap_urls": len(sitemap_urls),
         "errors": errors,
         "warnings": warnings,
         "checks": [
-            "titles, descriptions, canonical URLs, and one h1 per portal page",
-            "Open Graph and BreadcrumbList structured metadata",
-            "one shared home OGP image and summary-large Twitter card per portal page",
-            "portal and cross-repository links and fragments",
-            "AdSense on the portal top and learning pages, but not informational or book-guide pages",
-            "330 video-question mappings without book explanation text",
-            "330 explicitly audited keyword sets independent of the original keyword column",
-            "controlled 90-keyword taxonomy with no one-question-only keywords",
-            "privacy-enhanced click-to-load YouTube embeds",
-            "formatted question text, 100 light non-wrapping programming code blocks, and no YouTube direct links",
-            "linked keywords, complete keyword index, and multi-keyword AND filtering",
-            "four-field keyword grouping and source-question-first single-keyword navigation",
-            "site-specific information-I study guide with app repetition, programming videos, lecture notes, and official references",
-            "top-page section order, counts, linked app CTA, six app fields, four video fields, five lecture fields, and four responsive book rows",
-            "consistent sticky seven-link global navigation and prohibited public-copy scan",
-            "five lecture-note fields with metadata, local assets, links, and structured breadcrumbs",
-            "host-root ads.txt and robots.txt",
-            "sitemap synchronization with the info1-quiz-app build report",
+            "330 video questions, five fields, 21 genres, and exact shortest course",
+            "video pages use click-to-load embeds without keyword UI or redundant navigation",
+            "portal metadata, breadcrumbs, local links, and sitemap synchronization",
+            "simplified top-page order and safe learning-history summary",
+            "LectureNote index no longer exposes redundant numeric summary",
         ],
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    REPORT_PATH.write_text(json.dumps(report_out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     for warning in warnings:
         print(f"WARNING: {warning}")
     for error in errors:
         print(f"ERROR: {error}", file=sys.stderr)
-    print(f"status={report['status']} pages={len(page_paths)} sitemap_urls={len(portal_urls)}")
+    print(f"status={report_out['status']} pages={len(page_paths)} archive={len(archive_html)} sitemap={len(sitemap_urls)}")
     return 1 if errors else 0
 
 

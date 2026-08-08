@@ -2,16 +2,15 @@ from __future__ import annotations
 
 import html
 import json
-import math
 import re
 from collections import Counter
 from datetime import date
 from pathlib import Path
-from urllib.parse import urlencode
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "video-questions.json"
+CURRICULUM_PATH = ROOT / "data" / "video-curriculum.json"
 OUTPUT_DIR = ROOT / "archive"
 REPORT_PATH = ROOT / "docs" / "video-library-build.json"
 SITE_ORIGIN = "https://mei-chan-nel.com/"
@@ -19,67 +18,77 @@ OG_IMAGE_URL = f"{SITE_ORIGIN}assets/og/study-atlas-home-og.png"
 OG_IMAGE_ALT = "情報Ⅰ Study Atlasの学習マップと「知識を、ひろげ、つなげる」のメッセージ"
 OG_IMAGE_WIDTH = 1734
 OG_IMAGE_HEIGHT = 907
-PAGE_SIZE = 10
 ADSENSE = """    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>"""
-PUBLIC_SECTION_DEFINITIONS = [
-    {
-        "id": "information-society-design",
-        "label": "情報社会・デザイン",
-        "source_ids": ("information-society", "information-design"),
-        "description": "情報社会の制度・権利・安全と、情報を分かりやすく伝えるための設計を学びます。",
-    },
-    {
-        "id": "digital",
-        "label": "デジタル",
-        "source_ids": ("digital",),
-        "description": "2進数、情報量、文字・画像・音声など、コンピュータ上の表現を確かめます。",
-    },
-    {
-        "id": "network",
-        "label": "ネットワーク",
-        "source_ids": ("network",),
-        "description": "通信の仕組み、インターネット、Web、メール、暗号などを学びます。",
-    },
-    {
-        "id": "programming",
-        "label": "プログラミング",
-        "source_ids": ("programming",),
-        "description": "共通テスト用プログラム表記に完全対応。基本からシミュレーションまで扱います。",
-    },
-]
+EXPECTED_COURSE = [231, 233, 235, 236, 241, 242, 248, 252, 255, 260, 263, 265, 270, 272, 276, 278, 281, 282, 285, 292, 301, 310, 315, 318, 324, 325, 330]
+EXPECTED_FIELD_GENRES = {
+    "information-society": [
+        "information-society-morals",
+        "information-society-intellectual-property",
+    ],
+    "information-design": [
+        "information-design-communication",
+        "information-design-web",
+        "information-design-organization",
+    ],
+    "digital": [
+        "digital-calculation",
+        "digital-logic-circuits",
+        "digital-data",
+        "digital-computers",
+    ],
+    "network": [
+        "network-fundamentals",
+        "network-protocols",
+        "network-security",
+        "network-information-systems",
+        "network-databases",
+        "network-safety",
+    ],
+    "programming": [
+        "programming-variables-arrays",
+        "programming-branches",
+        "programming-loops",
+        "programming-search-sort",
+        "programming-functions",
+        "programming-simulation",
+    ],
+}
+EXPECTED_GENRE_NUMBERS = {
+    "information-society-morals": list(range(1, 8)),
+    "information-society-intellectual-property": list(range(8, 33)),
+    "information-design-communication": list(range(33, 42)),
+    "information-design-web": list(range(42, 51)),
+    "information-design-organization": list(range(51, 66)),
+    "digital-calculation": list(range(66, 90)) + list(range(123, 126)),
+    "digital-logic-circuits": list(range(90, 96)),
+    "digital-data": list(range(96, 105)),
+    "digital-computers": list(range(105, 123)),
+    "network-fundamentals": list(range(126, 161)),
+    "network-protocols": list(range(161, 176)),
+    "network-security": list(range(176, 184)),
+    "network-information-systems": list(range(184, 195)),
+    "network-databases": list(range(195, 209)),
+    "network-safety": list(range(209, 231)),
+    "programming-variables-arrays": list(range(231, 252)),
+    "programming-branches": list(range(252, 270)),
+    "programming-loops": list(range(270, 310)),
+    "programming-search-sort": list(range(310, 318)),
+    "programming-functions": list(range(318, 323)),
+    "programming-simulation": list(range(323, 331)),
+}
 
 
 def e(value: object) -> str:
     return html.escape(str(value), quote=True)
 
 
-def build_public_sections(source_sections: list[dict[str, object]]) -> list[dict[str, object]]:
-    by_id = {str(section["id"]): section for section in source_sections}
-    public_sections: list[dict[str, object]] = []
-    for definition in PUBLIC_SECTION_DEFINITIONS:
-        questions: list[dict[str, object]] = []
-        for source_id in definition["source_ids"]:
-            if source_id not in by_id:
-                raise ValueError(f"Missing video-question source section: {source_id}")
-            questions.extend(by_id[source_id]["questions"])
-        public_sections.append(
-            {
-                "id": definition["id"],
-                "label": definition["label"],
-                "description": definition["description"],
-                "questions": questions,
-            }
-        )
-    return public_sections
-
-
-def page_path(section_id: str, page_number: int) -> str:
-    suffix = "" if page_number == 1 else f"-{page_number}"
-    return f"archive/{section_id}{suffix}.html"
-
-
 def structured_data(value: dict[str, object]) -> str:
     return f'<script type="application/ld+json">{json.dumps(value, ensure_ascii=False, separators=(",", ":"))}</script>'
+
+
+def clean_html(value: str) -> str:
+    """Keep generated pages stable and free of whitespace-only lines."""
+    return re.sub(r"[ \t]+\n", "\n", value).rstrip() + "\n"
 
 
 def breadcrumb_data(items: list[tuple[str, str]]) -> dict[str, object]:
@@ -93,75 +102,7 @@ def breadcrumb_data(items: list[tuple[str, str]]) -> dict[str, object]:
     }
 
 
-def keyword_filter_href(keyword: str, question_number: int | None = None) -> str:
-    params = [("keyword", keyword)]
-    if question_number is not None:
-        params.append(("question", question_number))
-    return f"keywords.html#{urlencode(params)}"
-
-
-def facet_links(counts: Counter[str]) -> str:
-    return "".join(
-        f'<a class="facet-link" href="{keyword_filter_href(keyword)}" data-facet-value="{e(keyword)}">'
-        f'<span>{e(keyword)}</span><small data-facet-count>{count}問</small></a>'
-        for keyword, count in sorted(counts.items(), key=lambda item: (-item[1], item[0]))
-    )
-
-
-def primary_keyword_groups(sections: list[dict[str, object]]) -> list[tuple[str, Counter[str]]]:
-    counts_by_section = {
-        str(section["id"]): Counter(
-            str(keyword)
-            for question in section["questions"]
-            for keyword in question.get("keywords", [])
-        )
-        for section in sections
-    }
-    overall = Counter(
-        keyword for counts in counts_by_section.values() for keyword, count in counts.items() for _ in range(count)
-    )
-    assigned = {str(section["id"]): Counter() for section in sections}
-    for keyword, total in overall.items():
-        primary = max(sections, key=lambda section: counts_by_section[str(section["id"])][keyword])
-        assigned[str(primary["id"])][keyword] = total
-    return [(str(section["label"]), assigned[str(section["id"])]) for section in sections]
-
-
-def facet_panel(
-    counts: Counter[str],
-    *,
-    open_panel: bool = False,
-    groups: list[tuple[str, Counter[str]]] | None = None,
-) -> str:
-    if groups:
-        facet_markup = "".join(
-            f'''<details class="facet-group" data-facet-group{(" open" if index == 0 else "")}>
-            <summary>{e(label)} <span>{len(group_counts)}種類</span></summary>
-            <div class="facet-links" data-facet-links>{facet_links(group_counts)}</div>
-          </details>'''
-            for index, (label, group_counts) in enumerate(groups)
-            if group_counts
-        )
-    else:
-        facet_markup = f'<div class="facet-links" data-facet-links>{facet_links(counts)}</div>'
-    return f'''<details class="facet-panel"{(" open" if open_panel else "")}>
-        <summary>キーワード一覧から選ぶ <span>{len(counts)}種類</span></summary>
-        <div class="facet-panel-body">
-          <p>キーワードは主に関連する分野へ整理しています。この一覧では複数選択のAND検索、各問題に付くキーワードからはその語だけの検索になります。</p>
-          <div class="facet-tools"><a class="facet-clear" href="keywords.html" data-filter-clear>選択を解除</a></div>
-          <div class="facet-groups" data-facet-groups>{facet_markup}</div>
-        </div>
-      </details>'''
-
-
-def head(
-    title: str,
-    description: str,
-    canonical_path: str,
-    *,
-    video_script: bool = False,
-    extra_head: str = "",
-) -> str:
+def head(title: str, description: str, canonical_path: str, *, video_script: bool = False) -> str:
     canonical = f"{SITE_ORIGIN}{canonical_path}"
     script = '\n    <script src="../assets/video-embeds.js" defer></script>' if video_script else ""
     return f"""<!doctype html>
@@ -177,7 +118,7 @@ def head(
     <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
     <meta property="og:title" content="{e(title)}" />
     <meta property="og:description" content="{e(description)}" />
-    <meta property="og:url" content="{canonical}" />
+    <meta property="og:url" content="{e(canonical)}" />
     <meta property="og:image" content="{OG_IMAGE_URL}" />
     <meta property="og:image:secure_url" content="{OG_IMAGE_URL}" />
     <meta property="og:image:type" content="image/png" />
@@ -187,10 +128,10 @@ def head(
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="{OG_IMAGE_URL}" />
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
-    <link rel="canonical" href="{canonical}" />
+    <link rel="canonical" href="{e(canonical)}" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026072606" />
-{ADSENSE}{script}{extra_head}
+    <link rel="stylesheet" href="../assets/site.css?v=2026080802" />
+{ADSENSE}{script}
   </head>"""
 
 
@@ -198,10 +139,10 @@ def header(current: str) -> str:
     links = [
         ("home", "../", "トップページ"),
         ("app", "../info1-quiz-app/app/", "学習アプリ"),
-        ("questions", "../info1-quiz-app/questions/", "問題一覧"),
-        ("archive", "./", "動画問題"),
+        ("questions", "../info1-quiz-app/questions/", "問題を探す"),
+        ("archive", "./", "解説動画"),
         ("lecture", "../LectureNote/", "講義ノート"),
-        ("study", "../study-guide.html", "勉強法"),
+        ("study", "../study-guide.html", "使い方"),
         ("about", "../about.html", "このサイトについて"),
     ]
     nav = "".join(
@@ -228,10 +169,10 @@ def footer() -> str:
         <nav aria-label="フッターナビゲーション">
           <a href="../">トップページ</a>
           <a href="../info1-quiz-app/app/">学習アプリ</a>
-          <a href="../info1-quiz-app/questions/">問題一覧</a>
-          <a href="./">動画問題</a>
+          <a href="../info1-quiz-app/questions/">問題を探す</a>
+          <a href="./">解説動画</a>
           <a href="../LectureNote/">講義ノート</a>
-          <a href="../study-guide.html">勉強法</a>
+          <a href="../study-guide.html">使い方</a>
           <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
@@ -240,55 +181,24 @@ def footer() -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026072606"></script>
+    <script src="../assets/site-header.js?v=2026080801"></script>
   </body>
 </html>
 """
 
 
-def pagination(section: dict[str, object], page_number: int, page_count: int) -> str:
-    section_id = str(section["id"])
-    previous = (
-        f'<a class="page-direction" href="{Path(page_path(section_id, page_number - 1)).name}">← 前へ</a>'
-        if page_number > 1
-        else '<span class="page-direction disabled">← 前へ</span>'
-    )
-    following = (
-        f'<a class="page-direction" href="{Path(page_path(section_id, page_number + 1)).name}">次へ →</a>'
-        if page_number < page_count
-        else '<span class="page-direction disabled">次へ →</span>'
-    )
-    visible_numbers = sorted({1, page_count, *range(max(1, page_number - 2), min(page_count, page_number + 2) + 1)})
-    number_parts: list[str] = []
-    previous_number = 0
-    for number in visible_numbers:
-        if previous_number and number - previous_number > 1:
-            number_parts.append('<span class="page-ellipsis" aria-hidden="true">…</span>')
-        if number == page_number:
-            number_parts.append(f'<span aria-current="page">{number}</span>')
+def breadcrumb(items: list[tuple[str, str | None]]) -> str:
+    parts = []
+    for label, href in items:
+        if href:
+            parts.append(f'<a href="{e(href)}">{e(label)}</a>')
         else:
-            number_parts.append(f'<a href="{Path(page_path(section_id, number)).name}" aria-label="{number}ページ目">{number}</a>')
-        previous_number = number
-    numbers = "".join(number_parts)
-    return f'<nav class="pagination" aria-label="ページ送り">{previous}<div class="page-numbers">{numbers}</div>{following}</nav>'
-
-
-def video_controls(number: int, videos: list[dict[str, str]]) -> str:
-    controls: list[str] = []
-    for index, video in enumerate(videos, start=1):
-        frame_id = f"video-{number}-{index}"
-        suffix = f" {index}" if len(videos) > 1 else ""
-        controls.append(
-            f"""<div class="video-control">
-              <button class="video-trigger" type="button" data-video-id="{e(video['id'])}" data-video-title="{e(video['title'])}" aria-controls="{frame_id}" aria-expanded="false">解説動画を表示{suffix}</button>
-              <div class="video-frame" id="{frame_id}" hidden></div>
-            </div>"""
-        )
-    return "\n".join(controls)
+            parts.append(f'<span aria-current="page">{e(label)}</span>')
+    return '<nav class="breadcrumb" aria-label="パンくずリスト">' + '<span aria-hidden="true">/</span>'.join(parts) + "</nav>"
 
 
 def prose_markup(text: str) -> str:
-    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    normalized = str(text).replace("\r\n", "\n").replace("\r", "\n")
     normalized = re.sub(r"(?<=[。！？])(?=\S)", "\n", normalized)
     normalized = re.sub(r"(?<!^)(?<!\n)(?=(?:ただし|なお)[、，])", "\n", normalized)
     lines = [line.strip() for line in normalized.split("\n") if line.strip()]
@@ -297,9 +207,8 @@ def prose_markup(text: str) -> str:
 
 def question_parts(question: dict[str, object], section_id: str) -> tuple[str, str]:
     text = str(question["question"]).replace("\r\n", "\n").replace("\r", "\n")
-    if section_id != "programming":
+    if not section_id.startswith("programming"):
         return text, ""
-
     lines = text.split("\n")
     code_start = next(
         (
@@ -309,10 +218,8 @@ def question_parts(question: dict[str, object], section_id: str) -> tuple[str, s
         ),
         len(lines),
     )
-    prose_lines = lines[:code_start]
-    code_lines = lines[code_start:]
-    heading = "\n".join(prose_lines).strip() or "プログラムを読み、問いに答えよ。"
-    code = "\n".join(line.rstrip() for line in code_lines).strip()
+    heading = "\n".join(lines[:code_start]).strip() or "プログラムを読み、問いに答えよ。"
+    code = "\n".join(line.rstrip() for line in lines[code_start:]).strip()
     return heading, code
 
 
@@ -326,282 +233,271 @@ def question_markup(question: dict[str, object], section_id: str) -> str:
     return f"<h2>{prose_markup(heading)}</h2>{code_block}"
 
 
-def question_card(question: dict[str, object], section_id: str) -> str:
+def video_controls(number: int, videos: list[dict[str, str]]) -> str:
+    controls = []
+    for index, video in enumerate(videos, start=1):
+        frame_id = f"video-{number}-{index}"
+        suffix = f" {index}" if len(videos) > 1 else ""
+        controls.append(
+            f'''<div class="video-control">
+              <button class="video-trigger" type="button" data-video-id="{e(video['id'])}" data-video-title="{e(video['title'])}" aria-controls="{frame_id}" aria-expanded="false">解説動画を表示{suffix}</button>
+              <div class="video-frame" id="{frame_id}" hidden></div>
+            </div>'''
+        )
+    return "\n".join(controls)
+
+
+def question_card(question: dict[str, object], section_id: str, meta: str) -> str:
     number = int(question["number"])
-    keywords = question.get("keywords") or []
-    tags = "".join(
-        f'<li><a class="keyword-link" href="{keyword_filter_href(str(keyword), number)}">{e(keyword)}</a></li>'
-        for keyword in keywords
-    )
-    return f"""        <article class="video-question-card" id="q-{number}">
-          <div class="video-question-meta"><span>QUESTION {number:03d}</span></div>
+    return f'''        <article class="video-question-card" id="q-{number}">
+          <div class="video-question-meta"><span>{e(meta)}</span></div>
           {question_markup(question, section_id)}
           <details class="video-answer-panel">
             <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
             <div class="video-answer-content"><p><span>答え</span><strong>{e(question['answer'])}</strong></p></div>
           </details>
-          <div class="video-question-tools">
-            <div class="video-keywords"><span>キーワード</span><ul>{tags}</ul></div>
-            {video_controls(number, list(question.get('videos') or []))}
-          </div>
-        </article>"""
+          <div class="video-question-tools">{video_controls(number, list(question.get('videos') or []))}</div>
+        </article>'''
 
 
-def archive_index(data: dict[str, object]) -> str:
-    sections = list(data["sections"])
-    keyword_counts = Counter(
-        str(keyword)
-        for section in sections
-        for question in section["questions"]
-        for keyword in question.get("keywords", [])
+def page_href(identifier: str) -> str:
+    return f"{identifier}.html"
+
+
+def genre_nav(genre: dict[str, object], genres: list[dict[str, object]], position: str) -> str:
+    same_field = [item for item in genres if item["field_id"] == genre["field_id"]]
+    same_field_links = "".join(
+        f'<a href="{page_href(str(item["id"]))}"{(" aria-current=\"page\"" if item["id"] == genre["id"] else "")}>{e(item["label"])}</a>'
+        for item in same_field
     )
-    cards = []
-    for index, section in enumerate(sections, start=1):
-        count = len(section["questions"])
-        cards.append(
-            f"""          <a class="archive-field-card" href="{e(section['id'])}.html">
-            <span>{index:02d}</span><div><h2>{e(section['label'])}</h2><p>{e(section['description'])}</p><small>{count}問・解説動画つき</small></div><b aria-hidden="true">→</b>
-          </a>"""
+    heading_id = f"genre-navigation-{position}-heading"
+    return f'''<section class="video-genre-navigation" aria-labelledby="{heading_id}">
+        <h2 id="{heading_id}">分野</h2>
+        <div class="video-genre-links">{same_field_links}</div>
+        <p class="video-genre-back-link"><a href="./">一覧へ</a></p>
+      </section>'''
+
+
+def course_nav(genres: list[dict[str, object]]) -> str:
+    programming_genres = [genre for genre in genres if genre["field_id"] == "programming"]
+    genre_links = "".join(
+        f'<a href="{page_href(str(genre["id"]))}">{e(genre["label"])}</a>'
+        for genre in programming_genres
+    )
+    return f'''<section class="video-genre-navigation" aria-labelledby="course-navigation-heading">
+        <h2 id="course-navigation-heading">分野</h2>
+        <div class="video-genre-links">{genre_links}</div>
+        <p class="video-genre-back-link"><a href="./">一覧へ</a></p>
+      </section>'''
+
+
+def archive_index(fields: list[dict[str, object]], course: dict[str, object]) -> str:
+    field_sections = []
+    for index, field in enumerate(fields, start=1):
+        cards = []
+        for genre_index, genre in enumerate(field["genres"], start=1):
+            cards.append(
+                f'''          <a class="archive-field-card" href="{page_href(str(genre['id']))}">
+            <span>{genre_index:02d}</span><div><h3>{e(genre['label'])}</h3><p>{e(genre['description'])}</p><small>{len(genre['questions'])}問・解説動画つき</small></div><b aria-hidden="true">→</b>
+          </a>'''
+            )
+        course_card = ""
+        if field["id"] == "programming":
+            course_card = f'''<a class="archive-course-card" href="{page_href(str(course['id']))}"><div><p class="eyebrow">SEPARATE COURSE</p><h3>{e(course['label'])}</h3><p>{e(course['description'])}</p><small>{len(course['questions'])}問・指定順で学習</small></div><span class="card-arrow" aria-hidden="true">→</span></a>'''
+        field_sections.append(
+            f'''      <section class="archive-field-section" id="{e(field['id'])}" aria-labelledby="{e(field['id'])}-heading">
+        <div class="section-heading"><div><p class="eyebrow">FIELD {index:02d}</p><h2 id="{e(field['id'])}-heading">{e(field['label'])}</h2></div><p>{e(field['description'])}</p></div>
+        <div class="archive-field-grid">{''.join(cards)}</div>
+        {course_card}
+      </section>'''
         )
-    title = "情報Ⅰ Study Atlas｜動画問題"
-    description = "高校生・受験生向けの情報Ⅰ（情報1）一問一答330問。共通テスト対策を、答え・キーワード・YouTube解説動画で分野別に無料学習できます。"
-    structured = structured_data(
-        {
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": title,
-            "description": description,
-            "url": f"{SITE_ORIGIN}archive/",
-            "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": SITE_ORIGIN},
-        },
-    ) + structured_data(breadcrumb_data([("学習トップ", SITE_ORIGIN), ("動画問題", f"{SITE_ORIGIN}archive/")]))
-    return f"""{head(title, description, 'archive/')}
-{header('archive')}
+    title = "情報Ⅰ Study Atlas｜解説動画一覧"
+    description = "情報Ⅰの一問一答330問を、情報社会・情報デザイン・デジタル・ネットワーク・プログラミングの5分野と21ジャンルで学べる解説動画一覧です。"
+    schema = structured_data({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": title,
+        "description": description,
+        "url": f"{SITE_ORIGIN}archive/",
+        "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": SITE_ORIGIN},
+    }) + structured_data(breadcrumb_data([("学習トップ", SITE_ORIGIN), ("解説動画", f"{SITE_ORIGIN}archive/")]))
+    return f'''{head(title, description, "archive/")}
+{header("archive")}
     <main id="main-content" class="subpage archive-page">
-      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">動画問題</span></nav>
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">解説動画</span></nav>
       <header class="page-hero compact-hero">
         <p class="eyebrow">VIDEO QUESTION ARCHIVE</p>
-        <h1>動画で学ぶ<br />情報Ⅰ一問一答</h1>
-        <p>問題を考え、答えを確かめ、必要なときだけ解説動画を開く。情報社会・デザインからプログラミングまで、330問を4分野に整理しました。</p>
-        <dl class="archive-stats"><div><dt>問題</dt><dd>330問</dd></div><div><dt>分野</dt><dd>4分野</dd></div><div><dt>掲載</dt><dd>1ページ10問</dd></div></dl>
+        <h1>解説動画で学ぶ<br />情報Ⅰ一問一答</h1>
+        <p>分野を選び、ジャンルを選び、問題を考える。答えを確かめたあと、必要なときだけ解説動画を開けます。</p>
+        <dl class="archive-stats"><div><dt>問題</dt><dd>330問</dd></div><div><dt>分野</dt><dd>5分野</dd></div><div><dt>ジャンル</dt><dd>21ジャンル</dd></div></dl>
       </header>
       <section class="archive-intro" aria-labelledby="archive-fields-heading">
         <div><p class="eyebrow">SELECT A FIELD</p><h2 id="archive-fields-heading">分野から選ぶ</h2></div>
-        <div class="archive-field-grid">{''.join(cards)}</div>
+        {''.join(field_sections)}
       </section>
-      {facet_panel(keyword_counts, groups=primary_keyword_groups(sections))}
-      <aside class="content-note archive-policy"><h2>掲載内容について</h2><p>各問には問題文・答え・キーワード・対応するYouTube動画を掲載しています。書籍に収録した解説本文は掲載していません。動画は「解説動画を表示」を押したときだけ読み込まれます。</p></aside>
-      <section class="next-action"><div><p class="eyebrow">MORE QUESTIONS</p><h2>4択問題にも挑戦する</h2><p>完成済みの1,438問を、6分野の問題一覧または知識問題出題アプリで学べます。</p></div><a class="button button-primary" href="../info1-quiz-app/questions/">問題一覧を開く</a></section>
     </main>
-    {structured}
-{footer()}"""
+    {schema}
+{footer()}'''
 
 
-def section_page(section: dict[str, object], page_number: int) -> str:
-    questions = list(section["questions"])
-    page_count = math.ceil(len(questions) / PAGE_SIZE)
-    start = (page_number - 1) * PAGE_SIZE
-    page_questions = questions[start : start + PAGE_SIZE]
-    first_number = page_questions[0]["number"]
-    last_number = page_questions[-1]["number"]
-    page_label = f"（{page_number}/{page_count}ページ）" if page_count > 1 else ""
-    title = f"情報Ⅰ Study Atlas｜動画問題｜{section['label']}{page_label}"
-    description = f"共通テスト情報Ⅰの「{section['label']}」一問一答Q{first_number}〜Q{last_number}。高校生・受験生が答え・キーワード・YouTube解説動画で学べます。"
-    cards = "\n".join(question_card(question, str(section["id"])) for question in page_questions)
-    nav = pagination(section, page_number, page_count)
-    path = page_path(str(section["id"]), page_number)
-    keyword_counts = Counter(
-        str(keyword) for question in questions for keyword in question.get("keywords", [])
+def genre_page(genre: dict[str, object], genres: list[dict[str, object]]) -> str:
+    questions = list(genre["questions"])
+    path = f"archive/{genre['id']}.html"
+    title = f"情報Ⅰ Study Atlas｜解説動画｜{genre['field_label']}｜{genre['label']}"
+    description = f"情報Ⅰ「{genre['field_label']}・{genre['label']}」の一問一答{len(questions)}問。答えを確認し、必要な問題だけ解説動画で学べます。"
+    cards = "\n".join(
+        question_card(question, str(genre["id"]), f"{genre['field_label']} · {genre['label']} · QUESTION {index:03d}")
+        for index, question in enumerate(questions, start=1)
     )
-    structured = structured_data(
-        {
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": title,
-            "description": description,
-            "url": f"{SITE_ORIGIN}{path}",
-            "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": SITE_ORIGIN},
-        },
-    ) + structured_data(
-        breadcrumb_data(
-            [
-                ("学習トップ", SITE_ORIGIN),
-                ("動画問題", f"{SITE_ORIGIN}archive/"),
-                (str(section["label"]), f"{SITE_ORIGIN}{path}"),
-            ]
-        )
-    )
-    return f"""{head(title, description, path, video_script=True)}
-{header('archive')}
+    schema = structured_data({
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": title,
+        "description": description,
+        "url": f"{SITE_ORIGIN}{path}",
+        "inLanguage": "ja",
+        "about": ["情報Ⅰ", "大学入学共通テスト", str(genre["field_label"]), str(genre["label"])],
+        "numberOfItems": len(questions),
+        "isPartOf": {"@type": "WebSite", "name": "情報Ⅰ Study Atlas", "url": SITE_ORIGIN},
+    }) + structured_data(breadcrumb_data([
+        ("学習トップ", SITE_ORIGIN), ("解説動画", f"{SITE_ORIGIN}archive/"),
+        (str(genre["field_label"]), f"{SITE_ORIGIN}archive/#{genre['field_id']}"),
+        (str(genre["label"]), f"{SITE_ORIGIN}{path}"),
+    ]))
+    return f'''{head(title, description, path, video_script=True)}
+{header("archive")}
     <main id="main-content" class="subpage archive-page">
-      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><a href="./">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">{e(section['label'])}</span></nav>
-      <header class="field-hero archive-field-hero">
-        <div><p class="eyebrow">VIDEO QUESTIONS · {page_number:02d}/{page_count:02d}</p><h1>{e(section['label'])}</h1><p>Q{first_number}〜Q{last_number}。まず自分で答えを考え、必要なところだけ解説動画で確かめてください。</p></div>
-        <dl><div><dt>このページ</dt><dd>{len(page_questions)}問</dd></div><div><dt>分野全体</dt><dd>{len(questions)}問</dd></div></dl>
-      </header>
-      {facet_panel(keyword_counts)}
-      {nav}
-      <section class="video-question-list" aria-label="{e(section['label'])}の問題">{cards}</section>
-      {nav}
-      <aside class="content-note archive-policy"><h2>解説本文について</h2><p>このページでは、問題・答え・キーワードと対応動画だけを掲載しています。書籍に収録した解説本文は掲載していません。</p></aside>
+      {breadcrumb([("学習トップ", "../"), ("解説動画", "./"), (str(genre["field_label"]), f"./#{genre['field_id']}"), (str(genre["label"]), None)])}
+      <h1 class="visually-hidden">{e(genre['label'])}</h1>
+      {genre_nav(genre, genres, "top")}
+      <section class="video-question-list" aria-label="{e(genre['label'])}の問題">{cards}</section>
+      {genre_nav(genre, genres, "bottom")}
+      <aside class="content-note archive-policy"><h2>学び方</h2><p>まず問題を自分で考え、答えを確認します。詳しく知りたい問題だけ「解説動画を表示」を押してください。</p></aside>
     </main>
-    {structured}
-{footer()}"""
+    {schema}
+{footer()}'''
 
 
-def build_filter_payload(sections: list[dict[str, object]]) -> dict[str, object]:
-    items: list[dict[str, object]] = []
-    for section in sections:
-        for field_number, question in enumerate(section["questions"], start=1):
-            page_number = math.ceil(field_number / PAGE_SIZE)
-            heading, code = question_parts(question, str(section["id"]))
-            items.append(
-                {
-                    "number": int(question["number"]),
-                    "section_id": str(section["id"]),
-                    "section_label": str(section["label"]),
-                    "question": heading,
-                    "code": code,
-                    "answer": str(question["answer"]),
-                    "keywords": [str(keyword) for keyword in question.get("keywords", [])],
-                    "videos": [
-                        {"id": str(video["id"]), "title": str(video["title"])}
-                        for video in question.get("videos", [])
-                    ],
-                    "source_href": f"{Path(page_path(str(section['id']), page_number)).name}#q-{int(question['number'])}",
-                }
-            )
-    keyword_counts = Counter(keyword for item in items for keyword in item["keywords"])
-    return {
-        "generated_on": date.today().isoformat(),
-        "question_count": len(items),
-        "keyword_count": len(keyword_counts),
-        "match_mode": "AND",
-        "questions": items,
-    }
-
-
-def keyword_filter_page(payload: dict[str, object]) -> str:
-    keyword_counts = Counter(
-        keyword for question in payload["questions"] for keyword in question["keywords"]
+def course_page(course: dict[str, object], genres: list[dict[str, object]]) -> str:
+    questions = list(course["questions"])
+    path = f"archive/{course['id']}.html"
+    title = f"情報Ⅰ Study Atlas｜解説動画｜{course['label']}"
+    description = f"プログラミングの解説動画を指定順の{len(questions)}問で学ぶ最短コースです。"
+    cards = "\n".join(
+        question_card(question, str(course["id"]), f"COURSE {index:02d}/{len(questions):02d} · Q{int(question['number']):03d}")
+        for index, question in enumerate(questions, start=1)
     )
-    filter_sections = [
-        {
-            "id": definition["id"],
-            "label": definition["label"],
-            "questions": [
-                question for question in payload["questions"] if question["section_id"] == definition["id"]
-            ],
-        }
-        for definition in PUBLIC_SECTION_DEFINITIONS
-    ]
-    title = "情報Ⅰ Study Atlas｜動画問題｜キーワード検索"
-    description = (
-        f"情報Ⅰの動画付き一問一答{payload['question_count']}問を{payload['keyword_count']}種類のキーワードから検索。"
-        "複数キーワードはAND条件で抽出し、答えと解説動画まで確認できます。"
-    )
-    structured = structured_data(
-        {
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": title,
-            "description": description,
-            "url": f"{SITE_ORIGIN}archive/keywords.html",
-            "inLanguage": "ja",
-            "about": ["情報Ⅰ", "大学入学共通テスト", "一問一答"],
-            "audience": {"@type": "EducationalAudience", "educationalRole": "student"},
-        }
-    ) + structured_data(
-        breadcrumb_data(
-            [
-                ("学習トップ", SITE_ORIGIN),
-                ("動画問題", f"{SITE_ORIGIN}archive/"),
-                ("キーワードから探す", f"{SITE_ORIGIN}archive/keywords.html"),
-            ]
-        )
-    )
-    extra_head = '\n    <script src="../assets/video-filter.js" defer></script>'
-    return f"""{head(title, description, 'archive/keywords.html', video_script=True, extra_head=extra_head)}
-{header('archive')}
-    <main id="main-content" class="subpage archive-page filter-page" data-video-filter data-filter-data="filter-data.json" data-filter-param="keyword">
-      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><a href="./">動画問題</a><span aria-hidden="true">/</span><span aria-current="page">キーワードから探す</span></nav>
-      <section class="page-hero compact-hero">
-        <p class="eyebrow">KEYWORD SEARCH · AND FILTER</p>
-        <h1>キーワードから<br />動画問題を探す</h1>
-        <p>調べたいキーワードを選ぶと、その語を含む情報Ⅰの問題を抽出します。複数選択時は、すべてを含む問題を表示します。</p>
-      </section>
-      {facet_panel(keyword_counts, open_panel=True, groups=primary_keyword_groups(filter_sections))}
-      <section class="filter-results" aria-labelledby="filter-results-heading">
-        <div class="filter-results-heading"><p class="eyebrow">FILTERED QUESTIONS</p><h2 id="filter-results-heading" data-filter-heading>キーワードを選択してください</h2><p data-filter-summary>{payload['question_count']}問からAND条件で絞り込みます。</p></div>
-        <div class="filter-result-list" data-filter-results></div>
-        <noscript><p class="filter-message">絞り込み機能を利用するにはJavaScriptを有効にしてください。通常の<a href="./">動画問題一覧</a>はJavaScriptなしでも読めます。</p></noscript>
-      </section>
-      {structured}
+    schema = structured_data({
+        "@context": "https://schema.org",
+        "@type": "Course",
+        "name": title,
+        "description": description,
+        "url": f"{SITE_ORIGIN}{path}",
+        "provider": {"@type": "Organization", "name": "情報Ⅰ Study Atlas", "url": SITE_ORIGIN},
+        "numberOfItems": len(questions),
+    }) + structured_data(breadcrumb_data([
+        ("学習トップ", SITE_ORIGIN), ("解説動画", f"{SITE_ORIGIN}archive/"),
+        ("プログラミング", f"{SITE_ORIGIN}archive/#programming"), (str(course["label"]), f"{SITE_ORIGIN}{path}"),
+    ]))
+    return f'''{head(title, description, path, video_script=True)}
+{header("archive")}
+    <main id="main-content" class="subpage archive-page">
+      {breadcrumb([("学習トップ", "../"), ("解説動画", "./"), ("プログラミング", "./#programming"), (str(course["label"]), None)])}
+      <h1 class="visually-hidden">{e(course['label'])}</h1>
+      {course_nav(genres)}
+      <section class="video-question-list" aria-label="{e(course['label'])}の問題">{cards}</section>
+      <aside class="content-note archive-policy"><h2>コースについて</h2><p>このページは通常のジャンル別一覧とは別に、プログラミングを指定順で進めるための27問を掲載しています。</p></aside>
     </main>
-{footer()}"""
+    {schema}
+{footer()}'''
+
+
+def load_curriculum(data: dict[str, object]) -> tuple[list[dict[str, object]], dict[str, object]]:
+    source_questions = [question for section in data.get("sections", []) for question in section.get("questions", [])]
+    if len(source_questions) != 330 or sorted(int(q["number"]) for q in source_questions) != list(range(1, 331)):
+        raise ValueError("video-questions.json must contain exactly Q1-Q330")
+    by_number = {int(question["number"]): question for question in source_questions}
+    if any(not question.get("videos") for question in source_questions):
+        raise ValueError("Every video question must have at least one mapped video")
+    curriculum = json.loads(CURRICULUM_PATH.read_text(encoding="utf-8"))
+    fields = curriculum.get("fields") or []
+    field_ids = [field.get("id") for field in fields]
+    if field_ids != list(EXPECTED_FIELD_GENRES):
+        raise ValueError(f"Curriculum field IDs/order are incorrect: {field_ids}")
+    genres: list[dict[str, object]] = []
+    used: list[int] = []
+    for field in fields:
+        field_id = str(field["id"])
+        field_genres = field.get("genres", [])
+        genre_ids = [genre.get("id") for genre in field_genres]
+        if genre_ids != EXPECTED_FIELD_GENRES[field_id]:
+            raise ValueError(f"Curriculum genre IDs/order are incorrect for {field_id}: {genre_ids}")
+        for genre in field_genres:
+            numbers = [int(number) for number in genre.get("numbers", [])]
+            genre_id = str(genre["id"])
+            if numbers != EXPECTED_GENRE_NUMBERS[genre_id]:
+                raise ValueError(f"Curriculum numbers are incorrect for {genre_id}: {numbers}")
+            used.extend(numbers)
+            genres.append({**field, **genre, "field_id": field["id"], "field_label": field["label"], "questions": [by_number[number] for number in numbers]})
+    if sorted(used) != list(range(1, 331)):
+        raise ValueError("Genre curriculum must cover Q1-Q330 exactly once")
+    courses = curriculum.get("courses") or []
+    if len(courses) != 1 or courses[0].get("id") != "programming-shortest-course" or courses[0].get("numbers") != EXPECTED_COURSE:
+        raise ValueError("Shortest course must match the specified 27-question order")
+    course = {**courses[0], "questions": [by_number[number] for number in EXPECTED_COURSE]}
+    return genres, course
 
 
 def main() -> int:
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-    source_sections = list(data.get("sections") or [])
-    questions = [question for section in source_sections for question in section.get("questions", [])]
-    if data.get("question_count") != 330 or len(questions) != 330:
-        raise SystemExit("Expected exactly 330 imported video questions")
-    if any("explanation" in question or "解説" in question for question in questions):
-        raise SystemExit("Explanation text must not be present in public video-question data")
-    if any(not question.get("videos") for question in questions):
-        raise SystemExit("Every video question must have at least one mapped video")
-    sections = build_public_sections(source_sections)
-
+    if data.get("question_count") != 330:
+        raise ValueError("Expected exactly 330 imported video questions")
+    genres, course = load_curriculum(data)
+    fields = []
+    for field in json.loads(CURRICULUM_PATH.read_text(encoding="utf-8"))["fields"]:
+        fields.append({
+            **field,
+            "genres": [genre for genre in genres if genre["field_id"] == field["id"]],
+        })
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    output_root = OUTPUT_DIR.resolve()
-    if output_root != (ROOT / "archive").resolve():
-        raise SystemExit(f"Unexpected output directory: {output_root}")
+    if OUTPUT_DIR.resolve() != (ROOT / "archive").resolve():
+        raise RuntimeError(f"Unexpected output directory: {OUTPUT_DIR.resolve()}")
     for old_page in OUTPUT_DIR.glob("*.html"):
         old_page.unlink()
-
+    for obsolete_data in (OUTPUT_DIR / "filter-data.json",):
+        obsolete_data.unlink(missing_ok=True)
+    (OUTPUT_DIR / "index.html").write_text(clean_html(archive_index(fields, course)), encoding="utf-8")
     generated_pages = ["archive/index.html"]
-    public_data = {**data, "sections": sections}
-    (OUTPUT_DIR / "index.html").write_text(archive_index(public_data), encoding="utf-8")
-    field_counts: dict[str, int] = {}
-    for section in sections:
-        count = len(section["questions"])
-        field_counts[str(section["id"])] = count
-        for page_number in range(1, math.ceil(count / PAGE_SIZE) + 1):
-            relative = page_path(str(section["id"]), page_number)
-            (ROOT / relative).write_text(section_page(section, page_number), encoding="utf-8")
-            generated_pages.append(relative)
-
-    filter_payload = build_filter_payload(sections)
-    (OUTPUT_DIR / "keywords.html").write_text(keyword_filter_page(filter_payload), encoding="utf-8")
-    (OUTPUT_DIR / "filter-data.json").write_text(
-        json.dumps(filter_payload, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8"
-    )
-    generated_pages.append("archive/keywords.html")
-
+    for genre in genres:
+        path = f"archive/{genre['id']}.html"
+        (ROOT / path).write_text(clean_html(genre_page(genre, genres)), encoding="utf-8")
+        generated_pages.append(path)
+    course_path = f"archive/{course['id']}.html"
+    (ROOT / course_path).write_text(clean_html(course_page(course, genres)), encoding="utf-8")
+    generated_pages.append(course_path)
+    field_counts = {str(field["id"]): sum(len(genre["questions"]) for genre in field["genres"]) for field in fields}
+    genre_counts = {str(genre["id"]): len(genre["questions"]) for genre in genres}
     report = {
         "generated_on": date.today().isoformat(),
         "generator": "scripts/generate_video_pages.py",
         "source": "data/video-questions.json",
-        "question_count": len(questions),
-        "video_count": sum(len(question["videos"]) for question in questions),
-        "page_size": PAGE_SIZE,
+        "curriculum_source": "data/video-curriculum.json",
+        "question_count": 330,
+        "video_count": sum(len(question["videos"]) for section in data["sections"] for question in section["questions"]),
         "field_counts": field_counts,
+        "genre_counts": genre_counts,
+        "genre_pages": [f"archive/{genre['id']}.html" for genre in genres],
+        "course_pages": [course_path],
         "learning_pages": generated_pages,
+        "course_question_numbers": EXPECTED_COURSE,
         "explanation_text_published": False,
-        "keyword_audit": "docs/video-keyword-audit.json",
-        "keyword_count": filter_payload["keyword_count"],
-        "keyword_filter_page": "archive/keywords.html",
-        "keyword_filter_data": "archive/filter-data.json",
-        "filter_match_mode": "AND",
+        "video_keyword_feature": False,
         "youtube_direct_links_published": False,
         "video_viewer_aspect_ratio": "9:16",
-        "programming_code_blocks": sum(
-            len(section["questions"]) for section in sections if section["id"] == "programming"
-        ),
+        "programming_code_blocks": sum(1 for genre in genres if genre["field_id"] == "programming" for question in genre["questions"] if question_parts(question, str(genre["id"]))[1]),
     }
     REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"questions={len(questions)} pages={len(generated_pages)} videos={report['video_count']}")
+    print(f"questions=330 genres={len(genres)} course_questions={len(course['questions'])} pages={len(generated_pages)} videos={report['video_count']}")
     return 0
 
 
