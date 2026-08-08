@@ -45,10 +45,10 @@
   const navItems = [
     ["home", siteUrl(""), "トップページ"],
     ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
-    ["questions", siteUrl("info1-quiz-app/questions/"), "問題一覧"],
-    ["archive", siteUrl("archive/"), "動画問題"],
+    ["questions", siteUrl("info1-quiz-app/questions/"), "問題を探す"],
+    ["archive", siteUrl("archive/"), "解説動画"],
     ["lecture", siteUrl("LectureNote/"), "講義ノート"],
-    ["study", siteUrl("study-guide.html"), "勉強法"],
+    ["study", siteUrl("study-guide.html"), "使い方"],
     ["about", siteUrl("about.html"), "このサイトについて"],
   ];
   const navHtml = navItems.map(([key, href, label]) => {
@@ -96,10 +96,10 @@
         <nav aria-label="フッターナビゲーション">
           <a href="${siteUrl("")}">トップページ</a>
           <a href="${siteUrl("info1-quiz-app/app/")}">学習アプリ</a>
-          <a href="${siteUrl("info1-quiz-app/questions/")}">問題一覧</a>
-          <a href="${siteUrl("archive/")}">動画問題</a>
+          <a href="${siteUrl("info1-quiz-app/questions/")}">問題を探す</a>
+          <a href="${siteUrl("archive/")}">解説動画</a>
           <a href="${siteUrl("LectureNote/")}">講義ノート</a>
-          <a href="${siteUrl("study-guide.html")}">勉強法</a>
+          <a href="${siteUrl("study-guide.html")}">使い方</a>
           <a href="${siteUrl("books/")}">書籍案内</a>
           <a href="${siteUrl("about.html")}">このサイトについて</a>
           <a href="${siteUrl("privacy.html")}">プライバシーポリシー</a>

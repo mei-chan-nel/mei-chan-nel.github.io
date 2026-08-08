@@ -1,0 +1,47 @@
+{
+  "status": "pass",
+  "html_pages_checked": 35,
+  "archive_html": 23,
+  "normal_video_questions": 330,
+  "shortest_course_questions": 27,
+  "field_counts": {
+    "information-society": 32,
+    "information-design": 33,
+    "digital": 60,
+    "network": 105,
+    "programming": 100
+  },
+  "genre_counts": {
+    "information-society-morals": 7,
+    "information-society-intellectual-property": 25,
+    "information-design-communication": 9,
+    "information-design-web": 9,
+    "information-design-organization": 15,
+    "digital-calculation": 27,
+    "digital-logic-circuits": 6,
+    "digital-data": 9,
+    "digital-computers": 18,
+    "network-fundamentals": 35,
+    "network-protocols": 15,
+    "network-security": 8,
+    "network-information-systems": 11,
+    "network-databases": 14,
+    "network-safety": 22,
+    "programming-variables-arrays": 21,
+    "programming-branches": 18,
+    "programming-loops": 40,
+    "programming-search-sort": 8,
+    "programming-functions": 5,
+    "programming-simulation": 8
+  },
+  "sitemap_urls": 37,
+  "errors": [],
+  "warnings": [],
+  "checks": [
+    "330 video questions, five fields, 21 genres, and exact shortest course",
+    "video pages use click-to-load embeds without keyword UI or redundant navigation",
+    "portal metadata, breadcrumbs, local links, and sitemap synchronization",
+    "simplified top-page order and safe learning-history summary",
+    "LectureNote index no longer exposes redundant numeric summary"
+  ]
+}

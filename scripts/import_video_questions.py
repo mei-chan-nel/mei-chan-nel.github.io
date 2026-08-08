@@ -91,9 +91,6 @@ def main() -> int:
                     "number": number,
                     "question": question,
                     "answer": answer,
-                    # The workbook keyword column is not a reliable source.
-                    # scripts/rebuild_video_keywords.py replaces this empty list.
-                    "keywords": [],
                     "videos": videos_by_number.get(number, []),
                 }
             )
@@ -119,7 +116,7 @@ def main() -> int:
     payload = {
         "generated_on": date.today().isoformat(),
         "question_count": len(seen_numbers),
-        "content_policy": "問題・答え・対応動画のみを原本から抽出し、キーワードは別の全問監査表から付与する。解説本文は収録しない。",
+        "content_policy": "問題・答え・対応動画のみ。解説本文は収録しない。",
         "youtube_channel": "https://www.youtube.com/@mei_chan_nel",
         "sections": sections,
     }

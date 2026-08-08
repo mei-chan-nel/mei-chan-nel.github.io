@@ -54,12 +54,11 @@ Google公式: [自動広告について](https://support.google.com/adsense/answ
 
 - `https://mei-chan-nel.com/`
 - `https://mei-chan-nel.com/info1-quiz-app/questions/`
-- `https://mei-chan-nel.com/info1-quiz-app/questions/*.html`
 - `https://mei-chan-nel.com/archive/`
-- `https://mei-chan-nel.com/archive/*.html`
+- `https://mei-chan-nel.com/archive/` と21ジャンル・最短コースの各ページ
 - `https://mei-chan-nel.com/info1-quiz-app/app/`
 
-新設学習ページにはAdSenseコードがあり、本文は問題・選択肢・正答・解説・出典・タグで構成する。案内だけの画面や未完成画面には広告を置かない。
+新設学習ページにはAdSenseコードがあり、本文は動画問題、タグ検索、アプリ操作領域で構成する。案内だけの画面や互換リダイレクトには広告を置かない。
 
 Google公式: [パブリッシャー コンテンツがない画面上の広告](https://support.google.com/publisherpolicies/answer/11112688?hl=ja)、[AdSenseの利用に適したサイト](https://support.google.com/adsense/answer/7299563?hl=ja)
 
