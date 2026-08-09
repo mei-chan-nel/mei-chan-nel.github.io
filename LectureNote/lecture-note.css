@@ -316,6 +316,12 @@ button { font: inherit; }
 .section-nav a:hover, .section-nav a.is-active { color: var(--ink); background: var(--accent-soft); }
 
 .lecture-content { min-width: 0; min-height: 100vh; }
+.manual-ad-slot { width: min(100%, 920px); min-width: 0; margin: 40px auto; overflow: visible; }
+.manual-ad-slot[hidden] { display: none !important; }
+.manual-ad-slot--article { width: 100%; }
+.manual-ad-slot > .adsbygoogle { width: 100%; }
+ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
+.manual-ad-slot:has(> ins.adsbygoogle[data-ad-status="unfilled"]) { display: none; }
 .lecture-section {
   margin: 0 0 30px;
   padding: clamp(24px, 4vw, 48px);
@@ -1303,6 +1309,7 @@ button { font: inherit; }
 }
 
 @media print {
+  .manual-ad-slot { display: none !important; }
   .site-header, .section-sidebar, .lecture-learning-guide, .section-bookmark, .mobile-lecture-position, .lecture-back-to-top, .lecture-animation__expand, .site-footer { display: none !important; }
   .page-main { width: 100%; }
   .page-layout { display: block; }

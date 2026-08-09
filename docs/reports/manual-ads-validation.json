@@ -1,0 +1,363 @@
+{
+  "status": "pass",
+  "validated_on": "2026-08-09",
+  "publisher_id": "ca-pub-6257644709224446",
+  "slot_configuration": {
+    "display": "7759620808",
+    "article": "7839511857"
+  },
+  "target_pages": 29,
+  "boundary_tests": {
+    "1": [],
+    "5": [],
+    "6": [
+      5
+    ],
+    "10": [
+      5
+    ],
+    "11": [
+      5,
+      10
+    ],
+    "15": [
+      5,
+      10
+    ],
+    "16": [
+      4,
+      8,
+      12
+    ],
+    "17": [
+      4,
+      9,
+      13
+    ],
+    "18": [
+      5,
+      9,
+      14
+    ],
+    "21": [
+      5,
+      11,
+      16
+    ],
+    "25": [
+      6,
+      13,
+      19
+    ],
+    "27": [
+      7,
+      14,
+      20
+    ],
+    "35": [
+      9,
+      18,
+      26
+    ],
+    "40": [
+      10,
+      20,
+      30
+    ]
+  },
+  "pages": [
+    {
+      "path": "archive/digital-calculation.html",
+      "format": "in-article",
+      "content_count": 27,
+      "ad_count": 3,
+      "positions_after": [
+        7,
+        14,
+        20
+      ]
+    },
+    {
+      "path": "archive/digital-computers.html",
+      "format": "in-article",
+      "content_count": 18,
+      "ad_count": 3,
+      "positions_after": [
+        5,
+        9,
+        14
+      ]
+    },
+    {
+      "path": "archive/digital-data.html",
+      "format": "in-article",
+      "content_count": 9,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/digital-logic-circuits.html",
+      "format": "in-article",
+      "content_count": 6,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/information-design-communication.html",
+      "format": "in-article",
+      "content_count": 9,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/information-design-organization.html",
+      "format": "in-article",
+      "content_count": 15,
+      "ad_count": 2,
+      "positions_after": [
+        5,
+        10
+      ]
+    },
+    {
+      "path": "archive/information-design-web.html",
+      "format": "in-article",
+      "content_count": 9,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/information-society-intellectual-property.html",
+      "format": "in-article",
+      "content_count": 25,
+      "ad_count": 3,
+      "positions_after": [
+        6,
+        13,
+        19
+      ]
+    },
+    {
+      "path": "archive/information-society-morals.html",
+      "format": "in-article",
+      "content_count": 7,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/network-databases.html",
+      "format": "in-article",
+      "content_count": 14,
+      "ad_count": 2,
+      "positions_after": [
+        5,
+        10
+      ]
+    },
+    {
+      "path": "archive/network-fundamentals.html",
+      "format": "in-article",
+      "content_count": 35,
+      "ad_count": 3,
+      "positions_after": [
+        9,
+        18,
+        26
+      ]
+    },
+    {
+      "path": "archive/network-information-systems.html",
+      "format": "in-article",
+      "content_count": 11,
+      "ad_count": 2,
+      "positions_after": [
+        5,
+        10
+      ]
+    },
+    {
+      "path": "archive/network-protocols.html",
+      "format": "in-article",
+      "content_count": 15,
+      "ad_count": 2,
+      "positions_after": [
+        5,
+        10
+      ]
+    },
+    {
+      "path": "archive/network-safety.html",
+      "format": "in-article",
+      "content_count": 22,
+      "ad_count": 3,
+      "positions_after": [
+        6,
+        11,
+        17
+      ]
+    },
+    {
+      "path": "archive/network-security.html",
+      "format": "in-article",
+      "content_count": 8,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/programming-branches.html",
+      "format": "in-article",
+      "content_count": 18,
+      "ad_count": 3,
+      "positions_after": [
+        5,
+        9,
+        14
+      ]
+    },
+    {
+      "path": "archive/programming-functions.html",
+      "format": "in-article",
+      "content_count": 5,
+      "ad_count": 0,
+      "positions_after": []
+    },
+    {
+      "path": "archive/programming-loops.html",
+      "format": "in-article",
+      "content_count": 40,
+      "ad_count": 3,
+      "positions_after": [
+        10,
+        20,
+        30
+      ]
+    },
+    {
+      "path": "archive/programming-search-sort.html",
+      "format": "in-article",
+      "content_count": 8,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/programming-shortest-course.html",
+      "format": "in-article",
+      "content_count": 27,
+      "ad_count": 3,
+      "positions_after": [
+        7,
+        14,
+        20
+      ]
+    },
+    {
+      "path": "archive/programming-simulation.html",
+      "format": "in-article",
+      "content_count": 8,
+      "ad_count": 1,
+      "positions_after": [
+        5
+      ]
+    },
+    {
+      "path": "archive/programming-variables-arrays.html",
+      "format": "in-article",
+      "content_count": 21,
+      "ad_count": 3,
+      "positions_after": [
+        5,
+        11,
+        16
+      ]
+    },
+    {
+      "path": "LectureNote/society.html",
+      "format": "in-article",
+      "content_count": 11,
+      "ad_count": 3,
+      "positions_after": [
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "path": "LectureNote/digital.html",
+      "format": "in-article",
+      "content_count": 10,
+      "ad_count": 3,
+      "positions_after": [
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "path": "LectureNote/network.html",
+      "format": "in-article",
+      "content_count": 14,
+      "ad_count": 4,
+      "positions_after": [
+        3,
+        6,
+        9,
+        12
+      ]
+    },
+    {
+      "path": "LectureNote/statistics.html",
+      "format": "in-article",
+      "content_count": 12,
+      "ad_count": 3,
+      "positions_after": [
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "path": "LectureNote/programming.html",
+      "format": "in-article",
+      "content_count": 10,
+      "ad_count": 3,
+      "positions_after": [
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "path": "info1-quiz-app/app/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "app main"
+      ]
+    },
+    {
+      "path": "info1-quiz-app/questions/index.html",
+      "format": "responsive-display",
+      "content_count": 1438,
+      "ad_count": 1,
+      "positions_after": [
+        "random-question controls"
+      ]
+    }
+  ],
+  "errors": []
+}

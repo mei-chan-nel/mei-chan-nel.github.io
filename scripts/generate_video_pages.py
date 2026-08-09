@@ -19,7 +19,9 @@ OG_IMAGE_URL = f"{SITE_ORIGIN}assets/og/study-atlas-home-og.png"
 OG_IMAGE_ALT = "情報Ⅰ Study Atlasの学習マップと「知識を、ひろげ、つなげる」のメッセージ"
 OG_IMAGE_WIDTH = 1734
 OG_IMAGE_HEIGHT = 907
-ADSENSE = """    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>"""
+ADSENSE_CLIENT = "ca-pub-6257644709224446"
+ADSENSE_SCRIPT = f'''    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={ADSENSE_CLIENT}" crossorigin="anonymous"></script>'''
+MANUAL_ADS_SCRIPT = '''    <script src="../assets/manual-ads.js?v=2026080901" defer></script>'''
 EXPECTED_COURSE = [231, 233, 235, 236, 241, 242, 248, 252, 255, 260, 263, 265, 270, 272, 276, 278, 281, 282, 285, 292, 301, 310, 315, 318, 324, 325, 330]
 EXPECTED_FIELD_GENRES = {
     "information-society": [
@@ -103,9 +105,10 @@ def breadcrumb_data(items: list[tuple[str, str]]) -> dict[str, object]:
     }
 
 
-def head(title: str, description: str, canonical_path: str, *, video_script: bool = False) -> str:
+def head(title: str, description: str, canonical_path: str, *, ads: bool = False, video_script: bool = False) -> str:
     canonical = f"{SITE_ORIGIN}{canonical_path}"
-    script = '\n    <script src="../assets/video-embeds.js" defer></script>' if video_script else ""
+    ad_scripts = f"\n{ADSENSE_SCRIPT}\n{MANUAL_ADS_SCRIPT}" if ads else ""
+    video_embed_script = '\n    <script src="../assets/video-embeds.js" defer></script>' if video_script else ""
     return f"""<!doctype html>
 <html lang="ja">
   <head>
@@ -131,8 +134,7 @@ def head(title: str, description: str, canonical_path: str, *, video_script: boo
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{e(canonical)}" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026080802" />
-{ADSENSE}{script}
+    <link rel="stylesheet" href="../assets/site.css?v=2026080901" />{ad_scripts}{video_embed_script}
   </head>"""
 
 
@@ -265,6 +267,43 @@ def question_card(question: dict[str, object], section_id: str, meta: str) -> st
         </article>'''
 
 
+def round_positive_fraction(numerator: int, denominator: int) -> int:
+    """Match JavaScript Math.round for the positive fractions used by the placement rule."""
+    return (2 * numerator + denominator) // (2 * denominator)
+
+
+def video_ad_positions(question_count: int) -> list[int]:
+    if question_count <= 5:
+        return []
+    if question_count <= 10:
+        return [5]
+    if question_count <= 15:
+        return [5, 10]
+    positions = [
+        round_positive_fraction(question_count, 4),
+        round_positive_fraction(question_count, 2),
+        round_positive_fraction(3 * question_count, 4),
+    ]
+    return sorted({position for position in positions if 0 < position < question_count})
+
+
+def manual_article_ad(after_question: int) -> str:
+    return (
+        '        <div class="manual-ad-slot manual-ad-slot--article" '
+        f'data-manual-ad="article" data-ad-after-question="{after_question}" hidden></div>'
+    )
+
+
+def render_video_cards(questions: list[dict[str, object]], section_id: str, meta_builder) -> str:
+    ad_positions = set(video_ad_positions(len(questions)))
+    parts: list[str] = []
+    for index, question in enumerate(questions, start=1):
+        parts.append(question_card(question, section_id, meta_builder(index, question)))
+        if index in ad_positions:
+            parts.append(manual_article_ad(index))
+    return "\n".join(parts)
+
+
 def page_href(identifier: str) -> str:
     return f"{identifier}.html"
 
@@ -356,9 +395,10 @@ def genre_page(genre: dict[str, object], genres: list[dict[str, object]]) -> str
     path = f"archive/{genre['id']}.html"
     title = f"情報Ⅰ Study Atlas｜解説動画｜{genre['field_label']}｜{genre['label']}"
     description = f"情報Ⅰ「{genre['field_label']}・{genre['label']}」の一問一答{len(questions)}問。答えを確認し、必要な問題だけ解説動画で学べます。"
-    cards = "\n".join(
-        question_card(question, str(genre["id"]), f"{genre['field_label']} · {genre['label']} · QUESTION {index:03d}")
-        for index, question in enumerate(questions, start=1)
+    cards = render_video_cards(
+        questions,
+        str(genre["id"]),
+        lambda index, _question: f"{genre['field_label']} · {genre['label']} · QUESTION {index:03d}",
     )
     schema = structured_data({
         "@context": "https://schema.org",
@@ -375,7 +415,7 @@ def genre_page(genre: dict[str, object], genres: list[dict[str, object]]) -> str
         (str(genre["field_label"]), f"{SITE_ORIGIN}archive/#{genre['field_id']}"),
         (str(genre["label"]), f"{SITE_ORIGIN}{path}"),
     ]))
-    return f'''{head(title, description, path, video_script=True)}
+    return f'''{head(title, description, path, ads=True, video_script=True)}
 {header("archive")}
     <main id="main-content" class="subpage archive-page">
       {breadcrumb([("学習トップ", "../"), ("解説動画", "./"), (str(genre["field_label"]), f"./#{genre['field_id']}"), (str(genre["label"]), None)])}
@@ -394,9 +434,10 @@ def course_page(course: dict[str, object], genres: list[dict[str, object]]) -> s
     path = f"archive/{course['id']}.html"
     title = f"情報Ⅰ Study Atlas｜解説動画｜{course['label']}"
     description = f"プログラミングの解説動画を指定順の{len(questions)}問で学ぶ最短コースです。"
-    cards = "\n".join(
-        question_card(question, str(course["id"]), f"COURSE {index:02d}/{len(questions):02d} · Q{int(question['number']):03d}")
-        for index, question in enumerate(questions, start=1)
+    cards = render_video_cards(
+        questions,
+        str(course["id"]),
+        lambda index, question: f"COURSE {index:02d}/{len(questions):02d} · Q{int(question['number']):03d}",
     )
     schema = structured_data({
         "@context": "https://schema.org",
@@ -410,7 +451,7 @@ def course_page(course: dict[str, object], genres: list[dict[str, object]]) -> s
         ("学習トップ", SITE_ORIGIN), ("解説動画", f"{SITE_ORIGIN}archive/"),
         ("プログラミング", f"{SITE_ORIGIN}archive/#programming"), (str(course["label"]), f"{SITE_ORIGIN}{path}"),
     ]))
-    return f'''{head(title, description, path, video_script=True)}
+    return f'''{head(title, description, path, ads=True, video_script=True)}
 {header("archive")}
     <main id="main-content" class="subpage archive-page">
       {breadcrumb([("学習トップ", "../"), ("解説動画", "./"), ("プログラミング", "./#programming"), (str(course["label"]), None)])}
