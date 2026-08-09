@@ -19,9 +19,11 @@ books/                     書籍案内
 assets/site.css            共通デザイン
 assets/video-embeds.js     クリック時の動画埋め込み
 assets/home-learning.js    学習履歴サマリー
+assets/manual-ads.js       手動AdSenseユニットの中央設定・初回初期化
 data/video-questions.json  問題・答え・動画情報
 data/video-curriculum.json 5分野・21ジャンル・最短コースの正本
 scripts/generate_video_pages.py
+scripts/validate_manual_ads.py
 scripts/update_sitemap.py
 scripts/validate_portal.py
 ```
@@ -51,10 +53,11 @@ python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリル
 
 ```powershell
 python scripts/validate_portal.py --app-root <info1-quiz-appのリポジトリルート>
+python scripts/validate_manual_ads.py
 python scripts/validate_study_atlas.py --portal-root . --app-root <info1-quiz-appのリポジトリルート>
 ```
 
-ポータル検証では、動画の数値・URL・SEOメタデータ・JSON-LD・パンくず・内部リンク・トップ構成・動画キーワード機能の不在・サイトマップ同期を確認します。統合検証では、アプリの1,438問・229タグ、タグAND検索、アプリ復帰URL、学習アプリ本体の保護ハッシュも確認します。
+ポータル検証では、動画の数値・URL・SEOメタデータ・JSON-LD・パンくず・内部リンク・トップ構成・動画キーワード機能の不在・サイトマップ同期を確認します。手動広告検証では、対象29ページだけに共通コードが1回あり、動画・講義・アプリの枠数と位置が規則どおりであることを確認します。統合検証では、アプリの1,438問・229タグ、タグAND検索、アプリ復帰URL、学習アプリ本体の保護ハッシュも確認します。管理画面とスロット設定は [`docs/ADSENSE_CONFIGURATION.md`](docs/ADSENSE_CONFIGURATION.md) を参照してください。
 
 ## 公開URL
 

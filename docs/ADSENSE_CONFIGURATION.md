@@ -1,75 +1,95 @@
-# AdSense再審査前の設定
+# Google AdSense 手動配置の運用設定
 
 対象サイト: `https://mei-chan-nel.com/`
 
-この文書はコードでは完結しないAdSense管理画面側の設定を記録する。設定後は、管理画面のプレビューと実ページで再確認する。
+調査・改修日: 2026-08-09
 
-## 1. ページ除外
+パブリッシャー ID: `ca-pub-6257644709224446`
 
-AdSenseの「広告」→対象サイトの「編集」→「除外ページ」→「管理」で、次の4 URLを追加する。すべて **このページのみ（完全一致）** を選び、セクション全体は選ばない。
+この文書は、コードだけでは完了しない AdSense 管理画面の設定と、手動広告ユニットの差し替え手順を記録する。サイトは自動広告を使用せず、明示した本文位置だけで広告を初期化する。
 
-1. `https://mei-chan-nel.com/about.html`
-2. `https://mei-chan-nel.com/privacy.html`
-3. `https://mei-chan-nel.com/books/`
-4. `https://mei-chan-nel.com/sitemap.html`
+## 1. Google 公式資料と採用ルール
 
-この4ページには広告コードを置いていないが、将来サイト共通コードを変更した場合にも広告を出さない方針を保つため、除外設定にも登録する。書籍ページは販売先の案内、HTMLサイトマップは移動用のページであり、学習本文ではないため広告対象外とする。旧 `app/about.html` と `app/privacy.html` はポータルへ統合して削除済みである。
+| 項目 | 採用ルール | Google 公式資料 |
+|---|---|---|
+| 共通コード | 対象ページの `<head>` にクライアント付きコードを1回だけ置く | [AdSense コードを取得してコピーする](https://support.google.com/adsense/answer/9274019?hl=ja)、[AdSense コードをサイトに配置する](https://support.google.com/adsense/answer/9274516?hl=ja) |
+| ディスプレイ広告 | レスポンシブ、`data-ad-format="auto"`、`data-full-width-responsive="true"` | [ディスプレイ広告ユニットを作成する](https://support.google.com/adsense/answer/9274025?hl=ja)、[レスポンシブ広告ユニットの動作](https://support.google.com/adsense/answer/9183362?hl=ja) |
+| 記事内広告 | `data-ad-layout="in-article"`、`data-ad-format="fluid"` の記事内ユニットを使う | [記事内広告ユニットを作成する](https://support.google.com/adsense/answer/9274522?hl=ja)、[全幅の記事内広告](https://support.google.com/adsense/answer/9189961?hl=ja) |
+| 初期化 | 各手動枠につき `adsbygoogle.push({})` を初回だけ実行し、自動更新しない | [レスポンシブ広告コードを修正する](https://support.google.com/adsense/answer/9183363?hl=ja)、[広告の配置に関するポリシー](https://support.google.com/adsense/answer/1346295?hl=ja) |
+| 操作との距離 | リンク、ボタン、アプリ操作と誤クリックを誘う近接・重なりを避ける | [広告がコンテンツや操作を妨げる配置](https://support.google.com/publisherpolicies/answer/11035030?hl=ja) |
+| 広告量 | 固定の全ページ上限ではなく、広告が本文を上回らないよう本文量に応じて制限する | [コンテンツより広告等が多い画面](https://support.google.com/publisherpolicies/answer/11169917?hl=ja) |
+| 未配信枠 | `data-ad-status="unfilled"` を使って未配信枠を非表示にできる | [未配信の広告ユニットを非表示にする](https://support.google.com/adsense/answer/10762946?hl=ja) |
+| 自動広告 | 自動広告をオフにする。広告ユニットのコードがあるだけでも自動広告の配信経路になり得るため、管理画面設定が必須 | [自動広告の設定](https://support.google.com/adsense/answer/9305577?hl=ja)、[AdSense コードについて](https://support.google.com/adsense/answer/9274634?hl=ja) |
+| プライバシー | Cookie、第三者配信、パーソナライズ広告の無効化手段をポリシーに記載する | [プライバシー関連ポリシーの必須コンテンツ](https://support.google.com/adsense/answer/1348695?hl=ja) |
 
-`/app/` セクション全体を除外するとアプリ本体も対象外になるため、指定しない。
+40px 前後の余白は、このサイトで操作要素と広告を視覚的に分離するための設計値であり、Google が全サイトに要求する固定ピクセル値ではない。
 
-Google公式: [特定のページを自動広告の表示対象から除外する](https://support.google.com/adsense/answer/9262311?hl=ja)
+未配信処理では、Google が広告要素へ付与する `data-ad-status` だけを監視する。タイマーや要素の高さから配信成否を推測しない。また、実際の広告要素はラッパーを表示状態に戻してから広告リクエストを送るため、非表示のまま広告を読み込ませる構成ではない。
 
-## 2. アプリの操作領域を除外
+## 2. 手動広告ユニットを作成して差し替える
 
-広告設定プレビューで `https://mei-chan-nel.com/info1-quiz-app/app/` を開き、「除外エリア」からクイズの操作領域を選ぶ。
+AdSense の「広告」→「広告ユニットごと」から次の2ユニットを作成する。
 
-除外対象:
+1. レスポンシブのディスプレイ広告ユニット
+2. 記事内広告ユニット
 
-- `.app-shell` 全体
-- 選択が細分化される場合は `.start-panel`、`.status-bar`、`.question-panel`、`.summary-panel`
+作成後、広告コードの `data-ad-slot` に表示される数字だけを確認し、`assets/manual-ads.js` 冒頭の次の2値を差し替える。
 
-目的は、分野選択、問題数変更、選択肢、次の問題、再挑戦などの操作と広告を近接させないこと。アプリ下部の広告掲載領域やページ外側まで除外しない。
+```js
+const AD_SLOTS = Object.freeze({
+  display: "REPLACE_WITH_DISPLAY_AD_SLOT",
+  article: "REPLACE_WITH_IN_ARTICLE_AD_SLOT",
+});
+```
 
-Google公式: [自動広告の設定（除外エリア）](https://support.google.com/adsense/answer/9305577?hl=ja)
+数字以外のプレースホルダー中は、手動広告要素を作らず、`adsbygoogle.push({})` も実行せず、余白も表示しない。架空のスロット番号は使用しない。パブリッシャー ID は変更しない。
 
-## 3. オーバーレイ広告を抑える
+対象ページの `<head>` にはプレースホルダー中も AdSense 共通コードがある。Google はこの共通コードだけでも Auto ads を動作させられるため、「手動枠の push がないこと」と「自動広告が出ないこと」は別である。厳密な手動配置を保証するには、公開前に管理画面で自動広告と関連する最適化をオフにする必要がある。
 
-再審査時は学習操作を優先し、次の設定を推奨する。
+## 3. 管理画面で必ず無効化する設定
 
-- アンカー広告: オフ
-- 全画面広告（モバイル全画面／Vignette）: オフ
-- Vignetteの追加トリガー: オフ
-- サイドレール: 再審査まではオフ
-- ページ内広告: オン
-- 広告数: 低め
-- 広告間の最小距離: 広め
+「広告」→「サイトごと」→対象サイトの編集画面と、最適化・テスト関連画面で次を確認する。
 
-Vignetteを将来再開する場合でも、頻度は最長側に設定し、追加トリガーはオフのままにする。
+- 自動広告: オフ
+- アンカー、全画面、サイドレール、ページ内、関連する検索、広告インテント等の自動広告形式: すべてオフ
+- 「Google に既存の広告を最適化させる」: オフ
+- Auto optimize: オフ
+- 勝者を自動適用する設定: オフ
+- 自動広告を変更する実行中の最適化テスト: なし
+- 「ページ内広告の空白を埋める」（画面によっては「空きのページ内広告を補完する」）: オフ。これは指定外の位置へ広告枠を追加する設定ではなく、既存の未配信ディスプレイ広告枠を文脈候補などで最適化する設定である。厳密な手動枠と `unfilled` 時の非表示を維持するためオフにする。[空のページ内広告スペースの最適化](https://support.google.com/adsense/answer/16302564?hl=ja)
 
-Google公式: [自動広告について](https://support.google.com/adsense/answer/9261805?hl=ja)、[全画面広告の表示頻度](https://support.google.com/adsense/answer/13956167?hl=ja)
+Auto optimize はサイト単位の設定であり、Google の仕様変更により既定値が変わる場合があるため、再審査時と定期点検時に再確認する。[Auto optimize の変更](https://support.google.com/adsense/answer/15878459?hl=ja)、[Auto optimize について](https://support.google.com/adsense/answer/9141298?hl=ja)
 
-## 4. 学習ページを広告対象に保つ
+自動広告をオフにしているため、ページ除外や除外エリアは主制御として使用しない。防御的に既存設定を残す場合でも、手動広告の配信確認を妨げないことをプレビューで確認する。
 
-次は除外しない。
+空き枠補完の設定は、現行ヘルプでは「ブランド保護」→「コンテンツ」→「ブロックのコントロール」→「広告配信を管理」→「ディスプレイ広告」に案内されており、自動広告のサイト編集画面とは別の設定である。
 
-- `https://mei-chan-nel.com/`
-- `https://mei-chan-nel.com/info1-quiz-app/questions/`
-- `https://mei-chan-nel.com/archive/`
-- `https://mei-chan-nel.com/archive/` と21ジャンル・最短コースの各ページ
-- `https://mei-chan-nel.com/info1-quiz-app/app/`
+## 4. コード上の広告対象
 
-新設学習ページにはAdSenseコードがあり、本文は動画問題、タグ検索、アプリ操作領域で構成する。案内だけの画面や互換リダイレクトには広告を置かない。
+| ページ種別 | 広告形式 | 配置 |
+|---|---|---|
+| `/info1-quiz-app/app/` | ディスプレイ 1枠 | アプリ本体の後、フッターの前 |
+| `/info1-quiz-app/questions/` | ディスプレイ 1枠 | ランダム出題コントロールの後、問題一覧の前 |
+| 個別動画問題 22ページ | 記事内 0〜3枠 | 問題数に応じた問題カード間 |
+| 講義本文 5ページ | 記事内 3〜4枠 | 3セクションごと。最終セクション後には置かない |
 
-Google公式: [パブリッシャー コンテンツがない画面上の広告](https://support.google.com/publisherpolicies/answer/11112688?hl=ja)、[AdSenseの利用に適したサイト](https://support.google.com/adsense/answer/7299563?hl=ja)
+トップ、動画一覧、講義一覧、使い方、サイト案内、プライバシーポリシー、書籍、HTMLサイトマップ、互換リダイレクトには AdSense 共通コードも手動枠も置かない。
 
-## 5. 管理画面での完了記録
-
-設定後に次を記録する。
+## 5. 配信前の管理画面チェック
 
 | 確認項目 | 完了日 | 確認者 | 結果 |
 |---|---|---|---|
-| 4 URLの完全一致除外 |  |  |  |
-| アプリ操作領域の除外 |  |  |  |
-| オーバーレイ形式オフ |  |  |  |
-| 学習ページのプレビュー |  |  |  |
-| 案内・規約ページに広告なし |  |  |  |
+| ディスプレイ広告ユニットを作成しスロット値を設定 |  |  |  |
+| 記事内広告ユニットを作成しスロット値を設定 |  |  |  |
+| 自動広告・全自動形式がオフ |  |  |  |
+| Auto optimize・自動適用がオフ |  |  |  |
+| 空きのページ内広告の補完がオフ |  |  |  |
+| 実行中の自動広告テストがない |  |  |  |
+| サイトの審査状態が配信可能 |  |  |  |
+| `ads.txt` が「承認済み」 |  |  |  |
+| EEA・英国・スイス向けに、IAB TCF v2.3 対応の Google 認定 CMP を必要に応じて設定 |  |  |  |
+| PC・モバイルで対象／対象外ページを実機確認 |  |  |  |
+
+`ads.txt` の現行行は `google.com, pub-6257644709224446, DIRECT, f08c47fec0942fa0`。Google は `ads.txt` を強く推奨している。[ads.txt ガイド](https://support.google.com/adsense/answer/12171612?hl=ja)
+
+EEA・英国・スイスの利用者へ広告を配信する場合は、IAB TCF v2.3 対応の Google 認定 CMP による同意管理要件を確認する。2026年3月1日以降に生成する TC 文字列は TCF v2.3 が必須である。[欧州規制メッセージの要件](https://support.google.com/adsense/answer/7670013?hl=ja)、[IAB Europe TCF との統合](https://support.google.com/adsense/answer/9804260?hl=ja)

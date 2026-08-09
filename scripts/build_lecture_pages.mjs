@@ -7,6 +7,12 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(scriptDir, "..");
 const lectureDir = path.join(root, "LectureNote");
 const fields = ["society", "digital", "network", "statistics", "programming"];
+const checkOnly = process.argv.includes("--check");
+const contentStartMarker = "<!-- lecture-content:generated:start -->";
+const contentEndMarker = "<!-- lecture-content:generated:end -->";
+const adsenseLoader = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446";
+const manualAdsLoader = "../assets/manual-ads.js?v=2026080901";
+const manualAdPattern = /^[ \t]*<div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="\d+" hidden><\/div>\r?\n?/gm;
 
 const decodeHtml = (value) => value
   .replace(/&#(\d+);/g, (_match, code) => String.fromCodePoint(Number(code)))
@@ -20,6 +26,56 @@ const decodeHtml = (value) => value
     nbsp: "\u00a0"
   }[name] ?? match));
 const plainText = (value) => decodeHtml(value.replace(/<[^>]+>/g, "")).trim();
+
+const occurrences = (text, needle) => text.split(needle).length - 1;
+
+const normalizeManualAds = (field, html) => {
+  const startMarkerIndex = html.indexOf(contentStartMarker);
+  const endMarkerIndex = html.indexOf(contentEndMarker);
+  if (startMarkerIndex < 0 || endMarkerIndex < 0 || endMarkerIndex <= startMarkerIndex) {
+    throw new Error(`${field}: static lecture boundary markers are missing or out of order`);
+  }
+
+  const regionStart = startMarkerIndex + contentStartMarker.length;
+  let region = html.slice(regionStart, endMarkerIndex).replace(manualAdPattern, "");
+  const sectionStarts = [...region.matchAll(/^[ \t]*<section class="lecture-section"/gm)];
+  const positions = [];
+  for (let afterSection = 3; afterSection < sectionStarts.length; afterSection += 3) {
+    positions.push(afterSection);
+  }
+
+  for (const afterSection of [...positions].reverse()) {
+    const insertAt = sectionStarts[afterSection].index;
+    const slot = `        <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="${afterSection}" hidden></div>\n`;
+    region = `${region.slice(0, insertAt)}${slot}${region.slice(insertAt)}`;
+  }
+
+  return `${html.slice(0, regionStart)}${region}${html.slice(endMarkerIndex)}`;
+};
+
+const validateManualAds = (field, html, sectionCount) => {
+  if (occurrences(html, adsenseLoader) !== 1) {
+    throw new Error(`${field}: AdSense common loader must appear exactly once`);
+  }
+  if (occurrences(html, manualAdsLoader) !== 1) {
+    throw new Error(`${field}: manual ad initializer must appear exactly once`);
+  }
+  if (html.includes('<ins class="adsbygoogle"')) {
+    throw new Error(`${field}: generated HTML must leave ad-unit creation to manual-ads.js`);
+  }
+
+  const startMarkerIndex = html.indexOf(contentStartMarker) + contentStartMarker.length;
+  const endMarkerIndex = html.indexOf(contentEndMarker);
+  const region = html.slice(startMarkerIndex, endMarkerIndex);
+  const actualPositions = [...region.matchAll(/data-ad-after-section="(\d+)"/g)].map((match) => Number(match[1]));
+  const expectedPositions = [];
+  for (let afterSection = 3; afterSection < sectionCount; afterSection += 3) {
+    expectedPositions.push(afterSection);
+  }
+  if (JSON.stringify(actualPositions) !== JSON.stringify(expectedPositions)) {
+    throw new Error(`${field}: expected lecture ad positions ${expectedPositions.join(", ")}, found ${actualPositions.join(", ")}`);
+  }
+};
 
 const readPageData = (field) => {
   const context = vm.createContext({ window: {} });
@@ -78,8 +134,17 @@ const validatePage = (field, page, html) => {
 
 for (const field of fields) {
   const page = readPageData(field);
-  const html = fs.readFileSync(path.join(lectureDir, `${field}.html`), "utf8");
+  const htmlPath = path.join(lectureDir, `${field}.html`);
+  const currentHtml = fs.readFileSync(htmlPath, "utf8");
+  const html = normalizeManualAds(field, currentHtml);
+  if (checkOnly && html !== currentHtml) {
+    throw new Error(`${field}: manual ad positions are stale; run node scripts/build_lecture_pages.mjs`);
+  }
+  if (!checkOnly && html !== currentHtml) {
+    fs.writeFileSync(htmlPath, html, "utf8");
+  }
   validatePage(field, page, html);
+  validateManualAds(field, html, page.sections.length);
 }
 
-console.log(`Verified ${fields.length} authoritative static lecture pages against generated metadata.`);
+console.log(`${checkOnly ? "Verified" : "Normalized and verified"} ${fields.length} authoritative static lecture pages against generated metadata and manual ad rules.`);
