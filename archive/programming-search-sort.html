@@ -77,9 +77,13 @@
 3．要素数(Array) - i - 2
 4．要素数(Array) - i - 3</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．要素数(Array) - 2
-イ 3．要素数(Array) - i - 2</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア 3．要素数(Array) - 2
+イ 3．要素数(Array) - i - 2</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">要素数をnとすると、全体の走査はi＝0～n−2のn−1回で十分なので、アは要素数(Array)−2です。<br />
+            i周目には右端側のi個が確定しており、jとj＋1を比べる最後のjはn−i−2となるため、イは要素数(Array)−i−2です。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="sgFj8IQNX1c" data-video-title="310 バブルソート：具体例を見ながらプログラムを完成させよう！ #shorts" aria-controls="video-310-1" aria-expanded="false">解説動画を表示</button>
@@ -117,9 +121,13 @@
 3．i + 1 から 要素数(Array) - 1
 4．i + 1 から 要素数(Array) - 2</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア2．0 から 要素数(Array) - 2
-イ3．i + 1 から 要素数(Array) - 1</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア2．0 から 要素数(Array) - 2
+イ3．i + 1 から 要素数(Array) - 1</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">選択ソートは、未整列部分から最小値を探し、その位置の要素と先頭を交換します。<br />
+            外側は最後から二番目まで、内側はその次の位置から調べます。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="4XTVSXleAyw" data-video-title="311 2 選択ソートのプログラム：実行回数が最も少なくなるように繰り返しの範囲を定めよう！ #shorts" aria-controls="video-311-1" aria-expanded="false">解説動画を表示 1</button>
@@ -161,8 +169,13 @@
 「P and Q」は「Pが成立するときにQを評価し、Qも成立したならば、P and Qは真である」という評価をする。Pが成立しなければ、Qを評価することなくP and Qは偽となる。
 「P or Q」は「Pが成立しないときにQを評価し、Qも成立しなければ、P or Qは偽である」という評価を行う。Pが成立したならば、Qを評価することなくP or Qは真である。</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>1．j &gt;= 0 and Array[j] &gt; current</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>1．j &gt;= 0 and Array[j] &gt; current</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">currentより大きい整列済み要素だけを右へずらすので、繰り返し条件にはArray[j] &gt; currentが必要です。<br />
+            同時に配列の左端を越えないようj &gt;= 0も必要で、両方が成立する間だけ続けるため、アはj &gt;= 0 and Array[j] &gt; currentです。<br />
+            この順ならjが−1のとき後半を評価せず、範囲外参照も防げます。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="yhWLwcVgd78" data-video-title="312 2 挿入ソートのプログラム：条件の否定をうまく作ろう！ #shorts" aria-controls="video-312-1" aria-expanded="false">解説動画を表示 1</button>
@@ -206,9 +219,14 @@
 3．A[i] &lt;= B[j]
 4．A[i] &gt;= B[j]</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア　1．i &lt; 要素数(A) and j &lt; 要素数(B)
-イ　3． A[i] &lt;= B[j]</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア　1．i &lt; 要素数(A) and j &lt; 要素数(B)
+イ　3． A[i] &lt;= B[j]</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">A[i]とB[j]を比較できるのは、iとjがともに各配列の要素数未満の間なので、アはi &lt; 要素数(A) and j &lt; 要素数(B)です。<br />
+            小さい値をMergedへ追加し、同値ならA側を選ぶ条件はA[i] &lt;= B[j]なので、イは選択肢3です。<br />
+            片方が尽きた後は残りを後続の繰り返しで追加します。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="Jo6xZbGZnhI" data-video-title="313 マージソートの主要部分：2つの配列を合体するプログラム #shorts" aria-controls="video-313-1" aria-expanded="false">解説動画を表示</button>
@@ -239,9 +257,14 @@
 3．Array[i] == pivot
 4．Array[i] != pivot</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア 1．Array[i] &lt; pivot　
-イ 3．Array[i] == pivot</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア 1．Array[i] &lt; pivot　
+イ 3．Array[i] == pivot</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">Lessにはピボットより小さい値を入れるため、アはArray[i] &lt; pivotです。<br />
+            Equalにはピボットと等しい値を入れるので、イはArray[i] == pivotとなり、残った大きい値はGreaterへ入ります。<br />
+            Less、Equal、Greaterの順に結合すると、ピボットを基準に分割できます。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="vBj5zffj-Ys" data-video-title="314 クイックソートの主要部分：配列を分割してくっつける #shorts" aria-controls="video-314-1" aria-expanded="false">解説動画を表示</button>
@@ -279,9 +302,13 @@
 3．found == 0
 4．found != 0</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア 1．Array[i] == target
-イ 2．found != -1</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア 1．Array[i] == target
+イ 2．found != -1</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">Array[i]がtargetと等しいとき、その添字iをfoundへ保存するので、アは選択肢1です。<br />
+            foundは−1で始まり、見つかれば0以上の添字に変わるため、発見済みを判定するイはfound != −1、つまり選択肢2です。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="z7B7Nhdz1Mc" data-video-title="315 線形探索：頭から最後まで一つずつ確認する探し方 #shorts" aria-controls="video-315-1" aria-expanded="false">解説動画を表示</button>
@@ -325,9 +352,13 @@
 「P and Q」は「Pが成立するときにQを評価し、Qも成立したならば、P and Qは真である」という評価をする。Pが成立しなければ、Qを評価することなくP and Qは偽となる。
 「P or Q」は「Pが成立しないときにQを評価し、Qも成立しなければ、P or Qは偽である」という評価を行う。Pが成立したならば、Qを評価することなくP or Qは真である。</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア 5．i &lt; n and Array[i] != target
-イ 1．i &lt; n</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア 5．i &lt; n and Array[i] != target
+イ 1．i &lt; n</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">条件付きの線形探索では、配列の範囲内で、かつ現在値が目的値と異なる間だけ進みます。<br />
+            停止後に添字が範囲内かを確認します。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="lyV1GYto3lY" data-video-title="316 線形探索と短絡評価：「かつ」「または」の効率的な評価 #shorts" aria-controls="video-316-1" aria-expanded="false">解説動画を表示</button>
@@ -372,9 +403,14 @@
 5．high = mid - 1
 6．high = mid + 1</code></pre>
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>ア 3．low = mid + 1
-イ 5．high = mid - 1</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>ア 3．low = mid + 1
+イ 5．high = mid - 1</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">中央のArray[mid]がtargetより小さければ、中央より左は候補から外れるので、左端をlow＝mid＋1へ移します。<br />
+            反対にArray[mid]がtargetより大きければ、中央より右を除外してhigh＝mid−1とします。<br />
+            したがってアは選択肢3、イは選択肢5です。</span></p>
+            </div>
           </details>
           <div class="video-question-tools"><div class="video-control">
               <button class="video-trigger" type="button" data-video-id="pkJ7dwo5mM4" data-video-title="317 二分探索：調べる範囲を工夫して効率的に値を探す #shorts" aria-controls="video-317-1" aria-expanded="false">解説動画を表示</button>

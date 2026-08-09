@@ -279,8 +279,10 @@ img { max-width: 100%; }
 .video-answer-panel[open] .detail-icon::after { transform: rotate(0); }
 .video-answer-content { padding: 0 32px 28px; }
 .video-answer-content p { margin: 0; padding: 20px 0 0; display: grid; grid-template-columns: 55px 1fr; gap: 15px; border-top: 1px solid var(--line); }
+.video-answer-content p + p { margin-top: 18px; }
 .video-answer-content span { color: var(--coral-strong); font-size: .68rem; font-weight: 800; }
 .video-answer-content strong { font-size: .9rem; line-height: 1.75; white-space: pre-line; }
+.video-answer-content span.video-explanation-text { color: var(--ink-soft); font-size: .9rem; font-weight: 400; line-height: 1.85; overflow-wrap: anywhere; }
 .video-question-tools { padding: 24px 32px 30px; border-top: 1px solid var(--line); }
 .video-question-meta { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
 .video-question-meta a { color: var(--ink-soft); font-size: .63rem; letter-spacing: 0; text-underline-offset: 3px; }
