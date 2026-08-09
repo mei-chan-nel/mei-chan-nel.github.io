@@ -10,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = ROOT / "data" / "video-questions.json"
+EXPLANATIONS_PATH = ROOT / "data" / "video-explanations.json"
 CURRICULUM_PATH = ROOT / "data" / "video-curriculum.json"
 OUTPUT_DIR = ROOT / "archive"
 REPORT_PATH = ROOT / "docs" / "video-library-build.json"
@@ -249,12 +250,16 @@ def video_controls(number: int, videos: list[dict[str, str]]) -> str:
 
 def question_card(question: dict[str, object], section_id: str, meta: str) -> str:
     number = int(question["number"])
+    explanation = prose_markup(str(question["explanation"]))
     return f'''        <article class="video-question-card" id="q-{number}">
           <div class="video-question-meta"><span>{e(meta)}</span></div>
           {question_markup(question, section_id)}
           <details class="video-answer-panel">
-            <summary>答えを見る<span class="detail-icon" aria-hidden="true"></span></summary>
-            <div class="video-answer-content"><p><span>答え</span><strong>{e(question['answer'])}</strong></p></div>
+            <summary>答えと解説を見る<span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="video-answer-content">
+              <p class="video-answer-row"><span>答え</span><strong>{e(question['answer'])}</strong></p>
+              <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">{explanation}</span></p>
+            </div>
           </details>
           <div class="video-question-tools">{video_controls(number, list(question.get('videos') or []))}</div>
         </article>'''
@@ -418,13 +423,20 @@ def course_page(course: dict[str, object], genres: list[dict[str, object]]) -> s
 {footer()}'''
 
 
-def load_curriculum(data: dict[str, object]) -> tuple[list[dict[str, object]], dict[str, object]]:
+def load_curriculum(data: dict[str, object], explanations: dict[str, str]) -> tuple[list[dict[str, object]], dict[str, object]]:
     source_questions = [question for section in data.get("sections", []) for question in section.get("questions", [])]
     if len(source_questions) != 330 or sorted(int(q["number"]) for q in source_questions) != list(range(1, 331)):
         raise ValueError("video-questions.json must contain exactly Q1-Q330")
     by_number = {int(question["number"]): question for question in source_questions}
     if any(not question.get("videos") for question in source_questions):
         raise ValueError("Every video question must have at least one mapped video")
+    expected_explanation_keys = {str(number) for number in range(1, 331)}
+    if set(explanations) != expected_explanation_keys or any(not str(explanations[key]).strip() for key in expected_explanation_keys):
+        raise ValueError("video-explanations.json must contain one non-empty explanation for Q1-Q330")
+    by_number = {
+        number: {**question, "explanation": explanations[str(number)]}
+        for number, question in by_number.items()
+    }
     curriculum = json.loads(CURRICULUM_PATH.read_text(encoding="utf-8"))
     fields = curriculum.get("fields") or []
     field_ids = [field.get("id") for field in fields]
@@ -458,7 +470,9 @@ def main() -> int:
     data = json.loads(DATA_PATH.read_text(encoding="utf-8"))
     if data.get("question_count") != 330:
         raise ValueError("Expected exactly 330 imported video questions")
-    genres, course = load_curriculum(data)
+    explanation_data = json.loads(EXPLANATIONS_PATH.read_text(encoding="utf-8"))
+    explanations = explanation_data.get("questions") or {}
+    genres, course = load_curriculum(data, explanations)
     fields = []
     for field in json.loads(CURRICULUM_PATH.read_text(encoding="utf-8"))["fields"]:
         fields.append({
@@ -496,7 +510,10 @@ def main() -> int:
         "course_pages": [course_path],
         "learning_pages": generated_pages,
         "course_question_numbers": EXPECTED_COURSE,
-        "explanation_text_published": False,
+        "explanation_source": "data/video-explanations.json",
+        "explanation_count": 330,
+        "explanation_text_published": True,
+        "explanation_reference_exceptions": [],
         "video_keyword_feature": False,
         "youtube_direct_links_published": False,
         "video_viewer_aspect_ratio": "9:16",

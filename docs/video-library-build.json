@@ -1,5 +1,5 @@
 {
-  "generated_on": "2026-08-08",
+  "generated_on": "2026-08-09",
   "generator": "scripts/generate_video_pages.py",
   "source": "data/video-questions.json",
   "curriculum_source": "data/video-curriculum.json",
@@ -115,7 +115,10 @@
     325,
     330
   ],
-  "explanation_text_published": false,
+  "explanation_source": "data/video-explanations.json",
+  "explanation_count": 330,
+  "explanation_text_published": true,
+  "explanation_reference_exceptions": [],
   "video_keyword_feature": false,
   "youtube_direct_links_published": false,
   "video_viewer_aspect_ratio": "9:16",
