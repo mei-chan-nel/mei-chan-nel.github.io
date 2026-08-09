@@ -290,7 +290,7 @@ def main() -> int:
 
     report_path = ROOT / "docs" / "video-library-build.json"
     report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else {}
-    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", False)):
+    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True)):
         if report.get(key) != expected:
             errors.append(f"video-library-build.json: {key} is out of sync")
     if report.get("course_question_numbers") != expected_course:
