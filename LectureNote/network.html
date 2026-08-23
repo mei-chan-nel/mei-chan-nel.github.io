@@ -99,7 +99,7 @@
             <p>離れた場所にあるLAN同士を通信回線で結ぶ広域ネットワークが<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">WAN</span></button>です。例えば本社LANと支社LANを閉じた回線で結ぶ構成が該当します。家庭や学校をインターネットへ接続するサービスを提供する事業者が<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">ISP</span></button>です。LAN、WAN、インターネットは単なる大きさの違いではなく、だれが管理し、どの範囲を結ぶかが異なります。</p>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>機器</th><th>役割</th></tr></thead><tbody><tr><td>スイッチ</td><td>LAN内で宛先MACアドレスに応じてフレームを転送する</td></tr><tr><td>ルータ</td><td>異なるネットワーク間で宛先IPアドレスに応じてパケットを転送する</td></tr><tr><td>アクセスポイント</td><td>無線LAN端末を有線側のネットワークへ接続する</td></tr><tr><td>モデム・ONU</td><td>回線に合わせて信号を変換する</td></tr></tbody></table></div>
             <p>多数の組織が管理するネットワークを、共通のTCP/IPで相互接続した「ネットワークのネットワーク」が<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">インターネット</span></button>です。全体を一つの組織が所有・運用しているのではなく、各ネットワークが相互接続し、宛先への経路情報を交換することで成り立っています。</p>
-            <div class="practice"><strong>学校からWebサイトを見るとき</strong><p>端末→アクセスポイントまたはスイッチ→学校のルータ→契約先ISP→複数の中継ネットワーク→Webサーバ、という範囲を順に通ります。</p></div>
+            <div class="practice"><strong>学校からWebサイトを見るとき</strong><p>端末→アクセスポイントやスイッチ→学校のルータ→契約先ISP→複数の中継ネットワーク→Webサーバ、という順に通ります。</p></div>
     <h3>有線LANと無線LANは、使いやすさと安定性が異なる</h3>
     <p>有線LANは通信が安定しやすく、無線LANは移動しやすいという違いがあります。無線では電波が共有されるため、距離、壁、他の機器との干渉、接続台数によって速度や安定性が変わります。</p>
 
@@ -223,21 +223,6 @@
       <div class="deep-dive-body"><p>IPv4アドレスのうち、どこまでがネットワーク部かを示すのがサブネットマスクです。送信先が同じネットワークならLAN内で直接届け、異なるならデフォルトゲートウェイであるルータへ渡します。</p><p>例えば192.168.10.0/24では先頭24 bitがネットワーク部です。高校情報Ⅰでは、細かな割当計算より「同じネットワークかを判断して次の届け先を変える」という役割を押さえます。</p></div>
     </details>
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>IPパケットとリンクのフレームを厳密に分ける</summary>
-      <div class="deep-dive-body"><p>Ethernetや無線LANでは、送信端末は「次に同じLAN内で渡す相手」のIPアドレスに対応するMACアドレスを調べます。IPv4ではARP、IPv6では近隣探索がこの対応づけを支えます。遠くのWebサーバへ送る場合、最初に調べるのは通常、WebサーバではなくデフォルトゲートウェイのMACアドレスです。</p><p>ルータは受信したフレームからIPパケットを取り出し、経路を選んで、次のリンク用の新しいフレームへ入れます。したがって送信元・宛先MACアドレスは区間ごとに変わります。一方、送信元・宛先IPアドレスは原則として端末間で保たれますが、NAT、プロキシ、トンネルなどが入る場合は単純に同じとは限りません。</p><p>また、インターネットのすべてのリンクがEthernetや無線LANとは限らず、MACアドレスという説明がそのまま当てはまらない通信方式もあります。まずは「IPは終点と経路選択、リンク層の情報は次の区間」という役割分担を理解します。</p></div>
-    </details>
-
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>IPv6とNATの役割を混同しない</summary>
-      <div class="deep-dive-body"><p>IPv4は32 bit、IPv6は128 bitのアドレスを使います。IPv4アドレスの不足へ対応するため、家庭や学校では複数の端末がプライベートアドレスを使い、外部通信時にNATでグローバルアドレスへ変換する構成が広がりました。</p><p>NATはアドレスを変換する仕組みであり、それだけで安全を保証する機能ではありません。IPv6でもIPv4でも、不要な受信を制限するファイアウォール、端末の更新、認証が必要です。</p></div>
-    </details>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>DHCPで自動設定される項目</summary>
-      <div class="deep-dive-body"><p>端末がネットワークへ接続すると、DHCPから利用可能なIPアドレスを一定期間借りることがあります。同時に、サブネットマスク、デフォルトゲートウェイ、DNSサーバなど、通信に必要な設定を受け取ります。</p><p>自動設定に失敗すると、LAN内の一部だけ通信できる、IPアドレスでは接続できるが名前では接続できない、といった症状になります。設定項目の役割を分けて確認します。</p></div>
-    </details>
   </div>
         </section>
         <section class="lecture-section" id="network-routing" aria-labelledby="network-routing-title">
@@ -263,10 +248,6 @@
     </details>
 
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>TTLと経路調査は、同名でもDNSのTTLとは別物</summary>
-      <div class="deep-dive-body"><p>IPパケットの<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">TTL</span></button>は、ルータを一つ通るたびに減り、0になると破棄されます。誤った経路設定でパケットが回り続けることを防ぐ仕組みです。DNS回答をキャッシュできる時間もTTLと呼びますが、目的も働く場所も異なります。</p><p>tracerouteやtracertは、TTLを段階的に変えたパケットを送り、途中のルータから返る応答を使って経路を推測します。応答しない装置や往路・復路の違いもあるため、表示された経路を通信全体の完全な地図とは考えません。</p></div>
-    </details>
   </div>
         </section>
         <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="6" hidden></div>
@@ -285,8 +266,6 @@
             <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">DNS</span></button>はドメイン名とIPアドレスなどを対応づける仕組みです。端末は通常、設定されたキャッシュDNSサーバへ問い合わせます。情報がなければ、ルートDNS、TLD DNS、権威DNSをたどって結果を得ます。</p>
             <div class="formula">https://www.example.jp/course/index.html</div>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>部分</th><th>意味</th></tr></thead><tbody><tr><td>https</td><td>スキーム。通信方法を示す</td></tr><tr><td>www.example.jp</td><td>ホスト名・ドメイン名</td></tr><tr><td>/course/index.html</td><td>サーバ内の資源へのパス</td></tr></tbody></table></div>
-            <p>DNSの応答には有効期間を示す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">TTL</span></button>があり、キャッシュはその期間だけ再利用されます。</p>
-    <p>キャッシュによって毎回最上位から問い合わせずに済む一方、DNSの設定変更がすべての利用者へ直ちに反映されない場合があります。古い回答はTTLが切れるまで利用されることがあるためです。</p>
 
     <details class="deep-dive">
       <summary><span class="deep-dive-label">さらに詳しく：</span>DNSの階層と権威サーバ</summary>
@@ -294,16 +273,6 @@
     </details>
 
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>DNSには名前とIP以外の情報も登録される</summary>
-      <div class="deep-dive-body"><p>AレコードはIPv4アドレス、AAAAレコードはIPv6アドレス、MXレコードはメールの配送先、CNAMEは別名を示します。DNSサーバは役割に応じた<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">リソースレコード</span></button>を返します。</p><p>回答には有効期間TTLがあり、キャッシュはその期間再利用されます。設定変更がすぐ全利用者へ反映されないことがあるのは、各地のキャッシュが期限まで古い回答を保持するためです。</p>
-    <a class="official-link" href="https://www.nic.ad.jp/ja/basics/beginners/dns.html" target="_blank" rel="noopener noreferrer">
-      <span class="official-link-kicker">公式・公的資料</span>
-      <strong>JPNIC『DNSとは』</strong>
-      <small>階層的・分散的に名前を管理するDNSの基本を確認できます。</small>
-      <b aria-hidden="true">↗</b>
-    </a></div>
-    </details>
   </div>
         </section>
         <section class="lecture-section" id="network-web-mail" aria-labelledby="network-web-mail-title">
@@ -392,7 +361,7 @@
             <button class="section-bookmark" type="button" data-section-bookmark="network-database" aria-pressed="false">しおりを挟む</button>
           </header>
           <div class="section-body">
-            <figure class="html-figure relational-workflow"><div class="database-stage"><span class="database-stage-label">保存</span><section><h3>正規化して三つの表へ分ける</h3><div class="database-table-cluster"><div><b>学生表</b><div class="mini-data-table two-col"><span>学生ID <em>主キー</em></span><span>氏名</span><strong>S01</strong><span>青木</span><strong>S02</strong><span>伊藤</span><strong>S03</strong><span>加藤</span></div></div><div><b>所属表</b><div class="mini-data-table two-col"><span>学生ID <em>外部キー</em></span><span>部活ID <em>外部キー</em></span><strong>S01</strong><strong>C02</strong><strong>S02</strong><strong>C01</strong><strong>S02</strong><strong>C02</strong><strong>S03</strong><strong>C01</strong></div></div><div><b>部活表</b><div class="mini-data-table three-col"><span>部活ID <em>主キー</em></span><span>部活名</span><span>顧問</span><strong>C01</strong><span>将棋部</span><span>高橋</span><strong>C02</strong><span>科学部</span><span>後藤</span></div></div></div><p>氏名、部活名、顧問をそれぞれ一度だけ保存し、所属だけをIDの組で記録する。</p></section></div><div class="database-join-arrow" aria-hidden="true"><b>必要なときに結合</b><span>共通するIDを対応づける ↓</span></div><div class="database-stage database-output"><span class="database-stage-label">利用</span><section><h3>結合して、読みたい一つの表に戻す</h3><div class="mini-data-table three-col"><span>氏名</span><span>部活名</span><span>顧問</span><span>青木</span><span>科学部</span><span>後藤</span><span>伊藤</span><span>将棋部</span><span>高橋</span><span>伊藤</span><span>科学部</span><span>後藤</span><span>加藤</span><span>将棋部</span><span>高橋</span></div><p>画面や帳票では、分割した表を結合して人が読みやすい結果を作る。</p></section></div><figcaption>正規化は「分けて終わり」ではない。重複を減らして安全に保存し、利用時には主キーと外部キーを使って必要な形へ結合する。</figcaption></figure>
+            <figure class="html-figure relational-workflow"><div class="database-stage"><span class="database-stage-label">保存</span><section><h3>正規化して三つの表へ分ける</h3><div class="database-table-cluster"><div><b>学生表</b><div class="mini-data-table two-col"><span>学生ID <em>主キー</em></span><span>氏名</span><strong class="database-blue-cell">S01</strong><span>青木</span><strong>S02</strong><span>伊藤</span><strong>S03</strong><span>加藤</span></div></div><div><b>所属表</b><div class="mini-data-table two-col"><span>学生ID <em>外部キー</em></span><span>部活ID <em>外部キー</em></span><strong class="database-blue-cell">S01</strong><strong class="database-highlight-cell">C02</strong><strong>S02</strong><strong>C01</strong><strong>S02</strong><strong>C02</strong><strong>S03</strong><strong>C01</strong></div></div><div><b>部活表</b><div class="mini-data-table three-col"><span>部活ID <em>主キー</em></span><span>部活名</span><span>顧問</span><strong>C01</strong><span>将棋部</span><span>高橋</span><strong class="database-highlight-cell">C02</strong><span class="database-highlight-cell">科学部</span><span class="database-highlight-cell">後藤</span></div></div></div><p>氏名、部活名、顧問をそれぞれ一度だけ保存し、所属だけをIDの組で記録する。</p></section></div><div class="database-join-arrow" aria-hidden="true"><b>必要なときに結合</b><span>共通するIDを対応づける ↓</span></div><div class="database-stage database-output"><span class="database-stage-label">利用</span><section><h3>結合して、読みたい一つの表に戻す</h3><div class="mini-data-table three-col"><span>氏名</span><span>部活名</span><span>顧問</span><span>青木</span><span class="database-highlight-cell">科学部</span><span class="database-highlight-cell">後藤</span><span>伊藤</span><span>将棋部</span><span>高橋</span><span>伊藤</span><span>科学部</span><span>後藤</span><span>加藤</span><span>将棋部</span><span>高橋</span></div><p>画面や帳票では、分割した表を結合して人が読みやすい結果を作る。</p></section></div><figcaption>正規化は「分けて終わり」ではない。重複を減らして安全に保存し、利用時には主キーと外部キーを使って必要な形へ結合する。</figcaption></figure>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>操作</th><th>意味</th><th>上の部活動データでの例</th></tr></thead><tbody><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">選択</span></button></td><td>条件に合う行を取り出す</td><td>科学部に所属する行だけを取り出す</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">射影</span></button></td><td>必要な列を取り出す</td><td>氏名と部活名の列だけを表示する</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">結合</span></button></td><td>共通項目を使って表をつなぐ</td><td>学生ID・部活IDを対応づけ、氏名・部活名・顧問を一つの表にする</td></tr></tbody></table></div>
             <p>行を一意に識別する列を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">主キー</span></button>、別の表の主キーを参照する列を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">外部キー</span></button>といいます。正規化は、データの重複を減らし、追加・更新・削除時の矛盾を防ぐために表を分割する考え方です。</p>
             <div class="warning"><strong>整合性</strong><p>型・範囲・一意性・参照関係などの制約を設け、矛盾したデータが入らないようにします。バックアップとは役割が異なります。</p></div>
@@ -400,20 +369,8 @@
     <div class="table-wrap"><table class="lecture-table"><thead><tr><th>性質</th><th>意味</th></tr></thead><tbody><tr><td>独立性</td><td>保存方法の細部をアプリケーションから切り離し、変更の影響を抑える</td></tr><tr><td>一貫性</td><td>複数の利用者が更新しても、制約を守り矛盾した状態を残さない</td></tr><tr><td>可用性</td><td>障害時のバックアップ、複製、復旧によって利用を継続しやすくする</td></tr><tr><td>機密性</td><td>認証と権限により、利用者ごとに読める・変更できる範囲を制限する</td></tr></tbody></table></div>
 
     <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>複数の更新を一まとまりにするトランザクション</summary>
-      <div class="deep-dive-body"><p>複数の更新を一まとまりとして扱い、全部成功したときだけ確定する仕組みを<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">トランザクション</span></button>といいます。銀行振込で出金だけ成功し、入金が失敗した状態を残さないための考え方です。</p></div>
-    </details>
-
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>データベースに求められる性質</summary>
-      <div class="deep-dive-body"><div class="table-wrap"><table class="lecture-table"><thead><tr><th>性質</th><th>確かめること</th></tr></thead><tbody><tr><td>一貫性</td><td>同じ事実が矛盾した値にならない</td></tr><tr><td>独立性</td><td>保存方法を変えても利用側への影響を抑えられる</td></tr><tr><td>完全性</td><td>制約に反する不正な値を登録しない</td></tr><tr><td>機密性</td><td>権限のある利用者だけが必要な範囲へアクセスする</td></tr><tr><td>可用性・回復性</td><td>障害時に復旧し、必要な時に使える</td></tr></tbody></table></div><p>バックアップ、操作ログ、冗長化、アクセス権、トランザクションを組み合わせて実現します。どの性質をどの程度優先するかは、扱うデータと業務の停止影響で変わります。</p></div>
-    </details>
-
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>ACIDで、トランザクションが守る性質を分ける</summary>
-      <div class="deep-dive-body"><p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">原子性</span></button>は一連の処理を全部実行するか全部取り消すこと、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">一貫性</span></button>は制約を満たす状態から正しい状態へ移ること、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">独立性</span></button>は同時処理が互いに不正な途中状態を見せないこと、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">永続性</span></button>は確定した結果が障害後も失われないことです。頭文字からACIDと呼ばれます。</p><p>銀行振込では、出金と入金を一つのトランザクションとして扱います。処理速度や分散性との兼ね合いで実現方法は異なるため、「データベースを使えば自動的に完全」とせず、どの性質をどの範囲で保証するかを確認します。</p></div>
+      <summary><span class="deep-dive-label">さらに詳しく：</span>トランザクションとデータベースの性質をまとめて確認する</summary>
+      <div class="deep-dive-body"><h4>複数の更新を一まとまりにするトランザクション</h4><p>複数の更新を一まとまりとして扱い、全部成功したときだけ確定する仕組みを<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">トランザクション</span></button>といいます。銀行振込で出金だけ成功し、入金が失敗した状態を残さないための考え方です。</p><h4>データベースに求められる性質</h4><div class="table-wrap"><table class="lecture-table"><thead><tr><th>性質</th><th>確かめること</th></tr></thead><tbody><tr><td>一貫性</td><td>同じ事実が矛盾した値にならない</td></tr><tr><td>独立性</td><td>保存方法を変えても利用側への影響を抑えられる</td></tr><tr><td>完全性</td><td>制約に反する不正な値を登録しない</td></tr><tr><td>機密性</td><td>権限のある利用者だけが必要な範囲へアクセスする</td></tr><tr><td>可用性・回復性</td><td>障害時に復旧し、必要な時に使える</td></tr></tbody></table></div><p>バックアップ、操作ログ、冗長化、アクセス権、トランザクションを組み合わせて実現します。どの性質をどの程度優先するかは、扱うデータと業務の停止影響で変わります。</p><h4>ACIDで、トランザクションが守る性質を分ける</h4><p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">原子性</span></button>は一連の処理を全部実行するか全部取り消すこと、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">一貫性</span></button>は制約を満たす状態から正しい状態へ移ること、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">独立性</span></button>は同時処理が互いに不正な途中状態を見せないこと、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">永続性</span></button>は確定した結果が障害後も失われないことです。頭文字からACIDと呼ばれます。</p><p>銀行振込では、出金と入金を一つのトランザクションとして扱います。処理速度や分散性との兼ね合いで実現方法は異なるため、「データベースを使えば自動的に完全」とせず、どの性質をどの範囲で保証するかを確認します。</p></div>
     </details>
   </div>
         </section>

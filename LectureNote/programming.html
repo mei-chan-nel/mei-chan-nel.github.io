@@ -77,7 +77,6 @@
             <p>大学入学共通テスト「情報Ⅰ」では、学校ごとに学ぶプログラミング言語が異なることを踏まえ、問題中で<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-common-test-notation" class="keyword-target" tabindex="-1" data-keyword-id="programming-common-test-notation">共通テスト用プログラム表記</span></span></button>を使います。特定の実装言語に依存せず処理の考え方を示す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">擬似言語（擬似コード）</span></button>であり、問題文の説明と照らしながら処理を読むための共通表記です。</p>
             <div class="table-wrap"><table class="lecture-table common-notation-table"><thead><tr><th>項目</th><th>表記と例</th><th>読むときの要点</th></tr></thead><tbody><tr><td>変数</td><td><code>kosu</code>、<code>kingaku_goukei</code></td><td>英字で始まる英数字と「_」の並び</td></tr><tr><td>配列変数</td><td><code>Tokuten[3]</code>、<code>Data[2,4]</code></td><td>配列名の先頭は大文字。特に説明がなければ添字は0から始まる</td></tr><tr><td>文字列</td><td><code>moji = "情報Ⅰ"</code><br><code>message = "情報" + "Ⅰ"</code></td><td>ダブルクォーテーションで囲み、<code>+</code>で連結</td></tr><tr><td>代入</td><td><code>kosu = 3</code><br><code>nyuryoku = 【外部からの入力】</code></td><td>右辺の値を左辺の変数に代入する。</td></tr><tr><td>算術演算</td><td><code>+　-　*　/　÷　％　**</code></td><td><code>÷</code>は整数の商、<code>％</code>は余り、<code>**</code>はべき乗</td></tr><tr><td>比較演算</td><td><code>==　!=　&gt;　&lt;　&gt;=　&lt;=</code></td><td><code>==</code>は左辺と右辺の値が等しいときに真となる。<code>!=</code>は等しくないときに真となる。<code>&gt;=</code>は≧、<code>&lt;=</code>は≦を表す。</td></tr><tr><td>論理演算</td><td><code>and　or　not</code></td><td>条件を組み合わせる／否定する</td></tr><tr><td>関数</td><td><code>kazu = 要素数(Data)</code><br><code>表示する("データの要素数は", kazu, "です")</code></td><td>「表示する」以外は、基本的に問題文中で働きが説明される</td></tr><tr><td>コメント</td><td><code>atai = 乱数() # 0以上1未満</code></td><td>1行内の<code>#</code>以降は処理の対象にならない</td></tr></tbody></table></div>
             <div class="warning"><strong>問題文の説明を優先する</strong><p>配列の添字、関数の働き、繰返しの端などは、問題文の指定に沿って読みます。特に、添字は1から始まることがあるので注意します。</p></div>
-            <a class="official-link" href="https://www.dnc.ac.jp/albums/abm.php?d=744&amp;f=abm00003141.pdf&amp;n=6-1_%E6%A6%82%E8%A6%81%E3%80%8C%E6%83%85%E5%A0%B1%E3%80%8D.pdf" target="_blank" rel="noopener noreferrer"><span class="official-link-kicker">公式資料</span><strong>大学入試センター「共通テスト用プログラム表記の例示」</strong><small>変数・配列・演算・分岐・反復の公式例を確認できます。</small><b aria-hidden="true">↗</b></a>
             <div class="key-point"><strong>縦線の記号は、処理の範囲を示す</strong><p><code>｜</code>は次の行も同じ分岐・反復の中、<code>⎿</code>はそのまとまりの最後の行であることを示します。行頭の（1）（2）などは参照用の行番号です。</p></div>
           </div>
         </section>
@@ -96,11 +95,6 @@
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>記号</th><th>形</th><th>役割</th></tr></thead><tbody><tr><td>端子</td><td>角丸の長方形</td><td>開始・終了</td></tr><tr><td>処理</td><td>長方形</td><td>計算、代入、手続き</td></tr><tr><td>入出力</td><td>平行四辺形</td><td>入力、表示、読込み、書出し</td></tr><tr><td>判断</td><td>ひし形</td><td>条件に応じて経路を選ぶ</td></tr><tr><td>繰返し</td><td>始端と終端を対にした記号</td><td>指定条件で範囲を繰り返す</td></tr></tbody></table></div>
             <p>アルゴリズムは、正しい結果だけでなく、終了すること、手順が曖昧でないこと、扱う入力の範囲が明確であることも重要です。</p>
 
-            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>自然言語・フローチャート・共通テスト用表記の使い分け</summary><div class="deep-dive-body"><p>自然言語は書き始めやすく、フローチャートは流れを図で確かめやすく、共通テスト用表記は処理の順序を短く書きやすい表現です。</p><pre class="code-block common-test-code">（1）合計 = 0
-（2）i を 0 から 要素数(Data)-1 まで 1 ずつ増やしながら繰り返す：
-（3）⎿ 合計 = 合計 + Data[i]
-（4）平均 = 合計 / 要素数(Data)
-（5）表示する(平均)</pre></div></details>
           </div>
         </section>
 
@@ -131,6 +125,15 @@
 （8）表示する(grade)</pre>
             <p><span class="keyword"><span id="keyword-programming-if" class="keyword-target" tabindex="-1" data-keyword-id="programming-if">もし</span></span>の条件が真なら、その下のまとまりを実行します。<span class="keyword"><span id="keyword-programming-elif" class="keyword-target" tabindex="-1" data-keyword-id="programming-elif">そうでなくもし</span></span>は別の条件を調べ、<span class="keyword"><span id="keyword-programming-else" class="keyword-target" tabindex="-1" data-keyword-id="programming-else">そうでなければ</span></span>はどの条件も真でなかった場合を受け持ちます。</p>
             <p>条件は上から順に評価し、最初に真になったまとまりだけを実行します。85点はA、75点はB、40点はCです。範囲が重なる条件は、高いしきい値から先に判定します。</p>
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>点数を入力したときの分岐を追う</summary>
+              <div class="deep-dive-body">
+                <p>（1）で点数を受け取ったら、（2）から条件を上から順に調べます。条件が真になったまとまりだけを実行し、その分岐の後ろにある（8）へ進みます。</p>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th>score</th><th>条件の判定</th><th>実行する行</th><th>表示</th></tr></thead><tbody><tr><td>85</td><td>（2）85 &gt;= 80 は真</td><td>（3）を実行し、（4）〜（7）を飛ばして（8）へ</td><td>A</td></tr><tr><td>70</td><td>（2）は偽、（4）70 &gt;= 60 は真</td><td>（3）を飛ばし、（5）を実行して（8）へ</td><td>B</td></tr><tr><td>40</td><td>（2）も（4）も偽</td><td>（3）（5）を飛ばし、（7）を実行して（8）へ</td><td>C</td></tr></tbody></table></div>
+                <p>85を入力すると、（2）の<code>score &gt;= 80</code>が真になります。（3）で<code>grade = "A"</code>を実行した後は、同じ分岐の残りの条件（4）〜（7）を調べず、（8）へ進んでAと表示します。</p>
+                <p>70を入力すると、（2）は偽なので（3）は実行せず、（4）へ進みます。（4）の<code>score &gt;= 60</code>が真になるため（5）を実行し、（6）（7）は飛ばして（8）でBと表示します。40なら（2）と（4）がともに偽なので、（6）の「そうでなければ」に進み、（7）でCを代入します。</p>
+              </div>
+            </details>
             <div class="warning"><strong>境界値を試す</strong><p>59、60、79、80のように条件が切り替わる直前・直後を試します。</p></div>
             <div class="notation-example"><strong>例：料金区分</strong><pre class="code-block common-test-code">（1）age = 【外部からの入力】
 （2）もし age &lt; 18 ならば：
@@ -139,7 +142,24 @@
 （5）｜ fee = "一般"
 （6）そうでなければ：
 （7）⎿ fee = "シニア"</pre><p>0〜17、18〜64、65以上の範囲を重複なく分けられます。</p></div>
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>年齢を入力したときの判定を追う</summary>
+              <div class="deep-dive-body">
+                <p>（1）で年齢を受け取り、（2）の条件から順に判定します。最初の条件が真なら（3）だけを実行し、（4）以降は調べません。最初の条件が偽のときだけ、（4）の条件を調べます。</p>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th>age</th><th>判定の順序</th><th>実行する行</th><th>fee</th></tr></thead><tbody><tr><td>17</td><td>（2）17 &lt; 18 は真</td><td>（3）を実行し、（4）〜（7）を飛ばす</td><td>子ども</td></tr><tr><td>18</td><td>（2）は偽、（4）18 &lt; 65 は真</td><td>（3）を飛ばし、（5）を実行する</td><td>一般</td></tr><tr><td>65</td><td>（2）も（4）も偽</td><td>（3）（5）を飛ばし、（7）を実行する</td><td>シニア</td></tr></tbody></table></div>
+                <p>18は最初の条件に含まれませんが、二つ目の条件には含まれるため「一般」になります。65は<code>age &lt; 65</code>も偽なので、最後の「そうでなければ」に進みます。このように、<code>&lt;</code>の境界を確認すると範囲の分け方を間違えません。</p>
+              </div>
+            </details>
             <h3>複数の条件を、正確な意味で読む</h3><p><code>A and B</code>は「AとBがどちらも成り立つとき」、<code>A or B</code>は「AとBの少なくとも一方が成り立つとき」と読みます。</p>
+            <pre class="code-block common-test-code">（1）x = 8
+（2）y = 3
+（3）もし x &gt; 0 and y &gt; 0 ならば：
+（4）｜ 表示する("xもyも正")
+（5）そうでなくもし x == 0 or y == 0 ならば：
+（6）｜ 表示する("xまたはyが0")
+（7）そうでなければ：
+（8）⎿ 表示する("xもyも0ではない")</pre>
+            <p><code>x = 8</code>、<code>y = 3</code>では、（3）の<code>and</code>の左右がともに真なので（4）を実行します。例えば<code>x = 0</code>、<code>y = 3</code>なら（3）は偽になり、（5）の<code>or</code>で少なくとも一方が真なので（6）を実行します。</p>
             <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>条件の重なりと抜けを数直線で確かめる</summary><div class="deep-dive-body"><p><code>score &gt; 60</code>では60が含まれず、<code>score &gt;= 60</code>では60を含みます。境界の両側へ具体的な値を代入して確かめます。</p></div></details>
           </div>
         </section>
@@ -155,7 +175,19 @@
             <p>「1から5まで」のような範囲は通常、両端を含みます。開始値・終了値・増減値を先に書き出します。</p>
             <h3>値の変化を表で確かめる</h3>
             <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>n</span><span>開始前</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div><div class="trace-row"><b>goukei</b><span>0</span><span>1</span><span>3</span><span>6</span><span>10</span><span>15</span></div></section></div><figcaption>どの文が値を変えるかを確認してから追跡します。</figcaption></figure>
-            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>二重の反復は、外側1回分から追う</summary><div class="deep-dive-body"><p>外側の変数を一つに固定し、内側が最初から最後まで動く様子を先に追います。3行×4列なら処理は3×4＝12回です。</p></div></details>
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>二重の反復を具体例で追う</summary>
+              <div class="deep-dive-body">
+                <p>QUESTION 015あたりの例のように、外側の<code>i</code>を行、内側の<code>j</code>を列に対応させて、二重の反復で表を作ります。この例では問題文の指定により、配列<code>Kuku</code>の添字は1から始まるものとします。まず<code>i</code>を一つの値に固定し、その間に<code>j</code>を最初から最後まで動かします。</p>
+                <pre class="code-block common-test-code">（1）i を 1 から 5 まで 1 ずつ増やしながら繰り返す：
+（2）｜ j を 1 から 3 まで 1 ずつ増やしながら繰り返す：
+（3）⎿ ⎿ Kuku[i, j] = i * j
+（4）表示する(Kuku)</pre>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th>外側 <code>i</code></th><th>内側 <code>j</code></th><th>（3）の処理</th></tr></thead><tbody><tr><td>1</td><td>1 → 2 → 3</td><td><code>Kuku[1,1] = 1</code>、<code>Kuku[1,2] = 2</code>、<code>Kuku[1,3] = 3</code></td></tr><tr><td>2</td><td>1 → 2 → 3</td><td><code>Kuku[2,1] = 2</code>、<code>Kuku[2,2] = 4</code>、<code>Kuku[2,3] = 6</code></td></tr><tr><td>3〜4</td><td>それぞれ1 → 2 → 3</td><td>同じ順序で各行へ積を代入</td></tr><tr><td>5</td><td>1 → 2 → 3</td><td><code>Kuku[5,1] = 5</code>、<code>Kuku[5,2] = 10</code>、<code>Kuku[5,3] = 15</code></td></tr></tbody></table></div>
+                <p><code>i = 1</code>のときは、まず<code>j = 1</code>、次に2、最後に3を実行します。内側の反復が終わると<code>i</code>を2に増やし、<code>j</code>を再び1から始めます。これを<code>i = 5</code>まで続けるので、（3）の処理は5×3＝15回です。外側が行、内側が列に対応するため、最後に表示される表は次のようになります。</p>
+                <div class="table-wrap"><table class="lecture-table"><tbody><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>2</td><td>4</td><td>6</td></tr><tr><td>3</td><td>6</td><td>9</td></tr><tr><td>4</td><td>8</td><td>12</td></tr><tr><td>5</td><td>10</td><td>15</td></tr></tbody></table></div>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -169,14 +201,14 @@
             <p><span class="keyword"><span id="keyword-programming-while" class="keyword-target" tabindex="-1" data-keyword-id="programming-while">条件反復</span></span>では、反復の前に条件を調べます。<code>n</code>が100未満なら2倍し、128になった時点で条件が偽になるため終了します。</p>
             <p>条件反復では、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">初期値</span></button>、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">継続条件</span></button>、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">更新処理</span></button>を一組で探します。</p>
             <h3>判定する時点をそろえてトレースする</h3>
-            <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>判定時のn</span><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span><span>32</span><span>64</span><span>128</span></div><div class="trace-row"><b>n&lt;100</b><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>偽</span></div></section></div><figcaption>最後に条件を調べた値も表へ残します。</figcaption></figure>
+            <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>判定時のn</span><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span><span>32</span><span>64</span><span>128</span></div><div class="trace-row"><b>n&lt;100</b><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>偽</span></div></section></div></figure>
             <div class="warning"><strong><span id="keyword-programming-infinite-loop" class="keyword-target" tabindex="-1" data-keyword-id="programming-infinite-loop">無限ループ</span>を防ぐ</strong><p>条件に関係する変数が、条件を偽へ近づけるよう更新されなければ終了しません。</p></div>
             <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>0が入力されるまで合計する</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）goukei = 0
 （2）number = 【外部からの入力】
 （3）number != 0 の間繰り返す：
 （4）｜ goukei = goukei + number
 （5）⎿ number = 【外部からの入力】
-（6）表示する(goukei)</pre><p>0自体は合計へ加えず、反復を終了する合図にします。</p></div></details>
+（6）表示する(goukei)</pre><p>入力を順に5、3、0とすると、最初の入力5で条件は真になり、<code>goukei</code>は0から5になります。次の入力3でも条件は真なので、<code>goukei</code>は5から8になります。最後に0が入力されると（3）の<code>number != 0</code>が偽になり、（4）（5）を実行せず（6）へ進んで8と表示します。0自体は合計へ加えず、反復を終了する合図にします。</p></div></details>
           </div>
         </section>
         <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="6" hidden></div>
@@ -189,8 +221,17 @@
             <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-array" class="keyword-target" tabindex="-1" data-keyword-id="programming-array">配列</span></span></button>は複数の値を順番にまとめたものです。配列の先頭の要素の<span id="keyword-programming-index" class="keyword-target" tabindex="-1" data-keyword-id="programming-index">添字</span>は、特に説明がなければ0です。4個の要素の添字は0、1、2、3です。</p>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>表し方</th><th>例</th><th>読み方</th></tr></thead><tbody><tr><td>一次元配列</td><td><code>Scores[2]</code></td><td>添字2、つまり3番目の要素</td></tr><tr><td>二次元配列</td><td><code>Data[1,3]</code></td><td>二つの添字で位置を指定</td></tr></tbody></table></div>
             <div class="key-point"><strong>要素と添字を混同しない</strong><p><code>Scores[2]</code>の2は位置を表す添字で、この例では要素91です。</p></div>
-            <p>配列名の先頭が大文字で書かれる例が多くあります。ただし、添字の始まりや二次元配列の行・列の順は、問題文の指定を優先します。</p>
-            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>二次元配列は行と列の意味を先に決める</summary><div class="deep-dive-body"><p>最初の添字を行、次の添字を列とすると、<code>Data[1,2]</code>は2行目・3列目です。</p><pre class="code-block common-test-code">（1）表示する(Data[1,2])</pre><p>添字の意味は、必ず問題文の定義と照らして読みます。</p></div></details>
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>二次元配列は行と列の順番</summary>
+              <div class="deep-dive-body">
+                <p>「プログラミング・変数・配列」のQUESTION 020のように、二次元配列を表として読む問題では、添字を<code>[行, 列]</code>の順に確認します。</p>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th>行＼列</th><th>0（名前）</th><th>1（年齢）</th><th>2（性別）</th></tr></thead><tbody><tr><th>0</th><td>田中</td><td>25</td><td>男性</td></tr><tr><th>1</th><td>山田</td><td>30</td><td>女性</td></tr><tr><th>2</th><td>鈴木</td><td>23</td><td>女性</td></tr><tr><th>3</th><td>佐藤</td><td>44</td><td>男性</td></tr></tbody></table></div>
+                <pre class="code-block common-test-code">（1）表示する(Kaiin[0, 0], "さんは", Kaiin[0, 1], "歳の", Kaiin[0, 2], "です。")
+（2）表示する(Kaiin[1, 0], "さんは", Kaiin[1, 1], "歳の", Kaiin[1, 2], "です。")
+（3）表示する(Kaiin[2, 0], "さんは", Kaiin[2, 1], "歳の", Kaiin[2, 2], "です。")</pre>
+                <p>最初の添字が行、次の添字が列です。<code>Kaiin[1, 0]</code>は2行目・名前列なので「山田」、<code>Kaiin[0, 1]</code>は1行目・年齢列なので25を表します。行と列を逆にすると別のデータを参照するため、問題文の表と添字の順番を対応させます。</p>
+              </div>
+            </details>
           </div>
         </section>
 
@@ -209,13 +250,11 @@
             <p>関数定義のたて・よこを<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">仮引数</span></button>、呼出し時の4・3を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">実引数</span></button>といいます。</p>
             <p>必要な値は引数で受け取り、戻り値で返すと、処理のつながりが明確になります。</p>
             <div class="key-point"><strong>一つの関数に一つの役割</strong><p>入力、計算、表示を分けると、どの部分が誤っているかを確かめやすくなります。</p></div>
-            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>同じ計算を関数へまとめる</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）税込金額 = 税込価格(1000, 0.1)
-（2）表示する(税込金額)</pre><p>関数の働きは問題文の定義を確認します。</p></div></details>
           </div>
         </section>
 
         <section class="lecture-section" id="programming-sort-search" aria-labelledby="programming-sort-search-title">
-          <header class="section-heading"><span class="section-number">09</span><div><p class="section-kicker">SORT · SEARCH</p><h2 id="programming-sort-search-title">値を並べ替え、目的の値を見つける手順を追う</h2><p class="section-lead">整列では比較と交換、探索では調べる順序と前提条件に注目します。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-sort-search" aria-pressed="false">しおりを挟む</button></header>
+          <header class="section-heading"><span class="section-number">09</span><div><p class="section-kicker">SORT · SEARCH</p><h2 id="programming-sort-search-title">【発展】ソート・探索のアルゴリズム</h2><p class="section-lead">整列では比較と交換、探索では調べる順序と前提条件に注目します。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-sort-search" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
             <h3><span id="keyword-programming-bubble-sort" class="keyword-target" tabindex="-1" data-keyword-id="programming-bubble-sort">バブルソート</span>：隣り合う値を比べて交換する</h3>
             <pre class="code-block common-test-code">（1）A = [3, 8, 2, 6, 5]
@@ -227,6 +266,14 @@
 （7）⎿ ⎿ ⎿ A[j+1] = temp</pre>
             <figure class="html-figure"><div class="step-flow sort-flow" style="--steps:4"><article class="step-item"><b>開始</b><p>3　8　2　6　5</p></article><article class="step-item"><b>1巡目</b><p>3　2　6　5　8</p></article><article class="step-item"><b>2巡目</b><p>2　3　5　6　8</p></article><article class="step-item"><b>完了</b><p>2　3　5　6　8</p></article></div><figcaption>左から隣り合う二つを比べ、左が大きければ交換します。</figcaption></figure>
             <p>一巡ごとに、まだ整列していない範囲を一つ狭くして同じ処理を繰り返します。</p>
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>バブルソートの並び替えを追う</summary>
+              <div class="deep-dive-body">
+                <p><code>A = [3, 8, 2, 6, 5]</code>を左から順に比べます。外側の<code>i</code>が1回進むたびに、右端へ大きな値が一つ移動するため、次の巡回ではその値を比べる必要がありません。</p>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th><code>i</code></th><th><code>j</code></th><th>比較</th><th>交換後のA</th></tr></thead><tbody><tr><td>0</td><td>0</td><td>3 &gt; 8 は偽</td><td><code>[3, 8, 2, 6, 5]</code></td></tr><tr><td>0</td><td>1</td><td>8 &gt; 2 は真</td><td><code>[3, 2, 8, 6, 5]</code></td></tr><tr><td>0</td><td>2</td><td>8 &gt; 6 は真</td><td><code>[3, 2, 6, 8, 5]</code></td></tr><tr><td>0</td><td>3</td><td>8 &gt; 5 は真</td><td><code>[3, 2, 6, 5, 8]</code></td></tr><tr><td>1</td><td>0</td><td>3 &gt; 2 は真</td><td><code>[2, 3, 6, 5, 8]</code></td></tr><tr><td>1</td><td>1</td><td>3 &gt; 6 は偽</td><td><code>[2, 3, 6, 5, 8]</code></td></tr><tr><td>1</td><td>2</td><td>6 &gt; 5 は真</td><td><code>[2, 3, 5, 6, 8]</code></td></tr><tr><td>2</td><td>0</td><td>2 &gt; 3 は偽</td><td><code>[2, 3, 5, 6, 8]</code></td></tr><tr><td>2</td><td>1</td><td>3 &gt; 5 は偽</td><td><code>[2, 3, 5, 6, 8]</code></td></tr><tr><td>3</td><td>0</td><td>2 &gt; 3 は偽</td><td><code>[2, 3, 5, 6, 8]</code></td></tr></tbody></table></div>
+                <p><code>i = 0</code>では<code>j</code>が0〜3、<code>i = 1</code>では0〜2、<code>i = 2</code>では0〜1、<code>i = 3</code>では0だけ動きます。最初の巡回で最大の8が右端へ移り、次の巡回で6がその一つ左へ移ります。交換では（5）で左の値を<code>temp</code>へ退避し、（6）（7）で二つの値を入れ替えます。</p>
+              </div>
+            </details>
             <h3><span id="keyword-programming-linear-search" class="keyword-target" tabindex="-1" data-keyword-id="programming-linear-search">線形探索</span>と<span id="keyword-programming-binary-search" class="keyword-target" tabindex="-1" data-keyword-id="programming-binary-search">二分探索</span></h3>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>方法</th><th>調べ方</th><th>前提</th></tr></thead><tbody><tr><td>線形探索</td><td>先頭から一つずつ調べる</td><td>並び順を問わない</td></tr><tr><td>二分探索</td><td>中央と比べ、候補を半分にする</td><td>昇順または降順に整列済み</td></tr></tbody></table></div>
             <div class="notation-example"><strong>線形探索の表記例</strong><pre class="code-block common-test-code">（1）Data = [18, 25, 31, 42]
@@ -239,7 +286,18 @@
 （8）もし owari == 0 ならば：
 （9）⎿ 表示する(atai, "は見つかりませんでした")</pre></div>
             <p>線形探索は先頭から一つずつ、二分探索は整列済みのデータの中央から調べます。</p>
-            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>二分探索の処理を一行ずつ追う</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）Data = [3, 18, 29, 33, 48, 52, 62, 77, 89, 97]
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>線形探索の手順を追う</summary>
+              <div class="deep-dive-body">
+                <h4>線形探索：前から一つずつ調べる</h4>
+                <p><code>Data = [18, 25, 31, 42]</code>から、<code>atai = 31</code>を探します。添字は0から始まるものとします。まず<code>owari = 0</code>として、見つかるまでの状態を表にします。</p>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th>調べる順番</th><th><code>i</code></th><th><code>Data[i]</code></th><th><code>Data[i] == atai</code></th><th>そのときの処理</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>18</td><td>偽</td><td><code>owari = 0</code>のまま、次へ進む</td></tr><tr><td>2</td><td>1</td><td>25</td><td>偽</td><td><code>owari = 0</code>のまま、次へ進む</td></tr><tr><td>3</td><td>2</td><td>31</td><td>真</td><td>表示し、<code>owari = 1</code>にする</td></tr><tr><td>4</td><td>3</td><td>42</td><td>偽</td><td><code>owari = 1</code>のまま、最後まで調べる</td></tr></tbody></table></div>
+                <p>この表記では、目的の値を見つけても繰り返しをすぐには抜けず、最後の要素まで調べます。繰り返しが終わったときに<code>owari == 0</code>なら一度も見つかっていないので「見つかりませんでした」と表示します。例えば<code>atai = 30</code>ならすべての比較が偽となり、<code>owari</code>は0のままです。</p>
+              </div>
+            </details>
+            <h4>二分探索の表記例</h4>
+            <p>二分探索では、整列済みの<code>Data = [3, 18, 29, 33, 48, 52, 62, 77, 89, 97]</code>から目的の値を探します。<code>hidari</code>を探索範囲の左端、<code>migi</code>を右端、<code>aida</code>を中央の添字として、中央の値と<code>atai</code>を比較します。</p>
+            <pre class="code-block common-test-code">（1）Data = [3, 18, 29, 33, 48, 52, 62, 77, 89, 97]
 （2）kazu = 要素数(Data)
 （3）atai = 【外部からの入力】
 （4）hidari = 0
@@ -253,7 +311,17 @@
 （12）｜ そうでなくもし Data[aida] &lt; atai ならば：
 （13）｜ ｜ hidari = aida + 1
 （14）｜ そうでなければ：
-（15）⎿ ⎿ migi = aida - 1</pre><p><code>÷</code>が整数の商を返すこと、Dataが整列済みであることがポイントです。</p></div></details>
+（15）⎿ ⎿ migi = aida - 1</pre>
+            <p>（9）で値が等しければ見つかったとして<code>owari = 1</code>にし、（12）が真なら探索範囲の左端を<code>aida + 1</code>に、そうでなければ右端を<code>aida - 1</code>に更新します。<code>÷</code>は整数の商を返すものとし、二分探索を使うにはDataが昇順または降順に整列済みであることが必要です。</p>
+            <details class="deep-dive">
+              <summary><span class="deep-dive-label">さらに詳しく：</span>二分探索の手順を追う</summary>
+              <div class="deep-dive-body">
+                <p><code>atai = 62</code>を入力したとき、中央の値と比較するたびに候補の範囲がどう狭くなるかを表にします。</p>
+                <div class="table-wrap"><table class="lecture-table"><thead><tr><th>回</th><th>探索範囲<br><code>hidari ～ migi</code></th><th><code>aida</code></th><th><code>Data[aida]</code></th><th>比較と次の範囲</th></tr></thead><tbody><tr><td>1</td><td>0 ～ 9</td><td>4</td><td>48</td><td>48 &lt; 62なので、左端を5にする</td></tr><tr><td>2</td><td>5 ～ 9</td><td>7</td><td>77</td><td>77 &gt; 62なので、右端を6にする</td></tr><tr><td>3</td><td>5 ～ 6</td><td>5</td><td>52</td><td>52 &lt; 62なので、左端を6にする</td></tr><tr><td>4</td><td>6 ～ 6</td><td>6</td><td>62</td><td>62 == 62なので、見つかったとして終了</td></tr></tbody></table></div>
+                <p>1回目は中央の添字4を調べ、62は48より大きいので、添字0〜3を候補から外します。2回目は添字5〜9の中央の添字7を調べ、62は77より小さいので、添字7〜9を候補から外します。3回目に添字5を調べ、52より大きいので左端を6にすると、最後に添字6の62へたどり着きます。</p>
+                <p><code>atai = 50</code>なら、48より大きいので左端を5、77より小さいので右端を6、52より小さいので右端を4にします。左端5が右端4を越え、探索範囲がなくなるため、<code>owari</code>は0のままで「見つかりませんでした」と表示します。</p>
+              </div>
+            </details>
           </div>
         </section>
         <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="9" hidden></div>

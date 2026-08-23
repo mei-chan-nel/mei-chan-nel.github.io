@@ -862,6 +862,8 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .mini-data-table > span:nth-child(-n+4) { color: var(--navy); background: var(--accent-soft); font-weight: 800; }
 .mini-data-table.three-col > span:nth-child(-n+3), .mini-data-table.two-col > span:nth-child(-n+2) { color: var(--navy); background: var(--accent-soft); font-weight: 800; }
 .mini-data-table em { display: block; color: var(--accent); font-size: 9px; font-style: normal; }
+.database-blue-cell { background: var(--accent-soft); }
+.database-highlight-cell { background: var(--green-soft); }
 
 .relational-workflow { display: grid; gap: 18px; }
 .database-stage { position: relative; }

@@ -133,7 +133,7 @@
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>接頭辞</th><th>10進の倍率</th><th>主な読み</th></tr></thead><tbody><tr><td>k</td><td>10³</td><td>キロ</td></tr><tr><td>M</td><td>10⁶</td><td>メガ</td></tr><tr><td>G</td><td>10⁹</td><td>ギガ</td></tr><tr><td>T</td><td>10¹²</td><td>テラ</td></tr></tbody></table></div>
     <h3>通信速度のbit/sと、ファイル容量のbyteを区別する</h3>
     <p>通信速度の「100 Mbps」は1秒当たり100 megabit、ファイル容量のMBはmegabyteです。1 byte＝8 bitなので、単位をそろえてから転送時間や容量を計算します。</p>
-    <div class="formula">状態数 = 2ⁿ　　必要ビット数 = 「必要な状態数以上になる最小の2ⁿ」のn</div>
+    <p>nビットで表せる状態数は2ⁿ通りです。必要な状態数以上になる最小の2ⁿを選び、その指数nが必要なビット数になります。</p>
 
     <details class="deep-dive">
       <summary><span class="deep-dive-label">さらに詳しく：</span>1000倍の単位と1024倍の単位</summary>
@@ -141,10 +141,6 @@
     </details>
 
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>BCDとグレイコードは、二進数そのものとは目的が違う</summary>
-      <div class="deep-dive-body"><p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">BCD</span></button>は十進数の各桁を4 bitずつで表します。十進数59なら、5を0101、9を1001として0101 1001です。数値59を純粋な二進数にした00111011とは並びが異なります。電卓や表示装置など、十進の桁を保ちたい場面で使われます。</p><p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">グレイコード</span></button>は隣り合う値で変化するbitを一つだけにした符号です。回転位置センサなどで、複数bitが切り替わる瞬間の読取りずれを減らします。表現方法は「何を計算しやすくするか」「どんな誤りを避けるか」で選びます。</p></div>
-    </details>
   </div>
         </section>
         <section class="lecture-section" id="digital-conversion" aria-labelledby="digital-conversion-title">
@@ -180,7 +176,7 @@
             <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>2の補数で引き算を足し算に変える</summary><div class="deep-dive-body"><p>4ビットで5−3を確かめます。引く数3は0011₂です。全ビットを反転して1100₂、1を加えた1101₂が−3を表す2の補数です。</p><div class="formula">0101₂（5）＋1101₂（−3）＝1 0010₂</div><p>4ビットを超えた左端の1を捨てると0010₂、つまり2になります。したがって、5−3を「5＋（−3）」として同じ加算回路で計算できます。4ビットの2の補数で表せる範囲は−8〜+7なので、範囲外の結果は正しく表せません。</p></div></details>
             <h3><span id="keyword-digital-floating-point" class="keyword-target" tabindex="-1" data-keyword-id="digital-floating-point">浮動小数点数</span></h3>
             <p>IEEE 754 binary32は、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">符号部1ビット</span></button>・<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">指数部8ビット</span></button>・<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">仮数部23ビット</span></button>で構成されます。有限のビット数で実数を近似するため、丸め誤差が生じます。</p>
-            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>数値と浮動小数点表現を往復する</summary><div class="deep-dive-body"><h4>数値から浮動小数点表現へ</h4><p>13.25₁₀は、整数部13が1101₂、小数部0.25が0.01₂なので、1101.01₂です。小数点を左へ3桁動かして正規化すると次の形になります。</p><div class="formula">13.25₁₀＝1101.01₂＝1.10101₂ × 2³</div><p>この例では符号は正、指数は3、仮数の有効部分は10101…です。実際のbinary32では、指数に一定の偏りを加え、仮数を決められたビット数へ収めて保存します。</p><h4>浮動小数点表現から数値へ</h4><div class="formula">1.011₂ × 2²＝101.1₂＝4＋1＋0.5＝5.5₁₀</div><p>指数2は2進小数点を右へ2桁動かすという意味です。正規化した形、2進数、小数値の順に戻すと読み違いを防げます。</p></div></details>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>数値と浮動小数点表現を往復する</summary><div class="deep-dive-body"><h4>1. 10進数を浮動小数点の形にする</h4><p>まず、10進数を符号・仮数・指数に分けます。例えば、−132.5は−1.325×10²と表せます。符号は−、仮数は1.325、指数は2です。小数点の位置を動かしても、表している数値は変わりません。</p><h4>2. 10進数を2進数に直す</h4><p>binary32の例として−46.625を考えます。整数部46は101110₂、小数部0.625は0.101₂なので、−46.625＝−101110.101₂です。</p><h4>3. 1.xxxxx×2ⁿの形に正規化する</h4><p>小数点を左へ5桁動かすと、−101110.101₂＝−1.01110101₂×2⁵となります。この形にすると、符号、指数、仮数へ分けて記録できます。</p><h4>4. IEEE 754 binary32の各部に入れる</h4><p>binary32は、符号部1ビット・指数部8ビット・仮数部23ビットです。負の数なので符号部は1、指数部は5に127を加えた132＝10000100₂、仮数部は先頭の1を除いた01110101000000000000000です。</p><p>したがって、各部を順に並べると、1 10000100 01110101000000000000000₂（16進数ではC2 3A 80 00）になります。</p><h4>5. 浮動小数点表現から数値へ戻す</h4><p>逆に、16ビット表現「0 10001 1100100000」を読む場合を考えます。符号部0は正、指数部10001₂は17です。指数部が5ビットなので偏り15（2⁴−1）を引き、指数は17−15＝2になります。</p><p>仮数部は先頭に1を補って1.1100100000₂とし、1.1100100000₂×2²＝111.00100000₂＝7.125と計算します。数値から読むときは、各部を確認してから指数に応じて小数点を動かすと、手順を追いやすくなります。</p></div></details>
             <h3><span id="keyword-digital-character-code" class="keyword-target" tabindex="-1" data-keyword-id="digital-character-code">文字コード</span></h3>
             <p>文字とビット列の対応表が文字コードです。ASCIIではKが01001011₂です。日本語を含む文字集合や<span id="keyword-digital-encoding-scheme" class="keyword-target" tabindex="-1" data-keyword-id="digital-encoding-scheme">符号化方式</span>にはJIS、Shift_JIS、UTF-8などがあります。現在のWebでは<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">UTF-8</span></button>が広く使われます。</p>
     <h3>文字集合と符号化方式を区別する</h3>
@@ -271,8 +267,8 @@
             <p>1秒間の標本数を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">標本化周波数</span></button>（Hz）、1標本を表すビット数を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">量子化ビット数</span></button>といいます。一般に値を大きくすると再現性は高まりますが、データ量も増えます。</p>
             <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>標本化で起こる誤差</summary><div class="deep-dive-body"><p>測定間隔が粗いと、標本点の間で起きた細かな変化を記録できません。特に、標本化周波数の半分より高い周波数成分は、実際とは違う低い周波数に見える<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">折り返し雑音（エイリアシング）</span></button>を生むことがあります。</p><p>そこで、記録したい最高周波数の2倍より高い標本化周波数を使い、標本化前にそれより高い成分をフィルタで弱めます。標本化周波数を上げるほど時間方向を細かく記録できますが、データ量も増えます。</p></div></details>
             <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>量子化で起こる誤差</summary><div class="deep-dive-body"><p>量子化では、実際の振幅を最も近い段階値へ丸めます。実際の値と割り当てた段階値の差が<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">量子化誤差</span></button>です。例えば実際の振幅が5.3で、段階値が整数だけなら5へ割り当てるため、誤差は−0.3です。</p><p>量子化ビット数がnビットなら段階数は2ⁿです。ビット数を増やすと段階の間隔が細かくなり誤差を小さくできますが、1標本当たりのデータ量は増えます。</p></div></details>
-            <div class="formula">データ量 [bit] = 標本化周波数 × 量子化ビット数 × 時間 × チャンネル数</div>
-            <div class="practice"><strong>計算問題：10秒のステレオ音声</strong><p>標本化周波数48 kHz、量子化16 bit、2チャンネルで10秒録音したとき、圧縮前のデータ量を求めます。</p><details class="practice-solution"><summary>解答・解説</summary><div><p>48 kHzは1秒間に48,000回標本化するという意味です。</p><div class="formula">48,000 × 16 × 10 × 2 ＝ 15,360,000 bit</div><p>8で割ると1,920,000 byte、10進表記では約1.92 MBです。音声ファイルには管理情報が付き、圧縮形式では実際の容量が変わります。</p></div></details></div>
+            <p>音声のデータ量は、標本化周波数、量子化ビット数、録音時間、チャンネル数を掛けて求めます。式で表すと、データ量[bit]＝標本化周波数×量子化ビット数×時間×チャンネル数です。</p>
+            <div class="practice"><strong>計算問題：10秒のステレオ音声</strong><p>標本化周波数48 kHz、量子化16 bit、2チャンネルで10秒録音したとき、圧縮前のデータ量は約何Mバイトか。</p><details class="practice-solution"><summary>解答・解説</summary><div><p>48 kHzは1秒間に48,000回標本化するという意味です。10秒では、48,000×10＝480,000回の標本化になります。</p><p>1回の標本は16 bitで、2チャンネルなので、16×2＝32 bit、つまり4バイトです。したがって、データ量は480,000×4＝1,920,000バイトです。</p><p>1000バイト＝1kバイト、1000kバイト＝1Mバイトとして、1,920,000バイト＝1,920kバイト＝約1.92Mバイトとなります。実際の音声ファイルには管理情報が付き、圧縮形式では容量が変わります。</p></div></details></div>
     <h3>音の高さ・大きさ・音色を波形から読む</h3>
     <p>1秒間の振動回数を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">周波数</span></button>といい、単位はHzです。一般に周波数が高いほど音は高く聞こえます。振幅は音の大きさに関係し、波形に含まれる周波数成分の組合せが音色へ影響します。</p>
 
@@ -299,9 +295,9 @@
             <div class="warning"><strong>ファイルを変換しても、元の情報は増えない</strong><p>SVGをPNGへ書き出すと、その時点の画素数をもつラスタ画像になります。反対に、JPEGをSVGファイルへ埋め込んだだけでは、写真の画素が自動的に線や曲線へ変わるわけではありません。用途に合う形式を、作成・編集の段階から選びます。</p></div>
             <p>ラスタ画像は、画像を画素に区切る<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">標本化</span></button>、明るさや色を有限の段階へ割り当てる<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">量子化</span></button>、段階値を2進数で表す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">符号化</span></button>の順でデジタル化します。</p>
             <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/digital/color-models.webp" type="image/webp"><img src="../assets/lecture-v2/digital/color-models.png" alt="RGBの加法混色とCMYKの減法混色を、重なりによって生じる色まで示して比較した図" width="1600" height="900" loading="lazy" decoding="async"></picture><figcaption>RGBは光を加えると白へ、CMYは光を吸収するインクを重ねると黒へ近づく。印刷では黒インクKも使う。</figcaption></figure>
-            <div class="formula">無圧縮画像のデータ量 [bit] = 横画素数 × 縦画素数 × 1画素のビット数</div>
+            <p>無圧縮画像では、横画素数と縦画素数を掛けた画素数に、1画素あたりのビット数を掛けてデータ量を求めます。式で表すと、無圧縮画像のデータ量[bit]＝横画素数×縦画素数×1画素のビット数です。</p>
             <p>ディスプレイは光の三原色<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">RGB</span></button>を使う加法混色です。R・G・Bを同じ強さで重ねると白になります。プリンタは色材の三原色<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">CMY</span></button>を使う減法混色で、実際には黒の再現とインク量の節約のためKを加えたCMYKを使います。RGB各色8ビットなら1画素は24ビットで、表せる色は2²⁴＝16,777,216色です。</p>
-            <div class="practice"><strong>計算問題：無圧縮のカラー画像</strong><p>800×600画素、1画素24ビットの画像のデータ量を求めます。</p><details class="practice-solution"><summary>解答・解説</summary><div><div class="formula">800 × 600 × 24 ＝ 11,520,000 bit</div><p>8で割ると1,440,000 byte、10進表記では約1.44 MBです。PNGやJPEGなどで圧縮した後の容量は、画像の内容と圧縮方式によって変わります。</p></div></details></div>
+            <div class="practice"><strong>計算問題：無圧縮のカラー画像</strong><p>800×600画素、1画素24ビットの画像のデータ量は約何Mバイトか。</p><details class="practice-solution"><summary>解答・解説</summary><div><p>画素数は800×600＝480,000画素です。1画素24ビットなので、全体のデータ量は480,000×24＝11,520,000ビットです。</p><p>8ビット＝1バイトなので、11,520,000÷8＝1,440,000バイトです。</p><p>1000バイト＝1kバイト、1000kバイト＝1Mバイトとして、1,440,000バイト＝1,440kバイト＝約1.44Mバイトとなります。これは無圧縮の場合の値で、PNGやJPEGなどで圧縮した後の容量は画像の内容と圧縮方式によって変わります。</p></div></details></div>
             <div class="warning"><strong><span id="keyword-digital-resolution" class="keyword-target" tabindex="-1" data-keyword-id="digital-resolution">解像度</span>という語の違い</strong><p>画面では画素数、印刷やスキャンでは1インチ当たりの点や画素数（dpi・ppi）を指すことがあります。何を表す値か確認します。</p></div>
     <h3>用途に合わせて、画像形式と圧縮方法を選ぶ</h3>
     <p>上の式を1920×1080画素、RGB各8 bitへ当てはめると、非圧縮では1920×1080×24＝49,766,400 bit、約6.22 MBです。実際のファイル容量は、形式と画像内容、圧縮方法によって変わります。</p>

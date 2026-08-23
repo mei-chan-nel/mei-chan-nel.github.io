@@ -216,8 +216,7 @@
           <div class="section-body">
             <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/statistics/descriptive-distribution.webp" type="image/webp"><img src="../assets/lecture-v2/statistics/descriptive-distribution.png" alt="同じ平均で散らばりが異なる分布、中央値、四分位範囲、標準偏差を示す図" width="1600" height="900" loading="lazy" decoding="async"></picture><figcaption>中心が同じでも散らばりは異なる。代表値と散布度をセットで読む。</figcaption></figure>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>指標</th><th>定義・特徴</th></tr></thead><tbody><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-statistics-mean" class="keyword-target" tabindex="-1" data-keyword-id="statistics-mean">平均値</span></span></button></td><td>合計÷個数。すべての値を使うが外れ値の影響を受けやすい</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-statistics-median" class="keyword-target" tabindex="-1" data-keyword-id="statistics-median">中央値</span></span></button></td><td>小さい順の中央。外れ値の影響を受けにくい</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-statistics-mode" class="keyword-target" tabindex="-1" data-keyword-id="statistics-mode">最頻値</span></span></button></td><td>最も多く現れる値・階級。名義尺度にも使える</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">範囲</span></button></td><td>最大値−最小値。両端だけで決まる</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">四分位範囲</span></button></td><td>Q₃−Q₁。中央50%の広がり</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-statistics-standard-deviation" class="keyword-target" tabindex="-1" data-keyword-id="statistics-standard-deviation">標準偏差</span></span></button></td><td>平均との差を二乗して平均し、平方根を取った散らばり</td></tr></tbody></table></div>
-            <div class="formula"><span id="keyword-statistics-variance" class="keyword-target" tabindex="-1" data-keyword-id="statistics-variance">分散</span> = Σ(xᵢ − x̄)² / n　　標準偏差 = √分散</div>
-            <p>図の箱ひげ図は、最小値10、Q₁＝20、中央値30、Q₃＝45、最大値60を同じ数直線上へ置いた五数要約です。箱はQ₁からQ₃までの中央50%を表し、箱の中の線が中央値、左右のひげが最小値・最大値までを表します。四分位範囲はQ₃−Q₁＝25です。</p>
+            <p><span id="keyword-statistics-variance" class="keyword-target" tabindex="-1" data-keyword-id="statistics-variance">分散</span>は、各値と平均の差を二乗して平均した値で、標準偏差は分散の平方根です。図の箱ひげ図は、最小値10、Q₁＝20、中央値30、Q₃＝45、最大値60を同じ数直線上へ置いた五数要約です。箱はQ₁からQ₃までの中央50%を表し、箱の中の線が中央値、左右のひげが最小値・最大値までを表します。四分位範囲はQ₃−Q₁＝25です。</p>
             <div class="warning"><strong>外れ値を別の点で描く流儀</strong><p>統計ソフトでは、Q₁−1.5IQR未満またはQ₃＋1.5IQR超を外れ値として点で描き、ひげをその範囲内の端の値までとすることがあります。図が「最小・最大までのひげ」か「1.5IQR方式」かを確認します。</p></div>
             <p>標本から母集団の分散を推定するときは、分母をn−1とする不偏分散が使われます。データそのものの分散なのか、母分散を推定する分散なのかを確認します。</p>
 
@@ -298,8 +297,7 @@
           </header>
           <div class="section-body">
             <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/statistics/regression-residual.webp" type="image/webp"><img src="../assets/lecture-v2/statistics/regression-residual.png" alt="散布図の回帰直線と、観測値から予測値を引いた残差のプロット" width="1600" height="900" loading="lazy" decoding="async"></picture><figcaption>良い直線モデルでは、<span id="keyword-statistics-residual" class="keyword-target" tabindex="-1" data-keyword-id="statistics-residual">残差</span>が0付近に偏りなく散らばる。</figcaption></figure>
-            <p>説明変数xから目的変数yを予測する一次式を<span id="keyword-statistics-regression-line" class="keyword-target" tabindex="-1" data-keyword-id="statistics-regression-line">回帰直線</span> y＝ax＋b とします。最小二乗法では、各点の縦方向のずれの二乗和が最小になるa・bを求めます。</p>
-            <div class="formula">残差 eᵢ = 実測値 yᵢ − 予測値 ŷᵢ</div>
+            <p>説明変数xから目的変数yを予測する一次式を<span id="keyword-statistics-regression-line" class="keyword-target" tabindex="-1" data-keyword-id="statistics-regression-line">回帰直線</span> y＝ax＋b とします。最小二乗法では、各点の縦方向のずれの二乗和が最小になるa・bを求めます。残差は、実測値から予測値を引いた差です。</p>
             <p>残差に曲線的な並び、扇形の広がり、時系列の連続性があれば、直線モデルや等分散・独立性の仮定が合っていない可能性があります。</p>
             <div class="warning"><strong>外挿に注意</strong><p>観測したxの範囲外へ回帰式を延長した予測は、関係が同じまま続く保証がないため不確かです。</p></div>
     <h3>回帰式の係数を、変数の単位とともに読む</h3>
@@ -324,8 +322,7 @@
           <div class="section-body">
             <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/statistics/normal-distribution.webp" type="image/webp"><img src="../assets/lecture-v2/statistics/normal-distribution.png" alt="正規分布の平均±1σ、±2σ、±3σの範囲と割合を示す図" width="1600" height="900" loading="lazy" decoding="async"></picture><figcaption>約68%・95%・99.7%は、<span id="keyword-statistics-normal-distribution" class="keyword-target" tabindex="-1" data-keyword-id="statistics-normal-distribution">正規分布</span>に従う場合の経験則。</figcaption></figure>
             <p>正規分布は平均を中心に左右対称の釣鐘形をした連続分布です。平均μ、標準偏差σのとき、内側から順にμ±1σへ約<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">68.3%</span></button>、μ±2σへ約<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">95.4%</span></button>、μ±3σへ約<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">99.7%</span></button>が含まれます。外側の範囲ほど内側の範囲を含むため、68.3%→95.4%→99.7%の順で範囲が広がります。</p>
-            <div class="formula">標準得点 z = (x − μ) / σ</div>
-            <p>z得点は、値xが平均から標準偏差何個分離れているかを表します。単位や尺度が異なる分布で相対的位置を比較できます。</p>
+            <p>標準得点（z）は、値xから平均μを引き、その差を標準偏差σで割って求めます。z得点は、値xが平均から標準偏差何個分離れているかを表します。単位や尺度が異なる分布で相対的位置を比較できます。</p>
             <div class="warning"><strong>すべての分布が正規分布ではない</strong><p>人数の少ないデータ、強く歪んだデータ、上限・下限があるデータに68-95-99.7則を機械的に当てはめません。</p></div>
     <p>正規分布の曲線は、高さそのものではなく、区間の下にある<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">面積</span></button>が確率を表し、全体の面積は1です。</p>
 
@@ -363,8 +360,7 @@
             <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">e-Stat</span></button>は政府統計を分野・組織・キーワードなどから探せる総合窓口です。最初に「何を、どの地域間で、いつの時点について比べるか」を問いとして定めます。次に調査名と統計表を選び、項目・地域・年次を絞ります。似た表題でも速報・確報、暦年・年度、現在人口・常住人口など定義が違うことがあるため、表の注記とメタデータを読みます。</p>
             <h3>例：人口10万人当たり図書館数を都道府県で比べる</h3>
             <ol><li>社会教育調査などから都道府県別の図書館数を取得します。</li><li>同じ基準年に対応する都道府県別人口を取得します。図書館数が年度、人口が年次なら、どの時点を対応させるかを記録します。</li><li>都道府県名や地域コードで二つの表を結合します。合計行、全国行、欠測記号を通常の都道府県データへ混ぜないようにします。</li><li>各地域について次の式で指標を計算します。</li></ol>
-            <div class="formula">人口10万人当たり図書館数 = 図書館数 ÷ 人口 × 100,000</div>
-            <p>単純な図書館数では人口の多い地域が大きくなりやすいため、人口を分母にして比較可能な指標へ直します。ただし、面積、交通、開館時間、蔵書数、学校図書館の扱いなどは含まれません。「利用環境」を一つの指標だけで断定せず、指標の限界を結論へ添えます。</p>
+            <p>人口10万人当たり図書館数は、図書館数を人口で割り、100,000を掛けて求めます。単純な図書館数では人口の多い地域が大きくなりやすいため、人口を分母にして比較可能な指標へ直します。ただし、面積、交通、開館時間、蔵書数、学校図書館の扱いなどは含まれません。「利用環境」を一つの指標だけで断定せず、指標の限界を結論へ添えます。</p>
             <div class="table-wrap"><table class="lecture-table"><thead><tr><th>残す情報</th><th>記録例</th></tr></thead><tbody><tr><td>出典</td><td>作成機関、調査名、統計表名・表番号、URL</td></tr><tr><td>抽出条件</td><td>項目、地域、年次、単位、速報・確報</td></tr><tr><td>加工</td><td>除外した行、欠測の扱い、結合キー、計算式</td></tr><tr><td>時点</td><td>データの対象時点とファイル取得日</td></tr><tr><td>解釈</td><td>結果が答える範囲、答えられない範囲、別の説明可能性</td></tr></tbody></table></div>
             <div class="warning"><strong>割合の分母をそろえる</strong><p>高齢化率なら「65歳以上人口÷総人口」、人口当たり施設数なら「施設数÷人口」です。分子と分母の地域・年次・定義が一致していなければ、計算できても意味のある比較になりません。</p></div>
 
@@ -410,8 +406,7 @@
             <h3>移動平均から季節調整済み系列へ</h3>
             <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/statistics/seasonal-adjustment.webp" type="image/webp"><img src="../assets/lecture-v2/statistics/seasonal-adjustment.png" alt="36か月の原系列、12か月中心化移動平均、季節指数で割った季節調整済み系列を縦に比較した図" width="1600" height="900" loading="lazy" decoding="async"></picture><figcaption>原系列の毎年繰り返す山谷を季節指数で除くと、基調となる増減を比較しやすくなる。</figcaption></figure>
             <ol><li><strong>原系列を描く：</strong>欠測、外れ値、周期、長期傾向を確認します。</li><li><strong>移動平均を求める：</strong>月次データなら12か月移動平均で季節変動をならし、傾向×循環を近似します。12のような偶数期間では平均の位置が月と月の間になるため、隣り合う移動平均をさらに平均する<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">中心化移動平均</span></button>を使います。</li><li><strong>季節比率を求める：</strong>乗法モデルでは原系列÷中心化移動平均により、おおよそ季節×不規則を取り出します。</li><li><strong>季節指数を作る：</strong>1月どうし、2月どうしのように同じ月の季節比率を平均し、12か月の平均が1になるよう調整します。</li><li><strong>季節調整する：</strong>原系列を対応する月の季節指数で割ります。</li></ol>
-            <div class="formula">季節調整済み系列 = 原系列 ÷ 季節指数 ≈ 傾向 × 循環 × 不規則</div>
-            <p>季節調整済み系列は、季節要因を除いて前月との変化や基調を読みやすくした系列です。ただし不規則変動は残り、季節指数は新しいデータや手法によって改訂されることがあります。元の実数値を示す原系列と、変化を読む季節調整済み系列を目的に応じて使い分けます。</p>
+            <p>季節調整済み系列は、原系列を対応する季節指数で割って求めます。季節要因を除いて前月との変化や基調を読みやすくした系列です。ただし不規則変動は残り、季節指数は新しいデータや手法によって改訂されることがあります。元の実数値を示す原系列と、変化を読む季節調整済み系列を目的に応じて使い分けます。</p>
             <div class="mini-quiz"><b>確認：</b>12か月移動平均を月の位置へ合わせるため、隣り合う二つの移動平均をさらに平均する操作を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">中心化</span></button>といいます。</div>
 
     <details class="deep-dive">
