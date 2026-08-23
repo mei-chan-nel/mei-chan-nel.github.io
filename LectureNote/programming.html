@@ -3,13 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="共通テスト用プログラム表記、変数、配列、分岐、反復、関数、フローチャート、探索・整列を実行の流れから学ぶ高校情報Ⅰの講義ノート。">
+  <meta name="description" content="共通テスト用プログラム表記を中心に、変数、配列、分岐、反復、関数、フローチャート、探索・整列を学ぶ高校情報Ⅰの講義ノート。">
   <meta name="theme-color" content="#11394b">
   <meta property="og:type" content="article">
   <meta property="og:locale" content="ja_JP">
   <meta property="og:site_name" content="情報Ⅰ Study Atlas">
   <meta property="og:title" content="情報Ⅰ Study Atlas｜講義ノート｜プログラミング">
-  <meta property="og:description" content="共通テスト用プログラム表記、変数、配列、分岐、反復、関数、フローチャート、探索・整列を実行の流れから学ぶ高校情報Ⅰの講義ノート。">
+  <meta property="og:description" content="共通テスト用プログラム表記を中心に、変数、配列、分岐、反復、関数、フローチャート、探索・整列を学ぶ高校情報Ⅰの講義ノート。">
   <meta property="og:url" content="https://mei-chan-nel.com/LectureNote/programming.html">
   <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png">
   <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png">
@@ -23,52 +23,39 @@
   <title>情報Ⅰ Study Atlas｜講義ノート｜プログラミング</title>
   <link rel="canonical" href="https://mei-chan-nel.com/LectureNote/programming.html">
   <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./lecture-note.css?v=35">
+  <link rel="stylesheet" href="./lecture-note.css?v=36">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
   <script src="../assets/manual-ads.js?v=2026080901" defer></script>
-  <link rel="preload" href="./lecture-data-programming.js?v=2" as="script">
+  <link rel="preload" href="./lecture-data-programming.js?v=3" as="script">
   <link rel="preload" href="./lecture.js?v=32" as="script">
 </head>
 <body data-field="programming">
   <a class="skip-link" href="#lecture-content">本文へ移動</a>
   <header class="site-header">
     <div class="header-inner">
-      <a class="brand" href="../">
-        <span class="brand-mark" aria-hidden="true">I</span>
-        <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
-      </a>
-      <nav class="global-nav" aria-label="メインナビゲーション">
-        <a href="../">トップページ</a>
-        <a href="../info1-quiz-app/app/">学習アプリ</a>
-        <a href="../info1-quiz-app/questions/">問題を探す</a>
-        <a href="../archive/">解説動画</a>
-        <a href="./" aria-current="page">講義ノート</a>
-        <a href="../study-guide.html">使い方</a>
-        <a href="../about.html">このサイトについて</a>
-      </nav>
+      <a class="brand" href="../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+      <nav class="global-nav" aria-label="メインナビゲーション"><a href="../">トップページ</a><a href="../info1-quiz-app/app/">学習アプリ</a><a href="../info1-quiz-app/questions/">問題を探す</a><a href="../archive/">解説動画</a><a href="./" aria-current="page">講義ノート</a><a href="../study-guide.html">使い方</a><a href="../about.html">このサイトについて</a></nav>
     </div>
   </header>
 
   <main class="page-main" id="main">
     <section class="course-hero" aria-labelledby="hero-title">
       <p class="hero-kicker" id="hero-kicker">FIELD 05 / PROGRAMMING</p>
-      <h1 id="hero-title">処理を分解し、順序・分岐・反復で組み立てる</h1>
-      <p class="hero-lead" id="hero-lead">Pythonの値と型、制御構造、データ構造、関数、探索と整列まで。まずプログラムを読み、その後で表や図を使って値の変化と処理の流れを確かめます。</p>
+      <h1 id="hero-title">共通テスト用表記で、処理の流れを読み解く</h1>
+      <p class="hero-lead" id="hero-lead">共通テスト用プログラム表記を土台に、変数・配列・分岐・反復・関数・探索と整列を学びます。まず処理を読み、その後で表や図を使って値の変化を確かめます。</p>
     </section>
 
     <!-- lecture-guide:generated:start -->
     <section class="lecture-learning-guide" aria-labelledby="lecture-learning-guide-title">
-      <div class="lecture-learning-guide__heading">
-        <p>READING GUIDE</p>
-        <h2 id="lecture-learning-guide-title">学び方を選ぶ</h2>
-      </div>
-      <div class="lecture-learning-guide__choices">
-        <a class="lecture-learning-choice" data-reading-bookmark href="#programming-algorithm"><strong>しおりから読む</strong><span>プログラミング「アルゴリズムと基本構造」</span></a>
-      </div>
+      <div class="lecture-learning-guide__heading"><p>READING GUIDE</p><h2 id="lecture-learning-guide-title">学び方を選ぶ</h2></div>
+      <div class="lecture-learning-guide__choices"><a class="lecture-learning-choice" data-reading-bookmark href="#programming-common-test"><strong>しおりから読む</strong><span>プログラミング「共通テスト用プログラム表記」</span></a></div>
       <details class="lecture-keyword-index" id="lecture-keyword-index">
         <summary><span><strong>重要キーワード</strong><small>用語や仕組みを選んで、必要な部分だけ確認します</small></span></summary>
         <div class="lecture-keyword-index__groups">
-          <section><h3>手順と値</h3><div><a href="#keyword-programming-algorithm" data-keyword-id="programming-algorithm">アルゴリズム</a><a href="#keyword-programming-sequence" data-keyword-id="programming-sequence">順次</a><a href="#keyword-programming-branching" data-keyword-id="programming-branching">分岐</a><a href="#keyword-programming-repetition" data-keyword-id="programming-repetition">反復</a><a href="#keyword-programming-variable" data-keyword-id="programming-variable">変数</a><a href="#keyword-programming-type" data-keyword-id="programming-type">型</a></div></section><section><h3>条件分岐と反復</h3><div><a href="#keyword-programming-if" data-keyword-id="programming-if">if</a><a href="#keyword-programming-elif" data-keyword-id="programming-elif">elif</a><a href="#keyword-programming-else" data-keyword-id="programming-else">else</a><a href="#keyword-programming-for" data-keyword-id="programming-for">for</a><a href="#keyword-programming-while" data-keyword-id="programming-while">while</a><a href="#keyword-programming-infinite-loop" data-keyword-id="programming-infinite-loop">無限ループ</a></div></section><section><h3>配列と関数</h3><div><a href="#keyword-programming-array" data-keyword-id="programming-array">配列</a><a href="#keyword-programming-index" data-keyword-id="programming-index">添字</a><a href="#keyword-programming-function" data-keyword-id="programming-function">関数</a><a href="#keyword-programming-argument" data-keyword-id="programming-argument">引数</a><a href="#keyword-programming-return-value" data-keyword-id="programming-return-value">戻り値</a><a href="#keyword-programming-return" data-keyword-id="programming-return">return文</a></div></section><section><h3>探索・整列・テスト</h3><div><a href="#keyword-programming-bubble-sort" data-keyword-id="programming-bubble-sort">バブルソート</a><a href="#keyword-programming-linear-search" data-keyword-id="programming-linear-search">線形探索</a><a href="#keyword-programming-binary-search" data-keyword-id="programming-binary-search">二分探索</a><a href="#keyword-programming-normal-value" data-keyword-id="programming-normal-value">正常値</a><a href="#keyword-programming-boundary-value" data-keyword-id="programming-boundary-value">境界値</a><a href="#keyword-programming-invalid-value" data-keyword-id="programming-invalid-value">異常値</a></div></section>
+          <section><h3>手順と表記</h3><div><a href="#keyword-programming-common-test-notation" data-keyword-id="programming-common-test-notation">共通テスト用プログラム表記</a><a href="#keyword-programming-algorithm" data-keyword-id="programming-algorithm">アルゴリズム</a><a href="#keyword-programming-sequence" data-keyword-id="programming-sequence">順次</a><a href="#keyword-programming-branching" data-keyword-id="programming-branching">分岐</a><a href="#keyword-programming-repetition" data-keyword-id="programming-repetition">反復</a><a href="#keyword-programming-variable" data-keyword-id="programming-variable">変数</a></div></section>
+          <section><h3>条件分岐と反復</h3><div><a href="#keyword-programming-if" data-keyword-id="programming-if">もし</a><a href="#keyword-programming-elif" data-keyword-id="programming-elif">そうでなくもし</a><a href="#keyword-programming-else" data-keyword-id="programming-else">そうでなければ</a><a href="#keyword-programming-for" data-keyword-id="programming-for">回数指定反復</a><a href="#keyword-programming-while" data-keyword-id="programming-while">条件反復</a><a href="#keyword-programming-infinite-loop" data-keyword-id="programming-infinite-loop">無限ループ</a></div></section>
+          <section><h3>配列と関数</h3><div><a href="#keyword-programming-array" data-keyword-id="programming-array">配列</a><a href="#keyword-programming-index" data-keyword-id="programming-index">添字</a><a href="#keyword-programming-function" data-keyword-id="programming-function">関数</a><a href="#keyword-programming-argument" data-keyword-id="programming-argument">引数</a><a href="#keyword-programming-return-value" data-keyword-id="programming-return-value">戻り値</a><a href="#keyword-programming-return" data-keyword-id="programming-return">値を返す</a></div></section>
+          <section><h3>探索・整列・テスト</h3><div><a href="#keyword-programming-bubble-sort" data-keyword-id="programming-bubble-sort">バブルソート</a><a href="#keyword-programming-linear-search" data-keyword-id="programming-linear-search">線形探索</a><a href="#keyword-programming-binary-search" data-keyword-id="programming-binary-search">二分探索</a><a href="#keyword-programming-normal-value" data-keyword-id="programming-normal-value">正常値</a><a href="#keyword-programming-boundary-value" data-keyword-id="programming-boundary-value">境界値</a><a href="#keyword-programming-invalid-value" data-keyword-id="programming-invalid-value">異常値</a></div></section>
         </div>
       </details>
       <p class="lecture-reading-state" aria-live="polite">順番に読んでいます</p>
@@ -78,382 +65,243 @@
     <div class="page-layout">
       <aside class="section-sidebar" aria-label="講義ノートの分野とこのページの見出し">
         <p>講義ノート</p>
-        <nav class="lecture-course-nav" id="lecture-course-nav" aria-label="分野と見出し"><a class="course-field-link" href="./society.html">情報社会</a><a class="course-field-link" href="./digital.html">デジタル</a><a class="course-field-link" href="./network.html">ネットワーク</a><a class="course-field-link" href="./statistics.html">統計</a><div class="course-field-group is-current"><a class="course-field-link" href="./programming.html" aria-current="page">プログラミング</a><div class="section-nav" id="section-nav"><a href="#programming-algorithm"><span>01</span> アルゴリズムと基本構造</a><a href="#programming-common-test"><span>02</span> 共通テスト用プログラム表記</a><a href="#programming-values"><span>03</span> 値・変数・型・演算子</a><a href="#programming-branch"><span>04</span> 条件分岐</a><a href="#programming-for"><span>05</span> forによる反復</a><a href="#programming-while"><span>06</span> whileによる反復</a><a href="#programming-data-structures"><span>07</span> 配列</a><a href="#programming-functions"><span>08</span> 関数</a><a href="#programming-sort-search"><span>09</span> 整列と探索</a><a href="#programming-test"><span>10</span> テストと練習</a></div></div></nav>
+        <nav class="lecture-course-nav" id="lecture-course-nav" aria-label="分野と見出し"><a class="course-field-link" href="./society.html">情報社会</a><a class="course-field-link" href="./digital.html">デジタル</a><a class="course-field-link" href="./network.html">ネットワーク</a><a class="course-field-link" href="./statistics.html">統計</a><div class="course-field-group is-current"><a class="course-field-link" href="./programming.html" aria-current="page">プログラミング</a><div class="section-nav" id="section-nav"><a href="#programming-common-test"><span>01</span> 共通テスト用プログラム表記</a><a href="#programming-algorithm"><span>02</span> アルゴリズムと基本構造</a><a href="#programming-values"><span>03</span> 値・変数・演算</a><a href="#programming-branch"><span>04</span> 条件分岐</a><a href="#programming-for"><span>05</span> 回数を決めた反復</a><a href="#programming-while"><span>06</span> 条件が真である間の反復</a><a href="#programming-data-structures"><span>07</span> 配列</a><a href="#programming-functions"><span>08</span> 関数</a><a href="#programming-sort-search"><span>09</span> 整列と探索</a><a href="#programming-test"><span>10</span> テストと練習</a></div></div></nav>
         <button class="cloze-toggle" id="cloze-toggle" type="button">穴抜きを隠す</button>
       </aside>
       <article class="lecture-content" id="lecture-content">
         <!-- lecture-content:generated:start -->
-        <section class="lecture-section" id="programming-algorithm" aria-labelledby="programming-algorithm-title">
-          <header class="section-heading">
-            <span class="section-number">01</span>
-            <div>
-              <p class="section-kicker">ALGORITHM · FLOWCHART</p>
-              <h2 id="programming-algorithm-title">手順を、順次・分岐・反復で組み立てる</h2>
-              <p class="section-lead">アルゴリズムをプログラムとフローチャートの両方で読めるようにします。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-algorithm" aria-pressed="false">しおりを挟む</button>
-          </header>
-          <div class="section-body">
-          <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-algorithm" class="keyword-target" tabindex="-1" data-keyword-id="programming-algorithm">アルゴリズム</span></span></button>は問題を解くための明確で有限な手順です。アルゴリズムをプログラミング言語で記述し、コンピュータが実行できる形にしたものが<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">プログラム</span></button>です。</p>
-          <pre class="code-block"><span class="comment"># 長方形の面積</span>
-width = float(input("幅: "))
-height = float(input("高さ: "))
-area = width * height
-print(area)</pre>
-          <div class="step-flow" style="--steps:4"><article class="step-item"><b>入力</b><p>input()で受け取る。</p></article><article class="step-item"><b>変換・保存</b><p>数値へ変換し変数へ代入。</p></article><article class="step-item"><b>処理</b><p>式や制御構造で計算。</p></article><article class="step-item"><b>出力</b><p>print()で結果を示す。</p></article></div>
-          <p>複雑なプログラムも、文を上から実行する<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-sequence" class="keyword-target" tabindex="-1" data-keyword-id="programming-sequence">順次</span></span></button>、条件によって進む処理を選ぶ<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-branching" class="keyword-target" tabindex="-1" data-keyword-id="programming-branching">分岐</span></span></button>、同じ範囲を繰り返す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-repetition" class="keyword-target" tabindex="-1" data-keyword-id="programming-repetition">反復</span></span></button>を組み合わせて作ります。</p>
-          <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/programming/basic-structures.webp" type="image/webp"><img src="../assets/lecture-v2/programming/basic-structures.png" alt="開始と終了を含む順次・分岐・反復のフローチャートを、処理・入出力・判断・繰返し始端と終端の正しい記号で表した図" width="1800" height="1080" loading="lazy" decoding="async"></picture><figcaption>反復は判断記号と戻り矢印で代用せず、繰返し始端と繰返し終端を対にして範囲を示す。分岐の判断記号から出る線には条件の結果を書く。</figcaption></figure>
-          <div class="table-wrap"><table class="lecture-table"><thead><tr><th>記号</th><th>形</th><th>役割</th></tr></thead><tbody><tr><td>端子</td><td>角丸の長方形</td><td>開始・終了</td></tr><tr><td>処理</td><td>長方形</td><td>計算、代入、手続き</td></tr><tr><td>入出力</td><td>平行四辺形</td><td>入力、表示、読込み、書出し</td></tr><tr><td>判断</td><td>ひし形</td><td>条件に応じて経路を選ぶ</td></tr><tr><td>繰返し</td><td>始端は上の角、終端は下の角を切った記号</td><td>二つの記号の間を指定条件で繰り返す</td></tr></tbody></table></div>
-          <p>フローチャートはコードの一行を機械的に一箱へ写すものではありません。入力、計算・代入、条件判断、出力、繰返しという役割で記号を選び、開始から終了まで矢印を手でたどれる形にします。</p>
-          <p>アルゴリズムは、同じ入力に対して正しい結果が得られるだけでなく、終了すること、手順が曖昧でないこと、扱う入力の範囲が明確であることも重要です。</p>
-    <h3>手順は、大きなまとまりから少しずつ細かくする</h3>
-    <p>最初から一行ずつコードを書かず、「入力する」「計算する」「表示する」のような大きな仕事へ分けます。次に「何を入力するか」「どの式で計算するか」と具体化すると、抜けや重複を見つけやすくなります。</p>
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>自然言語・フローチャート・擬似コードの使い分け</summary>
-      <div class="deep-dive-body"><p>自然言語は書き始めやすい一方、「十分大きくなるまで」のような曖昧さが残ることがあります。フローチャートは分岐や反復の流れを図で確かめるのに向き、擬似コードは処理の順序を短く書くのに向きます。</p><pre class="code-block">合計を0にする
-得点を先頭から順に取り出しながら繰り返す
-    合計に得点を加える
-合計を人数で割り、平均を表示する</pre><p>どの表現でも、入力、処理、出力、終了条件が読み取れることが大切です。</p></div>
-    </details>
-  </div>
-        </section>
         <section class="lecture-section" id="programming-common-test" aria-labelledby="programming-common-test-title">
-          <header class="section-heading">
-            <span class="section-number">02</span>
-            <div>
-              <p class="section-kicker">COMMON TEST NOTATION</p>
-              <h2 id="programming-common-test-title">共通テスト用プログラム表記を、処理のまとまりごとに読む</h2>
-              <p class="section-lead">特定のプログラミング言語に依存せず、変数・配列・分岐・反復の考え方を共通の表記で示します。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-common-test" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">01</span><div><p class="section-kicker">COMMON TEST NOTATION</p><h2 id="programming-common-test-title">共通テスト用プログラム表記</h2><p class="section-lead">特定のプログラミング言語に依存せず、変数・配列・分岐・反復の考え方を共通の表記で示します。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-common-test" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <p>大学入学共通テスト「情報Ⅰ」では、学校ごとに学ぶプログラミング言語が異なることを踏まえ、問題中で<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">共通テスト用プログラム表記</span></button>を使います。特定の実装言語に依存せず処理の考え方を示す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">擬似言語（擬似コード）</span></button>であり、新しいプログラミング言語を一つ覚えるというより、問題文の説明と照らしながら処理を読むための共通表記です。</p>
-          <div class="table-wrap"><table class="lecture-table common-notation-table"><thead><tr><th>項目</th><th>表記と例</th><th>読むときの要点</th></tr></thead><tbody>
-            <tr><td>変数</td><td><code>kosu</code>、<code>kingaku_goukei</code></td><td>英字で始まる英数字と「_」の並び</td></tr>
-            <tr><td>配列変数</td><td><code>Tokuten[3]</code>、<code>Data[2,4]</code></td><td>配列名の先頭は大文字。特に説明がなければ添字は0から始まる</td></tr>
-            <tr><td>代入</td><td><code>kosu = 3</code><br><code>nyuryoku = 【外部からの入力】</code></td><td>右辺を先に求め、結果を左辺へ入れる</td></tr>
-            <tr><td>算術演算</td><td><code>+　-　*　/　÷　％　**</code></td><td><code>÷</code>は整数の商、<code>％</code>は余り、<code>**</code>はべき乗</td></tr>
-            <tr><td>比較演算</td><td><code>==　!=　&gt;　&lt;　&gt;=　&lt;=</code></td><td><code>=</code>は代入、<code>==</code>は等しいかの比較</td></tr>
-            <tr><td>論理演算</td><td><code>and　or　not</code></td><td>条件を組み合わせる／否定する</td></tr>
-            <tr><td>関数</td><td><code>kazu = 要素数(Data)</code><br><code>表示する("データの要素数は", kazu, "です")</code></td><td>「表示する」以外は、基本的に問題文中で働きが説明される</td></tr>
-          </tbody></table></div>
-          <div class="key-point"><strong>縦線の記号は、処理の範囲を示す</strong><p><code>｜</code>は次の行も同じ分岐・反復の中であることを示し、<code>⎿</code>はそのまとまりの最後の行を示します。行頭の（1）（2）などは参照用の行番号で、実行する命令ではありません。</p></div>
-          <div class="notation-example-grid">
-            <article><h3>例0：条件が真なら表示</h3><pre class="code-block common-test-code">（1）もし x &gt;= 3 ならば：
-（2）⎿ 表示する("xの値は", x)</pre><p>xが3以上のときだけ2行目を実行します。条件が偽なら、2行目を飛ばしてこの分岐の後へ進みます。</p></article>
-            <article><h3>例1：三つの道に分ける</h3><pre class="code-block common-test-code">（1）もし x &gt;= 3 ならば：
-（2）｜ x = x - 1
-（3）そうでなくもし x &lt; 0 ならば：
-（4）｜ x = x * 2
-（5）そうでなければ：
-（6）⎿ x = x + 3</pre><p>条件は上から順に調べ、最初に当てはまった一つだけを実行します。例えばx＝4なら3、x＝−2なら−4、x＝1なら4になります。</p></article>
-            <article><h3>例2：回数を決めた反復</h3><pre class="code-block common-test-code">（1）x を 0 から 9 まで 1 ずつ増やしながら繰り返す：
-（2）⎿ goukei = goukei + Data[x]</pre><p>xは0、1、…、9と変わり、配列Dataの10個の要素を順に加えます。「0から9まで」は両端を含みます。</p></article>
-            <article><h3>例3：条件で続ける反復</h3><pre class="code-block common-test-code">（1）n &lt; 10 の間繰り返す：
-（2）｜ goukei = goukei + n
-（3）⎿ n = n + 1</pre><p>毎回、条件<code>n &lt; 10</code>を先に確かめます。3行目でnを1増やすため、やがて条件が偽になって終了します。</p></article>
+            <p>大学入学共通テスト「情報Ⅰ」では、学校ごとに学ぶプログラミング言語が異なることを踏まえ、問題中で<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-common-test-notation" class="keyword-target" tabindex="-1" data-keyword-id="programming-common-test-notation">共通テスト用プログラム表記</span></span></button>を使います。特定の実装言語に依存せず処理の考え方を示す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">擬似言語（擬似コード）</span></button>であり、問題文の説明と照らしながら処理を読むための共通表記です。</p>
+            <div class="table-wrap"><table class="lecture-table common-notation-table"><thead><tr><th>項目</th><th>表記と例</th><th>読むときの要点</th></tr></thead><tbody><tr><td>変数</td><td><code>kosu</code>、<code>kingaku_goukei</code></td><td>英字で始まる英数字と「_」の並び</td></tr><tr><td>配列変数</td><td><code>Tokuten[3]</code>、<code>Data[2,4]</code></td><td>配列名の先頭は大文字。特に説明がなければ添字は0から始まる</td></tr><tr><td>文字列</td><td><code>moji = "情報Ⅰ"</code><br><code>message = "情報" + "Ⅰ"</code></td><td>ダブルクォーテーションで囲み、<code>+</code>で連結</td></tr><tr><td>代入</td><td><code>kosu = 3</code><br><code>nyuryoku = 【外部からの入力】</code></td><td>右辺の値を左辺の変数に代入する。</td></tr><tr><td>算術演算</td><td><code>+　-　*　/　÷　％　**</code></td><td><code>÷</code>は整数の商、<code>％</code>は余り、<code>**</code>はべき乗</td></tr><tr><td>比較演算</td><td><code>==　!=　&gt;　&lt;　&gt;=　&lt;=</code></td><td><code>==</code>は左辺と右辺の値が等しいときに真となる。<code>!=</code>は等しくないときに真となる。<code>&gt;=</code>は≧、<code>&lt;=</code>は≦を表す。</td></tr><tr><td>論理演算</td><td><code>and　or　not</code></td><td>条件を組み合わせる／否定する</td></tr><tr><td>関数</td><td><code>kazu = 要素数(Data)</code><br><code>表示する("データの要素数は", kazu, "です")</code></td><td>「表示する」以外は、基本的に問題文中で働きが説明される</td></tr><tr><td>コメント</td><td><code>atai = 乱数() # 0以上1未満</code></td><td>1行内の<code>#</code>以降は処理の対象にならない</td></tr></tbody></table></div>
+            <div class="warning"><strong>問題文の説明を優先する</strong><p>配列の添字、関数の働き、繰返しの端などは、問題文の指定に沿って読みます。特に、添字は1から始まることがあるので注意します。</p></div>
+            <a class="official-link" href="https://www.dnc.ac.jp/albums/abm.php?d=744&amp;f=abm00003141.pdf&amp;n=6-1_%E6%A6%82%E8%A6%81%E3%80%8C%E6%83%85%E5%A0%B1%E3%80%8D.pdf" target="_blank" rel="noopener noreferrer"><span class="official-link-kicker">公式資料</span><strong>大学入試センター「共通テスト用プログラム表記の例示」</strong><small>変数・配列・演算・分岐・反復の公式例を確認できます。</small><b aria-hidden="true">↗</b></a>
+            <div class="key-point"><strong>縦線の記号は、処理の範囲を示す</strong><p><code>｜</code>は次の行も同じ分岐・反復の中、<code>⎿</code>はそのまとまりの最後の行であることを示します。行頭の（1）（2）などは参照用の行番号です。</p></div>
           </div>
-          <div class="warning"><strong>問題文の説明を優先する</strong><p>共通テストでは、問題を簡潔にするため表記がこの例と異なる場合があります。配列の添字、関数の働き、繰返しの端を問題文で確認し、その指定に沿って読みます。</p></div>
-          <a class="official-link" href="https://www.dnc.ac.jp/albums/abm.php?d=744&amp;f=abm00003141.pdf&amp;n=6-1_%E6%A6%82%E8%A6%81%E3%80%8C%E6%83%85%E5%A0%B1%E3%80%8D.pdf" target="_blank" rel="noopener noreferrer"><span class="official-link-kicker">公式資料</span><strong>大学入試センター「共通テスト用プログラム表記の例示」</strong><small>変数・配列・演算・分岐・反復の公式例を確認できます。</small><b aria-hidden="true">↗</b></a></div>
         </section>
-        <section class="lecture-section" id="programming-values" aria-labelledby="programming-values-title">
-          <header class="section-heading">
-            <span class="section-number">03</span>
-            <div>
-              <p class="section-kicker">VALUE · VARIABLE · TYPE</p>
-              <h2 id="programming-values-title">値の型を意識し、式の結果を予測する</h2>
-              <p class="section-lead">Pythonでは値が型をもち、演算子の意味は型によって変わります。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-values" aria-pressed="false">しおりを挟む</button>
-          </header>
+
+        <section class="lecture-section" id="programming-algorithm" aria-labelledby="programming-algorithm-title">
+          <header class="section-heading"><span class="section-number">02</span><div><p class="section-kicker">ALGORITHM · FLOWCHART</p><h2 id="programming-algorithm-title">手順を、順次・分岐・反復で組み立てる</h2><p class="section-lead">共通テスト用プログラム表記とフローチャートで、アルゴリズムの流れを読めるようにします。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-algorithm" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <pre class="code-block">name = "Mai"
-score = 72
-bonus = 8
-total = score + bonus
-passed = total &gt;= 60
+            <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-algorithm" class="keyword-target" tabindex="-1" data-keyword-id="programming-algorithm">アルゴリズム</span></span></button>は問題を解くための明確で有限な手順です。アルゴリズムを共通テスト用プログラム表記などで記述し、コンピュータが実行できる形にしたものが<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">プログラム</span></button>です。</p>
+            <pre class="code-block common-test-code">（1）width = 【外部からの入力】
+（2）height = 【外部からの入力】
+（3）area = width * height
+（4）表示する(area)</pre>
+            <div class="step-flow" style="--steps:4"><article class="step-item"><b>入力</b><p>外部から値を受け取る。</p></article><article class="step-item"><b>保存</b><p>値を変数へ代入。</p></article><article class="step-item"><b>処理</b><p>式や制御構造で計算。</p></article><article class="step-item"><b>出力</b><p>表示する(...)で結果を示す。</p></article></div>
+            <p>複雑なプログラムも、文を上から実行する<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-sequence" class="keyword-target" tabindex="-1" data-keyword-id="programming-sequence">順次</span></span></button>、条件によって処理を選ぶ<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-branching" class="keyword-target" tabindex="-1" data-keyword-id="programming-branching">分岐</span></span></button>、同じ範囲を繰り返す<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-repetition" class="keyword-target" tabindex="-1" data-keyword-id="programming-repetition">反復</span></span></button>を組み合わせて作ります。</p>
+            <figure class="raster-figure"><picture><source srcset="../assets/lecture-v2/programming/basic-structures.webp" type="image/webp"><img src="../assets/lecture-v2/programming/basic-structures.png" alt="開始と終了を含む順次・分岐・反復のフローチャートを、処理・入出力・判断・繰返し始端と終端の正しい記号で表した図" width="1800" height="1080" loading="lazy" decoding="async"></picture><figcaption>反復は繰返し始端と繰返し終端を対にして範囲を示し、分岐の線には条件の結果を書きます。</figcaption></figure>
+            <div class="table-wrap"><table class="lecture-table"><thead><tr><th>記号</th><th>形</th><th>役割</th></tr></thead><tbody><tr><td>端子</td><td>角丸の長方形</td><td>開始・終了</td></tr><tr><td>処理</td><td>長方形</td><td>計算、代入、手続き</td></tr><tr><td>入出力</td><td>平行四辺形</td><td>入力、表示、読込み、書出し</td></tr><tr><td>判断</td><td>ひし形</td><td>条件に応じて経路を選ぶ</td></tr><tr><td>繰返し</td><td>始端と終端を対にした記号</td><td>指定条件で範囲を繰り返す</td></tr></tbody></table></div>
+            <p>アルゴリズムは、正しい結果だけでなく、終了すること、手順が曖昧でないこと、扱う入力の範囲が明確であることも重要です。</p>
 
-print(name, total, passed)</pre>
-          <p><code>name</code>、<code>score</code>などが<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-variable" class="keyword-target" tabindex="-1" data-keyword-id="programming-variable">変数</span></span></button>です。変数は値を入れる箱というより、プログラム内の値へ名前を付けたものと考えます。<code>=</code>は右辺を先に計算し、その結果を左辺の変数へ<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">代入</span></button>します。</p>
-          <div class="table-wrap"><table class="lecture-table"><thead><tr><th><span id="keyword-programming-type" class="keyword-target" tabindex="-1" data-keyword-id="programming-type">型</span></th><th>意味</th><th>例</th></tr></thead><tbody><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">int</span></button></td><td>整数</td><td>42, -7</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">float</span></button></td><td>浮動小数点数</td><td>3.14, 1.0</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">str</span></button></td><td>文字列</td><td>"情報Ⅰ"</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">bool</span></button></td><td>真偽値</td><td>True, False</td></tr></tbody></table></div>
-          <div class="table-wrap"><table class="lecture-table"><thead><tr><th>演算子</th><th>意味</th><th>例</th></tr></thead><tbody><tr><td>+ − * /</td><td>加減乗除</td><td>7 / 2 → 3.5</td></tr><tr><td>//</td><td>切り下げ除算</td><td>7 // 2 → 3</td></tr><tr><td>%</td><td>余り</td><td>7 % 2 → 1</td></tr><tr><td>**</td><td>べき乗</td><td>2 ** 5 → 32</td></tr><tr><td>== != &lt; &lt;= &gt; &gt;=</td><td>比較</td><td>7 &gt; 5 → True</td></tr><tr><td>and / or / not</td><td>論理演算</td><td>age &gt;= 18 and has_id</td></tr></tbody></table></div>
-          <p>代入の<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">=</span></button>と、等しいか比較する<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">==</span></button>を区別します。複数の演算子がある式では、括弧を使って意図を明確にします。</p>
-    <h3>入力は文字列なので、計算前に型をそろえる</h3>
-    <p><code>input()</code>で受け取る値は文字列です。整数として計算するなら<code>int()</code>、小数を含む数なら<code>float()</code>で変換します。<code>"2" + "3"</code>は文字列の連結で<code>"23"</code>になりますが、<code>2 + 3</code>は数の加算で5になります。</p>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>自然言語・フローチャート・共通テスト用表記の使い分け</summary><div class="deep-dive-body"><p>自然言語は書き始めやすく、フローチャートは流れを図で確かめやすく、共通テスト用表記は処理の順序を短く書きやすい表現です。</p><pre class="code-block common-test-code">（1）合計 = 0
+（2）i を 0 から 要素数(Data)-1 まで 1 ずつ増やしながら繰り返す：
+（3）⎿ 合計 = 合計 + Data[i]
+（4）平均 = 合計 / 要素数(Data)
+（5）表示する(平均)</pre></div></details>
+          </div>
+        </section>
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>トレース表で、代入後の値を一行ずつ追う</summary>
-      <div class="deep-dive-body"><p>プログラムを読むときは、実行した行と、変化した変数の値を表へ書きます。<code>x = x + 1</code>では、まず右辺の古いxへ1を加え、その結果を左辺のxへ入れ直します。</p><div class="table-wrap"><table class="lecture-table"><thead><tr><th>実行した文</th><th>x</th><th>y</th></tr></thead><tbody><tr><td><code>x = 2</code></td><td>2</td><td>—</td></tr><tr><td><code>y = x + 3</code></td><td>2</td><td>5</td></tr><tr><td><code>x = y * 2</code></td><td>10</td><td>5</td></tr></tbody></table></div></div>
-    </details>
-  </div>
+        <section class="lecture-section" id="programming-values" aria-labelledby="programming-values-title">
+          <header class="section-heading"><span class="section-number">03</span><div><p class="section-kicker">VALUES · VARIABLES · OPERATORS</p><h2 id="programming-values-title">値・変数・演算を読み、式の結果を予測する</h2><p class="section-lead">代入と演算の規則を押さえ、共通テスト用表記の式を一行ずつ追います。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-values" aria-pressed="false">しおりを挟む</button></header>
+          <div class="section-body">
+            <pre class="code-block common-test-code">（1）x = 2
+（2）y = x + 3
+（3）x = y * 2</pre>
+            <p><code>x</code>、<code>y</code>などが<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-variable" class="keyword-target" tabindex="-1" data-keyword-id="programming-variable">変数</span></span></button>です。<code>=</code>は右辺を先に計算し、その結果を左辺へ<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">代入</span></button>します。</p>
+            <div class="table-wrap"><table class="lecture-table"><thead><tr><th>種類</th><th>表記</th><th>読み方</th></tr></thead><tbody><tr><td>代入</td><td><code>kosu = 3</code></td><td>右辺の値を左辺へ入れる</td></tr><tr><td>算術演算</td><td><code>+　-　*　/　÷　％　**</code></td><td>加減乗除、商、余り、べき乗</td></tr><tr><td>比較演算</td><td><code>==　!=　&gt;　&lt;　&gt;=　&lt;=</code></td><td>条件が成り立つかを調べる</td></tr><tr><td>論理演算</td><td><code>and　or　not</code></td><td>条件を組み合わせる、否定する</td></tr></tbody></table></div>
+            <p>代入の<code>=</code>と、等しいか比較する<code>==</code>を区別します。<code>÷</code>は整数の商、<code>％</code>は余りを表します。</p>
+            <h3>式は、右辺を計算してから左辺を更新する</h3><p><code>x = x + 1</code>では、更新前の<code>x</code>へ1を加え、その結果を左辺の<code>x</code>へ入れ直します。</p>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>トレース表で代入後の値を追う</summary><div class="deep-dive-body"><div class="table-wrap"><table class="lecture-table"><thead><tr><th>実行した文</th><th>x</th><th>y</th></tr></thead><tbody><tr><td><code>x = 2</code></td><td>2</td><td>—</td></tr><tr><td><code>y = x + 3</code></td><td>2</td><td>5</td></tr><tr><td><code>x = y * 2</code></td><td>10</td><td>5</td></tr></tbody></table></div></div></details>
+          </div>
         </section>
         <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="3" hidden></div>
         <section class="lecture-section" id="programming-branch" aria-labelledby="programming-branch-title">
-          <header class="section-heading">
-            <span class="section-number">04</span>
-            <div>
-              <p class="section-kicker">IF · ELIF · ELSE</p>
-              <h2 id="programming-branch-title">条件を上から評価し、実行する処理を一つ選ぶ</h2>
-              <p class="section-lead">分岐の条件は真偽値になり、インデントが処理のまとまりを示します。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-branch" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">04</span><div><p class="section-kicker">CONDITIONAL BRANCHING</p><h2 id="programming-branch-title">条件を上から評価し、実行する処理を一つ選ぶ</h2><p class="section-lead">条件を上から順に調べ、縦線で処理のまとまりを追います。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-branch" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <pre class="code-block">score = int(input("点数: "))
-
-<span class="keyword"><span id="keyword-programming-if" class="keyword-target" tabindex="-1" data-keyword-id="programming-if">if</span></span> score &gt;= 80:
-    grade = "A"
-<span class="keyword"><span id="keyword-programming-elif" class="keyword-target" tabindex="-1" data-keyword-id="programming-elif">elif</span></span> score &gt;= 60:
-    grade = "B"
-<span class="keyword"><span id="keyword-programming-else" class="keyword-target" tabindex="-1" data-keyword-id="programming-else">else</span></span>:
-    grade = "C"
-
-print(grade)</pre>
-          <p><code>if</code>の後ろへ条件を書き、行末にコロンを付けます。条件が真のときに実行する文は同じ深さにインデントします。<code>elif</code>は前の条件が偽だったときに別の条件を調べ、<code>else</code>はどの条件も真でなかった場合を受け持ちます。</p>
-          <p><code>if</code>、<code>elif</code>の条件は上から順に評価し、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">最初に真になったブロックだけ</span></button>を実行します。上の例で85点は最初の条件<code>score &gt;= 80</code>が真になるためAです。75点は最初が偽、次の<code>score &gt;= 60</code>が真なのでBです。40点はどちらも偽なので<code>else</code>へ進みます。</p>
-          <p>条件の順番には意味があります。もし<code>score &gt;= 60</code>を先に置くと、85点もそこで真になってBと判定され、後ろの80点以上の条件へ到達しません。範囲が重なる条件は、一般に狭い範囲・高いしきい値から先に判定します。</p>
-          <div class="warning"><strong>境界値を試す</strong><p>59、60、79、80のように条件が切り替わる直前・直後をテストします。条件の重複や抜けを見つけやすくなります。</p></div>
-          <div class="practice"><strong>例：料金区分</strong><p>年齢が18歳未満なら子ども料金、65歳未満なら一般料金、それ以外はシニア料金とします。最初に<code>age &lt; 18</code>、次に<code>age &lt; 65</code>と判定すると、0〜17、18〜64、65以上の範囲を重複なく分けられます。</p></div>
-          <p>条件式を入れ子にしすぎると、どの<code>else</code>がどの<code>if</code>に対応するか分かりにくくなります。<code>elif</code>で同じ段へそろえる、複雑な条件へ名前を付けて関数にするなど、構造が一目で追える形にします。</p>
-    <h3>複数の条件は、日常語へ言い換えて確かめる</h3>
-    <p><code>and</code>は「かつ」、<code>or</code>は「または」、<code>not</code>は「〜ではない」と読みます。例えば<code>age &gt;= 18 and has_ticket</code>は「年齢が18歳以上、かつ、チケットを持っている」です。</p>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>条件の重なりと抜けを数直線で確かめる</summary>
-      <div class="deep-dive-body"><p>点数の区分なら、59と60、79と80のような境界の両側を数直線へ書きます。<code>score &gt; 60</code>では60が含まれず、<code>score &gt;= 60</code>では60を含みます。</p><p>条件を上から評価する分岐では、前の条件に当てはまった値は後ろへ進みません。具体的な境界値を一つずつ代入して確かめます。</p></div>
-    </details>
-  </div>
+            <pre class="code-block common-test-code">（1）score = 【外部からの入力】
+（2）もし score &gt;= 80 ならば：
+（3）｜ grade = "A"
+（4）そうでなくもし score &gt;= 60 ならば：
+（5）｜ grade = "B"
+（6）そうでなければ：
+（7）⎿ grade = "C"
+（8）表示する(grade)</pre>
+            <p><span class="keyword"><span id="keyword-programming-if" class="keyword-target" tabindex="-1" data-keyword-id="programming-if">もし</span></span>の条件が真なら、その下のまとまりを実行します。<span class="keyword"><span id="keyword-programming-elif" class="keyword-target" tabindex="-1" data-keyword-id="programming-elif">そうでなくもし</span></span>は別の条件を調べ、<span class="keyword"><span id="keyword-programming-else" class="keyword-target" tabindex="-1" data-keyword-id="programming-else">そうでなければ</span></span>はどの条件も真でなかった場合を受け持ちます。</p>
+            <p>条件は上から順に評価し、最初に真になったまとまりだけを実行します。85点はA、75点はB、40点はCです。範囲が重なる条件は、高いしきい値から先に判定します。</p>
+            <div class="warning"><strong>境界値を試す</strong><p>59、60、79、80のように条件が切り替わる直前・直後を試します。</p></div>
+            <div class="notation-example"><strong>例：料金区分</strong><pre class="code-block common-test-code">（1）age = 【外部からの入力】
+（2）もし age &lt; 18 ならば：
+（3）｜ fee = "子ども"
+（4）そうでなくもし age &lt; 65 ならば：
+（5）｜ fee = "一般"
+（6）そうでなければ：
+（7）⎿ fee = "シニア"</pre><p>0〜17、18〜64、65以上の範囲を重複なく分けられます。</p></div>
+            <h3>複数の条件を、正確な意味で読む</h3><p><code>A and B</code>は「AとBがどちらも成り立つとき」、<code>A or B</code>は「AとBの少なくとも一方が成り立つとき」と読みます。</p>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>条件の重なりと抜けを数直線で確かめる</summary><div class="deep-dive-body"><p><code>score &gt; 60</code>では60が含まれず、<code>score &gt;= 60</code>では60を含みます。境界の両側へ具体的な値を代入して確かめます。</p></div></details>
+          </div>
         </section>
+
         <section class="lecture-section" id="programming-for" aria-labelledby="programming-for-title">
-          <header class="section-heading">
-            <span class="section-number">05</span>
-            <div>
-              <p class="section-kicker">FOR · RANGE</p>
-              <h2 id="programming-for-title">forは、決めた範囲の値を順番に取り出す</h2>
-              <p class="section-lead">回数や処理する要素が分かっている反復に向きます。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-for" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">05</span><div><p class="section-kicker">FIXED REPETITION</p><h2 id="programming-for-title">回数や範囲を決めた反復を追う</h2><p class="section-lead">処理する回数や要素が分かっているときの表記を読みます。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-for" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <pre class="code-block">total = 0
-
-<span class="keyword"><span id="keyword-programming-for" class="keyword-target" tabindex="-1" data-keyword-id="programming-for">for</span></span> n <span class="keyword">in</span> range(1, 6):
-    total = total + n
-
-print(total)  <span class="comment"># 15</span></pre>
-          <p><code>range(1, 6)</code>が作る1、2、3、4、5を、変数<code>n</code>へ一つずつ代入します。各回で現在の<code>total</code>に<code>n</code>を加え、最後に1から5までの合計15を表示します。反復する文は、<code>for</code>より一段深くインデントします。</p>
-          <p><code>range(start, stop, step)</code>では<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">stopを含みません</span></button>。<code>range(5)</code>は0、1、2、3、4、<code>range(10, 0, -2)</code>は10、8、6、4、2です。開始値・終了直前の値・増減値を、小さな例で先に書き出すと回数のずれを防げます。</p>
-          <h3>プログラムを読んでから、値の変化を表で確かめる</h3>
-          <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>n</span><span>開始前</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div><div class="trace-row"><b>total</b><span>0</span><span>1</span><span>3</span><span>6</span><span>10</span><span>15</span></div><p>表の各列は、反復を1回終えた直後の値を示す。5を処理した後、次の要素がないのでforを終了する。</p></section></div><figcaption>コードの代入文と同じ順序で値を更新する。表を先に見るのではなく、どの文が値を変えるかをコードで確認してから追跡する。</figcaption></figure>
-          <div class="practice"><strong>リストを直接処理する</strong><p><code>for score in scores:</code>のように書けば、添字を作らずリストの要素を先頭から取り出せます。要素そのものが必要なのか、位置の番号も必要なのかで書き方を選びます。</p></div>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>二重の反復は、外側1回分から追う</summary>
-      <div class="deep-dive-body"><p>反復の中に反復があるときは、外側の変数を一つに固定し、内側が最初から最後まで動く様子を先に追います。その後、外側が次の値へ進むと考えます。</p><p>例えば3行×4列の表を処理すると、外側の行を3回、各行で内側の列を4回処理するので、セルの処理は3×4＝12回です。</p></div>
-    </details>
-  </div>
+            <pre class="code-block common-test-code">（1）goukei = 0
+（2）n を 1 から 5 まで 1 ずつ増やしながら繰り返す：
+（3）⎿ goukei = goukei + n
+（4）表示する(goukei)</pre>
+            <p><span class="keyword"><span id="keyword-programming-for" class="keyword-target" tabindex="-1" data-keyword-id="programming-for">回数指定反復</span></span>では、指定された値を順番に取り出して同じまとまりを実行します。<code>n</code>は1、2、3、4、5と変わり、合計は15です。</p>
+            <p>「1から5まで」のような範囲は通常、両端を含みます。開始値・終了値・増減値を先に書き出します。</p>
+            <h3>値の変化を表で確かめる</h3>
+            <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>n</span><span>開始前</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div><div class="trace-row"><b>goukei</b><span>0</span><span>1</span><span>3</span><span>6</span><span>10</span><span>15</span></div></section></div><figcaption>どの文が値を変えるかを確認してから追跡します。</figcaption></figure>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>二重の反復は、外側1回分から追う</summary><div class="deep-dive-body"><p>外側の変数を一つに固定し、内側が最初から最後まで動く様子を先に追います。3行×4列なら処理は3×4＝12回です。</p></div></details>
+          </div>
         </section>
+
         <section class="lecture-section" id="programming-while" aria-labelledby="programming-while-title">
-          <header class="section-heading">
-            <span class="section-number">06</span>
-            <div>
-              <p class="section-kicker">WHILE · CONDITION</p>
-              <h2 id="programming-while-title">whileは、条件が真である間だけ繰り返す</h2>
-              <p class="section-lead">何回になるかを事前に決めにくい反復に向きます。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-while" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">06</span><div><p class="section-kicker">CONDITIONAL REPETITION</p><h2 id="programming-while-title">条件が真である間の反復を追う</h2><p class="section-lead">初期値・条件・更新を一組で読みます。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-while" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <pre class="code-block">n = 1
-
-<span class="keyword"><span id="keyword-programming-while" class="keyword-target" tabindex="-1" data-keyword-id="programming-while">while</span></span> n &lt; 100:
-    n = n * 2
-
-print(n)  <span class="comment"># 128</span></pre>
-          <p><code>while</code>は反復の前に条件を調べます。<code>n</code>が100未満なら本体を実行して2倍し、もう一度条件へ戻ります。64を処理すると128になり、次の判定で<code>128 &lt; 100</code>が偽になるため反復を終了して128を表示します。</p>
-          <p>whileでは、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">初期値</span></button>、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">継続条件</span></button>、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">更新処理</span></button>を一組で読みます。この例は初期値<code>n = 1</code>、継続条件<code>n &lt; 100</code>、更新処理<code>n = n * 2</code>です。</p>
-          <h3>判定する時点をそろえてトレースする</h3>
-          <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>判定時のn</span><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span><span>32</span><span>64</span><span>128</span></div><div class="trace-row"><b>n&lt;100</b><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>偽</span></div><p>128のときは本体を実行しない。条件が偽になった後のnが、そのままprintへ渡る。</p></section></div><figcaption>whileは「処理してから判定」ではなく、毎回「判定してから処理」する。最後に条件を調べた値も表へ残す。</figcaption></figure>
-          <div class="warning"><strong><span id="keyword-programming-infinite-loop" class="keyword-target" tabindex="-1" data-keyword-id="programming-infinite-loop">無限ループ</span>を防ぐ</strong><p>条件に関係する変数が、条件を偽へ近づけるよう更新されなければ終了しません。更新文がインデントの外へ出ていないか、値が本当に変わるか、境界値で条件が偽になるかを確認します。</p></div>
-    <h3>whileでは、初期値・条件・更新を一組で探す</h3>
-    <p>何回繰り返すかを決めるのは条件ですが、条件に使う変数の初期値と更新方法も必要です。三つのうち一つでも欠けると、一度も実行されない、または終わらない反復になります。</p>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>0が入力されるまで合計する</summary>
-      <div class="deep-dive-body"><pre class="code-block">total = 0
-number = int(input("整数（0で終了）: "))
-
-<span class="keyword">while</span> number != 0:
-    total = total + number
-    number = int(input("整数（0で終了）: "))
-
-print(total)</pre><p>0は「ここで終了」と知らせる特別な入力です。最初の入力を反復前で受け取り、反復の最後に次の入力へ更新します。0自体は合計へ加えません。</p></div>
-    </details>
-  </div>
+            <pre class="code-block common-test-code">（1）n = 1
+（2）n &lt; 100 の間繰り返す：
+（3）⎿ n = n * 2
+（4）表示する(n)</pre>
+            <p><span class="keyword"><span id="keyword-programming-while" class="keyword-target" tabindex="-1" data-keyword-id="programming-while">条件反復</span></span>では、反復の前に条件を調べます。<code>n</code>が100未満なら2倍し、128になった時点で条件が偽になるため終了します。</p>
+            <p>条件反復では、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">初期値</span></button>、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">継続条件</span></button>、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">更新処理</span></button>を一組で探します。</p>
+            <h3>判定する時点をそろえてトレースする</h3>
+            <figure class="html-figure"><div class="trace-grid single-trace"><section><div class="trace-row trace-head"><span>判定時のn</span><span>1</span><span>2</span><span>4</span><span>8</span><span>16</span><span>32</span><span>64</span><span>128</span></div><div class="trace-row"><b>n&lt;100</b><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>真</span><span>偽</span></div></section></div><figcaption>最後に条件を調べた値も表へ残します。</figcaption></figure>
+            <div class="warning"><strong><span id="keyword-programming-infinite-loop" class="keyword-target" tabindex="-1" data-keyword-id="programming-infinite-loop">無限ループ</span>を防ぐ</strong><p>条件に関係する変数が、条件を偽へ近づけるよう更新されなければ終了しません。</p></div>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>0が入力されるまで合計する</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）goukei = 0
+（2）number = 【外部からの入力】
+（3）number != 0 の間繰り返す：
+（4）｜ goukei = goukei + number
+（5）⎿ number = 【外部からの入力】
+（6）表示する(goukei)</pre><p>0自体は合計へ加えず、反復を終了する合図にします。</p></div></details>
+          </div>
         </section>
         <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="6" hidden></div>
         <section class="lecture-section" id="programming-data-structures" aria-labelledby="programming-data-structures-title">
-          <header class="section-heading">
-            <span class="section-number">07</span>
-            <div>
-              <p class="section-kicker">ARRAY · INDEX</p>
-              <h2 id="programming-data-structures-title">複数の値を配列へまとめ、添字で一つを指定する</h2>
-              <p class="section-lead">得点や気温のように同じ意味の値を並べ、反復と組み合わせて処理します。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-data-structures" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">07</span><div><p class="section-kicker">ARRAY · INDEX</p><h2 id="programming-data-structures-title">複数の値を配列へまとめ、添字で一つを指定する</h2><p class="section-lead">同じ意味の値を配列へまとめ、添字と反復を組み合わせて処理します。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-data-structures" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <pre class="code-block">scores = [72, 85, 91, 68]
-
-print(scores[0])  <span class="comment"># 最初の72</span>
-scores[3] = 70    <span class="comment"># 4番目を70へ更新</span>
-
-total = 0
-<span class="keyword">for</span> score <span class="keyword">in</span> scores:
-    total = total + score
-
-print(total)</pre>
-          <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-array" class="keyword-target" tabindex="-1" data-keyword-id="programming-array">配列</span></span></button>は複数の値を順番にまとめたものです。Pythonではリストを使います。最初の要素の<span id="keyword-programming-index" class="keyword-target" tabindex="-1" data-keyword-id="programming-index">添字</span>は<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">0</span></button>なので、4個の要素の添字は0、1、2、3です。要素数が4のとき<code>scores[4]</code>を指定すると範囲外になります。</p>
-          <div class="table-wrap"><table class="lecture-table"><thead><tr><th>表し方</th><th>例</th><th>読み方</th></tr></thead><tbody><tr><td>一次元配列</td><td><code>Scores[2]</code></td><td>Scoresの添字2、つまり3番目の要素</td></tr><tr><td>二次元配列</td><td><code>Data[1,3]</code></td><td>行と列など、二つの添字で位置を指定。どちらが行かは問題文で確認</td></tr></tbody></table></div>
-          <div class="key-point"><strong>要素と添字を混同しない</strong><p><code>scores[2]</code>の2は得点そのものではなく位置を表す添字です。この例では添字2の要素は91です。</p></div>
-    <h3>配列は、同じ種類の値を順番に扱うために使う</h3>
-    <p>得点や気温のように同じ意味の値が複数あるとき、配列へまとめると反復で順番に処理できます。Pythonではリストを使い、<code>scores[0]</code>が最初、<code>scores[1]</code>が2番目の要素です。</p>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>二次元配列は、行と列の意味を先に決める</summary>
-      <div class="deep-dive-body"><p>表のようなデータは、配列の中へ配列を入れて表せます。<code>Data[2][4]</code>を読む前に、最初の添字が行、次の添字が列なのかを確認します。</p><pre class="code-block">Data = [[72, 80, 91],
-        [65, 88, 76]]
-
-print(Data[1][2])  <span class="comment"># 2行3列目の76</span></pre><p>添字は0から始まるため、添字1は2行目、添字2は3列目です。</p></div>
-    </details>
-  </div>
+            <pre class="code-block common-test-code">（1）Scores = [72, 85, 91, 68]
+（2）表示する(Scores[0])
+（3）Scores[3] = 70</pre>
+            <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer"><span id="keyword-programming-array" class="keyword-target" tabindex="-1" data-keyword-id="programming-array">配列</span></span></button>は複数の値を順番にまとめたものです。配列の先頭の要素の<span id="keyword-programming-index" class="keyword-target" tabindex="-1" data-keyword-id="programming-index">添字</span>は、特に説明がなければ0です。4個の要素の添字は0、1、2、3です。</p>
+            <div class="table-wrap"><table class="lecture-table"><thead><tr><th>表し方</th><th>例</th><th>読み方</th></tr></thead><tbody><tr><td>一次元配列</td><td><code>Scores[2]</code></td><td>添字2、つまり3番目の要素</td></tr><tr><td>二次元配列</td><td><code>Data[1,3]</code></td><td>二つの添字で位置を指定</td></tr></tbody></table></div>
+            <div class="key-point"><strong>要素と添字を混同しない</strong><p><code>Scores[2]</code>の2は位置を表す添字で、この例では要素91です。</p></div>
+            <p>配列名の先頭が大文字で書かれる例が多くあります。ただし、添字の始まりや二次元配列の行・列の順は、問題文の指定を優先します。</p>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>二次元配列は行と列の意味を先に決める</summary><div class="deep-dive-body"><p>最初の添字を行、次の添字を列とすると、<code>Data[1,2]</code>は2行目・3列目です。</p><pre class="code-block common-test-code">（1）表示する(Data[1,2])</pre><p>添字の意味は、必ず問題文の定義と照らして読みます。</p></div></details>
+          </div>
         </section>
+
         <section class="lecture-section" id="programming-functions" aria-labelledby="programming-functions-title">
-          <header class="section-heading">
-            <span class="section-number">08</span>
-            <div>
-              <p class="section-kicker">FUNCTION · SCOPE</p>
-              <h2 id="programming-functions-title">処理へ名前をつけ、入力と出力を明確にする</h2>
-              <p class="section-lead">関数は重複を減らし、テストできる小さな単位をつくります。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-functions" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">08</span><div><p class="section-kicker">FUNCTION · ARGUMENT · RETURN VALUE</p><h2 id="programming-functions-title">関数を呼び出し、引数と戻り値を追う</h2><p class="section-lead">処理を名前の付いたまとまりとして読み、入力と出力の関係を明確にします。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-functions" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <pre class="code-block"><span class="keyword">def</span> rectangle_area(width, height):
-    area = width * height
-    <span class="keyword"><span id="keyword-programming-return" class="keyword-target" tabindex="-1" data-keyword-id="programming-return">return</span></span> area
-
-result = rectangle_area(4, 3)
-print(result)</pre>
-          <figure class="html-figure"><div class="function-flow"><section><span>呼出し元</span><strong>rectangle_area(4, 3)</strong><small>実<span id="keyword-programming-argument" class="keyword-target" tabindex="-1" data-keyword-id="programming-argument">引数</span>を渡す</small></section><i aria-hidden="true">→</i><section><span><span id="keyword-programming-function" class="keyword-target" tabindex="-1" data-keyword-id="programming-function">関数</span>の作業領域</span><strong>width＝4　height＝3</strong><small>ローカル変数 area＝12</small></section><i aria-hidden="true">→</i><section><span><span id="keyword-programming-return-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-return-value">戻り値</span></span><strong>return 12</strong><small>呼出し元のresultへ代入</small></section></div><figcaption>先に読んだプログラムを図で確認する。引数で必要な値を受け取り、関数内のローカル変数で処理し、戻り値だけを呼出し元へ返す。</figcaption></figure>
-          <p>関数定義のwidth・heightを<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">仮引数</span></button>、呼出し時の4・3を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">実引数</span></button>といいます。returnは呼出し元へ値を返し、その時点で関数の実行を終了します。</p>
-          <p>関数内で作った変数は原則として<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">ローカル変数</span></button>で、その関数の外から直接使えません。必要な値は引数で受け取り、戻り値で返すと依存関係が明確になります。</p>
-          <div class="key-point"><strong>一つの関数に一つの役割</strong><p>入力、計算、表示を分けると、どの部分が誤っているかを確かめやすくなります。まずは「引数を受け取る→計算する→戻り値を返す」という基本を読めるようにします。</p></div>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>同じ計算を関数へまとめる</summary>
-      <div class="deep-dive-body"><p>同じ式を何度も書くと、一か所だけ直し忘れることがあります。関数へまとめれば、呼出しごとに違う値を引数で渡し、同じ手順で結果を返せます。</p><pre class="code-block"><span class="keyword">def</span> tax_included(price, rate):
-    <span class="keyword">return</span> price * (1 + rate)
-
-print(tax_included(1000, 0.1))  <span class="comment"># 1100.0</span></pre><p>この関数は表示まで行わず、計算結果を返します。表示方法を呼出し側で決められるため、計算だけを確かめやすくなります。</p></div>
-    </details>
-  </div>
+            <pre class="code-block common-test-code">（1）面積 = 長方形の面積(4, 3)
+（2）表示する(面積)</pre>
+            <p>共通テストでは、関数の働きや定義方法が問題文中で示されます。呼出し時に渡す値と、返ってくる値を確認します。</p>
+            <h3>関数は、引数を受け取り、戻り値を返すまとまりとして読む</h3>
+            <p>定義の書き方は問題文に従います。仕組みを説明するため、ここでは次のように表します。</p>
+            <pre class="code-block common-test-code">（1）関数「長方形の面積」(たて, よこ)を定義する：
+（2）｜ 面積 = たて * よこ
+（3）⎿ 面積を返す</pre>
+            <figure class="html-figure"><div class="function-flow"><section><span>呼出し元</span><strong>長方形の面積(4, 3)</strong><small><span id="keyword-programming-argument" class="keyword-target" tabindex="-1" data-keyword-id="programming-argument">引数</span>を渡す</small></section><i aria-hidden="true">→</i><section><span><span id="keyword-programming-function" class="keyword-target" tabindex="-1" data-keyword-id="programming-function">関数</span>の作業領域</span><strong>たて＝4　よこ＝3</strong><small>面積＝12を計算</small></section><i aria-hidden="true">→</i><section><span><span id="keyword-programming-return-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-return-value">戻り値</span></span><strong><span id="keyword-programming-return" class="keyword-target" tabindex="-1" data-keyword-id="programming-return">面積を返す</span></strong><small>呼出し元の面積へ代入</small></section></div><figcaption>引数で値を受け取り、関数内で処理し、戻り値を呼出し元へ返します。</figcaption></figure>
+            <p>関数定義のたて・よこを<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">仮引数</span></button>、呼出し時の4・3を<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">実引数</span></button>といいます。</p>
+            <p>必要な値は引数で受け取り、戻り値で返すと、処理のつながりが明確になります。</p>
+            <div class="key-point"><strong>一つの関数に一つの役割</strong><p>入力、計算、表示を分けると、どの部分が誤っているかを確かめやすくなります。</p></div>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>同じ計算を関数へまとめる</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）税込金額 = 税込価格(1000, 0.1)
+（2）表示する(税込金額)</pre><p>関数の働きは問題文の定義を確認します。</p></div></details>
+          </div>
         </section>
-        <section class="lecture-section" id="programming-sort-search" aria-labelledby="programming-sort-search-title">
-          <header class="section-heading">
-            <span class="section-number">09</span>
-            <div>
-              <p class="section-kicker">SORT · SEARCH</p>
-              <h2 id="programming-sort-search-title">値を並べ替え、目的の値を見つける手順を追う</h2>
-              <p class="section-lead">整列では比較と交換、探索では調べる順序と前提条件に注目します。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-sort-search" aria-pressed="false">しおりを挟む</button>
-          </header>
-          <div class="section-body">
-          <h3><span id="keyword-programming-bubble-sort" class="keyword-target" tabindex="-1" data-keyword-id="programming-bubble-sort">バブルソート</span>：隣り合う値を比べて交換する</h3>
-          <figure class="html-figure"><div class="step-flow sort-flow" style="--steps:4"><article class="step-item"><b>開始</b><p>3　8　2　6　5</p></article><article class="step-item"><b>1巡目</b><p>3　2　6　5　8</p></article><article class="step-item"><b>2巡目</b><p>2　3　5　6　8</p></article><article class="step-item"><b>完了</b><p>2　3　5　6　8</p></article></div><figcaption>左から隣り合う二つを比べ、左が大きければ交換する。一巡すると、その範囲で最大の値が右端へ移る。</figcaption></figure>
-          <p><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">バブルソート</span></button>は、隣り合う二つを順に比べ、順序が逆なら交換します。一巡ごとに、まだ整列していない範囲を一つ狭くして同じ処理を繰り返します。</p>
-          <h3><span id="keyword-programming-linear-search" class="keyword-target" tabindex="-1" data-keyword-id="programming-linear-search">線形探索</span>と<span id="keyword-programming-binary-search" class="keyword-target" tabindex="-1" data-keyword-id="programming-binary-search">二分探索</span></h3>
-          <div class="table-wrap"><table class="lecture-table"><thead><tr><th>方法</th><th>調べ方</th><th>前提</th></tr></thead><tbody><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">線形探索</span></button></td><td>先頭から一つずつ、目的の値と等しいか調べる</td><td>並び順を問わない</td></tr><tr><td><button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">二分探索</span></button></td><td>中央の値と比べ、目的の値があり得る半分だけを残す</td><td>値が昇順または降順に整列済み</td></tr></tbody></table></div>
-          <p>例えば整列済みの<code>[3, 18, 29, 33, 48, 52, 62, 77, 89, 97]</code>から52を二分探索すると、まず中央付近の48と比べます。52は48より大きいので左半分を除き、残った右側の中央を調べます。このように候補をほぼ半分ずつ減らします。</p>
-    <h3>速さの違いは、候補がどう減るかで考える</h3>
-    <p>線形探索は先頭から一つずつ調べるので、目的の値が最後にあるとほぼ全部を見ます。二分探索は、整列済みのデータの中央と比べ、調べる範囲を毎回ほぼ半分にします。データが整列済みかどうかが使い分けの条件です。</p>
 
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>小さなデータで整列の一巡を追う</summary>
-      <div class="deep-dive-body"><p>バブルソートでは隣り合う二つを比べ、順序が逆なら交換します。例えば<code>[4, 2, 3]</code>を小さい順にすると、4と2を交換して<code>[2, 4, 3]</code>、次に4と3を交換して<code>[2, 3, 4]</code>です。</p><p>一巡で最大の値が右端へ移ります。残りの範囲について同じ比較を繰り返します。</p></div>
-    </details>
-  </div>
+        <section class="lecture-section" id="programming-sort-search" aria-labelledby="programming-sort-search-title">
+          <header class="section-heading"><span class="section-number">09</span><div><p class="section-kicker">SORT · SEARCH</p><h2 id="programming-sort-search-title">値を並べ替え、目的の値を見つける手順を追う</h2><p class="section-lead">整列では比較と交換、探索では調べる順序と前提条件に注目します。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-sort-search" aria-pressed="false">しおりを挟む</button></header>
+          <div class="section-body">
+            <h3><span id="keyword-programming-bubble-sort" class="keyword-target" tabindex="-1" data-keyword-id="programming-bubble-sort">バブルソート</span>：隣り合う値を比べて交換する</h3>
+            <pre class="code-block common-test-code">（1）A = [3, 8, 2, 6, 5]
+（2）i を 0 から 要素数(A)-2 まで 1 ずつ増やしながら繰り返す：
+（3）｜ j を 0 から 要素数(A)-2-i まで 1 ずつ増やしながら繰り返す：
+（4）｜ ｜ もし A[j] &gt; A[j+1] ならば：
+（5）｜ ｜ ｜ temp = A[j]
+（6）｜ ｜ ｜ A[j] = A[j+1]
+（7）⎿ ⎿ ⎿ A[j+1] = temp</pre>
+            <figure class="html-figure"><div class="step-flow sort-flow" style="--steps:4"><article class="step-item"><b>開始</b><p>3　8　2　6　5</p></article><article class="step-item"><b>1巡目</b><p>3　2　6　5　8</p></article><article class="step-item"><b>2巡目</b><p>2　3　5　6　8</p></article><article class="step-item"><b>完了</b><p>2　3　5　6　8</p></article></div><figcaption>左から隣り合う二つを比べ、左が大きければ交換します。</figcaption></figure>
+            <p>一巡ごとに、まだ整列していない範囲を一つ狭くして同じ処理を繰り返します。</p>
+            <h3><span id="keyword-programming-linear-search" class="keyword-target" tabindex="-1" data-keyword-id="programming-linear-search">線形探索</span>と<span id="keyword-programming-binary-search" class="keyword-target" tabindex="-1" data-keyword-id="programming-binary-search">二分探索</span></h3>
+            <div class="table-wrap"><table class="lecture-table"><thead><tr><th>方法</th><th>調べ方</th><th>前提</th></tr></thead><tbody><tr><td>線形探索</td><td>先頭から一つずつ調べる</td><td>並び順を問わない</td></tr><tr><td>二分探索</td><td>中央と比べ、候補を半分にする</td><td>昇順または降順に整列済み</td></tr></tbody></table></div>
+            <div class="notation-example"><strong>線形探索の表記例</strong><pre class="code-block common-test-code">（1）Data = [18, 25, 31, 42]
+（2）atai = 【外部からの入力】
+（3）owari = 0
+（4）i を 0 から 要素数(Data)-1 まで 1 ずつ増やしながら繰り返す：
+（5）｜ もし Data[i] == atai ならば：
+（6）｜ ｜ 表示する(atai, "は", i, "番目にありました")
+（7）⎿ ⎿ owari = 1
+（8）もし owari == 0 ならば：
+（9）⎿ 表示する(atai, "は見つかりませんでした")</pre></div>
+            <p>線形探索は先頭から一つずつ、二分探索は整列済みのデータの中央から調べます。</p>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>二分探索の処理を一行ずつ追う</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）Data = [3, 18, 29, 33, 48, 52, 62, 77, 89, 97]
+（2）kazu = 要素数(Data)
+（3）atai = 【外部からの入力】
+（4）hidari = 0
+（5）migi = kazu - 1
+（6）owari = 0
+（7）hidari &lt;= migi and owari == 0 の間繰り返す：
+（8）｜ aida = (hidari + migi) ÷ 2
+（9）｜ もし Data[aida] == atai ならば：
+（10）｜ ｜ 表示する(atai, "は", aida, "番目にありました")
+（11）｜ ｜ owari = 1
+（12）｜ そうでなくもし Data[aida] &lt; atai ならば：
+（13）｜ ｜ hidari = aida + 1
+（14）｜ そうでなければ：
+（15）⎿ ⎿ migi = aida - 1</pre><p><code>÷</code>が整数の商を返すこと、Dataが整列済みであることがポイントです。</p></div></details>
+          </div>
         </section>
         <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" data-ad-after-section="9" hidden></div>
         <section class="lecture-section" id="programming-test" aria-labelledby="programming-test-title">
-          <header class="section-heading">
-            <span class="section-number">10</span>
-            <div>
-              <p class="section-kicker">TEST · DEBUG · PRACTICE</p>
-              <h2 id="programming-test-title">正常値・境界値・異常値を試し、原因を切り分ける</h2>
-              <p class="section-lead">プログラムは、動いたかではなく、想定した範囲で正しく動くかを確かめます。</p>
-            </div>
-            <button class="section-bookmark" type="button" data-section-bookmark="programming-test" aria-pressed="false">しおりを挟む</button>
-          </header>
+          <header class="section-heading"><span class="section-number">10</span><div><p class="section-kicker">TEST · DEBUG · PRACTICE</p><h2 id="programming-test-title">正常値・境界値・異常値を試し、原因を切り分ける</h2><p class="section-lead">プログラムは、想定した範囲で正しく動くかを確かめます。</p></div><button class="section-bookmark" type="button" data-section-bookmark="programming-test" aria-pressed="false">しおりを挟む</button></header>
           <div class="section-body">
-          <div class="three-grid"><article class="concept-card"><h3><span id="keyword-programming-normal-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-normal-value">正常値</span></h3><p>典型的な入力で期待する結果になるか。</p></article><article class="concept-card warm"><h3><span id="keyword-programming-boundary-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-boundary-value">境界値</span></h3><p>条件が切り替わる直前・直後、空、最小、最大。</p></article><article class="concept-card violet"><h3><span id="keyword-programming-invalid-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-invalid-value">異常値</span></h3><p>文字列、範囲外、欠損などをどう扱うか。</p></article></div>
-          <p>構文が言語の規則に合わない<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">構文エラー</span></button>、実行中に不正な処理が起こる<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">実行時エラー</span></button>、実行できても答えが誤る<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">論理エラー</span></button>を区別します。</p>
-          <div class="practice"><strong>練習1：偶数判定</strong><p>整数nを入力し、偶数なら「偶数」、奇数なら「奇数」と表示するプログラムを作りましょう。0、正の数、負の数で試します。</p><details class="practice-solution"><summary>解答例・解説</summary><div><pre class="code-block">n = int(input("整数: "))
-
-<span class="keyword">if</span> n % 2 == 0:
-    print("偶数")
-<span class="keyword">else</span>:
-    print("奇数")</pre><p>2で割った余りが0なら偶数です。Pythonでは負の偶数でも余りは0になるため、−4も正しく偶数と判定できます。0も2で割り切れるので偶数です。</p></div></details></div>
-          <div class="practice"><strong>練習2：うるう年</strong><p>西暦yearを入力し、うるう年か平年かを表示しましょう。400の倍数はうるう年、400の倍数でない100の倍数は平年、それ以外の4の倍数はうるう年です。</p><details class="practice-solution"><summary>解答例・解説</summary><div><pre class="code-block">year = int(input("西暦: "))
-
-<span class="keyword">if</span> year % 400 == 0:
-    print("うるう年")
-<span class="keyword">elif</span> year % 100 == 0:
-    print("平年")
-<span class="keyword">elif</span> year % 4 == 0:
-    print("うるう年")
-<span class="keyword">else</span>:
-    print("平年")</pre><p>例外が強い条件から先に調べます。1900は100の倍数だが400の倍数ではないので平年、2000は400の倍数なのでうるう年、2024は4の倍数なのでうるう年です。</p></div></details></div>
-          <div class="practice"><strong>練習3：素数判定</strong><p>2以上の整数nが素数か調べましょう。2からn−1までのどれかで割り切れれば素数ではありません。</p><details class="practice-solution"><summary>解答例・解説</summary><div><pre class="code-block">n = int(input("2以上の整数: "))
-is_prime = True
-
-<span class="keyword">for</span> i <span class="keyword">in</span> range(2, n):
-    <span class="keyword">if</span> n % i == 0:
-        is_prime = False
-
-<span class="keyword">if</span> is_prime:
-    print("素数")
-<span class="keyword">else</span>:
-    print("素数ではない")</pre><p>例えばn＝7なら2〜6のどれでも割り切れないので素数です。n＝9ならi＝3で余り0となり、素数ではないと分かります。この解答は分かりやすさを優先しています。より少ない回数で調べる方法もあります。</p></div></details></div>
-          <p>デバッグでは、入力・途中の変数・条件式・出力を小さく確認します。原因を推測して一度に多く直すのではなく、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">再現条件</span></button>を固定し、一つずつ検証します。</p>
-    <h3>期待する答えを先に決めてから実行する</h3>
-    <p>「とりあえず動かして画面を見る」だけでは正誤を判断できません。入力と期待する出力を先に書き、実際の出力と比べます。間違ったときは、入力直後、分岐の直前、反復の1回ごとなど、途中の変数を表示して原因の場所を絞ります。</p>
-
-    <details class="deep-dive">
-      <summary><span class="deep-dive-label">さらに詳しく：</span>乱数を使うシミュレーション</summary>
-      <div class="deep-dive-body"><p>現実の出来事を、変数と規則で表して何度も試すことをシミュレーションといいます。サイコロなら1〜6の整数を乱数で作り、試行回数を増やして各目の割合を調べます。</p><p>少ない試行では偶然の偏りが大きいため、100回、1,000回、10,000回と増やして結果の安定を比べます。ただし、試行回数を増やしても、作ったモデルの規則が現実と合っていなければ正しい予測にはなりません。</p></div>
-    </details>
-  </div>
+            <div class="three-grid"><article class="concept-card"><h3><span id="keyword-programming-normal-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-normal-value">正常値</span></h3><p>典型的な入力で期待する結果になるか。</p></article><article class="concept-card warm"><h3><span id="keyword-programming-boundary-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-boundary-value">境界値</span></h3><p>条件が切り替わる直前・直後。</p></article><article class="concept-card violet"><h3><span id="keyword-programming-invalid-value" class="keyword-target" tabindex="-1" data-keyword-id="programming-invalid-value">異常値</span></h3><p>文字列、範囲外、欠損など。</p></article></div>
+            <p>表記の規則に合わない誤り、実行中に不正な処理が起こる誤り、実行できても答えが誤る<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">論理エラー</span></button>を区別します。問題文の定義と処理の流れに照らして、結果がずれた場所を探します。</p>
+            <div class="practice"><strong>練習1：偶数判定</strong><p>整数nを入力し、偶数なら「偶数」、奇数なら「奇数」と表示しましょう。</p><details class="practice-solution"><summary>解答例・解説</summary><div><pre class="code-block common-test-code">（1）n = 【外部からの入力】
+（2）もし n ％ 2 == 0 ならば：
+（3）｜ 表示する("偶数")
+（4）そうでなければ：
+（5）⎿ 表示する("奇数")</pre><p>2で割った余りが0なら偶数です。</p></div></details></div>
+            <div class="practice"><strong>練習2：うるう年</strong><p>400の倍数、100の倍数、4の倍数の順に条件を確認して、うるう年か平年かを表示しましょう。</p><details class="practice-solution"><summary>解答例・解説</summary><div><pre class="code-block common-test-code">（1）year = 【外部からの入力】
+（2）もし year ％ 400 == 0 ならば：
+（3）｜ 表示する("うるう年")
+（4）そうでなくもし year ％ 100 == 0 ならば：
+（5）｜ 表示する("平年")
+（6）そうでなくもし year ％ 4 == 0 ならば：
+（7）｜ 表示する("うるう年")
+（8）そうでなければ：
+（9）⎿ 表示する("平年")</pre><p>1900は平年、2000と2024はうるう年です。</p></div></details></div>
+            <div class="practice"><strong>練習3：素数判定</strong><p>2以上の整数nが素数か調べましょう。</p><details class="practice-solution"><summary>解答例・解説</summary><div><pre class="code-block common-test-code">（1）n = 【外部からの入力】
+（2）is_prime = 1
+（3）i を 2 から n-1 まで 1 ずつ増やしながら繰り返す：
+（4）｜ もし n ％ i == 0 ならば：
+（5）⎿ ⎿ is_prime = 0
+（6）もし is_prime == 1 ならば：
+（7）｜ 表示する("素数")
+（8）そうでなければ：
+（9）⎿ 表示する("素数ではない")</pre><p>どの値でも割り切れなければ素数です。</p></div></details></div>
+            <p>デバッグでは、入力・途中の変数・条件式・出力を小さく確認します。原因を推測して一度に多く直すのではなく、<button class="cloze" type="button" aria-expanded="true" aria-label="穴抜きの答えを隠す"><span class="cloze-answer">再現条件</span></button>を固定して検証します。</p>
+            <h3>期待する答えを先に決めてから実行する</h3><p>入力と期待する出力を先に書き、実際の出力と比べます。間違ったときは、途中の変数を表にして原因の場所を絞ります。</p>
+            <details class="deep-dive"><summary><span class="deep-dive-label">さらに詳しく：</span>乱数を使うシミュレーション</summary><div class="deep-dive-body"><pre class="code-block common-test-code">（1）Counts = [0, 0, 0, 0, 0, 0]
+（2）i を 1 から 1000 まで 1 ずつ増やしながら繰り返す：
+（3）｜ 出目 = 整数(乱数() * 6) + 1
+（4）⎿ Counts[出目-1] = Counts[出目-1] + 1</pre><p>乱数で1〜6の出目を作り、出目ごとの回数を配列へ数えます。</p></div></details>
+          </div>
         </section>
         <!-- lecture-content:generated:end -->
       </article>
     </div>
-
   </main>
 
-  <footer class="site-footer">
-    <div class="footer-grid">
-      <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div>
-      <nav aria-label="フッターナビゲーション"><a href="../">トップページ</a><a href="../info1-quiz-app/app/">学習アプリ</a><a href="../info1-quiz-app/questions/">問題を探す</a><a href="../archive/">解説動画</a><a href="./">講義ノート</a><a href="../study-guide.html">使い方</a><a href="../books/">書籍案内</a><a href="../about.html">このサイトについて</a><a href="../privacy.html">プライバシーポリシー</a><a href="../sitemap.html">サイトマップ</a></nav>
-    </div>
-    <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
-  </footer>
+  <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../">トップページ</a><a href="../info1-quiz-app/app/">学習アプリ</a><a href="../info1-quiz-app/questions/">問題を探す</a><a href="../archive/">解説動画</a><a href="./">講義ノート</a><a href="../study-guide.html">使い方</a><a href="../books/">書籍案内</a><a href="../about.html">このサイトについて</a><a href="../privacy.html">プライバシーポリシー</a><a href="../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
 
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"トップページ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"講義ノート","item":"https://mei-chan-nel.com/LectureNote/"},{"@type":"ListItem","position":3,"name":"プログラミング","item":"https://mei-chan-nel.com/LectureNote/programming.html"}]}</script>
-  <script src="./lecture-data-programming.js?v=2"></script>
+  <script src="./lecture-data-programming.js?v=3"></script>
   <script src="../assets/site-header.js?v=2026072606"></script>
   <script src="../assets/lecture-bookmark.js"></script>
   <script src="./lecture.js?v=32"></script>

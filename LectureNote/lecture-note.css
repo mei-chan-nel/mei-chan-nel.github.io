@@ -431,6 +431,10 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .warning { border-left-color: var(--warm); background: var(--warm-soft); }
 .practice { border-left-color: var(--green); background: var(--green-soft); }
 .key-point > :last-child, .warning > :last-child, .practice > :last-child { margin-bottom: 0; }
+.notation-example { margin: 24px 0; }
+.notation-example > strong { display: block; margin-bottom: 10px; color: var(--accent); font-weight: 800; }
+.notation-example > .code-block { margin-top: 0; }
+.notation-example > :last-child { margin-bottom: 0; }
 
 .practice-solution {
   margin-top: 14px;
