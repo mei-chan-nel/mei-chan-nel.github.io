@@ -152,11 +152,18 @@ def main() -> int:
     if questions_text.count('data-manual-ad="display"') != 1:
         errors.append("questions/index.html: expected exactly one display wrapper")
     try:
+        controls_position = questions_text.index("data-tag-challenge-controls")
+        ad_position = questions_text.index('data-ad-placement="after-tag-challenge-controls"')
+        result_noscript_position = questions_text.index(
+            '<noscript><p class="filter-message"',
+            ad_position,
+        )
+        question_list_position = questions_text.index('class="filter-result-list"')
         if not (
-            questions_text.index("data-tag-challenge-controls")
-            < questions_text.index('data-ad-placement="after-tag-challenge-controls"')
-            < questions_text.index("<noscript>")
-            < questions_text.index('class="filter-result-list"')
+            controls_position
+            < ad_position
+            < result_noscript_position
+            < question_list_position
         ):
             errors.append("questions/index.html: display wrapper must be after random controls and before the question list")
     except ValueError:
