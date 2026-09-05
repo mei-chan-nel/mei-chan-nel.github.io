@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CPUとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="CPU（中央処理装置）の役割を、制御装置・演算装置、命令の実行、クロック周波数、レジスタ、キャッシュメモリとの関係まで高校「情報Ⅰ」向けに解説します。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="CPUとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="CPUの役割を、命令の実行、演算と制御、クロック周波数、レジスタ、キャッシュメモリまで高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/cpu/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/cpu/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">CPU</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">CPU</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「CPU」とは</h2>
+          <p>CPUは、コンピュータ上で動くプログラムの命令を実行する装置です。スマートフォンやパソコンでは、アプリを起動する、数値を計算する、画面表示のために各装置へ指示を出す、といった多くの処理にCPUが関わっています。</p>
+          <p>CPUはCentral Processing Unitの略で、日本語では中央処理装置と呼ばれます。コンピュータの働きは、<strong>入力装置・出力装置・記憶装置・演算装置・制御装置</strong>の「五大装置」に分けて考えることができます。このうちCPUは、主に<strong>演算装置</strong>と<strong>制御装置</strong>を担当します。</p>
+          <p><strong>制御装置</strong>は命令を読み取り、その内容に従って各装置へ動作の指示を出します。<strong>演算装置</strong>は加減乗除などの計算だけでなく、大小の比較やAND・OR・NOTなどの論理演算も行います。</p>
+
+          <h3>命令は「取り出す → 解読する → 実行する」</h3>
+          <p>実行中のプログラムや処理に必要なデータは、主に主記憶装置に置かれます。CPUはそこから命令を順に取り出し、何をする命令なのかを解釈し、必要な演算や装置の制御を行います。</p>
+          <ol>
+            <li><strong>取り出す（fetch）</strong>：主記憶装置から次に実行する命令を取り出します。</li>
+            <li><strong>解読する（decode）</strong>：取り出した命令が何を指示しているかを解釈します。</li>
+            <li><strong>実行する（execute）</strong>：演算やデータの移動、各装置への指示などを行います。</li>
+          </ol>
+          <p>CPU内部には<strong>レジスタ</strong>と呼ばれる非常に高速な記憶領域があり、処理中のデータや命令、処理位置などを一時的に保持します。</p>
+
+          <h3>クロック周波数</h3>
+          <p>CPUは、基準となる周期的な信号に合わせて動作します。この信号の1秒あたりの回数を<strong>クロック周波数</strong>といい、Hz（ヘルツ）で表します。</p>
+          <p class="term-formula">1.6 GHz ＝ 1.6 × 10<sup>9</sup> Hz ＝ 1秒間に16億回のクロック</p>
+          <p>単純化して、1命令の実行に平均4クロック必要だと仮定すれば、1秒あたりに実行できる命令数はおよそ次のように計算できます。</p>
+          <p class="term-formula">1.6 × 10<sup>9</sup> ÷ 4 ＝ 4.0 × 10<sup>8</sup> 命令/秒</p>
+          <p>ただし、実際のCPUでは命令の種類やCPUの設計によって1命令に必要な時間が異なり、複数の命令を並行して処理する仕組みもあります。そのため、<strong>クロック周波数だけでCPU全体の性能が決まるわけではありません</strong>。</p>
+
+          <h3>キャッシュメモリと主記憶装置</h3>
+          <p>CPUは非常に高速ですが、主記憶装置から毎回データを読み出していると、その待ち時間が処理速度の低下につながります。そこでCPUの近くには、よく使うデータや命令を一時的に保存する<strong>キャッシュメモリ</strong>が置かれています。</p>
+          <p>キャッシュメモリは主記憶装置より容量は小さいものの高速で、CPUと主記憶装置の速度差を埋める役割を持ちます。</p>
+          <p class="term-hierarchy">レジスタ → キャッシュメモリ → 主記憶装置 → SSD・HDD</p>
+          <p>一般に右へ行くほど大容量になりますが、CPUからのアクセスには時間がかかります。SSDやHDDは<strong>補助記憶装置</strong>であり、電源を切ってもデータを保持できる点も重要です。</p>
+
+          <h3>複数の処理を動かす仕組み</h3>
+          <p>コンピュータでは複数のアプリや処理が同時に動いているように見えます。1つのCPUコアで複数の処理を扱う場合、OSは処理する対象を短い時間で切り替えます。切り替える際には、再開できるようにレジスタなどの状態を保存します。</p>
+          <p>また、複数の<strong>CPUコア</strong>を備えたCPUでは、条件が整えば複数の処理を実際に並行して進めることもできます。</p>
+          <p>つまり、CPUは主記憶装置から命令を取り出して解釈し、演算と各装置の制御を行う、コンピュータの処理の中心となる装置です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="cpu-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="cpu-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>CPU · EXAMPLE</span><span>オリジナル問題</span></div>
+          <h3>CPUが主に行う処理として、最も適切なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>電源を切った後もデータを保存する。</p></li>
+            <li><span>1</span><p>命令を解釈して各装置を制御し、演算を行う。</p></li>
+            <li><span>2</span><p>コンピュータとプリンタを接続するための通信方式を定める。</p></li>
+            <li><span>3</span><p>外部から情報を入力し、処理結果を外部へ出力する。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>正答と解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正答</span><strong>1. 命令を解釈して各装置を制御し、演算を行う。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>コンピュータの五大装置は、入力装置、出力装置、記憶装置、演算装置、制御装置です。CPUは主記憶装置から命令を取り出して内容を解釈し、その命令に従って各装置の動作を制御します。また、数値の計算や比較などの演算も行うため、主に制御装置と演算装置の役割を担います。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル問題</dd></dl>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="cpu-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="cpu-challenge-heading">CPUタグの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="CPU"
+          data-limit="5"
+          data-exclude-stem="CPUが主に行う処理として、最も適切なものはどれか。"
+        >5問をアプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=CPU">CPUタグの問題を見る</a></p>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CPUとは","description":"CPU（中央処理装置）の役割を、高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/cpu/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"CPU","item":"https://mei-chan-nel.com/terms/cpu/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
