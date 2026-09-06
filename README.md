@@ -56,7 +56,7 @@ python scripts/update_sitemap.py --app-root <info1-quiz-appのリポジトリル
 
 ## 用語解説
 
-noteの用語解説記事を移行するときは、移行記録と対応表を [`docs/TERM_GUIDE_MIGRATION.md`](docs/TERM_GUIDE_MIGRATION.md) で確認します。用語ページを追加したら、ページの `<meta name="study-atlas-term-tag">` と `<meta name="study-atlas-term-summary">` を設定し、次を実行します。
+noteの用語解説記事を移行するときは、移行記録と対応表を [`docs/TERM_GUIDE_MIGRATION.md`](docs/TERM_GUIDE_MIGRATION.md) で確認します。用語ページを追加したら、ページの `<meta name="study-atlas-term-tag">` を設定し、次を実行します。
 
 ```powershell
 python scripts/generate_term_guides.py

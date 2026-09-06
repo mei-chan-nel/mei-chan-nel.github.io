@@ -15,7 +15,6 @@ INDEX_PATH = TERMS_ROOT / "index.html"
 DEFAULT_TAG_LIST_PATH = ROOT.parent.parent / "基礎資料" / "タグ一覧.xlsx"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
-SUMMARY_META = "study-atlas-term-summary"
 
 
 class TermMetaParser(HTMLParser):
@@ -28,7 +27,7 @@ class TermMetaParser(HTMLParser):
             return
         attributes = {name.lower(): value for name, value in attrs if value is not None}
         name = attributes.get("name", "").strip()
-        if name not in {TAG_META, SUMMARY_META}:
+        if name != TAG_META:
             return
         self.values[name] = attributes.get("content", "").strip()
 
@@ -37,23 +36,19 @@ class TermMetaParser(HTMLParser):
 class TermPage:
     path: Path
     tag: str
-    summary: str
 
     @property
     def slug(self) -> str:
         return self.path.parent.name
 
 
-def read_term_meta(path: Path) -> tuple[str, str]:
+def read_term_meta(path: Path) -> str:
     parser = TermMetaParser()
     parser.feed(path.read_text(encoding="utf-8"))
     tag = parser.values.get(TAG_META, "").strip()
-    summary = parser.values.get(SUMMARY_META, "").strip()
     if not tag:
         raise ValueError(f"{path.relative_to(ROOT)}: {TAG_META} is required")
-    if not summary:
-        raise ValueError(f"{path.relative_to(ROOT)}: {SUMMARY_META} is required")
-    return tag, summary
+    return tag
 
 
 def scan_term_pages() -> list[TermPage]:
@@ -61,8 +56,8 @@ def scan_term_pages() -> list[TermPage]:
     if not TERMS_ROOT.exists():
         return pages
     for path in sorted(TERMS_ROOT.glob("*/index.html")):
-        tag, summary = read_term_meta(path)
-        pages.append(TermPage(path=path, tag=tag, summary=summary))
+        tag = read_term_meta(path)
+        pages.append(TermPage(path=path, tag=tag))
     tags = [page.tag for page in pages]
     duplicates = sorted({tag for tag in tags if tags.count(tag) > 1})
     if duplicates:
@@ -75,7 +70,6 @@ def build_registry(pages: list[TermPage] | None = None) -> dict[str, dict[str, s
     return {
         page.tag: {
             "url": f"/terms/{page.slug}/",
-            "summary": page.summary,
         }
         for page in pages
     }

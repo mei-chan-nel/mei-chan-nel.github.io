@@ -500,7 +500,6 @@ def render_page(article: dict, body, question: dict) -> str:
     <title>{term}とは｜情報Ⅰ 用語解説｜Study Atlas</title>
     <meta name="description" content="{escape(article["description"])}" />
     <meta name="study-atlas-term-tag" content="{tag}" />
-    <meta name="study-atlas-term-summary" content="{escape(article["summary"])}" />
     <meta name="theme-color" content="#102f35" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="ja_JP" />

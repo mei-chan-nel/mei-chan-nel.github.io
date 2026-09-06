@@ -181,13 +181,10 @@ def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
     return parser
 
 
-def read_term_meta_from_html(text: str) -> tuple[str, str]:
+def read_term_meta_from_html(text: str) -> str:
     parser = TermMetaParser()
     parser.feed(text)
-    return (
-        parser.values.get("study-atlas-term-tag", "").strip(),
-        parser.values.get("study-atlas-term-summary", "").strip(),
-    )
+    return parser.values.get("study-atlas-term-tag", "").strip()
 
 
 def read_term_index_entries(text: str) -> list[tuple[str, str, str | None]]:
@@ -329,7 +326,7 @@ def main() -> int:
         errors.append("video-library-build.json: course_question_numbers are out of sync")
 
     term_paths = sorted((ROOT / "terms").glob("*/index.html"))
-    term_page_meta: dict[str, tuple[str, str]] = {}
+    term_page_meta: dict[str, str] = {}
     for path in term_paths:
         relative = path.relative_to(ROOT).as_posix()
         try:
@@ -337,13 +334,15 @@ def main() -> int:
         except OSError as exc:
             errors.append(f"{relative}: cannot read: {exc}")
             continue
-        tag, summary = read_term_meta_from_html(term_text)
-        if not tag or not summary:
-            errors.append(f"{relative}: term tag and summary metadata are required")
+        tag = read_term_meta_from_html(term_text)
+        if not tag:
+            errors.append(f"{relative}: term tag metadata is required")
             continue
+        if "study-atlas-term-summary" in term_text:
+            errors.append(f"{relative}: obsolete study-atlas-term-summary metadata remains")
         if tag in term_page_meta:
             errors.append(f"{relative}: duplicate term tag metadata: {tag}")
-        term_page_meta[tag] = (path.parent.name, summary)
+        term_page_meta[tag] = path.parent.name
         if ">例題</h2>" not in term_text:
             errors.append(f"{relative}: the note confirmation question must be shown as 例題")
         if "の問題に挑戦</h2>" not in term_text:
@@ -374,7 +373,7 @@ def main() -> int:
         if page is None:
             if kind != "is-unlinked" or href is not None:
                 errors.append(f"terms/index.html: unlinked tag is not rendered as text: {label}")
-        elif kind != "is-linked" or href != f"./{page[0]}/":
+        elif kind != "is-linked" or href != f"./{page}/":
             errors.append(f"terms/index.html: linked tag does not use its metadata-derived page URL: {label}")
     unknown_term_tags = sorted(set(term_page_meta) - set(tag_list))
     if unknown_term_tags:
