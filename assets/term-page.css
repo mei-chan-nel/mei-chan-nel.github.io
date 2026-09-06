@@ -41,6 +41,10 @@
   text-align: center;
 }
 
+.term-copy .term-note-figure--left {
+  text-align: left;
+}
+
 .term-copy .term-note-figure img {
   width: auto;
   max-width: 100%;
