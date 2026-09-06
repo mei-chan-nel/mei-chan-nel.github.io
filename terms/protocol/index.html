@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>プロトコルとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="通信プロトコルの意味と、TCP/IPの四つの階層が協力して通信する仕組みを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="プロトコル" />
+    <meta name="study-atlas-term-summary" content="プロトコルは、コンピュータ同士が通信するときに従う約束事の集まりです。TCP/IPの階層と各層の役割を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="プロトコルとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="通信プロトコルの意味と、TCP/IPの四つの階層が協力して通信する仕組みを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/protocol/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/protocol/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">プロトコル</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">プロトコル</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「プロトコル」とは</h2>
+          <p><strong>プロトコル（通信プロトコル）</strong>とは、コンピュータやスマートフォンなどが通信するときに従う、<strong>約束事の集まり</strong>です。</p>
+          <p>人同士が会話をする場合も、互いに理解できる言語を使い、一方が話したらもう一方が応答するなど、ある程度共通した約束に従っています。片方が日本語で質問しているのに、もう片方が異なる言語で答えたり、質問を聞く前に答えたりすると、うまく会話できません。</p>
+          <p>コンピュータ同士の通信でも同じです。例えば、次のようなことをあらかじめ決めておく必要があります。</p>
+          <ul><li><p>どのような形式でデータを送るか</p></li><li><p>どのような順序でやり取りするか</p></li><li><p>通信相手をどのように指定するか</p></li><li><p>データが届かなかったときにどうするか</p></li></ul>
+          <p>こうした約束事を定めたものがプロトコルです。同じプロトコルに対応していれば、異なるメーカーが作った機器やソフトウェアでも通信できます。</p>
+          <h3>目的によって異なるプロトコルを使う</h3>
+          <p>インターネットでは、一つのプロトコルだけですべての通信を行っているわけではありません。必要な働きに応じて、複数のプロトコルを組み合わせています。</p>
+          <p>代表的なものには、次のようなものがあります。</p>
+          <ul><li><p><strong>HTTP・HTTPS</strong>：Webページなどのデータをやり取りする</p></li><li><p><strong>SMTP</strong>：電子メールを送信する</p></li><li><p><strong>POP3・IMAP4</strong>：メールサーバにある電子メールを受信・閲覧する</p></li><li><p><strong>TCP</strong>：データが正しく届いたかを確認し、必要に応じて再送する</p></li><li><p><strong>UDP</strong>：到達確認や再送を基本的に行わず、遅延の少ない通信を行う</p></li><li><p><strong>IP</strong>：送信元や宛先を指定し、データを目的地まで届ける</p></li></ul>
+          <p>例えばWebページを閲覧するときは、Webのデータをやり取りするためにHTTPやHTTPSを使い、その下ではTCPやIPなどが働いています。このように、複数のプロトコルがそれぞれ異なる役割を担当して通信を支えています。</p>
+          <h3>TCPとUDPの違い</h3>
+          <p><strong>TCP</strong>は、送ったデータが相手に届いたかを確認し、届かなかったデータがあれば送り直します。そのため、Webページや電子メールなど、データを正確に届ける必要がある通信に適しています。</p>
+          <p>一方、<strong>UDP</strong>は、データが届いたかどうかの確認や再送を基本的に行いません。その分、通信の遅れを小さくできます。音声通話や動画のリアルタイム配信などでは、少しデータが欠けることよりも、映像や音声が大きく遅れないことが重視されるため、UDPが使われることがあります。</p>
+          <h3>プロトコルは階層に分けて整理される</h3>
+          <p>通信には、Webページのデータを扱う処理、データが届いたかを確認する処理、宛先までデータを運ぶ処理など、さまざまな働きがあります。これらを役割ごとの<strong>階層</strong>に分けて整理すると、それぞれの技術を独立して設計・変更しやすくなります。</p>
+          <p>例えば、Webページを扱うHTTPの仕組みを大きく変えなくても、その下で使われる通信回線を有線LANから無線LANへ変更できます。各階層の役割やデータの受け渡し方が決められているため、一部の技術を変更しても、他の部分への影響を小さくできるのです。</p>
+          <p>インターネットで利用されているさまざまなプロトコルを、階層ごとにまとめたものを<strong>TCP/IP</strong>といいます。TCP/IPは特定の一つのプロトコルの名前ではなく、TCPやIP、HTTPなどを含む<strong>プロトコル群</strong>です。</p>
+          <h3>TCP/IPの四つの階層</h3>
+          <p>インターネットの通信で使われるプロトコルは、役割に応じて次の四つの階層に分けて整理できます。<br>上の層（4層目）ほどユーザに近く、下の層（1層目）ほどハードウェアに近い作業を行います。</p>
+          <h3>4層目：アプリケーション層</h3>
+          <p><strong>利用者が使うサービスに応じて、データのやり取りの方法を定める階層</strong>です。</p>
+          <p>例えば、Webページの閲覧、電子メールの送受信、ファイルの転送などでは、それぞれ異なる方法でデータをやり取りします。</p>
+          <p>主なプロトコルには、次のものがあります。</p>
+          <ul><li><p><strong>HTTP・HTTPS</strong>：Webページなどをやり取りする</p></li><li><p><strong>SMTP</strong>：電子メールを送信する</p></li><li><p><strong>POP3・IMAP4</strong>：電子メールを受信・閲覧する</p></li><li><p><strong>DNS</strong>：ドメイン名をIPアドレスに対応させる</p></li></ul>
+          <p>例えば、WebブラウザでWebサイトを開くときは、アプリケーション層のHTTPやHTTPSに従って、Webサーバへデータを要求します。</p>
+          <h3>3層目：トランスポート層</h3>
+          <p><strong>送信元のコンピュータから宛先のコンピュータまで、データをどのように届けるかを管理する階層</strong>です。</p>
+          <p>アプリケーション層から受け取った大きなデータを、送信しやすい大きさに分割する働きもあります。</p>
+          <p>代表的なプロトコルは、<strong>TCP</strong>と<strong>UDP</strong>です。</p>
+          <h3>2層目：インターネット層</h3>
+          <p><strong>データの送り先を指定し、複数のネットワークを経由して目的地まで届ける階層</strong>です。</p>
+          <p>代表的なプロトコルは<strong>IP</strong>です。</p>
+          <p>インターネットに接続された機器には、通信相手を識別するための<strong>IPアドレス</strong>が割り当てられます。送信するデータには送信元と宛先のIPアドレスが付けられ、ルータが宛先を確認しながら、次にどの経路へ送るかを判断します。</p>
+          <p>ただし、IPはデータを目的地へ送ろうとする仕組みであり、データが必ず届くことや、送信した順番どおりに届くことまでは保証しません。必要な場合は、上のトランスポート層にあるTCPが到達確認や並べ替えを行います。</p>
+          <h3>1層目：ネットワークインタフェース層</h3>
+          <p><strong>同じネットワーク内で、実際にデータを送受信するための方法を定める階層</strong>です。</p>
+          <p>この階層では、電気信号や電波などを使って、コンピュータ、無線LANアクセスポイント、ルータなどの間でデータを運びます。</p>
+          <p>代表的な技術には、次のものがあります。</p>
+          <ul><li><p><strong>Ethernet</strong>：LANケーブルなどを使った有線通信</p></li><li><p><strong>Wi-Fi</strong>：電波を使った無線通信</p></li></ul>
+          <p>同じLAN内では、ネットワーク機器を識別するために<strong>MACアドレス</strong>が使われます。</p>
+          <h3>四つの階層が協力して通信する</h3>
+          <p>例えば、Webページを閲覧するときは、各階層が次のように働きます。</p>
+          <ol><li><p>アプリケーション層のHTTPSが、Webページのデータを要求する。</p></li><li><p>トランスポート層のTCPが、データを分割し、正しく届くように管理する。</p></li><li><p>インターネット層のIPが、宛先のIPアドレスまでデータを運ぶ。</p></li><li><p>ネットワークインタフェース層のEthernetやWi-Fiが、データを実際の信号として送る。</p></li></ol>
+          <p>受信側では、これとは逆の順序で処理され、最終的にWebブラウザへデータが渡されます。</p>
+          <p>このように、一つの通信を四つの階層が分担して処理しています。各階層の役割と、隣り合う階層とのデータの受け渡し方法が決められているため、一部の技術が変わっても、他の階層への影響を小さくできます。</p>
+          <p>例えば、有線LANからWi-Fiに変更しても、Webページをやり取りするHTTPSの仕組みを変更する必要はありません。変更されるのは主にネットワークインタフェース層であり、上の階層は同じ仕組みを利用できるからです。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>プロトコル · EXAMPLE</span><span>ITパスポートH28秋期 問65（改題）</span></div>
+          <h3>通信プロトコルの説明として，最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>複数のLANケーブルを集めて接続するための装置</p></li>
+            <li><span>1</span><p>Webページの場所や取得方法を表す文字列</p></li>
+            <li><span>2</span><p>コンピュータ同士が通信するときに従う約束事の集まり</p></li>
+            <li><span>3</span><p>画像の細かさを表すために使われる単位</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．コンピュータ同士が通信するときに従う約束事の集まり</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>通信プロトコルは，ネットワーク上で機器同士が通信するために定められた手順や規則の集まりである。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH28秋期 問65（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：プロトコル／ネットワーク</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">プロトコルの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="プロトコル"
+          data-limit="5"
+          data-exclude-stem="通信プロトコルの説明として，最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=プロトコル">プロトコルの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"プロトコルとは","description":"通信プロトコルの意味と、TCP/IPの四つの階層が協力して通信する仕組みを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/protocol/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n8f27660b2414"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"プロトコル","item":"https://mei-chan-nel.com/terms/protocol/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

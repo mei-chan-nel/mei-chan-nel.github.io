@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TCPとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="TCPの役割と、TCP/IPの階層モデル、HTTP・IPとの関係、UDPとの違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="TCP" />
+    <meta name="study-atlas-term-summary" content="TCPは、ネットワーク上でデータを確実に届けるためのトランスポート層のプロトコルです。TCP/IPの階層とUDPとの違いを学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="TCPとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="TCPの役割と、TCP/IPの階層モデル、HTTP・IPとの関係、UDPとの違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/tcp/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/tcp/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">TCP</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">TCP</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「TCP」とは</h2>
+          <p><strong>TCP（Transmission Control Protocol）</strong>は、ネットワーク上で<strong>データをできるだけ確実に相手へ届けるためのプロトコル</strong>です。<br><strong>プロトコル</strong>とは、コンピュータ同士が通信するときの<strong>「決まりごと」</strong>のことです。</p>
+          <p>インターネットで使われているプロトコルの詰め合わせをTCP/IPといいます。<br>TCP/IPの通信では、役割ごとに4つの階層に分けて考えます。</p>
+          <ul><li><p><strong>アプリケーション層</strong>：Webやメールなど、それぞれのサービスで使う通信を決める層</p></li><li><p><strong>トランスポート層</strong>：データをどのように相手へ受け渡すかを決める層</p></li><li><p><strong>インターネット層</strong>：データをどのコンピュータまで届けるかを決める層</p></li><li><p><strong>ネットワークインターフェース層</strong>：実際のネットワークを使ってデータを送受信する層</p></li></ul>
+          <p>TCPは、このうち<strong>トランスポート層</strong>で使われるプロトコルです。</p>
+          <h3>TCPは何をしているのか</h3>
+          <p>インターネットでは、送ったデータ（パケット）が必ずそのまま相手に届くとは限りません。途中でデータの一部が失われたり、送った順番とは違う順番で届いたりすることがあります。</p>
+          <p>TCPは、そのような場合に備えて、次のような処理を行います。</p>
+          <ul><li><p>データが相手に届いたかを確認します</p></li><li><p>届かなかったデータがあれば、もう一度送ります</p></li><li><p>データが違う順番で届いた場合は、正しい順番に並べ直します</p></li><li><p>相手が受け取れる量に合わせて、送るデータの量を調整します</p></li></ul>
+          <p>このような仕組みによって、TCPは<strong>信頼性の高い通信</strong>を実現しています。</p>
+          <h3>HTTP・TCP・IPの役割の違い</h3>
+          <p>Webページを見るときには、HTTP、TCP、IPなど複数のプロトコルが協力して通信を行います。</p>
+          <p><strong>HTTP</strong>は、アプリケーション層のプロトコルです。WebブラウザとWebサーバの間で、どのように要求や応答をやり取りするかを決めます。例えば、ブラウザが「このWebページを送ってください」と要求し、Webサーバがページのデータを返す、といったやり取りに使われます。</p>
+          <p><strong>IP</strong>は、インターネット層のプロトコルです。宛先のIPアドレスをもとにして、複数のネットワークを越えてパケットを目的のコンピュータまで届ける役割を持っています。</p>
+          <p>大まかには、</p>
+          <p><strong>HTTP → TCP → IP</strong></p>
+          <p>という関係で通信していると考えることができます。</p>
+          <p>それぞれの役割を簡単にまとめると、</p>
+          <ul><li><p><strong>HTTP</strong>：「どのような内容をやり取りするか」</p></li><li><p><strong>TCP</strong>：「データを正しい順序で確実に受け渡す」</p></li><li><p><strong>IP</strong>：「どの宛先へデータを届けるか」</p></li></ul>
+          <p>という違いがあります。</p>
+          <h3>TCPとUDPの違い</h3>
+          <p>TCPと同じトランスポート層には、<strong>UDP（User Datagram Protocol）</strong>というプロトコルもあります。</p>
+          <p>TCPは、データが届いたかを確認したり、届かなかったデータを再送したりします。一方、UDPは、このような処理を基本的には行いません。</p>
+          <p>TCPは、データをできるだけ正確に届けたい通信に向いています。一方、音声や動画のリアルタイム配信などでは、少しデータが欠けることよりも、通信が遅れることのほうが困る場合があります。そのような通信では、正確性は劣るけれどスピードの速いUDPが使われることがあります。</p>
+          <p>TCPは<strong>「届いたことを確認し、届かなければ再送し、順序も整えるプロトコル」</strong>です。<br>そして、HTTPはWebのやり取り、IPは宛先まで届ける役割だと区別すると、TCP/IPの階層の違いも理解しやすくなります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>TCP · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>次の文章の（ア）・（イ）に当てはまる語句の組合せとして、最も適切なものを選べ。 TCP/IPの階層モデルは、アプリケーション層、トランスポート層、インターネット層、ネットワークインターフェース層の四つに分けられる。 Webページの送受信に用いられる（ア）は、アプリケーション層のプロトコルである。また、ネットワークを越えてパケットを宛先まで届けるために用いられる（イ）は、インターネット層のプロトコルである。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>（ア）HTTP （イ）IP</p></li>
+            <li><span>1</span><p>（ア）HTTP （イ）TCP</p></li>
+            <li><span>2</span><p>（ア）TCP （イ）IP</p></li>
+            <li><span>3</span><p>（ア）TCP （イ）UDP</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．（ア）HTTP （イ）IP</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>（ア）はHTTP、（イ）はIPである。HTTPはWebブラウザとWebサーバの間で要求と応答をやり取りするアプリケーション層のプロトコルである。IPは宛先IPアドレスに基づき、複数のネットワークを越えてパケットを届けるインターネット層の役割を担う。 HTTP/1.1やHTTP/2では、HTTPのデータをTCPが運ぶ。HTTP/3ではUDP上で動作するQUICを利用する。いずれの場合も、さらにIPがパケットを宛先へ転送する。このように各階層が役割を分担して通信を成立させている。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：HTTP／IP／TCP／プロトコル</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">TCPの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="TCP"
+          data-limit="5"
+          data-exclude-stem="次の文章の（ア）・（イ）に当てはまる語句の組合せとして、最も適切なものを選べ。 TCP/IPの階層モデルは、アプリケーション層、トランスポート層、インターネット層、ネットワークインターフェース層の四つに分けられる。 Webページの送受信に用いられる（ア）は、アプリケーション層のプロトコルである。また、ネットワークを越えてパケットを宛先まで届けるために用いられる（イ）は、インターネット層のプロトコルである。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=TCP">TCPの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"TCPとは","description":"TCPの役割と、TCP/IPの階層モデル、HTTP・IPとの関係、UDPとの違いを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/tcp/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n35ee6ffc9a46"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"TCP","item":"https://mei-chan-nel.com/terms/tcp/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

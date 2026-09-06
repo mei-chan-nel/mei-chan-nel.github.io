@@ -34,6 +34,7 @@ def read_portal_urls() -> list[str]:
         "about.html",
         "privacy.html",
         "sitemap.html",
+        "terms/index.html",
         "books/index.html",
         "LectureNote/index.html",
         "LectureNote/society.html",
@@ -47,6 +48,10 @@ def read_portal_urls() -> list[str]:
         raise ValueError(f"Video-library build report not found: {report_path}")
     report = json.loads(report_path.read_text(encoding="utf-8"))
     paths.extend(report.get("learning_pages", []))
+    paths.extend(
+        path.relative_to(ROOT).as_posix()
+        for path in sorted((ROOT / "terms").glob("*/index.html"))
+    )
     for relative in paths:
         if not isinstance(relative, str) or not relative:
             raise ValueError(f"Invalid portal path in {report_path}: {relative!r}")

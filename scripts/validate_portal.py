@@ -6,9 +6,12 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
+from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
+
+from generate_term_guides import DEFAULT_TAG_LIST_PATH, TermMetaParser, read_tag_list
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -178,6 +181,35 @@ def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
     return parser
 
 
+def read_term_meta_from_html(text: str) -> tuple[str, str]:
+    parser = TermMetaParser()
+    parser.feed(text)
+    return (
+        parser.values.get("study-atlas-term-tag", "").strip(),
+        parser.values.get("study-atlas-term-summary", "").strip(),
+    )
+
+
+def read_term_index_entries(text: str) -> list[tuple[str, str, str | None]]:
+    entries: list[tuple[str, str, str | None]] = []
+    item_pattern = re.compile(
+        r'<li class="term-list-item (is-linked|is-unlinked)">(.*?)</li>',
+        flags=re.DOTALL,
+    )
+    for kind, content in item_pattern.findall(text):
+        link_match = re.search(r'<a href="([^"]+)">(.*?)</a>', content, flags=re.DOTALL)
+        span_match = re.search(r'<span[^>]*>(.*?)</span>', content, flags=re.DOTALL)
+        if link_match:
+            href, label = link_match.groups()
+        elif span_match:
+            href, label = None, span_match.group(1)
+        else:
+            href, label = None, ""
+        label = unescape(re.sub(r"<[^>]+>", "", label)).strip()
+        entries.append((kind, label, href))
+    return entries
+
+
 def main() -> int:
     global APP_ROOT
     args = parse_args()
@@ -296,11 +328,82 @@ def main() -> int:
     if report.get("course_question_numbers") != expected_course:
         errors.append("video-library-build.json: course_question_numbers are out of sync")
 
+    term_paths = sorted((ROOT / "terms").glob("*/index.html"))
+    term_page_meta: dict[str, tuple[str, str]] = {}
+    for path in term_paths:
+        relative = path.relative_to(ROOT).as_posix()
+        try:
+            term_text = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            errors.append(f"{relative}: cannot read: {exc}")
+            continue
+        tag, summary = read_term_meta_from_html(term_text)
+        if not tag or not summary:
+            errors.append(f"{relative}: term tag and summary metadata are required")
+            continue
+        if tag in term_page_meta:
+            errors.append(f"{relative}: duplicate term tag metadata: {tag}")
+        term_page_meta[tag] = (path.parent.name, summary)
+        if ">例題</h2>" not in term_text:
+            errors.append(f"{relative}: the note confirmation question must be shown as 例題")
+        if "の問題に挑戦</h2>" not in term_text:
+            errors.append(f"{relative}: the common challenge heading is missing")
+        if ">アプリで解く</button>" not in term_text:
+            errors.append(f"{relative}: the common app challenge button is missing")
+        if term_text.count("data-term-challenge-button") != 1 or 'data-limit="5"' not in term_text or 'data-exclude-stem="' not in term_text:
+            errors.append(f"{relative}: the common five-question challenge configuration is missing")
+        if "アプリで類題を解く" in term_text or "challenge=" in term_text:
+            errors.append(f"{relative}: note-specific challenge links or labels remain")
+        if '"@type":"Article"' not in term_text:
+            errors.append(f"{relative}: Article JSON-LD is missing")
+
+    tag_list: list[str] = []
+    try:
+        tag_list = read_tag_list(DEFAULT_TAG_LIST_PATH)
+    except (OSError, ValueError) as exc:
+        errors.append(f"authoritative term tag list could not be loaded: {exc}")
+    term_index_path = ROOT / "terms" / "index.html"
+    term_index_text = term_index_path.read_text(encoding="utf-8") if term_index_path.is_file() else ""
+    term_index_entries = read_term_index_entries(term_index_text)
+    if len(term_index_entries) != len(tag_list):
+        errors.append(f"terms/index.html: expected {len(tag_list)} tags, found {len(term_index_entries)}")
+    if tag_list and [label for _, label, _ in term_index_entries] != tag_list:
+        errors.append("terms/index.html: tag order/content is out of sync with タグ一覧.xlsx")
+    for kind, label, href in term_index_entries:
+        page = term_page_meta.get(label)
+        if page is None:
+            if kind != "is-unlinked" or href is not None:
+                errors.append(f"terms/index.html: unlinked tag is not rendered as text: {label}")
+        elif kind != "is-linked" or href != f"./{page[0]}/":
+            errors.append(f"terms/index.html: linked tag does not use its metadata-derived page URL: {label}")
+    unknown_term_tags = sorted(set(term_page_meta) - set(tag_list))
+    if unknown_term_tags:
+        errors.append("term page tag(s) are not present in タグ一覧.xlsx: " + ", ".join(unknown_term_tags))
+
     page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
     parsers: dict[Path, PageParser] = {}
+    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "使い方", "このサイトについて")
+    expected_footer_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "使い方")
     for path in page_paths:
         try:
-            parsers[path.resolve()] = check_metadata(path, path.read_text(encoding="utf-8"), errors)
+            page_text = path.read_text(encoding="utf-8")
+            nav_match = re.search(r'<nav class="global-nav"[^>]*>(.*?)</nav>', page_text, flags=re.DOTALL)
+            if nav_match is None:
+                errors.append(f"{path.relative_to(ROOT)}: global header navigation is missing")
+            else:
+                nav_text = nav_match.group(1)
+                nav_positions = [nav_text.find(f">{label}</a>") for label in expected_nav_labels]
+                if any(position < 0 for position in nav_positions) or nav_positions != sorted(nav_positions):
+                    errors.append(f"{path.relative_to(ROOT)}: global header navigation is missing or out of order")
+            footer_match = re.search(r'<nav aria-label="フッターナビゲーション">(.*?)</nav>', page_text, flags=re.DOTALL)
+            if footer_match is None:
+                errors.append(f"{path.relative_to(ROOT)}: global footer navigation is missing")
+            else:
+                footer_text = footer_match.group(1)
+                footer_positions = [footer_text.find(f">{label}</a>") for label in expected_footer_labels]
+                if any(position < 0 for position in footer_positions) or footer_positions != sorted(footer_positions):
+                    errors.append(f"{path.relative_to(ROOT)}: global footer navigation is missing or out of order")
+            parsers[path.resolve()] = check_metadata(path, page_text, errors)
         except OSError as exc:
             errors.append(f"{path.relative_to(ROOT)}: cannot read: {exc}")
     for source, parser in parsers.items():
@@ -312,13 +415,26 @@ def main() -> int:
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     main_match = re.search(r'<main id="main-content">(.*?)</main>', top_text, flags=re.DOTALL)
     main_text = main_match.group(1) if main_match else ""
+    if '<h2 id="home-actions-heading">他に何をしますか？</h2>' not in top_text:
+        errors.append("index.html: home action heading is missing or outdated")
     class_positions = [main_text.find(marker) for marker in ('class="hero"', 'class="section section-app"', 'class="section home-actions-section"', 'class="section home-misc-section"')]
     if any(position < 0 for position in class_positions) or class_positions != sorted(class_positions):
         errors.append("index.html: required top-page section order is missing")
     hero_map_match = re.search(r'<div class="hero-map"[^>]*>.*?</div>\s*</div>', top_text, flags=re.DOTALL)
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
-    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./study-guide.html", "./books/"):
+    action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
+    expected_actions = ("用語を調べる", "問題を探す", "解説動画を見る", "講義ノートを読む")
+    if action_match is None:
+        errors.append("index.html: home action card grid is missing")
+    else:
+        action_text = action_match.group(1)
+        action_positions = [action_text.find(f"<h3>{label}</h3>") for label in expected_actions]
+        if any(position < 0 for position in action_positions) or action_positions != sorted(action_positions):
+            errors.append("index.html: home action cards are missing or out of order")
+        if 'href="./terms/"' not in action_text:
+            errors.append("index.html: the 用語を調べる card must link to ./terms/")
+    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./study-guide.html", "./books/", "./terms/"):
         if f'href="{href}"' not in top_text:
             errors.append(f"index.html: primary link is missing: {href}")
     archive_index_text = (ROOT / "archive" / "index.html").read_text(encoding="utf-8")
@@ -358,10 +474,11 @@ def main() -> int:
     if len(sitemap_urls) != len(set(sitemap_urls)):
         errors.append("sitemap.xml contains duplicate URLs")
     expected_portal_paths = [
-        "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "books/index.html",
+        "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
         "LectureNote/statistics.html", "LectureNote/programming.html", *report.get("learning_pages", []),
     ]
+    expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []
     app_report_path = APP_ROOT / "docs" / "reports" / "question-library-build.json"
     if app_report_path.is_file():
@@ -389,6 +506,9 @@ def main() -> int:
         "archive_html": len(archive_html),
         "normal_video_questions": len(rendered_normal),
         "shortest_course_questions": len(course_rendered),
+        "term_pages": len(term_paths),
+        "term_index_tags": len(tag_list),
+        "term_index_linked": sum(label in term_page_meta for label in tag_list),
         "field_counts": field_counts,
         "genre_counts": genre_counts,
         "sitemap_urls": len(sitemap_urls),

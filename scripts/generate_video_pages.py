@@ -143,6 +143,7 @@ def header(current: str) -> str:
         ("home", "../", "トップページ"),
         ("app", "../info1-quiz-app/app/", "学習アプリ"),
         ("questions", "../info1-quiz-app/questions/", "問題を探す"),
+        ("terms", "../terms/", "用語一覧"),
         ("archive", "./", "解説動画"),
         ("lecture", "../LectureNote/", "講義ノート"),
         ("study", "../study-guide.html", "使い方"),
@@ -173,6 +174,7 @@ def footer() -> str:
           <a href="../">トップページ</a>
           <a href="../info1-quiz-app/app/">学習アプリ</a>
           <a href="../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../terms/">用語一覧</a>
           <a href="./">解説動画</a>
           <a href="../LectureNote/">講義ノート</a>
           <a href="../study-guide.html">使い方</a>

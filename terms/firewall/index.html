@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ファイアウォールとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="ファイアウォールの役割と設置場所、ルータやプロキシサーバとの違い、単独では十分でない理由を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ファイアウォール" />
+    <meta name="study-atlas-term-summary" content="ファイアウォールは、ネットワーク間の通信を監視し、設定した条件に基づいて通過・遮断する仕組みです。設置場所や限界を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ファイアウォールとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="ファイアウォールの役割と設置場所、ルータやプロキシサーバとの違い、単独では十分でない理由を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/firewall/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/firewall/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ファイアウォール</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">ファイアウォール</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「ファイアウォール」とは</h2>
+          <p><strong>ファイアウォール（Firewall）</strong>とは、コンピュータやネットワークに届く通信を確認し、<strong>通してよい通信だけを通す仕組み</strong>です。</p>
+          <p>火事が広がるのを防ぐ「防火壁（firewall）」という意味です。コンピュータの世界では、インターネットから送られてくる不審な通信を防ぐ「壁」のような役割をします。</p>
+          <h3>ファイアウォールは何をしているのか</h3>
+          <p>インターネットに接続すると、コンピュータはさまざまな機器と通信します。<br>例えば、Webサイトを見るときには、コンピュータからWebサーバへ情報を求める通信を送り、Webサーバからページのデータを受け取ります。<br>しかし、インターネットから届く通信が、すべて安全とは限りません。中には、コンピュータへ不正に接続しようとする通信もあります。<br>そこでファイアウォールは、あらかじめ決められたルールに従って通信を確認します。</p>
+          <figure class="term-note-figure"><blockquote><p>・必要な通信は通す<br>・不要な通信や不審な通信は止める</p></blockquote></figure>
+          <p>つまり、ファイアウォールの主な役割は、<strong>ネットワーク通信を許可または遮断すること</strong>です。</p>
+          <h3>建物の入口に例えると</h3>
+          <p>ファイアウォールは、建物の入口にいる警備員のようなものです。<br>警備員は、建物に入ろうとする人を確認します。</p>
+          <figure class="term-note-figure"><blockquote><p>・入ってよい人は通す<br>・入ってはいけない人は止める</p></blockquote></figure>
+          <p>ファイアウォールも同じように、コンピュータへ届く通信を確認します。<br>ただし、ファイアウォールが確認するのは人ではなく、通信の送信元や宛先、通信の種類などです。<br>たとえば、次の通信などを遮断します。</p>
+          <figure class="term-note-figure"><blockquote><p>・外部から送られてくる不要な通信<br>・許可していない相手からの通信<br>・外部に公開していないサービスへのアクセス<br>・決められたルールに反する通信</p></blockquote></figure>
+          <h3>ファイアウォールの設置場所</h3>
+          <p>ファイアウォールは、主に次のような場所にあります。</p>
+          <h3>ルータのファイアウォール</h3>
+          <p>家庭や学校では、LANとインターネットの間にルータが置かれています。<br>多くのルータにはファイアウォールの機能があり、インターネットからLANへ送られてくる不要な通信を制限しています。</p>
+          <figure class="term-note-figure"><blockquote><p>・<strong>ルータ</strong>：通信をどこへ送るか決める<br>・<strong>ファイアウォール</strong>：通信を通してよいか決める</p></blockquote></figure>
+          <p>実際には、1台の機器が両方の役割を担当していることがあります。</p>
+          <h3>パソコンのファイアウォール</h3>
+          <p>WindowsなどのOSにも、ファイアウォールの機能があります。<br>これを<strong>パーソナルファイアウォール</strong>といいます。<br>パーソナルファイアウォールは、外部からそのパソコンへ送られてくる不要な通信を制限します。<br>パソコンをインターネットへ直接接続するときや、公共のWi-Fiを利用するときにも重要な機能です。</p>
+          <h3>ファイアウォールだけでは安全といえない</h3>
+          <p>ファイアウォールを使っていても、すべての危険を防げるわけではありません。<br>例えば、ファイアウォールには次のようなことはできません。</p>
+          <figure class="term-note-figure"><blockquote><p>・すべてのマルウェアを必ず発見して削除する<br>・ソフトウェアの欠陥そのものを修正する<br>・利用者が入力したパスワードの誤りを直す<br>・ファイルを必ず暗号化して保存する<br>・利用者が偽のWebサイトにだまされるのを完全に防ぐ</p></blockquote></figure>
+          <p>ファイアウォールは、主に<strong>ネットワーク通信を制御する仕組み</strong>です。<br>そのため、コンピュータを安全に利用するには、次のような対策も必要です。</p>
+          <figure class="term-note-figure"><blockquote><p>・OSやアプリを更新する<br>・マルウェア対策ソフトを利用する<br>・推測されにくいパスワードを使う<br>・不審なリンクや添付ファイルを開かない<br>・大切なデータをバックアップする</p></blockquote></figure>
+          <h3>プロキシサーバとの違い</h3>
+          <p>ファイアウォールと間違えやすいものに、<strong>プロキシサーバ</strong>があります。<br>プロキシサーバは、利用者に代わってWebサイトなどへアクセスし、通信を中継する仕組みです。<br>一方、ファイアウォールは、決められたルールに従って、通信を通すか止めるかを判断します。</p>
+          <figure class="term-note-figure"><blockquote><p>・<strong>プロキシサーバ</strong>：通信を代わりに中継する<br>・<strong>ファイアウォール</strong>：通信を許可または遮断する</p></blockquote></figure>
+          <p>どちらにも通信を管理する機能がありますが、基本的な役割は異なります。</p>
+          <h2><br></h2>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ファイアウォール · EXAMPLE</span><span>ITパスポートH21春期 問74（改題）</span></div>
+          <h3>インターネットから内部ネットワークへの不正なアクセスを防ぐため，両者の間に置く機器やソフトウェアとして最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>DNSサーバ</p></li>
+            <li><span>1</span><p>WAN</p></li>
+            <li><span>2</span><p>ファイアウォール</p></li>
+            <li><span>3</span><p>ルータ</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．ファイアウォール</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ファイアウォールは，外部ネットワークと内部ネットワークの境界で通信を制御し，不正なアクセスを防ぐために使われる。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH21春期 問74（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：Firewall／ファイアウォール／不正アクセス／ネットワーク／DNS／ルータ</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ファイアウォールの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ファイアウォール"
+          data-limit="5"
+          data-exclude-stem="インターネットから内部ネットワークへの不正なアクセスを防ぐため，両者の間に置く機器やソフトウェアとして最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ファイアウォール">ファイアウォールの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ファイアウォールとは","description":"ファイアウォールの役割と設置場所、ルータやプロキシサーバとの違い、単独では十分でない理由を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/firewall/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n98cb438fcc41"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ファイアウォール","item":"https://mei-chan-nel.com/terms/firewall/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

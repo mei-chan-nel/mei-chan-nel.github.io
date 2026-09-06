@@ -26,26 +26,30 @@
   const pagePath = window.location.pathname.toLowerCase();
   const siteRootPath = siteRoot.pathname.endsWith("/") ? siteRoot.pathname : `${siteRoot.pathname}/`;
   const homePaths = new Set([siteRootPath.toLowerCase(), `${siteRootPath}index.html`.toLowerCase()]);
-  const activeSection = pagePath.includes("/info1-quiz-app/app/") || /^\/app\//.test(pagePath)
-    ? "app"
-    : pagePath.includes("/info1-quiz-app/questions/") || /^\/questions\//.test(pagePath)
-      ? "questions"
-      : pagePath.includes("/archive/")
-        ? "archive"
-        : pagePath.includes("/lecturenote/")
-          ? "lecture"
-          : pagePath.endsWith("/study-guide.html")
-            ? "study"
-            : pagePath.endsWith("/about.html")
-              ? "about"
-              : homePaths.has(pagePath)
-                ? "home"
-                : "";
+  const activeSection =
+    pagePath.includes("/info1-quiz-app/app/") || /^\/app\//.test(pagePath)
+      ? "app"
+      : pagePath.includes("/info1-quiz-app/questions/") || /^\/questions\//.test(pagePath)
+        ? "questions"
+        : pagePath.includes("/terms/") || /^\/terms\//.test(pagePath)
+          ? "terms"
+          : pagePath.includes("/archive/")
+            ? "archive"
+            : pagePath.includes("/lecturenote/")
+              ? "lecture"
+              : pagePath.endsWith("/study-guide.html")
+                ? "study"
+                : pagePath.endsWith("/about.html")
+                  ? "about"
+                  : homePaths.has(pagePath)
+                    ? "home"
+                    : "";
 
   const navItems = [
     ["home", siteUrl(""), "トップページ"],
     ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
     ["questions", siteUrl("info1-quiz-app/questions/"), "問題を探す"],
+    ["terms", siteUrl("terms/"), "用語一覧"],
     ["archive", siteUrl("archive/"), "解説動画"],
     ["lecture", siteUrl("LectureNote/"), "講義ノート"],
     ["study", siteUrl("study-guide.html"), "使い方"],
@@ -97,6 +101,7 @@
           <a href="${siteUrl("")}">トップページ</a>
           <a href="${siteUrl("info1-quiz-app/app/")}">学習アプリ</a>
           <a href="${siteUrl("info1-quiz-app/questions/")}">問題を探す</a>
+          <a href="${siteUrl("terms/")}">用語一覧</a>
           <a href="${siteUrl("archive/")}">解説動画</a>
           <a href="${siteUrl("LectureNote/")}">講義ノート</a>
           <a href="${siteUrl("study-guide.html")}">使い方</a>

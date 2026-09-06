@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>フールプルーフ・フェイルセーフとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="フールプルーフとフェイルセーフの意味、具体例、二つの考え方の違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="フールプルーフ・フェイルセーフ" />
+    <meta name="study-atlas-term-summary" content="フールプルーフは人が誤操作しても安全にする設計、フェイルセーフは故障時に安全側へ動作させる設計です。二つの違いを学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="フールプルーフ・フェイルセーフとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="フールプルーフとフェイルセーフの意味、具体例、二つの考え方の違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/foolproof-failsafe/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/foolproof-failsafe/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">フールプルーフ・フェイルセーフ</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">フールプルーフ・フェイルセーフ</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「フールプルーフ・フェイルセーフ」とは</h2>
+          <p>機械や情報システムを安全に使うためには、<strong>人が操作を間違えること</strong>や、<strong>機械が故障すること</strong>をあらかじめ想定して設計することが大切です。</p>
+          <p>その代表的な考え方が、<strong>フールプルーフ</strong>と<strong>フェイルセーフ</strong>です。</p>
+          <h3>フールプルーフ</h3>
+          <p><strong>フールプルーフ（foolproof）</strong>は、利用者が誤った操作をしても、事故や故障につながりにくいようにする考え方です（バカにも安全）。</p>
+          <p>例えば、電子レンジは扉が開いたままでは加熱を始められません。利用者が誤って扉を開けた状態でスタートボタンを押しても、危険な動作が起こらないようになっています。</p>
+          <p>ほかにも、</p>
+          <ul><li><p>間違った向きでは差し込めないコネクタ</p></li><li><p>必要な項目を入力しなければ次の画面へ進めない入力フォーム</p></li><li><p>危険な操作をするときに確認画面を表示するシステム</p></li></ul>
+          <p>などがフールプルーフの例です。</p>
+          <p>つまり、</p>
+          <p><strong>「人は間違えるものだから、間違えても危険にならないようにする」</strong></p>
+          <p>という考え方です。</p>
+          <h3>フェイルセーフ</h3>
+          <p><strong>フェイルセーフ（fail-safe）</strong>は、機械やシステムに故障や異常が起きたとき、安全な状態になるようにする考え方です（壊れても安全）。</p>
+          <p>例えば、工場で動いているロボットの安全確認用センサが故障したとします。このとき、</p>
+          <p>「センサが壊れているので、人がいるかどうか分からないが、そのままロボットを動かす」</p>
+          <p>のでは危険です。</p>
+          <p>そこで、センサの故障を検知したら<strong>ロボットを停止させる</strong>ようにします。</p>
+          <p>鉄道でも、信号装置に異常が発生した場合には、列車を進ませるのではなく、停止を指示する側にする設計があります。</p>
+          <p>つまり、</p>
+          <p><strong>「故障することはあるので、故障したときには安全な側へ動かす」</strong></p>
+          <p>という考え方です。</p>
+          <h3>二つの違い</h3>
+          <p>フールプルーフとフェイルセーフは、どちらも事故を防ぐための考え方ですが、主に想定している原因が異なります。</p>
+          <p>考え方主に想定するもの設計の考え方フールプルーフ人の操作ミス間違った操作をしても危険になりにくくするフェイルセーフ機械やシステムの故障・異常故障したとき安全な状態にする</p>
+          <p>覚えるときは、</p>
+          <p><strong>フールプルーフ → 人が間違えても安全</strong><br><strong>フェイルセーフ → 機械が壊れても安全</strong></p>
+          <p>と区別すると分かりやすいでしょう。</p>
+          <p>実際の機器では、両方の考え方を組み合わせて安全性を高めることもあります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>フールプルーフ・フェイルセーフ · EXAMPLE</span><span>基本情報技術者H26春期午前 問18（改題）</span></div>
+          <h3>工場のロボットで、人が作業範囲に入ったことを検知するセンサが故障したと判断したとき、ロボットを強制的に停止させる設計にした。この考え方として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>フェイルセーフ</p></li>
+            <li><span>1</span><p>フールプルーフ</p></li>
+            <li><span>2</span><p>暗号化</p></li>
+            <li><span>3</span><p>バックアップ</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．フェイルセーフ</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>フェイルセーフは、故障や異常が起きたときに安全側に動作するようにする考え方である。センサ異常時にロボットを止めるのはこの例である。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>基本情報技術者H26春期午前 問18（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：フールプルーフ・フェイルセーフ／情報セキュリティ</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">フールプルーフ・フェイルセーフの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="フールプルーフ・フェイルセーフ"
+          data-limit="5"
+          data-exclude-stem="工場のロボットで、人が作業範囲に入ったことを検知するセンサが故障したと判断したとき、ロボットを強制的に停止させる設計にした。この考え方として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=フールプルーフ・フェイルセーフ">フールプルーフ・フェイルセーフの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"フールプルーフ・フェイルセーフとは","description":"フールプルーフとフェイルセーフの意味、具体例、二つの考え方の違いを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/foolproof-failsafe/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n98d99b90b906"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"フールプルーフ・フェイルセーフ","item":"https://mei-chan-nel.com/terms/foolproof-failsafe/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

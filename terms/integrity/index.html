@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>完全性とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="情報セキュリティの三要素の一つである完全性について、改ざんや不正な書換えの例を使って高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="完全性" />
+    <meta name="study-atlas-term-summary" content="完全性は、情報が正確で、改ざんされていない状態を保つ性質です。情報セキュリティの三要素における完全性の意味を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="完全性とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="情報セキュリティの三要素の一つである完全性について、改ざんや不正な書換えの例を使って高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/integrity/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/integrity/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">完全性</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">完全性</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「完全性」とは</h2>
+          <p><strong>完全性（Integrity）とは、情報が正確であり、勝手に書き換えられたり、誤って変更されたりしていない状態を保つこと</strong>です。</p>
+          <p>情報セキュリティでは、特に重要な性質として、次の三つが挙げられます。</p>
+          <figure class="term-note-figure"><img src="https://assets.st-note.com/img/1786999451-258NTflWGB4zsRir3xhHdqDY.png?width=1200" alt="" width="620" height="157" loading="lazy"></figure>
+          <p>この三つを、それぞれの英語の頭文字から<strong>CIA</strong>（Confidentiality・Integrity・Availability）と呼ぶことがあります。</p>
+          <p>「悪意のある改ざん」だけでなく、例えば、入力ミスによって顧客名簿に誤った情報が登録されたり、通信途中の障害によってデータの一部が変化したりする場合も、情報の正確さが失われているため、完全性が損なわれた状態といえます。</p>
+          <p>完全性を守るためには、<strong>利用者ごとに書き換えられる範囲を制限する</strong>、<strong>変更履歴を記録する</strong>、<strong>ハッシュ値を利用してデータが変化していないか確認する</strong>などの方法があります。</p>
+          <p>また、<strong>デジタル署名</strong>を利用すると、署名後に文書やファイルが変更されていないかを確認できます。そのため、デジタル署名は情報の完全性を確認するための代表的な技術の一つです。</p>
+          <p>例えば、Webページの内容を第三者が無断で書き換えた場合、情報そのものが変更されているので<strong>完全性</strong>が損なわれます。一方、そのページの非公開情報を盗み見られた場合は<strong>機密性</strong>、サーバが停止してページを閲覧できなくなった場合は<strong>可用性</strong>が損なわれたと考えます。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>完全性 · EXAMPLE</span><span>情報セキュリティマネジメントH28秋期午前 問18（改題）</span></div>
+          <h3>情報セキュリティでいう完全性が損なわれる例として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>Webページの内容が無断で書き換えられる</p></li>
+            <li><span>1</span><p>保存されている秘密データが不正にコピーされる</p></li>
+            <li><span>2</span><p>大量の通信でサーバが過負荷になり、利用できなくなる</p></li>
+            <li><span>3</span><p>通信内容を第三者に盗聴される</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．Webページの内容が無断で書き換えられる</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>完全性は、情報が正確で改ざんされていない性質である。Webページの無断改ざんは完全性を損なう。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>情報セキュリティマネジメントH28秋期午前 問18（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：完全性／改竄／情報セキュリティ</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">完全性の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="完全性"
+          data-limit="5"
+          data-exclude-stem="情報セキュリティでいう完全性が損なわれる例として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=完全性">完全性の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"完全性とは","description":"情報セキュリティの三要素の一つである完全性について、改ざんや不正な書換えの例を使って高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/integrity/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n083c8ed31b51"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"完全性","item":"https://mei-chan-nel.com/terms/integrity/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

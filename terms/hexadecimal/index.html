@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>16進数とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="16進数の仕組みと、10進数・2進数との相互変換を、位取りと計算例を使って高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="16進数" />
+    <meta name="study-atlas-term-summary" content="16進数は、0～9とA～Fの16種類の記号を使って数を表す方法です。10進数や2進数との変換方法を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="16進数とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="16進数の仕組みと、10進数・2進数との相互変換を、位取りと計算例を使って高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/hexadecimal/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/hexadecimal/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">16進数</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">16進数</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「16進数」とは</h2>
+          <p>16進数は、<strong>0～9、A～Fの16種類の記号を使って数を表す位取り記数法</strong>である。</p>
+          <figure class="term-note-figure"><img src="https://assets.st-note.com/img/1788294472-CRm1x3yjBMEZA2azfinslXO9.png" alt="" width="599" height="1132" loading="lazy"></figure>
+          <h3>16進数を10進数に変換する</h3>
+          <p><strong>10進数では、右から順に1の位（10⁰）、10の位（10¹）、100の位（10²）……</strong>となる。<br>たとえば、10進数で2026＝2×10³＋0×10²＋2×10¹＋6×10⁰というふうに桁どりして理解ができる。</p>
+          <p>16進数では1の位（16⁰）、16の位（16¹）、256（16²）の位……となる。</p>
+          <p>例えば、</p>
+          <p>82₁₆＝8×16¹＋2×16⁰のことで、10進数では130である。</p>
+          <p>同様に、3C₁₆では16進数でCは10進数の12なので、</p>
+          <p>3C₁₆＝3×16¹＋12×16⁰＝60₁₀となる。</p>
+          <h3>16進数と2進数の関係</h3>
+          <p>16進数から2進数へ変換するときは、16進数を10進数に直してから2進数にするとよい。<br>たとえば、6D₁₆＝6×16¹＋D×16⁰＝6×16＋13×1＝109であり、2進数にすると1101101₂である。</p>
+          <p>16＝2⁴なので、<strong>16進数1桁は2進数4ビットとちょうど対応する</strong>ので、<br>6D₁₆＝6×16¹＋D×16⁰＝6×2⁴＋13×2⁰＝101₂×2⁴＋1101₂×2⁰＝1010000₂＋1101₂＝1101101₂とも計算できる。<br></p>
+          <h3>2進数を16進数に変換する</h3>
+          <p>逆に、2進数から16進数へ変換するときは、<strong>右端から4ビットずつ区切る</strong>。</p>
+          <p>例えば、</p>
+          <p>101101100011₂</p>
+          <p>を4ビットずつ区切ると、</p>
+          <p>1011｜0110｜0011</p>
+          <p>となる。</p>
+          <p>それぞれ、を16進数にする。いきなり16進数にするのが難しい場合は、一度10進数にしてから16進数にするとよい。</p>
+          <p>1011₂＝1×2³＋0×2²＋1×2¹＋1×2⁰＝8＋2＋1＝11₁₀＝B₁₆<br>0110₂＝6₁₀＝6₁₆<br>0011₂＝3₁₀＝3₁₆</p>
+          <p>なので、これを順番に並べて、</p>
+          <p><strong>101101100011₂＝B63₁₆</strong></p>
+          <p>となる。</p>
+          <p>左端が4ビットに満たない場合は、左側に0を補って考えてよい。<br>例えば、1011011₂なら0101｜1011₂として、5B₁₆と変換できる。</p>
+          <p>このように16進数は、長くなりやすい2進数を短く表せる。特に、<strong>2進数4ビット＝16進数1桁</strong>という対応を理解しておくと、2進数と16進数の相互変換を素早く行うことができる。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>16進数 · EXAMPLE</span><span>オリジナル問題</span></div>
+          <h3>16進数82を10進数で表したものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>130</p></li>
+            <li><span>1</span><p>82</p></li>
+            <li><span>2</span><p>128</p></li>
+            <li><span>3</span><p>132</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．130</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>16進数82は、8×16＋2＝130である。上位桁の8は16の位、下位桁の2は1の位を表す。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル問題</dd></dl>
+              <p class="term-related-keywords">関連キーワード：16進数／デジタル</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">16進数の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="16進数"
+          data-limit="5"
+          data-exclude-stem="16進数82を10進数で表したものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=16進数">16進数の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"16進数とは","description":"16進数の仕組みと、10進数・2進数との相互変換を、位取りと計算例を使って高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/hexadecimal/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n46d38970c944"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"16進数","item":"https://mei-chan-nel.com/terms/hexadecimal/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

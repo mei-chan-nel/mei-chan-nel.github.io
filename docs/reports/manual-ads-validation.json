@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-08-31",
+  "validated_on": "2026-09-06",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 29,
+  "target_pages": 63,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -338,6 +338,312 @@
         3,
         6,
         9
+      ]
+    },
+    {
+      "path": "terms/accessibility/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/ai/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/availability/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/big-data/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/common-key-encryption/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/cpu/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/credibility/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/digital-certificate/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/digital-divide/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/filtering/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/firewall/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/foolproof-failsafe/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/hexadecimal/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/integrity/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/iot/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/ipv4/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/lan/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/machine-learning/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/media/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/media-literacy/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/memory/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/os/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/phishing/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/protocol/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/public-key-encryption/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/ransomware/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/server/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/sns/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/social-media/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/sort-algorithm/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/tcp/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/unauthorized-access-prevention-law/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/usability/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/wi-fi/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
       ]
     },
     {

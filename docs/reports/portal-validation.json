@@ -1,9 +1,12 @@
 {
   "status": "pass",
-  "html_pages_checked": 35,
+  "html_pages_checked": 70,
   "archive_html": 23,
   "normal_video_questions": 330,
   "shortest_course_questions": 27,
+  "term_pages": 34,
+  "term_index_tags": 242,
+  "term_index_linked": 34,
   "field_counts": {
     "information-society": 32,
     "information-design": 33,
@@ -34,7 +37,7 @@
     "programming-functions": 5,
     "programming-simulation": 8
   },
-  "sitemap_urls": 37,
+  "sitemap_urls": 72,
   "errors": [],
   "warnings": [],
   "checks": [

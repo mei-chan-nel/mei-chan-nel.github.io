@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ソートアルゴリズムとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="ソートアルゴリズム（整列アルゴリズム）の意味や、バブルソート、選択ソート、複数条件での並べ替えを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ソートアルゴリズム" />
+    <meta name="study-atlas-term-summary" content="ソートアルゴリズムは、複数のデータを決められた基準で並べ替える具体的な手順です。バブルソートや選択ソートなどの特徴を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ソートアルゴリズムとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="ソートアルゴリズム（整列アルゴリズム）の意味や、バブルソート、選択ソート、複数条件での並べ替えを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/sort-algorithm/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/sort-algorithm/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ソートアルゴリズム</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · PROGRAMMING</p>
+        <h1 id="term-heading">ソートアルゴリズム</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「ソートアルゴリズム」とは</h2>
+          <p><strong>ソート（sort）</strong>とは、複数のデータを、決められた基準に従って一定の順序に並べ替えることである。<br>数値を小さい順に並べる昇順、大きい順に並べる降順のほか、文字列を文字コード順に並べることなどもソートに含まれる。この並べ替えを実現する具体的な手順を<strong>ソートアルゴリズム（整列アルゴリズム）</strong>という。</p>
+          <p>例えば、</p>
+          <p>[2, 4, 1, 3]</p>
+          <p>を昇順にすると、</p>
+          <p>[1, 2, 3, 4]</p>
+          <p>となる。同じ結果を得る場合でも、どの要素をどの順番で比較し、どのように移動させるかによって、さまざまなソートアルゴリズムがある。</p>
+          <h3>バブルソート</h3>
+          <p>代表的な方法の一つが<strong>バブルソート</strong>である。隣り合う二つの要素を比較し、並べたい順序と逆になっていれば交換する。この比較・交換を端まで繰り返す。</p>
+          <p>例えば、[2, 4, 1, 3]を昇順にするため左から比較すると、</p>
+          <ul><li><p>2と4：そのまま</p></li><li><p>4と1：交換 → [2, 1, 4, 3]</p></li><li><p>4と3：交換 → [2, 1, 3, 4]</p></li></ul>
+          <p>となり、1回の走査によって大きな値である4が末尾まで移動する。<br>最大値である4が末尾に移動する。<br>[2, 1, 3, 4] の [2, 1, 3] の部分について、さらに同じ処理を未整列の部分に繰り返すと、</p>
+          <ul><li><p>2と1：交換→ [1, 2, 3, 4]</p></li><li><p>2と3：そのまま</p></li></ul>
+          <p>となり、[1, 2, 3, 4] となる。</p>
+          <p>このように、<strong>「隣り合う要素を比較し、逆なら交換する」</strong>のがバブルソートの重要な特徴である。</p>
+          <p>要素数をNとし、途中で整列済みかどうかを判定せず、毎回すべての比較を行う基本的なバブルソートでは、比較回数は</p>
+          <p class="term-formula">(N−1) + (N−2) + … + 1</p>
+          <p>となる。これは1からN−1までの和なので、</p>
+          <p class="term-formula">N(N−1) / 2</p>
+          <p>回である。そのため、要素数が増えると比較回数はおおよそN²に比例して増える。</p>
+          <h3>選択ソート</h3>
+          <p>もう一つの代表例が<strong>選択ソート</strong>である。選択ソートでは、未整列の部分から最小値を探し、それを未整列部分の先頭に移す操作を繰り返す。</p>
+          <p>例えば、</p>
+          <p>[3, 5, 1, 2, 4]</p>
+          <p>を昇順にすると、</p>
+          <ol><li><p>全体から最小値1を選ぶ → [1, 5, 3, 2, 4]</p></li><li><p>残りから最小値2を選ぶ → [1, 2, 3, 5, 4]</p></li><li><p>残りから最小値3を選ぶ → [1, 2, 3, 5, 4]</p></li></ol>
+          <p>となる。</p>
+          <h3>複数の条件によるソート</h3>
+          <p>表形式のデータでは、複数の項目を使って並べ替えることもある。<br>このとき、最も優先する項目を<strong>第1キー</strong>、その値が同じ場合に使う項目を<strong>第2キー</strong>などという。</p>
+          <p>例えば、得点表を</p>
+          <ol><li><p>得点の高い順</p></li><li><p>得点が同じなら氏名の文字コード順</p></li></ol>
+          <p>に並べたい場合、</p>
+          <ul><li><p>第1キー：得点の<strong>降順</strong></p></li><li><p>第2キー：氏名の<strong>昇順</strong></p></li></ul>
+          <p>と指定する。</p>
+          <p>第2キーは、<strong>第1キーの値が同じデータ同士の順番を決めるために使われる</strong>。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ソートアルゴリズム · EXAMPLE</span><span>ITパスポートR5公開問題 問60（改題）</span></div>
+          <h3>配列 [2, 4, 1, 3] に対して、左から隣り合う要素を比べ、左の値が大きければ入れ替える操作を末尾に向かって繰り返す。この操作を必要な回数繰り返して昇順に並べた結果はどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>[1, 2, 3, 4]</p></li>
+            <li><span>1</span><p>[1, 3, 2, 4]</p></li>
+            <li><span>2</span><p>[3, 1, 4, 2]</p></li>
+            <li><span>3</span><p>[4, 3, 2, 1]</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．[1, 2, 3, 4]</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>隣り合う要素を比べて必要なら入れ替える処理を繰り返すと、小さい値が前へ、大きい値が後ろへ移動し、最終的に[1, 2, 3, 4]となる。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートR5公開問題 問60（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ソートアルゴリズム／配列・リスト</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ソートアルゴリズムの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ソートアルゴリズム"
+          data-limit="5"
+          data-exclude-stem="配列 [2, 4, 1, 3] に対して、左から隣り合う要素を比べ、左の値が大きければ入れ替える操作を末尾に向かって繰り返す。この操作を必要な回数繰り返して昇順に並べた結果はどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ソートアルゴリズム">ソートアルゴリズムの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ソートアルゴリズムとは","description":"ソートアルゴリズム（整列アルゴリズム）の意味や、バブルソート、選択ソート、複数条件での並べ替えを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/sort-algorithm/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n28661e0aed57"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ソートアルゴリズム","item":"https://mei-chan-nel.com/terms/sort-algorithm/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

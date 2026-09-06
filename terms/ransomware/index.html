@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ランサムウェアとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="ランサムウェアの被害の仕組みと、重要なデータのバックアップなど基本的な対策を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ランサムウェア" />
+    <meta name="study-atlas-term-summary" content="ランサムウェアは、ファイルを暗号化するなどして利用できなくし、復旧と引き換えに金銭を要求するマルウェアです。基本的な備えを学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ランサムウェアとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="ランサムウェアの被害の仕組みと、重要なデータのバックアップなど基本的な対策を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/ransomware/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/ransomware/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ランサムウェア</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">ランサムウェア</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「ランサムウェア」とは</h2>
+          <p><strong>ランサムウェア（ransomware）</strong>は、コンピュータやサーバーのデータを暗号化して使えなくし、元に戻すことと引き換えに金銭を要求するマルウェアです。</p>
+          <ul><li><p>ransom：身代金</p></li><li><p>software：ソフトウェア</p></li></ul>
+          <p>を組み合わせた名称です。</p>
+          <p>近年は、暗号化する前に情報を盗み、「支払わなければ公開する」と脅す二重恐喝も多く見られます。</p>
+          <h2>日本で相次いだ大規模ランサムウェア被害</h2>
+          <p>近年、日本国内でも、企業の事業活動を長期間停止させる大規模なランサムウェア被害が相次いでいます。代表的な事例を時系列で確認します。</p>
+          <h3>2024年6月：ニコニコ動画</h3>
+          <p>2024年6月8日、KADOKAWAグループが大規模なサイバー攻撃を受け、ニコニコ動画をはじめとする複数のサービスが停止しました。<br>攻撃にはランサムウェアが含まれており、サービスの停止だけでなく、個人情報や社内情報の流出も発生しました。ニコニコ動画の主要サービスが再開したのは、約2か月後の8月5日です。</p>
+          <h3>2025年9月：アサヒグループ</h3>
+          <p>2025年9月29日、アサヒグループの国内システムに障害が発生しました。<br>サイバー攻撃の影響により、商品の受注や出荷を行うシステムが停止し、一部の業務を手作業で処理する事態となりました。その後の調査では、個人情報が流出した可能性も明らかになっています。</p>
+          <h3>2025年10月：アスクル</h3>
+          <p>2025年10月19日、アスクルがランサムウェアに感染し、法人向け通販サービスのASKULや、個人向け通販サービスのLOHACOなどが一時停止しました。<br>商品の注文や出荷に影響が出ただけでなく、顧客や取引先に関する情報の流出も発生しました。システムは一度に全面復旧したのではなく、安全性を確認しながら段階的に復旧が進められました。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ランサムウェア · EXAMPLE</span><span>ITパスポートR8公開問題 問63（改題）</span></div>
+          <h3>ランサムウェアによってファイルが暗号化され使えなくなる被害を小さくするための基本的な備えとして、最も適切なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>重要なデータをバックアップしておく</p></li>
+            <li><span>1</span><p>画面の解像度を上げる</p></li>
+            <li><span>2</span><p>ファイル名を短くする</p></li>
+            <li><span>3</span><p>メールの件名を変更する</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．重要なデータをバックアップしておく</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ランサムウェアはファイルを暗号化するなどして利用できなくするため、事前にバックアップを取っておくことが被害低減に有効である。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートR8公開問題 問63（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ランサムウェア／バックアップ／情報セキュリティ</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ランサムウェアの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ランサムウェア"
+          data-limit="5"
+          data-exclude-stem="ランサムウェアによってファイルが暗号化され使えなくなる被害を小さくするための基本的な備えとして、最も適切なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ランサムウェア">ランサムウェアの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ランサムウェアとは","description":"ランサムウェアの被害の仕組みと、重要なデータのバックアップなど基本的な対策を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/ransomware/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n100999231c2f"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ランサムウェア","item":"https://mei-chan-nel.com/terms/ransomware/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

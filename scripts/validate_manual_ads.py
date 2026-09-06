@@ -126,6 +126,34 @@ def main() -> int:
             "positions_after": actual_positions,
         })
 
+    term_paths = sorted((ROOT / "terms").glob("*/index.html"))
+    for path in term_paths:
+        text = path.read_text(encoding="utf-8")
+        target_paths.add(path.resolve())
+        require_target_loaders(path, text, errors)
+        ad_count = text.count('data-manual-ad="article"')
+        if ad_count != 1:
+            errors.append(f"{path.relative_to(ROOT).as_posix()}: expected exactly one article wrapper")
+        try:
+            back_link_position = text.index('class="term-back-link"')
+            ad_position = text.index('data-manual-ad="article"')
+            footer_position = text.index("<footer")
+            if not back_link_position < ad_position < footer_position:
+                errors.append(
+                    f"{path.relative_to(ROOT).as_posix()}: article wrapper must be after the term link and before the footer"
+                )
+        except ValueError:
+            errors.append(
+                f"{path.relative_to(ROOT).as_posix()}: required term link/ad/footer placement markers are missing"
+            )
+        page_table.append({
+            "path": path.relative_to(ROOT).as_posix(),
+            "format": "in-article",
+            "content_count": None,
+            "ad_count": ad_count,
+            "positions_after": ["term content"],
+        })
+
     app_path = APP_ROOT / "app" / "index.html"
     app_text = app_path.read_text(encoding="utf-8")
     target_paths.add(app_path.resolve())

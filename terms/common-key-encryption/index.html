@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>共通鍵暗号方式とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="共通鍵暗号方式の仕組みと、暗号化・復号に同じ鍵を使う特徴を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="共通鍵暗号方式" />
+    <meta name="study-atlas-term-summary" content="共通鍵暗号方式は、暗号化と復号に同じ鍵を使う方式です。送信者と受信者が秘密の鍵を共有する仕組みと注意点を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="共通鍵暗号方式とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="共通鍵暗号方式の仕組みと、暗号化・復号に同じ鍵を使う特徴を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/common-key-encryption/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/common-key-encryption/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">共通鍵暗号方式</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">共通鍵暗号方式</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「共通鍵暗号方式」とは</h2>
+          <p><strong>共通鍵暗号方式</strong>とは、データを暗号化するときと、元のデータに戻すときに、<strong>同じ鍵を使う暗号方式</strong>です。</p>
+          <p>たとえば、AさんがBさんに秘密のメッセージを送りたいとします。</p>
+          <ol><li><p>Aさんは、Bさんとあらかじめ共有している鍵を使ってメッセージを暗号化します。</p></li><li><p>Aさんは、共有した鍵を使って暗号化したデータをBさんに送ります。</p></li><li><p>Bさんは、Aさんと共有している<strong>同じ鍵</strong>を使って復号します。</p></li></ol>
+          <p>このように、送信者と受信者が共通して持つ鍵を使うことから、<strong>共通鍵暗号方式</strong>と呼ばれます。</p>
+          <h3>共通鍵は秘密にしておく必要があります</h3>
+          <p>共通鍵暗号方式では、暗号化に使う鍵を知っていれば、暗号化されたデータを復号することもできます。そのため、共通鍵を第三者に知られないように管理することが重要です。<br>鍵を第三者に盗まれてしまうと、暗号化した通信を読まれる可能性があります。<br>したがって、共通鍵暗号方式には、<strong>通信相手とどのように安全に鍵を共有するか</strong>という課題があります。また、多くの相手と個別に秘密の通信をする場合には、相手ごとに鍵を用意する必要があり、鍵の管理も複雑になります。</p>
+          <h3>公開鍵暗号方式との違い</h3>
+          <p>共通鍵暗号方式とよく比較されるのが、<strong>公開鍵暗号方式</strong>です。</p>
+          <p>共通鍵暗号方式では、暗号化と復号に<strong>同じ鍵</strong>を使います。一方、公開鍵暗号方式では、<strong>公開鍵（暗号化のための鍵）と秘密鍵（復号のための鍵）という異なる二つの鍵</strong>を使います。</p>
+          <p>共通鍵暗号方式は、公開鍵暗号方式と比べて一般に暗号化や復号の処理が速いため、大量のデータを暗号化するのに適しています。一方で、あらかじめ相手と鍵を安全に共有しなければならない点が課題です。</p>
+          <p>実際の通信では、両者の長所を組み合わせることもあります。たとえば、通信内容そのものは処理の速い共通鍵暗号方式で暗号化し、その<strong>共通鍵を公開鍵暗号方式で安全に送る</strong>方法があります。このような方法を<strong>ハイブリッド暗号方式</strong>といいます。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>共通鍵暗号方式 · EXAMPLE</span><span>情報セキュリティマネジメントR1秋期午前 問18（改題）</span></div>
+          <h3>共通鍵暗号方式で通信データを暗号化する。暗号化と復号に使う鍵として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>送信側と受信側で共有する同じ鍵</p></li>
+            <li><span>1</span><p>受信側だけが公開している鍵</p></li>
+            <li><span>2</span><p>WebページのURL</p></li>
+            <li><span>3</span><p>利用者の氏名</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．送信側と受信側で共有する同じ鍵</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>共通鍵暗号方式では、暗号化と復号に同じ鍵を使うため、送信側と受信側がその鍵を共有する必要がある。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>情報セキュリティマネジメントR1秋期午前 問18（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：共通鍵暗号方式／暗号化</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">共通鍵暗号方式の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="共通鍵暗号方式"
+          data-limit="5"
+          data-exclude-stem="共通鍵暗号方式で通信データを暗号化する。暗号化と復号に使う鍵として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=共通鍵暗号方式">共通鍵暗号方式の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"共通鍵暗号方式とは","description":"共通鍵暗号方式の仕組みと、暗号化・復号に同じ鍵を使う特徴を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/common-key-encryption/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n380d134af65c"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"共通鍵暗号方式","item":"https://mei-chan-nel.com/terms/common-key-encryption/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

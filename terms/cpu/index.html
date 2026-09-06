@@ -4,15 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CPUとは｜情報Ⅰ 用語解説｜Study Atlas</title>
-    <meta name="description" content="CPU（中央処理装置）の役割を、制御装置・演算装置、命令の実行、クロック周波数、レジスタ、キャッシュメモリとの関係まで高校「情報Ⅰ」向けに解説します。" />
+    <meta name="description" content="CPU（Central Processing Unit：中央処理装置）は、コンピュータの中でプログラムの命令を読み取り、その命令に従って計算や各装置の制御を行う装置です。制御装置・演算装置、命令実行サイクル、クロック周波数、キャッシュメモリ、OSによる処理切替まで高校「情報Ⅰ」向けに解説します。" />
     <meta name="study-atlas-term-tag" content="CPU" />
-    <meta name="study-atlas-term-summary" content="CPU（中央処理装置）は、プログラムの命令を読み取り、演算や各装置の制御を行う、コンピュータの中心的な装置です。" />
+    <meta name="study-atlas-term-summary" content="CPU（中央処理装置）は、プログラムの命令を読み取り、演算や各装置の制御を行うコンピュータの中心的な装置です。" />
     <meta name="theme-color" content="#102f35" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="ja_JP" />
     <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
     <meta property="og:title" content="CPUとは｜情報Ⅰ 用語解説｜Study Atlas" />
-    <meta property="og:description" content="CPUの役割を、命令の実行、演算と制御、クロック周波数、レジスタ、キャッシュメモリまで高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:description" content="CPUの役割を、制御装置・演算装置、命令実行サイクル、クロック周波数、キャッシュメモリ、OSによる処理切替まで高校「情報Ⅰ」向けに解説します。" />
     <meta property="og:url" content="https://mei-chan-nel.com/terms/cpu/" />
     <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -20,6 +20,8 @@
     <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
     <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
     <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
   </head>
   <body>
@@ -34,6 +36,7 @@
           <a href="../../">トップページ</a>
           <a href="../../info1-quiz-app/app/">学習アプリ</a>
           <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
           <a href="../../archive/">解説動画</a>
           <a href="../../LectureNote/">講義ノート</a>
           <a href="../../study-guide.html">使い方</a>
@@ -44,7 +47,7 @@
 
     <main id="main-content" class="subpage term-page">
       <nav class="breadcrumb" aria-label="パンくずリスト">
-        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">CPU</span>
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">CPU</span>
       </nav>
 
       <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
@@ -55,36 +58,81 @@
       <div class="prose-content term-copy" id="term-explanation">
         <section>
           <h2>「CPU」とは</h2>
-          <p>CPUは、コンピュータ上で動くプログラムの命令を実行する装置です。スマートフォンやパソコンでは、アプリを起動する、数値を計算する、画面表示のために各装置へ指示を出す、といった多くの処理にCPUが関わっています。</p>
-          <p>CPUはCentral Processing Unitの略で、日本語では中央処理装置と呼ばれます。コンピュータの働きは、<strong>入力装置・出力装置・記憶装置・演算装置・制御装置</strong>の「五大装置」に分けて考えることができます。このうちCPUは、主に<strong>演算装置</strong>と<strong>制御装置</strong>を担当します。</p>
-          <p><strong>制御装置</strong>は命令を読み取り、その内容に従って各装置へ動作の指示を出します。<strong>演算装置</strong>は加減乗除などの計算だけでなく、大小の比較やAND・OR・NOTなどの論理演算も行います。</p>
+          <p><strong>CPU（Central Processing Unit：中央処理装置）</strong>は、コンピュータの中でプログラムの命令を読み取り、その命令に従って計算や各装置の制御を行う装置です。<br />コンピュータ全体の処理の中心となるため、「コンピュータの頭脳」にたとえられることがあります。</p>
+          <p>コンピュータの基本的な構成は、役割によって<strong>入力装置・出力装置・記憶装置・演算装置・制御装置</strong>の五つに分けて考えることができます。これを<strong>コンピュータの五大装置</strong>といいます。このうちCPUは、主に<strong>制御装置と演算装置</strong>の働きを担っています。</p>
 
-          <h3>命令は「取り出す → 解読する → 実行する」</h3>
-          <p>実行中のプログラムや処理に必要なデータは、主に主記憶装置に置かれます。CPUはそこから命令を順に取り出し、何をする命令なのかを解釈し、必要な演算や装置の制御を行います。</p>
+          <h3>CPUの二つの中心的な働き</h3>
+          <p><strong>制御装置</strong>は、プログラムの命令を読み取り、その内容を解釈して、「このデータを読み出す」「この計算をする」「結果を記憶する」といった指示をコンピュータの各部分に出します。</p>
+          <p>一方、<strong>演算装置</strong>は、制御装置からの指示に従って実際の計算を行います。加算や減算などの<strong>算術演算</strong>だけでなく、「二つの値が等しいか」「どちらが大きいか」といった比較や、AND・OR・NOTなどの<strong>論理演算</strong>も行います。</p>
+          <p>したがって、</p>
+          <ul>
+            <li>制御装置 → <strong>何をするかを判断して指示する</strong></li>
+            <li>演算装置 → <strong>指示された計算や比較を実行する</strong></li>
+          </ul>
+          <p>と区別できます。</p>
+          <p>CPUの内部には、処理中のデータや命令などを一時的に保持する<strong>レジスタ</strong>があります。</p>
+
+          <h3>CPUは主記憶装置の命令を順番に実行する</h3>
+          <p>CPUが実行するプログラムは、実行時には基本的に<strong>主記憶装置（メインメモリ）</strong>に置かれています。CPUはそこから命令を一つずつ取り出して処理します。</p>
+          <p>基本的な流れは、</p>
+          <p><strong>命令の取出し → 命令の解読 → 命令の実行</strong></p>
+          <p>です。</p>
+          <p>それぞれ、</p>
           <ol>
-            <li><strong>取り出す（fetch）</strong>：主記憶装置から次に実行する命令を取り出します。</li>
-            <li><strong>解読する（decode）</strong>：取り出した命令が何を指示しているかを解釈します。</li>
-            <li><strong>実行する（execute）</strong>：演算やデータの移動、各装置への指示などを行います。</li>
+            <li><strong>取出し（フェッチ）</strong><br />主記憶装置から次に実行する命令を取り出す。</li>
+            <li><strong>解読（デコード）</strong><br />その命令が「加算せよ」「データを移動せよ」など、何を意味するのかを調べる。</li>
+            <li><strong>実行</strong><br />命令に従って演算やデータの移動などを行う。</li>
           </ol>
-          <p>CPU内部には<strong>レジスタ</strong>と呼ばれる非常に高速な記憶領域があり、処理中のデータや命令、処理位置などを一時的に保持します。</p>
+          <p>という処理です。</p>
+          <p>CPUは、この<strong>取出し→解読→実行</strong>というサイクルを高速に繰り返すことでプログラムを実行しています。</p>
 
-          <h3>クロック周波数</h3>
-          <p>CPUは、基準となる周期的な信号に合わせて動作します。この信号の1秒あたりの回数を<strong>クロック周波数</strong>といい、Hz（ヘルツ）で表します。</p>
-          <p class="term-formula">1.6 GHz ＝ 1.6 × 10<sup>9</sup> Hz ＝ 1秒間に16億回のクロック</p>
-          <p>単純化して、1命令の実行に平均4クロック必要だと仮定すれば、1秒あたりに実行できる命令数はおよそ次のように計算できます。</p>
-          <p class="term-formula">1.6 × 10<sup>9</sup> ÷ 4 ＝ 4.0 × 10<sup>8</sup> 命令/秒</p>
-          <p>ただし、実際のCPUでは命令の種類やCPUの設計によって1命令に必要な時間が異なり、複数の命令を並行して処理する仕組みもあります。そのため、<strong>クロック周波数だけでCPU全体の性能が決まるわけではありません</strong>。</p>
+          <h3>クロック周波数とCPUの処理</h3>
+          <p>CPU内部の処理は、一定の周期で刻まれる<strong>クロック</strong>に合わせて進められます。このクロックが1秒間に何回繰り返されるかを表したものが<strong>クロック周波数</strong>です。単位にはHz（ヘルツ）を使います。</p>
+          <p>たとえば、</p>
+          <p class="term-formula"><strong>1.6 GHz = 1.6×10<sup>9</sup>Hz = 1秒間に16億クロック</strong></p>
+          <p>という意味です。</p>
+          <p>ここで、あるCPUが1命令の実行に平均4クロック必要だとすると、</p>
+          <p class="term-formula"><strong>16億 ÷ 4 = 4億</strong></p>
+          <p>となり、平均的に、1秒間に4億命令を実行できます。</p>
 
-          <h3>キャッシュメモリと主記憶装置</h3>
-          <p>CPUは非常に高速ですが、主記憶装置から毎回データを読み出していると、その待ち時間が処理速度の低下につながります。そこでCPUの近くには、よく使うデータや命令を一時的に保存する<strong>キャッシュメモリ</strong>が置かれています。</p>
-          <p>キャッシュメモリは主記憶装置より容量は小さいものの高速で、CPUと主記憶装置の速度差を埋める役割を持ちます。</p>
-          <p class="term-hierarchy">レジスタ → キャッシュメモリ → 主記憶装置 → SSD・HDD</p>
-          <p>一般に右へ行くほど大容量になりますが、CPUからのアクセスには時間がかかります。SSDやHDDは<strong>補助記憶装置</strong>であり、電源を切ってもデータを保持できる点も重要です。</p>
+          <h3>CPUと主記憶装置の速度差を補うキャッシュメモリ</h3>
+          <p>CPUは非常に高速に処理できますが、主記憶装置から毎回データを読み出していると、その待ち時間によってCPUの処理が止まってしまうことがあります。</p>
+          <p>そこで使われるのが<strong>キャッシュメモリ</strong>です。</p>
+          <p>キャッシュメモリは、CPUが近いうちに使いそうな命令やデータを一時的に保存しておく、小容量で高速な記憶装置です。主記憶装置よりCPUに近く、高速にアクセスできるため、<strong>CPUと主記憶装置の速度差を緩和</strong>します。</p>
+          <p>記憶装置は、大まかには、</p>
+          <p class="term-hierarchy"><strong>レジスタ → キャッシュメモリ → 主記憶装置 → SSD・HDDなどの補助記憶装置</strong></p>
+          <p>の順に、一般には容量が大きくなる一方、CPUからのアクセスには時間がかかるようになります。</p>
+          <p>SSDやHDDなどの<strong>補助記憶装置</strong>は、電源を切った後もデータを保存するために使われます。</p>
 
-          <h3>複数の処理を動かす仕組み</h3>
-          <p>コンピュータでは複数のアプリや処理が同時に動いているように見えます。1つのCPUコアで複数の処理を扱う場合、OSは処理する対象を短い時間で切り替えます。切り替える際には、再開できるようにレジスタなどの状態を保存します。</p>
-          <p>また、複数の<strong>CPUコア</strong>を備えたCPUでは、条件が整えば複数の処理を実際に並行して進めることもできます。</p>
-          <p>つまり、CPUは主記憶装置から命令を取り出して解釈し、演算と各装置の制御を行う、コンピュータの処理の中心となる装置です。</p>
+          <h3>複数のプログラムはどうやってCPUを使うのか</h3>
+          <p>コンピュータでは、Webブラウザを開きながら音楽を再生し、さらに別のアプリを使うなど、複数の処理を同時に行っているように見えます。</p>
+          <p>一つのCPUコアがある瞬間に実行できる処理には限りがありますが、<strong>OS（オペレーティングシステム）</strong>がCPUを使う処理を短い時間ごとに次々と切り替えることで、複数の処理が並行して進んでいるように見せることができます。</p>
+          <p>このときOSは、各処理に</p>
+          <p><strong>「一定時間だけCPUを使わせ、時間が来たら別の処理へ切り替える」</strong></p>
+          <p>という形でCPUの時間を配分します。</p>
+          <p>切り替えるときには、その処理がどこまで進んでいたかなどの状態を保存しておき、次にCPUが割り当てられたときに続きを実行します。そのため、処理を切り替えるたびに最初からやり直すわけではありません。</p>
+          <p>なお、現在のCPUには複数の<strong>コア</strong>をもつものも多く、複数の処理を実際に並行して実行できる場合もあります。</p>
+
+          <h3>CPUについて整理すると</h3>
+          <p>CPUについては、次の関係を押さえておくことが重要です。</p>
+          <ul>
+            <li><strong>CPU</strong>：命令を解釈し、各装置を制御して演算を行う
+              <ul>
+                <li><strong>制御装置</strong>：命令を解読し、各部分へ指示を出す</li>
+                <li><strong>演算装置</strong>：算術演算や論理演算を行う</li>
+              </ul>
+            </li>
+            <li><strong>記憶装置</strong>
+              <ul>
+                <li><strong>主記憶装置</strong>：実行中のプログラムやデータを置く</li>
+                <li><strong>キャッシュメモリ</strong>：CPUと主記憶装置の速度差を緩和する</li>
+                <li><strong>レジスタ</strong>：CPUの内部にあり、処理中のデータや命令などを一時的に保持する</li>
+              </ul>
+            </li>
+            <li><strong>命令実行サイクル</strong>：取出し（フェッチ）→解読（デコード）→実行</li>
+            <li><strong>クロック周波数</strong>：CPUの動作の基準となるクロックが1秒間に何回あるかを表す</li>
+            <li><strong>OS</strong>：複数の処理にCPU時間を割り当て、処理を切り替える</li>
+          </ul>
         </section>
       </div>
 
@@ -104,14 +152,15 @@
             <li><span>3</span><p>外部から情報を入力し、処理結果を外部へ出力する。</p></li>
           </ol>
           <details class="answer-panel">
-            <summary><span>正答と解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
             <div class="answer-content">
-              <p class="correct-answer"><span>正答</span><strong>1. 命令を解釈して各装置を制御し、演算を行う。</strong></p>
+              <p class="correct-answer"><span>正解</span><strong>1．命令を解釈して各装置を制御し、演算を行う。</strong></p>
               <div class="explanation">
                 <h3>解説</h3>
-                <p>コンピュータの五大装置は、入力装置、出力装置、記憶装置、演算装置、制御装置です。CPUは主記憶装置から命令を取り出して内容を解釈し、その命令に従って各装置の動作を制御します。また、数値の計算や比較などの演算も行うため、主に制御装置と演算装置の役割を担います。</p>
+                <p>コンピュータの五大装置は、入力装置、出力装置、記憶装置、演算装置、制御装置である。CPUは、主記憶装置から命令を取り出して内容を解釈し、その命令に従って各装置の動作を制御する。また、数値の計算やデータの比較などの演算も行う。このため、CPUは五大装置のうち、主に制御装置と演算装置に相当する働きを担っている。</p>
               </div>
               <dl class="term-question-source"><dt>出典</dt><dd>オリジナル問題</dd></dl>
+              <p class="term-related-keywords">関連キーワード：CPU</p>
             </div>
           </details>
         </article>
@@ -120,7 +169,7 @@
       <section class="term-challenge-section" data-term-challenge aria-labelledby="cpu-challenge-heading">
         <div>
           <p class="eyebrow">PRACTICE</p>
-          <h2 id="cpu-challenge-heading">CPUタグの問題に挑戦</h2>
+          <h2 id="cpu-challenge-heading">CPUの問題に挑戦</h2>
           <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
         </div>
         <button
@@ -130,13 +179,14 @@
           data-tag="CPU"
           data-limit="5"
           data-exclude-stem="CPUが主に行う処理として、最も適切なものはどれか。"
-        >5問をアプリで解く</button>
+        >アプリで解く</button>
       </section>
 
-      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=CPU">CPUタグの問題を見る</a></p>
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=CPU">CPUの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
 
       <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"CPUとは","description":"CPU（中央処理装置）の役割を、高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/cpu/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
-      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"CPU","item":"https://mei-chan-nel.com/terms/cpu/"}]}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"CPU","item":"https://mei-chan-nel.com/terms/cpu/"}]}</script>
     </main>
 
     <footer class="site-footer">
@@ -146,6 +196,7 @@
           <a href="../../">トップページ</a>
           <a href="../../info1-quiz-app/app/">学習アプリ</a>
           <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
           <a href="../../archive/">解説動画</a>
           <a href="../../LectureNote/">講義ノート</a>
           <a href="../../study-guide.html">使い方</a>

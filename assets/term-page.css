@@ -36,6 +36,86 @@
   font-weight: 800;
 }
 
+.term-copy .term-note-figure {
+  margin: 30px auto;
+  text-align: center;
+}
+
+.term-copy .term-note-figure img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.term-related-keywords {
+  margin: 22px 0 0;
+  color: var(--ink-soft);
+  font-size: .76rem;
+}
+
+.terms-index {
+  max-width: 1040px;
+}
+
+.terms-index .page-hero {
+  max-width: 800px;
+}
+
+.term-list-section {
+  max-width: 900px;
+  margin: 18px auto 90px;
+}
+
+.term-list-note {
+  margin: 0 0 24px;
+  color: var(--ink-soft);
+  font-size: .82rem;
+}
+
+.term-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 38px;
+  list-style: none;
+}
+
+.term-list-item {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+}
+
+.term-list-item a,
+.term-list-item span {
+  min-height: 56px;
+  padding: 15px 2px;
+  display: flex;
+  align-items: center;
+  color: var(--ink);
+  font-size: .88rem;
+  line-height: 1.5;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.term-list-item a {
+  font-weight: 800;
+  text-underline-offset: 4px;
+}
+
+.term-list-item a:hover,
+.term-list-item a:focus-visible {
+  color: var(--coral-strong);
+  text-decoration: underline;
+}
+
+.term-list-item span {
+  color: var(--ink-soft);
+}
+
 .term-practice-section {
   max-width: 900px;
   margin: 76px auto 0;
@@ -159,5 +239,13 @@
   .term-challenge-button {
     width: 100%;
     min-width: 0;
+  }
+
+  .term-list-section {
+    margin-top: 12px;
+  }
+
+  .term-list {
+    grid-template-columns: 1fr;
   }
 }

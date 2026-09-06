@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import argparse
 import json
+from dataclasses import dataclass
+from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -8,6 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 TERMS_ROOT = ROOT / "terms"
 OUTPUT_PATH = ROOT / "assets" / "term-guides.js"
+INDEX_PATH = TERMS_ROOT / "index.html"
+DEFAULT_TAG_LIST_PATH = ROOT.parent.parent / "基礎資料" / "タグ一覧.xlsx"
+SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
 SUMMARY_META = "study-atlas-term-summary"
 
@@ -27,6 +33,17 @@ class TermMetaParser(HTMLParser):
         self.values[name] = attributes.get("content", "").strip()
 
 
+@dataclass(frozen=True)
+class TermPage:
+    path: Path
+    tag: str
+    summary: str
+
+    @property
+    def slug(self) -> str:
+        return self.path.parent.name
+
+
 def read_term_meta(path: Path) -> tuple[str, str]:
     parser = TermMetaParser()
     parser.feed(path.read_text(encoding="utf-8"))
@@ -39,21 +56,82 @@ def read_term_meta(path: Path) -> tuple[str, str]:
     return tag, summary
 
 
-def build_registry() -> dict[str, dict[str, str]]:
-    registry: dict[str, dict[str, str]] = {}
+def scan_term_pages() -> list[TermPage]:
+    pages: list[TermPage] = []
     if not TERMS_ROOT.exists():
-        return registry
-
+        return pages
     for path in sorted(TERMS_ROOT.glob("*/index.html")):
         tag, summary = read_term_meta(path)
-        if tag in registry:
-            raise ValueError(f"Duplicate term tag: {tag}")
-        slug = path.parent.name
-        registry[tag] = {
-            "url": f"/terms/{slug}/",
-            "summary": summary,
+        pages.append(TermPage(path=path, tag=tag, summary=summary))
+    tags = [page.tag for page in pages]
+    duplicates = sorted({tag for tag in tags if tags.count(tag) > 1})
+    if duplicates:
+        raise ValueError(f"Duplicate term tag(s): {', '.join(duplicates)}")
+    return pages
+
+
+def build_registry(pages: list[TermPage] | None = None) -> dict[str, dict[str, str]]:
+    pages = scan_term_pages() if pages is None else pages
+    return {
+        page.tag: {
+            "url": f"/terms/{page.slug}/",
+            "summary": page.summary,
         }
-    return registry
+        for page in pages
+    }
+
+
+def read_tag_list(path: Path = DEFAULT_TAG_LIST_PATH) -> list[str]:
+    try:
+        from openpyxl import load_workbook
+    except ImportError as exc:  # pragma: no cover - depends on the local runtime
+        raise ValueError("openpyxl is required to read タグ一覧.xlsx") from exc
+
+    if not path.is_file():
+        raise ValueError(f"Authoritative tag list not found: {path}")
+    workbook = load_workbook(path, read_only=True, data_only=True)
+    try:
+        sheet = workbook["タグ一覧"] if "タグ一覧" in workbook.sheetnames else workbook.active
+        rows = list(sheet.iter_rows(values_only=True))
+    finally:
+        workbook.close()
+    if not rows:
+        raise ValueError(f"Authoritative tag list is empty: {path}")
+
+    header = [str(value).strip() if value is not None else "" for value in rows[0]]
+    try:
+        no_column = next(index for index, value in enumerate(header) if value in {"No.", "No"})
+        tag_column = next(index for index, value in enumerate(header) if value == "タグ")
+    except StopIteration as exc:
+        raise ValueError(f"Tag list must have No. and タグ columns: {path}") from exc
+
+    entries: list[tuple[int, str]] = []
+    for row_number, row in enumerate(rows[1:], start=2):
+        if len(row) <= max(no_column, tag_column):
+            continue
+        no_value = row[no_column]
+        tag_value = row[tag_column]
+        if no_value is None and tag_value is None:
+            continue
+        try:
+            number = int(no_value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"Invalid tag number at row {row_number}: {no_value!r}") from exc
+        tag = str(tag_value).strip() if tag_value is not None else ""
+        if not tag:
+            raise ValueError(f"Empty tag at row {row_number}")
+        entries.append((number, tag))
+
+    if not entries:
+        raise ValueError(f"No tag entries found: {path}")
+    numbers = [number for number, _ in entries]
+    tags = [tag for _, tag in entries]
+    if len(numbers) != len(set(numbers)):
+        raise ValueError("Tag list contains duplicate No. values")
+    if len(tags) != len(set(tags)):
+        duplicates = sorted({tag for tag in tags if tags.count(tag) > 1})
+        raise ValueError(f"Tag list contains duplicate tag(s): {', '.join(duplicates)}")
+    return [tag for _, tag in sorted(entries, key=lambda entry: entry[0])]
 
 
 def render(registry: dict[str, dict[str, str]]) -> str:
@@ -69,11 +147,140 @@ def render(registry: dict[str, dict[str, str]]) -> str:
     )
 
 
+def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
+    page_by_tag = {page.tag: page for page in pages}
+    items: list[str] = []
+    for tag in tags:
+        page = page_by_tag.get(tag)
+        label = escape(tag)
+        if page is None:
+            items.append(
+                f'<li class="term-list-item is-unlinked"><span aria-disabled="true">{label}</span></li>'
+            )
+        else:
+            items.append(
+                f'<li class="term-list-item is-linked"><a href="./{escape(page.slug)}/">{label}</a></li>'
+            )
+    list_html = "\n            ".join(items)
+    count = len(tags)
+    linked_count = sum(tag in page_by_tag for tag in tags)
+    return f'''<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>用語一覧｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="情報Ⅰ Study Atlasの用語解説一覧です。全{count}個の基本タグから、詳しい解説がある用語を探せます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="用語一覧｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="情報Ⅰ Study Atlasの用語解説一覧です。詳しい解説がある用語を探せます。" />
+    <meta property="og:url" content="{SITE_ORIGIN}/terms/" />
+    <meta property="og:image" content="{SITE_ORIGIN}/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="{SITE_ORIGIN}/terms/" />
+    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../assets/term-page.css?v=2026090602" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../">トップページ</a>
+          <a href="../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../info1-quiz-app/questions/">問題を探す</a>
+          <a href="./" aria-current="page">用語一覧</a>
+          <a href="../archive/">解説動画</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../study-guide.html">使い方</a>
+          <a href="../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage terms-index">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">用語一覧</span>
+      </nav>
+
+      <header class="page-hero compact-hero">
+        <p class="eyebrow">TERM INDEX</p>
+        <h1>用語一覧</h1>
+        <p>情報Ⅰの問題に付いているタグを、No.順に並べています。詳しい用語解説がある項目から、本文と例題を確認できます。</p>
+      </header>
+
+      <section class="term-list-section" aria-labelledby="term-list-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">{count} TAGS · {linked_count} GUIDES</p>
+          <h2 id="term-list-heading">用語から探す</h2>
+        </div>
+        <p class="term-list-note">リンクのある用語は詳細ページを公開しています。その他の用語も、今後順次整備します。</p>
+        <ul class="term-list">
+            {list_html}
+        </ul>
+      </section>
+
+      <script type="application/ld+json">{{"@context":"https://schema.org","@type":"CollectionPage","name":"用語一覧","description":"情報Ⅰ Study Atlasの用語解説一覧です。","url":"{SITE_ORIGIN}/terms/","inLanguage":"ja","isPartOf":{{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"{SITE_ORIGIN}/"}}}}</script>
+      <script type="application/ld+json">{{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{{"@type":"ListItem","position":1,"name":"学習トップ","item":"{SITE_ORIGIN}/"}},{{"@type":"ListItem","position":2,"name":"用語一覧","item":"{SITE_ORIGIN}/terms/"}}]}}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../">トップページ</a>
+          <a href="../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../terms/">用語一覧</a>
+          <a href="../archive/">解説動画</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../study-guide.html">使い方</a>
+          <a href="../books/">書籍案内</a>
+          <a href="../about.html">このサイトについて</a>
+          <a href="../privacy.html">プライバシーポリシー</a>
+          <a href="../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
+'''
+
+
 def main() -> None:
-    registry = build_registry()
+    parser = argparse.ArgumentParser(description="Generate the term registry and static term index.")
+    parser.add_argument("--tag-list", type=Path, default=DEFAULT_TAG_LIST_PATH)
+    args = parser.parse_args()
+
+    pages = scan_term_pages()
+    tags = read_tag_list(args.tag_list.expanduser().resolve())
+    registry = build_registry(pages)
+    unknown_page_tags = sorted(set(registry) - set(tags))
+    if unknown_page_tags:
+        raise SystemExit(
+            "Term page tag(s) are not present in the authoritative tag list: "
+            + ", ".join(unknown_page_tags)
+        )
+
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TERMS_ROOT.mkdir(parents=True, exist_ok=True)
     OUTPUT_PATH.write_text(render(registry), encoding="utf-8")
-    print(f"Generated {OUTPUT_PATH.relative_to(ROOT)} with {len(registry)} term guide(s).")
+    INDEX_PATH.write_text(render_term_list(tags, pages), encoding="utf-8")
+    linked_count = sum(tag in registry for tag in tags)
+    print(
+        f"Generated {OUTPUT_PATH.relative_to(ROOT)} with {len(registry)} term guide(s); "
+        f"{INDEX_PATH.relative_to(ROOT)} with {len(tags)} tag(s), {linked_count} linked."
+    )
 
 
 if __name__ == "__main__":

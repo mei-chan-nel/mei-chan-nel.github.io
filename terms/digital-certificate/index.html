@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>電子証明書とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="電子証明書の役割と、認証局が所有者情報と公開鍵の対応を確認する仕組みを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="電子証明書" />
+    <meta name="study-atlas-term-summary" content="電子証明書は、公開鍵と所有者の対応などを証明する電子的な証明書です。認証局やデジタル署名との関係を学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="電子証明書とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="電子証明書の役割と、認証局が所有者情報と公開鍵の対応を確認する仕組みを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/digital-certificate/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/digital-certificate/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">電子証明書</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">電子証明書</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「電子証明書」とは</h2>
+          <p>電子証明書は、<strong>公開鍵が誰のものなのかを証明するためのデータ</strong>です。</p>
+          <p>公開鍵暗号方式では、公開鍵を使って暗号化やデジタル署名の確認を行います。しかし、公開鍵を手に入れただけでは、<strong>その公開鍵が本当に目的の相手のものなのか</strong>は分かりません。<br>そこで、公開鍵とその持ち主を結び付けるために電子証明書が使われます。<br></p>
+          <h3>認証局</h3>
+          <p>電子証明書を発行する機関を<strong>認証局（CA：Certification Authority）</strong>といいます。<br>認証局は、公開鍵の持ち主について確認した上で、</p>
+          <p><strong>「この公開鍵は、この人・組織のものです」</strong></p>
+          <p>という電子証明書を発行します。</p>
+          <p>さらに、認証局は発行した電子証明書に<strong>デジタル署名</strong>を付けます。この署名は、認証局の<strong>秘密鍵</strong>を使って作られます。<br>電子証明書を受け取った側は、認証局の<strong>公開鍵</strong>を使って署名を確認します。これによって、その証明書が信頼できる認証局から発行されたものであり、途中で書き換えられていないことを確認できます。<br>なお、信頼できる認証局の公開鍵はブラウザやOSにあらかじめ登録されています。</p>
+          <p>つまり、基本的な流れは、</p>
+          <p><strong>認証局が持ち主と公開鍵を確認する<br>→ 認証局が電子証明書を発行する<br>→ 認証局が秘密鍵でデジタル署名する<br>→ 利用者が認証局の公開鍵で署名を確認する</strong></p>
+          <p>となります。<br></p>
+          <h3>Webサイトでも使われる</h3>
+          <p>電子証明書は、HTTPSを使ったWebサイトでも利用されています。<br>ブラウザはWebサイトから電子証明書を受け取り、信頼できる認証局が発行したものかなどを確認します。証明書に問題がある場合には、ブラウザに警告が表示されることがあります。<br></p>
+          <h3>ポイント</h3>
+          <p>電子証明書については、次の対応を覚えておくと問題を解きやすくなります。</p>
+          <ul><li><p><strong>電子証明書</strong>：公開鍵とその持ち主を結び付ける</p></li><li><p><strong>認証局</strong>：電子証明書を発行する</p></li><li><p><strong>認証局の秘密鍵</strong>：電子証明書にデジタル署名する</p></li><li><p><strong>認証局の公開鍵</strong>：そのデジタル署名を確認する</p></li></ul>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>電子証明書 · EXAMPLE</span><span>ITパスポートR8公開問題 問90（改題）</span></div>
+          <h3>電子証明書の正当性を確認する仕組みについて、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>認証局が所有者情報と公開鍵の対応を確認し、電子証明書にデジタル署名する。</p></li>
+            <li><span>1</span><p>Webサーバ自身が認証局の秘密鍵を使って、自分の電子証明書へ署名する。</p></li>
+            <li><span>2</span><p>利用者が、電子証明書に含まれる公開鍵だけで証明書自身へ署名する。</p></li>
+            <li><span>3</span><p>電子証明書の発行者を確認せず、公開鍵が書かれていれば常に正しいとみなす。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．認証局が所有者情報と公開鍵の対応を確認し、電子証明書にデジタル署名する。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>電子証明書は、公開鍵とその所有者の情報を結び付けるデータである。認証局が所定の確認を行って証明書にデジタル署名し、利用者は認証局の公開鍵で署名を検証する。これにより、証明書が信頼する認証局から発行され、発行後に改ざんされていないことを確認できる。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートR8公開問題 問90（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：電子証明書／認証局／公開鍵暗号方式／デジタル署名</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">電子証明書の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="電子証明書"
+          data-limit="5"
+          data-exclude-stem="電子証明書の正当性を確認する仕組みについて、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=電子証明書">電子証明書の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"電子証明書とは","description":"電子証明書の役割と、認証局が所有者情報と公開鍵の対応を確認する仕組みを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/digital-certificate/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/n02b03be17a16"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"電子証明書","item":"https://mei-chan-nel.com/terms/digital-certificate/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

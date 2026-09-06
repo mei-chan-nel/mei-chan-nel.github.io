@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IPv4とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="IPv4アドレスの32ビット構成、表記方法、グローバル・プライベートIPアドレス、IPv6との違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="IPv4" />
+    <meta name="study-atlas-term-summary" content="IPv4アドレスは32ビットで構成され、通常は8ビットずつ四つに分けて10進数で表記します。IPv6との違いも学びます。" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="IPv4とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="IPv4アドレスの32ビット構成、表記方法、グローバル・プライベートIPアドレス、IPv6との違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/ipv4/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/ipv4/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">IPv4</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">IPv4</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「IPv4」とは</h2>
+          <p><strong>IPv4（Internet Protocol version 4）</strong>は、インターネットなどのネットワークで、通信する機器を識別するために使われるIP（Internet Protocol）の方式の一つです。</p>
+          <p>ネットワーク上でデータを送るときには、「どこからどこへ送るのか」を示す必要があります。その宛先や送信元を表すために使われる番号が<strong>IPアドレス</strong>です。</p>
+          <h3>IPv4アドレスは32ビット</h3>
+          <p>IPv4のIPアドレスは、<strong>32ビット</strong>の2進数で表されます。</p>
+          <p>例えば、次のような32ビットの値があるとします。</p>
+          <p>11000000 10101000 00000001 00001010</p>
+          <p>そのままでは人間には読みにくいため、IPv4では通常、32ビットを<strong>8ビットずつ四つに区切り、それぞれを10進数に直して「.（ドット）」でつなぎます</strong>。</p>
+          <p>上の例では、</p>
+          <ul><li><p>11000000 → 192</p></li><li><p>10101000 → 168</p></li><li><p>00000001 → 1</p></li><li><p>00001010 → 10</p></li></ul>
+          <p>なので、</p>
+          <p><strong>192.168.1.10</strong></p>
+          <p>と表します。</p>
+          <h3>一つの区切りは0～255の範囲</h3>
+          <p>8ビットでは、</p>
+          <p>00000000 ～ 11111111</p>
+          <p>までの値を表せます。</p>
+          <p>これは10進数では、</p>
+          <p><strong>0～255</strong></p>
+          <p>に当たります。</p>
+          <p>したがって、</p>
+          <p>203.18.200.45</p>
+          <p>はIPv4アドレスとして表記できますが、</p>
+          <p>203.18.300.45</p>
+          <p>のような表記はできません。<strong>300は8ビットで表せる0～255の範囲を超えている</strong>ためです。</p>
+          <h3>グローバルIPアドレスとプライベートIPアドレス</h3>
+          <p>IPv4アドレスには、インターネット上で利用する<strong>グローバルIPアドレス</strong>と、家庭や学校、会社などの内部ネットワークで利用する<strong>プライベートIPアドレス</strong>があります。</p>
+          <p>グローバルIPアドレスは、インターネット上で通信相手を区別できるように割り当てられます。インターネット全体で重複することのない番号です。</p>
+          <p>一方、プライベートIPアドレスは、それぞれの家庭や組織の内部だけで使われるため、<strong>同じネットワークの中では重複してはいけませんが、別々のネットワークで同じアドレスを使うことができます</strong>。例えば、家庭Aと家庭Bの両方で、</p>
+          <p>192.168.1.10</p>
+          <p>というアドレスを使っていてもかまいません。</p>
+          <p>家庭内の端末がインターネットへ接続するときには、一般に<strong>ルータ</strong>が家庭内部の通信とインターネット側の通信を対応付けて中継します。このとき、ルータは家庭内で使われている<strong>プライベートIPアドレス</strong>と、インターネット側で使われる<strong>グローバルIPアドレス</strong>との間でアドレスを変換します。この仕組みを<strong>NAT（Network Address Translation）</strong>といいます。</p>
+          <p>そのため、家庭内で使われているプライベートIPアドレスを、そのままインターネット上の通信相手の宛先として利用するわけではありません。</p>
+          <h3>IPv4ではアドレスが足りなくなった</h3>
+          <p>IPv4は32ビットなので、理論上表せる組合せは</p>
+          <p><strong>2³²通り</strong></p>
+          <p>です。これは約43億通りです。</p>
+          <p>インターネットが普及し、コンピュータだけでなく、スマートフォンやさまざまな機器がネットワークに接続されるようになると、IPv4だけでは利用できるアドレスが不足することが問題となりました。</p>
+          <p>そこで使われるようになったのが<strong>IPv6（Internet Protocol version 6）</strong>です。</p>
+          <h3>IPv6</h3>
+          <p>IPv6は128ビットの長さを持ち、2¹²⁸通り、つまり、およそ <strong>3.4 × 10³⁸</strong>＝<strong>約340澗（かん）通り</strong>を表します。<br>16進数を用いて192.168.1.102001:db8::1のように表現します。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>IPv4 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>IPアドレスに関する説明として、最も適切なものを選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>IPv4アドレスは32ビットで構成され、通常は8ビットずつ四つに区切り、それぞれを10進数で表記する。</p></li>
+            <li><span>1</span><p>IPv6アドレスは、IPv4アドレスを構成する各数値の範囲を広げ、全体を64ビットにしたものである。</p></li>
+            <li><span>2</span><p>インターネット上の機器と直接通信するときは、通信相手のプライベートIPアドレスを宛先として指定する。</p></li>
+            <li><span>3</span><p>IPアドレスは通信相手を識別するために用いられるが、同じネットワーク内では複数の機器に同じアドレスを設定できる。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．IPv4アドレスは32ビットで構成され、通常は8ビットずつ四つに区切り、それぞれを10進数で表記する。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>正答はIPv4の構成と表記の説明である。IPv4アドレスは32ビットで、通常は8ビットずつ四つに分ける。各部分を0～255の10進数に直し、192.0.2.1のようにドットで区切って表す。 IPv6は128ビットで、16進数を用いて表記する。IPアドレスはネットワーク上の通信相手を識別するための情報なので、同じ範囲で重複しないように設定する必要がある。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：IPv4／IPv6／IPアドレス／ネットワーク／ビット／10進数／16進数</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">IPv4の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="IPv4"
+          data-limit="5"
+          data-exclude-stem="IPアドレスに関する説明として、最も適切なものを選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=IPv4">IPv4の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"IPv4とは","description":"IPv4アドレスの32ビット構成、表記方法、グローバル・プライベートIPアドレス、IPv6との違いを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/ipv4/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"},"sameAs":"https://note.com/mei_math/n/nb15bae59b060"}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"IPv4","item":"https://mei-chan-nel.com/terms/ipv4/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

@@ -119,7 +119,7 @@ img { max-width: 100%; }
 .home-actions-section { padding-top: 72px; }
 .home-misc-section { padding-top: 0; }
 .home-section-title { margin-bottom: 28px; }
-.home-action-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.home-action-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .home-action-card, .home-misc-card { --accent: var(--coral-strong); position: relative; color: var(--ink); background: var(--white); border: 1px solid var(--line); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .home-action-card { min-height: 300px; padding: 28px; display: flex; flex-direction: column; border-radius: 22px; }
 .home-action-card:hover, .home-misc-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--shadow); }
