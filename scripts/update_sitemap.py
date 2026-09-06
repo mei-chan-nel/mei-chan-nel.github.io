@@ -42,6 +42,12 @@ def read_portal_urls() -> list[str]:
         "LectureNote/statistics.html",
         "LectureNote/programming.html",
     ]
+    terms_root = ROOT / "terms"
+    if terms_root.is_dir():
+        paths.extend(
+            path.relative_to(ROOT).as_posix()
+            for path in sorted(terms_root.glob("*/index.html"))
+        )
     report_path = ROOT / "docs" / "video-library-build.json"
     if not report_path.is_file():
         raise ValueError(f"Video-library build report not found: {report_path}")
