@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>bpsとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="bps（ビット毎秒）の意味と、ビット・バイトの換算、伝送効率、ボトルネック、ストリーミングのバッファリングを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="bps" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="bpsとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="bps（ビット毎秒）の意味と、ビット・バイトの換算、伝送効率、ボトルネック、ストリーミングのバッファリングを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/bps/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/bps/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">bps</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">bps</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「bps」とは</h2>
+          <p><strong>bps（bit per second：ビット毎秒）</strong>は、1秒間に何ビットのデータを伝送できるかを表す単位です。主にネットワークの通信速度や、音声・動画のビットレートを表すときに使われます。</p>
+          <p>例えば、通信速度が「100Mbps」であれば、理論上は<strong>1秒間に100Mビットのデータを送れる</strong>ことを意味します。</p>
+
+          <h3>bpsの単位</h3>
+          <p>通信速度では、bpsの前にk（キロ）やM（メガ）などを付けて表すことが多くあります。</p>
+          <ul>
+            <li><p>1kbps ＝ 1,000bps</p></li>
+            <li><p>1Mbps ＝ 1,000,000bps</p></li>
+            <li><p>1Gbps ＝ 1,000,000,000bps</p></li>
+          </ul>
+          <p>問題文で「1kビット＝1,000ビット」「1Mビット＝1,000,000ビット」などと指定されている場合は、その定義に従います。</p>
+          <p>ここで特に注意したいのが、<strong>ビット（bit）とバイト（B）の違い</strong>です。</p>
+          <p class="term-formula"><strong>1バイト ＝ 8ビット</strong></p>
+          <p>したがって、例えば12Mバイトのデータ量は、</p>
+          <p class="term-formula">12 × 8 ＝ 96Mビット</p>
+          <p>となります。</p>
+          <p>通信速度が「Mビット/秒」で示され、データ量が「Mバイト」で示されている問題では、そのまま計算せず、まずビットとバイトの単位をそろえる必要があります。</p>
+        </section>
+
+        <section>
+          <h2>bpsから伝送時間を求める</h2>
+          <p>bpsは「1秒間に何ビット送れるか」を表しています。そのため、伝送時間を求めるときは、<strong>1秒で送れるデータ量と、実際に送りたいデータ量を対応させて考える</strong>と分かりやすくなります。</p>
+          <p>例えば、96Mビットのデータを1.5Mビット/秒の回線で送るとします。</p>
+          <p class="term-formula">1秒　　1.5Mビット<br />□秒　　96Mビット</p>
+          <p>1.5Mビット/秒とは、1秒間に1.5Mビット送れるという意味なので、</p>
+          <p class="term-formula">□ ＝ 96 ÷ 1.5<br />　 ＝ 64</p>
+          <p>となり、伝送時間は<strong>64秒</strong>です。</p>
+          <p>このように、bpsの問題ではまず、</p>
+          <p class="term-formula"><strong>「1秒で何ビット送れるのか」</strong></p>
+          <p>と読み替えることが重要です。</p>
+        </section>
+
+        <section>
+          <h2>伝送効率と実効速度</h2>
+          <p>実際の通信では、回線の速度をすべてデータの転送に使えるとは限りません。通信を制御するための処理などが必要になるためです。</p>
+          <p>そこで使われるのが<strong>伝送効率</strong>です。</p>
+          <p>例えば、次の条件で考えます。</p>
+          <ul>
+            <li><p>回線速度：1.5Mビット/秒</p></li>
+            <li><p>伝送効率：50%</p></li>
+          </ul>
+          <p>この場合、実際にデータ転送に利用できる速度は、</p>
+          <p class="term-formula">1.5 × 0.5 ＝ 0.75Mビット/秒</p>
+          <p>となります。</p>
+          <p>このように、実際に利用できる通信速度を<strong>実効速度</strong>といいます。</p>
+          <p>12Mバイトのデータを送る場合を考えます。</p>
+          <p class="term-formula">12Mバイト × 8 ＝ 96Mビット</p>
+          <p>実効速度は0.75Mビット/秒なので、これは<strong>1秒間に0.75Mビット送れる</strong>という意味です。</p>
+          <p class="term-formula">1秒　　0.75Mビット<br />□秒　　96Mビット</p>
+          <p>したがって、</p>
+          <p class="term-formula">□ ＝ 96 ÷ 0.75<br />　 ＝ 128</p>
+          <p>となり、伝送には<strong>128秒</strong>かかります。</p>
+          <p>伝送効率が示されている問題では、最初に実効速度を求め、その速度で「1秒間に何ビット送れるか」を考えます。</p>
+        </section>
+
+        <section>
+          <h2>複数の通信区間がある場合</h2>
+          <p>通信経路に複数の区間があり、それぞれ通信速度が異なる場合は、通常、<strong>最も遅い部分が全体の通信速度を制限します</strong>。</p>
+          <p>例えば、次の条件で考えます。</p>
+          <ul>
+            <li><p>LAN：100Mビット/秒、伝送効率80%</p></li>
+            <li><p>インターネット側：実効速度90Mビット/秒</p></li>
+          </ul>
+          <p>LANの実効速度は、</p>
+          <p class="term-formula">100 × 0.8 ＝ 80Mビット/秒</p>
+          <p>です。</p>
+          <p>LAN側では1秒に80Mビット、インターネット側では1秒に90Mビット送ることができます。この場合、より遅いLAN側の80Mビット/秒が全体の速度を制限します。</p>
+          <p>例えば540Mバイトのファイルなら、</p>
+          <p class="term-formula">540 × 8 ＝ 4,320Mビット</p>
+          <p>です。</p>
+          <p class="term-formula">1秒　　80Mビット<br />□秒　　4,320Mビット</p>
+          <p>なので、</p>
+          <p class="term-formula">□ ＝ 4,320 ÷ 80<br />　 ＝ 54</p>
+          <p>となり、約<strong>54秒</strong>かかります。</p>
+          <p>このように、通信全体の性能を制限する最も遅い部分を<strong>ボトルネック</strong>といいます。</p>
+        </section>
+
+        <section>
+          <h2>ストリーミングとbps</h2>
+          <p>動画や音声をインターネット経由で再生する<strong>ストリーミング</strong>では、「受信する速度」と「再生によってデータを消費する速度」を比較することが重要です。</p>
+          <p>例えば、次の条件で考えます。</p>
+          <ul>
+            <li><p>音声の符号化速度：192kビット/秒</p></li>
+            <li><p>通信速度：128kビット/秒</p></li>
+          </ul>
+          <p>符号化速度192kビット/秒とは、音声を1秒再生するごとに192kビットのデータが必要になるという意味です。</p>
+          <p>音声全体が19.2Mビットなら、</p>
+          <p class="term-formula">1秒　　 192kビット<br />□秒　　19.2Mビット</p>
+          <p>と考えます。</p>
+          <p>19.2Mビット＝19,200kビットなので、</p>
+          <p class="term-formula">□ ＝ 19,200 ÷ 192<br />　 ＝ 100</p>
+          <p>となり、音声全体の再生時間は<strong>100秒</strong>です。</p>
+          <p>一方、通信速度は128kビット/秒なので、再生中は1秒ごとに、</p>
+          <p class="term-formula">192 － 128 ＝ 64kビット</p>
+          <p>ずつデータが不足します。</p>
+          <p>100秒間では、</p>
+          <p class="term-formula">1秒　　　64kビット不足<br />100秒　　6,400kビット不足</p>
+          <p>となります。</p>
+          <p>つまり、再生開始前に6.4Mビットを先に受信しておけばよいことになります。</p>
+          <p>通信速度は128kビット/秒なので、</p>
+          <p class="term-formula">1秒　　 128kビット<br />□秒　　6,400kビット</p>
+          <p>より、</p>
+          <p class="term-formula">□ ＝ 6,400 ÷ 128<br />　 ＝ 50</p>
+          <p>となります。</p>
+          <p>したがって、途切れずに再生するためには、最低<strong>50秒</strong>待ってから再生を開始すればよいことになります。</p>
+          <p>このように、<strong>再生によるデータの消費速度が受信速度より速い場合</strong>は、再生開始前に一定量のデータを蓄えておく必要があります。この一時的な蓄積を<strong>バッファリング</strong>といいます。</p>
+        </section>
+
+        <section>
+          <h2>bpsの問題を解くときの考え方</h2>
+          <p>bpsを使った問題では、最初から公式に当てはめるのではなく、まず<strong>「1秒ではどうなるか」</strong>を考えると整理しやすくなります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>100Mビット/秒</strong></p>
+          <p>なら、</p>
+          <p class="term-formula"><strong>1秒で100Mビット</strong></p>
+          <p>です。</p>
+          <p>伝送効率が50%なら、</p>
+          <p class="term-formula">100 × 0.5 ＝ 50Mビット/秒</p>
+          <p>となるので、</p>
+          <p class="term-formula"><strong>実際には1秒で50Mビット</strong></p>
+          <p>送れると考えます。</p>
+          <p>そのうえで、</p>
+          <p class="term-formula">1秒　　50Mビット<br />□秒　　送りたいデータ量</p>
+          <p>のように対応させれば、必要な時間を求めることができます。</p>
+          <p>bpsの問題では、特に次の点を確認します。</p>
+          <ol>
+            <li><p><strong>bpsは「1秒当たり何ビットか」を表す</strong></p></li>
+            <li><p><strong>1バイト＝8ビット</strong>なので、ビットとバイトの単位をそろえる</p></li>
+            <li><p>伝送効率がある場合は、実際に1秒で送れる量を求める</p></li>
+            <li><p>複数の通信区間がある場合は、最も遅い部分を確認する</p></li>
+            <li><p>動画や音声では、bpsを「1秒分のデータ量」として考える</p></li>
+          </ol>
+          <p><strong>bps＝1秒当たりのビット数</strong>という意味を理解しておけば、伝送時間、回線利用率、ストリーミング、ビット誤り率、動画のデータ量などの問題も、同じ考え方で整理することができます。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>bps · EXAMPLE</span><span>基本情報技術者H30秋期午前 問37（改題）</span></div>
+          <h3>伝送速度1.5Mビット/秒、伝送効率50%の回線で、12Mバイトのデータを転送する。必要な時間は何秒か。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>16</p></li>
+            <li><span>1</span><p>32</p></li>
+            <li><span>2</span><p>64</p></li>
+            <li><span>3</span><p>128</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>3．128</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>実効速度は1.5×0.5=0.75Mビット/秒です。12Mバイトは96Mビットなので、96÷0.75=128秒となります。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>基本情報技術者H30秋期午前 問37（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：bps／データ量</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">bpsの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="bps"
+          data-limit="5"
+          data-exclude-stem="伝送速度1.5Mビット/秒、伝送効率50%の回線で、12Mバイトのデータを転送する。必要な時間は何秒か。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=bps">bpsの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"bpsとは","description":"bps（ビット毎秒）の意味と、ビット・バイトの換算、伝送効率、ボトルネック、ストリーミングのバッファリングを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/bps/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"bps","item":"https://mei-chan-nel.com/terms/bps/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

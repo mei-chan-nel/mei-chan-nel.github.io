@@ -30,6 +30,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "Wi-Fi": {
     "url": "/terms/wi-fi/"
   },
+  "bps": {
+    "url": "/terms/bps/"
+  },
   "アクセシビリティ": {
     "url": "/terms/accessibility/"
   },
