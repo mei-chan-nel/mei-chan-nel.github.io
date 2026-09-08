@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>不正アクセスとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="不正アクセスの意味と、認証・アクセス制御、フィッシングとの違い、周辺の規制、対策を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="不正アクセス" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="不正アクセスとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="不正アクセスの意味と、認証・アクセス制御、フィッシングとの違い、周辺の規制、対策を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/unauthorized-access/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/unauthorized-access/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">不正アクセス</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">不正アクセス</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「不正アクセス」とは</h2>
+          <p><strong>不正アクセス</strong>とは、正当な権限をもたない人が、ネットワークを通じてコンピュータやWebサービスなどに入り、本来は許可されていない利用をできる状態にする行為です。典型的な例は、<strong>他人のユーザIDとパスワードを無断で使ってログインすること</strong>です。日本では、このような行為は「不正アクセス行為の禁止等に関する法律（不正アクセス禁止法）」によって禁止されています。</p>
+        </section>
+
+        <section>
+          <h2>認証とアクセス制御</h2>
+          <p>Webサービスなどでは、誰でもすべての機能を利用できるわけではありません。例えば、SNSやメールでは、ユーザIDとパスワードなどを使って「その利用者本人であるか」を確認します。このように利用者を確認する仕組みを<strong>認証</strong>といいます。</p>
+          <p>認証などによって、正当な利用者だけがシステムを利用できるようにする仕組みが<strong>アクセス制御</strong>です。例えば、次のような仕組みがアクセス制御に当たります。</p>
+          <ul>
+            <li><p>正しいIDとパスワードを入力した人だけがメールを読める</p></li>
+            <li><p>登録された利用者だけがSNSのアカウントを操作できる</p></li>
+            <li><p>権限を与えられた教職員だけが学校のシステムを利用できる</p></li>
+          </ul>
+          <p>不正アクセス禁止法では、IDとパスワードなど、利用者を識別するために使われる情報を<strong>識別符号</strong>と呼んでいます。ID・パスワードだけでなく、指紋や虹彩などによる認証も識別符号に関係します。</p>
+        </section>
+
+        <section>
+          <h2>他人のIDとパスワードを使う不正アクセス</h2>
+          <p>最も典型的な不正アクセスは、他人のIDとパスワードを本人の承諾なく使ってログインすることです。</p>
+          <p class="term-formula"><strong>他人のSNSのID・パスワードを使う</strong><br />↓<br /><strong>その人のSNSにログインする</strong><br />↓<br /><strong>メッセージを見る</strong></p>
+          <p>この場合、メッセージを書き換えたり削除したりしていなくても、不正アクセスに当たり得ます。</p>
+          <p>重要なのは、<strong>ログイン後に何をしたかではなく、本来利用する権限がない人がアクセス制御を越えて利用できる状態にしたか</strong>という点です。そのため、「見るだけならよい」「一度だけならよい」「実際の被害が出なければよい」ということにはなりません。警察庁の解説でも、データの閲覧を含め、利用の内容そのものには限定がないとされています。</p>
+          <p>また、パスワードをどのように手に入れたかによって、無断ログインが正当化されるわけではありません。例えば、次のような場合でも、本人の承諾なく利用すれば不正アクセスに当たり得ます。</p>
+          <p class="term-formula"><strong>道で他人のパスワードを書いたメモを拾う</strong><br />↓<br /><strong>そのパスワードで本人のSNSにログインする</strong></p>
+        </section>
+
+        <section>
+          <h2>パスワードを破らなくても不正アクセスになる</h2>
+          <p>「不正アクセス」という言葉から、難しい技術を使ってパスワードを破る行為だけを想像しやすいですが、不正アクセスはそれだけではありません。</p>
+          <p>例えば、他人の正しいIDとパスワードを知っていて、それを入力すると普通にログインできたとしても、<strong>その認証情報を使う権限がなければ不正アクセスに当たり得ます</strong>。</p>
+          <p class="term-formula"><strong>正しいパスワードを入力できた</strong><br />＝ 正当な利用者である、とは限らない</p>
+          <p>一方、不正アクセスには、他人のID・パスワードを使う方法だけでなく、システムの<strong>脆弱性（セキュリティ上の弱点）</strong>を悪用してアクセス制御を回避する方法もあります。</p>
+        </section>
+
+        <section>
+          <h2>フィッシングと不正アクセスの違い</h2>
+          <p><strong>フィッシング</strong>と<strong>不正アクセス</strong>は関連が深いですが、同じ行為ではありません。</p>
+          <p>例えば、次のような流れを考えます。</p>
+          <p class="term-formula"><strong>① 実在する銀行を装った偽サイトを用意する</strong><br />↓<br /><strong>② 利用者にIDとパスワードを入力させて盗む</strong><br />↓<br /><strong>③ 盗んだIDとパスワードで本物の銀行サービスにログインする</strong></p>
+          <p>①や②のように、実在する企業やサービスを装って認証情報などをだまし取る手口が<strong>フィッシング</strong>です。一方、③のように、だまし取った他人の認証情報を使って無断でログインする行為が<strong>不正アクセス</strong>です。</p>
+          <p>したがって、次のように区別するとよいでしょう。</p>
+          <ul>
+            <li><p><strong>フィッシング</strong> → ID・パスワードを盗む手口</p></li>
+            <li><p><strong>不正アクセス</strong> → 盗んだID・パスワードなどを使って無断でアクセスする行為</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>不正アクセス禁止法では周辺の行為も規制される</h2>
+          <p>不正アクセス禁止法は、実際に他人のアカウントへログインする行為だけを対象としているわけではありません。不正アクセスにつながる次のような行為も規制しています。</p>
+          <ul>
+            <li><p><strong>他人の識別符号を不正に取得する行為</strong><br />不正アクセスに使う目的で、他人のID・パスワードなどを取得する行為です。</p></li>
+            <li><p><strong>他人の識別符号を第三者に提供する行為</strong><br />正当な理由なく、他人のID・パスワードなどを別の人に教えたり、インターネット上に掲載したりする行為です。不正アクセスを容易にするため、これも規制されています。</p></li>
+            <li><p><strong>不正に取得された識別符号を保管する行為</strong><br />不正アクセスに使う目的で、不正に取得された他人の認証情報を保存しておく行為も規制されます。</p></li>
+            <li><p><strong>フィッシングによって識別符号の入力を要求する行為</strong><br />正規のサービスなどを装い、利用者にID・パスワードを入力させようとする行為も規制対象となります。</p></li>
+          </ul>
+          <p>つまり、</p>
+          <p class="term-formula"><strong>認証情報をだまし取る</strong> → <strong>他人に渡す</strong> → <strong>不正アクセスに使う</strong></p>
+          <p>という一連の行為のうち、実際のログインだけを規制しているわけではありません。</p>
+        </section>
+
+        <section>
+          <h2>不正アクセスを防ぐための対策</h2>
+          <p>不正アクセスを防ぐには、IDやパスワードなどの認証情報を適切に管理する必要があります。</p>
+          <p>例えば、ネットワークカメラなどを購入したときに、工場出荷時の<strong>初期パスワード</strong>をそのまま使用すると、第三者にパスワードを知られたり推測されたりして、不正にアクセスされる危険があります。そのため、初期パスワードは変更します。</p>
+          <p>また、同じパスワードを複数のサービスで使い回さない、推測されにくいパスワードを設定する、可能であれば<strong>多要素認証</strong>を利用するといった対策も有効です。警察庁も、パスワードの適切な設定やワンタイムパスワードなどによる認証強化を対策として挙げています。</p>
+          <p>組織では、アカウントの管理も重要です。例えば、従業員が退職したのにアカウントをそのまま残していると、本人や第三者によって悪用される可能性があります。そのため、退職や異動によって利用資格がなくなった場合には、不要となったIDを速やかに停止・削除するなどの管理を行います。</p>
+        </section>
+
+        <section>
+          <h2>「不正アクセス」と他の問題を区別する</h2>
+          <p>試験では、「コンピュータやインターネットを悪用した行為」がすべて不正アクセスになるわけではないことにも注意します。</p>
+          <ul>
+            <li><p><strong>架空の商品を売ると言って代金をだまし取る</strong><br />詐欺に関係する問題であり、それだけで不正アクセスとはいえません。</p></li>
+            <li><p><strong>他人の著作物を無断で複製して販売する</strong><br />著作権に関係する問題です。</p></li>
+            <li><p><strong>大量の通信を送り付けてサービスを利用しにくくする</strong><br />DoS攻撃などに関係する問題であり、他人の認証情報を使ってアクセス制御を越える典型的な不正アクセスとは異なります。</p></li>
+            <li><p><strong>誰でも閲覧できる公開Webページを見る</strong><br />そもそもアクセス制御によって利用を制限されていないため、通常の閲覧は不正アクセスではありません。</p></li>
+            <li><p><strong>公開されている掲示板に、認められた方法で自分の意見を書き込む</strong><br />正当な利用であり、それだけでは不正アクセスではありません。</p></li>
+          </ul>
+          <p>不正アクセスかどうかを判断するときは、次の点に注目するとよいでしょう。</p>
+          <p class="term-formula"><strong>その人には利用する権限があるか</strong><br /><strong>認証などのアクセス制御を無断で越えていないか</strong></p>
+        </section>
+
+        <section>
+          <h2>覚えておきたい関係</h2>
+          <p>不正アクセスに関する問題では、次の流れを整理しておくと判断しやすくなります。</p>
+          <p class="term-formula"><strong>認証</strong><br />「あなたは誰か」をID・パスワードなどで確認する。<br /><br />↓<br /><br /><strong>アクセス制御</strong><br />認証された利用者などに応じて、利用できる範囲を制限する。<br /><br />↓<br /><br /><strong>不正アクセス</strong><br />他人の認証情報を無断で使うなどして、本来の利用制限を越える。</p>
+          <p>また、</p>
+          <p class="term-formula"><strong>偽サイトなどでID・パスワードをだまし取る</strong> → フィッシング<br /><strong>だまし取ったID・パスワードでログインする</strong> → 不正アクセス</p>
+          <p>という違いも押さえておくとよいでしょう。</p>
+          <p>なお、不正アクセス禁止法の対象となる不正アクセスは、<strong>インターネットだけに限定されません</strong>。企業や学校などのLANを含め、ネットワークを通じて行われるものが対象となります。一方、法律上の「不正アクセス行為」はネットワークを通じた行為を前提としており、ネットワークを介さずコンピュータを直接操作する行為とは区別されます。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>不正アクセス · EXAMPLE</span><span>ITパスポートH23特別 問32（改題）</span></div>
+          <h3>不正アクセスの例として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>架空の商品を売ると言って代金を受け取る。</p></li>
+            <li><span>1</span><p>他人のユーザIDとパスワードを無断で使い、他人の電子メールを読む。</p></li>
+            <li><span>2</span><p>不正に複製した音楽CDを販売する。</p></li>
+            <li><span>3</span><p>公開されている掲示板に、自分の意見を書き込む。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．他人のユーザIDとパスワードを無断で使い、他人の電子メールを読む</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>不正アクセスは、アクセス制御を越えて、本来許されていない利用をする行為です。他人のユーザIDとパスワードを無断で使って電子メールを読む行為が該当します。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH23特別 問32（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：不正アクセス／認証</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">不正アクセスの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="不正アクセス"
+          data-limit="5"
+          data-exclude-stem="不正アクセスの例として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=不正アクセス">不正アクセスの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"不正アクセスとは","description":"不正アクセスの意味と、認証・アクセス制御、フィッシングとの違い、周辺の規制、対策を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/unauthorized-access/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"不正アクセス","item":"https://mei-chan-nel.com/terms/unauthorized-access/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
