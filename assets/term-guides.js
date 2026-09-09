@@ -102,6 +102,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "完全性": {
     "url": "/terms/integrity/"
   },
+  "尺度": {
+    "url": "/terms/scale/"
+  },
   "機械学習": {
     "url": "/terms/machine-learning/"
   },
