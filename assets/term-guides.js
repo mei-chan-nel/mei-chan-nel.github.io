@@ -51,6 +51,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "ビッグデータ": {
     "url": "/terms/big-data/"
   },
+  "ビット": {
+    "url": "/terms/bit/"
+  },
   "ファイアウォール": {
     "url": "/terms/firewall/"
   },

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ビットとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="ビットの意味と、nビットで表せる状態数、整数の範囲、バイト換算、ビット演算、画像表現を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ビット" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ビットとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="ビットの意味と、nビットで表せる状態数、整数の範囲、バイト換算、ビット演算、画像表現を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/bit/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/bit/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ビット</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">ビット</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「ビット」とは</h2>
+          <p><strong>ビット（bit）</strong>は、コンピュータが情報を表すときの基本となる単位であり、<strong>0または1の2通りの状態</strong>を表します。bitは「binary digit（二進数字）」に由来する言葉です。</p>
+          <p>例えば、スイッチの「OFF／ON」、LEDの「消灯／点灯」のように、二つの状態を0と1に対応させれば、1ビットで表すことができます。</p>
+          <p>実際のコンピュータでは、0と1そのものを保存しているというより、物理的な二つの状態を0と1に対応させています。例えばHDDでは磁性体の磁化状態の違いを利用してビットを記録します。装置によっては電気的な状態など、別の仕組みが使われます。</p>
+        </section>
+
+        <section>
+          <h2>ビット数と表現できる状態の数</h2>
+          <p>1ビットには、0と1の2通りがあります。</p>
+          <p>2ビットでは、00、01、10、11の4通りを表せます。</p>
+          <p>同様に、次のようになります。</p>
+          <p class="term-formula">3ビット → 2<sup>3</sup>＝8通り<br />4ビット → 2<sup>4</sup>＝16通り<br />5ビット → 2<sup>5</sup>＝32通り<br />6ビット → 2<sup>6</sup>＝64通り<br />7ビット → 2<sup>7</sup>＝128通り<br />8ビット → 2<sup>8</sup>＝256通り</p>
+          <p>各ビットがそれぞれ0または1を独立に取るので、<strong>nビットで表せるビット列は2<sup>n</sup>通り</strong>となります。</p>
+          <p>例えば、3個のLEDがそれぞれ点灯・消灯の2状態を取るなら、その組合せは2<sup>3</sup>＝8通りです。すべて消灯している場合も一つの組合せとして数えます。</p>
+        </section>
+
+        <section>
+          <h2>必要な最小ビット数</h2>
+          <p>反対に、「M種類の状態を区別するには何ビット必要か」という問題では、</p>
+          <p class="term-formula"><strong>2<sup>n</sup> ≧ M</strong></p>
+          <p>を満たす最小の整数nを求めます。</p>
+          <p>例えば26種類の文字を区別する場合、</p>
+          <p class="term-formula">2<sup>4</sup>＝16<br />2<sup>5</sup>＝32</p>
+          <p>なので、4ビットでは不足し、5ビットあれば足ります。したがって最小5ビットです。</p>
+          <p>100種類の場合は、</p>
+          <p class="term-formula">2<sup>6</sup>＝64<br />2<sup>7</sup>＝128</p>
+          <p>なので7ビット必要です。</p>
+          <p>24時間制の「時」は0～23の24通りなので5ビット、「分」は0～59の60通りなので6ビット必要です。</p>
+        </section>
+
+        <section>
+          <h2>ビットと整数</h2>
+          <p>nビットのすべてを数値の大きさに使う<strong>符号なし整数</strong>では、</p>
+          <p class="term-formula"><strong>0～2<sup>n</sup>−1</strong></p>
+          <p>の整数を表せます。</p>
+          <p>例えば8ビットでは、0～255の256種類の整数を表せます。</p>
+          <p>負の数も扱う<strong>2の補数表現</strong>では、nビットで表せる範囲は、</p>
+          <p class="term-formula"><strong>−2<sup>n−1</sup> ～ 2<sup>n−1</sup>−1</strong></p>
+          <p>となります。例えば8ビットなら−128～127です。</p>
+          <p>表せる範囲を計算結果が超えることを<strong>オーバーフロー</strong>といいます。</p>
+        </section>
+
+        <section>
+          <h2>ビットとバイト</h2>
+          <p>データ量ではバイトもよく使われます。</p>
+          <p class="term-formula"><strong>1バイト＝8ビット</strong></p>
+          <p>なので、次のように考えます。</p>
+          <ul>
+            <li><p>バイトからビットへ直すときは8倍</p></li>
+            <li><p>ビットからバイトへ直すときは8で割る</p></li>
+          </ul>
+          <p>例えば16バイトは、</p>
+          <p class="term-formula">16×8＝128ビット</p>
+          <p>です。</p>
+        </section>
+
+        <section>
+          <h2>k（キロ）、M（メガ）、G（ギガ）とKiB（キビ）、MiB（メビ）、GiB（ギビ）</h2>
+          <p>通信速度やデータ量では、k（キロ）、M（メガ）、G（ギガ）などの接頭語を付けて表すことがあります。</p>
+          <p class="term-formula">1kビット＝1,000ビット＝10<sup>3</sup>ビット<br />1Mビット＝1,000kビット＝1,000,000ビット＝10<sup>6</sup>ビット<br />1Gビット＝1,000Mビット＝1,000,000kビット＝1,000,000,000ビット＝10<sup>9</sup>ビット</p>
+          <p>一方、2進数を基準とする接頭語では、次のように表します。</p>
+          <p class="term-formula">1KiB＝1,024バイト＝2<sup>10</sup>バイト<br />1MiB＝2<sup>20</sup>バイト<br />1GiB＝2<sup>30</sup>バイト</p>
+          <p>例えば、</p>
+          <p class="term-formula">8kB＝8×1,000＝8,000バイト<br />8KiB＝8×1,024＝8,192バイト</p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>ビット演算</h2>
+          <p>0と1の各桁に対して行う演算を<strong>ビット演算</strong>といいます。</p>
+          <ul>
+            <li><p><strong>AND</strong>は、両方が1のときだけ1になります。特定のビットだけを残す処理などに使われます。</p></li>
+            <li><p><strong>OR</strong>は、どちらか一方でも1なら1になります。特定のビットを1にする処理などに使われます。</p></li>
+            <li><p><strong>XOR</strong>は、二つのビットが異なるとき1になります。特定のビットを反転する処理などに使われます。</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>画像などへの利用</h2>
+          <p>ビット数は、画像で表現できる階調や色の数にも関係します。</p>
+          <p>1画素を8ビットで表すなら、</p>
+          <p class="term-formula">2<sup>8</sup>＝256</p>
+          <p>より256段階を表せます。</p>
+          <p>RGB画像で赤・緑・青をそれぞれ8ビットで表す場合は、1画素当たり24ビットとなり、</p>
+          <p class="term-formula">256<sup>3</sup>＝16,777,216色</p>
+          <p>を表現できます。</p>
+          <p>このように、ビットは単に0と1を表す単位ではなく、<strong>ビット数によって表現できる情報の種類や範囲が決まります</strong>。特に、</p>
+          <p class="term-formula"><strong>nビット → 2<sup>n</sup>通り</strong></p>
+          <p>という関係が、整数、画像、通信、記憶装置などを考える基本となります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ビット · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>各ビットが0または1のいずれかをとる5ビットの固定長ビット列で表せる、異なる状態の総数を次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>5通り</p></li>
+            <li><span>1</span><p>32通り</p></li>
+            <li><span>2</span><p>10通り</p></li>
+            <li><span>3</span><p>25通り</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．32通り</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>nビットの各桁が独立に0または1を取るなら、組合せは2×…×2＝2<sup>n</sup>通りです。5ビットでは32通りになります。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ビット</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ビットの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ビット"
+          data-limit="5"
+          data-exclude-stem="各ビットが0または1のいずれかをとる5ビットの固定長ビット列で表せる、異なる状態の総数を次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ビット">ビットの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ビットとは","description":"ビットの意味と、nビットで表せる状態数、整数の範囲、バイト換算、ビット演算、画像表現を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/bit/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ビット","item":"https://mei-chan-nel.com/terms/bit/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
