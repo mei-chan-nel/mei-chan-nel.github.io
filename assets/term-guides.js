@@ -48,6 +48,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "デジタルデバイド": {
     "url": "/terms/digital-divide/"
   },
+  "データ量": {
+    "url": "/terms/data-volume/"
+  },
   "ビッグデータ": {
     "url": "/terms/big-data/"
   },
