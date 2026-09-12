@@ -114,6 +114,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "機械学習": {
     "url": "/terms/machine-learning/"
   },
+  "著作権": {
+    "url": "/terms/copyright/"
+  },
   "記憶装置": {
     "url": "/terms/memory/"
   },
