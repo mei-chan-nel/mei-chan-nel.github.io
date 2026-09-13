@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>認証とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="認証の意味と三つの認証要素、多要素認証、生体認証、電子署名、アクセス制御、認証ログなどを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="認証" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="認証とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="認証の意味と三つの認証要素、多要素認証、生体認証、電子署名、アクセス制御、認証ログなどを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/authentication/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/authentication/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">認証</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">認証</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「認証」とは</h2>
+          <p><strong>認証</strong>とは、コンピュータやサービスを利用しようとしている人が、<strong>本当にその本人であるかを確認する仕組み</strong>です。</p>
+          <p>例えば、ログインするときにパスワードを入力したり、スマートフォンに届いた確認コードを入力したり、指紋や顔を読み取ったりするのは認証の例です。</p>
+          <p>認証で本人を確認した後、「その人にどの情報の閲覧や操作を許可するか」を決めることを<strong>アクセス制御</strong>といいます。認証とアクセス制御は関係が深いですが、同じものではありません。</p>
+        </section>
+
+        <section>
+          <h2>認証に使う三つの要素</h2>
+          <p>本人確認に用いる情報は、主に次の三種類に分類できます。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>認証要素の分類</caption>
+              <thead>
+                <tr><th scope="col">認証要素</th><th scope="col">意味</th><th scope="col">例</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">知識要素</th><td>本人が<strong>知っているもの</strong></td><td>パスワード、暗証番号（PIN）、秘密の質問</td></tr>
+                <tr><th scope="row">所持要素</th><td>本人が<strong>持っているもの</strong></td><td>ICカード、スマートフォン、物理的な鍵</td></tr>
+                <tr><th scope="row">生体要素</th><td>本人自身の<strong>身体的・行動的特徴</strong></td><td>指紋、顔、虹彩、静脈、声、筆跡</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>利用者IDは「誰としてログインしようとしているか」を示す<strong>識別子</strong>であり、それ自体を秘密にして本人を確認する情報とは限りません。</p>
+        </section>
+
+        <section>
+          <h2>スマートフォンに届く確認コード</h2>
+          <p>登録済みのスマートフォンにSMSなどで確認コードを送り、そのコードを入力させる方法があります。</p>
+          <p>入力するコード自体は文字や数字ですが、この認証で確認しているのは「そのコードを知っているか」だけではなく、基本的には<strong>登録されたスマートフォンや電話番号を利用できる状態にあるか</strong>です。そのため、認証要素としては所持要素として扱います。</p>
+          <p>パスワードとスマートフォンへの確認コードを組み合わせれば、次のように異なる二種類の要素を確認することになります。</p>
+          <p class="term-formula"><strong>パスワード</strong>：知識要素<br /><strong>スマートフォン</strong>：所持要素</p>
+          <p>ただし、SMSによる認証にも弱点があります。SMSを第三者に受信されたり、利用者が偽のWebサイトに確認コードを入力してしまったりすれば、コードを盗まれる可能性があります。確認コードには短い有効期限を設定し、一度使用したコードは再利用できないようにすることが望ましいです。</p>
+        </section>
+
+        <section>
+          <h2>多要素認証</h2>
+          <p><strong>多要素認証（MFA：Multi-Factor Authentication）</strong>とは、異なる種類の認証要素を二つ以上組み合わせる方式です。</p>
+          <p>例えば、次のような組合せは多要素認証となります。</p>
+          <ul>
+            <li><p>パスワード（知識）＋ICカード（所持）</p></li>
+            <li><p>パスワード（知識）＋指紋（生体）</p></li>
+            <li><p>キャッシュカード（所持）＋暗証番号（知識）</p></li>
+            <li><p>パスワード（知識）＋登録済みスマートフォン（所持）</p></li>
+          </ul>
+          <p>一方、次のように同じ種類の要素を二つ使っただけでは、多要素認証にはなりません。</p>
+          <ul>
+            <li><p>パスワード（知識）＋別のパスワード（知識）</p></li>
+            <li><p>パスワード（知識）＋秘密の質問（知識）</p></li>
+            <li><p>暗証番号（知識）＋パスワード（知識）</p></li>
+            <li><p>指紋（生体）＋別の指の指紋（生体）</p></li>
+            <li><p>ICカード（所持）＋別のカード（所持）</p></li>
+          </ul>
+          <p>重要なのは、<strong>入力する回数や情報の個数ではなく、認証要素の種類が異なるかどうか</strong>です。</p>
+        </section>
+
+        <section>
+          <h2>二要素認証と二段階認証</h2>
+          <p>異なる二種類の要素を使う認証を<strong>二要素認証</strong>といいます。二要素認証は多要素認証の一種です。</p>
+          <p>これに対して<strong>二段階認証</strong>は、認証を二つの段階に分けて行うことを表します。二段階認証であっても、必ずしも二要素認証とは限りません。</p>
+          <p>例えば、</p>
+          <ol>
+            <li><p>パスワードを入力する</p></li>
+            <li><p>秘密の質問に答える</p></li>
+          </ol>
+          <p>という方式は二段階で認証していますが、どちらも知識要素です。そのため、二段階認証ではありますが、二要素認証ではありません。</p>
+        </section>
+
+        <section>
+          <h2>パスワードによる認証</h2>
+          <p>パスワードは代表的な知識要素です。</p>
+          <p>パスワードが漏えいすると、本人になりすましてログインされる危険があります。そのため、次のような対策が重要です。</p>
+          <ul>
+            <li><p>十分に長いパスワードを使う</p></li>
+            <li><p>サービスごとに異なるパスワードを使う</p></li>
+            <li><p>複数サービスで使い回さない</p></li>
+            <li><p>必要に応じてパスワード管理ツールを利用する</p></li>
+            <li><p>多要素認証を併用する</p></li>
+          </ul>
+          <p>多数のサービスで異なる長いパスワードを管理する場合、信頼できるパスワード管理ツールを利用する方法があります。その場合は、管理ツール自体のマスターパスワードを十分に強くし、多要素認証などで保護します。</p>
+        </section>
+
+        <section>
+          <h2>パスワードを忘れた場合</h2>
+          <p>サービス側が利用者の現在のパスワードをメールで送り返す方式は適切ではありません。</p>
+          <p>本人確認後、登録済みのメールアドレスなどへ、次のような方法で新しいパスワードを設定させる方式が適切です。</p>
+          <ul>
+            <li><p>推測困難な再設定用URLを送る</p></li>
+            <li><p>URLには有効期限を設定する</p></li>
+            <li><p>一度使ったURLは無効にする</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>生体認証</h2>
+          <p>生体認証は、本人の身体的特徴や行動的特徴を利用する認証方式です。</p>
+          <p>代表例には、次のようなものがあります。</p>
+          <ul>
+            <li><p>指紋</p></li>
+            <li><p>顔</p></li>
+            <li><p>虹彩</p></li>
+            <li><p>静脈</p></li>
+            <li><p>声</p></li>
+            <li><p>筆跡や筆圧</p></li>
+          </ul>
+          <p>生体認証には、パスワードを覚えたりカードを持ち歩いたりする負担を減らせるという利点があります。</p>
+          <p>一方、生体情報にはパスワードと異なる特徴があります。パスワードは漏えいすれば新しいものに変更できますが、指紋や顔などの身体的特徴は簡単には変更できません。そのため、認証に用いる生体情報から作成した<strong>生体テンプレート</strong>などを適切に保護する必要があります。</p>
+          <p>また、けがや機器の故障などで生体認証が利用できない場合に備えて、別の認証方法を用意することも必要です。</p>
+        </section>
+
+        <section>
+          <h2>本人拒否と他人受入れ</h2>
+          <p>生体認証では、測定結果を登録済みの特徴と照合し、一定以上似ていれば本人と判定します。このため、完全に誤判定をなくすことは難しいです。</p>
+          <ul>
+            <li><p><strong>本人拒否</strong>：本人なのに本人ではないと判定する</p></li>
+            <li><p><strong>他人受入れ</strong>：他人なのに本人だと判定する</p></li>
+          </ul>
+          <p>照合のしきい値を緩くすると本人を受け入れやすくなるので、本人拒否は減りやすくなります。一方で、他人まで本人として受け入れる危険は高くなります。</p>
+          <p>逆に、しきい値を厳しくすると他人を受け入れにくくなりますが、本人まで拒否する可能性が高くなります。</p>
+          <p>したがって、生体認証では本人拒否と他人受入れの間に<strong>交換関係</strong>があります。</p>
+        </section>
+
+        <section>
+          <h2>写真による顔認証の突破</h2>
+          <p>顔認証装置に本人の写真を見せて認証を突破しようとするような攻撃を防ぐには、顔の形が登録情報と一致しているかだけでは不十分です。</p>
+          <p>まばたき、微細な動き、顔の奥行きなどを調べ、「カメラの前にいるのが写真や動画ではなく、生きた人間であるか」を確認する<strong>ライブネス検知</strong>が用いられます。</p>
+        </section>
+
+        <section>
+          <h2>一時的なコードと再利用への対策</h2>
+          <p>認証に使うコードを何度でも利用できるようにすると、盗まれたコードを再利用される危険があります。</p>
+          <p>例えば、来訪者用のQRコード付き入館証では、一度利用したコードを再び利用できないようにすれば、使用済みの入館証を拾った人による再入館を防ぎやすくなります。</p>
+          <p>同様に、SMSなどで送る一時コードも、次のような対策によって不正利用の危険を減らせます。</p>
+          <ul>
+            <li><p>有効時間を短くする</p></li>
+            <li><p>一度使ったら無効にする</p></li>
+          </ul>
+          <p>固定された二次元コードをPDFなどで配布すると、ファイルのコピーや画面撮影によって複製されやすくなります。これに対して、一定時間ごとにコードが変わり、利用者のアカウントや端末と結び付いた方式では、複製による不正利用を抑えやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>チャレンジが毎回変わる認証</h2>
+          <p>利用者ごとに乱数表を持たせ、ログインするたびに「○行○列の数字を入力してください」のように異なる位置を指定する方式があります。</p>
+          <p>毎回入力する値が変わるため、あるとき入力した値だけを盗み見られても、その値を次のログインでそのまま利用できるとは限りません。</p>
+          <p>このように、以前取得した認証情報をそのまま再利用する<strong>リプレイ</strong>への耐性を高めることができます。</p>
+        </section>
+
+        <section>
+          <h2>認証と暗号化</h2>
+          <p>認証は本人を確認する仕組みであり、暗号化は情報を読めない形に変換して秘密を守る仕組みです。</p>
+          <p>例えば、ノートPCの記憶装置を抜き取られて別のPCへ接続された場合、OSのログインパスワードだけでは保存データを守れないことがあります。</p>
+          <p>記憶装置全体を暗号化し、復号するときに本人の認証情報を要求するようにすれば、記憶装置そのものを盗まれてもデータを読まれにくくできます。</p>
+        </section>
+
+        <section>
+          <h2>電子署名と認証</h2>
+          <p>電子署名は、電子文書について、次のことを確認するために利用されます。</p>
+          <ul>
+            <li><p>誰が署名したものか</p></li>
+            <li><p>署名後に内容が改ざんされていないか</p></li>
+          </ul>
+          <p>公開鍵暗号方式を使う電子署名では、送信者が自分の<strong>秘密鍵</strong>を使って署名を作成し、受信者が対応する<strong>公開鍵</strong>を使って署名を検証します。</p>
+          <p>ただし、「その公開鍵が本当にAさんの公開鍵である」と確認できなければ、「Aさんの署名である」と確実に判断できません。</p>
+          <p>そこで、公開鍵とその所有者との対応を電子証明書などで確認します。</p>
+          <p>公開鍵暗号方式では、次の区別が重要です。</p>
+          <ul>
+            <li><p><strong>公開鍵</strong>：他人に公開してよい</p></li>
+            <li><p><strong>秘密鍵</strong>：所有者だけが安全に管理する</p></li>
+          </ul>
+          <p>公開鍵から秘密鍵を容易に求められるようでは、安全性が成り立ちません。</p>
+          <p>なお、電子署名は主として送信者や改ざんの有無を確認するものであり、文書を第三者から読めないようにする<strong>機密性</strong>を直接保証する仕組みではありません。</p>
+        </section>
+
+        <section>
+          <h2>真正性</h2>
+          <p>情報セキュリティでは、「主張されている人や情報源が本物であること」を<strong>真正性</strong>といいます。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>この電子文書は本当に表示されている送信者が作成したものか</strong></p>
+          <p>を確認することは、真正性の確認に当たります。</p>
+          <p>認証や電子署名は、真正性を確保するために利用されます。</p>
+        </section>
+
+        <section>
+          <h2>認証と情報セキュリティの三要素</h2>
+          <p>情報セキュリティの基本的な三要素として、次のものがあります。</p>
+          <ul>
+            <li><p><strong>機密性</strong>：許可された人だけが情報を利用できる</p></li>
+            <li><p><strong>完全性</strong>：情報が正確で、不正に変更されていない</p></li>
+            <li><p><strong>可用性</strong>：必要なときに情報やサービスを利用できる</p></li>
+          </ul>
+          <p>認証によって利用者を確認し、権限のある利用者だけに情報を見せることは、特に<strong>機密性</strong>を高めます。</p>
+          <p>例えば、IDとパスワードで利用者を認証して顧客情報へのアクセスを制限することや、サーバ室への入室時に暗証番号と虹彩認証を要求することは、権限のない人による情報閲覧を防ぐための対策です。</p>
+          <p>一方、サーバを複数用意して障害時にもサービスを継続できるようにする対策は、主に可用性に関係します。</p>
+        </section>
+
+        <section>
+          <h2>認証とアクセス制御</h2>
+          <p>認証によって「誰であるか」を確認した後、その利用者が何をしてよいかを決めるのがアクセス制御です。</p>
+          <p>例えば、社員ごとに入室できる部屋を設定するシステムでは、次の流れになります。</p>
+          <ol>
+            <li><p>指紋やICカードなどで社員を認証する</p></li>
+            <li><p>その社員にその部屋への入室権限があるかを確認する</p></li>
+            <li><p>権限があれば入室を許可する</p></li>
+          </ol>
+          <p class="term-formula"><strong>認証</strong> → 本人の確認<br /><strong>アクセス制御</strong> → 権限の確認</p>
+          <p>このように、認証とアクセス制御を区別できます。</p>
+        </section>
+
+        <section>
+          <h2>認証ログ</h2>
+          <p>不正ログインなどを後から調査できるようにするため、認証の記録をログとして残すことが重要です。</p>
+          <p>例えば、次のような情報を記録します。</p>
+          <ul>
+            <li><p>認証を試みた時刻</p></li>
+            <li><p>利用者IDなどの識別子</p></li>
+            <li><p>接続元</p></li>
+            <li><p>認証が成功したか失敗したか</p></li>
+          </ul>
+          <p>これによって、「いつ、誰として、どこから認証を試み、結果がどうなったか」を調査できます。</p>
+          <p>ただし、利用者が入力した<strong>パスワードそのものをログへ記録してはいけません</strong>。ログ自体についても、閲覧できる人を制限し、改ざんされないよう管理する必要があります。</p>
+        </section>
+
+        <section>
+          <h2>物理的な場所への認証</h2>
+          <p>認証はコンピュータへのログインだけでなく、建物や部屋への入退室管理にも利用されます。</p>
+          <p>例えば、次のようなものによって入室者を確認できます。</p>
+          <ul>
+            <li><p>ICカード</p></li>
+            <li><p>QRコード付き入館証</p></li>
+            <li><p>暗証番号</p></li>
+            <li><p>指紋・顔・虹彩</p></li>
+          </ul>
+          <p>ただし、認証装置があっても、それだけですべての侵入を防げるわけではありません。</p>
+        </section>
+
+        <section>
+          <h2>テールゲーティング</h2>
+          <p>認証済みの人が扉を開けた直後に、認証していない別人がその人について一緒に入り込む手口を<strong>テールゲーティング</strong>といいます。</p>
+          <p>これは認証装置そのものを破るのではなく、人の出入りに便乗して物理的なアクセス制御を回避する方法です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>認証 · EXAMPLE</span><span>ITパスポートH26秋期 問60（改題）</span></div>
+          <h3>認証を「所有物による認証」「知識による認証」「身体的特徴による認証」に分ける。ICカード、IDとパスワード、指紋の組合せとして最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>ICカード: 所有物、IDとパスワード: 身体的特徴、指紋: 知識</p></li>
+            <li><span>1</span><p>ICカード: 所有物、IDとパスワード: 知識、指紋: 身体的特徴</p></li>
+            <li><span>2</span><p>ICカード: 知識、IDとパスワード: 所有物、指紋: 身体的特徴</p></li>
+            <li><span>3</span><p>ICカード: 知識、IDとパスワード: 身体的特徴、指紋: 所有物</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．ICカード: 所有物、IDとパスワード: 知識、指紋: 身体的特徴</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ICカードは持っているものを使う所有物による認証、IDとパスワードは知っていることを使う知識による認証、指紋は身体的特徴による認証です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH26秋期 問60（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：認証／パスワード／ICカード</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">認証の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="認証"
+          data-limit="5"
+          data-exclude-stem="認証を「所有物による認証」「知識による認証」「身体的特徴による認証」に分ける。ICカード、IDとパスワード、指紋の組合せとして最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=認証">認証の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"認証とは","description":"認証の意味と三つの認証要素、多要素認証、生体認証、電子署名、アクセス制御、認証ログなどを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/authentication/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"認証","item":"https://mei-chan-nel.com/terms/authentication/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

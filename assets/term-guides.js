@@ -120,6 +120,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "記憶装置": {
     "url": "/terms/memory/"
   },
+  "認証": {
+    "url": "/terms/authentication/"
+  },
   "電子証明書": {
     "url": "/terms/digital-certificate/"
   }
