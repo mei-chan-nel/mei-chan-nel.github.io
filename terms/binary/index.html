@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>2進数とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="2進数の仕組みと10進数・16進数との変換、加算、2の補数、2進小数、浮動小数点数を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="2進数" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="2進数とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="2進数の仕組みと10進数・16進数との変換、加算、2の補数、2進小数、浮動小数点数を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/binary/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/binary/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">2進数</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">2進数</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「2進数」とは</h2>
+          <p>普段使っている10進数では、0～9の10種類の数字を使い、桁が一つ上がるごとに値が10倍になります。一方、2進数では0と1だけを使い、桁が一つ上がるごとに値が2倍になります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>2026</strong> ＝ 2×10³＋0×10²＋2×10¹＋6×10⁰</p>
+          <p>です。</p>
+          <p>2進数とは、<strong>0と1の2種類の数字だけを使って数を表す方法</strong>です。</p>
+          <p>例えば、2進数の</p>
+          <p class="term-formula"><strong>1011₂</strong><br />＝ 1×2³＋0×2²＋1×2¹＋1×2⁰<br />＝ 1×8＋0×4＋1×2＋1×1<br />＝ <strong>11</strong></p>
+          <p>であり、10進数の11を表しています。</p>
+          <p>「₂」のような右下の数字は基数を表します。1011₂なら2進数、1011₁₀なら10進数です。</p>
+        </section>
+
+        <section>
+          <h2>2進数から10進数への変換</h2>
+          <p>2進数から10進数へ変換するときは、2のべき乗の重みを付けて展開し、それを普通に10進数で計算するとよいでしょう。</p>
+          <p>例えば、1011₂なら、左から8、4、2、1という重みを付け、1になっている桁の重みを足します。</p>
+          <p class="term-formula">1011₂<br />＝ 1×2³＋0×2²＋1×2¹＋1×2⁰<br />＝ 8＋2＋1<br />＝ <strong>11₁₀</strong></p>
+        </section>
+
+        <section>
+          <h2>10進数から2進数への変換</h2>
+          <p>10進整数を2進数に変換するときは、<strong>2で割った商をさらに2で割る操作を、商が0になるまで繰り返す</strong>方法を使います。そのときに出た余りを下から上へ読みます。</p>
+          <p>例えば、10進数26を2進数に変換します。</p>
+          <p class="term-formula">26÷2＝13　余り0<br />13÷2＝6　余り1<br />6÷2＝3　余り0<br />3÷2＝1　余り1<br />1÷2＝0　余り1</p>
+          <p>余りを下から上へ読むと、</p>
+          <p class="term-formula"><strong>11010₂</strong></p>
+          <p>となります。したがって、</p>
+          <p class="term-formula"><strong>26₁₀＝11010₂</strong></p>
+          <p>です。</p>
+          <p>この方法では、2で割ったときの余りは必ず0か1になるため、その余りを順に並べることで2進数を求めることができます。</p>
+          <p>また、別の方法として、10進整数を2進数に変換するときは、その数を<strong>2の累乗の和</strong>として考えることもできます。</p>
+          <p>例えば、10進数26なら、</p>
+          <p class="term-formula">26＝16＋8＋2<br />＝2⁴＋2³＋2¹</p>
+          <p>です。</p>
+          <p>2⁴、2³、2²、2¹、2⁰の順に、使う桁を1、使わない桁を0にすると、</p>
+          <p class="term-formula">26＝1×2⁴＋1×2³＋1×2²＋1×2¹＋0×2⁰<br />＝ <strong>11010₂</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>桁数をそろえる</h2>
+          <p>コンピュータでは、値を一定のビット数で表すことが多くあります。</p>
+          <p>例えば75を普通に2進数で表すと、</p>
+          <p class="term-formula">1001011₂</p>
+          <p>ですが、8ビットで表すなら左側を0で埋めて、</p>
+          <p class="term-formula"><strong>01001011₂</strong></p>
+          <p>とします。左側に付けた0は値そのものには影響しません。</p>
+        </section>
+
+        <section>
+          <h2>ビットと表せる値の範囲</h2>
+          <p>2進数の1桁を<strong>1ビット（bit）</strong>といいます。</p>
+          <p>1ビットでは、</p>
+          <p class="term-formula">0、1</p>
+          <p>の2通りを表せます。これはちょうど、1桁の2進数に対応します。</p>
+          <p>2ビットなら、</p>
+          <p class="term-formula">00、01、10、11</p>
+          <p>の4通りです。これは、2桁目が0であるものも含めると、2桁の2進数に対応します。</p>
+          <p>一般に、<strong>nビットでは2ⁿ通りの状態</strong>を表せます。</p>
+          <p>符号なし整数として利用する場合、0も一つの値として使うため、表せる範囲は</p>
+          <p class="term-formula"><strong>0～2ⁿ－1</strong></p>
+          <p>となります。上位の桁が0のものも含めると、n桁の2進数に対応します。</p>
+        </section>
+
+        <section>
+          <h2>2進数と16進数</h2>
+          <p>長い2進数は読みにくいため、コンピュータでは16進数を使って短く表すことがあります。</p>
+          <p>16進数では、0、1、2、…、9、A、B、C、D、E、Fの16種類の数字を使います。</p>
+          <p>16＝2⁴なので、<strong>16進数1桁と2進数4ビットがちょうど対応します</strong>。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>16進数1桁と4ビットの対応</caption>
+              <thead>
+                <tr><th scope="col">16進数</th><th scope="col">2進数</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">0</th><td>0000</td></tr>
+                <tr><th scope="row">1</th><td>0001</td></tr>
+                <tr><th scope="row">2</th><td>0010</td></tr>
+                <tr><th scope="row">3</th><td>0011</td></tr>
+                <tr><th scope="row">4</th><td>0100</td></tr>
+                <tr><th scope="row">5</th><td>0101</td></tr>
+                <tr><th scope="row">6</th><td>0110</td></tr>
+                <tr><th scope="row">7</th><td>0111</td></tr>
+                <tr><th scope="row">8</th><td>1000</td></tr>
+                <tr><th scope="row">9</th><td>1001</td></tr>
+                <tr><th scope="row">A</th><td>1010</td></tr>
+                <tr><th scope="row">B</th><td>1011</td></tr>
+                <tr><th scope="row">C</th><td>1100</td></tr>
+                <tr><th scope="row">D</th><td>1101</td></tr>
+                <tr><th scope="row">E</th><td>1110</td></tr>
+                <tr><th scope="row">F</th><td>1111</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>例えば、</p>
+          <p class="term-formula">6D₁₆<br />6 → 0110<br />D → 1101</p>
+          <p>なので、</p>
+          <p class="term-formula"><strong>6D₁₆＝01101101₂</strong></p>
+          <p>となります。</p>
+          <p>逆に、</p>
+          <p class="term-formula">101101100011₂</p>
+          <p>を右から4ビットずつ区切ると、</p>
+          <p class="term-formula">1011｜0110｜0011</p>
+          <p>となります。それぞれ16進数にすると、B｜6｜3なので、</p>
+          <p class="term-formula"><strong>B63₁₆</strong></p>
+          <p>となります。</p>
+          <p>画像の白黒のマスや1バイトのデータなど、複数のビットをまとめて扱う場合にもこの対応が利用されます。</p>
+        </section>
+
+        <section>
+          <h2>2進数の加算</h2>
+          <p>2進数でも、10進数と同じように右端から筆算できます。基本となる計算は次のとおりです。</p>
+          <ul>
+            <li><p>0＋0＝0</p></li>
+            <li><p>0＋1＝1</p></li>
+            <li><p>1＋0＝1</p></li>
+            <li><p>1＋1＝10</p></li>
+          </ul>
+          <p>最後の1＋1＝10₂では、答えの桁が0になり、左の桁へ1が繰り上がります。</p>
+          <p>例えば、1101₂＋101₂を計算する場合、桁をそろえて次のようになります。</p>
+          <pre class="question-code" aria-label="2進数の加算"><code>  1101
++ 0101
+------
+ 10010</code></pre>
+          <p>10進数で確認すると、13＋5＝18であり、18₁₀＝10010₂なので一致します。</p>
+        </section>
+
+        <section>
+          <h2>2倍・4倍とビットシフト</h2>
+          <p>整数の2進数では、左へ1桁ずらすと値は2倍になります。</p>
+          <p>例えば、</p>
+          <p class="term-formula">1101₂＝13</p>
+          <p>を左へ1桁ずらすと、</p>
+          <p class="term-formula">11010₂＝26</p>
+          <p>となります。</p>
+          <p>さらにもう1桁ずらすと、</p>
+          <p class="term-formula">110100₂＝52</p>
+          <p>となり、元の4倍になります。</p>
+          <p>したがって、桁あふれを考えない場合、次のように考えられます。</p>
+          <ul>
+            <li><p>左へ1ビット → 2倍</p></li>
+            <li><p>左へ2ビット → 4倍</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>2の補数</h2>
+          <p>2進数で負の整数を表す方法として、<strong>2の補数</strong>が広く使われます。</p>
+          <p>補数とは、その数に足し合わせるとちょうど1桁上がる数のことです。</p>
+          <p>あるビット列の2の補数は、次の手順で求められます。</p>
+          <ol>
+            <li><p>0と1をすべて反転する</p></li>
+            <li><p>1を加える</p></li>
+          </ol>
+          <p>例えば4ビットの0101₂について考えます。</p>
+          <p class="term-formula">0101₂<br />↓ 反転<br />1010₂<br />↓ ＋1<br /><strong>1011₂</strong></p>
+          <p>この1011₂が、0101₂の2の補数です。</p>
+          <p>0101₂＋1011₂＝10000₂であり、5ビット目を無視して4ビットにすると0000₂となります。このことから、4ビットの固定長でみると、0101₂と1011₂は正負がちょうど逆の値として考えることができます。</p>
+          <p>つまり、0101₂＝4＋1＝5なので、1011₂＝－5と考えることができます。</p>
+        </section>
+
+        <section>
+          <h2>2の補数で表せる範囲</h2>
+          <p>nビットの2の補数表現で表せる整数の範囲は、</p>
+          <p class="term-formula"><strong>−2ⁿ⁻¹ ～ 2ⁿ⁻¹－1</strong></p>
+          <p>です。</p>
+          <p>例えば4ビットの2の補数表現では、−8～7を表せます。8ビットなら、−128～127となります。</p>
+        </section>
+
+        <section>
+          <h2>2の補数を利用した減算</h2>
+          <p>2の補数を使うと、引き算を足し算として計算できます。</p>
+          <p>例えば、1100₂－0101₂を考えます。</p>
+          <p>まず0101₂の2の補数を求めます。</p>
+          <p class="term-formula">0101<br />↓ 反転<br />1010<br />↓ ＋1<br />1011</p>
+          <p>したがって、</p>
+          <pre class="question-code" aria-label="2の補数を利用した減算"><code>  1100
++ 1011
+------
+1 0111</code></pre>
+          <p>となります。4ビットを超えた左端の1を捨てると、</p>
+          <p class="term-formula"><strong>0111₂</strong></p>
+          <p>が残ります。10進数でも、12－5＝7なので一致します。</p>
+        </section>
+
+        <section>
+          <h2>2進小数</h2>
+          <p>2進数でも、小数を表すことができます。</p>
+          <p>整数部分では小数点から左へ向かって、2⁰、2¹、2²、…と重みが増えます。一方、小数点より右側では、2⁻¹、2⁻²、2⁻³、2⁻⁴、…となります。</p>
+          <p>つまり、1/2、1/4、1/8、1/16、…です。</p>
+          <p>例えば、</p>
+          <p class="term-formula">0.1011₂<br />＝ 1×1/2＋0×1/4＋1×1/8＋1×1/16<br />＝ 0.5＋0.125＋0.0625<br />＝ <strong>0.6875</strong></p>
+          <p>となります。</p>
+          <p>また、7/32について、</p>
+          <p class="term-formula">7/32＝4/32＋2/32＋1/32</p>
+          <p>であるため、</p>
+          <p class="term-formula"><strong>0.00111₂</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>2進数で有限小数になる数</h2>
+          <p>10進数では有限小数になる値でも、2進数では無限に続く場合があります。</p>
+          <p>例えば、0.125＝1/8であり、1/8＝1/2³なので、2進数では有限桁で表せます。</p>
+          <p>同様に、0.25＝1/4＝1/2²なので、</p>
+          <p class="term-formula"><strong>0.01₂</strong></p>
+          <p>と有限桁で表せます。</p>
+          <p>一方、0.05＝1/20では、分母に2以外の素因数5が含まれています。そのため、2進数では有限桁で表せず、同じ並びが繰り返されます。</p>
+          <p>この性質は、コンピュータで小数を扱うときに誤差が生じる理由の一つです。</p>
+        </section>
+
+        <section>
+          <h2>浮動小数点数</h2>
+          <p>コンピュータで非常に大きな値や非常に小さな値、実数を扱うときには、<strong>浮動小数点表現</strong>が使われます。</p>
+          <p>一般的な浮動小数点表現は、次のような部分から構成されます。</p>
+          <ul>
+            <li><p><strong>符号部</strong>：数の正負を表す</p></li>
+            <li><p><strong>指数部</strong>：値の大きさの桁を調整する</p></li>
+            <li><p><strong>仮数部</strong>：有効数字を表す</p></li>
+          </ul>
+          <p>10進数の科学的記数法で、1.23×10⁵のように有効数字と10の何乗かを分けて表すのと似た考え方です。コンピュータ内部では、これを2進数を使って表します。</p>
+          <p>ただし、使用できるビット数には限りがあるため、0.1のように2進数で有限桁にならない値を正確に保存できない場合があります。そのため、計算結果にわずかな<strong>丸め誤差</strong>が生じることがあります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>2進数 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>10進数26を、先頭に不要な0を付けない2進数で表した値を次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>10100</p></li>
+            <li><span>1</span><p>11010</p></li>
+            <li><span>2</span><p>11001</p></li>
+            <li><span>3</span><p>11100</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．11010</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>10進整数を2進数へ直すには、その数を2の累乗の和で表します。26＝16＋8＋2＝2⁴＋2³＋2¹なので、対応する桁を1にした11010₂となります。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：2進数／10進数</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">2進数の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="2進数"
+          data-limit="5"
+          data-exclude-stem="10進数26を、先頭に不要な0を付けない2進数で表した値を次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=2進数">2進数の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"2進数とは","description":"2進数の仕組みと10進数・16進数との変換、加算、2の補数、2進小数、浮動小数点数を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/binary/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"2進数","item":"https://mei-chan-nel.com/terms/binary/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

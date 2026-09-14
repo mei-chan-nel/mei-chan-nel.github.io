@@ -3,6 +3,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "16進数": {
     "url": "/terms/hexadecimal/"
   },
+  "2進数": {
+    "url": "/terms/binary/"
+  },
   "AI": {
     "url": "/terms/ai/"
   },
