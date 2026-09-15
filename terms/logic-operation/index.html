@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>論理演算とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="論理演算のAND、OR、NOT、XORと真理値表、ビット演算、マスク処理、検索条件、ド・モルガンの法則を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="論理演算" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="論理演算とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="論理演算のAND、OR、NOT、XORと真理値表、ビット演算、マスク処理、検索条件、ド・モルガンの法則を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/logic-operation/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/logic-operation/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">論理演算</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">論理演算</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「論理演算」とは</h2>
+          <p><strong>論理演算</strong>とは、<strong>真・偽や0・1を組み合わせて、新しい真・偽や0・1を求める演算</strong>です。</p>
+          <p>コンピュータでは、条件が成り立つことを1、成り立たないことを0として扱うことが多くあります。また、2進数の各ビットも0または1なので、論理演算をビットごとに行うことができます。</p>
+          <p>代表的な論理演算には、AND、OR、NOT、XORがあります。</p>
+        </section>
+
+        <section>
+          <h2>AND（論理積）</h2>
+          <p>ANDは、<strong>両方が1のときだけ1になる</strong>演算です。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>ANDの真理値表</caption>
+              <thead>
+                <tr><th scope="col">A</th><th scope="col">B</th><th scope="col">A AND B</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">0</th><td>0</td><td>0</td></tr>
+                <tr><th scope="row">0</th><td>1</td><td>0</td></tr>
+                <tr><th scope="row">1</th><td>0</td><td>0</td></tr>
+                <tr><th scope="row">1</th><td>1</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>条件を表す場合には「かつ」に対応します。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>2024年でありかつ、最高気温が35℃以上である</strong><br />→ 年=2024 AND 最高気温&gt;=35</p>
+          <p>という条件を表せます。</p>
+          <p>ビット演算では、対応するビットごとにANDを計算して、</p>
+          <p class="term-formula"><strong>1010 AND 1100 ＝ 1000</strong></p>
+          <p>のようになります。</p>
+          <p>ANDには、Xを0または1とすると、次の性質があります。</p>
+          <p class="term-formula"><strong>X AND 1 ＝ X</strong><br /><strong>X AND 0 ＝ 0</strong></p>
+          <p>この性質を利用すると、必要なビットだけを残す<strong>マスク処理</strong>ができます。</p>
+          <p>例えば、8ビットの値abcdefghの下位4ビットだけを残したい場合、00001111とのANDをとります。</p>
+          <pre class="question-code" aria-label="ANDによるマスク処理"><code>    abcdefgh
+AND 00001111
+------------
+    0000efgh</code></pre>
+          <p>この計算では、マスク側が0の部分では元のビット（abcd）が0だったか1だったかにかかわらず、結果を0にして隠せます。マスク側が1の部分では、元のビットをそのまま残せます。</p>
+        </section>
+
+        <section>
+          <h2>OR（論理和）</h2>
+          <p>ORは、<strong>少なくとも一方が1なら1になる</strong>演算です。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>ORの真理値表</caption>
+              <thead>
+                <tr><th scope="col">A</th><th scope="col">B</th><th scope="col">A OR B</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">0</th><td>0</td><td>0</td></tr>
+                <tr><th scope="row">0</th><td>1</td><td>1</td></tr>
+                <tr><th scope="row">1</th><td>0</td><td>1</td></tr>
+                <tr><th scope="row">1</th><td>1</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>条件を表す場合には「または」に対応します。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>7月または8月</strong><br />→ 月=7 OR 月=8</p>
+          <p>という条件を表せます。</p>
+          <p>ただし、日常的な「または」とは異なり、両方という場合も含まれます。例えば、「食後に、コーヒーまたは紅茶が付きます」という条件を論理的に考えると、「両方ください」という場合も排除されません。</p>
+        </section>
+
+        <section>
+          <h2>NOT（否定）</h2>
+          <p>NOTは、<strong>0と1を反転する</strong>演算です。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>NOTの真理値表</caption>
+              <thead>
+                <tr><th scope="col">A</th><th scope="col">NOT A</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">0</th><td>1</td></tr>
+                <tr><th scope="row">1</th><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>例えば、4ビットの</p>
+          <p class="term-formula">1110</p>
+          <p>を反転（NOT）すると、</p>
+          <p class="term-formula"><strong>0001</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>XOR（排他的論理和）</h2>
+          <p>XORは、<strong>二つの入力が異なるときだけ1になる</strong>演算です。EORと表記されることもあります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>XORの真理値表</caption>
+              <thead>
+                <tr><th scope="col">A</th><th scope="col">B</th><th scope="col">A XOR B</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">0</th><td>0</td><td>0</td></tr>
+                <tr><th scope="row">0</th><td>1</td><td>1</td></tr>
+                <tr><th scope="row">1</th><td>0</td><td>1</td></tr>
+                <tr><th scope="row">1</th><td>1</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>例えば、</p>
+          <pre class="question-code" aria-label="XORのビット演算"><code>    1010
+XOR 0110
+--------
+    1100</code></pre>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>AND・OR・XORの違い</h2>
+          <p>AND、OR、XORは混同しやすいですが、次のように考えると区別しやすくなります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>各演算が1になる条件</caption>
+              <thead>
+                <tr><th scope="col">演算</th><th scope="col">1になる条件</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">AND</th><td>両方が1</td></tr>
+                <tr><th scope="row">OR</th><td>少なくとも一方が1</td></tr>
+                <tr><th scope="row">XOR</th><td>一方だけが1</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>論理演算と検索条件</h2>
+          <p>データベースや検索では、論理演算を使って条件を組み合わせます。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>札幌または函館にある日本料理店</strong><br />→ (札幌 OR 函館) AND 日本料理</p>
+          <p>と表せます。</p>
+          <p>また、</p>
+          <p class="term-formula"><strong>男性で、20歳未満または65歳以上</strong><br />→ 男性 AND (20歳未満 OR 65歳以上)</p>
+          <p>となります。</p>
+          <p>ANDとORが混在するときは、どの条件をまとめるかを括弧で明確にすることが重要です。</p>
+        </section>
+
+        <section>
+          <h2>表計算での論理演算</h2>
+          <p>表計算ソフトでもANDやORは条件判定に利用されます。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>A2とB2の合計が120点以上で、A2とB2がどちらも50点以上なら合格</strong></p>
+          <p>という条件は、次のように表せます。</p>
+          <pre class="question-code" aria-label="表計算での論理演算"><code>=IF(AND(A2+B2&gt;=120,A2&gt;=50,B2&gt;=50),&quot;合格&quot;,&quot;不合格&quot;)</code></pre>
+          <p>ANDはすべての条件を満たす必要がある場合、ORはいずれか一つでも満たせばよい場合に使います。</p>
+        </section>
+
+        <section>
+          <h2>ド・モルガンの法則</h2>
+          <p>論理式では、NOTとAND・ORを変形できます。代表的な関係が<strong>ド・モルガンの法則</strong>です。</p>
+          <p class="term-formula"><strong>NOT(A AND B)<br />＝ (NOT A) OR (NOT B)</strong></p>
+          <p>また、</p>
+          <p class="term-formula"><strong>NOT(A OR B)<br />＝ (NOT A) AND (NOT B)</strong></p>
+          <p>も成り立ちます。</p>
+          <p>例えば、NOT(A AND B)は、「AとBがともに1の場合だけ0」です。一方、(NOT A) OR (NOT B)も、AとBがともに1の場合だけ0になるので、二つの式の真理値表は一致します。</p>
+        </section>
+
+        <section>
+          <h2>XORをAND・OR・NOTで表す</h2>
+          <p>XORは「どちらか一方だけが1」です。</p>
+          <p>したがって、「少なくとも一方が1」であり、なおかつ「両方が1ではない」と考えると、</p>
+          <p class="term-formula"><strong>(A OR B) AND NOT(A AND B)</strong></p>
+          <p>と表せます。</p>
+          <p>別の表し方として、</p>
+          <p class="term-formula"><strong>(A AND NOT B) OR (NOT A AND B)</strong></p>
+          <p>も同じ結果になります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>論理演算 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>4ビットの2進数1010と0110の各ビットについてXOR演算を行った結果を次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>1100</p></li>
+            <li><span>1</span><p>0010</p></li>
+            <li><span>2</span><p>1110</p></li>
+            <li><span>3</span><p>0110</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．1100</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>XORは対応するビットが異なるときだけ1になります。同じ値を2回XORすると元に戻る性質があり、ビットの反転にも利用できます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：2進数／論理演算／ビット</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">論理演算の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="論理演算"
+          data-limit="5"
+          data-exclude-stem="4ビットの2進数1010と0110の各ビットについてXOR演算を行った結果を次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=論理演算">論理演算の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"論理演算とは","description":"論理演算のAND、OR、NOT、XORと真理値表、ビット演算、マスク処理、検索条件、ド・モルガンの法則を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/logic-operation/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"論理演算","item":"https://mei-chan-nel.com/terms/logic-operation/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

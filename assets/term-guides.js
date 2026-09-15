@@ -126,6 +126,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "認証": {
     "url": "/terms/authentication/"
   },
+  "論理演算": {
+    "url": "/terms/logic-operation/"
+  },
   "電子証明書": {
     "url": "/terms/digital-certificate/"
   }
