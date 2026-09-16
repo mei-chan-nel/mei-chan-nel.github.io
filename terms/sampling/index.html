@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>標本化とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="標本化の意味と標本化周波数・標本化周期、量子化との違い、PCM音声、標本化定理、エイリアシングを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="標本化" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="標本化とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="標本化の意味と標本化周波数・標本化周期、量子化との違い、PCM音声、標本化定理、エイリアシングを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/sampling/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/sampling/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">標本化</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">標本化</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「標本化」とは</h2>
+          <p><strong>標本化（サンプリング）</strong>とは、連続的に変化するアナログ信号から、一定の間隔で値を取り出す処理です。</p>
+          <p>例えば、音声は時間とともに連続的に変化する波形です。この波形をコンピュータで扱えるデジタルデータにするには、まず一定の時間間隔ごとに波形の値を測定します。この処理が標本化です。</p>
+          <p>音声をデジタル化する基本的な流れは、次の3段階です。</p>
+          <p class="term-formula"><strong>標本化 → 量子化 → 符号化</strong></p>
+          <ul>
+            <li><p><strong>標本化</strong>：一定の時間間隔で波形の値を取り出す</p></li>
+            <li><p><strong>量子化</strong>：取り出した値を、あらかじめ決めた有限個の段階のどれかに対応させる</p></li>
+            <li><p><strong>符号化</strong>：量子化した値を0と1からなるビット列で表す</p></li>
+          </ul>
+          <p>標本化は主に<strong>時間方向を離散化する処理</strong>、量子化は<strong>振幅方向を離散化する処理</strong>と考えると区別しやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>標本化周波数</h2>
+          <p>1秒間に何回標本化するかを表したものを<strong>標本化周波数（サンプリング周波数）</strong>といいます。単位にはHz（ヘルツ）を用います。</p>
+          <p>例えば、<strong>44.1 kHz ＝ 44,100 Hz</strong>は、1秒間に44,100回、音声の波形を測定することを意味します。</p>
+          <p>標本化周波数が高いほど、短い時間間隔で波形を測定できるため、時間方向の細かな変化を表現しやすくなります。</p>
+          <p>例えば、標本化周波数が8,000 Hzで15秒の音声データなら、標本化回数は、</p>
+          <p class="term-formula">1秒間　8,000回<br />15秒間　□回</p>
+          <p>と考えられるので、</p>
+          <p class="term-formula"><strong>8,000 × 15 ＝ 120,000回</strong></p>
+          <p>標本化します。</p>
+        </section>
+
+        <section>
+          <h2>標本化周期</h2>
+          <p>標本化を行う時間間隔を<strong>標本化周期（サンプリング周期）</strong>といいます。</p>
+          <p>標本化周波数が高くなるほど、標本化周期は短くなります。</p>
+          <p>例えば、250マイクロ秒ごとに1回測定する場合、</p>
+          <p class="term-formula">1マイクロ秒 ＝ 1×10⁻⁶秒</p>
+          <p>なので、</p>
+          <p class="term-formula">250マイクロ秒　　　　　　　1回<br />1秒（1,000,000マイクロ秒）　□回</p>
+          <p>と考えると、</p>
+          <p class="term-formula"><strong>1,000,000 ÷ 250 ＝ 4,000回</strong></p>
+          <p>となります。したがって、標本化周波数は4,000 Hzです。</p>
+          <p>つまり、次の関係になります。</p>
+          <ul>
+            <li><p>標本化周波数が高い → 測定間隔は短い</p></li>
+            <li><p>標本化周波数が低い → 測定間隔は長い</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>動画と音声の標本化</h2>
+          <p>標本化周波数は、動画のフレームレートと組み合わせて問われることもあります。</p>
+          <p>例えば、24 fpsの動画では、1秒間に24フレーム表示します。一方、音声を48 kHzで標本化すると、1秒間に48,000回標本化します。</p>
+          <p>したがって、動画1フレーム分の時間に行われる音声の標本化回数は、</p>
+          <p class="term-formula">1秒間　48,000回<br />1/24秒　□回</p>
+          <p>なので、</p>
+          <p class="term-formula"><strong>48,000 ÷ 24 ＝ 2,000回</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>量子化ビット数</h2>
+          <p>標本化によって取り出した値は、そのままでは連続的な値であるため、有限個の段階に分けます。この処理が<strong>量子化</strong>です。</p>
+          <p>1回の標本を何ビットで表すかを<strong>量子化ビット数</strong>といいます。</p>
+          <p>量子化ビット数が大きいほど、表現できる段階数が増えます。</p>
+          <p>量子化ビット数がnビットなら、表現できる段階数は、</p>
+          <p class="term-formula"><strong>2ⁿ段階</strong></p>
+          <p>です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li><p>8ビット → 2⁸＝256段階</p></li>
+            <li><p>16ビット → 2¹⁶＝65,536段階</p></li>
+          </ul>
+          <p>となります。</p>
+          <p>したがって、量子化ビット数を8ビットから16ビットにすると、1標本あたりのデータ量は2倍になりますが、量子化の段階数は、</p>
+          <p class="term-formula"><strong>2¹⁶ ÷ 2⁸ ＝ 256倍</strong></p>
+          <p>になります。</p>
+          <p>量子化の段階数が多いほど、元の振幅に近い値を選びやすくなり、量子化による誤差を小さくしやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>PCM音声のデータ量</h2>
+          <p>圧縮していないPCM音声のデータ量は、おおむね次の4つで決まります。</p>
+          <p class="term-formula"><strong>標本化周波数 × 量子化ビット数 × 録音時間 × チャンネル数</strong></p>
+          <p>この計算結果はビット単位です。バイトに直すときは、8ビット＝1バイトなので、最後に8で割ります。</p>
+          <p>例えば、標本化周波数44,100 Hz、量子化16ビット、モノラル、5分間の音声では、5分＝300秒なので、1秒間に44,100個の標本を取り、1標本を16ビットで記録します。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>44,100 × 16 × 300<br />＝ 211,680,000ビット</strong></p>
+          <p>です。</p>
+          <p>これを8で割ると、</p>
+          <p class="term-formula"><strong>26,460,000バイト</strong></p>
+          <p>となります。1 MB＝1,000,000 Bとすれば、</p>
+          <p class="term-formula"><strong>約26.5 MB</strong></p>
+          <p>です。</p>
+        </section>
+
+        <section>
+          <h2>標本化定理</h2>
+          <p><strong>標本化定理</strong>では、帯域が制限された信号を理論上復元するためには、信号に含まれる最高周波数に対して、標本化周波数をその2倍より高くする必要があります。</p>
+          <p>標本化周波数が十分に高ければ、一定の条件のもとで、標本から元の連続信号を復元できます。</p>
+        </section>
+
+        <section>
+          <h2>エイリアシング</h2>
+          <p>標本化周波数が十分でないと、本来とは異なる低い周波数として観測されることがあります。この現象を<strong>エイリアシング（折り返し）</strong>といいます。</p>
+          <p>標本化定理は、このような折り返しを防ぎ、元の信号を正しく扱うための考え方です。</p>
+        </section>
+
+        <section>
+          <h2>画像の標本化</h2>
+          <p>画像をデジタル化するときにも、</p>
+          <p class="term-formula"><strong>標本化 → 量子化 → 符号化</strong></p>
+          <p>という考え方を使うことができます。</p>
+          <p>画像では、連続的な画像を格子状に区切り、それぞれの位置の明るさや色を取り出すことが標本化に当たります。</p>
+          <p>音声では<strong>時間方向</strong>に一定間隔で値を取り出すのに対し、画像では<strong>空間方向</strong>に格子状の位置から値を取り出します。</p>
+          <p>その後、次のような処理を行います。</p>
+          <ul>
+            <li><p>明るさや色を有限個の段階に分ける → 量子化</p></li>
+            <li><p>その値をビット列で表す → 符号化</p></li>
+          </ul>
+          <p>このように、標本化とは音声に限らず、連続的な情報から一定の位置や時点の値を取り出し、デジタルデータとして扱えるようにするための基本的な処理です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>標本化 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>音声をデジタル化するとき、1秒間に標本を取る回数と、1標本当たりの量子化ビット数を大きくした。この変更の効果として最も適切なものを、次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>元の波形をより忠実に表せるが、データ量は増える。</p></li>
+            <li><span>1</span><p>元の波形から遠ざかるが、データ量は小さくなる。</p></li>
+            <li><span>2</span><p>標本化の回数を増やしても音質には影響しない。</p></li>
+            <li><span>3</span><p>量子化の段階数を増やしても音質には影響しない。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．元の波形をより忠実に表せるが、データ量は増える。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>1秒間の標本数である標本化周波数を高くすると、波形を時間方向に細かく測定できます。量子化の段階数を増やすと、振幅をより細かい値で近似できます。どちらも元の波形を忠実に表しやすくします。一方、無圧縮の音声データ量は、おおむね標本化周波数×量子化ビット数×チャンネル数×時間に比例するため、精度を上げるほどデータ量も増えます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：標本化／量子化ビット数／データ量</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">標本化の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="標本化"
+          data-limit="5"
+          data-exclude-stem="音声をデジタル化するとき、1秒間に標本を取る回数と、1標本当たりの量子化ビット数を大きくした。この変更の効果として最も適切なものを、次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=標本化">標本化の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"標本化とは","description":"標本化の意味と標本化周波数・標本化周期、量子化との違い、PCM音声、標本化定理、エイリアシングを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/sampling/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"標本化","item":"https://mei-chan-nel.com/terms/sampling/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
