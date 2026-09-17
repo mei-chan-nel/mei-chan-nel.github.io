@@ -114,6 +114,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "尺度": {
     "url": "/terms/scale/"
   },
+  "暗号化": {
+    "url": "/terms/encryption/"
+  },
   "標本化": {
     "url": "/terms/sampling/"
   },

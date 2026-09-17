@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>暗号化とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="暗号化の基本と共通鍵暗号方式、公開鍵暗号方式、ハイブリッド暗号、HTTPS、デジタル署名、RSA暗号を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="暗号化" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="暗号化とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="暗号化の基本と共通鍵暗号方式、公開鍵暗号方式、ハイブリッド暗号、HTTPS、デジタル署名、RSA暗号を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/encryption/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/encryption/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">暗号化</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">暗号化</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「暗号化」とは</h2>
+          <p><strong>暗号化</strong>とは、データをそのままでは内容を読み取れない形に変換することです。</p>
+          <p>暗号化する前のデータを<strong>平文</strong>、暗号化した後のデータを<strong>暗号文</strong>といいます。また、暗号文を元の平文に戻すことを<strong>復号</strong>といいます。</p>
+          <p>暗号化や復号では、通常、<strong>鍵</strong>と呼ばれる情報を使用します。</p>
+          <p class="term-formula"><strong>平文「HELLO」</strong><br />↓ 鍵を使って暗号化<br /><strong>暗号文「意味の分からない文字列」</strong><br />↓ 正しい鍵を使って復号<br /><strong>平文「HELLO」</strong></p>
+          <p>暗号化の主な目的は、第三者にデータを入手された場合でも、内容を簡単には読まれないようにすることです。情報セキュリティの三要素では、主に<strong>機密性</strong>を高めるための技術に当たります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>情報セキュリティの目的と対策例</caption>
+              <thead>
+                <tr><th scope="col">目的</th><th scope="col">主な対策の例</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">内容を他人に読まれにくくする</th><td>暗号化、アクセス制御</td></tr>
+                <tr><th scope="row">データの改ざんを検出する</th><td>デジタル署名など</td></tr>
+                <tr><th scope="row">データを失っても復旧できるようにする</th><td>バックアップ</td></tr>
+                <tr><th scope="row">障害が起きても利用を続けやすくする</th><td>冗長化</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>共通鍵暗号方式</h2>
+          <p><strong>共通鍵暗号方式</strong>は、暗号化と復号に<strong>同じ秘密の鍵</strong>を使用する方式です。</p>
+          <p>例えば、AさんがBさんへデータを送る場合、次のようになります。</p>
+          <p class="term-formula"><strong>Aさん</strong><br />平文 → 【共通鍵K】 → 暗号文<br /><br /><strong>Bさん</strong><br />暗号文 → 【共通鍵K】 → 平文</p>
+          <p>AさんとBさんは、<strong>同じ鍵Kをあらかじめ共有しておく</strong>必要があります。</p>
+          <p>共通鍵暗号方式は<strong>比較的高速に処理できる</strong>ため、大量のデータの暗号化に適しています。代表例としてAESがあります。</p>
+          <p>一方、問題になるのが<strong>鍵の共有</strong>です。</p>
+          <p>AさんがBさんに「暗号化したデータと、復号に使う鍵を一緒に送ります」としてしまえば、途中で両方を盗まれた場合、暗号化した意味がなくなります。</p>
+          <p>そのため、<strong>共通鍵暗号方式は高速ですが、共通鍵を相手と安全に共有する方法が必要</strong>になります。</p>
+        </section>
+
+        <section>
+          <h2>公開鍵暗号方式</h2>
+          <p><strong>公開鍵暗号方式</strong>では、互いに対応する二つの鍵を使用します。</p>
+          <ul>
+            <li><p><strong>公開鍵</strong>：他人に公開してよい鍵</p></li>
+            <li><p><strong>秘密鍵</strong>：本人だけが厳重に管理する鍵</p></li>
+          </ul>
+          <p>秘密の文章を送るための暗号化では、この公開鍵と秘密鍵はともに<strong>受信者が用意</strong>します。</p>
+          <p>例えばAさんがBさんだけに読めるデータを送りたい場合、次のようになります。</p>
+          <p class="term-formula"><strong>Aさん</strong><br />平文<br />↓<br />【Bさんの公開鍵】で暗号化<br />↓<br />暗号文<br /><br /><strong>Bさん</strong><br />暗号文<br />↓<br />【Bさんの秘密鍵】で復号<br />↓<br />平文</p>
+          <p>Bさんの公開鍵は誰でも入手できるので、Aさんは秘密の鍵を事前にBさんから受け取る必要がありません。</p>
+          <p>一方、Bさんの秘密鍵はBさんだけが持っているため、暗号文を入手した第三者は簡単には復号できません。</p>
+        </section>
+
+        <section>
+          <h2>ハイブリッド暗号方式</h2>
+          <p><strong>ハイブリッド暗号方式</strong>は、共通鍵暗号方式と公開鍵暗号方式を組み合わせる方式です。</p>
+          <p>例えば、単純化したモデルでは、次のように行います。</p>
+          <ol>
+            <li><p>送信者が共通鍵を作成する</p></li>
+            <li><p>送信者が受信者の公開鍵を使って、作成した共通鍵を暗号化する（共通鍵もデータなので暗号化できます）</p></li>
+            <li><p>暗号化した共通鍵を受信者へ送信する</p></li>
+            <li><p>受信者は受信者の秘密鍵を使って、暗号化された共通鍵を復号する</p></li>
+            <li><p>安全に共通鍵を共有できたので、以降の通信はこの共通鍵を使った共通鍵暗号方式で行う</p></li>
+          </ol>
+          <p>この方式には、次の利点があります。</p>
+          <ul>
+            <li><p>大量のデータは高速な共通鍵暗号で処理できる</p></li>
+            <li><p>共通鍵そのものは公開鍵暗号などによって安全に確立・配送できる</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>共通鍵暗号方式と公開鍵暗号方式の違い</h2>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>共通鍵暗号方式と公開鍵暗号方式の比較</caption>
+              <thead>
+                <tr><th scope="col">項目</th><th scope="col">共通鍵暗号方式</th><th scope="col">公開鍵暗号方式</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">鍵</th><td>同じ秘密鍵を共有する</td><td>公開鍵と秘密鍵を使う</td></tr>
+                <tr><th scope="row">暗号化・復号</th><td>比較的高速</td><td>一般に共通鍵方式より計算量が大きい</td></tr>
+                <tr><th scope="row">大量データ</th><td>向いている</td><td>通常は本文全体の暗号化には使わない</td></tr>
+                <tr><th scope="row">鍵の共有</th><td>安全に共有する必要がある</td><td>公開鍵は公開できる</td></tr>
+                <tr><th scope="row">主な利用</th><td>データ本体の暗号化</td><td>鍵の確立・配送、認証、署名など</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>実際のシステムでは、どちらか一方だけを使うのではなく、両者の長所を組み合わせることが多くあります。</p>
+        </section>
+
+        <section>
+          <h2>HTTPSとTLS</h2>
+          <p>WebサイトのURLが<code>https://</code>で始まっている場合、ブラウザとWebサーバの間では<strong>TLS</strong>という仕組みを利用して安全な通信路を作ります。</p>
+          <p>TLSには主に、次の役割があります。</p>
+          <ul>
+            <li><p>通信内容を第三者に読まれにくくする</p></li>
+            <li><p>通信内容が途中で改ざんされたことを検出する</p></li>
+            <li><p>通常は、接続しているサーバが正当なサーバであることを確認する</p></li>
+          </ul>
+          <p>つまりHTTPSでは、</p>
+          <p class="term-formula"><strong>ブラウザ ⇄ Webサーバ</strong></p>
+          <p>の<strong>双方向の通信</strong>が保護されます。</p>
+          <p>これは通信を暗号化して安全に行うための仕組みであり、そのWebサイトの内容の安全性や正確性を保証するものではありません。<code>https://</code>となっていても、フィッシングサイトなど危険なサイトである可能性があります。</p>
+        </section>
+
+        <section>
+          <h2>電子証明書</h2>
+          <p>HTTPSでは通常、Webサーバが<strong>電子証明書</strong>を提示します。</p>
+          <p>電子証明書には、ドメイン名などの情報と公開鍵に関する情報が含まれており、ブラウザは認証局などによる署名を検証することで、接続先の確認に利用します。</p>
+          <p>そのため、</p>
+          <p class="term-formula"><strong>HTTPS ＝ 単にデータを暗号化するだけ</strong></p>
+          <p>ではありません。サーバの認証、通信内容の機密性、改ざんの検出などを組み合わせて、安全な通信路を作る仕組みです。</p>
+          <p>なお、現在でも「SSL/TLS」という表現が使われることがありますが、SSLは古い方式であり、現在実際に利用されるのはTLSです。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名</h2>
+          <p>デジタル署名は、メッセージが署名者（送信者）のものであり、改ざんされていないことを確認する技術です。<strong>真正性、完全性</strong>の確認に加え、署名者が後になってメッセージを否定することを防ぐ<strong>否認防止</strong>にも関係します。</p>
+          <p>一つの方法のモデルとして、次のように行います。</p>
+          <ol>
+            <li><p>署名者は、元のデータからハッシュ値を計算し、署名者の秘密鍵で変換する（署名する）</p></li>
+            <li><p>元のデータと署名を送信する</p></li>
+            <li><p>受信者は、受信したデータからハッシュ値を計算する。また、署名者の公開鍵を使って受信した署名を再変換し、この二つの値を比較する（検証する）</p></li>
+          </ol>
+          <p>これによって、次のことを確認できます。</p>
+          <ul>
+            <li><p>署名後にデータが変更されていないか（変更されていればハッシュ値が変わる）</p></li>
+            <li><p>署名者が署名したものか（署名者の秘密鍵は署名者しか持っていない）</p></li>
+          </ul>
+          <p>したがって、デジタル署名は主として<strong>完全性や送信元の真正性の確認</strong>に利用されます。デジタル署名は、第三者に内容を読ませないための暗号化とは目的が異なります。</p>
+        </section>
+
+        <section>
+          <h2>古典的な共通鍵暗号方式の代表例</h2>
+          <p>現代のコンピュータで使われる暗号方式とは別に、古くから使われてきた暗号の方法もあります。</p>
+          <ul>
+            <li><p><strong>シーザー暗号</strong>：アルファベットを一定数だけずらす。例えば3文字ずらすと、<code>A→D、B→E、…、X→A</code>となる</p></li>
+            <li><p><strong>単一換字式暗号</strong>：各文字を別の文字に対応させて置き換える。例えば<code>A→Q、B→M、C→T</code>のような対応表を使う</p></li>
+            <li><p><strong>転置式暗号</strong>：文字そのものは変えず、並び順を入れ替える。例えば一定の行列に書き込んで、縦方向に読み出すなどの方法がある</p></li>
+            <li><p><strong>スキュタレー暗号</strong>：古代スパルタで使われたとされる転置式暗号。細長い革や紙を棒に巻き付けて文字を書き、同じ太さの棒に巻かなければ正しく読みにくくする</p></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>公開鍵暗号方式の代表例：RSA暗号</h2>
+          <p><strong>RSA暗号</strong>は、公開鍵暗号方式の代表例の一つです。</p>
+          <p>RSA暗号では、公開鍵として二つの整数の組<strong>（N,E）</strong>を、秘密鍵として二つの整数の組<strong>（N,D）</strong>を用意します。</p>
+
+          <h3>鍵の作成</h3>
+          <p>まず、異なる大きな二つの素数<strong>p</strong>と<strong>q</strong>を用意し、次のように<strong>N</strong>を定めます。</p>
+          <p class="term-formula"><strong>N＝pq</strong></p>
+          <p>次に、<strong>p−1</strong>と<strong>q−1</strong>の最小公倍数を<strong>L</strong>とします。ここで、<strong>lcm</strong>は最小公倍数を表します。</p>
+          <p class="term-formula"><strong>L＝lcm(p−1, q−1)</strong></p>
+          <p>公開鍵に用いる整数<strong>E</strong>は、次の条件を満たすように選びます。つまり、<strong>E</strong>と<strong>L</strong>は互いに素です。</p>
+          <p class="term-formula"><strong>1&lt;E&lt;L</strong><br /><strong>gcd(E,L)＝1</strong></p>
+          <p>続いて、秘密鍵に用いる整数<strong>D</strong>を、次の条件を満たすように選びます。これは、<strong>ED</strong>を<strong>L</strong>で割った余りが1になるような<strong>D</strong>を選ぶという意味です。</p>
+          <p class="term-formula"><strong>ED≡1（mod L）</strong></p>
+          <p>こうして、次の鍵が得られます。</p>
+          <ul>
+            <li>公開鍵：<strong>（N,E）</strong></li>
+            <li>秘密鍵：<strong>（N,D）</strong></li>
+          </ul>
+
+          <h3>暗号化と復号</h3>
+          <p>平文は、そのまま文字列として計算するのではなく、<strong>0≤M&lt;N</strong>を満たす整数<strong>M</strong>として表されているものとします。</p>
+          <p>平文<strong>M</strong>を暗号化するときは、公開鍵<strong>（N,E）</strong>を使って、次の計算を行います。</p>
+          <p class="term-formula"><strong>C≡M<sup>E</sup>（mod N）</strong></p>
+          <p>ここで、<strong>C</strong>が暗号文です。</p>
+          <p>暗号文<strong>C</strong>を復号するときは、秘密鍵<strong>（N,D）</strong>を使って、次の計算を行います。</p>
+          <p class="term-formula"><strong>M≡C<sup>D</sup>（mod N）</strong></p>
+          <p>この計算によって、元の平文<strong>M</strong>を得ることができます。</p>
+
+          <h3>RSA暗号で復号できる数学的な理由</h3>
+          <p>なぜ、<strong>C≡M<sup>E</sup>（mod N）</strong>と暗号化したものに対して、<strong>C<sup>D</sup>（mod N）</strong>を計算すると元の<strong>M</strong>に戻るのでしょうか。その背景にあるのが、<strong>オイラーの定理</strong>や<strong>カーマイケルの定理</strong>です。</p>
+          <p>オイラーの定理では、正の整数<strong>n</strong>と、それと互いに素な整数<strong>a</strong>について、次の関係が成り立ちます。</p>
+          <p class="term-formula"><strong>a<sup>φ(n)</sup>≡1（mod n）</strong></p>
+          <p>ここで<strong>φ(n)</strong>は、1以上<strong>n</strong>以下の整数のうち、<strong>n</strong>と互いに素な整数の個数を表すオイラーのφ関数です。</p>
+          <p>RSA暗号では、<strong>N＝pq</strong>であり、<strong>p</strong>と<strong>q</strong>は異なる素数です。1以上<strong>N</strong>以下の整数のうち<strong>N</strong>と互いに素でないものは、<strong>p</strong>の倍数または<strong>q</strong>の倍数です。</p>
+          <p><strong>p</strong>の倍数は<strong>q</strong>個、<strong>q</strong>の倍数は<strong>p</strong>個あります。ただし、<strong>N＝pq</strong>は重複して数えられているため、</p>
+          <p class="term-formula"><strong>φ(N)<br />＝N−（p＋q−1）<br />＝（p−1）（q−1）</strong></p>
+          <p>となります。</p>
+          <p>一方、RSA暗号では、オイラーのφ関数そのものではなく、次の<strong>L</strong>を利用できます。</p>
+          <p class="term-formula"><strong>L＝lcm（p−1,q−1）</strong></p>
+          <p>これはカーマイケル関数<strong>λ(N)</strong>の値であり、次のように表せます。</p>
+          <p class="term-formula"><strong>λ(N)＝lcm（p−1,q−1）＝L</strong></p>
+          <p><strong>M</strong>と<strong>N</strong>が互いに素であれば、カーマイケルの定理によって、</p>
+          <p class="term-formula"><strong>M<sup>L</sup>≡1（mod N）</strong></p>
+          <p>が成り立ちます。</p>
+          <p>秘密鍵<strong>D</strong>は、</p>
+          <p class="term-formula"><strong>ED≡1（mod L）</strong></p>
+          <p>となるように選びました。したがって、ある整数<strong>k</strong>を使って、</p>
+          <p class="term-formula"><strong>ED＝kL＋1</strong></p>
+          <p>と表すことができます。</p>
+          <p>暗号文を復号すると、次のようになります。</p>
+          <p class="term-formula"><strong>C<sup>D</sup><br />≡（M<sup>E</sup>）<sup>D</sup><br />＝M<sup>ED</sup><br />＝M<sup>kL＋1</sup>（mod N）</strong></p>
+          <p>ここで、</p>
+          <p class="term-formula"><strong>M<sup>kL＋1</sup>＝（M<sup>L</sup>）<sup>k</sup>M</strong></p>
+          <p>であり、<strong>M<sup>L</sup>≡1（mod N）</strong>なので、</p>
+          <p class="term-formula"><strong>（M<sup>L</sup>）<sup>k</sup>M<br />≡1<sup>k</sup>M<br />≡M（mod N）</strong></p>
+          <p>となります。したがって、</p>
+          <p class="term-formula"><strong>C<sup>D</sup>≡M（mod N）</strong></p>
+          <p>となり、元の平文<strong>M</strong>を復元できます。</p>
+          <p>ここまでの説明では、<strong>M</strong>と<strong>N</strong>が互いに素である場合を扱いました。<strong>M</strong>と<strong>N</strong>が互いに素でない場合でも、<strong>p</strong>を法とした場合と<strong>q</strong>を法とした場合をそれぞれ考えることで、</p>
+          <p class="term-formula"><strong>M<sup>ED</sup>≡M（mod p）</strong><br /><strong>M<sup>ED</sup>≡M（mod q）</strong></p>
+          <p>が成り立つことを示せます。</p>
+          <p><strong>p</strong>と<strong>q</strong>は互いに素であるため、中国剰余定理から、</p>
+          <p class="term-formula"><strong>M<sup>ED</sup>≡M（mod pq）</strong><br /><strong>すなわち、M<sup>ED</sup>≡M（mod N）</strong></p>
+          <p>となります。このため、<strong>0≤M&lt;N</strong>のどの平文についても、秘密鍵による復号によって元の平文を得ることができます。</p>
+
+          <h3>RSA暗号の安全性</h3>
+          <p>公開鍵<strong>（N,E）</strong>は誰にでも公開できますが、秘密鍵<strong>D</strong>は公開しません。</p>
+          <p>秘密鍵を求めるには、<strong>L＝lcm（p−1,q−1）</strong>などに関する情報が必要です。そのためには、<strong>N</strong>を構成する大きな素数<strong>p</strong>と<strong>q</strong>を知ることが重要になります。</p>
+          <p>しかし、十分に大きな二つの素数の積として作られた<strong>N</strong>から、その素因数<strong>p</strong>と<strong>q</strong>を求めることは、現在知られている古典的なコンピュータ上の方法では非常に困難です。</p>
+          <p>RSA暗号は、このような計算上の困難さを利用した公開鍵暗号方式です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>暗号化 · EXAMPLE</span><span>応用情報技術者H22秋期午前 問40（改題）</span></div>
+          <h3>公開鍵暗号方式を使って、受信者だけが内容を読めるようにメッセージを送る。鍵の使い方として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>送信者の公開鍵で暗号化し、受信者の公開鍵で復号する</p></li>
+            <li><span>1</span><p>受信者の公開鍵で暗号化し、受信者の秘密鍵で復号する</p></li>
+            <li><span>2</span><p>認証局の公開鍵で暗号化し、送信者の秘密鍵で復号する</p></li>
+            <li><span>3</span><p>公開鍵と秘密鍵を同じ値にして、どちらでも暗号化と復号ができるようにする</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．受信者の公開鍵で暗号化し、受信者の秘密鍵で復号する</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>公開鍵暗号方式で秘匿したいときは、受信者の公開鍵で暗号化し、対応する受信者の秘密鍵で復号します。秘密鍵を持つ受信者だけが読めます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>応用情報技術者H22秋期午前 問40（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：公開鍵暗号方式／暗号化</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">暗号化の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="暗号化"
+          data-limit="5"
+          data-exclude-stem="公開鍵暗号方式を使って、受信者だけが内容を読めるようにメッセージを送る。鍵の使い方として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=暗号化">暗号化の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"暗号化とは","description":"暗号化の基本と共通鍵暗号方式、公開鍵暗号方式、ハイブリッド暗号、HTTPS、デジタル署名、RSA暗号を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/encryption/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"暗号化","item":"https://mei-chan-nel.com/terms/encryption/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
