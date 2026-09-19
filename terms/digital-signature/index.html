@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>デジタル署名とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="デジタル署名の仕組みと、秘密鍵・公開鍵、ハッシュ値、電子証明書、暗号化との違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="デジタル署名" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="デジタル署名とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="デジタル署名の仕組みと、秘密鍵・公開鍵、ハッシュ値、電子証明書、暗号化との違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/digital-signature/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/digital-signature/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">デジタル署名</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">デジタル署名</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「デジタル署名」とは</h2>
+          <p><strong>デジタル署名</strong>とは、電子文書や電子メール、ソフトウェアなどについて、<strong>誰が署名したものか</strong>、そして<strong>署名後に内容が改ざんされていないか</strong>を確認するための技術です。</p>
+          <p>紙の文書では、本人が署名や押印をすることで「この人が作成・承認した文書である」ことを示します。デジタル署名は、これに似た役割をコンピュータ上で実現するものです。</p>
+          <p>デジタル署名によって主に確認できるのは、次の二つです。</p>
+          <ul>
+            <li><strong>署名者の確認</strong>：その署名が、対応する秘密鍵を持つ者によって作られたこと</li>
+            <li><strong>改ざんの検出</strong>：署名した後に文書やデータが変更されていないこと</li>
+          </ul>
+          <p>一方、デジタル署名を付けただけでは、文書の内容を第三者から隠すことはできません。内容を読まれないようにするには、別に<strong>暗号化</strong>が必要です。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名で使う鍵</h2>
+          <p>デジタル署名では、<strong>公開鍵暗号方式</strong>と同じように、対になった二つの鍵を利用します。</p>
+          <ul>
+            <li><strong>秘密鍵</strong>：署名を作成するときに使います</li>
+            <li><strong>公開鍵</strong>：署名を検証するときに使います</li>
+          </ul>
+          <p>秘密鍵は署名者だけが持ち、他人に渡してはいけません。一方、公開鍵は署名を確認する人に公開してかまいません。</p>
+          <p>例えば、Aさんが文書に署名する場合は、</p>
+          <p class="term-formula"><strong>Aさんの秘密鍵で署名を作成<br />→ Aさんの公開鍵で署名を検証</strong></p>
+          <p>という関係になります。</p>
+          <p>受信者Bさんの秘密鍵や公開鍵を使って、Aさんの署名を検証するわけではありません。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名の仕組み</h2>
+          <p>デジタル署名の典型的な一つのモデルを示します。以下の方法では、大きな文書全体をそのまま秘密鍵で処理するのではなく、通常は<strong>ハッシュ関数</strong>を利用します。</p>
+
+          <h3>1．送信者がハッシュ値を求める</h3>
+          <p>送信者は、送信する文書をハッシュ関数に入力し、短いデータである<strong>ハッシュ値</strong>を求めます。</p>
+          <p class="term-formula"><strong>文書<br />↓ ハッシュ関数<br />ハッシュ値</strong></p>
+          <p>ハッシュ値は、元のデータが少しでも変化すると通常は大きく異なる値になります。また、あるハッシュ値から、そのハッシュ値を生じる元のデータを求めることは困難です。そのため、データが変更されたかどうかを調べるために利用できます。</p>
+
+          <h3>2．秘密鍵を使って署名を作成する</h3>
+          <p>送信者は、自分の<strong>秘密鍵</strong>を使って、ハッシュ値に対するデジタル署名を作成します。</p>
+          <p>そして、次の二つを受信者へ送ります。</p>
+          <ul>
+            <li>元の文書</li>
+            <li>デジタル署名</li>
+          </ul>
+
+          <h3>3．受信者がハッシュ値を求める</h3>
+          <p>受信者は、送信者の<strong>公開鍵</strong>を使ってデジタル署名を検証し、署名に対応するハッシュ値を求めます。</p>
+          <p>同時に、受け取った文書について自分でもハッシュ値を計算します。</p>
+
+          <h3>4．結果を比較する（検証）</h3>
+          <p>二つのハッシュ値を比較して一致していれば、次のことを確認できます。</p>
+          <ul>
+            <li>署名後に文書が変更されていない</li>
+            <li>その公開鍵に対応する秘密鍵によって署名された</li>
+          </ul>
+          <p>途中で文書が書き換えられていれば、受信した文書から計算したハッシュ値が変化するため、署名の検証に失敗します。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名と「改ざん」</h2>
+          <p>デジタル署名の重要な役割の一つが、<strong>完全性の確認</strong>です。</p>
+          <p>情報セキュリティにおける完全性とは、情報が勝手に変更されたり破壊されたりしていない状態を指します。</p>
+          <p>例えば、</p>
+          <blockquote>
+            <p>「商品を10個注文する」</p>
+          </blockquote>
+          <p>という文書に署名した後、途中で、</p>
+          <blockquote>
+            <p>「商品を100個注文する」</p>
+          </blockquote>
+          <p>へ変更されたとします。</p>
+          <p>文書が変化するとハッシュ値も変化するため、受信者が署名を検証すると、元の署名と一致しなくなります。したがって、文書が署名後に変更されたことを検出できます。</p>
+          <p>ただし、デジタル署名から「どの文字が変更されたのか」まで必ず特定できるわけではありません。また、改ざんされた文書を自動的に元へ戻す機能でもありません。</p>
+        </section>
+
+        <section>
+          <h2>公開鍵だけでは「本人」とは限らない</h2>
+          <p>デジタル署名では、<strong>その公開鍵が本当に署名者本人のものなのか</strong>という問題があります。</p>
+          <p>例えば、Aさんから文書と公開鍵が送られてきたとしても、攻撃者が途中で、</p>
+          <blockquote>
+            <p>「これがAさんの公開鍵です」</p>
+          </blockquote>
+          <p>と自分の公開鍵へすり替える可能性があります。</p>
+          <p>そのため、</p>
+          <p class="term-formula"><strong>公開鍵で署名を検証できた</strong></p>
+          <p>という事実だけから、</p>
+          <p class="term-formula"><strong>その公開鍵が間違いなくAさん本人のものである</strong></p>
+          <p>とは限りません。</p>
+          <p>そこで利用されるのが<strong>電子証明書</strong>です。</p>
+        </section>
+
+        <section>
+          <h2>電子証明書</h2>
+          <p><strong>電子証明書</strong>は、公開鍵とその所有者の情報を結び付けるための電子的な証明書です。</p>
+          <p>電子証明書には、次のような情報が含まれます。</p>
+          <ul>
+            <li>公開鍵</li>
+            <li>公開鍵の所有者に関する情報</li>
+            <li>証明書を発行した組織に関する情報</li>
+          </ul>
+          <p>そして、証明書を発行する<strong>認証局（CA：Certification Authority）</strong>が、その証明書にデジタル署名を付けます。</p>
+          <p>利用者は認証局の署名を検証することで、</p>
+          <ul>
+            <li>信頼する認証局が発行した証明書であること</li>
+            <li>証明書が発行後に改ざんされていないこと</li>
+          </ul>
+          <p>を確認できます。</p>
+          <p>このようにして、</p>
+          <p class="term-formula"><strong>署名者本人 ⇔ 公開鍵</strong></p>
+          <p>という対応を信頼できるようにします。</p>
+          <p>したがって、「Aさんのデジタル署名を検証する」という場合には、正確には次の二段階で考える必要があります。</p>
+          <ol>
+            <li>Aさんの公開鍵で署名を検証する</li>
+            <li>電子証明書などによって、その公開鍵が本当にAさんのものか確認する</li>
+          </ol>
+        </section>
+
+        <section>
+          <h2>デジタル署名で確認できること</h2>
+          <p>デジタル署名と電子証明書を適切に利用すると、主に次の性質を確認できます。</p>
+
+          <h3>完全性</h3>
+          <p>署名後にデータが改ざんされていないことを確認できます。</p>
+
+          <h3>真正性</h3>
+          <p>適切に公開鍵の所有者まで確認できれば、その署名が誰に対応するものなのかを確認できます。</p>
+          <p>例えば、ソフトウェアに付けられたデジタル署名を確認することで、</p>
+          <ul>
+            <li>配布後にソフトウェアが改ざんされていないか</li>
+            <li>信頼する発行元によって署名されたものか</li>
+          </ul>
+          <p>を判断する手掛かりになります。</p>
+
+          <h3>否認防止</h3>
+          <p>電子商取引や電子契約では、後から、</p>
+          <blockquote>
+            <p>「私はその注文をしていない」</p>
+            <p>「私はその文書を承認していない」</p>
+          </blockquote>
+          <p>と主張されることが問題になります。</p>
+          <p>署名に使った秘密鍵が適切に管理され、本人との対応を信頼できる状況であれば、デジタル署名は、その行為を後から否定されにくくする<strong>否認防止</strong>にも役立ちます。</p>
+          <p>ただし、実際の否認防止は、鍵の管理方法や電子証明書、操作記録なども含めた仕組みによって実現されます。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名と暗号化の違い</h2>
+          <p>デジタル署名と公開鍵暗号は同じように公開鍵と秘密鍵を利用するため、混同しやすい技術です。しかし、目的が異なります。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">技術</th><th scope="col">主な目的</th><th scope="col">主に使う鍵</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">デジタル署名</th><td>署名者と改ざんの有無を確認する</td><td>署名者の秘密鍵で署名し、署名者の公開鍵で検証する</td></tr>
+              <tr><th scope="row">公開鍵暗号による暗号化</th><td>第三者に内容を読まれにくくする</td><td>受信者の公開鍵で暗号化し、受信者の秘密鍵で復号する</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、AさんがBさんへ秘密の文書を送り、さらにAさんが作成した文書であることも確認できるようにするとします。</p>
+          <p>この場合、</p>
+          <ul>
+            <li><strong>機密性</strong>を確保するため、Bさんの公開鍵で暗号化する</li>
+            <li><strong>デジタル署名</strong>を付けるため、Aさんの秘密鍵で署名する</li>
+          </ul>
+          <p>という組合せになります。</p>
+          <p>受信したBさんは、</p>
+          <ul>
+            <li>Bさんの秘密鍵で復号する</li>
+            <li>Aさんの公開鍵で署名を検証する</li>
+          </ul>
+          <p>ことになります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>デジタル署名 · EXAMPLE</span><span>ITパスポートR5公開問題 問84（改題）</span></div>
+          <h3>デジタル署名が付けられた電子メールについて、受信者が主に確認できることとして最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>電子メールの本文が第三者に読まれないこと</p></li>
+            <li><span>1</span><p>電子メールが必ず相手に届くこと</p></li>
+            <li><span>2</span><p>本文が改ざんされていないことや、署名者が正当であること</p></li>
+            <li><span>3</span><p>添付ファイルがウイルスを含まないこと</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．本文が改ざんされていないことや、署名者が正当であること</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>デジタル署名は、ハッシュ値と公開鍵暗号などを利用して、改ざんの検知や署名者の確認に使われます。ただし、署名者本人まで確認するには、検証に使う公開鍵が本人のものであることを電子証明書などで確認する必要があります。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートR5公開問題 問84（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：デジタル署名／完全性</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">デジタル署名の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="デジタル署名"
+          data-limit="5"
+          data-exclude-stem="デジタル署名が付けられた電子メールについて、受信者が主に確認できることとして最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=デジタル署名">デジタル署名の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"デジタル署名とは","description":"デジタル署名の仕組みと、秘密鍵・公開鍵、ハッシュ値、電子証明書、暗号化との違いを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/digital-signature/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"デジタル署名","item":"https://mei-chan-nel.com/terms/digital-signature/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

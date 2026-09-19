@@ -51,6 +51,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "デジタルデバイド": {
     "url": "/terms/digital-divide/"
   },
+  "デジタル署名": {
+    "url": "/terms/digital-signature/"
+  },
   "データ量": {
     "url": "/terms/data-volume/"
   },
