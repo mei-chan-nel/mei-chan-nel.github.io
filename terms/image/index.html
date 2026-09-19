@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>画像とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="画像の意味と、画素・解像度・色・画像形式・圧縮、ラスタ形式とベクタ形式の違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="画像" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="画像とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="画像の意味と、画素・解像度・色・画像形式・圧縮、ラスタ形式とベクタ形式の違いを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/image/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/image/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">画像</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">画像</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「画像」とは</h2>
+          <p>コンピュータで扱うデジタル画像は、小さな点を縦横に並べ、それぞれの点に色や明るさを表す数値を割り当てて表現できます。この一つ一つの点を<strong>画素（ピクセル）</strong>といいます。</p>
+          <p>例えば、横800画素、縦600画素の画像には、</p>
+          <p class="term-formula"><strong>800×600＝480,000画素</strong></p>
+          <p>が含まれています。</p>
+          <p>このように、画像を画素の集まりとして表現する方式を<strong>ラスタ形式</strong>といいます。写真をはじめ、コンピュータで扱われる多くの画像に利用されています。</p>
+          <p>画像を表現するときは、主に次の二つの観点が重要です。</p>
+          <ul>
+            <li>画像を何個の画素に分けるか</li>
+            <li>1画素の色や明るさを何ビットで表すか</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>画像のデジタル化</h2>
+          <p>現実の景色などは、位置や色が連続的に変化しています。これをコンピュータで扱えるデジタルデータにするには、連続的な情報を有限個の数値へ変換する必要があります。</p>
+          <p>画像のデジタル化は、<strong>標本化</strong>と<strong>量子化</strong>という考え方で説明できます。</p>
+
+          <h3>標本化</h3>
+          <p>画像を縦横の細かな領域に区切り、それぞれの位置の情報を取り出すことを<strong>標本化</strong>と考えることができます。</p>
+          <p>画像の場合、この一つ一つの領域が画素になります。細かく区切るほど多くの画素を使って画像を表現するため、細部を表しやすくなります。</p>
+
+          <h3>量子化</h3>
+          <p>それぞれの画素について、明るさや色を有限個の値のいずれかに割り当てることを<strong>量子化</strong>といいます。</p>
+          <p>例えば明るさを0～255の値で表す場合、明るさを256段階に分け、それぞれの画素をそのいずれかの値で表現します。</p>
+          <p>音声のデジタル化でも標本化と量子化が行われます。画像では、</p>
+          <p class="term-formula"><strong>どの位置の情報を取り出すか → 標本化<br />取り出した色や明るさをどの値で表すか → 量子化</strong></p>
+          <p>と考えると区別しやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>画素数と解像度</h2>
+          <p>画像を構成する画素が多いほど、一般には細かな形を表現しやすくなります。</p>
+          <p>例えば、同じ大きさで表示する場合、</p>
+          <ul>
+            <li>400×300画素</li>
+            <li>1,600×1,200画素</li>
+          </ul>
+          <p>では、後者の方が多くの画素を使って画像を表現できるため、細部を表現しやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>「解像度」が表すもの</h2>
+          <p>「解像度」という言葉は、異なる意味で使われることがあります。</p>
+
+          <h3>縦横の画素数</h3>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>1,920×1,080画素</strong></p>
+          <p>のように、画像を構成する縦横の画素数を指して「解像度」と呼ぶことがあります。</p>
+
+          <h3>画素の密度</h3>
+          <p>一定の長さの中に、どれだけ多くの画素が並んでいるかを表す場合もあります。</p>
+          <p>例えば<strong>ppi（pixels per inch）</strong>は、1インチ当たりの画素数を表します。</p>
+          <p>同じ1,000×1,000画素の画像でも、小さく表示すれば画素が密に並び、大きく表示すれば画素の密度は低くなります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>画像そのものが持つ縦横の画素数</strong><br /><strong>一定の長さ当たりに並ぶ画素の密度</strong></p>
+          <p>は区別して考える必要があります。</p>
+        </section>
+
+        <section>
+          <h2>ビット数と階調</h2>
+          <p>コンピュータでは、画素の明るさや色を0と1の組合せで表します。</p>
+          <p>nビットで表現できる異なる値の数は、</p>
+          <p class="term-formula"><strong>2<sup>n</sup>通り</strong></p>
+          <p>です。例えば、</p>
+          <ul>
+            <li>1ビット → 2<sup>1</sup>＝2通り</li>
+            <li>2ビット → 2<sup>2</sup>＝4通り</li>
+            <li>8ビット → 2<sup>8</sup>＝256通り</li>
+          </ul>
+          <p>となります。</p>
+          <p>画像の明るさを何段階に分けて表現できるかを<strong>階調数</strong>といいます。</p>
+
+          <h3>2階調画像</h3>
+          <p>白と黒だけを表すのであれば2通りなので、1画素につき1ビットで表現できます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>0 → 白</li>
+            <li>1 → 黒</li>
+          </ul>
+          <p>と対応させることができます。</p>
+
+          <h3>4階調画像</h3>
+          <p>4段階を表すには2ビット必要です。2ビットで表せる値は、</p>
+          <p class="term-formula">00、01、10、11</p>
+          <p>の4通りです。</p>
+          <p>例えば値が小さいほど明るいと決めれば、</p>
+          <ul>
+            <li>00 → 白</li>
+            <li>01 → 薄い灰色</li>
+            <li>10 → 濃い灰色</li>
+            <li>11 → 黒</li>
+          </ul>
+          <p>と対応させることができます。どの値をどの明るさに対応させるかは方式によって異なるため、問題では与えられた条件を確認する必要があります。</p>
+
+          <h3>256階調画像</h3>
+          <p>8ビットなら、</p>
+          <p class="term-formula"><strong>2<sup>8</sup>＝256通り</strong></p>
+          <p>なので、256段階の明るさを表現できます。符号なし整数として表す場合、値の範囲は、</p>
+          <p class="term-formula"><strong>0～255</strong></p>
+          <p>となります。256は「値の種類の数」であり、255は「最大値」であることを区別する必要があります。</p>
+        </section>
+
+        <section>
+          <h2>グレースケール画像</h2>
+          <p>色を持たず、明るさだけで表現した画像を<strong>グレースケール画像</strong>といいます。</p>
+          <p>例えば、1画素を8ビットで表すグレースケール画像では、各画素に0～255の値を割り当てることができ、256段階の明るさを表現できます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>0 → 黒</li>
+            <li>255 → 白</li>
+          </ul>
+          <p>のように対応させることができます。</p>
+        </section>
+
+        <section>
+          <h2>カラー画像とRGB</h2>
+          <p>コンピュータのディスプレイなどでは、色を、</p>
+          <ul>
+            <li>R：Red（赤）</li>
+            <li>G：Green（緑）</li>
+            <li>B：Blue（青）</li>
+          </ul>
+          <p>の三つの成分の組合せで表す<strong>RGB</strong>が広く使われています。</p>
+          <p>24ビットフルカラー画像では、R・G・Bの各成分に8ビットずつ割り当てます。</p>
+          <p>8ビットでは256通りの値を表現できるため、各成分は0～255の値を取ります。</p>
+          <p>したがって、1画素で表現できる色の数は、</p>
+          <p class="term-formula"><strong>256×256×256<br />＝256<sup>3</sup><br />＝16,777,216色</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>RGB以外の色の表現</h2>
+          <p>色の表現方法はRGBだけではありません。</p>
+          <p>例えば印刷では、</p>
+          <ul>
+            <li>C：シアン</li>
+            <li>M：マゼンタ</li>
+            <li>Y：イエロー</li>
+            <li>K：ブラック</li>
+          </ul>
+          <p>を組み合わせる<strong>CMYK</strong>が広く利用されています。</p>
+          <p>RGBは光を組み合わせることで色を表すのに対し、CMYKではインクなどによって光を吸収することで色を表します。</p>
+          <p>また、画像や動画の圧縮では、明るさの情報と色の情報を分けて扱う色表現が利用されることもあります。用途によって、適した色の表現方法は異なります。</p>
+        </section>
+
+        <section>
+          <h2>画像のデータ量</h2>
+          <p>圧縮を行わず、ヘッダなどの付加情報も考えない場合、画像のデータ量は、</p>
+          <p class="term-formula"><strong>横の画素数×縦の画素数×1画素当たりのビット数</strong></p>
+          <p>で求めることができます。</p>
+
+          <h3>例1：白黒画像</h3>
+          <p>横10画素、縦20画素、1画素1ビットなら、</p>
+          <p class="term-formula">10×20×1<br />＝200ビット</p>
+          <p>です。</p>
+          <p>1バイト＝8ビットなので、</p>
+          <p class="term-formula">200÷8<br />＝25バイト</p>
+          <p>となります。</p>
+
+          <h3>例2：8ビット画像</h3>
+          <p>12×12画素で、1画素8ビットなら、</p>
+          <p class="term-formula">12×12×8<br />＝1,152ビット</p>
+          <p>です。8ビット＝1バイトなので、</p>
+          <p class="term-formula">1,152÷8<br />＝144バイト</p>
+          <p>となります。</p>
+
+          <h3>例3：24ビットカラー画像</h3>
+          <p>横1,920画素、縦1,080画素、1画素24ビットなら、</p>
+          <p class="term-formula"><strong>1,920×1,080×24÷8<br />＝6,220,800バイト</strong></p>
+          <p>となります。1MB＝1,000,000バイトとすれば、</p>
+          <p class="term-formula"><strong>約6.22MB</strong></p>
+          <p>です。</p>
+          <p>実際の画像ファイルには、画像形式などを記録するヘッダや、そのほかの付加情報が含まれる場合があります。</p>
+        </section>
+
+        <section>
+          <h2>画像の圧縮</h2>
+          <p>画像は、画素数が多く、1画素を多くのビットで表すほどデータ量が大きくなります。</p>
+          <p>そこで、データ量を減らすために<strong>圧縮</strong>が行われます。</p>
+          <p>圧縮には大きく、</p>
+          <ul>
+            <li>可逆圧縮</li>
+            <li>非可逆圧縮</li>
+          </ul>
+          <p>があります。</p>
+        </section>
+
+        <section>
+          <h2>可逆圧縮</h2>
+          <p><strong>可逆圧縮</strong>は、圧縮したデータを展開したとき、元のデータを完全に復元できる方式です。</p>
+          <p>例えばプログラムのソースコードでは、1文字でも変化すると意味や動作が変わる可能性があります。そのため、元の内容を完全に復元する必要があります。</p>
+          <p>画像でも、元の画素値を完全に保持する必要がある場合には可逆圧縮が利用されます。PNGなどでは可逆圧縮が利用されています。</p>
+        </section>
+
+        <section>
+          <h2>非可逆圧縮</h2>
+          <p><strong>非可逆圧縮</strong>は、一部の情報を取り除くことでデータ量を小さくする方式です。</p>
+          <p>展開しても、元のデータを完全には復元できません。</p>
+          <p>写真などでは、人間が気付きにくい違いを利用することで、見た目の変化をある程度抑えながらデータ量を小さくすることができます。</p>
+          <p>JPEGは写真などで広く利用される画像形式で、一般に非可逆圧縮を用います。</p>
+        </section>
+
+        <section>
+          <h2>主な画像ファイル形式</h2>
+          <p>画像の保存には、用途に応じてさまざまなファイル形式が使われます。</p>
+
+          <h3>JPEG</h3>
+          <p>写真などに適したラスタ形式です。</p>
+          <p>一般に非可逆圧縮を利用し、画質とデータ量のバランスを調整できます。</p>
+
+          <h3>PNG</h3>
+          <p>ラスタ形式で、可逆圧縮を利用します。図や文字を含む画像などにも利用され、透明部分を扱うこともできます。</p>
+
+          <h3>GIF</h3>
+          <p>ラスタ形式で、扱える色数は基本的に最大256色です。簡単なアニメーションを表現することもできます。</p>
+
+          <p>画像形式によって、圧縮方式、扱える色数、利用できる機能などが異なるため、目的に応じて使い分ける必要があります。</p>
+        </section>
+
+        <section>
+          <h2>高解像度画像に含まれる情報</h2>
+          <p>カメラの高解像度化によって、写真には以前より細かな情報まで記録できるようになりました。</p>
+          <p>そのため、撮影した本人が意識していない情報が画像に含まれることもあります。</p>
+          <p>例えば、人物がピースサインをしている写真では、条件によっては指先の細かな模様まで写る可能性があります。</p>
+          <p>画像を公開するときには、人物そのものだけではなく、</p>
+          <ul>
+            <li>指先などの細部</li>
+            <li>名札</li>
+            <li>書類</li>
+            <li>車のナンバー</li>
+            <li>背景の建物</li>
+            <li>場所を推測できる景色</li>
+          </ul>
+          <p>などの写り込みにも注意する必要があります。</p>
+        </section>
+
+        <section>
+          <h2>公開した画像は完全には回収できないことがある</h2>
+          <p>SNSへ投稿した画像を後から削除しても、インターネット上からすべての複製が消えるとは限りません。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>他人の端末に保存される</li>
+            <li>別のSNSやWebサイトへ転載される</li>
+            <li>検索サービスなどに一時的に保存される</li>
+          </ul>
+          <p>ことがあります。</p>
+          <p>元の投稿を削除できても、別の場所に作られた複製は投稿者が直接管理できない場合があります。</p>
+          <p>したがって、画像を公開するときには、後から完全には回収できない可能性を考えておくことが重要です。</p>
+        </section>
+
+        <section>
+          <h2>画像の信頼性を確かめる</h2>
+          <p>SNSやWebサイトに掲載されている画像が、その説明どおりの出来事を示しているとは限りません。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>過去の出来事の写真を現在のものとして紹介する</li>
+            <li>別の場所で撮影された写真を使う</li>
+            <li>画像の一部を切り取る</li>
+            <li>画像を加工する</li>
+            <li>生成AIなどによって実在しない画像を作る</li>
+          </ul>
+          <p>といったことが可能です。</p>
+          <p>画像の信頼性を確認するには、</p>
+          <ul>
+            <li><strong>逆画像検索</strong>で過去の掲載例を探す</li>
+            <li>自治体や公的機関などの情報と照合する</li>
+            <li>撮影日時や場所を調べる</li>
+            <li>天候、地形、建物などの情報と照合する</li>
+            <li>最初に掲載した主体を確認する</li>
+          </ul>
+          <p>など、複数の手掛かりを組み合わせることが重要です。</p>
+          <p>画像から受ける印象の強さと、その画像が正しい情報を示しているかどうかは別の問題です。</p>
+        </section>
+
+        <section>
+          <h2>写真と著作権</h2>
+          <p>写真も、撮影者の創作性が表れたものであれば、著作権法上の<strong>著作物</strong>として保護されます。</p>
+          <p>WebサイトやSNSで公開されている写真だからといって、自由に転載できるとは限りません。</p>
+          <p>他人が撮影した写真を許可なく自分の広告などへ転載すると、原則として複製権や公衆送信権などの著作権に関わる問題となります。</p>
+          <p><strong>インターネット上で見ることができることと、自由に利用できることは同じではありません。</strong></p>
+        </section>
+
+        <section>
+          <h2>ベクタ形式</h2>
+          <p>ここまで説明してきた、画像を画素の集まりとして表現する方法は<strong>ラスタ形式</strong>です。</p>
+          <p>デジタル画像には、これとは異なる<strong>ベクタ形式</strong>という表現方法もあります。</p>
+          <p>ベクタ形式では、画像を画素の集まりとして保存するのではなく、</p>
+          <ul>
+            <li>点の位置</li>
+            <li>直線</li>
+            <li>曲線</li>
+            <li>図形</li>
+            <li>線の太さ</li>
+            <li>色</li>
+          </ul>
+          <p>などの情報として表現します。</p>
+          <p>例えば円なら、「どの位置を中心とするか」「半径はいくつか」「何色で塗るか」といった情報によって表すことができます。</p>
+          <p>そのため、表示する大きさが変わっても、その大きさに合わせて図形を描き直すことができます。ロゴ、アイコン、地図、図形、イラストなどの表現に適しています。</p>
+          <p>SVGは代表的なベクタ形式の画像形式です。</p>
+        </section>
+
+        <section>
+          <h2>ラスタ形式とベクタ形式の違い</h2>
+          <p>ラスタ形式とベクタ形式には、それぞれ異なる特徴があります。</p>
+          <table>
+            <thead>
+              <tr><th scope="col"></th><th scope="col">ラスタ形式</th><th scope="col">ベクタ形式</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">表現方法</th><td>画素の集まり</td><td>点・線・曲線・図形など</td></tr>
+              <tr><th scope="row">得意な画像</th><td>写真など</td><td>ロゴ、図形、イラストなど</td></tr>
+              <tr><th scope="row">拡大</th><td>画素が目立ち、粗くなることがある</td><td>基本的に輪郭が粗くならない</td></tr>
+              <tr><th scope="row">データ量</th><td>画素数や色深度などに左右される</td><td>図形の数や複雑さなどに左右される</td></tr>
+              <tr><th scope="row">代表的な形式</th><td>JPEG、PNG、GIF</td><td>SVG</td></tr>
+            </tbody>
+          </table>
+          <p>写真のように複雑な色の変化を持つ画像は、一般にラスタ形式に適しています。</p>
+          <p>一方、ロゴのように単純な線や図形を組み合わせた画像は、ベクタ形式に適しています。</p>
+          <p>また、ディスプレイ自体は画素を並べて表示する装置です。そのため、ベクタ形式の画像も画面に表示するときには、最終的には画素へ変換して描画されます。</p>
+          <p>このように、点・線・図形などの情報から画素の集まりへ変換して描画することを<strong>ラスタライズ</strong>といいます。</p>
+          <p>画像には一つの表現方法だけがあるのではなく、目的や画像の性質に応じてラスタ形式とベクタ形式を使い分けることが重要です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>画像 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>非可逆圧縮した画像を展開し、その展開結果を同じ非可逆圧縮方式・設定で何度も保存し直した場合の説明を次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>保存回数が増えるほど、最初に失われた細部が正確に復元される</p></li>
+            <li><span>1</span><p>非可逆圧縮した画像も、展開すれば撮影時の元データへ戻る</p></li>
+            <li><span>2</span><p>保存のたびに追加の情報が失われ、画質劣化が累積することがある</p></li>
+            <li><span>3</span><p>非可逆圧縮は情報を追加して画質を保つため、元データより容量が大きくなる</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．保存のたびに追加の情報が失われ、画質劣化が累積することがある</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>展開した近似値を再び丸めたり変換したりするため、新たな誤差が加わって劣化が累積する場合があります。一度捨てた細部は後の再圧縮で利用できず、保存回数を増やしても元の情報は復元されません。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：圧縮／画像</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">画像の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="画像"
+          data-limit="5"
+          data-exclude-stem="非可逆圧縮した画像を展開し、その展開結果を同じ非可逆圧縮方式・設定で何度も保存し直した場合の説明を次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=画像">画像の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"画像とは","description":"画像の意味と、画素・解像度・色・画像形式・圧縮、ラスタ形式とベクタ形式の違いを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/image/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"画像","item":"https://mei-chan-nel.com/terms/image/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

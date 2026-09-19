@@ -123,6 +123,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "機械学習": {
     "url": "/terms/machine-learning/"
   },
+  "画像": {
+    "url": "/terms/image/"
+  },
   "著作権": {
     "url": "/terms/copyright/"
   },

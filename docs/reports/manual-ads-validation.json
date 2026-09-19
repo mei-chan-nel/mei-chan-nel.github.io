@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-09-06",
+  "validated_on": "2026-09-19",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 63,
+  "target_pages": 76,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -359,6 +359,15 @@
       ]
     },
     {
+      "path": "terms/authentication/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/availability/index.html",
       "format": "in-article",
       "content_count": null,
@@ -377,7 +386,43 @@
       ]
     },
     {
+      "path": "terms/binary/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/bit/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/bps/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/common-key-encryption/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/copyright/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -404,6 +449,15 @@
       ]
     },
     {
+      "path": "terms/data-volume/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/digital-certificate/index.html",
       "format": "in-article",
       "content_count": null,
@@ -414,6 +468,15 @@
     },
     {
       "path": "terms/digital-divide/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/encryption/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -458,6 +521,15 @@
       ]
     },
     {
+      "path": "terms/image/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/integrity/index.html",
       "format": "in-article",
       "content_count": null,
@@ -486,6 +558,15 @@
     },
     {
       "path": "terms/lan/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/logic-operation/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -575,6 +656,24 @@
       ]
     },
     {
+      "path": "terms/sampling/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/scale/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/server/index.html",
       "format": "in-article",
       "content_count": null,
@@ -620,6 +719,15 @@
       ]
     },
     {
+      "path": "terms/unauthorized-access/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/unauthorized-access-prevention-law/index.html",
       "format": "in-article",
       "content_count": null,
@@ -630,6 +738,15 @@
     },
     {
       "path": "terms/usability/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/user-interface/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
