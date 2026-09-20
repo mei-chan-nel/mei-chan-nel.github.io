@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>電子メールとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="電子メールの仕組みと、SMTP・POP・IMAP、To・Cc・BCC、Webメール、フィッシングや添付ファイルの注意点を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="電子メール" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="電子メールとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="電子メールの仕組みと、SMTP・POP・IMAP、To・Cc・BCC、Webメール、フィッシングや添付ファイルの注意点を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/email/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/email/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">電子メール</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">電子メール</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「電子メール」とは</h2>
+          <p><strong>電子メール（e-mail）</strong>とは、インターネットなどのネットワークを利用して、文章やファイルなどを送受信する仕組みです。</p>
+          <p>電子メールでは、送信者と受信者が同じ時間に通信する必要はありません。送信されたメールはいったん<strong>メールサーバ</strong>に届けられ、受信者が後から読むことができます。</p>
+          <p>そのため、電話や音声通話のように相手と同時にやり取りする<strong>同期型</strong>の通信に対して、電子メールは代表的な<strong>非同期型</strong>の通信です。</p>
+        </section>
+
+        <section>
+          <h2>電子メールが届くまで</h2>
+          <p>一般的な電子メールは、次のような流れで配送されます。</p>
+          <p class="term-formula"><strong>送信者のメールソフト<br />→ 送信側のメールサーバ<br />→ 受信側のメールサーバ<br />→ 受信者のメールソフト</strong></p>
+          <p>例えば、AさんがBさんへメールを送る場合、AさんのパソコンからBさんのパソコンへ直接メールを送るわけではありません。</p>
+          <p>まず、Aさんが使用しているメールソフトから送信側のメールサーバへメールを渡します。</p>
+          <p>その後、送信側のメールサーバから受信側のメールサーバへメールが配送されます。受信側のメールサーバはメールを保存しておき、Bさんがメールソフトなどを使って閲覧・受信します。</p>
+          <p>この仕組みがあるため、Bさんのパソコンやスマートフォンの電源が切れていても、メールを受け取ることができます。</p>
+        </section>
+
+        <section>
+          <h2>メールアドレス</h2>
+          <p>電子メールでは、送信先を指定するために<strong>メールアドレス</strong>を使用します。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><code>user@example.com</code></p>
+          <p>というメールアドレスは、大きく、</p>
+          <p class="term-formula"><code>user</code> <strong>@</strong> <code>example.com</code></p>
+          <p>のように分けられます。</p>
+          <p>「@」より右側の<code>example.com</code>の部分を<strong>ドメイン</strong>といいます。</p>
+          <p>メールを配送するときには、このドメインを手掛かりとして、どのメールサーバへ送ればよいかを調べます。</p>
+          <p>このとき利用されるのが<strong>DNS（Domain Name System）</strong>です。送信側のメールサーバはDNSを利用して、宛先のドメインを担当しているメールサーバを調べ、そのサーバへメールを配送します。</p>
+        </section>
+
+        <section>
+          <h2>電子メールで使われるプロトコル</h2>
+          <p>電子メールでは、送信と受信で異なるプロトコルが使われます。</p>
+          <p>代表的なものが、</p>
+          <ul>
+            <li>SMTP</li>
+            <li>POP</li>
+            <li>IMAP</li>
+          </ul>
+          <p>です。</p>
+
+          <h3>SMTP</h3>
+          <p><strong>SMTP（Simple Mail Transfer Protocol）</strong>は、電子メールを<strong>送信・配送するためのプロトコル</strong>です。</p>
+          <p>主に、</p>
+          <ul>
+            <li>利用者のメールソフトから送信メールサーバへメールを渡す</li>
+            <li>メールサーバから別のメールサーバへメールを転送する</li>
+          </ul>
+          <p>といった場面で使用されます。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>メールの送信 → SMTP</strong></p>
+          <p>と覚えるとよいでしょう。</p>
+
+          <h3>POP</h3>
+          <p><strong>POP（Post Office Protocol）</strong>は、メールサーバに保存されているメールを利用者の端末へ受信するためのプロトコルです。</p>
+          <p>現在一般的に使われるものは<strong>POP3</strong>です。</p>
+          <p>基本的には、</p>
+          <p class="term-formula"><strong>メールサーバ → 利用者の端末</strong></p>
+          <p>という方向でメールを取り込みます。</p>
+          <p>設定によっては、メールを受信した後もメールサーバにコピーを残すことができます。</p>
+
+          <h3>IMAP</h3>
+          <p><strong>IMAP（Internet Message Access Protocol）</strong>も、電子メールを受信・閲覧するためのプロトコルです。</p>
+          <p>POPとの大きな違いは、メールを主に<strong>メールサーバ上で管理する</strong>ことです。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>パソコンでメールを読む</li>
+            <li>スマートフォンでも同じメールを見る</li>
+            <li>パソコンで既読にしたメールがスマートフォンでも既読になる</li>
+          </ul>
+          <p>といった使い方がしやすくなります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>送信 → SMTP<br />受信 → POPまたはIMAP</strong></p>
+          <p>と整理できます。</p>
+        </section>
+
+        <section>
+          <h2>Webメール</h2>
+          <p><strong>Webメール</strong>とは、Webブラウザを使って利用する電子メールサービスです。</p>
+          <p>例えば、ブラウザでWebメールのサービスにアクセスし、</p>
+          <ul>
+            <li>メールを読む</li>
+            <li>メールを作成する</li>
+            <li>メールを送信する</li>
+            <li>添付ファイルを確認する</li>
+          </ul>
+          <p>といった操作を行うことができます。</p>
+          <p>専用のメールソフトをインストールしなくても、Webブラウザから利用できることが特徴です。</p>
+          <p>ただし、利用者がWebブラウザを使っているからといって、電子メールそのものがHTTPだけで配送されているわけではありません。利用者とWebメールサービスとの通信にはHTTP/HTTPSなどが使われる一方、メールサーバ間の配送にはSMTPなどが使われます。</p>
+        </section>
+
+        <section>
+          <h2>To・Cc・BCC</h2>
+          <p>電子メールには、宛先を指定するための、</p>
+          <ul>
+            <li>To</li>
+            <li>Cc</li>
+            <li>BCC</li>
+          </ul>
+          <p>という欄があります。</p>
+
+          <h3>To</h3>
+          <p><strong>To</strong>は、そのメールを主に読んでほしい相手を指定する欄です。</p>
+          <p>例えば、「この仕事をお願いします」というメールで、実際に仕事を依頼する相手をToに指定します。</p>
+          <p>Toに入力されたメールアドレスは、通常、そのメールを受け取った他の受信者からも確認できます。</p>
+
+          <h3>Cc</h3>
+          <p><strong>Cc（Carbon Copy）</strong>は、主な宛先ではないものの、メールの内容を共有しておきたい相手を指定する欄です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>To：実際に仕事を担当する人</li>
+            <li>Cc：その仕事について知っておいてほしい上司</li>
+          </ul>
+          <p>という使い方ができます。</p>
+          <p>Ccに指定されたメールアドレスも、通常は他の受信者から見ることができます。</p>
+
+          <h3>BCC</h3>
+          <p><strong>BCC（Blind Carbon Copy）</strong>は、他の受信者にメールアドレスを見せずにメールを送るための欄です。</p>
+          <p>例えば、互いに面識のない100人へ同じ案内を送りたい場合、100人全員をToやCcに入れると、受信者に他の人のメールアドレスまで表示されてしまいます。</p>
+          <p>そこで、</p>
+          <ul>
+            <li>To：送信者自身のメールアドレス</li>
+            <li>BCC：案内を送りたい100人</li>
+          </ul>
+          <p>のように指定します。</p>
+          <p>BCCに指定されたメールアドレスは、ToやCcの受信者には通常表示されません。また、BCCで受信した人同士も、他のBCC受信者を通常は確認できません。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>互いのメールアドレスを見せずに一斉送信する → BCC</strong></p>
+          <p>と覚えるとよいでしょう。</p>
+
+          <h3>To・Cc・BCCの見え方</h3>
+          <p>例えば、</p>
+          <ul>
+            <li>From：W</li>
+            <li>To：A、B</li>
+            <li>Cc：X、Y</li>
+            <li>BCC：α、β</li>
+          </ul>
+          <p>としてメールを送ったとします。</p>
+          <p>Yが受信したメールでは、通常、</p>
+          <ul>
+            <li>送信者：W</li>
+            <li>To：A、B</li>
+            <li>Cc：X、Y</li>
+          </ul>
+          <p>を確認できます。</p>
+          <p>一方、BCCのα、βは表示されません。</p>
+        </section>
+
+        <section>
+          <h2>プレーンテキストメールとHTMLメール</h2>
+          <p>電子メールの本文には、大きく、</p>
+          <ul>
+            <li>プレーンテキスト形式</li>
+            <li>HTML形式</li>
+          </ul>
+          <p>があります。</p>
+
+          <h3>プレーンテキスト形式</h3>
+          <p>文字を中心として作られる単純な形式です。</p>
+          <p>基本的には、文字の色や大きさ、複雑なレイアウトなどを指定しません。</p>
+
+          <h3>HTML形式</h3>
+          <p><strong>HTML形式のメール</strong>では、Webページと同じようにHTMLを利用してメールの内容を表現できます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>文字の色を変える</li>
+            <li>文字を大きくする</li>
+            <li>太字にする</li>
+            <li>画像を配置する</li>
+            <li>文字にリンクを設定する</li>
+          </ul>
+          <p>といった表現ができます。</p>
+          <p>例えば、「詳しくはこちら」という文字そのものにWebページへのリンクを設定することもできます。</p>
+          <p>ただし、表示されている文字と実際のリンク先を異なるものにすることもできるため、HTMLメールのリンクは<strong>フィッシング</strong>などに悪用されることもあります。</p>
+        </section>
+
+        <section>
+          <h2>差出人アドレスだけでは本人確認にならない</h2>
+          <p>電子メールの差出人欄を偽装することは比較的容易です。したがって、知人のメールアドレスが表示されていても、<strong>必ずしもその知人本人が送ったとは限りません。</strong></p>
+          <p>特に、</p>
+          <ul>
+            <li>不自然な日本語</li>
+            <li>急いで操作するよう要求する</li>
+            <li>パスワードを入力させようとする</li>
+            <li>クレジットカード情報を入力させようとする</li>
+            <li>不審な添付ファイルが付いている</li>
+          </ul>
+          <p>といったメールには注意が必要です。</p>
+        </section>
+
+        <section>
+          <h2>フィッシング</h2>
+          <p><strong>フィッシング</strong>とは、企業や金融機関などを装ったメールやWebサイトを使って、利用者の、</p>
+          <ul>
+            <li>ID</li>
+            <li>パスワード</li>
+            <li>クレジットカード番号</li>
+            <li>暗証番号</li>
+          </ul>
+          <p>などを盗み取ろうとする手口です。</p>
+          <p>例えば、</p>
+          <blockquote>
+            <p>「カードに問題があります。今すぐこちらから再登録してください」</p>
+          </blockquote>
+          <p>というメールが届いても、そのメールに記載されたリンクからカード情報を入力してはいけません。</p>
+          <p>確認する場合には、</p>
+          <ul>
+            <li>公式アプリ</li>
+            <li>自分で登録している公式サイト</li>
+            <li>カードに記載されている正式な問い合わせ先</li>
+          </ul>
+          <p>など、受け取ったメールとは<strong>独立した経路</strong>を利用します。</p>
+        </section>
+
+        <section>
+          <h2>添付ファイルとマルウェア</h2>
+          <p>電子メールの添付ファイルは、<strong>マルウェア</strong>を送り込む手段として悪用されることがあります。</p>
+          <p>そのため、</p>
+          <p class="term-formula"><strong>不審なメールの添付ファイルは開かない</strong></p>
+          <p>ことが基本です。</p>
+          <p>知っている人物の名前やメールアドレスが表示されていても、安全とは限りません。</p>
+          <p>必要に応じて、</p>
+          <ul>
+            <li>送信元を別の方法で確認する</li>
+            <li>セキュリティソフトなどで確認する</li>
+            <li>組織の管理者へ相談する</li>
+          </ul>
+          <p>といった対応を行います。</p>
+        </section>
+
+        <section>
+          <h2>迷惑メール</h2>
+          <p>広告や詐欺などを目的として大量に送られる不要なメールを、一般に<strong>迷惑メール（スパムメール）</strong>といいます。</p>
+          <p>迷惑メールを受け取った場合、</p>
+          <ul>
+            <li>安易に返信しない</li>
+            <li>不審なリンクを開かない</li>
+            <li>不審な添付ファイルを開かない</li>
+            <li>迷惑メールとして振り分ける</li>
+            <li>必要に応じて管理者へ相談する</li>
+          </ul>
+          <p>といった対応を行います。</p>
+        </section>
+
+        <section>
+          <h2>オプトインとオプトアウト</h2>
+          <p>広告メールなどの配信では、利用者の意思を確認する方法として、</p>
+          <ul>
+            <li>オプトイン</li>
+            <li>オプトアウト</li>
+          </ul>
+          <p>という考え方があります。</p>
+
+          <h3>オプトイン</h3>
+          <p><strong>オプトイン</strong>とは、利用者があらかじめ、</p>
+          <blockquote>
+            <p>「広告メールを受け取りたい」</p>
+          </blockquote>
+          <p>と自分の意思で同意した人に配信する方式です。</p>
+          <p>例えば、</p>
+          <p class="term-formula">□ お知らせ・広告メールを受け取る</p>
+          <p>という欄が最初は選択されておらず、利用者が自分でチェックした場合だけ広告メールを配信する方法がこれに当たります。</p>
+
+          <h3>オプトアウト</h3>
+          <p><strong>オプトアウト</strong>とは、いったん利用の対象となっている状態から、利用者が、</p>
+          <blockquote>
+            <p>「今後は受け取りたくない」</p>
+          </blockquote>
+          <p>という意思を示して配信を停止する考え方です。</p>
+          <p>オプトインでは、利用者が<strong>事前に明確に同意する</strong>ことがポイントになります。</p>
+        </section>
+
+        <section>
+          <h2>電子メールを書くときの基本</h2>
+          <p>電子メールでは、内容が相手に正確に伝わることも重要です。</p>
+          <p>例えば、大学の課題について提出期限の延長を依頼する場合、</p>
+          <blockquote>
+            <p>「病気なので無理です」</p>
+          </blockquote>
+          <p>だけでは、相手が判断するための情報が不足しています。</p>
+          <p>一般には、</p>
+          <ul>
+            <li>要件が分かる件名</li>
+            <li>授業名</li>
+            <li>氏名</li>
+            <li>簡潔な事情</li>
+            <li>希望する期限</li>
+            <li>いつまでなら提出できるか</li>
+          </ul>
+          <p>などを明確にします。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>件名：○○演習 課題提出期限について</strong></p>
+          <p>のように、メールを開く前でも要件が分かる件名にするとよいでしょう。</p>
+          <p>電子メールは、単に情報を送るだけでなく、</p>
+          <p class="term-formula"><strong>相手が読んで、判断し、必要な行動を取れるように書く</strong></p>
+          <p>ことが重要です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>電子メール · EXAMPLE</span><span>ITパスポートH22秋期 問1（改題）</span></div>
+          <h3>複数の顧客に同じ電子メールを送るとき、受信者同士に互いのメールアドレスを見せないようにしたい。宛先欄の使い方として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>全員をTo欄に入れて送る。</p></li>
+            <li><span>1</span><p>全員をCc欄に入れて送る。</p></li>
+            <li><span>2</span><p>全員をBCC欄に入れて送る。</p></li>
+            <li><span>3</span><p>本文の先頭に全員のメールアドレスを書いて送る。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．全員をBCC欄に入れて送る。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>BCC欄に入れた宛先は、他の受信者には表示されません。複数の相手に互いのメールアドレスを見せずに送るときに使います。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH22秋期 問1（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：電子メール／メールアドレス</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">電子メールの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="電子メール"
+          data-limit="5"
+          data-exclude-stem="複数の顧客に同じ電子メールを送るとき、受信者同士に互いのメールアドレスを見せないようにしたい。宛先欄の使い方として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=電子メール">電子メールの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"電子メールとは","description":"電子メールの仕組みと、SMTP・POP・IMAP、To・Cc・BCC、Webメール、フィッシングや添付ファイルの注意点を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/email/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"電子メール","item":"https://mei-chan-nel.com/terms/email/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-09-20",
+  "validated_on": "2026-09-21",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 77,
+  "target_pages": 78,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -477,6 +477,15 @@
     },
     {
       "path": "terms/digital-signature/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/email/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,

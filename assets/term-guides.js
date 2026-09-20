@@ -141,6 +141,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "論理演算": {
     "url": "/terms/logic-operation/"
   },
+  "電子メール": {
+    "url": "/terms/email/"
+  },
   "電子証明書": {
     "url": "/terms/digital-certificate/"
   }
