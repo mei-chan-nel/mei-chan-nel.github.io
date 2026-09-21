@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>パスワードとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="パスワードの役割と認証の3要素、多要素認証、パスワード攻撃、管理方法、安全な保存の考え方を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="パスワード" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="パスワードとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="パスワードの役割と認証の3要素、多要素認証、パスワード攻撃、管理方法、安全な保存の考え方を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/password/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/password/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">パスワード</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">パスワード</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「パスワード」とは</h2>
+          <p><strong>パスワード</strong>は、コンピュータやWebサービスなどで、利用しようとしている人が本人であることを確認するために使われる秘密の文字列です。</p>
+          <p>Webサービスでは、一般に、</p>
+          <ul>
+            <li>利用者IDやメールアドレスによって「誰としてログインするのか」を示す</li>
+            <li>パスワードによって「本人しか知らない情報を知っているか」を確かめる</li>
+          </ul>
+          <p>という形で本人確認を行います。</p>
+          <p>このうち、利用者IDやメールアドレスは利用者を<strong>識別するための情報</strong>であり、通常は秘密情報ではありません。本人確認に使われる認証要素はパスワードの方です。</p>
+        </section>
+
+        <section>
+          <h2>認証の3要素</h2>
+          <p>本人確認に使われる認証要素は、大きく次の3種類に分けられます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">認証要素</th><th scope="col">内容</th><th scope="col">例</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">知識要素</th><td>本人が知っているもの</td><td>パスワード、暗証番号</td></tr>
+              <tr><th scope="row">所有物要素</th><td>本人が持っているもの</td><td>ICカード、スマートフォン、セキュリティキー</td></tr>
+              <tr><th scope="row">生体要素</th><td>本人の身体的特徴</td><td>指紋、顔、指静脈</td></tr>
+            </tbody>
+          </table>
+          <p>登録したスマートフォンへ認証コードを送り、そのコードを入力させる方式では、「コードを受け取ることができる」ことに注目して<strong>所有物要素</strong>となります。「コードを知っている」という知識要素ではありません。</p>
+        </section>
+
+        <section>
+          <h2>多要素認証</h2>
+          <p>パスワードだけによる認証では、パスワードを盗まれたり推測されたりすると、第三者にログインされる可能性があります。</p>
+          <p>そこで、異なる認証要素を組み合わせる方法が使われます。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>パスワード ＋ スマートフォンに届く認証コード</strong></p>
+          <p>では、</p>
+          <ul>
+            <li>パスワード → 知識要素</li>
+            <li>登録済みスマートフォン → 所有物要素</li>
+          </ul>
+          <p>を組み合わせています。</p>
+          <p>このように、<strong>異なる種類の認証要素を複数組み合わせて本人確認を行うことを多要素認証（MFA：Multi-Factor Authentication）</strong>といいます。</p>
+          <p>2種類の要素を使用する場合は、二要素認証ともいいます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>パスワード ＋ ICカード</li>
+            <li>パスワード ＋ 指紋</li>
+            <li>ICカード ＋ 指紋</li>
+          </ul>
+          <p>はいずれも異なる2種類の要素を使うため、二要素認証です。</p>
+          <p>一方、</p>
+          <p class="term-formula"><strong>パスワード ＋ 暗証番号</strong></p>
+          <p>は、二つの秘密情報を入力していても、どちらも知識要素です。したがって、二要素認証ではありません。</p>
+          <p>同じパスワードを2回入力しても、知識要素を繰り返しているだけなので、やはり二要素認証にはなりません。</p>
+        </section>
+
+        <section>
+          <h2>二段階認証と二要素認証</h2>
+          <p><strong>二段階認証</strong>は<strong>二要素認証</strong>と似た言葉ですが、同じ意味ではありません。</p>
+          <p>二段階認証とは、本人確認を二つの段階に分けて行う方式を指します。</p>
+          <p>例えば、</p>
+          <ol>
+            <li>パスワードを入力する</li>
+            <li>秘密の質問に答える</li>
+          </ol>
+          <p>という方式であれば、二つの段階で確認しているため、二段階認証と呼ぶことができます。</p>
+          <p>しかし、パスワードと秘密の質問への答えはいずれも「本人が知っている情報」です。</p>
+          <p>したがって、二段階であっても、認証要素は知識要素一種類しか使っておらず、<strong>二要素認証ではありません。</strong></p>
+          <p>つまり、</p>
+          <ul>
+            <li><strong>二段階認証</strong>：何段階に分けて確認するか</li>
+            <li><strong>二要素認証</strong>：何種類の認証要素を使うか</li>
+          </ul>
+          <p>という違いがあります。</p>
+          <p>なお、秘密の質問は、答えを推測されたり公開情報から知られたりする可能性があるため、現在では強い認証方法とは考えられていません。</p>
+        </section>
+
+        <section>
+          <h2>パスワードの組合せ数</h2>
+          <p>使える文字が<strong>M</strong>種類あり、同じ文字を何度使ってもよいものとします。</p>
+          <p>ちょうど1文字の文字列なら、<strong>M</strong>通りです。</p>
+          <p>ちょうど2文字なら、それぞれの位置について<strong>M</strong>通りから選べるため、</p>
+          <p class="term-formula"><strong>M×M＝M<sup>2</sup></strong></p>
+          <p>通りになります。</p>
+          <p>したがって、<strong>ちょうどn文字</strong>の文字列なら、</p>
+          <p class="term-formula"><strong>M<sup>n</sup></strong></p>
+          <p>通りとなります。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>英大文字：26種類</li>
+            <li>英小文字：26種類</li>
+            <li>数字：10種類</li>
+          </ul>
+          <p>を使用できる場合、文字は全部で、</p>
+          <p class="term-formula"><strong>26＋26＋10＝62種類</strong></p>
+          <p>です。</p>
+          <p>10文字のパスワードなら、</p>
+          <p class="term-formula"><strong>62<sup>10</sup>通り</strong></p>
+          <p>になります。</p>
+          <p>8文字の場合は<strong>62<sup>8</sup></strong>通りなので、10文字では8文字の場合の、</p>
+          <p class="term-formula"><strong>62<sup>10</sup>÷62<sup>8</sup>＝62<sup>2</sup>倍</strong></p>
+          <p>になります。</p>
+          <p>このように、使える文字の種類が同じなら、文字数を増やしたときの候補数は比例ではなく<strong>指数的に増加</strong>します。</p>
+          <p>例えば英小文字26種類だけを使用する場合でも、8文字から12文字へ増やすと、</p>
+          <p class="term-formula"><strong>26<sup>12</sup>÷26<sup>8</sup>＝26<sup>4</sup>倍</strong></p>
+          <p>となります。</p>
+
+          <h3>候補数が多ければ必ず安全なのか</h3>
+          <p>ただし、<strong>M<sup>n</sup></strong>という計算は、あくまで「作ることのできる文字列の総数」です。</p>
+          <p>実際の利用者は、すべての文字列から均等にパスワードを選ぶわけではありません。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>123456</li>
+            <li>password</li>
+            <li>自分の名前</li>
+            <li>生年月日</li>
+            <li>電話番号</li>
+          </ul>
+          <p>など、人が選びやすい文字列には大きな偏りがあります。</p>
+          <p>攻撃者もこのことを知っているため、すべての候補を無作為に試す前に、人が使いそうな文字列を優先して試すことができます。</p>
+          <p>したがって、単に理論上の候補数が多いだけでなく、<strong>他人に予測されにくいパスワードを使うこと</strong>が重要です。</p>
+        </section>
+
+        <section>
+          <h2>「複雑なパスワード」にすればよいのか</h2>
+          <p>以前は、</p>
+          <ul>
+            <li>英大文字を含める</li>
+            <li>英小文字を含める</li>
+            <li>数字を含める</li>
+            <li>記号を含める</li>
+          </ul>
+          <p>といった条件を強制する方法が広く用いられていました。</p>
+          <p>このような条件を設定する目的は、単純で推測されやすいパスワードを減らすことです。</p>
+          <p>ただし、<strong>現在のセキュリティ指針では、文字種を機械的に組み合わせることを強制する方法は必ずしも推奨されていません。</strong></p>
+          <p>現在は、</p>
+          <p class="term-formula"><strong>十分な長さを確保し、推測されやすい文字列を避け、サービスごとに異なるものを使う</strong></p>
+          <p>ことが特に重要です。</p>
+          <p>なお、理由なく定期的にパスワードを変更させることも現在は推奨されていません。漏えいなど、パスワードが侵害された可能性がある場合に変更するのが基本です。</p>
+        </section>
+
+        <section>
+          <h2>パスワードに対する主な攻撃</h2>
+          <h3>総当たり攻撃</h3>
+          <p><strong>総当たり攻撃（ブルートフォース攻撃）</strong>は、考えられる文字列を大量に試してパスワードを見つけようとする攻撃です。</p>
+          <p>一般にパスワードを長くすると、総当たり攻撃に対して強くなります。</p>
+          <p>また、Webサイトへ実際にログインを繰り返す<strong>オンライン攻撃</strong>では、試行回数制限なども重要な防御となります。</p>
+
+          <h3>辞書攻撃</h3>
+          <p><strong>辞書攻撃</strong>は、一般的な単語や、よく使われるパスワードなどを候補として優先的に試す攻撃です。</p>
+          <p>すべての文字列を順番に試す総当たり攻撃に対して、人が選びやすい候補に絞って試す点が特徴です。</p>
+
+          <h3>個人情報を利用した推測</h3>
+          <p>氏名、誕生日、学校名、電話番号など、公開されている情報や本人について知られている情報から候補を作って試す方法もあります。</p>
+          <p>自分の生年月日だけをパスワードにするような方法は危険です。</p>
+
+          <h3>リスト型攻撃</h3>
+          <p>あるサービスから漏えいした、</p>
+          <p class="term-formula"><strong>利用者ID ＋ パスワード</strong></p>
+          <p>の組合せを、別のサービスでも試す攻撃を<strong>リスト型攻撃</strong>といいます。クレデンシャルスタッフィングとも呼ばれます。</p>
+          <p>例えばサービスA、B、Cで同じパスワードを使っていると、Aから認証情報が漏れただけで、BやCにも不正ログインされる可能性があります。</p>
+          <p>そのため、パスワードをサービス間で使い回さないことが推奨されています。</p>
+        </section>
+
+        <section>
+          <h2>パスワードを盗む手口</h2>
+          <h3>キーロガー</h3>
+          <p><strong>キーロガー</strong>は、キーボードから入力された内容を記録する仕組みです。</p>
+          <p>悪意のあるキーロガーが端末へ仕込まれると、利用者が入力したIDやパスワードなどを盗み取られる可能性があります。</p>
+
+          <h3>ソーシャルエンジニアリング</h3>
+          <p><strong>ソーシャルエンジニアリング</strong>は、コンピュータの技術的な弱点ではなく、主として人の心理や行動上の隙を利用して情報を入手する手口です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>システム管理者を装って電話し、パスワードを聞き出す</li>
+            <li>「緊急です」「今すぐ必要です」などと言って相手を焦らせる</li>
+            <li>パスワード入力を背後からのぞき見る（<strong>ショルダーハッキング</strong>）</li>
+            <li>廃棄された書類から秘密情報を探す</li>
+          </ul>
+          <p>などがあります。</p>
+          <p>一方、プログラムを使ってパスワード候補を大量に試す行為は、人をだまして情報を聞き出す方法ではないため、通常はパスワード攻撃として区別します。</p>
+          <p>パスワードなどの秘密情報を電話やメッセージで要求された場合は、その場では伝えず、あらかじめ分かっている公式の連絡先など<strong>別の経路から要求が本物か確認する</strong>ことが有効です。</p>
+        </section>
+
+        <section>
+          <h2>フィッシング</h2>
+          <p><strong>フィッシング</strong>は、実在する組織などを装ったメールやSMS、偽のWebサイトなどを使い、利用者をだましてパスワードなどの認証情報を入力させる手口です。</p>
+          <p>対策としては、</p>
+          <ul>
+            <li>メールやSMSのリンクを不用意に開かない</li>
+            <li>公式アプリや自分で登録したブックマークからアクセスする</li>
+            <li>不審な要求を別の経路から確認する</li>
+            <li>多要素認証を利用する</li>
+          </ul>
+          <p>などがあります。</p>
+          <p>OS、ブラウザ、アプリを最新の状態に保つことも情報セキュリティ上重要ですが、<strong>それだけで偽サイトへのパスワード入力を防げるわけではありません。</strong>フィッシング対策としては、アクセス先や要求内容を確認することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>SMSによる認証コードにも限界がある</h2>
+          <p>パスワードと、登録した電話番号へSMSで届く一時コードを組み合わせれば、</p>
+          <ul>
+            <li>知識要素</li>
+            <li>所有物要素</li>
+          </ul>
+          <p>を組み合わせた二要素認証になります。</p>
+          <p>そのため、パスワードだけの場合より不正ログインを防ぎやすくなります。</p>
+          <p>しかし、SMSによる認証にも限界があります。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>攻撃者にSMSを受信される</li>
+            <li>電話番号を不正に移行される</li>
+            <li>偽サイトへ一時コードを入力してしまう</li>
+          </ul>
+          <p>といった方法で突破される可能性があります。</p>
+          <p>特に、SMSや認証アプリに表示されたコードを利用者自身が入力する方式は、偽サイトへコードを入力してしまう危険があり、<strong>フィッシング耐性を持つ認証方式ではありません。</strong></p>
+        </section>
+
+        <section>
+          <h2>パスワード管理ツール</h2>
+          <p>サービスごとに異なる長いパスワードをすべて暗記するのは難しいものです。</p>
+          <p>そこで利用できるのが<strong>パスワード管理ツール（パスワードマネージャー）</strong>です。</p>
+          <p>パスワード管理ツールを使うと、</p>
+          <ul>
+            <li>サービスごとに異なる長いパスワードを生成する</li>
+            <li>それらを保存する</li>
+            <li>必要なときに呼び出す</li>
+          </ul>
+          <p>といった管理がしやすくなります。</p>
+          <p>一方、多数のパスワードをまとめて管理するため、管理ツール自体を適切に保護する必要があります。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>十分に長いマスターパスワードを設定する</li>
+            <li>利用できる場合は多要素認証を設定する</li>
+            <li>端末から離れたときは自動的にロックされるようにする</li>
+          </ul>
+          <p>といった対策が考えられます。</p>
+        </section>
+
+        <section>
+          <h2>パスワードはどのように保存されているのか</h2>
+          <p>Webサービス側が利用者のパスワードを<strong>平文、つまりそのまま読める形で保存するのは適切ではありません。</strong></p>
+          <p>また、後から元のパスワードへ戻せる単純な暗号化よりも、パスワード保存専用の一方向の処理を利用します。</p>
+          <p>一般には、利用者ごとに異なる<strong>ソルト</strong>と呼ばれる値を加え、パスワード保存向けに設計されたハッシュ方式によって処理した結果を保存します。</p>
+          <p>そのため、適切に設計されたシステムでは、運営者が利用者の現在のパスワードをそのまま読み出せる形で保存していません。</p>
+        </section>
+
+        <section>
+          <h2>パスワードが漏えいした場合</h2>
+          <p>あるサービスAから認証情報が漏えいしたとします。</p>
+          <p>Aで使用していたパスワードをBやCでも使い回していた場合、攻撃者がその認証情報をBやCへ試す可能性があります。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>Aのパスワードを変更する</li>
+            <li>同じパスワードを使っていたB・Cも変更する</li>
+            <li>それぞれ異なるパスワードにする</li>
+            <li>ログイン履歴や利用履歴を確認する</li>
+            <li>不審なログイン中の端末やセッションがあれば解除する</li>
+            <li>利用できる場合は多要素認証を設定する</li>
+          </ul>
+          <p>といった対応を行います。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>パスワード · EXAMPLE</span><span>ITパスポートH26秋期 問60（改題）</span></div>
+          <h3>認証を「所有物による認証」「知識による認証」「身体的特徴による認証」に分ける。ICカード、IDとパスワード、指紋の組合せとして最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>ICカード: 所有物、IDとパスワード: 身体的特徴、指紋: 知識</p></li>
+            <li><span>1</span><p>ICカード: 所有物、IDとパスワード: 知識、指紋: 身体的特徴</p></li>
+            <li><span>2</span><p>ICカード: 知識、IDとパスワード: 所有物、指紋: 身体的特徴</p></li>
+            <li><span>3</span><p>ICカード: 知識、IDとパスワード: 身体的特徴、指紋: 所有物</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．ICカード: 所有物、IDとパスワード: 知識、指紋: 身体的特徴</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ICカードは持っているものを使う所有物による認証、IDとパスワードは知っていることを使う知識による認証、指紋は身体的特徴による認証です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH26秋期 問60（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：認証／パスワード／ICカード</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">パスワードの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="パスワード"
+          data-limit="5"
+          data-exclude-stem="認証を「所有物による認証」「知識による認証」「身体的特徴による認証」に分ける。ICカード、IDとパスワード、指紋の組合せとして最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=パスワード">パスワードの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"パスワードとは","description":"パスワードの役割と認証の3要素、多要素認証、パスワード攻撃、管理方法、安全な保存の考え方を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/password/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"パスワード","item":"https://mei-chan-nel.com/terms/password/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
