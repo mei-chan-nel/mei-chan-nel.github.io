@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>圧縮とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="圧縮の基本、可逆圧縮と非可逆圧縮、ZIP・JPEG・GIF・BMP・MP3、動画圧縮、ビットレート、圧縮率の考え方を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="圧縮" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="圧縮とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="圧縮の基本、可逆圧縮と非可逆圧縮、ZIP・JPEG・GIF・BMP・MP3、動画圧縮、ビットレート、圧縮率の考え方を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/compression/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/compression/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">圧縮</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">圧縮</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「圧縮」とは</h2>
+          <p><strong>圧縮</strong>とは、データの内容をできるだけ保ちながら、データ量を小さくすることです。</p>
+          <p>画像、音声、動画、文書、プログラムなどのデータは、そのまま保存すると大きな容量を必要とすることがあります。データを圧縮すれば、保存に必要な容量を減らしたり、ネットワークで送信するときの通信量を減らしたりできます。</p>
+          <p>圧縮されたデータを利用できる状態に戻すことを<strong>展開</strong>または<strong>伸張</strong>といいます。</p>
+          <p>圧縮方式は、大きく</p>
+          <ul>
+            <li><strong>可逆圧縮</strong></li>
+            <li><strong>非可逆圧縮</strong></li>
+          </ul>
+          <p>の二つに分けられます。</p>
+        </section>
+
+        <section>
+          <h2>可逆圧縮</h2>
+          <p><strong>可逆圧縮</strong>は、圧縮したデータを展開したときに、<strong>圧縮前とまったく同じデータを復元できる圧縮方式</strong>です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>文書</li>
+            <li>プログラムのソースコード</li>
+            <li>実行ファイル</li>
+            <li>表計算データ</li>
+            <li>研究データ</li>
+          </ul>
+          <p>などでは、一文字や一つの数値が変化しただけでも内容が変わってしまうことがあります。そのため、このようなデータには元のデータを完全に復元できる可逆圧縮が適しています。</p>
+          <p>例えば、次の文字列を考えます。</p>
+          <pre><code>AAAAABB</code></pre>
+          <p>Aが5個、Bが2個連続しているので、</p>
+          <pre><code>A5B2</code></pre>
+          <p>のように表せば、同じ文字を何度も記録する必要がなくなります。</p>
+          <p>このように、同じ値が連続する部分を</p>
+          <p class="term-formula"><strong>値 ＋ 連続する個数</strong></p>
+          <p>で表す方法を<strong>ランレングス圧縮（Run-Length Encoding：RLE）</strong>といいます。</p>
+          <p>同じ値が長く続くデータでは高い圧縮効果が得られますが、</p>
+          <pre><code>ABCDEFG</code></pre>
+          <p>のように値がほとんど繰り返されないデータでは圧縮効果は小さくなります。</p>
+          <p>したがって、<strong>同じ圧縮方式でも、圧縮するデータの性質によって圧縮後のデータ量は異なります。</strong></p>
+        </section>
+
+        <section>
+          <h2>出現頻度を利用した圧縮</h2>
+          <p>可逆圧縮では、同じ値の繰返しだけでなく、<strong>記号の出現頻度の偏り</strong>を利用することもできます。</p>
+          <p>例えば、A、B、Cの出現確率が</p>
+          <pre><code>A：0.6&#10;B：0.3&#10;C：0.1</code></pre>
+          <p>であるとします。</p>
+          <p>出現頻度の高いAには短い符号、頻度の低い記号には長い符号を割り当て、</p>
+          <pre><code>A → 0&#10;B → 10&#10;C → 11</code></pre>
+          <p>とします。</p>
+          <p>それぞれの符号長は、</p>
+          <pre><code>A：1ビット&#10;B：2ビット&#10;C：2ビット</code></pre>
+          <p>です。</p>
+          <p>1記号当たりの平均符号長は、</p>
+          <pre><code>0.6×1＋0.3×2＋0.1×2&#10;＝0.6＋0.6＋0.2&#10;＝1.4ビット</code></pre>
+          <p>となります。</p>
+          <p>このように、<strong>よく現れる記号に短い符号を割り当てることで、平均的なデータ量を小さくできることがあります。</strong></p>
+          <p><strong>ハフマン符号</strong>などは、この考え方を利用した代表的な可逆圧縮方式です。</p>
+        </section>
+
+        <section>
+          <h2>非可逆圧縮</h2>
+          <p><strong>非可逆圧縮</strong>は、データの一部を取り除くなどしてデータ量を減らす方式です。</p>
+          <p>一度取り除いた情報は元には戻らないため、展開しても</p>
+          <p class="term-formula"><strong>圧縮前のデータと完全に同じデータにはなりません。</strong></p>
+          <p>主に、</p>
+          <ul>
+            <li>写真</li>
+            <li>音声</li>
+            <li>動画</li>
+          </ul>
+          <p>などで利用されます。</p>
+          <p>人間の視覚や聴覚には、変化に気付きやすい情報と気付きにくい情報があります。非可逆圧縮では、このような<strong>人が知覚しにくい情報を減らしたり、細かな値を近い値にまとめたりする</strong>ことで、大きくデータ量を減らすことができます。</p>
+          <p>代表例として、</p>
+          <ul>
+            <li><strong>JPEG</strong>：主に写真などの画像</li>
+            <li><strong>MP3</strong>：音声</li>
+          </ul>
+          <p>などがあります。</p>
+          <p>例えばJPEGでは、写真の細かな情報を近似することでデータ量を減らします。そのため、圧縮率を高めすぎると、細部が失われたり、ブロック状の乱れなどが目立ったりすることがあります。</p>
+        </section>
+
+        <section>
+          <h2>可逆圧縮と非可逆圧縮の使い分け</h2>
+          <p>可逆圧縮と非可逆圧縮のどちらを使うかは、<strong>元のデータを完全に復元する必要があるか</strong>によって判断するとよいでしょう。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">データ</th><th scope="col">適した圧縮</th><th scope="col">理由</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">プログラム</th><td>可逆圧縮</td><td>一文字でも変化すると動作が変わる可能性がある</td></tr>
+              <tr><th scope="row">文書</th><td>可逆圧縮</td><td>文字や数値を失えない</td></tr>
+              <tr><th scope="row">研究データ</th><td>可逆圧縮</td><td>元の値を正確に保存する必要がある</td></tr>
+              <tr><th scope="row">写真</th><td>非可逆圧縮を利用できる</td><td>多少の画質低下を許容できる場合がある</td></tr>
+              <tr><th scope="row">音楽</th><td>非可逆圧縮を利用できる</td><td>聞き取りにくい情報などを減らせる</td></tr>
+              <tr><th scope="row">動画</th><td>非可逆圧縮を利用できる</td><td>通信量や保存容量を大きく減らせる</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、配布用プログラムを圧縮した場合、展開後のデータは元のプログラムと完全に同じでなければなりません。</p>
+          <p>ハッシュ値を使ってファイルが一致しているか確認する場合も同様です。元のファイルから1ビットでも変化すれば、通常はハッシュ値も変化するため、<strong>完全な復元が必要なデータには可逆圧縮を使用します。</strong></p>
+          <p>一方、Webページに掲載する写真などでは、多少の画質低下を許容してデータ量を小さくすることができるため、非可逆圧縮が適していることがあります。</p>
+        </section>
+
+        <section>
+          <h2>ZIP</h2>
+          <p><strong>ZIP</strong>は、複数のファイルやフォルダを一つのファイルにまとめられる<strong>アーカイブ形式</strong>であり、通常は可逆圧縮も行います。</p>
+          <p>例えば、</p>
+          <pre><code>report.docx&#10;data.csv&#10;image.png</code></pre>
+          <p>などをまとめて、</p>
+          <pre><code>files.zip</code></pre>
+          <p>という一つのファイルにできます。</p>
+          <p>ZIPで圧縮したデータは、展開すれば元のファイルを完全に復元できます。</p>
+          <p>ただし、ZIPにすれば必ず大幅に小さくなるわけではありません。</p>
+          <p>JPEGやMP3などは、もともと圧縮された状態で保存されているため、さらにZIPで圧縮してもほとんど小さくならない場合があります。</p>
+          <p>つまり、<strong>圧縮効果は圧縮方式だけでなく、元データにどの程度の規則性や冗長性が残っているかにも左右されます。</strong></p>
+        </section>
+
+        <section>
+          <h2>JPEG・GIF・BMP</h2>
+          <p>画像形式によって圧縮方法も異なります。</p>
+
+          <h3>JPEG</h3>
+          <p>JPEGは、主に写真に使われる画像形式で、一般的には<strong>非可逆圧縮</strong>を利用します。</p>
+          <p>人間が気付きにくい細かな情報を減らすことで、写真を比較的小さなデータ量で保存できます。</p>
+          <p>ただし、圧縮を強くすると画質が低下します。</p>
+
+          <h3>GIF</h3>
+          <p>GIFで使用される圧縮そのものは<strong>可逆圧縮</strong>です。</p>
+          <p>ただし、GIFは扱える色数に制限があるため、多数の色を含む写真をGIFに変換すると、変換の段階で色が失われる場合があります。</p>
+
+          <h3>BMP</h3>
+          <p>BMPは<strong>ラスタ形式</strong>の画像形式であり、画素を並べて画像を表します。</p>
+          <p>BMPには複数の形式がありますが、一般には画素データをほぼそのまま格納する非圧縮の形式がよく使われます。そのため、同じ大きさ・色数のJPEGなどと比べると、ファイルサイズが大きくなりやすいです。</p>
+        </section>
+
+        <section>
+          <h2>MP3</h2>
+          <p><strong>MP3</strong>は、音声データを圧縮して保存するために広く使われている形式です。</p>
+          <p>一般的なMP3では<strong>非可逆圧縮</strong>を行います。</p>
+          <p>人間の聴覚特性を利用し、聞き取りにくい音などの情報を減らすことで、元のPCM音声などより大幅にデータ量を減らすことができます。</p>
+          <p>したがって、MP3を展開しても、圧縮前の音声データとビット単位で完全に同じ状態には戻りません。</p>
+        </section>
+
+        <section>
+          <h2>動画の圧縮</h2>
+          <p>動画は、多数の静止画像を短い時間間隔で次々に表示することで動きを表しています。</p>
+          <p>例えば1秒間に30枚の画像を表示する動画なら、</p>
+          <pre><code>1秒間 → 30フレーム</code></pre>
+          <p>です。</p>
+          <p>各フレームをそのまま保存すると非常に大きなデータ量になるため、動画ではさまざまな圧縮が行われます。</p>
+
+          <h3>各フレームを圧縮する</h3>
+          <p>一つの方法は、それぞれのフレームを静止画像のように圧縮することです。</p>
+          <p>各フレームのデータ量を減らせば、動画全体のデータ量も減らせます。</p>
+
+          <h3>フレーム間の違いを利用する</h3>
+          <p>動画では、隣り合うフレームの内容がほとんど同じことが多くあります。</p>
+          <p>例えば、固定したカメラで列車を撮影すると、</p>
+          <ul>
+            <li>背景の建物</li>
+            <li>空</li>
+            <li>地面</li>
+          </ul>
+          <p>などはほとんど変化せず、主に列車の位置だけが変化します。</p>
+          <p>そこで、</p>
+          <p class="term-formula"><strong>前のフレームと変化した部分を中心に記録する</strong></p>
+          <p>ことでデータ量を小さくできます。</p>
+          <p>このため、カメラを三脚に固定すると背景が安定し、フレーム間の共通部分が多くなりやすくなります。</p>
+          <p>反対に、</p>
+          <ul>
+            <li>カメラを左右に動かす</li>
+            <li>拡大・縮小する</li>
+            <li>不規則に揺らす</li>
+          </ul>
+          <p>と背景を含む広い範囲がフレームごとに変化するため、単純に考えればフレーム間の差分を利用した圧縮の効率は低くなりやすくなります。</p>
+          <p>実際の動画圧縮では、物体の移動を予測する<strong>動き補償</strong>など、より高度な技術も利用されています。</p>
+        </section>
+
+        <section>
+          <h2>ビットレートと画質</h2>
+          <p>動画や音声では、<strong>ビットレート</strong>も重要です。</p>
+          <p>ビットレートは、</p>
+          <p class="term-formula"><strong>1秒間に使用するデータ量</strong></p>
+          <p>を表し、例えば</p>
+          <pre><code>5 Mbps</code></pre>
+          <p>なら、1秒当たり約5Mビットのデータを使用することを意味します。</p>
+          <p>同じ解像度やフレームレートの動画であっても、圧縮後のビットレートを大きく下げれば、1秒間に記録できる情報量が減ります。</p>
+          <p>その結果、</p>
+          <ul>
+            <li>細部がぼやける</li>
+            <li>ブロック状の乱れが見える</li>
+            <li>動きの激しい部分が崩れる</li>
+          </ul>
+          <p>などの<strong>圧縮アーティファクト</strong>が目立つことがあります。</p>
+        </section>
+
+        <section>
+          <h2>非可逆圧縮を繰り返した場合</h2>
+          <p>非可逆圧縮では、一度圧縮すると一部の情報が失われます。</p>
+          <p>例えば、</p>
+          <pre><code>元画像&#10;↓&#10;JPEGで保存&#10;↓&#10;展開&#10;↓&#10;再びJPEGで保存</code></pre>
+          <p>という処理を繰り返すと、再保存のたびに新たな近似や丸めが行われ、<strong>画質劣化が累積する場合があります。</strong></p>
+          <p>一度失われた情報は、展開しても元には戻りません。</p>
+          <p>そのため、何度も編集する画像や動画では、</p>
+          <ul>
+            <li>編集中は非可逆圧縮を繰り返さない</li>
+            <li>高品質なデータを保存しておく</li>
+            <li>用途に適した編集用形式を利用する</li>
+          </ul>
+          <p>といった考え方が重要になります。</p>
+        </section>
+
+        <section>
+          <h2>動画の用途と圧縮方式</h2>
+          <p>動画の圧縮方法は用途によって選ぶ必要があります。</p>
+
+          <h3>ネット配信用</h3>
+          <p>ネット配信では、</p>
+          <ul>
+            <li>データ量</li>
+            <li>通信速度</li>
+            <li>画質</li>
+            <li>再生のしやすさ</li>
+          </ul>
+          <p>などのバランスが重要です。</p>
+          <p>そのため、高い圧縮効率をもつ非可逆圧縮が利用されることが多くあります。</p>
+
+          <h3>編集・保存用</h3>
+          <p>何度も編集する動画では、再圧縮による画質劣化や編集のしやすさを考える必要があります。</p>
+          <p>そのため、配信用とは異なる設定や圧縮方式を選ぶことがあります。</p>
+        </section>
+
+        <section>
+          <h2>圧縮前後のデータ量</h2>
+          <p>圧縮に関する問題では、圧縮前後のデータ量を計算することも多くあります。</p>
+          <p>例えば、圧縮前が</p>
+          <pre><code>15Mバイト</code></pre>
+          <p>で、圧縮後の大きさが元の40％なら、</p>
+          <pre><code>15×0.40＝6Mバイト</code></pre>
+          <p>となります。</p>
+          <p>ただし、「圧縮率」という言葉は文脈によって意味が異なる場合があるため注意が必要です。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>圧縮後のデータ量が元の40％</strong></p>
+          <p>という意味なら、</p>
+          <pre><code>圧縮後 ÷ 圧縮前 ＝ 0.40</code></pre>
+          <p>です。</p>
+          <p>一方、</p>
+          <p class="term-formula"><strong>データ量を40％削減した</strong></p>
+          <p>という意味なら、</p>
+          <pre><code>圧縮後 ÷ 圧縮前 ＝ 0.60</code></pre>
+          <p>となります。</p>
+          <p>問題では、「圧縮後が何％になるのか」「何％削減するのか」を確認して計算することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>削減割合</h2>
+          <p>例えば、400バイトのデータを250バイトに圧縮したとします。</p>
+          <p>削減したデータ量は、</p>
+          <pre><code>400－250＝150バイト</code></pre>
+          <p>です。</p>
+          <p>圧縮前に対する削減割合は、</p>
+          <pre><code>150÷400＝0.375</code></pre>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <pre><code>削減割合 ＝ 0.375&#10;削減率 ＝ 37.5％</code></pre>
+          <p>です。</p>
+          <p>一方、圧縮後に残っている割合は、</p>
+          <pre><code>250÷400＝0.625</code></pre>
+          <p>つまり62.5％です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>圧縮 · EXAMPLE</span><span>オリジナル問題</span></div>
+          <h3>可逆圧縮の特徴として、最も適切なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>展開しても元のデータを完全には復元できない。</p></li>
+            <li><span>1</span><p>画像や音声の画質を必ず低下させる。</p></li>
+            <li><span>2</span><p>MP3だけに用いられる音声専用の方式である。</p></li>
+            <li><span>3</span><p>展開すると元のデータを完全に復元できる。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>3．展開すると元のデータを完全に復元できる。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>可逆圧縮は、展開したときに元のデータを完全に復元できる圧縮方式です。文書やプログラムなど、1ビットでも失うと内容が変わり得るデータに適しています。これに対して非可逆圧縮は、知覚しにくい情報などを取り除いてデータ量を減らすため、元のデータを完全には復元できません。MP3は代表的な非可逆音声圧縮方式であり、可逆圧縮ではありません。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル問題</dd></dl>
+              <p class="term-related-keywords">関連キーワード：圧縮</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">圧縮の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="圧縮"
+          data-limit="5"
+          data-exclude-stem="可逆圧縮の特徴として、最も適切なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=圧縮">圧縮の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"圧縮とは","description":"圧縮の基本、可逆圧縮と非可逆圧縮、ZIP・JPEG・GIF・BMP・MP3、動画圧縮、ビットレート、圧縮率の考え方を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/compression/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"圧縮","item":"https://mei-chan-nel.com/terms/compression/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
