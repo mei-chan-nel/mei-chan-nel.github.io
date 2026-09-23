@@ -105,6 +105,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "信憑性": {
     "url": "/terms/credibility/"
   },
+  "個人情報": {
+    "url": "/terms/personal-information/"
+  },
   "公開鍵暗号方式": {
     "url": "/terms/public-key-encryption/"
   },
