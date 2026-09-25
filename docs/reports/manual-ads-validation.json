@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-09-24",
+  "validated_on": "2026-09-25",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 81,
+  "target_pages": 82,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -567,6 +567,15 @@
     },
     {
       "path": "terms/iot/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/ip-address/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,

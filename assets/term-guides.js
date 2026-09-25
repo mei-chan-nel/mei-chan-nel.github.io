@@ -15,6 +15,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "IPv4": {
     "url": "/terms/ipv4/"
   },
+  "IPアドレス": {
+    "url": "/terms/ip-address/"
+  },
   "IoT": {
     "url": "/terms/iot/"
   },

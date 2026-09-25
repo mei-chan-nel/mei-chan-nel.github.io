@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>IPアドレスとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="IPアドレスの意味と、IPv4・IPv6、グローバルIPアドレスとプライベートIPアドレス、DHCP、DNS、ルータを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="IPアドレス" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="IPアドレスとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="IPアドレスの意味と、IPv4・IPv6、グローバルIPアドレスとプライベートIPアドレス、DHCP、DNS、ルータを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/ip-address/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/ip-address/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">IPアドレス</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">IPアドレス</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「IPアドレス」とは</h2>
+          <p><strong>IPアドレス（Internet Protocol Address）</strong>とは、インターネット（TCP/IPを使ったネットワーク通信）で、<strong>通信相手となる機器のネットワークインタフェースを識別するための番号</strong>です。</p>
+          <p>インターネットでは、多数のコンピュータやスマートフォン、サーバなどが相互に通信しています。インターネットを流通するデータ（パケット）には「どこから、どこへ送るのか」を示す情報として、<strong>送信元IPアドレス</strong>と<strong>宛先IPアドレス</strong>が付けられます。</p>
+          <p>たとえば、Webサイトを閲覧するときは、WebサーバのIPアドレスを宛先として通信します。</p>
+          <p>このため、IPアドレスは、よく「インターネット上の住所」にたとえられます。</p>
+        </section>
+
+        <section>
+          <h2>IPv4</h2>
+          <p>現在利用されている代表的なIPアドレスの一つが<strong>IPv4（Internet Protocol Version 4）</strong>です。</p>
+          <p>IPv4アドレスは<strong>32ビット</strong>で構成されます。</p>
+          <p>32ビットを8ビットずつ四つに分け、それぞれを10進数に直して「.（ドット）」で区切って表すことが多くあります。</p>
+          <p>たとえば、</p>
+          <p class="term-formula"><code>192.168.1.10</code></p>
+          <p>のように表記します。</p>
+          <p>8ビットで表せる値は、</p>
+          <p class="term-formula"><code>00000000 ～ 11111111</code></p>
+          <p>であり、10進数では、</p>
+          <p class="term-formula"><code>0 ～ 255</code></p>
+          <p>です。</p>
+          <p>したがって、IPv4アドレスの四つの数値は、それぞれ0～255の範囲でなければなりません。</p>
+          <p>たとえば、</p>
+          <p class="term-formula"><code>203.18.200.45</code></p>
+          <p>はIPv4アドレスとして表記できますが、</p>
+          <p class="term-formula"><code>203.18.300.45</code></p>
+          <p>は「300」が255を超えているため、IPv4アドレスの表記として正しくありません。</p>
+          <p>IPv4は32ビットなので、理論上の組合せは、</p>
+          <p class="term-formula"><strong>2<sup>32</sup>＝約43億</strong></p>
+          <p>通りです。</p>
+        </section>
+
+        <section>
+          <h2>IPv6</h2>
+          <p>インターネットに接続する機器が増加すると、32ビットのIPv4だけでは利用できるアドレス数が不足するようになりました。</p>
+          <p>そこで利用されているのが<strong>IPv6（Internet Protocol Version 6）</strong>です。</p>
+          <p>IPv6アドレスは<strong>128ビット</strong>で構成されます。</p>
+          <p>IPv4が32ビットであるのに対してIPv6は128ビットなので、表せるアドレスの組合せは大幅に増えます。</p>
+          <p>IPv6では、一般に16進数を「:（コロン）」で区切って表記します。</p>
+          <p>たとえば、</p>
+          <p class="term-formula"><code>2001:0db8:0000:0000:0000:0000:0000:0001</code></p>
+          <p>のように表せます。0が連続する部分は1か所だけ<code>::</code>と省略でき、</p>
+          <p class="term-formula"><code>2001:db8::1</code></p>
+          <p>とも表せます。</p>
+          <p>128ビットであるので、</p>
+          <p class="term-formula"><strong>2<sup>128</sup> ＝ 約3.4×10<sup>38</sup>＝約340兆×1兆×1兆</strong></p>
+          <p>通りを表すことができます。</p>
+        </section>
+
+        <section>
+          <h2>グローバルIPアドレスとプライベートIPアドレス</h2>
+          <p>IPv4では、少ないIPアドレスを有効に活用するために、インターネット上で利用するアドレスと、家庭や学校、会社などの内部ネットワークで利用するアドレスに分けられています。</p>
+          <p>インターネット上で通信相手を識別するために利用されるIPアドレスを、一般に<strong>グローバルIPアドレス</strong>といいます。グローバルIPアドレスはインターネット全体で重複してはならないアドレスです。</p>
+          <p>一方、家庭や学校、会社などのLAN内部で利用するために用意されたIPv4アドレスを<strong>プライベートIPアドレス</strong>といいます。</p>
+          <p>プライベートIPアドレスは、同じLANの中では重複してはなりませんが、別のLANでは同じ値を使ってもかまいません。</p>
+          <p>たとえば、</p>
+          <pre><code>家庭AのPC：192.168.1.10
+家庭BのPC：192.168.1.10</code></pre>
+          <p>のように、別々の家庭で同じプライベートIPアドレスを使用することができます。</p>
+          <p>家庭内の端末がインターネットへ通信するときは、家庭のルータが内部の端末と外部との通信を対応付けて中継します。</p>
+          <p>このため、複数の家庭で同じプライベートIPアドレスが使われていても、それぞれインターネットへ接続することができます。</p>
+
+          <p>グローバルIPアドレスとプライベートIPアドレスの関係は、<strong>会社に荷物を届ける場合</strong>にたとえることができます。</p>
+          <p>たとえば、A株式会社の田中さんに荷物を届ける場合を考えます。</p>
+          <p>このとき、</p>
+          <ul>
+            <li><strong>A株式会社の住所</strong>がグローバルIPアドレス</li>
+            <li><strong>田中さんという名前</strong>がプライベートIPアドレス</li>
+          </ul>
+          <p>に相当すると考えられます（A株式会社の中に田中さん、佐藤さんはそれぞれひとりだけとします）。</p>
+          <p>配達業者はA株式会社の住所まで荷物を運びます。会社まで届いた荷物はA株式会社の中で田中さんにまで送られます。</p>
+          <p>このようにすれば、A株式会社の佐藤さんに荷物を送る場合でも、A株式会社の住所さえあれば荷物を届けることができます。社員ひとりひとりが住所を持つ必要がなく、住所（グローバルIPアドレス）の数を節約できます。</p>
+          <p>また、B株式会社に別の「田中さん」がいたとしても、混乱なく荷物を運ぶことができます。つまり、異なるLANにおいて、プライベートIPアドレスが重複していても問題ありません。</p>
+          <p>家庭や会社のネットワークでは、ルータが外部との通信と内部の端末との対応を管理し、インターネットから戻ってきた通信を適切な端末へ届けます。</p>
+        </section>
+
+        <section>
+          <h2>DHCP</h2>
+          <p>PCやスマートフォンをネットワークへ接続するたびに、利用者がIPアドレスなどを手作業で設定するのは大変です。</p>
+          <p>そこで利用されるのが<strong>DHCP（Dynamic Host Configuration Protocol）</strong>です。</p>
+          <p>DHCPは、ネットワークに接続した端末に対して、</p>
+          <ul>
+            <li>IPアドレス</li>
+            <li>その他のネットワーク設定情報</li>
+          </ul>
+          <p>などを自動的に割り当てるための仕組みです。</p>
+          <p>たとえば、家庭のWi-Fiへスマートフォンを接続したとき、通常は利用者がIPアドレスを入力しなくても通信できます。これは、ルータなどで動作するDHCP機能によって、必要な設定情報が自動的に割り当てられているためです。</p>
+        </section>
+
+        <section>
+          <h2>ドメイン名とDNS</h2>
+          <p>コンピュータ同士が通信するときにはIPアドレスを利用しますが、</p>
+          <p class="term-formula"><code>142.250.196.99</code></p>
+          <p>のような数字の並びを人間が覚えるのは難しいものです。</p>
+          <p>そこで、人間が扱いやすい名前として<strong>ドメイン名</strong>が利用されます。</p>
+          <p>たとえば、</p>
+          <p class="term-formula"><code>mei-chan-nel.com</code></p>
+          <p>のような名前です。</p>
+          <p>しかし、実際にネットワーク通信を行うには通信先のIPアドレスが必要です。</p>
+          <p>そこで、ドメイン名などの名前とIPアドレスを対応付ける仕組みとして<strong>DNS（Domain Name System）</strong>が利用されます。</p>
+          <p>たとえば、Webブラウザで</p>
+          <p class="term-formula"><code>mei-chan-nel.com</code></p>
+          <p>を指定すると、DNSを利用して、その名前に対応するIPアドレスを調べます。この処理を<strong>名前解決</strong>といいます。</p>
+
+          <p>Webサイトを閲覧するときの大まかな流れは、</p>
+          <p class="term-formula">ドメイン名を指定<br />↓<br />DNSによってIPアドレスを調べる<br />↓<br />得られたIPアドレスを使ってWebサーバへ通信する</p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>DNSは分散して管理されている</h2>
+          <p>世界中のすべてのドメイン名とIPアドレスの対応を、1台のDNSサーバだけで管理しているわけではありません。</p>
+          <p>DNSは、多数のDNSサーバによって<strong>階層的・分散的に管理されています。</strong></p>
+          <p>ドメイン名そのものも階層構造になっています。</p>
+          <p>たとえば、<a href="http://www.example.co.jp/">www.example.co.jp</a>であれば、右側から、</p>
+          <p class="term-formula">jp<br />↓<br />co.jp<br />↓<br />example.co.jp</p>
+          <p>というような階層として考えることができます。</p>
+          <p>それぞれの範囲を担当するDNSサーバが情報を管理することで、インターネット上の膨大なドメイン名を管理しています。</p>
+        </section>
+
+        <section>
+          <h2>ルータ</h2>
+          <p><strong>ルータ（router）</strong>は、異なるネットワーク同士を接続し、パケットを適切なネットワークへ中継する装置です。</p>
+          <p>たとえば、</p>
+          <p class="term-formula">家庭内LAN<br />↓<br />家庭のルータ<br />↓<br />インターネット<br />↓<br />別のルータ<br />↓<br />Webサーバ</p>
+          <p>というように、パケットは複数のネットワークを経由して宛先へ届けられます。</p>
+          <p>ルータがパケットを受信すると、主に</p>
+          <p class="term-formula"><strong>宛先IPアドレス</strong></p>
+          <p>を確認します。</p>
+          <p>そして、自分が持っている<strong>経路表（ルーティングテーブル、転送表）</strong>と照合し、次にどのルータやネットワークへ送るかを決定します。</p>
+          <p>このように、パケットをどの経路へ転送するか判断することを<strong>ルーティング</strong>といいます。</p>
+          <p>通常の宛先に基づくIP転送では、</p>
+          <p class="term-formula">宛先IPアドレス<br />＋<br />ルータの経路情報</p>
+          <p>を使って次の転送先を決定します。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>IPアドレス · EXAMPLE</span><span>ITパスポートR2公開問題 問75（改題）</span></div>
+          <h3>IPv4アドレスの表記例として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p><code>00:11:aa:bb:cc:dd</code></p></li>
+            <li><span>1</span><p>050-1234-5678</p></li>
+            <li><span>2</span><p><code>10.123.45.67</code></p></li>
+            <li><span>3</span><p><code>https://www.example.jp/</code></p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．10.123.45.67</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>IPv4アドレスは、0から255までの十進数をドットで4つ並べて表します。10.123.45.67はその形式に合っています。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートR2公開問題 問75（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：IPv4／IPアドレス</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">IPアドレスの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="IPアドレス"
+          data-limit="5"
+          data-exclude-stem="IPv4アドレスの表記例として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=IPアドレス">IPアドレスの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"IPアドレスとは","description":"IPアドレスの意味と、IPv4・IPv6、グローバルIPアドレスとプライベートIPアドレス、DHCP、DNS、ルータを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/ip-address/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"IPアドレス","item":"https://mei-chan-nel.com/terms/ip-address/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
