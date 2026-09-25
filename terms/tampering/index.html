@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>改竄とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="改竄の意味と、完全性、ハッシュ値、デジタル署名、アクセス制御、変更履歴、ブロックチェーンを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="改竄" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="改竄とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="改竄の意味と、完全性、ハッシュ値、デジタル署名、アクセス制御、変更履歴、ブロックチェーンを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/tampering/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/tampering/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">改竄</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">改竄</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「改竄」とは</h2>
+          <p><strong>改竄（かいざん）</strong>とは、データや文書などの内容を、正当な権限なく書き換えることです。</p>
+          <p>例えば、Webページの文章を第三者が勝手に書き換えたり、学校の成績データを権限のない人が変更したり、配布されたソフトウェアの一部を悪意のあるプログラムに置き換えたりすることが改竄に当たります。</p>
+          <p>情報セキュリティでは、改竄を防いだり検出したりすることが重要です。</p>
+
+          <h3>改竄と「完全性」</h3>
+          <p>情報セキュリティには、特に重要な三つの性質があります。</p>
+          <ul>
+            <li><strong>機密性</strong>：許可された人だけが情報を見られること</li>
+            <li><strong>完全性</strong>：情報が正確であり、不正に変更されたり失われたりしていないこと</li>
+            <li><strong>可用性</strong>：必要なときに情報やシステムを利用できること</li>
+          </ul>
+          <p>改竄は、このうち特に<strong>完全性</strong>を損なう行為です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>通信内容を第三者に盗み見られる → 機密性が損なわれる</li>
+            <li>Webページを勝手に書き換えられる → 完全性が損なわれる</li>
+            <li>大量の通信によってWebサービスが使えなくなる → 可用性が損なわれる</li>
+          </ul>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>ハッシュ値による改竄の検出</h2>
+          <p>データが途中で変更されていないかを確認する方法の一つに、<strong>ハッシュ値</strong>を利用する方法があります。</p>
+          <p>ハッシュ値とは、データを<strong>ハッシュ関数</strong>に入力して得られる、一定の長さの値です。</p>
+          <p>暗号学的ハッシュ関数には、主に次のような性質があります。</p>
+          <ul>
+            <li>同じデータからは同じハッシュ値が得られる</li>
+            <li>データを少し変更すると、通常は大きく異なるハッシュ値になる</li>
+            <li>ハッシュ値から元のデータを実用的な時間で復元することは困難である</li>
+            <li>異なるデータから同じハッシュ値を作ることが困難になるよう設計されている</li>
+          </ul>
+          <p>例えば、送信者がファイルのハッシュ値を計算しておき、受信者も受け取ったファイルからハッシュ値を計算します。</p>
+          <p>送信前のハッシュ値と受信後のハッシュ値が一致すれば、</p>
+          <p class="term-formula"><strong>「途中でデータが変更された可能性は低い」</strong></p>
+          <p>と判断できます。</p>
+          <p>反対に、ハッシュ値が異なれば、ファイルが途中で変更された、破損したなど、何らかの変化があったことが分かります。</p>
+          <p>ただし、ハッシュ値を比較するだけの場合には注意が必要です。</p>
+          <p>攻撃者がファイルだけでなく、比較に使うハッシュ値まで書き換えることができれば、改竄を見抜けない可能性があります。そのため、重要なデータでは、ハッシュ値だけでなく<strong>デジタル署名</strong>などを利用します。</p>
+          <p>また、ハッシュ値は一定の長さしかないため、異なるデータから同じハッシュ値が得られる<strong>衝突</strong>は理論上存在します。そのため、実際には衝突を見つけることが十分困難な安全性の高いハッシュ関数を使用します。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名による改竄の検出</h2>
+          <p>改竄の検出に重要な技術が<strong>デジタル署名</strong>です。</p>
+          <p>デジタル署名では、一般に次のような処理を行います。</p>
+
+          <h3>1．送信者がハッシュ値を求める</h3>
+          <p>送信する文書やファイルから、ハッシュ関数を使ってハッシュ値を求めます。</p>
+          <p class="term-formula">文書<br />↓<br />ハッシュ関数<br />↓<br />ハッシュ値</p>
+
+          <h3>2．秘密鍵を使って署名を作る</h3>
+          <p>送信者は、自分の<strong>秘密鍵</strong>を使ってハッシュ値に対するデジタル署名を作成します。</p>
+          <p>そして、</p>
+          <ul>
+            <li>元の文書</li>
+            <li>デジタル署名</li>
+          </ul>
+          <p>を受信者へ送ります。</p>
+
+          <h3>3．受信者が署名を検証する</h3>
+          <p>受信者は、送信者の<strong>公開鍵</strong>を使ってデジタル署名を検証します。</p>
+          <p>同時に、受信した文書から自分でもハッシュ値を計算します。</p>
+          <p>これらを照合することによって、</p>
+          <ul>
+            <li>署名後に文書が変更されていないか</li>
+            <li>その公開鍵に対応する秘密鍵によって署名されたか</li>
+          </ul>
+          <p>を確認できます。</p>
+          <p>したがって、デジタル署名は<strong>データの完全性の確認</strong>に利用できます。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名で確認できること</h2>
+          <p>デジタル署名によって主に確認できるのは、</p>
+          <ol>
+            <li><strong>データが署名後に改竄されていないこと</strong></li>
+            <li><strong>対応する秘密鍵によって署名されたこと</strong></li>
+          </ol>
+          <p>です。</p>
+          <p>例えば、ソフトウェアの配布元がプログラムにデジタル署名を付けておけば、利用者はダウンロードしたプログラムが配布後に改竄されていないか確認できます。</p>
+          <p>電子メールや電子文書についても同様です。</p>
+          <p>ただし、</p>
+          <blockquote>
+            <p>「その公開鍵が本当に送信者本人の公開鍵なのか」</p>
+          </blockquote>
+          <p>という問題があります。</p>
+          <p>そこで、公開鍵とその所有者との対応を確認するために<strong>電子証明書</strong>などが利用されます。</p>
+          <p>信頼できる電子証明書によって、</p>
+          <blockquote>
+            <p>「この公開鍵はXさんのものである」</p>
+          </blockquote>
+          <p>と確認できている場合、デジタル署名の検証に成功すれば、</p>
+          <p class="term-formula"><strong>「Xさんに対応する秘密鍵で署名され、その後データが改竄されていない」</strong></p>
+          <p>と確認できます。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名と暗号化は目的が異なる</h2>
+          <p>デジタル署名と暗号化は混同しやすいですが、目的が異なります。</p>
+          <p><strong>デジタル署名</strong></p>
+          <p class="term-formula">→ 「誰が署名したか」「途中で改竄されていないか」を確認する</p>
+          <p><strong>暗号化</strong></p>
+          <p class="term-formula">→ 内容を第三者に読まれないようにする</p>
+          <p>したがって、デジタル署名を付けても、文書そのものが暗号化されていなければ、第三者が内容を読める場合があります。</p>
+          <p>逆に、暗号化されていても、それだけで送信者の確認や改竄の検出ができるとは限りません。</p>
+          <p>つまり、</p>
+          <ul>
+            <li>改竄されていないか → <strong>完全性</strong></li>
+            <li>誰が作成・送信したか → <strong>真正性</strong></li>
+            <li>他人に読まれないか → <strong>機密性</strong></li>
+          </ul>
+          <p>を区別します。</p>
+        </section>
+
+        <section>
+          <h2>デジタル署名では確認できないこと</h2>
+          <p>デジタル署名は強力な技術ですが、何でも確認できるわけではありません。</p>
+          <p>例えば、デジタル署名を検証しても、</p>
+          <ul>
+            <li>文書の内容が客観的な事実であること</li>
+            <li>文書にマルウェアが含まれていないこと</li>
+            <li>文書の内容が第三者に読まれていないこと</li>
+            <li>サーバが停止しないこと</li>
+            <li>改竄された場合に、どの文字が変更されたのか</li>
+            <li>秘密鍵が過去にも将来にも絶対に漏えいしないこと</li>
+          </ul>
+          <p>などは保証されません。</p>
+          <p>署名が保証するのは、あくまで<strong>署名の対象となったデータと署名との関係</strong>です。</p>
+          <p>例えば、</p>
+          <blockquote>
+            <p>「明日は必ず晴れる」</p>
+          </blockquote>
+          <p>という文書に正しいデジタル署名が付いていても、「明日晴れる」という内容そのものが正しいことを保証するものではありません。</p>
+        </section>
+
+        <section>
+          <h2>改竄を「防ぐ」アクセス制御</h2>
+          <p>ハッシュ値やデジタル署名は、主に改竄を<strong>検出・確認する</strong>ために利用されます。</p>
+          <p>これに対し、そもそも権限のない人がデータを書き換えられないようにする仕組みが<strong>アクセス制御</strong>です。</p>
+          <p>例えば、成績データについて、</p>
+          <ul>
+            <li>教員は閲覧・変更できる</li>
+            <li>生徒は閲覧だけできる</li>
+            <li>関係のない利用者はアクセスできない</li>
+          </ul>
+          <p>というように権限を設定します。</p>
+          <p>ユーザIDやパスワードなどで利用者を認証し、その人に認められた操作だけを許可することで、不正な改竄を防ぎやすくなります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>アクセス制御 → 改竄を防ぐ</strong><br /><strong>ハッシュ値・デジタル署名 → 改竄を検出する</strong></p>
+          <p>と整理できます。</p>
+        </section>
+
+        <section>
+          <h2>変更履歴による改竄の発見</h2>
+          <p>データが変更されたときに、その履歴を記録しておくことも重要です。</p>
+          <p>例えば、成績データを変更するときに、</p>
+          <ul>
+            <li>誰が変更したか</li>
+            <li>いつ変更したか</li>
+            <li>変更前の値</li>
+            <li>変更後の値</li>
+          </ul>
+          <p>を記録しておきます。</p>
+          <p>すると、</p>
+          <blockquote>
+            <p>「数学の成績が80点から95点に変更されている」</p>
+          </blockquote>
+          <p>ということだけでなく、</p>
+          <blockquote>
+            <p>「誰が、いつ、80点から95点へ変更したのか」</p>
+          </blockquote>
+          <p>まで確認できます。</p>
+          <p>このような記録を<strong>ログ</strong>などとして保存しておけば、不正な変更の発見や原因の調査に役立ちます。</p>
+          <p>ただし、攻撃者が履歴そのものを書き換えられてしまっては意味がありません。そのため、</p>
+          <ul>
+            <li>ログへの書込み権限を制限する</li>
+            <li>通常のデータとは別の場所に保存する</li>
+            <li>定期的にログを確認する</li>
+          </ul>
+          <p>などの対策も必要です。</p>
+        </section>
+
+        <section>
+          <h2>ブロックチェーンと改竄</h2>
+          <p><strong>ブロックチェーン</strong>も、記録の改竄を困難にしたり、改竄を検出しやすくしたりする仕組みとして利用されます。</p>
+          <p>ブロックチェーンでは、取引などの記録をまとめた「ブロック」を順番につなげて保存します。</p>
+          <p>一般に、それぞれのブロックには前のブロックの情報から計算されたハッシュ値などが含まれます。</p>
+          <p>そのため、過去の記録を変更すると、その後のブロックとのつながりに矛盾が生じます。</p>
+          <p>さらに、複数の参加者が同じ履歴を共有し、一定の合意の仕組みによって記録を管理することで、一人の利用者が自分の持っている記録だけを書き換えても、他の参加者が持つ記録との違いを発見しやすくなります。</p>
+          <p>ただし、ブロックチェーンが保証するのは主に、</p>
+          <p class="term-formula"><strong>「一度記録した情報を後から勝手に変更しにくいこと」</strong></p>
+          <p>です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>改竄 · EXAMPLE</span><span>ITパスポートH28秋期 問87（改題）</span></div>
+          <h3>公開したファイルが配布後に改ざんされていないことを、受信者が確認できるようにする措置として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>ファイルを可逆圧縮してから公開する。</p></li>
+            <li><span>1</span><p>公開者がファイルにデジタル署名を付ける。</p></li>
+            <li><span>2</span><p>同じサーバ内にファイルのバックアップを保存する。</p></li>
+            <li><span>3</span><p>受信者の公開鍵でファイルを暗号化する。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．公開者がファイルにデジタル署名を付ける。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>デジタル署名では、ファイルから求めたハッシュ値などを署名者の秘密鍵で処理します。受信者が対応する公開鍵で署名を検証すると、署名後にファイルが変更されていないかを確認でき、情報の完全性の確認に役立ちます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH28秋期 問87（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：デジタル署名／改竄</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">改竄の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="改竄"
+          data-limit="5"
+          data-exclude-stem="公開したファイルが配布後に改ざんされていないことを、受信者が確認できるようにする措置として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=改竄">改竄の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"改竄とは","description":"改竄の意味と、完全性、ハッシュ値、デジタル署名、アクセス制御、変更履歴、ブロックチェーンを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/tampering/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"改竄","item":"https://mei-chan-nel.com/terms/tampering/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
