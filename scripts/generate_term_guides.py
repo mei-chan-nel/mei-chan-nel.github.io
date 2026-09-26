@@ -204,7 +204,6 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
       <header class="page-hero compact-hero">
         <p class="eyebrow">TERM INDEX</p>
         <h1>用語一覧</h1>
-        <p>公開中の情報Ⅰ用語解説を、タグ一覧のNo.順に並べています。各項目から本文と例題を確認できます。</p>
       </header>
 
       <section class="term-list-section" aria-labelledby="term-list-heading">
