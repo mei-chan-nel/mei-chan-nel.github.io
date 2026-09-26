@@ -36,10 +36,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Check generated term guide registry
+      - name: Check generated term guide registry and index
         run: |
           python portal/scripts/generate_term_guides.py
-          git -C portal diff --exit-code -- assets/term-guides.js
+          git -C portal diff --exit-code -- assets/term-guides.js terms/index.html
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

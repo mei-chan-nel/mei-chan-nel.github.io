@@ -62,4 +62,4 @@ noteマガジン [情報Ⅰ Study Atlas｜用語解説](https://note.com/mei_mat
 <meta name="study-atlas-term-tag" content="用語タグ" />
 ```
 
-`python scripts/generate_term_guides.py` を実行すると、標準の `基礎資料\タグ一覧.xlsx` を読み込み、用語タグのメタデータから `assets/term-guides.js`（解説URLのレジストリ）と `terms/index.html` を生成します。タグ検索の短い解説は、学習アプリ側の `data/tags/tag_descriptions.json` で管理します。Excelにないタグの用語ページは生成時にエラーにします。別の正本を使う場合だけ `--tag-list` を指定できます。
+`python scripts/generate_term_guides.py` を実行すると、標準の `基礎資料\タグ一覧.xlsx` を読み込み、用語タグのメタデータから `assets/term-guides.js`（解説URLのレジストリ）と `terms/index.html` を生成します。用語一覧には公開ページがあるタグだけがNo.順で表示され、ページ追加後の再生成で自動的に一覧へ加わります。タグ検索の短い解説は、学習アプリ側の `data/tags/tag_descriptions.json` で管理します。Excelにないタグの用語ページは生成時にエラーにします。別の正本を使う場合だけ `--tag-list` を指定できます。

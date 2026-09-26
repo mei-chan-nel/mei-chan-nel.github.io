@@ -146,17 +146,13 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     items: list[str] = []
     for tag in tags:
         page = page_by_tag.get(tag)
-        label = escape(tag)
         if page is None:
-            items.append(
-                f'<li class="term-list-item is-unlinked"><span aria-disabled="true">{label}</span></li>'
-            )
-        else:
-            items.append(
-                f'<li class="term-list-item is-linked"><a href="./{escape(page.slug)}/">{label}</a></li>'
-            )
+            continue
+        label = escape(tag)
+        items.append(
+            f'<li class="term-list-item is-linked"><a href="./{escape(page.slug)}/">{label}</a></li>'
+        )
     list_html = "\n            ".join(items)
-    count = len(tags)
     linked_count = sum(tag in page_by_tag for tag in tags)
     return f'''<!doctype html>
 <html lang="ja">
@@ -164,7 +160,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>用語一覧｜情報Ⅰ 用語解説｜Study Atlas</title>
-    <meta name="description" content="情報Ⅰ Study Atlasの用語解説一覧です。全{count}個の基本タグから、詳しい解説がある用語を探せます。" />
+    <meta name="description" content="情報Ⅰ Study Atlasで公開中の用語解説一覧です。情報Ⅰの用語をタグ一覧のNo.順から探せます。" />
     <meta name="theme-color" content="#102f35" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="ja_JP" />
@@ -208,15 +204,14 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
       <header class="page-hero compact-hero">
         <p class="eyebrow">TERM INDEX</p>
         <h1>用語一覧</h1>
-        <p>情報Ⅰの問題に付いているタグを、No.順に並べています。詳しい用語解説がある項目から、本文と例題を確認できます。</p>
+        <p>公開中の情報Ⅰ用語解説を、タグ一覧のNo.順に並べています。各項目から本文と例題を確認できます。</p>
       </header>
 
       <section class="term-list-section" aria-labelledby="term-list-heading">
         <div class="term-section-heading">
-          <p class="eyebrow">{count} TAGS · {linked_count} GUIDES</p>
+          <p class="eyebrow">{linked_count} GUIDES</p>
           <h2 id="term-list-heading">用語から探す</h2>
         </div>
-        <p class="term-list-note">リンクのある用語は詳細ページを公開しています。その他の用語も、今後順次整備します。</p>
         <ul class="term-list">
             {list_html}
         </ul>
@@ -273,7 +268,8 @@ def main() -> None:
     linked_count = sum(tag in registry for tag in tags)
     print(
         f"Generated {OUTPUT_PATH.relative_to(ROOT)} with {len(registry)} term guide(s); "
-        f"{INDEX_PATH.relative_to(ROOT)} with {len(tags)} tag(s), {linked_count} linked."
+        f"{INDEX_PATH.relative_to(ROOT)} with {linked_count} published guide(s) "
+        f"from {len(tags)} tag(s)."
     )
 
 

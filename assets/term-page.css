@@ -72,12 +72,6 @@
   margin: 18px auto 90px;
 }
 
-.term-list-note {
-  margin: 0 0 24px;
-  color: var(--ink-soft);
-  font-size: .82rem;
-}
-
 .term-list {
   margin: 0;
   padding: 0;
@@ -92,8 +86,7 @@
   border-top: 1px solid var(--line);
 }
 
-.term-list-item a,
-.term-list-item span {
+.term-list-item a {
   min-height: 56px;
   padding: 15px 2px;
   display: flex;
@@ -151,10 +144,6 @@
 .term-list-item a:focus-visible {
   color: var(--coral-strong);
   text-decoration: underline;
-}
-
-.term-list-item span {
-  color: #9aa8aa;
 }
 
 .term-practice-section {

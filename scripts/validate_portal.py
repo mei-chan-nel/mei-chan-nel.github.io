@@ -187,21 +187,18 @@ def read_term_meta_from_html(text: str) -> str:
     return parser.values.get("study-atlas-term-tag", "").strip()
 
 
-def read_term_index_entries(text: str) -> list[tuple[str, str, str | None]]:
-    entries: list[tuple[str, str, str | None]] = []
+def read_term_index_entries(text: str) -> list[tuple[str, str, str]]:
+    entries: list[tuple[str, str, str]] = []
     item_pattern = re.compile(
-        r'<li class="term-list-item (is-linked|is-unlinked)">(.*?)</li>',
+        r'<li class="term-list-item ([^"]+)">(.*?)</li>',
         flags=re.DOTALL,
     )
     for kind, content in item_pattern.findall(text):
         link_match = re.search(r'<a href="([^"]+)">(.*?)</a>', content, flags=re.DOTALL)
-        span_match = re.search(r'<span[^>]*>(.*?)</span>', content, flags=re.DOTALL)
         if link_match:
             href, label = link_match.groups()
-        elif span_match:
-            href, label = None, span_match.group(1)
         else:
-            href, label = None, ""
+            href, label = "", ""
         label = unescape(re.sub(r"<[^>]+>", "", label)).strip()
         entries.append((kind, label, href))
     return entries
@@ -364,16 +361,22 @@ def main() -> int:
     term_index_path = ROOT / "terms" / "index.html"
     term_index_text = term_index_path.read_text(encoding="utf-8") if term_index_path.is_file() else ""
     term_index_entries = read_term_index_entries(term_index_text)
-    if len(term_index_entries) != len(tag_list):
-        errors.append(f"terms/index.html: expected {len(tag_list)} tags, found {len(term_index_entries)}")
-    if tag_list and [label for _, label, _ in term_index_entries] != tag_list:
-        errors.append("terms/index.html: tag order/content is out of sync with タグ一覧.xlsx")
+    expected_term_labels = [tag for tag in tag_list if tag in term_page_meta]
+    if len(term_index_entries) != len(expected_term_labels):
+        errors.append(
+            f"terms/index.html: expected {len(expected_term_labels)} published guides, "
+            f"found {len(term_index_entries)}"
+        )
+    if tag_list and [label for _, label, _ in term_index_entries] != expected_term_labels:
+        errors.append("terms/index.html: published guides are out of sync with タグ一覧.xlsx or include an unpublished tag")
     for kind, label, href in term_index_entries:
+        if kind != "is-linked":
+            errors.append(f"terms/index.html: non-linked term list item is visible: {label or '(missing label)'}")
+            continue
         page = term_page_meta.get(label)
         if page is None:
-            if kind != "is-unlinked" or href is not None:
-                errors.append(f"terms/index.html: unlinked tag is not rendered as text: {label}")
-        elif kind != "is-linked" or href != f"./{page}/":
+            errors.append(f"terms/index.html: unpublished tag is visible: {label}")
+        elif href != f"./{page}/":
             errors.append(f"terms/index.html: linked tag does not use its metadata-derived page URL: {label}")
     unknown_term_tags = sorted(set(term_page_meta) - set(tag_list))
     if unknown_term_tags:
