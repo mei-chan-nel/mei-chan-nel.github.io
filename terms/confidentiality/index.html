@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>機密性とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="機密性の意味と、情報セキュリティの三要素、認証、アクセス制御、暗号化、HTTPS、物理的な対策、大容量データの共有方法を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="機密性" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="機密性とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="機密性の意味と、情報セキュリティの三要素、認証、アクセス制御、暗号化、HTTPS、物理的な対策、大容量データの共有方法を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/confidentiality/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/confidentiality/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">機密性</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">機密性</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「機密性」とは</h2>
+          <p><strong>機密性（Confidentiality）</strong>とは、情報を<strong>許可された人だけが利用・閲覧できる状態に保つこと</strong>です。</p>
+          <p>例えば、学校の成績データは、生徒本人や担当教員など、業務上必要な人だけが閲覧できるようにする必要があります。関係のない人まで閲覧できる状態になっていれば、データの内容が書き換えられていなくても、機密性が損なわれています。</p>
+
+          <h3>情報セキュリティの三要素</h3>
+          <p>情報セキュリティでは、特に重要な三つの性質として、<strong>機密性・完全性・可用性</strong>が挙げられます。英語の頭文字を取って<strong>CIA</strong>とも呼ばれます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">要素</th><th scope="col">英語</th><th scope="col">意味</th><th scope="col">代表的な問題</th><th scope="col">代表的な対策</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">機密性</th><td>Confidentiality</td><td>許可された人だけが情報を利用できる</td><td>情報漏えい、盗み見</td><td>認証、アクセス制御、暗号化</td></tr>
+              <tr><th scope="row">完全性</th><td>Integrity</td><td>情報が正確で、不正に変更・破壊されていない</td><td>改ざん、誤ったデータ</td><td>デジタル署名、変更履歴、改ざん検出</td></tr>
+              <tr><th scope="row">可用性</th><td>Availability</td><td>必要なときに情報やシステムを利用できる</td><td>システム停止、DDoS攻撃</td><td>冗長化、バックアップ</td></tr>
+            </tbody>
+          </table>
+          <p>簡単に整理すると、</p>
+          <ul>
+            <li><strong>機密性</strong>：見せてはいけない人に「見せない」</li>
+            <li><strong>完全性</strong>：情報を「正しく保つ」</li>
+            <li><strong>可用性</strong>：必要なときに「使える」</li>
+          </ul>
+          <p>です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>個人情報が外部へ漏れた → <strong>機密性</strong>の問題</li>
+            <li>設計情報が勝手に書き換えられた → <strong>完全性</strong>の問題</li>
+            <li>システムが停止して利用できない → <strong>可用性</strong>の問題</li>
+          </ul>
+          <p>となります。</p>
+
+          <h3>認証とアクセス制御</h3>
+          <p>機密性を守る代表的な方法が、<strong>認証</strong>と<strong>アクセス制御</strong>です。</p>
+          <p><strong>認証</strong>とは、その人が誰であるかを尋ね、本当に本人であるかを確認することです。例えば、IDとパスワードによるログイン、生体認証、ICカードなどが利用されます。</p>
+          <p>一方、<strong>アクセス制御</strong>とは、認証された利用者に対して、</p>
+          <ul>
+            <li>誰が閲覧できるか</li>
+            <li>誰が編集できるか</li>
+            <li>誰が削除できるか</li>
+          </ul>
+          <p>などの権限を設定することです。</p>
+          <p>例えば、成績ファイルについて、</p>
+          <ul>
+            <li>担当教員：閲覧・編集できる</li>
+            <li>生徒本人：自分の成績だけ閲覧できる</li>
+            <li>その他の生徒：閲覧できない</li>
+          </ul>
+          <p>というように設定します。</p>
+          <p>つまり、<strong>認証しただけで機密性が確保されるわけではありません。</strong></p>
+          <p>全員がIDとパスワードでログインしていても、ログイン後に全員がすべての成績を閲覧できる設定になっていれば、機密性は十分ではありません。本人を確認した上で、さらに<strong>必要な人だけに必要な権限を与える</strong>ことが重要です。</p>
+
+          <h3>必要最小限の権限</h3>
+          <p>情報へのアクセス権は、必要以上に広げないことが基本です。</p>
+          <p>例えば、営業部だけで利用する顧客情報なら、業務上必要のない他部署の人まで閲覧できるようにする必要はありません。</p>
+          <p>このように、</p>
+          <p class="term-formula"><strong>必要な人に、必要な範囲だけ、必要な期間だけ権限を与える</strong></p>
+          <p>という考え方が、機密性の確保では重要になります。</p>
+          <p>クラウドストレージなどでファイルを共有する場合も、</p>
+          <ul>
+            <li>相手を認証する</li>
+            <li>閲覧者を限定する</li>
+            <li>編集権限が必要かを確認する</li>
+            <li>共有期限を設定する</li>
+            <li>不要になった権限を削除する</li>
+          </ul>
+          <p>といった管理を行います。</p>
+          <p>「URLを知っている人は誰でも閲覧できる」という設定では、URLが第三者へ渡った場合に閲覧されるおそれがあるため、機密情報の共有には適しません。</p>
+
+          <h3>暗号化</h3>
+          <p><strong>暗号化</strong>も、機密性を高める代表的な方法です。</p>
+          <p>暗号化とは、元のデータである<strong>平文</strong>を、そのままでは内容を理解できない<strong>暗号文</strong>へ変換することです。</p>
+          <p>例えば、</p>
+          <p class="term-formula">平文<br />↓ 暗号化<br />暗号文<br />↓ 復号<br />平文</p>
+          <p>という流れになります。</p>
+          <p>PCを紛失した場合を考えます。</p>
+          <p>保存されているファイルが暗号化されていなければ、PCを入手した第三者にファイルを読まれる可能性があります。一方、適切に暗号化されていれば、第三者がファイルそのものを入手しても、復号に必要な鍵を持っていなければ内容を読み取ることは難しくなります。</p>
+          <p>そのため、暗号化は、</p>
+          <ul>
+            <li>PCやUSBメモリなどの紛失・盗難</li>
+            <li>通信途中での盗み見</li>
+            <li>ファイルの流出</li>
+          </ul>
+          <p>などに備えて、情報の機密性を高めるために利用されます。</p>
+
+          <h3>暗号化では「鍵」の管理も重要</h3>
+          <p>暗号化しておけば、それだけで安全になるわけではありません。</p>
+          <p>暗号化されたデータを元に戻すための<strong>復号鍵</strong>が第三者へ漏れれば、暗号文を読まれる可能性があります。</p>
+          <p>例えば、成績ファイルを暗号化していても、その復号鍵を教職員全員が閲覧できる共有フォルダに保存していれば、閲覧する必要のない人まで復号できてしまいます。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>暗号化されたデータだけでなく、鍵を誰が利用できるかも管理する</strong></p>
+          <p>必要があります。</p>
+          <p>鍵についても、</p>
+          <ul>
+            <li>必要な人だけに渡す</li>
+            <li>安全な場所に保管する</li>
+            <li>有効期間を管理する</li>
+            <li>不要になった鍵を無効にする</li>
+          </ul>
+          <p>などの管理が重要です。</p>
+
+          <h3>公開鍵暗号方式と機密性</h3>
+          <p>公開鍵暗号方式では、<strong>公開鍵</strong>と<strong>秘密鍵</strong>という二つの鍵を利用します。</p>
+          <p>送信者Xが受信者Yだけに読めるように文書を送りたい場合は、</p>
+          <p class="term-formula"><strong>Yの公開鍵で暗号化する</strong></p>
+          <p>という方法を取ります。</p>
+          <p>Yの公開鍵で暗号化されたデータは、対応する<strong>Yの秘密鍵</strong>を使って復号します。</p>
+          <p>したがって、</p>
+          <p class="term-formula">X<br />↓ Yの公開鍵で暗号化<br />暗号文<br />↓<br />Y<br />↓ Yの秘密鍵で復号<br />文書</p>
+          <p>となります。</p>
+          <p>Yの秘密鍵をYだけが持っていれば、第三者に通信を盗み見られても内容を読まれにくくなります。そのため、これは主に<strong>機密性</strong>を確保する仕組みです。</p>
+
+          <h3>デジタル署名</h3>
+          <p>デジタル署名は、署名する人が自分の<strong>秘密鍵</strong>を使って署名を作成し、受信者がその人の<strong>公開鍵</strong>を使って署名を検証します。</p>
+          <p>例えば、XがYへ文書を送る場合、</p>
+          <ul>
+            <li>内容を第三者に読ませない → <strong>Yの公開鍵</strong>を使って暗号化する</li>
+            <li>Xが署名したことを確認できるようにする → <strong>Xの秘密鍵</strong>を使って署名を作る</li>
+          </ul>
+          <p>とします。</p>
+          <p>つまり、暗号化は主に<strong>機密性</strong>を高め、デジタル署名は主に<strong>完全性</strong>や送信者の確認に利用されます。</p>
+
+          <h3>HTTPSと機密性</h3>
+          <p>Webサイトを利用するときにも暗号化が利用されます。</p>
+          <p>通常、<strong>HTTPS</strong>ではブラウザとWebサーバの間の通信が暗号化されます。そのため、通信途中を第三者に盗み見られても、送受信している内容を読み取られにくくなります。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>ログイン情報</li>
+            <li>入力した個人情報</li>
+            <li>Webサイトから受信した内容</li>
+          </ul>
+          <p>などを保護することにつながります。</p>
+          <p>したがって、HTTPSは通信内容の<strong>機密性</strong>を高める仕組みの一つです。</p>
+          <p>ただし、HTTPSにしたからといって、</p>
+          <ul>
+            <li>ウイルス感染を必ず防げる</li>
+            <li>Webサイトの内容そのものが必ず正しい</li>
+            <li>コンピュータの故障を防げる</li>
+          </ul>
+          <p>というわけではありません。</p>
+          <p>どのような危険への対策なのかを区別する必要があります。</p>
+
+          <h3>紙の文書でも機密性は必要</h3>
+          <p>機密性は電子データだけの問題ではありません。</p>
+          <p>例えば、紙の「関係者外秘」の資料を机の上に放置すれば、関係のない人に読まれる可能性があります。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>施錠できるキャビネットに保管する</li>
+            <li>鍵を利用できる人を限定する</li>
+            <li>不要になった文書をシュレッダーで細断する</li>
+          </ul>
+          <p>といった対策を行います。</p>
+          <p>保管中だけでなく、<strong>廃棄するときまで情報を読まれないようにする</strong>ことが重要です。</p>
+
+          <h3>機密区分のラベル</h3>
+          <p>情報そのものに、</p>
+          <ul>
+            <li>公開</li>
+            <li>社内限り</li>
+            <li>関係者外秘</li>
+            <li>社外秘</li>
+          </ul>
+          <p>などの<strong>機密区分を表示する</strong>ことも重要です。</p>
+          <p>例えば、社外秘の文書に「社外秘」と明記しておけば、その文書を見た人が「外部へ送ってはいけない情報である」と判断しやすくなります。</p>
+          <p>このようなラベル付けは、それ自体で第三者の閲覧を物理的に防ぐものではありません。しかし、<strong>どの程度慎重に取り扱うべき情報なのかを利用者に明確に伝える</strong>ことができます。</p>
+          <p>機密性を守るためには、技術的な対策だけでなく、このような運用上のルールも必要です。</p>
+
+          <h3>物理的なアクセスも制限する</h3>
+          <p>情報へのアクセスは、ファイルを開くことだけではありません。</p>
+          <p>サーバ室など、機密情報を扱う機器が置かれている場所へ無関係な人が自由に入れると、画面を見たり、記憶媒体を持ち出したりされる可能性があります。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>暗証番号</li>
+            <li>ICカード</li>
+            <li>指紋認証</li>
+            <li>顔認証</li>
+            <li>虹彩認証</li>
+          </ul>
+          <p>などによって入室者を制限します。</p>
+          <p>例えば、暗証番号と虹彩認証を組み合わせてサーバ室への入室を制限することは、権限のない人が情報へ接触することを防ぐため、主に<strong>機密性</strong>を高める対策です。</p>
+
+          <h3>大容量の機密情報を共有するとき</h3>
+          <p>大容量のファイルを外部の人と共有するときも、重要なのは単に「どの方法なら送れるか」ではありません。</p>
+          <p>機密性の観点では、</p>
+          <ul>
+            <li>誰と共有するのか</li>
+            <li>本人であることを確認できるか</li>
+            <li>どの情報まで閲覧できるか</li>
+            <li>いつまで閲覧できるか</li>
+            <li>誰がアクセスしたか確認できるか</li>
+          </ul>
+          <p>を考える必要があります。</p>
+          <p>例えば、共同研究者一人と一定期間だけ研究データを共有する場合は、</p>
+          <ol>
+            <li>認証が必要な共有領域を利用する</li>
+            <li>共有相手をその共同研究者だけに限定する</li>
+            <li>必要な権限だけを与える</li>
+            <li>有効期限を設定する</li>
+            <li>アクセス記録を残す</li>
+          </ol>
+          <p>といった方法が適切です。</p>
+          <p>必要に応じて、共有URLやパスワードなどの連絡を別の経路で行うことも考えられます。</p>
+          <p>逆に、</p>
+          <ul>
+            <li>誰でも閲覧できる場所へ置く</li>
+            <li>公開SNSへ掲載する</li>
+            <li>必要のない多数の人へメールで送る</li>
+          </ul>
+          <p>といった方法は、ファイル容量とは関係なく、機密性の面で問題があります。</p>
+
+          <h3>バックアップや冗長化との違い</h3>
+          <p>機密性の問題では、他のセキュリティ対策との区別も重要です。</p>
+          <p>例えば、<strong>バックアップ</strong>はデータが消失したときに復元するためのものであり、主に<strong>可用性</strong>に関係します。</p>
+          <p>サーバや通信回線を二重化する<strong>冗長化</strong>も、一つが故障してもサービスを続けられるようにするため、主に可用性を高めます。</p>
+          <p>一方、</p>
+          <ul>
+            <li>暗号化</li>
+            <li>利用者認証</li>
+            <li>アクセス制御</li>
+          </ul>
+          <p>は、権限のない人に情報を読ませないことが主な目的なので、機密性に関係します。</p>
+          <p>したがって、問題を解くときには、</p>
+          <p class="term-formula"><strong>「この対策は何を防ぐためのものか」</strong></p>
+          <p>を考えることが重要です。</p>
+          <ul>
+            <li>見られることを防ぐ → <strong>機密性</strong></li>
+            <li>書き換えられることを防ぐ・検出する → <strong>完全性</strong></li>
+            <li>使えなくなることを防ぐ → <strong>可用性</strong></li>
+          </ul>
+          <p>と整理すると判断しやすくなります。</p>
+
+          <h3>機密性を守るための基本</h3>
+          <p>機密性は、単に「秘密の情報を暗号化する」というだけの考え方ではありません。</p>
+          <p>情報を扱う一連の流れについて、</p>
+          <p class="term-formula"><strong>「許可された人だけが、その人に必要な範囲で情報を利用できるようにする」</strong></p>
+          <p>ことが基本です。</p>
+          <p>そのため、機密性を守るためには、</p>
+          <ul>
+            <li>情報の重要度を分類し、ラベルを付ける</li>
+            <li>利用者を認証する</li>
+            <li>アクセスできる人を制限する</li>
+            <li>必要最小限の権限だけを与える</li>
+            <li>保存データや通信を暗号化する</li>
+            <li>暗号鍵を適切に管理する</li>
+            <li>紙文書を施錠して保管する</li>
+            <li>不要な文書を安全に廃棄する</li>
+            <li>機密情報を扱う場所への入室を制限する</li>
+            <li>外部共有では相手・権限・期間を限定する</li>
+          </ul>
+          <p>といった、複数の対策を組み合わせることが重要です。</p>
+          <p>機密性に関する問題では、まず<strong>「本来見ることのできない人に情報が見えてしまわないか」</strong>という観点から考えるとよいでしょう。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>機密性 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>機密性のある大容量研究データを、組織外の共同研究者一人と一定期間だけ共有したい。共有方法として最も適当なものを次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>認証付き共有領域で相手と期限・権限を限定し、別経路で通知してアクセス記録を確認する</p></li>
+            <li><span>1</span><p>大容量データを誰でも閲覧できるURLへ置き、共同研究者が検索しやすいよう検索エンジンにも登録する</p></li>
+            <li><span>2</span><p>共同研究者のアカウントや本人性を確認せず、公開SNSの複数投稿へ研究データを分割して掲載する</p></li>
+            <li><span>3</span><p>データを暗号化せず組織の全員宛てメールへ分割添付し、複数回に分けて容量制限を回避する</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．認証付き共有領域で相手と期限・権限を限定し、別経路で通知してアクセス記録を確認する</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>安全な共有では、相手の本人確認、必要最小限の権限、有効期限、アクセス記録を組み合わせます。大容量かどうかは送付手段の選択に関わりますが、機密性は容量ではなく、誰がいつまで取得できるかを制御できるかで判断します。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：機密性／アクセス制御／認証</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">機密性の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="機密性"
+          data-limit="5"
+          data-exclude-stem="機密性のある大容量研究データを、組織外の共同研究者一人と一定期間だけ共有したい。共有方法として最も適当なものを次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=機密性">機密性の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"機密性とは","description":"機密性の意味と、情報セキュリティの三要素、認証、アクセス制御、暗号化、HTTPS、物理的な対策、大容量データの共有方法を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/confidentiality/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"機密性","item":"https://mei-chan-nel.com/terms/confidentiality/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

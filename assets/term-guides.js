@@ -138,6 +138,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "標本化": {
     "url": "/terms/sampling/"
   },
+  "機密性": {
+    "url": "/terms/confidentiality/"
+  },
   "機械学習": {
     "url": "/terms/machine-learning/"
   },
