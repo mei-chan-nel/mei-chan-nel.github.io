@@ -105,6 +105,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "不正アクセス禁止法": {
     "url": "/terms/unauthorized-access-prevention-law/"
   },
+  "主キー": {
+    "url": "/terms/primary-key/"
+  },
   "信憑性": {
     "url": "/terms/credibility/"
   },

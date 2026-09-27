@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>主キーとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="データベースにおける主キーの意味と条件、複合主キー、外部キー、データの登録順序、正規化を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="主キー" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="主キーとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="データベースにおける主キーの意味と条件、複合主キー、外部キー、データの登録順序、正規化を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/primary-key/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/primary-key/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">主キー</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DATA</p>
+        <h1 id="term-heading">主キー</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「主キー」とは</h2>
+          <p><strong>主キー（primary key）</strong>とは、データベースの表の中で、<strong>各行を一意に識別するために設定する列、または列の組合せ</strong>です。</p>
+          <p>例えば、生徒の情報を次のような表で管理するとします。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">氏名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S001</td><td>田中太郎</td></tr>
+              <tr><td>S002</td><td>鈴木花子</td></tr>
+              <tr><td>S003</td><td>田中太郎</td></tr>
+            </tbody>
+          </table>
+          <p>この表では、「氏名」を使って行を特定することはできません。「田中太郎」という同じ氏名の生徒が複数いるからです。</p>
+          <p>一方、学籍番号が生徒ごとに異なるように決められていれば、</p>
+          <ul>
+            <li>S001 → 1行目の田中太郎</li>
+            <li>S002 → 鈴木花子</li>
+            <li>S003 → 3行目の田中太郎</li>
+          </ul>
+          <p>のように、<strong>学籍番号を指定するだけで一つの行を特定できます</strong>。</p>
+          <p>このような学籍番号を主キーとして設定できます。</p>
+
+          <h3>主キーに必要な条件</h3>
+          <p>主キーには、主に次の二つの条件があります。</p>
+
+          <p><strong>① 値が重複しない</strong></p>
+          <p>主キーは各行を一意に識別するためのものなので、異なる行に同じ主キーの値を設定することはできません。</p>
+          <p>例えば、学籍番号を主キーにしている場合、</p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">氏名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S001</td><td>田中太郎</td></tr>
+              <tr><td>S001</td><td>鈴木花子</td></tr>
+            </tbody>
+          </table>
+          <p>のように、二人の生徒に同じ「S001」を割り当てることはできません。これでは「S001」と指定しても、どちらの行なのか特定できないからです。</p>
+
+          <p><strong>② NULLにできない（空欄にできない）</strong></p>
+          <p>主キーには、値が存在しないことを表す<strong>NULL</strong>や<strong>空欄</strong>を設定できません。</p>
+          <p>例えば、</p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">氏名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S001</td><td>田中太郎</td></tr>
+              <tr><td></td><td>鈴木花子</td></tr>
+            </tbody>
+          </table>
+          <p>のようにすると、2行目を学籍番号によって特定できません。</p>
+          <p>したがって、主キーは、</p>
+          <p class="term-formula"><strong>重複しない ＋ NULLではない（空欄でない）</strong></p>
+          <p>という性質をもちます。</p>
+
+          <h3>複数列を組み合わせて主キーにする</h3>
+          <p>主キーは、一つの列だけで構成する必要はありません。<strong>複数の列を組み合わせて一つの主キーにすることもできます。</strong></p>
+          <p>これを<strong>複合主キー</strong>といいます。</p>
+          <p>例えば、次のような成績表を考えます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">授業ID</th><th scope="col">素点</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S001</td><td>M01</td><td>80</td></tr>
+              <tr><td>S001</td><td>E01</td><td>72</td></tr>
+              <tr><td>S002</td><td>M01</td><td>91</td></tr>
+            </tbody>
+          </table>
+          <p>この場合、「学籍番号」だけでは主キーにできません。S001の生徒は複数の授業を受けるので、S001という値が何度も現れるからです。</p>
+          <p>「授業ID」だけでも主キーにできません。同じ授業を複数の生徒が受けるからです。</p>
+          <p>しかし、</p>
+          <p class="term-formula"><strong>学籍番号 ＋ 授業ID</strong></p>
+          <p>という組合せなら、</p>
+          <ul>
+            <li>S001・M01</li>
+            <li>S001・E01</li>
+            <li>S002・M01</li>
+          </ul>
+          <p>のように各行を一意に識別できます。</p>
+          <p>したがって、この二つを組み合わせて主キーにできます。</p>
+          <p>複合主キーの場合、<strong>主キー全体の値の組合せが重複しなければよく、ひとつの列で重複していてもかまいません。</strong></p>
+
+          <h3>主キーにはどのような項目を選ぶか</h3>
+          <p>主キーは行を一意に識別できればよいので、数値である必要はありません。文字列を主キーにすることもできます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>学籍番号：S001</li>
+            <li>商品番号：P105</li>
+            <li>顧客番号：A001</li>
+          </ul>
+          <p>なども主キーとして使用できます。</p>
+          <p>また、主キーの値は、<strong>できるだけ後から変化しないものを選ぶことが望ましい</strong>です。</p>
+          <p>例えば「氏名」は、</p>
+          <ul>
+            <li>同姓同名の人がいる</li>
+            <li>結婚などで変わることがある</li>
+            <li>表記が変更されることがある</li>
+          </ul>
+          <p>ため、主キーにはあまり適していません。</p>
+          <p>そのため、利用者ID、学籍番号、社員番号、商品番号などのように、<strong>一人または一つの対象につき一つだけ割り当てられ、原則として変化しない番号</strong>を用いることが多くあります。</p>
+          <p>なお、「値が変化しないこと」は主キーの絶対的な条件ではありません。主キーに必須なのは一意性とNULLを含まないことであり、値が変化しないことはデータを安定して管理するために望ましい性質です。</p>
+        </section>
+
+        <section>
+          <h2>主キーと外部キー</h2>
+          <p>リレーショナルデータベースでは、データを複数の表に分けて管理し、それらを関連付けることが多くあります。</p>
+          <p>そこで使われるのが、<strong>主キーと外部キー</strong>です。</p>
+
+          <h3>生徒表</h3>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">氏名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S001</td><td>田中太郎</td></tr>
+              <tr><td>S002</td><td>鈴木花子</td></tr>
+            </tbody>
+          </table>
+          <p>生徒表では「学籍番号」が主キーです。</p>
+
+          <h3>成績表</h3>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">授業ID</th><th scope="col">素点</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>S001</td><td>M01</td><td>80</td></tr>
+              <tr><td>S001</td><td>E01</td><td>72</td></tr>
+              <tr><td>S002</td><td>M01</td><td>91</td></tr>
+            </tbody>
+          </table>
+          <p>成績表の「学籍番号」は、生徒表の「学籍番号」を参照しています。</p>
+          <p>このように、<strong>他の表の主キーなどを参照する列または列の組を外部キー（foreign key）</strong>といいます。</p>
+          <p>つまり、</p>
+          <p class="term-formula"><strong>主キー</strong><br />→ その表の行を一意に識別する。<br /><br /><strong>外部キー</strong><br />→ 他の表の行を参照し、表同士を関連付ける。</p>
+          <p>という違いがあります。</p>
+        </section>
+
+        <section>
+          <h2>データを追加する順序</h2>
+          <p>外部キーによって表同士が関連付けられている場合には、データを追加する順序にも注意します。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>顧客表 → 口座表 → 取引明細表</strong></p>
+          <p>という関係があり、</p>
+          <ul>
+            <li>口座表が顧客表の顧客番号を参照する</li>
+            <li>取引明細表が口座表の口座番号を参照する</li>
+          </ul>
+          <p>とします。</p>
+          <p>新しい顧客が口座を開設し、その口座に入金する場合、</p>
+          <ol>
+            <li>顧客表に顧客を登録する</li>
+            <li>その顧客番号を使って口座表に口座を登録する</li>
+            <li>その口座番号を使って取引明細表に入金記録を登録する</li>
+          </ol>
+          <p>という順序になります。</p>
+          <p>存在しない顧客番号を口座表から参照したり、存在しない口座番号を取引明細表から参照したりすることはできないためです。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>参照される側を先に登録し、参照する側を後から登録する</strong></p>
+          <p>と考えるとよいでしょう。</p>
+        </section>
+
+        <section>
+          <h2>主キーを使って表を分ける</h2>
+          <p>リレーショナルデータベースでは、同じ情報を何度も保存しないように、データを複数の表に分けることがあります。このようにデータの重複などを減らすために表を整理することを<strong>正規化</strong>といいます。</p>
+          <p>例えば、次の受注データを考えます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">受注番号</th><th scope="col">発注者名</th><th scope="col">商品番号</th><th scope="col">商品名</th><th scope="col">個数</th><th scope="col">単価</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>001</td><td>A社</td><td>P01</td><td>ボールペン</td><td>10</td><td>100</td></tr>
+              <tr><td>002</td><td>B社</td><td>P01</td><td>ボールペン</td><td>20</td><td>100</td></tr>
+              <tr><td>003</td><td>C社</td><td>P02</td><td>ノート</td><td>5</td><td>200</td></tr>
+            </tbody>
+          </table>
+          <p>このままでは、商品P01について「ボールペン」「100円」という情報が何度も保存されます。</p>
+          <p>商品番号によって商品名と単価が決まるのであれば、例えば、</p>
+
+          <h3>受注表</h3>
+          <table>
+            <thead>
+              <tr><th scope="col">受注番号</th><th scope="col">発注者名</th><th scope="col">商品番号</th><th scope="col">個数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>001</td><td>A社</td><td>P01</td><td>10</td></tr>
+              <tr><td>002</td><td>B社</td><td>P01</td><td>20</td></tr>
+              <tr><td>003</td><td>C社</td><td>P02</td><td>5</td></tr>
+            </tbody>
+          </table>
+
+          <h3>商品表</h3>
+          <table>
+            <thead>
+              <tr><th scope="col">商品番号</th><th scope="col">商品名</th><th scope="col">単価</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>P01</td><td>ボールペン</td><td>100</td></tr>
+              <tr><td>P02</td><td>ノート</td><td>200</td></tr>
+            </tbody>
+          </table>
+          <p>のように分けることができます。</p>
+          <p>商品表では「商品番号」を主キーとして商品を一意に識別します。</p>
+          <p>受注表では「商品番号」を使って商品表のデータを参照します。したがって、受注表の商品番号は商品表を参照する外部キーとして利用できます。</p>
+          <p>このようにすると、商品名や単価を受注のたびに繰り返して保存する必要がなくなります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>主キー · EXAMPLE</span><span>応用情報技術者H22秋期午前 問29（改題）</span></div>
+          <h3>データベースの表における主キーの役割として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>表の各行を一意に識別する。</p></li>
+            <li><span>1</span><p>検索を速くするために、データの格納位置を記録する</p></li>
+            <li><span>2</span><p>異なる表の列と必ず関連付けられている</p></li>
+            <li><span>3</span><p>値を空欄にできない列であれば、必ず行を一意に識別する。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．表の各行を一意に識別する。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>主キーは、表の各行を一意に識別するための列または列の組です。主キーの値は重複せず、空欄にもできません。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>応用情報技術者H22秋期午前 問29（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：主キー</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">主キーの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="主キー"
+          data-limit="5"
+          data-exclude-stem="データベースの表における主キーの役割として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=主キー">主キーの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"主キーとは","description":"データベースにおける主キーの意味と条件、複合主キー、外部キー、データの登録順序、正規化を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/primary-key/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"主キー","item":"https://mei-chan-nel.com/terms/primary-key/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
