@@ -120,6 +120,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "共通鍵暗号方式": {
     "url": "/terms/common-key-encryption/"
   },
+  "動画": {
+    "url": "/terms/video/"
+  },
   "可用性": {
     "url": "/terms/availability/"
   },

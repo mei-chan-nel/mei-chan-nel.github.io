@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>動画とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="動画の意味と、フレーム、フレームレート、解像度、ビットレート、圧縮、コンテナ形式、ストリーミング、バッファリングを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="動画" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="動画とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="動画の意味と、フレーム、フレームレート、解像度、ビットレート、圧縮、コンテナ形式、ストリーミング、バッファリングを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/video/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/video/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">動画</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">動画</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「動画」とは</h2>
+          <p><strong>動画</strong>とは、多数の静止画を短い時間間隔で次々に表示することで、物体が動いているように見せる情報表現です。動画を構成する1枚1枚の静止画を<strong>フレーム</strong>といいます。</p>
+          <p>動画では、静止画と同じように「画素数」「色の情報量」がデータ量に関係するだけでなく、</p>
+          <ul>
+            <li>1秒間に何枚のフレームを表示するか</li>
+            <li>動画が何秒続くか</li>
+            <li>どのように圧縮するか</li>
+            <li>1秒間にどれだけのデータを使用するか</li>
+          </ul>
+          <p>などもデータ量や画質に大きく影響します。</p>
+
+          <h3>フレームとフレームレート</h3>
+          <p>動画を構成する1枚1枚の静止画を<strong>フレーム（frame）</strong>といいます。</p>
+          <p>例えば、1秒間の動画が30枚の静止画からできている場合、その動画は1秒間に30フレームを表示していることになります。</p>
+          <p>1秒間に表示するフレーム数を<strong>フレームレート</strong>といい、<strong>fps（frames per second）</strong>という単位で表します。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>24 fps：1秒間に24フレーム</li>
+            <li>30 fps：1秒間に30フレーム</li>
+            <li>60 fps：1秒間に60フレーム</li>
+          </ul>
+          <p>という意味です。</p>
+          <p>一般に、フレームレートが高いほど動きを細かく記録できるため、滑らかな動画にしやすくなります。ただし、同じ画質・同じ長さであれば、フレーム数が増えるためデータ量も大きくなりやすくなります。</p>
+          <p>フレーム数、フレームレート、再生時間には、次の関係があります。</p>
+          <p class="term-formula"><strong>総フレーム数 ＝ fps × 再生時間（秒）</strong></p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>再生時間（秒） ＝ 総フレーム数 ÷ fps</strong></p>
+          <p>となります。</p>
+          <p>例えば、60 fpsの動画が360フレームからできている場合、</p>
+          <p class="term-formula">360 ÷ 60 ＝ 6</p>
+          <p>なので、再生時間は6秒です。</p>
+          <p>また、30 fpsの動画を20秒間再生する場合、</p>
+          <p class="term-formula">30 × 20 ＝ 600</p>
+          <p>より、600フレーム必要になります。</p>
+          <p>時間が「分」で与えられている場合は、先に秒へ直して考えます。</p>
+          <p>例えば10分なら、</p>
+          <p class="term-formula">10 × 60 ＝ 600秒</p>
+          <p>です。</p>
+
+          <h3>動画の解像度</h3>
+          <p>1枚のフレームが何個の画素からできているかを表すものが<strong>解像度</strong>です。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>1920 × 1080</strong></p>
+          <p>の動画では、1フレームが</p>
+          <p class="term-formula">1920 × 1080 ＝ 2,073,600</p>
+          <p>画素からできています。</p>
+          <p>解像度が高いほど、多くの画素を使って映像を表現できるため、細かな部分まで表現しやすくなります。一方で、1フレーム当たりのデータ量は大きくなります。</p>
+          <p>なお、1920×1080の動画だからといって、必ず1920×1080のディスプレイでなければ再生できないわけではありません。</p>
+          <p>動画は再生時に拡大・縮小できるため、異なる解像度のディスプレイでも再生できます。</p>
+
+          <h3>色の情報量</h3>
+          <p>各画素についてどれだけの色の情報を持つかも、動画のデータ量に影響します。</p>
+          <p>例えば<strong>24ビットフルカラー</strong>では、1画素を24ビットで表します。</p>
+          <p>8ビット＝1バイトなので、</p>
+          <p class="term-formula">24 ÷ 8 ＝ 3</p>
+          <p>より、1画素当たり3バイトです。</p>
+
+          <h3>無圧縮動画のデータ量</h3>
+          <p>動画を圧縮しない場合、基本的なデータ量は、</p>
+          <p class="term-formula"><strong>1フレームのデータ量<br />×<br />1秒間のフレーム数<br />×<br />再生時間</strong></p>
+          <p>で求めることができます。</p>
+          <p>つまり、</p>
+          <p class="term-formula"><strong>横の画素数<br />× 縦の画素数<br />× 1画素当たりのデータ量<br />× fps<br />× 秒数</strong></p>
+          <p>です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>解像度：1920×1080</li>
+            <li>24ビットフルカラー</li>
+            <li>24 fps</li>
+            <li>2時間</li>
+          </ul>
+          <p>の無圧縮動画を考えます。</p>
+          <p>1フレームの画素数は、</p>
+          <p class="term-formula">1920 × 1080 ＝ 2,073,600画素</p>
+          <p>です。</p>
+          <p>24ビットカラーは1画素3バイトなので、</p>
+          <p class="term-formula">2,073,600 × 3<br />＝ 6,220,800バイト</p>
+          <p>が1フレームのデータ量となります。</p>
+          <p>2時間は、</p>
+          <p class="term-formula">2 × 60 × 60 ＝ 7200秒</p>
+          <p>です。</p>
+          <p>24 fpsなので総フレーム数は、</p>
+          <p class="term-formula">24 × 7200 ＝ 172,800</p>
+          <p>フレームです。</p>
+          <p>したがって、</p>
+          <p class="term-formula">6,220,800 × 172,800</p>
+          <p>となり、</p>
+          <p class="term-formula"><strong>約 1.07 × 10<sup>12</sup>バイト</strong></p>
+          <p>です。</p>
+          <p>1 TB＝10<sup>12</sup>バイトとすれば、約1 TBとなります。</p>
+          <p>このように、無圧縮動画は非常に大きなデータ量になるため、実際の動画では通常、圧縮が利用されます。</p>
+
+          <h3>ビットレート</h3>
+          <p>動画のデータ量を考えるときには、<strong>ビットレート</strong>も重要です。</p>
+          <p>ビットレートとは、<strong>1秒間当たりに使用するデータ量</strong>を表す値です。</p>
+          <p>単位には、</p>
+          <ul>
+            <li>bps</li>
+            <li>kbps</li>
+            <li>Mbps</li>
+          </ul>
+          <p>などが使われます。</p>
+          <p>bpsは<strong>bit per second</strong>の略で、「1秒間に何ビットか」を意味します。</p>
+          <p>ビットであり、バイトでないことに注意します。データ量の計算ではバイトにするために8で割ります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>5Mbps</strong></p>
+          <p>なら、1秒間に約5Mビットのデータを使用することを表します。</p>
+          <p>平均ビットレートが一定なら、</p>
+          <p class="term-formula"><strong>ビットレート × 時間（秒）</strong></p>
+          <p>で求められます。</p>
+          <p>例えば、5 Mbpsの動画を5分間保存する場合、</p>
+          <p class="term-formula">5分 ＝ 300秒</p>
+          <p>なので、</p>
+          <p class="term-formula">5 × 300 ＝ 1500Mビット</p>
+          <p>です。</p>
+          <p>8ビット＝1バイトなので、</p>
+          <p class="term-formula">1500 ÷ 8 ＝ 187.5MB</p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>（ビットレート × 秒数）÷ 8</strong></p>
+          <p>と考えることができます。</p>
+
+          <h3>動画の圧縮</h3>
+          <p>無圧縮の動画は非常に大きなデータ量になるため、通常は<strong>圧縮</strong>して保存・配信します。</p>
+          <p>動画の圧縮では、大きく分けて、</p>
+          <ul>
+            <li>1枚のフレーム内部の情報を減らす</li>
+            <li>複数のフレーム間の共通部分を利用する</li>
+          </ul>
+          <p>という考え方が使われます。</p>
+
+          <h4>フレーム内の圧縮</h4>
+          <p>1枚1枚のフレームを静止画と同じような方法で圧縮します。</p>
+          <p>各フレームのデータ量を小さくできるため、動画全体のデータ量も減らすことができます。</p>
+
+          <h4>フレーム間の圧縮</h4>
+          <p>動画では、連続するフレームの多くの部分が似ていることが多くあります。</p>
+          <p>例えば固定されたカメラで列車を撮影した場合、背景はほとんど変化せず、主に列車の部分だけが変化します。</p>
+          <p>そこで、</p>
+          <p>「前のフレームと同じ部分」</p>
+          <p>を毎回すべて記録するのではなく、</p>
+          <p class="term-formula"><strong>変化した部分を中心に記録する</strong></p>
+          <p>ことで、データ量を減らすことができます。</p>
+
+          <h3>カメラを固定すると圧縮しやすい</h3>
+          <p>フレーム間の違いを利用する圧縮方式では、連続するフレームが似ているほど圧縮しやすくなります。</p>
+          <p>例えば列車を撮影するとき、</p>
+          <p><strong>三脚でカメラを固定する</strong></p>
+          <p>と、背景はほとんど同じままです。</p>
+          <p>そのため、主に列車の位置など、変化した部分を記録すればよくなります。</p>
+          <p>一方、</p>
+          <ul>
+            <li>カメラを左右に動かす</li>
+            <li>拡大・縮小する</li>
+            <li>上下左右に不規則に動かす</li>
+          </ul>
+          <p>と、背景を含む画面全体がフレームごとに変化します。</p>
+          <p>そのため、一般にフレーム間の共通部分を利用しにくくなり、同程度の画質を保つためには多くのデータが必要になりやすくなります。</p>
+
+          <h3>非可逆圧縮と画質</h3>
+          <p>動画では、データ量を大きく減らすために<strong>非可逆圧縮</strong>が広く使われます。</p>
+          <p>非可逆圧縮では、人間が知覚しにくい情報などを削減することで、データ量を小さくします。</p>
+          <p>ただし、一度捨てた情報を完全に元へ戻すことはできません。</p>
+          <p>特に、同じ解像度・同じfpsのままビットレートを大きく下げると、1秒間に使用できるデータ量が少なくなります。</p>
+          <p>その結果、</p>
+          <ul>
+            <li>細かな模様が失われる</li>
+            <li>輪郭が不自然になる</li>
+            <li>動きの激しい部分が崩れる</li>
+            <li>四角いブロック状の乱れが見える</li>
+          </ul>
+          <p>などの<strong>圧縮による画質劣化</strong>が発生することがあります。</p>
+          <p>このような圧縮によって生じる不自然な乱れを、<strong>圧縮アーティファクト</strong>などといいます。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>ビットレートを小さくすると必ず解像度やfpsが変わる</strong></p>
+          <p>わけではありません。</p>
+          <p>同じ解像度・同じfpsのまま、1フレームを表現するために使える情報量を減らすこともできます。その場合、画質が低下しやすくなります。</p>
+
+          <h3>動画の用途と圧縮方式</h3>
+          <p>動画の保存方式は、用途によって適切なものが異なります。</p>
+
+          <h4>ネット配信用</h4>
+          <p>インターネットで配信する場合は、</p>
+          <ul>
+            <li>データ量</li>
+            <li>通信速度</li>
+            <li>画質</li>
+            <li>再生開始までの時間</li>
+            <li>多くの端末で再生できるか</li>
+          </ul>
+          <p>などのバランスが重要です。</p>
+          <p>高画質でもデータ量が大きすぎれば、通信速度が追いつかず、再生が止まりやすくなります。</p>
+
+          <h4>編集・保存用</h4>
+          <p>動画を何度も編集する場合には、</p>
+          <ul>
+            <li>再圧縮による画質劣化</li>
+            <li>編集のしやすさ</li>
+            <li>保存容量</li>
+          </ul>
+          <p>などを考える必要があります。</p>
+          <p>非可逆圧縮を何度も繰り返すと、情報が少しずつ失われて画質が劣化することがあります。</p>
+          <p>そのため、配信用と編集保存用では異なる形式や設定を使うことがあります。</p>
+
+          <h3>コンテナ形式と圧縮方式の違い</h3>
+          <p>動画ファイルでは、<strong>ファイル形式と圧縮方式を同じものと考えないこと</strong>が重要です。</p>
+          <p>動画ファイルには、</p>
+          <ul>
+            <li>映像</li>
+            <li>音声</li>
+            <li>字幕</li>
+            <li>その他の情報</li>
+          </ul>
+          <p>などをまとめて格納する仕組みがあります。この「入れ物」にあたる形式を<strong>コンテナ形式</strong>といいます。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>AVI</strong></p>
+          <p>は動画用コンテナ形式の一つであり、拡張子として</p>
+          <p class="term-formula"><code>.avi</code></p>
+          <p>が使われます。</p>
+          <p>しかし、拡張子が同じだからといって、</p>
+          <ul>
+            <li>内部の映像圧縮方式</li>
+            <li>音声圧縮方式</li>
+            <li>ビットレート</li>
+            <li>解像度</li>
+            <li>画質</li>
+          </ul>
+          <p>まで同じとは限りません。</p>
+          <p>コンテナ形式は「入れ物」、映像や音声をどのように圧縮・符号化するかは別の仕組みであると考えるとよいでしょう。</p>
+
+          <h3>ストリーミング</h3>
+          <p>動画配信では、<strong>ストリーミング</strong>という方式がよく使われます。</p>
+          <p>ストリーミングとは、</p>
+          <p class="term-formula"><strong>動画データをすべて受信し終える前に、受信済みの部分から順に再生を始める方式</strong></p>
+          <p>です。</p>
+          <p>例えば2時間の動画を見る場合、動画全体を最初にダウンロードしてから再生する方式では、再生を始めるまで長時間待たなければならないことがあります。</p>
+          <p>ストリーミングでは、</p>
+          <ol>
+            <li>動画の最初の部分を受信する</li>
+            <li>その部分の再生を始める</li>
+            <li>再生している間にも続きのデータを受信する</li>
+          </ol>
+          <p>という処理を行います。</p>
+          <p>そのため、大容量の動画でも比較的早く視聴を始めることができます。</p>
+          <p>さらに、ストリーミングは事前に撮影された動画だけでなく、<strong>ライブ配信</strong>にも利用できます。</p>
+
+          <h3>バッファリング</h3>
+          <p>ストリーミングでは、受信したデータをすぐすべて再生するのではなく、一部を一時的に蓄えておくことがあります。</p>
+          <p>この一時的な記憶領域を<strong>バッファ</strong>といいます。</p>
+          <p>例えば、動画再生に毎秒5 Mbps必要であるとします。</p>
+          <p>通信速度が常に5 Mbpsを上回っていれば問題ありませんが、一時的に通信速度が3 Mbpsに低下すると、その瞬間に届いたデータだけでは再生に必要な量が不足します。</p>
+          <p>そこで事前に一定量の動画データをバッファへ蓄えておけば、一時的に通信速度が低下しても、蓄えておいたデータを利用して再生を続けることができます。</p>
+          <p>このように、バッファには<strong>一時的な通信速度の変動を吸収する役割</strong>があります。</p>
+          <p>ただし、低速状態が長時間続けば、バッファに蓄えていたデータを使い切ってしまいます。その場合は再生が停止します。</p>
+          <p>動画配信サービスでは、通信状況に応じて画質やビットレートを自動的に下げる仕組みと組み合わせることもあります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>動画 · EXAMPLE</span><span>ITパスポートH27春期 問76（改題）</span></div>
+          <h3>動画配信で用いられるストリーミングの説明として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>動画データをすべて保存し終えてから再生を始める方式</p></li>
+            <li><span>1</span><p>動画データの一部を受信した段階で再生を始める方式</p></li>
+            <li><span>2</span><p>動画の画質の低下を必ず完全に防ぐ方式</p></li>
+            <li><span>3</span><p>配信前に撮影をすべて終えておく必要がある方式</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．動画データの一部を受信した段階で再生を始める方式</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ストリーミングは、動画データをすべて受信する前に、一部を受信した段階で再生を始める方式です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH27春期 問76（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ストリーミング／動画</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">動画の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="動画"
+          data-limit="5"
+          data-exclude-stem="動画配信で用いられるストリーミングの説明として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=動画">動画の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"動画とは","description":"動画の意味と、フレーム、フレームレート、解像度、ビットレート、圧縮、コンテナ形式、ストリーミング、バッファリングを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/video/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"動画","item":"https://mei-chan-nel.com/terms/video/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
