@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>10進数とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="10進数の仕組みと基数、2進数・16進数との変換、補数を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="10進数" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="10進数とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="10進数の仕組みと基数、2進数・16進数との変換、補数を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/decimal/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/decimal/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">10進数</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">10進数</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「10進数」とは</h2>
+          <p><strong>10進数</strong>とは、0、1、2、3、4、5、6、7、8、9の10種類の数字を使って数を表す方法です。私たちが日常生活で普通に使っている数の表し方が10進数です。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>253</strong><br />＝2×100＋5×10＋3×1<br />＝2×10²＋5×10¹＋3×10⁰</p>
+          <p>という数は、単に「2、5、3」という数字を並べたものではありません。それぞれの桁には、</p>
+          <ul>
+            <li>2は100の位</li>
+            <li>5は10の位</li>
+            <li>3は1の位</li>
+          </ul>
+          <p>という意味があります。</p>
+          <p>このように、<strong>数字が置かれた位置によってその数字の重みが決まる表現方法</strong>を<strong>位取り記数法</strong>といいます。</p>
+
+          <h3>基数</h3>
+          <p>何種類の数字を使って数を表すかを示す数を<strong>基数</strong>といいます。</p>
+          <p>10進数の基数は10であり、各桁の重みは右から順に、</p>
+          <p class="term-formula">10⁰、10¹、10²、10³、…</p>
+          <p>すなわち、</p>
+          <p class="term-formula">1、10、100、1000、…</p>
+          <p>となります。</p>
+          <p>コンピュータでは10進数以外に、<strong>2進数</strong>や<strong>16進数</strong>がよく使われます。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>表記法と基数</caption>
+              <thead>
+                <tr><th scope="col">表記法</th><th scope="col">基数</th><th scope="col">使用する数字</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">2進数</th><td>2</td><td>0、1</td></tr>
+                <tr><th scope="row">10進数</th><td>10</td><td>0～9</td></tr>
+                <tr><th scope="row">16進数</th><td>16</td><td>0～9、A、B、C、D、E、F</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>16進数では、10以上を1文字で表すため、</p>
+          <p class="term-formula">A＝10、B＝11、C＝12、D＝13、E＝14、F＝15</p>
+          <p>とします。</p>
+          <p>基数をはっきりさせたい場合は、</p>
+          <p class="term-formula">1010₂、　1010₁₀、　1010₁₆</p>
+          <p>のように右下に基数を書きます。</p>
+          <p>同じ「1010」という数字列でも、基数が違えば表している値は異なります。</p>
+        </section>
+
+        <section>
+          <h2>2進数を10進数に変換する</h2>
+          <p>2進数では、各桁の重みは右から順に、</p>
+          <p class="term-formula">2⁰、2¹、2²、2³、…</p>
+          <p>すなわち、</p>
+          <p class="term-formula">1、2、4、8、16、32、64、128、…</p>
+          <p>となります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>1010₂</strong></p>
+          <p>では、</p>
+          <p class="term-formula">1×2³＋0×2²＋1×2¹＋0×2⁰</p>
+          <p>なので、</p>
+          <p class="term-formula">8＋2＝10</p>
+          <p>となります。したがって、</p>
+          <p class="term-formula"><strong>1010₂＝10₁₀</strong></p>
+          <p>です。</p>
+          <p>2進数では、<strong>1になっている桁の重みだけを足す</strong>と考えると計算しやすくなります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>110101₂</strong></p>
+          <p>では、1になっているのは、</p>
+          <p class="term-formula">2⁵、2⁴、2²、2⁰</p>
+          <p>の桁なので、</p>
+          <p class="term-formula">32＋16＋4＋1＝53</p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>110101₂＝53₁₀</strong></p>
+          <p>です。</p>
+        </section>
+
+        <section>
+          <h2>10進数を2進数に変換する</h2>
+          <p>10進数の整数を2進数へ変換する基本的な方法は、<strong>2で繰り返し割り、そのときの余りを並べる方法</strong>です。</p>
+          <p>2進数で使う数字は0と1だけなので、整数を2で割ったときの余りも必ず0または1になります。この余りが2進数の各桁に対応します。</p>
+          <p>例えば、10進数の29を2進数に変換します。</p>
+          <p>29を2で割り、商と余りを求めます。</p>
+          <p class="term-formula">29÷2＝14　余り1</p>
+          <p>次に、得られた商14をさらに2で割ります。</p>
+          <p class="term-formula">14÷2＝7　余り0</p>
+          <p>同じ操作を、商が0になるまで繰り返します。</p>
+          <p class="term-formula">7÷2＝3　余り1<br />3÷2＝1　余り1<br />1÷2＝0　余り1</p>
+          <p>これをまとめると、次のようになります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>29を2で割ったときの商と余り</caption>
+              <thead>
+                <tr><th scope="col">計算</th><th scope="col">商</th><th scope="col">余り</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">29÷2</th><td>14</td><td>1</td></tr>
+                <tr><th scope="row">14÷2</th><td>7</td><td>0</td></tr>
+                <tr><th scope="row">7÷2</th><td>3</td><td>1</td></tr>
+                <tr><th scope="row">3÷2</th><td>1</td><td>1</td></tr>
+                <tr><th scope="row">1÷2</th><td>0</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>ここで重要なのは、<strong>余りを求めた順ではなく、最後の余りから逆向きに読む</strong>ことです。</p>
+          <p>下から上へ読むと、</p>
+          <p class="term-formula"><strong>11101</strong></p>
+          <p>となるので、</p>
+          <p class="term-formula"><strong>29₁₀＝11101₂</strong></p>
+          <p>です。</p>
+          <p>なぜ余りを逆順に読むのかというと、最初に求めた余りは2進数の最も右の桁、つまり2⁰の位を表すからです。その次の余りが2¹の位、その次が2²の位というように、割り算を進めるにつれて上位の桁が求められていきます。</p>
+          <p>したがって、<strong>「2で割る→余りを記録する→商をさらに2で割る」を繰り返し、余りを下から上へ読む</strong>のが10進数から2進数への基本的な変換方法です。</p>
+          <p>別の考え方として、10進数を<strong>2の累乗の和</strong>に分解する方法もあります。</p>
+          <p>29なら、</p>
+          <p class="term-formula">29＝16＋8＋4＋1<br />＝2⁴＋2³＋2²＋2⁰</p>
+          <p>となります。</p>
+          <p>そこで、2⁴、2³、2²、2¹、2⁰の各桁について、使うところを1、使わないところを0とすると、</p>
+          <p class="term-formula"><strong>11101₂</strong></p>
+          <p>となります。</p>
+          <p>同様に26なら、</p>
+          <p class="term-formula">26＝16＋8＋2<br />＝2⁴＋2³＋2¹</p>
+          <p>なので、</p>
+          <p class="term-formula"><strong>26₁₀＝11010₂</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>16進数を10進数に変換する</h2>
+          <p>16進数では、各桁の重みは右から順に、</p>
+          <p class="term-formula">16⁰、16¹、16²、…</p>
+          <p>すなわち、</p>
+          <p class="term-formula">1、16、256、…</p>
+          <p>となります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>82₁₆</strong></p>
+          <p>は、</p>
+          <p class="term-formula">8×16¹＋2×16⁰</p>
+          <p>なので、</p>
+          <p class="term-formula">8×16＋2＝130</p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>82₁₆＝130₁₀</strong></p>
+          <p>です。</p>
+          <p>16進数ではA～Fも数字として扱うことに注意します。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>3C₁₆</strong></p>
+          <p>ではCは10進数の12を表すため、</p>
+          <p class="term-formula">3×16＋12＝60</p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>3C₁₆＝60₁₀</strong></p>
+          <p>です。</p>
+        </section>
+
+        <section>
+          <h2>10進数を16進数に変換する</h2>
+          <p>10進数の整数を16進数へ変換するときも、2進数の場合と同じ考え方を使います。</p>
+          <p><strong>16で繰り返し割り、そのときの余りを最後から逆向きに読む</strong>方法です。</p>
+          <p>例えば、10進数の475を16進数に変換します。</p>
+          <p>まず、475を16で割ります。</p>
+          <p class="term-formula">475÷16＝29　余り11</p>
+          <p>次に、商29を16で割ります。</p>
+          <p class="term-formula">29÷16＝1　余り13</p>
+          <p>さらに、商1を16で割ります。</p>
+          <p class="term-formula">1÷16＝0　余り1</p>
+          <p>まとめると、次のようになります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>475を16で割ったときの商と余り</caption>
+              <thead>
+                <tr><th scope="col">計算</th><th scope="col">商</th><th scope="col">余り</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">475÷16</th><td>29</td><td>11</td></tr>
+                <tr><th scope="row">29÷16</th><td>1</td><td>13</td></tr>
+                <tr><th scope="row">1÷16</th><td>0</td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>16進数では、一つの桁に0から15までの値を入れる必要があります。しかし、10～15については1文字の数字がないため、次のようにA～Fを使用します。</p>
+          <p class="term-formula">10＝A、11＝B、12＝C、13＝D、14＝E、15＝F</p>
+          <p>したがって、余り11はB、余り13はDに置き換えます。</p>
+          <p>求めた余りを下から上へ読むと、</p>
+          <p class="term-formula"><strong>1DB</strong></p>
+          <p>となるので、</p>
+          <p class="term-formula"><strong>475₁₀＝1DB₁₆</strong></p>
+          <p>です。</p>
+          <p>つまり、10進数から16進数への変換では、</p>
+          <ol>
+            <li><p>元の数を16で割る</p></li>
+            <li><p>商と余りを求める</p></li>
+            <li><p>商をさらに16で割る</p></li>
+            <li><p>商が0になるまで繰り返す</p></li>
+            <li><p>余りが10～15ならA～Fに置き換える</p></li>
+            <li><p>余りを最後から逆向きに読む</p></li>
+          </ol>
+          <p>という手順を使います。</p>
+          <p>例えば、10進数の130を16進数に変換すると、</p>
+          <p class="term-formula">130÷16＝8　余り2<br />8÷16＝0　余り8</p>
+          <p>となるので、余りを下から読むと、</p>
+          <p class="term-formula"><strong>82₁₆</strong></p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>130₁₀＝82₁₆</strong></p>
+          <p>です。</p>
+        </section>
+
+        <section>
+          <h2>同じ数字列でも基数によって値が変わる</h2>
+          <p>例えば「11」という数字列を考えます。</p>
+          <p>2進数の11なら、</p>
+          <p class="term-formula">11₂＝1×2＋1＝3</p>
+          <p>10進数の11なら、</p>
+          <p class="term-formula">11₁₀＝1×10＋1＝11</p>
+          <p>16進数の11なら、</p>
+          <p class="term-formula">11₁₆＝1×16＋1＝17</p>
+          <p>となります。</p>
+          <p>つまり、</p>
+          <p class="term-formula">11₂＝3₁₀、　11₁₀＝11₁₀、　11₁₆＝17₁₀</p>
+          <p>です。</p>
+          <p>数字列だけを見るのではなく、<strong>何進数として書かれているか</strong>を確認することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>小数にも位の重みがある</h2>
+          <p>位取り記数法は整数部分だけでなく、小数部分にも使われます。</p>
+          <p>10進数では、小数点の右側は、</p>
+          <p class="term-formula">10⁻¹、10⁻²、10⁻³、…</p>
+          <p>すなわち、</p>
+          <p class="term-formula">1/10、1/100、1/1000、…</p>
+          <p>という重みをもちます。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>0.253₁₀</strong></p>
+          <p>は、</p>
+          <p class="term-formula">2×1/10＋5×1/100＋3×1/1000</p>
+          <p>を意味します。</p>
+          <p>同じ考え方を2進数や16進数にも使えます。</p>
+        </section>
+
+        <section>
+          <h2>2進小数を10進数に変換する</h2>
+          <p>2進小数では、小数点の右側の重みは、</p>
+          <p class="term-formula">2⁻¹、2⁻²、2⁻³、2⁻⁴、…</p>
+          <p>すなわち、</p>
+          <p class="term-formula">1/2、1/4、1/8、1/16、…</p>
+          <p>となります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>0.1011₂</strong></p>
+          <p>なら、</p>
+          <p class="term-formula">1×1/2＋0×1/4＋1×1/8＋1×1/16</p>
+          <p>なので、</p>
+          <p class="term-formula">1/2＋1/8＋1/16<br />＝(8＋2＋1)/16<br />＝11/16<br />＝<strong>0.6875</strong></p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>0.1011₂＝0.6875₁₀</strong></p>
+          <p>です。</p>
+          <p>また、</p>
+          <p class="term-formula"><strong>7/32</strong></p>
+          <p>を2進数で表す場合は、</p>
+          <p class="term-formula">7/32<br />＝4/32＋2/32＋1/32<br />＝1/8＋1/16＋1/32</p>
+          <p>なので、</p>
+          <p class="term-formula"><strong>7/32＝0.00111₂</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>16進小数を10進数に変換する</h2>
+          <p>16進小数では、小数点の右側の重みは、</p>
+          <p class="term-formula">16⁻¹、16⁻²、16⁻³、…</p>
+          <p>すなわち、</p>
+          <p class="term-formula">1/16、1/256、1/4096、…</p>
+          <p>となります。</p>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>0.248₁₆</strong></p>
+          <p>は、</p>
+          <p class="term-formula">2×1/16＋4×1/256＋8×1/4096</p>
+          <p>を意味します。</p>
+          <p>計算すると、</p>
+          <p class="term-formula">2/16＋4/256＋8/4096<br />＝64/512＋8/512＋1/512<br />＝73/512</p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>0.248₁₆＝73/512</strong></p>
+          <p>です。</p>
+          <p>逆に、</p>
+          <p class="term-formula"><strong>1/32</strong></p>
+          <p>を16進数で表すと、</p>
+          <p class="term-formula">1/32＝8/256</p>
+          <p>です。</p>
+          <p>16進小数の第2位の重みは1/256なので、</p>
+          <p class="term-formula"><strong>1/32＝0.08₁₆</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>10の補数</h2>
+          <p><strong>補数</strong>とは、ある決められた桁数の中で、ある数に加えると桁上がりしてちょうど基数の累乗になる数です。</p>
+          <p>例えば、1桁の7に対する10の補数は、</p>
+          <p class="term-formula">10−7＝3</p>
+          <p>です。</p>
+          <p>実際、</p>
+          <p class="term-formula">7＋3＝10</p>
+          <p>となります。</p>
+          <p>3桁の265に対する10の補数は、</p>
+          <p class="term-formula">1000−265＝735</p>
+          <p>です。</p>
+          <p>実際、</p>
+          <p class="term-formula">265＋735＝1000</p>
+          <p>となります。</p>
+          <p>補数を利用すると、引き算を足し算として処理することができます。</p>
+        </section>
+
+        <section>
+          <h2>2の補数</h2>
+          <p>コンピュータで負の整数を表す代表的な方法が<strong>2の補数表現</strong>です。</p>
+          <p>nビットの2の補数では、</p>
+          <p class="term-formula"><strong>−2ⁿ⁻¹～2ⁿ⁻¹−1</strong></p>
+          <p>の整数を表せます。</p>
+          <p>例えば4ビットなら、</p>
+          <p class="term-formula"><strong>−8～7</strong></p>
+          <p>を表すことができます。</p>
+          <p>正の数は通常の2進数と同じです。</p>
+          <p>一方、負の数を作るときは、</p>
+          <ol>
+            <li><p>絶対値をnビットの2進数で表す</p></li>
+            <li><p>0と1をすべて反転する</p></li>
+            <li><p>1を加える</p></li>
+          </ol>
+          <p>という手順を使います。</p>
+          <p>例えば10進数の−6を4ビットで表します。</p>
+          <p>まず6は、</p>
+          <p class="term-formula">0110</p>
+          <p>です。</p>
+          <p>0と1を反転すると、</p>
+          <p class="term-formula">1001</p>
+          <p>さらに1を加えると、</p>
+          <p class="term-formula"><strong>1010</strong></p>
+          <p>となります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>1010</strong></p>
+          <p>は4ビットの2の補数表現では−6を表します。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>10進数 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>10進法で、1桁の7に対する10の補数を（ア）、3桁の265に対する10の補数を（イ）とする。正しい組合せを、次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>（ア）3、（イ）735</p></li>
+            <li><span>1</span><p>（ア）2、（イ）734</p></li>
+            <li><span>2</span><p>（ア）3、（イ）734</p></li>
+            <li><span>3</span><p>（ア）7、（イ）265</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．（ア）3、（イ）735</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>n桁の10進数Nに対する10の補数は、10ⁿ−Nで求めます。1桁の7では、10−7＝3です。3桁の265では、1000−265＝735です。実際に7＋3＝10、265＋735＝1000となり、それぞれ桁数を超える桁上がりだけが残ります。したがって、（ア）は3、（イ）は735です。補数を利用すると、引き算を足し算として処理できます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：補数／10進数</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">10進数の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="10進数"
+          data-limit="5"
+          data-exclude-stem="10進法で、1桁の7に対する10の補数を（ア）、3桁の265に対する10の補数を（イ）とする。正しい組合せを、次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=10進数">10進数の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"10進数とは","description":"10進数の仕組みと基数、2進数・16進数との変換、補数を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/decimal/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"10進数","item":"https://mei-chan-nel.com/terms/decimal/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
