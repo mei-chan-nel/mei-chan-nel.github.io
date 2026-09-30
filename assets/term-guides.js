@@ -60,6 +60,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "デジタル署名": {
     "url": "/terms/digital-signature/"
   },
+  "データサイエンス": {
+    "url": "/terms/data-science/"
+  },
   "データ量": {
     "url": "/terms/data-volume/"
   },

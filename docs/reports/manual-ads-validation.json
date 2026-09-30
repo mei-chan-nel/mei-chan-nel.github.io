@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-09-30",
+  "validated_on": "2026-10-01",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 87,
+  "target_pages": 88,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -459,6 +459,15 @@
     },
     {
       "path": "terms/credibility/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/data-science/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,

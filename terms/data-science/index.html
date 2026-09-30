@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>データサイエンスとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="データサイエンスの基本的な流れ、前処理、代表値、可視化、ビッグデータ、データマイニングなどを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="データサイエンス" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="データサイエンスとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="データサイエンスの基本的な流れ、前処理、代表値、可視化、ビッグデータ、データマイニングなどを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/data-science/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/data-science/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">データサイエンス</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">データサイエンス</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「データサイエンス」とは</h2>
+          <p><strong>データサイエンス（data science）</strong>とは、さまざまなデータを収集・整理・分析し、そこから傾向や規則性などの<strong>有用な情報や知見を得て、問題の解決や意思決定に役立てること</strong>です。</p>
+          <p>データサイエンスでは、まず「何を知りたいのか」という目的を明確にし、その目的に必要なデータを集め、分析できる状態に整え、統計的な方法や機械学習などを用いて分析します。そして、分析結果を解釈し、必要に応じて予測や具体的な施策につなげます。</p>
+          <p>たとえば、店舗の売上を増やしたい場合には、POSデータから「どの商品が、どの店舗で、何時ごろ、どれくらい売れているか」を調べることができます。その結果から販売傾向を発見し、商品の品ぞろえや営業時間、在庫量などの改善に役立てることができます。</p>
+
+          <h3>データ分析の基本的な流れ</h3>
+          <p>データ分析は、おおむね次のような流れで行います。</p>
+          <p class="term-formula"><strong>目的を決める → データを収集する → データを整える → 分析・可視化する → 結果を解釈する → 活用する</strong></p>
+          <p>たとえば、ある地域の気温の変化を調べる場合を考えます。</p>
+          <ol>
+            <li><p>「なにのために、どの地域の、どの期間の気温を調べるか」という<strong>目的や対象を決める</strong>。</p></li>
+            <li><p>気象庁などから必要な<strong>データを収集する</strong>。</p></li>
+            <li><p>欠損値や表記の違いなどを確認し、<strong>分析しやすい形へ整える</strong>。</p></li>
+            <li><p>平均値を計算したりグラフを作ったりして、<strong>分析・可視化する</strong>。</p></li>
+            <li><p>気温が上昇しているかなど、分析結果から<strong>意味を読み取る</strong>。</p></li>
+            <li><p>必要であれば、将来予測や対策などの<strong>意思決定に活用する</strong>。</p></li>
+          </ol>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>収集 → 前処理 → 分析</strong></p>
+          <p>という順序は、データ分析の基本として重要です。</p>
+        </section>
+
+        <section>
+          <h2>分析に必要なデータを考える</h2>
+          <p>データ分析では、「どんなデータでも大量に集めればよい」というわけではありません。<strong>調べたいことに必要な項目が記録されているか</strong>を考える必要があります。</p>
+          <p>たとえば、小売店などでは、<strong>POS（Point of Sales：販売時点情報管理）システム</strong>によって、商品が販売されたときの情報を記録することがあります。</p>
+          <p>POSデータには、たとえば、</p>
+          <ul>
+            <li>商品コード</li>
+            <li>販売数量</li>
+            <li>販売日時</li>
+            <li>店舗コード</li>
+            <li>販売金額</li>
+          </ul>
+          <p>などが記録されます。</p>
+          <p>これらから、</p>
+          <p class="term-formula"><strong>店舗別・時間帯別・商品別の販売数量や売上額</strong></p>
+          <p>などを分析できます。</p>
+          <p>また、ポイントカードなどと組み合わせることにより、</p>
+          <ul>
+            <li>年齢層ごとの購入商品の違い</li>
+            <li>性別による来店時間帯の違い</li>
+            <li>同じ顧客が繰り返し購入する商品の傾向</li>
+          </ul>
+          <p>などを分析できます。</p>
+          <p>しかし、<strong>「なぜその商品を購入したのか」</strong>という理由をデータだけから直接知ることはできません。</p>
+          <blockquote><strong>データから分かることは、原則として記録されているデータの内容に制約される。</strong></blockquote>
+          <p>という考え方が重要です。</p>
+        </section>
+
+        <section>
+          <h2>前処理</h2>
+          <p>収集したデータをそのまま分析できるとは限りません。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>欠損値がある</li>
+            <li>同じデータが重複している</li>
+            <li>「東京都」と「東京」のような表記ゆれがある</li>
+            <li>日付の形式が異なる</li>
+            <li>数値として扱うべきものが文字列になっている</li>
+            <li>異常に大きな値が含まれている</li>
+          </ul>
+          <p>といった問題があることがあります。</p>
+          <p>そこで、分析を行う前にデータを整えます。この作業を広く<strong>前処理</strong>といいます。</p>
+          <p>前処理には、</p>
+          <ul>
+            <li>欠損値への対応</li>
+            <li>重複データの削除</li>
+            <li>表記の統一</li>
+            <li>データ形式の変換</li>
+            <li>必要な項目の抽出</li>
+            <li>項目の粒度の統一</li>
+          </ul>
+          <p>などが含まれます。</p>
+        </section>
+
+        <section>
+          <h2>データクレンジング</h2>
+          <p>前処理のうち、特にデータに含まれる</p>
+          <ul>
+            <li>誤り</li>
+            <li>重複</li>
+            <li>表記ゆれ</li>
+            <li>不整合</li>
+          </ul>
+          <p>などを修正して、データの品質を高める処理を<strong>データクレンジング（data cleansing）</strong>といいます。</p>
+          <p>たとえば、</p>
+          <p class="term-formula">「大阪」「大阪府」「Osaka」</p>
+          <p>という表記をすべて「大阪府」に統一するといった処理が該当します。</p>
+        </section>
+
+        <section>
+          <h2>異なるデータを組み合わせる</h2>
+          <p>異なる時期や異なるシステムから得たデータを組み合わせる場合は、<strong>データの意味や粒度をそろえること</strong>が重要です。</p>
+          <p>たとえば、10年前のデータでは年齢が</p>
+          <p class="term-formula">「23歳」</p>
+          <p>と記録され、現在のデータでは</p>
+          <p class="term-formula">「20～29歳」</p>
+          <p>と記録されているなら、10年前の年齢を10歳刻みの年齢層に変換することで比較しやすくなります。</p>
+          <p>住所も、</p>
+          <p class="term-formula">「○○市○○町」</p>
+          <p>と</p>
+          <p class="term-formula">「○○市」</p>
+          <p>を比較するなら、市単位に統一する方法が考えられます。</p>
+          <p>さらに、</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>調査年を区別したデータ</caption>
+              <thead>
+                <tr><th scope="col">調査年</th><th scope="col">年齢層</th><th scope="col">市</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>2016</td><td>20～29歳</td><td>A市</td></tr>
+                <tr><td>2026</td><td>20～29歳</td><td>A市</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>のように<strong>調査年を表す列を追加する</strong>と、どの年のデータかを区別しながら分析できます。</p>
+        </section>
+
+        <section>
+          <h2>データの代表値</h2>
+          <p>大量の数値をそのまま眺めても特徴を把握しにくくなります。そのため、データ全体の特徴を一つの数値で表す<strong>代表値</strong>が用いられます。</p>
+          <p>代表的なものに、</p>
+          <ul>
+            <li>平均値</li>
+            <li>中央値</li>
+            <li>最頻値</li>
+          </ul>
+          <p>があります。</p>
+
+          <h3>平均値</h3>
+          <p>平均値は、</p>
+          <p class="term-formula"><strong>データの合計 ÷ データの個数</strong></p>
+          <p>で求めます。</p>
+          <p>たとえば、</p>
+          <p class="term-formula">10、20、20、26、40、50、100、440、2000</p>
+          <p>の平均値は、</p>
+          <p class="term-formula">(10＋20＋20＋26＋40＋50＋100＋440＋2000)÷9<br />＝2706÷9<br />≒<strong>300.7</strong></p>
+          <p>となります。</p>
+
+          <h3>加重平均</h3>
+          <p>アンケートなどで、同じ得点を取った人数が分かっている場合には、</p>
+          <p class="term-formula"><strong>値×人数</strong></p>
+          <p>を利用して平均値を求めます。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>5点：50人</li>
+            <li>4点：250人</li>
+            <li>3点：150人</li>
+            <li>2点：50人</li>
+            <li>1点：0人</li>
+          </ul>
+          <p>なら、</p>
+          <p class="term-formula">(5×50＋4×250＋3×150＋2×50＋1×0)÷500<br />＝<strong>3.6</strong></p>
+          <p>となります。</p>
+          <p>目標が4.0点で、目標達成率を</p>
+          <p class="term-formula"><strong>実績÷目標</strong></p>
+          <p>で求めるなら、</p>
+          <p class="term-formula">3.6÷4.0＝<strong>0.90</strong></p>
+          <p>となります。</p>
+
+          <h3>中央値</h3>
+          <p>中央値は、データを小さい順に並べたときの<strong>中央の値</strong>です。</p>
+          <p>データ数が奇数なら中央の1個、偶数なら中央の2個の平均を求めます。</p>
+          <p>先ほどの</p>
+          <p class="term-formula">10、20、20、26、40、50、100、440、2000</p>
+          <p>では9個のデータがあるため、5番目の</p>
+          <p class="term-formula"><strong>40</strong></p>
+          <p>が中央値となります。</p>
+
+          <h3>外れ値と平均値</h3>
+          <p>上のデータでは2000という非常に大きな値が含まれているため、</p>
+          <ul>
+            <li>平均値：約300.7</li>
+            <li>中央値：40</li>
+          </ul>
+          <p>と大きく異なります。</p>
+          <p>このように、他の値から大きく離れた値を<strong>外れ値</strong>といいます。</p>
+          <p>平均値は外れ値の影響を強く受ける一方、中央値は比較的影響を受けにくくなります。</p>
+          <p>したがって、データの特徴を調べるときには、平均値だけを見るのではなく、中央値やデータの分布も確認することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>データのばらつき</h2>
+          <p>平均値が同じでも、データの散らばり方は異なることがあります。</p>
+          <p>たとえば、</p>
+          <p class="term-formula">A：49、50、51<br />B：10、50、90</p>
+          <p>はいずれも平均値50ですが、Bの方が値が広く散らばっています。</p>
+          <p>このような<strong>データのばらつき</strong>を表す代表的な指標が、</p>
+          <ul>
+            <li>分散</li>
+            <li>標準偏差</li>
+          </ul>
+          <p>です。</p>
+
+          <h3>分散</h3>
+          <p>分散は、各データが平均値からどれくらい離れているかをもとに求めます。</p>
+          <p>基本的な考え方は、</p>
+          <ol>
+            <li><p>各データについて「値－平均値」を求める</p></li>
+            <li><p>それを2乗する</p></li>
+            <li><p>その平均を求める</p></li>
+          </ol>
+          <p>というものです。</p>
+          <p>平均値の近くにデータが集中していれば分散は小さく、平均値から離れたデータが多ければ分散は大きくなります。</p>
+          <blockquote>平均値の近くに集まっているデータほど分散が小さい。</blockquote>
+
+          <h3>標準偏差</h3>
+          <p>分散の平方根をとったものが<strong>標準偏差</strong>です。</p>
+          <p>標準偏差もデータのばらつきを表し、</p>
+          <ul>
+            <li>標準偏差が小さい → 平均値の近くに集まっている</li>
+            <li>標準偏差が大きい → 広くばらついている</li>
+          </ul>
+          <p>と判断できます。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>A組：平均62点、標準偏差8点</li>
+            <li>B組：平均64点、標準偏差5点</li>
+          </ul>
+          <p>なら、B組の方が標準偏差が小さいため、得点が平均点の近くに集まっています。</p>
+        </section>
+
+        <section>
+          <h2>クロス集計</h2>
+          <p><strong>クロス集計</strong>とは、二つ以上のカテゴリ変数を組み合わせ、それぞれの組合せに該当する<strong>件数や割合を表にまとめる方法</strong>です。</p>
+          <p>たとえば、生徒の「学年」とアンケートの「回答」を組み合わせると、</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>学年とアンケート回答のクロス集計</caption>
+              <thead>
+                <tr><th scope="col"></th><th scope="col">賛成</th><th scope="col">反対</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">1年</th><td>40</td><td>10</td></tr>
+                <tr><th scope="row">2年</th><td>30</td><td>20</td></tr>
+                <tr><th scope="row">3年</th><td>20</td><td>30</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>のような表を作ることができます。</p>
+          <p>これを見ることで、</p>
+          <p class="term-formula">「学年によって回答の傾向が異なるか」</p>
+          <p>などを調べられます。</p>
+          <p>クロス集計は、単なる数値の大小ではなく、<strong>カテゴリ同士の関係を調べる</strong>ときによく使われます。</p>
+        </section>
+
+        <section>
+          <h2>データの可視化</h2>
+          <p>データをグラフや図で表し、特徴を分かりやすくすることを<strong>可視化（visualization）</strong>といいます。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>棒グラフ</li>
+            <li>折れ線グラフ</li>
+            <li>散布図</li>
+            <li>ヒストグラム</li>
+            <li>箱ひげ図</li>
+            <li>ヒートマップ</li>
+          </ul>
+          <p>などが使われます。</p>
+          <p>可視化すると、表だけでは分かりにくい傾向や外れ値を発見しやすくなります。</p>
+
+          <h3>棒グラフ</h3>
+          <p><strong>棒グラフ</strong>は、複数の項目について、数量や割合の<strong>大きさを比較するとき</strong>に適しています。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>商品A・B・Cの売上額</li>
+            <li>都道府県ごとの人口</li>
+            <li>教科ごとの平均点</li>
+            <li>アンケートの各回答を選んだ人数</li>
+          </ul>
+          <p>などを比較するときに用います。</p>
+          <p>横軸には「商品」「地域」「教科」のような<strong>カテゴリ</strong>を置き、縦軸には売上額や人数などの数値を置きます。</p>
+          <p>棒の長さや高さを比べることで、</p>
+          <p class="term-formula"><strong>「どの項目が大きいか、小さいか」</strong></p>
+          <p>を読み取ることができます。</p>
+          <p>たとえば、</p>
+          <p class="term-formula">A商品：100個<br />B商品：150個<br />C商品：80個</p>
+          <p>なら、棒グラフにすることで、B商品の販売数量が最も多いことが視覚的に分かります。</p>
+          <p>棒グラフでは、それぞれの棒が<strong>別々のカテゴリを表している</strong>ため、通常、棒と棒の間には間隔を空けます。</p>
+
+          <h3>折れ線グラフ</h3>
+          <p><strong>折れ線グラフ</strong>は、時間の経過などに伴う<strong>連続的な変化や推移を見るとき</strong>に適しています。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>1年間の月別平均気温</li>
+            <li>日ごとの売上額</li>
+            <li>年ごとの人口</li>
+            <li>時間ごとのアクセス数</li>
+          </ul>
+          <p>などを表します。</p>
+          <p>通常は横軸に時間、縦軸に測定した値を置き、各時点の値を線で結びます。</p>
+          <p>折れ線を見ることで、</p>
+          <ul>
+            <li>増加している</li>
+            <li>減少している</li>
+            <li>一時的に急増している</li>
+            <li>周期的な変化がある</li>
+          </ul>
+          <p>といった<strong>変化の傾向</strong>を把握しやすくなります。</p>
+          <p>棒グラフが「項目同士の大きさの比較」に適しているのに対して、折れ線グラフは<strong>時間などの順序に沿った変化を見ること</strong>に適しています。</p>
+
+          <h3>散布図</h3>
+          <p><strong>散布図</strong>は、二つの数値データの間にどのような関係があるかを調べるときに用います。</p>
+          <p>一つ一つのデータについて、</p>
+          <ul>
+            <li>横軸に一方の値</li>
+            <li>縦軸にもう一方の値</li>
+          </ul>
+          <p>をとり、一つの点として表します。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>気温と飲料の販売数</li>
+            <li>身長と体重</li>
+            <li>勉強時間とテストの得点</li>
+            <li>広告費と売上額</li>
+          </ul>
+          <p>などの関係を見ることができます。</p>
+          <p>点が全体として右上がりに分布していれば、一方が大きくなるほどもう一方も大きくなる傾向があります。</p>
+          <p>反対に右下がりなら、一方が大きくなるほどもう一方が小さくなる傾向があります。</p>
+          <p>このような二つの変数の関係を<strong>相関</strong>といいます。</p>
+          <p>ただし、散布図から関係が見つかったとしても、それだけで<strong>一方がもう一方の原因であるとは限りません</strong>。</p>
+          <p>また、折れ線グラフでは点を順番につないで「変化」を見るのに対し、散布図では通常、点を線で結ばず、<strong>点の分布のしかたから二つの変数の関係を見る</strong>ことになります。</p>
+
+          <h3>ヒストグラム</h3>
+          <p><strong>ヒストグラム</strong>は、多数の数値データが<strong>どの範囲にどれくらい分布しているか</strong>を見るためのグラフです。</p>
+          <p>たとえば、100人のテスト得点について、</p>
+          <ul>
+            <li>0点以上10点未満</li>
+            <li>10点以上20点未満</li>
+            <li>20点以上30点未満</li>
+            <li>…</li>
+          </ul>
+          <p>のように一定の範囲に区切り、それぞれに何人いるかを棒の高さで表します。</p>
+          <p>このとき、数値を区切った一つ一つの範囲を<strong>階級</strong>、その階級に入るデータの個数を<strong>度数</strong>といいます。</p>
+          <p>ヒストグラムを見ると、</p>
+          <ul>
+            <li>どのあたりの値が多いか</li>
+            <li>データがどのくらい広がっているか</li>
+            <li>左右対称に近いか</li>
+            <li>一方に偏っているか</li>
+            <li>山が一つか複数あるか</li>
+          </ul>
+          <p>など、<strong>データ全体の分布の形</strong>を把握できます。</p>
+          <p>棒グラフとヒストグラムは見た目が似ていますが、用途が異なります。</p>
+          <p><strong>棒グラフ</strong><br />→ 商品A、商品B、商品Cなど、<strong>別々のカテゴリの大きさを比較する</strong>。<br />棒の高さで値を表します。</p>
+          <p><strong>ヒストグラム</strong><br />→ 得点や身長などの<strong>連続した数値を範囲ごとに分け、その分布を見る</strong>。<br />棒の面積で値を表します。階級の幅が変わる場合（年収の集計で100万円ごとに区切り、最後に1000万円以上とまとめるなど）棒の横幅を大きくして、その分高さを低くすることがあります。</p>
+          <p>ヒストグラムでは隣り合う階級が連続していることを表すため、通常、棒同士を隙間なく並べます。</p>
+
+          <h3>箱ひげ図</h3>
+          <p><strong>箱ひげ図</strong>は、数値データの<strong>中心やばらつき、分布の違いを簡潔に比較する</strong>ためのグラフです。</p>
+          <p>主に、</p>
+          <ul>
+            <li>最小値</li>
+            <li>第1四分位数</li>
+            <li>中央値</li>
+            <li>第3四分位数</li>
+            <li>最大値</li>
+          </ul>
+          <p>などを用いてデータの分布を表します。</p>
+          <p>データを小さい順に並べたとき、</p>
+          <ul>
+            <li>全体の25％付近の値が<strong>第1四分位数</strong></li>
+            <li>中央の値が<strong>中央値</strong></li>
+            <li>全体の75％付近の値が<strong>第3四分位数</strong></li>
+          </ul>
+          <p>です。</p>
+          <p>箱ひげ図では、第1四分位数から第3四分位数までを箱で表し、その中に中央値を示す線を引きます。</p>
+          <p>たとえば、A組とB組のテスト結果を箱ひげ図で並べれば、</p>
+          <ul>
+            <li>どちらの中央値が高いか</li>
+            <li>どちらの得点が広くばらついているか</li>
+            <li>得点の分布がどちら側に偏っているか</li>
+          </ul>
+          <p>などを比較しやすくなります。</p>
+          <p>ヒストグラムが<strong>分布の形を詳しく見る</strong>のに向いているのに対し、箱ひげ図は、複数の集団について<strong>中心やばらつきをコンパクトに比較する</strong>ときに便利です。</p>
+
+          <h3>ヒートマップ</h3>
+          <p><strong>ヒートマップ</strong>は、数値の大小を<strong>色の違いや濃淡</strong>で表す方法です。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>曜日と時間帯ごとの店舗の来客数</li>
+            <li>地域ごとの人口移動量</li>
+            <li>Webサイト上でよくクリックされる位置</li>
+            <li>二つの項目を組み合わせた値の大小</li>
+          </ul>
+          <p>などを表すときに用いられます。</p>
+          <p>たとえば、横方向に「時刻」、縦方向に「曜日」を置き、来客数が多いところを濃い色、少ないところを薄い色にすると、</p>
+          <p><strong>「金曜日の18時ごろに来客が集中している」</strong></p>
+          <p>といったパターンを視覚的に発見しやすくなります。</p>
+          <p>ヒートマップは、一つ一つの値を正確に比較するというより、<strong>多数の値の中から全体的なパターンや集中している場所を見つける</strong>のに適しています。</p>
+          <p>ただし、一部の値だけが非常に大きい場合、その値に色の範囲が引っ張られ、小さい値同士の違いが見えにくくなることがあります。</p>
+          <p>たとえば、</p>
+          <p>0、1、2、3、10、100、10000</p>
+          <p>のようなデータでは、10000が非常に大きいため、0～100程度の違いがほとんど同じ色に見えることがあります。</p>
+          <p>そのような場合には、値を</p>
+          <p>log(1＋x)</p>
+          <p>のように変換してから色に対応させる方法があります。</p>
+          <p>この変換では、</p>
+          <p>log(1＋0)＝0</p>
+          <p>なので0を扱うことができ、非常に大きな値の差を圧縮できます。その結果、小さい値の違いもヒートマップ上で見やすくなります。</p>
+
+          <h3>グラフの使い分け</h3>
+          <p>どのグラフを使うかは、<strong>何を知りたいか</strong>によって決まります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>グラフの使い分け</caption>
+              <thead>
+                <tr><th scope="col">グラフ</th><th scope="col">主に見るもの</th><th scope="col">例</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">棒グラフ</th><td>カテゴリごとの大きさの比較</td><td>商品別の売上額</td></tr>
+                <tr><th scope="row">折れ線グラフ</th><td>時間などに沿った変化</td><td>月別の平均気温</td></tr>
+                <tr><th scope="row">散布図</th><td>二つの数値の関係</td><td>気温と飲料販売数</td></tr>
+                <tr><th scope="row">ヒストグラム</th><td>一つの数値データの分布</td><td>テスト得点の分布</td></tr>
+                <tr><th scope="row">箱ひげ図</th><td>分布の中心・ばらつきの比較</td><td>クラス別のテスト結果</td></tr>
+                <tr><th scope="row">ヒートマップ</th><td>多数の値の大小やパターン</td><td>曜日・時間帯別の来客数</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>特に、</p>
+          <p class="term-formula"><strong>「項目同士を比較する」なら棒グラフ<br />「時間による変化を見る」なら折れ線グラフ<br />「二つの数値の関係を見る」なら散布図<br />「一つの数値の分布を見る」ならヒストグラム<br />「複数の分布を比較する」なら箱ひげ図<br />「多数の値のパターンを色で見る」ならヒートマップ</strong></p>
+          <p>と考えると使い分けやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>ビッグデータ</h2>
+          <p><strong>ビッグデータ（big data）</strong>とは、従来の方法では扱うことが難しいほど、大量で多様かつ高速に生成されるデータを指します。</p>
+          <p>代表的な特徴として、次の<strong>3V</strong>がよく挙げられます。</p>
+          <ul>
+            <li><strong>Volume（量）</strong>：データ量が非常に多い</li>
+            <li><strong>Variety（多様性）</strong>：表、文章、画像、動画、音声、位置情報など形式が多様</li>
+            <li><strong>Velocity（速度）</strong>：データが高速に生成・更新される</li>
+          </ul>
+          <p>たとえば、</p>
+          <ul>
+            <li>交通ICカードの利用履歴</li>
+            <li>Webサイトの閲覧履歴</li>
+            <li>SNSへの投稿</li>
+            <li>スマートフォンの位置情報</li>
+            <li>センサーから送られるデータ</li>
+            <li>自動車の走行データ</li>
+            <li>画像や動画</li>
+          </ul>
+          <p>などがビッグデータとして扱われることがあります。</p>
+          <p>ビッグデータは、表形式の数値だけに限りません。</p>
+          <p>大量のデータを分析することで、</p>
+          <ul>
+            <li>商品の需要予測</li>
+            <li>交通量の予測</li>
+            <li>故障の予測</li>
+            <li>顧客行動の分析</li>
+            <li>危険地点の発見</li>
+          </ul>
+          <p>などに利用できます。</p>
+          <p>たとえば、多数の自動車から</p>
+          <ul>
+            <li>位置情報</li>
+            <li>急ブレーキが行われた位置</li>
+          </ul>
+          <p>を収集し、それらを分析すると、</p>
+          <p class="term-formula"><strong>急ブレーキが頻繁に発生する危険な地点</strong></p>
+          <p>を発見できる可能性があります。</p>
+          <p>これは、単にデータを保存するだけでなく、データを分析して新しい知見を得ている例です。</p>
+        </section>
+
+        <section>
+          <h2>データマイニング</h2>
+          <p>大量のデータの中から、これまで分かっていなかった<strong>有用な規則性、パターン、関連性などを発見すること</strong>を<strong>データマイニング（data mining）</strong>といいます。</p>
+          <p>たとえば、大量の購買履歴から、</p>
+          <p class="term-formula">「商品Aを購入した人は商品Bも購入することが多い」</p>
+          <p>という関連性を発見することなどが該当します。</p>
+          <p>前処理との違いを整理すると、</p>
+          <p><strong>前処理</strong><br />→ データを分析できる状態に整えます。</p>
+          <p><strong>データマイニング</strong><br />→ 整えたデータから有用な規則性などを発見します。</p>
+          <p>という違いがあります。</p>
+        </section>
+
+        <section>
+          <h2>統計と機械学習</h2>
+          <p>大量のデータから特徴を見つけたり、将来を予測したりする場合には、<strong>統計的手法</strong>のほかに<strong>機械学習</strong>を利用することもあります。</p>
+          <p>機械学習では、多数のデータからコンピュータに規則性を学習させ、</p>
+          <ul>
+            <li>売上予測</li>
+            <li>需要予測</li>
+            <li>画像認識</li>
+            <li>迷惑メール判定</li>
+            <li>故障予測</li>
+          </ul>
+          <p>などを行うことができます。</p>
+          <p>したがって、ビッグデータ分析では、</p>
+          <p class="term-formula"><strong>統計的手法だけでなく機械学習も有効な分析手段になり得ます。</strong></p>
+        </section>
+
+        <section>
+          <h2>帰納的推論</h2>
+          <p>データから結論を考えるときには、<strong>帰納的推論</strong>がよく利用されます。</p>
+          <p>帰納的推論とは、</p>
+          <p class="term-formula"><strong>複数の具体的な観察結果から、より一般的な傾向や規則を推測する方法</strong></p>
+          <p>です。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>A地域で気温が高い日に飲料の販売数が多かった</li>
+            <li>B地域でも同じ傾向だった</li>
+            <li>C地域でも同じ傾向だった</li>
+          </ul>
+          <p>という観察結果から、</p>
+          <p class="term-formula">「気温が高いほど飲料の販売数が多くなる傾向があるのではないか」</p>
+          <p>という一般的な仮説を立てます。</p>
+          <p>これは、</p>
+          <p class="term-formula"><strong>個別の観察 → 一般的な傾向</strong></p>
+          <p>へ進むため、帰納的推論です。</p>
+          <p>一方、</p>
+          <p class="term-formula">「気温が30℃を超えると販売数が増える」という一般法則を前提として、<br />「今日は32℃だから販売数が増える」</p>
+          <p>と個別の結論を導くのは<strong>演繹的推論</strong>です。</p>
+          <p>なお、帰納的推論によって得られる結論は、観察されたデータに基づく<strong>仮説や傾向</strong>であり、必ず成り立つことを論理的に保証するものではありません。</p>
+        </section>
+
+        <section>
+          <h2>実験によって関係を調べる</h2>
+          <p>二つの要因の関係を調べたい場合、単にデータを集めるだけでなく、<strong>実験</strong>を行うこともあります。</p>
+          <p>たとえば、</p>
+          <p class="term-formula">「ダーツを投げる速度が、中心からの距離に影響するか」</p>
+          <p>を調べるとします。</p>
+          <p>この場合、</p>
+          <ul>
+            <li>投げる速度を複数設定する</li>
+            <li>距離や投げる人など、できるだけ他の条件をそろえる</li>
+            <li>各速度について複数回試行する</li>
+            <li>中心からの距離を記録する</li>
+            <li>各条件の平均値やばらつきを比較する</li>
+          </ul>
+          <p>という方法が適切です。</p>
+          <p>ここでは、</p>
+          <p class="term-formula"><strong>投げる速度</strong></p>
+          <p>が結果に影響を与えると考えて操作する変数であり、</p>
+          <p class="term-formula"><strong>中心からの距離</strong></p>
+          <p>がその結果として測定する変数です。</p>
+          <p>一度だけ試行した場合、その結果が速度によるものなのか偶然なのか判断できません。</p>
+          <p>そのため、<strong>各条件で十分な回数を反復すること</strong>が重要です。</p>
+          <p>また、調べたい要因以外の条件をできるだけそろえることを<strong>統制</strong>といいます。</p>
+        </section>
+
+        <section>
+          <h2>データ分析で重要な考え方</h2>
+          <p>データサイエンスでは、計算方法を覚えるだけでなく、</p>
+          <p class="term-formula"><strong>「このデータから何が分かり、何が分からないか」</strong></p>
+          <p>を判断することが特に重要です。</p>
+          <p>たとえば、購入履歴から</p>
+          <p class="term-formula">「気温が高い日に飲料の販売数が多い」</p>
+          <p>という関係が見つかったとしても、それだけで</p>
+          <p class="term-formula">「気温の上昇だけが販売数増加の原因である」</p>
+          <p>と断定できるとは限りません。</p>
+          <p>休日、イベント、広告、店舗の立地など、別の要因が影響している可能性もあります。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>データに関係が見られることと、一方が他方の原因であることは同じではありません。</strong></p>
+          <p>また、分析結果が正しくても、収集したデータ自体に偏りがあれば、得られる結論も偏る可能性があります。</p>
+          <p>そのためデータ分析では、</p>
+          <ul>
+            <li>目的に合ったデータを集めているか</li>
+            <li>必要な項目が記録されているか</li>
+            <li>欠損値や外れ値がないか</li>
+            <li>データの形式や粒度がそろっているか</li>
+            <li>十分なデータ数があるか</li>
+            <li>分析結果から言える範囲を超えて結論づけていないか</li>
+          </ul>
+          <p>を確認することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>データサイエンスの全体像</h2>
+          <p>データサイエンスの基本的な流れをまとめると、</p>
+          <p class="term-formula"><strong>① 問題・目的を設定する</strong><br />何を知りたいのか、何を解決したいのかを明確にします。<br /><br /><strong>↓</strong><br /><br /><strong>② 必要なデータを考える</strong><br />目的を達成するために、どの項目が必要なのかを考えます。<br /><br /><strong>↓</strong><br /><br /><strong>③ データを収集する</strong><br />アンケート、POS、センサー、公開データなどからデータを集めます。<br /><br /><strong>↓</strong><br /><br /><strong>④ 前処理・データクレンジングを行う</strong><br />欠損、重複、表記ゆれなどを処理し、分析可能な形式へ整えます。<br /><br /><strong>↓</strong><br /><br /><strong>⑤ 分析・可視化する</strong><br />平均値、中央値、分散、標準偏差、クロス集計、グラフなどを利用して特徴を調べます。必要に応じて統計的手法や機械学習も利用します。<br /><br /><strong>↓</strong><br /><br /><strong>⑥ 結果を解釈する</strong><br />データからどのような傾向が読み取れるかを考えます。<br /><br /><strong>↓</strong><br /><br /><strong>⑦ 予測・意思決定・改善へつなげる</strong><br />得られた知見を実際の問題解決に利用します。</p>
+          <p>という流れになります。</p>
+          <p>データサイエンスでは、<strong>「大量のデータを持っていること」そのものが目的ではありません。データを適切に集め、整え、分析し、その結果を正しく解釈して問題解決につなげること</strong>が重要です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>データサイエンス · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>ある地域の気温の変化を調べるため、公開されている気象データを用いて分析することにした。次のa～cを、データ分析の手順として適切な順に並べたものを選べ。 a：欠損値や入力形式の違いを確認し、分析しやすい形にデータを整える。 b：表計算ソフトウェアを用いて、平均気温の計算やグラフの作成を行う。 c：分析に必要な期間と地域を決め、該当する気象データを収集する。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>a → c → b</p></li>
+            <li><span>1</span><p>c → a → b</p></li>
+            <li><span>2</span><p>c → b → a</p></li>
+            <li><span>3</span><p>b → c → a</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．c → a → b</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>分析では、まず目的に合う期間・地域を定めてデータを収集します（c）。次に、欠損値や表記・形式の違いを確認して分析可能な形へ整えます（a）。その後、平均の計算やグラフ化などの分析を行います（b）。したがって、c → a → b の順が適切です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：データサイエンス／外れ値・欠損値</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">データサイエンスの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="データサイエンス"
+          data-limit="5"
+          data-exclude-stem="ある地域の気温の変化を調べるため、公開されている気象データを用いて分析することにした。次のa～cを、データ分析の手順として適切な順に並べたものを選べ。 a：欠損値や入力形式の違いを確認し、分析しやすい形にデータを整える。 b：表計算ソフトウェアを用いて、平均気温の計算やグラフの作成を行う。 c：分析に必要な期間と地域を決め、該当する気象データを収集する。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=データサイエンス">データサイエンスの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"データサイエンスとは","description":"データサイエンスの基本的な流れ、前処理、代表値、可視化、ビッグデータ、データマイニングなどを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/data-science/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"データサイエンス","item":"https://mei-chan-nel.com/terms/data-science/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
