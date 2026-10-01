@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ピクセルとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="ピクセルの意味と、ラスタ形式、画素数、解像度、dpi、階調、RGB、画像のデータ量を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ピクセル" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ピクセルとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="ピクセルの意味と、ラスタ形式、画素数、解像度、dpi、階調、RGB、画像のデータ量を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/pixel/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/pixel/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ピクセル</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">ピクセル</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「ピクセル」とは</h2>
+          <p><strong>ピクセル（pixel）</strong>とは、デジタル画像を構成する最小単位のことで、<strong>画素</strong>ともいいます。</p>
+          <p>デジタル画像を大きく拡大して見ると、小さな正方形の集まりのように見えます。この一つ一つがピクセルであり、それぞれのピクセルに「何色で表示するか」という情報が記録されています。</p>
+          <p>たとえば、横1200ピクセル、縦800ピクセルの画像なら、</p>
+          <p class="term-formula"><strong>1200×800＝960,000</strong></p>
+          <p>より、全部で<strong>960,000画素</strong>からできています。</p>
+        </section>
+
+        <section>
+          <h3>ラスタ形式とピクセル</h3>
+          <p>写真や一般的な画像では、画像を多数のピクセルに分け、それぞれのピクセルの色を記録します。このような画像の表現方法を<strong>ラスタ形式（ビットマップ形式）</strong>といいます。</p>
+          <p>たとえば次のような画像を考えます。</p>
+          <pre class="question-code" aria-label="ピクセルの集まりで表した画像"><code>■ ■ □ □
+■ ■ □ □
+□ □ ■ ■
+□ □ ■ ■</code></pre>
+          <p>このように、小さなマス一つ一つの色を記録して画像全体を表すのがラスタ形式です。</p>
+          <p>JPEG、PNG、BMPなどは、基本的にラスタ形式の画像を扱う代表的なファイル形式です。</p>
+          <p>ラスタ形式では、画像を拡大すると、一つ一つのピクセルも大きくなります。そのため、大きく拡大すると輪郭が階段状になったり、画像が粗く見えたりすることがあります。</p>
+          <p>これに対して、線や円などを座標や数式によって表す方式を<strong>ベクタ形式</strong>といいます。ベクタ形式は図形を計算して描き直せるため、一般に拡大してもラスタ画像のような画素の粗さが現れにくくなります。</p>
+        </section>
+
+        <section>
+          <h2>画像の画素数</h2>
+          <p>画像の総画素数は、</p>
+          <p class="term-formula"><strong>横の画素数 × 縦の画素数</strong></p>
+          <p>で求めます。</p>
+          <p>たとえば1920×1080画素の画像なら、</p>
+          <p class="term-formula"><strong>1920×1080＝2,073,600</strong></p>
+          <p>より、</p>
+          <p class="term-formula"><strong>2,073,600画素</strong></p>
+          <p>です。</p>
+          <p>「1920×1080」という表記は、横に1920個、縦に1080個のピクセルが並んでいることを表しています。</p>
+        </section>
+
+        <section>
+          <h2>解像度</h2>
+          <p>「解像度」という言葉は、文脈によっていくつかの意味で使われます。</p>
+
+          <h3>画面や画像の画素数としての解像度</h3>
+          <p>ディスプレイでは、</p>
+          <ul>
+            <li>1920×1080</li>
+            <li>1280×720</li>
+            <li>1024×768</li>
+          </ul>
+          <p>などのように、横と縦の画素数を解像度と呼ぶことが多くあります。</p>
+          <p>同じ大きさの画面なら、画素数が多いほど一つ一つのピクセルを細かくできるため、より細かな表示が可能になります。</p>
+          <p>逆に、同じ大きさの画面で</p>
+          <p class="term-formula">1280×960 → 1024×768</p>
+          <p>のように解像度を下げると、画面を構成するピクセル数が少なくなります。</p>
+          <p>試験問題では一般に、同じ画面全体を使って表示するものとして、<strong>文字や画像などが大きく表示されるが、一度に表示できる情報量は少なくなる</strong>と考えます。</p>
+          <p>なお、画像ファイルそのものを変更しているわけではないので、ディスプレイの解像度を変えただけで保存されている画像ファイルのデータ量が小さくなるわけではありません。</p>
+        </section>
+
+        <section>
+          <h2>dpiとppi</h2>
+          <p>画像の細かさを表す単位として<strong>dpi</strong>が使われることがあります。スキャナの読み込みの細かさなどで使われます。</p>
+          <p>dpiは、</p>
+          <p class="term-formula"><strong>dots per inch</strong></p>
+          <p>の略で、</p>
+          <p class="term-formula"><strong>1インチ当たりに何個の点があるか</strong></p>
+          <p>を表します。</p>
+          <p>たとえば300dpiなら、1インチの長さの中に300個の点を並べます。</p>
+          <p>横2インチ、縦3インチの範囲を300dpiで読み取る場合、</p>
+          <p>横：</p>
+          <p class="term-formula">300×2＝600</p>
+          <p>縦：</p>
+          <p class="term-formula">300×3＝900</p>
+          <p>したがって総画素数は、</p>
+          <p class="term-formula">600×900＝<strong>540,000</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>ピクセルと色情報</h2>
+          <p>画像のデータ量を考えるときは、</p>
+          <p class="term-formula"><strong>ピクセルの数</strong></p>
+          <p>だけでなく、</p>
+          <p class="term-formula"><strong>1ピクセルに何ビットの情報を持たせるか</strong></p>
+          <p>も重要です。</p>
+          <p>同じ1000×1000画素の画像でも、1画素を1ビットで表す画像と24ビットで表す画像では、必要なデータ量は大きく異なります。</p>
+        </section>
+
+        <section>
+          <h2>1ビットの白黒画像</h2>
+          <p>1ビットでは、</p>
+          <p class="term-formula">2¹＝<strong>2</strong></p>
+          <p>通りを表せます。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>0 → 白</li>
+            <li>1 → 黒</li>
+          </ul>
+          <p>などと決めれば、1画素を1ビットで表せます。</p>
+          <p>たとえば横10画素、縦20画素なら、</p>
+          <p class="term-formula">10×20＝<strong>200</strong></p>
+          <p>画素です。</p>
+          <p>1画素1ビットなので、</p>
+          <p class="term-formula">200×1＝<strong>200ビット</strong></p>
+          <p>となります。</p>
+          <p>1バイト＝8ビットだから、</p>
+          <p class="term-formula">200÷8＝<strong>25</strong></p>
+          <p>より、データ量は<strong>25バイト</strong>となります。</p>
+        </section>
+
+        <section>
+          <h2>階調とは</h2>
+          <p>白黒だけでなく、「黒」「濃い灰色」「薄い灰色」「白」のような明るさの段階を表す場合、この段階数を<strong>階調数</strong>といいます。</p>
+          <p>nビットで表現できる階調数は、</p>
+          <p class="term-formula"><strong>2ⁿ</strong></p>
+          <p>です。</p>
+          <p>たとえば、</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>1画素当たりのビット数と階調数</caption>
+              <thead>
+                <tr><th scope="col">1画素当たりのビット数</th><th scope="col">表現できる階調数</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">1ビット</th><td>2階調</td></tr>
+                <tr><th scope="row">2ビット</th><td>4階調</td></tr>
+                <tr><th scope="row">4ビット</th><td>16階調</td></tr>
+                <tr><th scope="row">8ビット</th><td>256階調</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>となります。</p>
+          <p>したがって、「16階調」と書かれていた場合、</p>
+          <p class="term-formula">16＝2⁴</p>
+          <p>なので、1画素当たり<strong>4ビット</strong>必要です。</p>
+        </section>
+
+        <section>
+          <h2>8ビットの濃淡画像</h2>
+          <p>8ビットでは、</p>
+          <p class="term-formula">2⁸＝<strong>256</strong></p>
+          <p>通りの値を表せます。</p>
+          <p>符号なし整数として扱えば、</p>
+          <p class="term-formula"><strong>0～255</strong></p>
+          <p>の256種類です。</p>
+          <p>ここで、</p>
+          <p class="term-formula"><strong>256通りあるが、最大値は255</strong></p>
+          <p>であることに注意します。</p>
+          <p>0も一つの値として数えるため、</p>
+          <p class="term-formula">0、1、2、…、255</p>
+          <p>で全部で256通りになります。</p>
+        </section>
+
+        <section>
+          <h2>RGBによる色の表現</h2>
+          <p>カラー画像では、光の三原色である</p>
+          <ul>
+            <li>R：Red（赤）</li>
+            <li>G：Green（緑）</li>
+            <li>B：Blue（青）</li>
+          </ul>
+          <p>の強さを組み合わせて色を表す方法が広く使われています。</p>
+          <p>これを<strong>RGB表現</strong>といいます。</p>
+          <p>たとえば、</p>
+          <ul>
+            <li>(255, 0, 0) → 赤</li>
+            <li>(0, 255, 0) → 緑</li>
+            <li>(0, 0, 255) → 青</li>
+            <li>(255, 255, 255) → 白</li>
+            <li>(0, 0, 0) → 黒</li>
+          </ul>
+          <p>のように表します。</p>
+        </section>
+
+        <section>
+          <h2>RGB各8ビットの場合</h2>
+          <p>R・G・Bをそれぞれ8ビットで表すとします。</p>
+          <p>8ビットでは、</p>
+          <p class="term-formula">2⁸＝<strong>256</strong></p>
+          <p>段階を表せるので、</p>
+          <ul>
+            <li>R：256段階</li>
+            <li>G：256段階</li>
+            <li>B：256段階</li>
+          </ul>
+          <p>となります。</p>
+          <p>これらは独立に組み合わせられるため、色数は足し算ではなく<strong>掛け算</strong>になります。</p>
+          <p class="term-formula">256×256×256<br />＝2⁸×2⁸×2⁸<br />＝2²⁴<br />＝<strong>16,777,216</strong></p>
+          <p>色を表現できます。</p>
+          <p>約1677万色です。</p>
+          <p>また、RGBそれぞれ8ビットなので、1画素当たり、</p>
+          <p class="term-formula">8＋8＋8＝<strong>24ビット</strong></p>
+          <p>です。</p>
+          <p>8ビット＝1バイトだから、</p>
+          <p class="term-formula">24÷8＝<strong>3</strong></p>
+          <p>より、</p>
+          <p class="term-formula"><strong>1画素＝3バイト</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>画像のデータ量</h2>
+          <p>圧縮を行わず、ヘッダなどの付加情報を無視する場合、画像のデータ量は、</p>
+          <p class="term-formula"><strong>横画素数×縦画素数×1画素当たりのビット数</strong></p>
+          <p>で求められます。</p>
+          <p>バイトで求める場合は、最後に8で割ります。</p>
+          <p>つまり、</p>
+          <p class="term-formula"><strong>(横画素数×縦画素数×1画素当たりビット数)÷8</strong></p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>24ビットフルカラー画像のデータ量</h2>
+          <p>たとえば、1200×800画素、RGB各8ビットの画像なら、1画素は24ビット＝3バイトです。</p>
+          <p>したがって、</p>
+          <p class="term-formula">1200×800×3<br />＝<strong>2,880,000バイト</strong></p>
+          <p>となります。</p>
+          <p>1MB＝1,000,000Bとするなら、</p>
+          <p class="term-formula">2,880,000÷1,000,000＝<strong>2.88</strong></p>
+          <p>より、</p>
+          <p class="term-formula"><strong>2.88MB</strong></p>
+          <p>です。</p>
+          <p>同様に1920×1080画素なら、</p>
+          <p class="term-formula">1920×1080×3<br />＝<strong>6,220,800</strong></p>
+          <p>より、</p>
+          <p class="term-formula"><strong>6,220,800バイト</strong></p>
+          <p>となります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ピクセル · EXAMPLE</span><span>ITパスポートH25秋期 問61（改題）</span></div>
+          <h3>ラスタ形式の画像の説明として最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>画像をピクセルの集まりとして表し、各ピクセルの色を記録する。</p></li>
+            <li><span>1</span><p>画像を数式だけで表すので、拡大しても必ずぎざぎざにならない。</p></li>
+            <li><span>2</span><p>解像度を高くしても、必要なデータ量は常に同じである。</p></li>
+            <li><span>3</span><p>音の高さと大きさを時間順に記録する形式である。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．画像をピクセルの集まりとして表し、各ピクセルの色を記録する。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ラスタ形式は、画像をピクセルの集まりとして扱い、各ピクセルの色などを記録する形式です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH25秋期 問61（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ラスタ形式／ピクセル</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ピクセルの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ピクセル"
+          data-limit="5"
+          data-exclude-stem="ラスタ形式の画像の説明として最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ピクセル">ピクセルの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ピクセルとは","description":"ピクセルの意味と、ラスタ形式、画素数、解像度、dpi、階調、RGB、画像のデータ量を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/pixel/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ピクセル","item":"https://mei-chan-nel.com/terms/pixel/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>

@@ -75,6 +75,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "ビット": {
     "url": "/terms/bit/"
   },
+  "ピクセル": {
+    "url": "/terms/pixel/"
+  },
   "ファイアウォール": {
     "url": "/terms/firewall/"
   },
