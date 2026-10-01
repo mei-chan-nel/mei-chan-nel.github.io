@@ -417,16 +417,18 @@ def main() -> int:
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     main_match = re.search(r'<main id="main-content">(.*?)</main>', top_text, flags=re.DOTALL)
     main_text = main_match.group(1) if main_match else ""
-    if '<h2 id="home-actions-heading">他に何をしますか？</h2>' not in top_text:
+    if '<p class="eyebrow">CHOOSE YOUR STEP</p><h2 id="home-actions-heading">何をしますか？</h2>' not in top_text:
         errors.append("index.html: home action heading is missing or outdated")
-    class_positions = [main_text.find(marker) for marker in ('class="hero"', 'class="section section-app"', 'class="section home-actions-section"', 'class="section home-misc-section"')]
+    class_positions = [main_text.find(marker) for marker in ('class="hero"', 'class="section home-actions-section"', 'class="section home-misc-section"')]
     if any(position < 0 for position in class_positions) or class_positions != sorted(class_positions):
         errors.append("index.html: required top-page section order is missing")
+    if "MAIN LEARNING TOOL" in main_text or 'class="section section-app"' in main_text:
+        errors.append("index.html: standalone learning-app section remains")
     hero_map_match = re.search(r'<div class="hero-map"[^>]*>.*?</div>\s*</div>', top_text, flags=re.DOTALL)
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
     action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("用語を調べる", "問題を探す", "解説動画を見る", "講義ノートを読む")
+    expected_actions = ("学習アプリ", "用語を調べる", "問題を探す", "解説動画を見る", "講義ノートを読む")
     if action_match is None:
         errors.append("index.html: home action card grid is missing")
     else:
@@ -448,7 +450,7 @@ def main() -> int:
     if "このページについて" in books_index_text or "無料コンテンツから始める" in books_index_text:
         errors.append("books/index.html: removed supporting sections remain")
     home_learning = (ROOT / "assets" / "home-learning.js").read_text(encoding="utf-8")
-    if "info1LearningRecord:v1" not in home_learning or "summarizeQuestionRecord" not in home_learning or "これまで延べ${attempts}問に解答" not in home_learning or "StudyAtlasLecture" in home_learning:
+    if "info1LearningRecord:v1" not in home_learning or "summarizeQuestionRecord" not in home_learning or "これまで延べ${attempts}問に回答" not in home_learning or "StudyAtlasLecture" in home_learning:
         errors.append("home-learning.js: safe question-history summary is missing or lecture state leaked")
     site_css = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
     for marker in (".home-action-grid", ".home-misc-grid", ".video-genre-back-link"):

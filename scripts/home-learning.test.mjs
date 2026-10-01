@@ -44,7 +44,7 @@ test("question history totals attempts and clamps invalid correct counts", () =>
     attempts: 5,
     correct: 4,
     rate: 80,
-    summary: "これまで延べ5問に解答・正答率80％",
+    summary: "これまで延べ5問に回答・正答率80％",
   }));
 });
 

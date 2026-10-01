@@ -21,7 +21,7 @@
       attempts,
       correct,
       rate: Math.round((correct / attempts) * 100),
-      summary: `これまで延べ${attempts}問に解答・正答率${Math.round((correct / attempts) * 100)}％`
+      summary: `これまで延べ${attempts}問に回答・正答率${Math.round((correct / attempts) * 100)}％`
     };
   };
 
