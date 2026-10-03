@@ -50,6 +50,7 @@ h1:focus { outline: none; }
 .token-number { color: var(--blue); }
 .token-string { color: #9a4f35; }
 .token-variable { color: var(--ink); }
+.token-assignment { color: var(--coral-strong); }
 .token-keyword { color: var(--violet); white-space: nowrap; }
 .token-branch { color: #7d9088; }
 .card-bottom { margin-top: auto; padding-top: 12px; display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid var(--line); }

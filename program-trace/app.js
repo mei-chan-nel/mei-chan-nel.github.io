@@ -49,18 +49,30 @@ function element(tag, className = "", text = null) {
 }
 
 /** 色付けだけを行う。入力を HTML として挿入しない。 */
-function highlighted(text) {
+function highlighted(text, instruction) {
   const fragment = document.createDocumentFragment();
-  const pattern = /"[^"]*"|-?\d+(?:\.\d+)?|\b[a-zA-Z_][a-zA-Z_0-9]*\b|そうでなくもし|そうでなければ|もし|ならば|繰り返す|の間|ずつ増やしながら|外部からの入力|要素数|定義する|返す|乱数|[｜⎿]/g;
+  const pattern = /"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?|\b[a-zA-Z_][a-zA-Z_0-9]*\b|そうでなくもし|そうでなければ|もし|ならば|繰り返す|の間|ずつ増やしながら|外部からの入力|要素数|定義する|返す|乱数|[｜⎿]/g;
+  const targets = new Set(instruction?.type === "assign" ? instruction.assignments.map(({ name }) => name)
+    : ["input", "for"].includes(instruction?.type) ? [instruction.name] : []);
   let cursor = 0;
+  let depth = 0;
+  let statementStart = true;
   for (const match of text.matchAll(pattern)) {
-    fragment.append(document.createTextNode(text.slice(cursor, match.index)));
+    const gap = text.slice(cursor, match.index);
+    // 引用符内のカンマや配列の添字を、次の代入先と取り違えない。
+    for (const character of gap) {
+      if (character === "[" || character === "(") depth++;
+      else if (character === "]" || character === ")") depth--;
+      else if (character === "," && depth === 0) statementStart = true;
+    }
+    fragment.append(document.createTextNode(gap));
     const token = match[0];
     let type = "keyword";
     if (token.startsWith('"')) type = "string";
     else if (/^-?\d/.test(token)) type = "number";
-    else if (/^[a-zA-Z_]/.test(token)) type = "variable";
+    else if (/^[a-zA-Z_]/.test(token)) type = statementStart && depth === 0 && targets.has(token) ? "assignment" : "variable";
     else if (/[｜⎿]/.test(token)) type = "branch";
+    if (type !== "branch" && depth === 0) statementStart = false;
     fragment.append(element("span", `token-${type}`, token));
     cursor = match.index + token.length;
   }
@@ -78,7 +90,7 @@ function buildProgram() {
     const row = element("li", "program-line");
     row.dataset.line = String(source.line);
     const content = element("code", "source-code");
-    content.append(highlighted(source.text));
+    content.append(highlighted(source.text, compiled.instructions.find(({ line }) => line === source.line)));
     const marker = element("span", "line-marker");
     row.append(element("span", "line-number", lineLabel(example, source.line)), content, marker);
     ui["program-lines"].append(row);
