@@ -461,7 +461,7 @@ def main() -> int:
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
     action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する。", "講義ノートを読む")
+    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む")
     if action_match is None:
         errors.append("index.html: home action card grid is missing")
     else:
