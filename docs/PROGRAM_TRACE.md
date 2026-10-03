@@ -31,22 +31,29 @@ HTML のダブルクリックではなく HTTP サーバーから確認してく
 | 用途 | URL |
 | --- | --- |
 | プログラム一覧 | `https://mei-chan-nel.com/program-trace/` |
-| 代表問題：合計 | `https://mei-chan-nel.com/program-trace/#addition` |
-| 代表問題：二分探索 | `https://mei-chan-nel.com/program-trace/#binary-search` |
-| 動画解説問題：Q231の実行 | `https://mei-chan-nel.com/program-trace/#video-q-231` |
-| 通常の動画問題からQ231へ | `https://mei-chan-nel.com/program-trace/?from=programming-variables-arrays#video-q-231` |
-| 最短学習コースからQ231へ | `https://mei-chan-nel.com/program-trace/?from=programming-shortest-course#video-q-231` |
+| 代表問題：合計 | `https://mei-chan-nel.com/program-trace/run.html#addition` |
+| 代表問題：二分探索 | `https://mei-chan-nel.com/program-trace/run.html#binary-search` |
+| 動画解説問題：Q231の実行 | `https://mei-chan-nel.com/program-trace/run.html#video-q-231` |
+| 通常の動画問題からQ231へ | `https://mei-chan-nel.com/program-trace/run.html?from=programming-variables-arrays#video-q-231` |
+| 最短学習コースからQ231へ | `https://mei-chan-nel.com/program-trace/run.html?from=programming-shortest-course#video-q-231` |
 | 対応する動画解説の既存の入口 | `https://mei-chan-nel.com/archive/programming-variables-arrays.html#q-231` |
 
 一覧の正規URLは末尾 `/` に統一し、`index.html` や `#examples` を公開用の入口には含めません。
 旧URLの `#examples` で開いた場合も、ハッシュを取り除いて一覧の正規URLへ統一します。
-個別プログラムは `#<id>` で指定します。ハッシュを使う現在の構成なら、同じ静的ページから
+個別プログラムは `run.html#<id>` で指定します。同じnoindexの実行入口から
 直接表示・再読み込みでき、問題の追加時に個別HTMLやサーバーのルーティング設定を増やす必要がありません。
+旧 `/program-trace/#<id>` のリンクは、問題IDと遷移元を保持して実行入口へ移動します。
 代表問題のIDは表示順や題名を変えても保持します。動画問題には `video-q-<既存のQ番号>` を使い、
 代表問題のIDとの重複を避けます。設定値や入力値・実行途中の状態はURLに含めません。
 
-ページの canonical は `https://mei-chan-nel.com/program-trace/` に設定しました。
-robots設定は `index, follow` です。XMLサイトマップには一覧の正規URLを1件登録しています。
+一覧の canonical は `https://mei-chan-nel.com/program-trace/`、robots設定は `index, follow` です。
+実行画面のHTMLは `run.html` に分け、最初のHTTP応答から `noindex, follow` を指定しています。
+実行入口の canonical は `/program-trace/run.html` に統一し、問題ID・遷移元を含めません。
+XML・HTMLサイトマップには一覧だけを登録し、実行入口やその条件付きURLは登録しません。
+`robots.txt` で実行入口を遮断せず、GoogleがHTMLのnoindex指定を読み取れるようにします。
+`scripts/build_program_trace_pages.py` が一覧と共通のHTMLから実行入口を生成し、統合検証で同期を確認します。
+Googleの仕様は [noindexによる索引制御](https://developers.google.com/search/docs/crawling-indexing/block-indexing) と
+[JavaScript SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics) を参照してください。
 共通ナビゲーションは他のページと同じ構成に揃えています。
 公開時はポータルとアプリの統合検証を通して、両リポジトリの `main` へ反映します。
 独自ドメインとGitHub Pagesの関係は [GitHub公式ドキュメント](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages) を参照してください。
@@ -184,6 +191,8 @@ Q324・Q330は20,000、Q326は100,000ステップまでです。関数の呼び�
 | ファイル | 役割 |
 | --- | --- |
 | `program-trace/index.html` / `styles.css` | 一覧・左右の実行画面・入力と設定のダイアログ |
+| `program-trace/run.html` / `scripts/build_program_trace_pages.py` | 共通HTMLから生成する、最初からnoindexの実行入口 |
+| `program-trace/routing.js` | 実行URL、旧URLからの移動、実行入口から一覧への移動 |
 | `program-trace/examples.js` | 代表問題・動画解説問題のコレクション、表記、設定、入力条件 |
 | `program-trace/video-program-data.js` | 原文から生成した100問の表記、正解の補完、前提・入力・設定条件 |
 | `program-trace/video-programs.js` | 動画問題の登録、派生設定、入力候補、移動元に応じたリンク |
@@ -200,6 +209,7 @@ Q324・Q330は20,000、Q326は100,000ステップまでです。関数の呼び�
 | `program-trace/app.js` | ルート、ダイアログ、状態の描画 |
 | `scripts/program-trace.test.mjs` | 15問の実行・境界値・不正入力・再帰・乱数・自動実行のテスト |
 | `scripts/program-trace-video.test.mjs` | 動画100問、正解補完、全リンク、個別の入力・設定・表示のテスト |
+| `scripts/program-trace-seo.test.mjs` | 一覧・実行の索引制御、全実行リンク、旧URL、サイトマップのテスト |
 | `scripts/build_video_programs.py` | 原文・正解と問題ごとの設定から実行用データを生成 |
 | `scripts/preview_site.py` | ポータルと隣接アプリを公開時と同じパスで配信するローカルサーバー |
 
@@ -243,7 +253,8 @@ Q231〜Q330を後者へ `collection: "video"` として登録しています。
 ```powershell
 python -X utf8 scripts/build_video_programs.py
 python -X utf8 scripts/generate_video_pages.py
-node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs
+python scripts/build_program_trace_pages.py
+node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs scripts/program-trace-seo.test.mjs
 python -X utf8 scripts/validate_portal.py --app-root ../info1-quiz-app
 ```
 
@@ -252,7 +263,7 @@ python -X utf8 scripts/validate_portal.py --app-root ../info1-quiz-app
 サイトマップへの登録を確認します。一覧と実行画面の主見出しは、同時には表示しません。
 `scripts/validate_manual_ads.py` は広告が1枠だけで、本体とフッターの間にあることも検査します。
 
-2026-10-03：トレース・トップページ・講義キーワード・広告の自動テスト180件が成功。
+2026-10-03：トレース・索引制御・トップページ・講義キーワード・広告の自動テスト184件が成功。
 動画100問をすべて初期設定で最後まで実行し、変更可能な数値の上下限では198パターンが完了、
 添字と配列長が矛盾する2パターンは適用前に拒否することを確認しました。
 全127か所のボタンと遷移元、原文のハッシュ、38問の正解補完も検証しています。

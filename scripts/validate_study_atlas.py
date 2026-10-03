@@ -105,6 +105,11 @@ def main() -> int:
         repository_metadata("app", app_root, args.app_ref)
 
         run_step(
+            "program trace execution entry consistency",
+            portal_root,
+            [sys.executable, "scripts/build_program_trace_pages.py", "--check"],
+        )
+        run_step(
             "lecture data consistency",
             portal_root,
             ["node", "scripts/build_lecture_data.mjs", "--check"],

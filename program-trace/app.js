@@ -8,6 +8,7 @@ import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-library"
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
 import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-library";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
+import { executionHref, traceRedirect } from "./routing.js?v=20261003-seo";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
@@ -73,7 +74,7 @@ function renderLibrary() {
   $("video-collection").hidden = !VIDEO_PROGRAMS.length;
   for (const entry of PROGRAMS) {
     const card = element("a", "example-card");
-    card.href = entry.collection === "video" ? `./?from=examples#${entry.id}` : `./#${entry.id}`;
+    card.href = executionHref(entry.id, entry.collection === "video" ? "examples" : "");
     card.dataset.accent = entry.accent;
     card.setAttribute("aria-label", `${entry.collection === "video" ? "動画解説問題" : `例${entry.number}`} ${entry.title}：1行ずつ実行`);
     const heading = element("div", "card-heading");
@@ -239,6 +240,11 @@ function buildNavigation() {
 function route() {
   const id = location.hash.slice(1);
   const entry = findProgram(id);
+  const redirect = traceRedirect(location.href, entry?.id);
+  if (redirect) {
+    location.replace(redirect);
+    return;
+  }
   if (entry) showExample(entry);
   else {
     const url = new URL(location.href);

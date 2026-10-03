@@ -264,7 +264,7 @@ def video_controls(number: int, videos: list[dict[str, str]], section_id: str) -
         suffix = f" {index}" if len(videos) > 1 else ""
         trace = ''
         if index == 1 and number in trace_programs():
-            href = f"../program-trace/?from={section_id}#{trace_programs()[number]}"
+            href = f"../program-trace/run.html?from={section_id}#{trace_programs()[number]}"
             trace = f'<a class="program-trace-link" href="{e(href)}">1行ずつ実行する</a>'
         controls.append(
             f'''<div class="video-control">

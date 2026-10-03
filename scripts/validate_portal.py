@@ -160,7 +160,7 @@ def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
     parser.feed(text)
     relative = path.relative_to(ROOT).as_posix()
     # 一覧と実行画面を切り替えるトレースには、各画面に主見出しがある。
-    is_trace = relative == "program-trace/index.html"
+    is_trace = relative in {"program-trace/index.html", "program-trace/run.html"}
     expected_headings = 2 if is_trace else 1
     if not parser.title or not parser.description or parser.h1_count != expected_headings:
         errors.append(f"{relative}: title, description, and {expected_headings} h1 heading(s) are required")
@@ -168,8 +168,11 @@ def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
         if not re.search(r'<section id="runner-view"[^>]*\bhidden>', text):
             errors.append(f"{relative}: the runner heading must initially be hidden")
         robots = {value.strip().lower() for value in parser.robots.split(",")}
-        if not {"index", "follow"} <= robots or robots & {"noindex", "nofollow"}:
-            errors.append(f"{relative}: the published trace page must allow indexing and following links")
+        if relative == "program-trace/run.html":
+            if not {"noindex", "follow"} <= robots or robots & {"index", "nofollow"}:
+                errors.append(f"{relative}: execution HTML must be noindex, follow before JavaScript runs")
+        elif not {"index", "follow"} <= robots or robots & {"noindex", "nofollow"}:
+            errors.append(f"{relative}: the trace library must allow indexing and following links")
     expected = public_url(relative)
     if parser.canonical != expected or parser.og_url != expected:
         errors.append(f"{relative}: canonical/og:url must be {expected}")
@@ -296,7 +299,7 @@ def main() -> int:
         for raw_number, card in re.findall(r'<article class="video-question-card" id="q-(\d+)">([\s\S]*?)</article>', text):
             number = int(raw_number)
             links = re.findall(r'<a class="program-trace-link" href="([^"]+)">1行ずつ実行する</a>', card)
-            expected = [f'../program-trace/?from={page_id}#video-q-{number}'] if number >= 231 else []
+            expected = [f'../program-trace/run.html?from={page_id}#video-q-{number}'] if number >= 231 else []
             if links != expected:
                 errors.append(f'archive/{page_id}.html Q{number}: trace link is missing or incorrect')
             if expected and not re.search(r'<div class="video-action-row">\s*<button class="video-trigger"[^>]*>解説動画を表示(?: 1)?</button>\s*<a class="program-trace-link"', card):
@@ -521,6 +524,8 @@ def main() -> int:
     expected_sitemap = [public_url(path) for path in dict.fromkeys(expected_portal_paths)] + [app_public_url(path) for path in dict.fromkeys(expected_app_paths)]
     if sitemap_urls != expected_sitemap:
         errors.append("sitemap.xml is not synchronized with the current portal/app build reports")
+    if public_url("program-trace/run.html") in sitemap_urls:
+        errors.append("sitemap.xml must not include the noindex program execution entry")
     if any("archive/keywords.html" in url or "questions/tags.html" in url for url in sitemap_urls):
         errors.append("sitemap.xml contains an obsolete keyword or legacy question URL")
 
