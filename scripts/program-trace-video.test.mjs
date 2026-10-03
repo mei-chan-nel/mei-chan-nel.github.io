@@ -103,11 +103,11 @@ test('すべての動画ページで各問題の最初の動画ボタンの右�
  assert.equal(links,127);
 });
 
-test('入口が代表例・動画ジャンル・最短学習で異なる場合の戻り先を保持し、任意の外部URLは受け付けない',()=>{
- assert.equal(navigationForProgram(findProgram('addition'),'programming-shortest-course').primary.href,'./#examples');
- assert.equal(navigationForProgram(entryFor(231),'examples').primary.href,'./#examples');
- assert.equal(navigationForProgram(entryFor(231),'examples').secondary.href,'../archive/programming-variables-arrays.html#q-231');
- assert.equal(navigationForProgram(entryFor(231),'programming-shortest-course').primary.href,'../archive/programming-shortest-course.html#q-231');
+test('入口に対応する戻り先だけを表示し、一覧URLを統一して任意の外部URLは受け付けない',()=>{
+ assert.deepEqual(navigationForProgram(findProgram('addition'),'programming-shortest-course'),{primary:{label:'例題一覧',href:'./'},secondary:null});
+ assert.deepEqual(navigationForProgram(entryFor(231),'examples'),{primary:{label:'プログラム一覧',href:'./'},secondary:null});
+ assert.deepEqual(navigationForProgram(entryFor(231),'programming-variables-arrays'),{primary:{label:'問題へ戻る',href:'../archive/programming-variables-arrays.html#q-231'},secondary:null});
+ assert.deepEqual(navigationForProgram(entryFor(231),'programming-shortest-course'),{primary:{label:'問題へ戻る',href:'../archive/programming-shortest-course.html#q-231'},secondary:null});
  for(const source of ['https://example.com','../../privacy','programming-simulation','programming-shortest-course']) assert.equal(navigationForProgram(entryFor(232),source).primary.href,'../archive/programming-variables-arrays.html#q-232');
 });
 

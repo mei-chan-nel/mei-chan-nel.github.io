@@ -24,8 +24,8 @@
     <meta name="theme-color" content="#102f35" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />
-    <link rel="stylesheet" href="./styles.css?v=20261003-video" />
-    <script src="./app.js?v=20261003-video" type="module"></script>
+    <link rel="stylesheet" href="./styles.css?v=20261003-library" />
+    <script src="./app.js?v=20261003-library" type="module"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
     <script src="../assets/manual-ads.js?v=2026080901" defer></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"プログラムトレース","url":"https://mei-chan-nel.com/program-trace/","description":"共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数・配列・出力の変化を確かめる学習ツール。","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
@@ -67,7 +67,10 @@
           </div>
         </div>
         <div id="example-grid" class="example-grid"></div>
-        <section id="video-collection" class="video-collection" aria-labelledby="video-collection-title" hidden><div class="section-label"><h2 id="video-collection-title">動画解説問題</h2></div><div id="video-grid" class="example-grid"></div></section>
+        <details id="video-collection" class="video-collection" aria-labelledby="video-collection-title" hidden>
+          <summary class="section-label"><h2 id="video-collection-title">動画解説問題</h2></summary>
+          <div id="video-grid" class="example-grid"></div>
+        </details>
       </section>
 
       <section id="runner-view" aria-labelledby="runner-title" hidden>
@@ -78,7 +81,7 @@
             <p id="runner-focus" class="runner-focus"></p>
           </div>
           <div class="example-navigation" id="example-navigation">
-            <a href="#examples" class="library-link">例題一覧 <span aria-hidden="true">↗</span></a>
+            <a href="./" class="library-link">例題一覧 <span aria-hidden="true">↗</span></a>
           </div>
         </div>
         <nav id="program-variants" class="program-variants" aria-label="比較するプログラム" hidden></nav>

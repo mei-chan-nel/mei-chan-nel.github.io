@@ -46,10 +46,9 @@ export function inputCandidate(entry, field, state, parameters) {
 }
 
 export function navigationForProgram(entry, from = "") {
-  if (entry.collection !== "video") return { primary: { label: "例題一覧", href: "./#examples" }, secondary: null };
+  if (entry.collection !== "video") return { primary: { label: "例題一覧", href: "./" }, secondary: null };
+  if (from === "examples") return { primary: { label: "プログラム一覧", href: "./" }, secondary: null };
   const allowed = new Set([entry.archivePage, ...(entry.coursePages ?? [])]);
   const page = allowed.has(from) ? from : entry.archivePage;
-  const original = { label: "元の解説動画問題", href: `../archive/${page}.html#${entry.questionId}` };
-  if (from === "examples") return { primary: { label: "プログラム一覧", href: "./#examples" }, secondary: original };
-  return { primary: { ...original, label: "問題へ戻る" }, secondary: { label: "プログラム一覧", href: "./#examples" } };
+  return { primary: { label: "問題へ戻る", href: `../archive/${page}.html#${entry.questionId}` }, secondary: null };
 }

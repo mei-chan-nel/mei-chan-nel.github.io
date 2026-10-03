@@ -1,12 +1,12 @@
-import { VIDEO_PROGRAMS, PROGRAMS, findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-video";
+import { VIDEO_PROGRAMS, PROGRAMS, findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-library";
 import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-video";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
 import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261003-video";
-import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-video";
+import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-library";
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
-import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-video";
+import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-library";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 
 const $ = (id) => document.getElementById(id);
@@ -240,7 +240,15 @@ function route() {
   const id = location.hash.slice(1);
   const entry = findProgram(id);
   if (entry) showExample(entry);
-  else showLibrary();
+  else {
+    const url = new URL(location.href);
+    if (url.hash || url.searchParams.has("from")) {
+      url.hash = "";
+      url.searchParams.delete("from");
+      history.replaceState(history.state, "", `${url.pathname}${url.search}`);
+    }
+    showLibrary();
+  }
 }
 
 function render(animate = false) {

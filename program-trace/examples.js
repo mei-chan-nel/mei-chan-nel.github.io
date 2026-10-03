@@ -1,6 +1,6 @@
 import { literal as v, ref as r, param as p, op, at, length, call, random, assign, print, input, branch, otherwise, repeat, whileLoop, define, returnValue, numberField as field, arrayField } from "./language.js?v=20261003-video";
 import { cloneValue, formatValue, validateField } from "./values.js?v=20261003-video";
-import { VIDEO_PROGRAMS, VIDEO_VARIANTS } from "./video-programs.js?v=20261003-video";
+import { VIDEO_PROGRAMS, VIDEO_VARIANTS } from "./video-programs.js?v=20261003-library";
 
 /** 代表問題の正本。表記・命令データ・設定値・外部入力の条件を分離して管理する。 */
 const add = (a, b) => op("+", a, b);
