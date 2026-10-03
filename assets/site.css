@@ -111,14 +111,17 @@ img { max-width: 100%; }
 .home-action-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .home-action-card, .home-misc-card { --accent: var(--coral-strong); position: relative; color: var(--ink); background: var(--white); border: 1px solid var(--line); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .home-action-card { min-height: 300px; padding: 28px; display: flex; flex-direction: column; border-radius: 22px; }
-.home-action-card--main { --accent: var(--blue-strong); background: color-mix(in srgb, var(--blue) 5%, var(--white)); border-color: color-mix(in srgb, var(--blue-strong) 32%, var(--line)); box-shadow: 0 4px 16px rgb(47 101 151 / 7%); }
-.home-action-label { position: absolute; top: 28px; right: 28px; padding: 4px 9px; border-radius: 6px; color: var(--blue-strong); background: color-mix(in srgb, var(--blue) 9%, var(--white)); font-size: .62rem; font-weight: 700; letter-spacing: .1em; line-height: 1.5; white-space: nowrap; }
+.home-action-card--main { --accent: #0f766e; background: #edf7f2; border-color: #adcbbb; box-shadow: 0 4px 16px rgb(15 118 110 / 7%); }
+.home-action-label { position: absolute; top: 28px; right: 28px; padding: 4px 9px; border-radius: 6px; color: #0b5d57; background: #dff3ef; font-size: .68rem; font-weight: 700; letter-spacing: .1em; line-height: 1.5; white-space: nowrap; }
 .home-action-card:hover, .home-misc-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: var(--shadow); }
 .home-action-card:focus-visible, .home-misc-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .home-action-icon { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--white)); font-size: 1.8rem; font-weight: 500; line-height: 1; }
 .home-action-card h3 { margin: 24px 0 10px; font-family: Georgia, "Yu Mincho", serif; font-size: 1.48rem; font-weight: 500; }
 .home-action-card p { margin: 0; color: var(--ink-soft); font-size: .84rem; line-height: 1.85; }
 .home-action-card .home-app-summary { margin-top: 12px; color: color-mix(in srgb, var(--ink-soft) 72%, var(--white)); font-size: .72rem; line-height: 1.65; }
+.home-action-card--main h3 { font-weight: 600; }
+.home-action-card--main p { color: var(--ink); font-size: .88rem; font-weight: 500; }
+.home-action-card--main .home-app-summary { color: var(--ink-soft); font-size: .78rem; }
 .home-action-card .card-arrow, .home-misc-card .card-arrow { margin-top: auto; }
 .home-misc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .home-misc-card { min-height: 150px; padding: 24px 28px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 18px; border-radius: 18px; }
