@@ -51,7 +51,8 @@ HTML のダブルクリックではなく HTTP サーバーから確認してく
 実行入口の canonical は `/program-trace/run.html` に統一し、問題ID・遷移元を含めません。
 XML・HTMLサイトマップには一覧だけを登録し、実行入口やその条件付きURLは登録しません。
 `robots.txt` で実行入口を遮断せず、GoogleがHTMLのnoindex指定を読み取れるようにします。
-`scripts/build_program_trace_pages.py` が一覧と共通のHTMLから実行入口を生成し、統合検証で同期を確認します。
+`scripts/build_program_trace_pages.py` が代表15問のカードと、一覧と共通のHTMLから実行入口を生成し、統合検証で同期を確認します。
+生成にはPythonとNode.js 22を使います。npmパッケージのインストールは不要で、生成済みHTMLをそのまま公開します。
 Googleの仕様は [noindexによる索引制御](https://developers.google.com/search/docs/crawling-indexing/block-indexing) と
 [JavaScript SEO](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics) を参照してください。
 共通ナビゲーションは他のページと同じ構成に揃えています。
@@ -71,6 +72,22 @@ Googleの仕様は [noindexによる索引制御](https://developers.google.com/
 既存の `assets/manual-ads.js` のディスプレイスロットを使い、ページ読込時に1回だけ初期化します。
 一覧と実行画面の切り替え・次へ・最初からで広告を作り直したり、リクエストを繰り返したりしません。
 未配信時は共通処理で枠を非表示にします。広告アカウントの設定やスロット番号は変更していません。
+
+## 一覧の初期表示
+
+代表15問は、生成時にプログラムの全行をカードのHTMLに含めます。一覧の表示をJavaScriptの読込完了まで待ちません。
+一覧専用の `library.js` は、最初にURLの処理だけを読み込みます。動画100問のデータとカード描画は、
+「動画解説問題」の折りたたみを開いたときに読み込みます。読み込み中と失敗時は状態を表示し、
+開き直した場合もカードを重複させません。
+
+実行入口は `app.js` を使い、非表示の一覧カードを生成しません。動画の命令データは選択した問題だけを
+必要時に解析し、同じ問題を再実行する場合は解析結果を再利用します。設定値も選択した問題から初期化します。
+問題の表記・正解補完・入力条件・索引制御は共通のデータを使います。
+
+2026-10-03の改善前は、閉じた動画一覧にも100枚のカードと5,395個の子要素を作っていました。
+改善後は展開前の動画カードを0枚にしています。アプリ側の初期読込JavaScriptは、圧縮前のソースで
+15モジュール・287,441バイトから2モジュール・2,686バイトになりました。
+この比較には共通ヘッダー・広告・計測用のスクリプトやCSSを含まず、ページ全体の表示時間を表すものではありません。
 
 ## 代表問題
 
@@ -190,12 +207,14 @@ Q324・Q330は20,000、Q326は100,000ステップまでです。関数の呼び�
 
 | ファイル | 役割 |
 | --- | --- |
-| `program-trace/index.html` / `styles.css` | 一覧・左右の実行画面・入力と設定のダイアログ |
-| `program-trace/run.html` / `scripts/build_program_trace_pages.py` | 共通HTMLから生成する、最初からnoindexの実行入口 |
+| `program-trace/index.html` / `styles.css` | 代表15問の静的カード、一覧・実行画面の共通HTMLとデザイン |
+| `program-trace/run.html` / `scripts/build_program_trace_pages.py` | 代表カードと、最初からnoindexの実行入口を生成・同期 |
+| `program-trace/library.js` | 一覧の旧URL処理、展開時の動画問題の読み込み |
+| `program-trace/card-renderer.js` / `scripts/render_program_trace_library.mjs` | 安全なカードHTMLの生成と、代表15問の生成処理 |
 | `program-trace/routing.js` | 実行URL、旧URLからの移動、実行入口から一覧への移動 |
 | `program-trace/examples.js` | 代表問題・動画解説問題のコレクション、表記、設定、入力条件 |
 | `program-trace/video-program-data.js` | 原文から生成した100問の表記、正解の補完、前提・入力・設定条件 |
-| `program-trace/video-programs.js` | 動画問題の登録、派生設定、入力候補、移動元に応じたリンク |
+| `program-trace/video-programs.js` | 動画問題の登録、選択時の解析、派生設定、入力候補、移動元に応じたリンク |
 | `program-trace/source-parser.js` | 登録済みの日本語プログラム表記を命令・式のデータへ変換 |
 | `program-trace/language.js` | 命令と式のデータを作る共通関数 |
 | `program-trace/interpreter.js` | 命令のコンパイル、式のVM、関数フレーム、純粋な状態遷移 |
@@ -206,10 +225,11 @@ Q324・Q330は20,000、Q326は100,000ステップまでです。関数の呼び�
 | `program-trace/autoplay.js` | 速度設定、タイマー、入力後の再開 |
 | `program-trace/workspace.js` | 実行前の表示量の試算と、各枠の固定サイズの計測 |
 | `program-trace/trace-completion.js` | 最後の行の次の操作で強調を解除する状態遷移 |
-| `program-trace/app.js` | ルート、ダイアログ、状態の描画 |
+| `program-trace/app.js` | 実行画面のルート、ダイアログ、状態の描画 |
 | `scripts/program-trace.test.mjs` | 15問の実行・境界値・不正入力・再帰・乱数・自動実行のテスト |
 | `scripts/program-trace-video.test.mjs` | 動画100問、正解補完、全リンク、個別の入力・設定・表示のテスト |
 | `scripts/program-trace-seo.test.mjs` | 一覧・実行の索引制御、全実行リンク、旧URL、サイトマップのテスト |
+| `scripts/program-trace-library.test.mjs` | 代表15問の静的表示と正本の一致、カードHTMLのエスケープのテスト |
 | `scripts/build_video_programs.py` | 原文・正解と問題ごとの設定から実行用データを生成 |
 | `scripts/preview_site.py` | ポータルと隣接アプリを公開時と同じパスで配信するローカルサーバー |
 
@@ -217,7 +237,8 @@ JavaScript のソース文字列は実行しません。`eval()` や `Function()
 式を小さなスタックマシンで計算します。関数呼び出しでは計算を中断し、戻り値で再開します。
 配列や呼び出しフレームを含め、`step()` は過去の状態を変更しません。
 登録された表記だけを専用パーサーで命令データに変換し、ユーザーの自由なプログラムは受け付けません。
-ユーザー入力は問題ごとの型・範囲・要素数に検証し、HTMLへの挿入にはテキストノードを使います。
+ユーザー入力は問題ごとの型・範囲・要素数に検証し、表示にはテキストノードを使います。
+一覧カードのHTMLを作る場合も、データの文字列はエスケープして挿入します。
 
 登録する問題は次のデータを持ちます。一覧・設定フォーム・変数欄はデータから生成します。
 
@@ -254,7 +275,7 @@ Q231〜Q330を後者へ `collection: "video"` として登録しています。
 python -X utf8 scripts/build_video_programs.py
 python -X utf8 scripts/generate_video_pages.py
 python scripts/build_program_trace_pages.py
-node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs scripts/program-trace-seo.test.mjs
+node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs scripts/program-trace-seo.test.mjs scripts/program-trace-library.test.mjs
 python -X utf8 scripts/validate_portal.py --app-root ../info1-quiz-app
 ```
 
@@ -263,7 +284,7 @@ python -X utf8 scripts/validate_portal.py --app-root ../info1-quiz-app
 サイトマップへの登録を確認します。一覧と実行画面の主見出しは、同時には表示しません。
 `scripts/validate_manual_ads.py` は広告が1枠だけで、本体とフッターの間にあることも検査します。
 
-2026-10-03：トレース・索引制御・トップページ・講義キーワード・広告の自動テスト184件が成功。
+2026-10-03：トレース・一覧・索引制御・トップページ・講義キーワード・広告の自動テスト186件が成功。
 動画100問をすべて初期設定で最後まで実行し、変更可能な数値の上下限では198パターンが完了、
 添字と配列長が矛盾する2パターンは適用前に拒否することを確認しました。
 全127か所のボタンと遷移元、原文のハッシュ、38問の正解補完も検証しています。

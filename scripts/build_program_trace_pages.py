@@ -1,7 +1,9 @@
-"""Generate the noindex execution entry from the shared program-trace HTML."""
+"""Generate the static representative cards and the noindex execution entry."""
 from __future__ import annotations
 
 import argparse
+import re
+import subprocess
 from pathlib import Path
 
 
@@ -9,14 +11,33 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "program-trace" / "index.html"
 OUTPUT = ROOT / "program-trace" / "run.html"
 LIBRARY_URL = "https://mei-chan-nel.com/program-trace/"
+CARDS_START = "<!-- representative-program-cards:start -->"
+CARDS_END = "<!-- representative-program-cards:end -->"
 
 
-def render_runner() -> str:
-    source = SOURCE.read_text(encoding="utf-8")
+def replace_cards(source: str, cards: str) -> str:
+    if source.count(CARDS_START) != 1 or source.count(CARDS_END) != 1:
+        raise ValueError("The trace library must contain exactly one generated representative-card region.")
+    before, remaining = source.split(CARDS_START, 1)
+    _, after = remaining.split(CARDS_END, 1)
+    return before + CARDS_START + "\n" + cards + ("\n" if cards else "") + CARDS_END + after
+
+
+def render_library(source: str) -> str:
+    cards = subprocess.run(
+        ["node", str(ROOT / "scripts" / "render_program_trace_library.mjs")],
+        cwd=ROOT, check=True, capture_output=True, text=True, encoding="utf-8",
+    ).stdout
+    return replace_cards(source, cards)
+
+
+def render_runner(source: str) -> str:
     robots = '<meta name="robots" content="index, follow" />'
     if source.count(robots) != 1:
         raise ValueError("The trace library must have exactly one index, follow robots tag.")
     result = source.replace(robots, '<meta name="robots" content="noindex, follow" />', 1)
+    result = replace_cards(result, "")
+    result = re.sub(r'src="\./library\.js(\?[^"\s]*)?"', r'src="./app.js\1"', result)
     result = result.replace(LIBRARY_URL, LIBRARY_URL + "run.html")
     result = result.replace(
         '<section id="library-view" aria-labelledby="library-title">',
@@ -34,15 +55,18 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="Check the generated execution entry without writing.")
     args = parser.parse_args()
-    expected = render_runner()
+    source = SOURCE.read_text(encoding="utf-8")
+    library = render_library(source)
+    expected = render_runner(library)
     if args.check:
-        if not OUTPUT.is_file() or OUTPUT.read_text(encoding="utf-8") != expected:
-            print("program-trace/run.html is out of date. Run python scripts/build_program_trace_pages.py.")
+        if source != library or not OUTPUT.is_file() or OUTPUT.read_text(encoding="utf-8") != expected:
+            print("Program trace pages are out of date. Run python scripts/build_program_trace_pages.py.")
             return 1
-        print("Program trace execution entry is synchronized and noindex.")
+        print("Program trace static cards and noindex execution entry are synchronized.")
     else:
+        SOURCE.write_text(library, encoding="utf-8")
         OUTPUT.write_text(expected, encoding="utf-8")
-        print("Generated program-trace/run.html with noindex, follow.")
+        print("Generated 15 static representative cards and program-trace/run.html with noindex, follow.")
     return 0
 
 

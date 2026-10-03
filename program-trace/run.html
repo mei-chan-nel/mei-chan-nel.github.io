@@ -26,7 +26,7 @@
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./styles.css?v=20261003-library" />
-    <script src="./app.js?v=20261003-seo" type="module"></script>
+    <script src="./app.js?v=20261003-perf" type="module"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
     <script src="../assets/manual-ads.js?v=2026080901" defer></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"プログラムトレース","url":"https://mei-chan-nel.com/program-trace/run.html","description":"共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数・配列・出力の変化を確かめる学習ツール。","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
@@ -67,9 +67,13 @@
             <p class="lead">「次へ」を押して、変数の変化を追いかけよう。<br class="desktop-break" />共通テスト「情報Ⅰ」の表記で、処理の流れを確かめられます。</p>
           </div>
         </div>
-        <div id="example-grid" class="example-grid"></div>
-        <details id="video-collection" class="video-collection" aria-labelledby="video-collection-title" hidden>
+        <div id="example-grid" class="example-grid">
+<!-- representative-program-cards:start -->
+<!-- representative-program-cards:end -->
+        </div>
+        <details id="video-collection" class="video-collection" aria-labelledby="video-collection-title">
           <summary class="section-label"><h2 id="video-collection-title">動画解説問題</h2></summary>
+          <p id="video-library-status" class="lead" role="status" hidden></p>
           <div id="video-grid" class="example-grid"></div>
         </details>
       </section>

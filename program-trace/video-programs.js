@@ -23,7 +23,11 @@ function prepare(data, parent = null) {
     }
     return null;
   };
-  entry.program = parseProgram(entry.source, { inputs: entry.inputs, arrayCallNames: entry.number === 309 ? ["Henkan"] : [] });
+  let program;
+  Object.defineProperty(entry, "program", {
+    enumerable: true,
+    get: () => program ??= parseProgram(entry.source, { inputs: entry.inputs, arrayCallNames: entry.number === 309 ? ["Henkan"] : [] }),
+  });
   entry.groupId = parent?.id ?? entry.id;
   return entry;
 }

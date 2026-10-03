@@ -1,14 +1,14 @@
-import { VIDEO_PROGRAMS, PROGRAMS, findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-library";
+import { findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-perf";
 import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-video";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
 import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261003-video";
-import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-library";
+import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-perf";
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
-import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-library";
+import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-perf";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
-import { executionHref, traceRedirect } from "./routing.js?v=20261003-seo";
+import { traceRedirect } from "./routing.js?v=20261003-seo";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
@@ -24,7 +24,7 @@ const ui = Object.fromEntries([
   "output-history-button",
 ].map((id) => [id, $(id)]));
 
-const settings = new Map(PROGRAMS.flatMap((entry) => [entry, ...(entry.alternatives ?? [])]).map((entry) => [entry.id, defaultParameters(entry)]));
+const settings = new Map();
 let example = null;
 let parameters = null;
 let compiled = null;
@@ -66,36 +66,6 @@ function highlighted(text) {
   }
   fragment.append(document.createTextNode(text.slice(cursor)));
   return fragment;
-}
-
-function renderLibrary() {
-  ui["example-grid"].replaceChildren();
-  $("video-grid").replaceChildren();
-  $("video-collection").hidden = !VIDEO_PROGRAMS.length;
-  for (const entry of PROGRAMS) {
-    const card = element("a", "example-card");
-    card.href = executionHref(entry.id, entry.collection === "video" ? "examples" : "");
-    card.dataset.accent = entry.accent;
-    card.setAttribute("aria-label", `${entry.collection === "video" ? "動画解説問題" : `例${entry.number}`} ${entry.title}：1行ずつ実行`);
-    const heading = element("div", "card-heading");
-    heading.append(element("span", "example-number", String(entry.number).padStart(2, "0")), element("span", "category", entry.category));
-    const code = element("div", "preview-code");
-    for (const source of sourceLines(entry, settings.get(entry.id))) {
-      const row = element("div", "preview-line");
-      const content = element("code", "source-code");
-      content.append(highlighted(source.text));
-      row.append(element("span", "line-number", lineLabel(entry, source.line)), content);
-      code.append(row);
-    }
-    const bottom = element("div", "card-bottom");
-    const action = element("strong", "", "1行ずつ実行");
-    const arrow = element("span", "card-arrow", "→");
-    arrow.setAttribute("aria-hidden", "true");
-    action.append(arrow);
-    bottom.append(action);
-    card.append(heading, element("h3", "", entry.title), element("p", "card-description", entry.description), code, bottom);
-    $(entry.collection === "video" ? "video-grid" : "example-grid").append(card);
-  }
 }
 
 function buildProgram() {
@@ -168,7 +138,8 @@ function showExample(entry) {
   closeInspector();
   if (ui["values-dialog"].open) ui["values-dialog"].close();
   example = entry;
-  parameters = settings.get(example.id);
+  parameters = settings.get(example.id) ?? defaultParameters(example);
+  settings.set(example.id, parameters);
   compileExample();
   ui["library-view"].hidden = true;
   ui["runner-view"].hidden = false;
@@ -507,7 +478,6 @@ ui["values-form"].addEventListener("submit", (event) => {
   buildProgram();
   buildVariables();
   reset();
-  renderLibrary();
   ui["values-dialog"].close();
   ui["next-button"].focus();
 });
@@ -610,5 +580,4 @@ document.addEventListener("keydown", (event) => {
 window.addEventListener("resize", () => {
   if (workspacePlan && !ui["runner-view"].hidden) sizeWorkspace(ui["runner-view"], workspacePlan);
 });
-renderLibrary();
 route();

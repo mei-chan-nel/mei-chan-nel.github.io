@@ -44,7 +44,10 @@ scripts/preview_site.py    ポータルと隣接アプリを同じURL構成で�
 `/program-trace/run.html#addition` など、動画解説問題は `/program-trace/run.html#video-q-231` の形式です。
 一覧は検索対象に残し、実行入口の `run.html` は最初のHTMLから `noindex, follow` を指定しています。
 旧実行URLも問題ID・遷移元を保持して新しい入口へ移動します。
-共通HTMLを編集したときは `python scripts/build_program_trace_pages.py` で実行入口を再生成します。
+共通HTMLや代表問題を編集したときは `python scripts/build_program_trace_pages.py` で一覧のカードと実行入口を再生成します。
+生成にはPythonとNode.js 22を使います。npmパッケージのインストールは不要です。
+代表15問のカードはHTMLに含め、動画100問は折りたたみを開いたときに読み込みます。
+一覧と実行のJavaScriptを分け、一覧を開くだけでは実行用の処理を読み込みません。
 代表問題15問に加え、動画のプログラミング問題Q231〜Q330の100問を収録しています。
 通常の動画ページと最短学習コースの計127か所で、「解説動画を表示」の右側に
 「1行ずつ実行する」を表示します。`?from=<動画ページの分類ID>` で移動元を保持し、
@@ -54,7 +57,7 @@ scripts/preview_site.py    ポータルと隣接アプリを同じURL構成で�
 
 ```powershell
 python scripts/preview_site.py --host 127.0.0.1 --port 8773
-node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs scripts/program-trace-seo.test.mjs
+node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs scripts/program-trace-seo.test.mjs scripts/program-trace-library.test.mjs
 ```
 
 ブラウザで `http://127.0.0.1:8773/program-trace/` を開きます。
