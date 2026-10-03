@@ -214,23 +214,25 @@ function expressionText(expression, variables, parameters, resolved = false, cal
 }
 
 /** 式を小さなスタックマシンへ変換する。呼び出し時に中断し、戻り値で再開できる。 */
-function expressionOps(expression) {
+function expressionOps(expression, captureSources = false) {
   switch (expression.type) {
-    case "literal": case "variable": case "parameter": case "random": return [{ ...expression }];
+    case "literal": case "parameter": case "random": return [{ ...expression }];
+    case "variable": return [{ ...expression, captureSource: captureSources }];
     case "binary": {
       if (["and", "or"].includes(expression.operator)) {
-        const right = [...expressionOps(expression.right), { type: "boolean" }];
-        return [...expressionOps(expression.left), { type: "short-circuit", operator: expression.operator, skip: right.length }, ...right];
+        const right = [...expressionOps(expression.right, captureSources), { type: "boolean" }];
+        return [...expressionOps(expression.left, captureSources), { type: "short-circuit", operator: expression.operator, skip: right.length }, ...right];
       }
-      return [...expressionOps(expression.left), ...expressionOps(expression.right), { type: "binary", operator: expression.operator }];
+      return [...expressionOps(expression.left, captureSources), ...expressionOps(expression.right, captureSources), { type: "binary", operator: expression.operator }];
     }
-    case "unary": return [...expressionOps(expression.expression), { type: "unary", operator: expression.operator }];
-    case "array": return [...expression.items.flatMap(expressionOps), { type: "array", count: expression.items.length }];
-    case "builtin": return [...expression.args.flatMap(expressionOps), { type: "builtin", name: expression.name, count: expression.args.length }];
-    case "index": return [...expression.indices.flatMap(expressionOps), { type: "index", name: expression.name, count: expression.indices.length }];
-    case "length": return [...expressionOps(expression.expression), { type: "length" }];
-    case "call": return [...expression.args.flatMap(expressionOps), { type: "call", name: expression.name, count: expression.args.length }];
-    case "text": return [...expression.parts.flatMap((part) => expressionOps(typeof part === "string" ? { type: "literal", value: part } : part)), { type: "text", count: expression.parts.length }];
+    case "unary": return [...expressionOps(expression.expression, captureSources), { type: "unary", operator: expression.operator }];
+    case "array": return [...expression.items.flatMap((item) => expressionOps(item, captureSources)), { type: "array", count: expression.items.length }];
+    case "builtin": return [...expression.args.flatMap((arg) => expressionOps(arg, captureSources)), { type: "builtin", name: expression.name, count: expression.args.length }];
+    // 要素番号の計算に使う変数と、代入する要素の値を区別する。
+    case "index": return [...expression.indices.flatMap((index) => expressionOps(index)), { type: "index", name: expression.name, count: expression.indices.length, captureSource: captureSources }];
+    case "length": return [...expressionOps(expression.expression, captureSources), { type: "length" }];
+    case "call": return [...expression.args.flatMap((arg) => expressionOps(arg, captureSources)), { type: "call", name: expression.name, count: expression.args.length }];
+    case "text": return [...expression.parts.flatMap((part) => expressionOps(typeof part === "string" ? { type: "literal", value: part } : part, captureSources)), { type: "text", count: expression.parts.length }];
     default: throw new Error(`未対応の式です: ${expression.type}`);
   }
 }
@@ -240,7 +242,10 @@ function runExpression(vm, variables, parameters, state) {
     const operation = vm.ops[vm.ip++];
     switch (operation.type) {
       case "literal": vm.values.push(cloneValue(operation.value)); break;
-      case "variable": vm.values.push(read(variables, operation.name)); break;
+      case "variable":
+        vm.values.push(read(variables, operation.name));
+        if (operation.captureSource) vm.sources.push({ name: operation.name, indices: [] });
+        break;
       case "parameter": vm.values.push(read(parameters, operation.name)); break;
       case "binary": { const right = vm.values.pop(); const left = vm.values.pop(); vm.values.push(binary(operation.operator, left, right)); break; }
       case "boolean": vm.values.push(Boolean(vm.values.pop())); break;
@@ -258,6 +263,7 @@ function runExpression(vm, variables, parameters, state) {
         const indices = vm.values.splice(vm.values.length - operation.count, operation.count);
         vm.values.push(readIndex(variables, operation.name, indices));
         state.reads.push({ name: operation.name, indices });
+        if (operation.captureSource) vm.sources.push({ name: operation.name, indices });
         break;
       }
       case "random": {
@@ -269,7 +275,7 @@ function runExpression(vm, variables, parameters, state) {
     }
   }
   if (vm.values.length !== 1) throw new Error("式の命令データを確認してください。");
-  return { value: vm.values[0] };
+  return { value: vm.values[0], sources: vm.sources };
 }
 
 function finishState(state) {
@@ -299,14 +305,15 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
   };
   const frame = state.frames.at(-1);
   const variables = () => ({ ...state.frames[0].variables, ...(frame.name ? frame.variables : {}) });
-  const event = { kind: instruction.type, line: instruction.line, title: "", explanation: "", condition: null, assignments: [] };
+  const event = { kind: instruction.type, line: instruction.line, title: "", explanation: "", condition: null, assignments: [], sources: [] };
   state.event = event;
-  const pending = frame.pending ??= { values: {}, evaluation: null, calls: [], actionIndex: 0, explanations: [], assignments: [] };
+  const pending = frame.pending ??= { values: {}, sources: {}, evaluation: null, calls: [], actionIndex: 0, explanations: [], assignments: [] };
   const symbolic = (expression, resolved = false) => expressionText(expression, variables(), parameters, resolved, pending.calls);
 
   function expression(expr, slot) {
     if (Object.hasOwn(pending.values, slot)) return pending.values[slot];
-    pending.evaluation ??= { ops: expressionOps(expr), ip: 0, values: [] };
+    const captureSources = instruction.type === "assign" && String(slot).startsWith("value-") || instruction.type === "append";
+    pending.evaluation ??= { ops: expressionOps(expr, captureSources), ip: 0, values: [], sources: [] };
     const result = runExpression(pending.evaluation, variables(), parameters, state);
     if (result.call) {
       const definition = Object.hasOwn(compiled.functions, result.call) ? compiled.functions[result.call] : null;
@@ -324,6 +331,7 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
       throw CALL_STARTED;
     }
     pending.values[slot] = cloneValue(result.value);
+    pending.sources[slot] = result.sources;
     pending.evaluation = null;
     return result.value;
   }
@@ -360,11 +368,12 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
           const resolved = symbolic(assignment.expression, true);
           const before = write(assignment.name, after, indices);
           const target = `${assignment.name}${indices.length ? `[${indices.join(", ")}]` : ""}`;
-          pending.assignments.push({ name: assignment.name, target, indices, before, after, expression: text, calculation: resolved });
+          pending.assignments.push({ name: assignment.name, target, indices, before, after, expression: text, calculation: resolved, sources: pending.sources[`value-${index}`] });
           pending.explanations.push(`${assignment.expression.type === "binary" ? `${text} = ${resolved} = ${formatValue(after)}。` : ""}${target} に ${formatValue(after)} を代入しました。${sameValue(before, after) ? "値は変わりません。" : ""}`);
           pending.actionIndex = index + 1;
         }
         event.assignments = pending.assignments;
+        event.sources = pending.assignments.flatMap((assignment) => assignment.sources);
         event.title = instruction.assignments.some((assignment) => assignment.indices?.length) ? "配列の要素に代入" : instruction.assignments.some((assignment) => Array.isArray(frame.variables[assignment.name])) ? "配列を用意する" : "変数に値を代入";
         event.explanation = pending.explanations.join(" ");
         break;
@@ -383,6 +392,7 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
         const before = read(variables(), instruction.name);
         arrayLength(before);
         const value = expression(instruction.expression, 0);
+        event.sources = pending.sources[0];
         write(instruction.name, [...before, cloneValue(value)]);
         const change = state.changes.at(-1);
         if (change) Object.assign(change, { indices: [before.length], beforeElement: undefined, afterElement: value });

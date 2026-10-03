@@ -8,21 +8,23 @@ const element = (tag, className, text = null) => {
 };
 
 /** 変化の描画を実画面と実行前のサイズ計測で共有する。 */
-export function renderChange(container, change) {
+export function renderChange(container, change, sources = []) {
   container.replaceChildren();
   if (!change) { container.textContent = "—"; return; }
+  const wasSource = sources.some((source) => source.name === change.name && (source.indices.length === 0 || source.indices.join(",") === (change.indices ?? []).join(",")));
+  const beforeClass = (unset) => [unset ? "unset-before" : "", wasSource && !unset ? "is-assignment-source" : ""].filter(Boolean).join(" ");
   if (change.indices) {
     container.append(element("code", "changed-target", `${change.name}[${change.indices.join(", ")}]`));
-    container.append(element("span", change.beforeElement === undefined ? "unset-before" : "", change.beforeElement === undefined ? "未代入" : formatValue(change.beforeElement)), element("span", "change-arrow", "→"), element("strong", "", formatValue(change.afterElement)));
+    container.append(element("span", beforeClass(change.beforeElement === undefined), change.beforeElement === undefined ? "未代入" : formatValue(change.beforeElement)), element("span", "change-arrow", "→"), element("strong", "", formatValue(change.afterElement)));
   } else if (Array.isArray(change.after)) {
-    container.append(element("span", "", change.before === undefined ? "未代入" : `${change.before.length}個の配列`), element("span", "change-arrow", "→"), element("strong", "", `${change.after.length}個の配列`));
+    container.append(element("span", beforeClass(change.before === undefined), change.before === undefined ? "未代入" : `${change.before.length}個の配列`), element("span", "change-arrow", "→"), element("strong", "", `${change.after.length}個の配列`));
   } else {
-    container.append(element("span", change.before === undefined ? "unset-before" : "", change.before === undefined ? "未代入" : formatValue(change.before)), element("span", "change-arrow", "→"), element("strong", "", change.after === undefined ? "呼び出し終了" : formatValue(change.after)));
+    container.append(element("span", beforeClass(change.before === undefined), change.before === undefined ? "未代入" : formatValue(change.before)), element("span", "change-arrow", "→"), element("strong", "", change.after === undefined ? "呼び出し終了" : formatValue(change.after)));
   }
 }
 
 /** 要素番号と値を並べ、変更した要素と参照した要素を区別する。 */
-export function renderValue(container, name, value, changes = [], reads = [], shape = null, { full = false, columnLabels = [] } = {}) {
+export function renderValue(container, name, value, changes = [], reads = [], shape = null, { full = false, columnLabels = [], sources = [], assignments = [] } = {}) {
   container.replaceChildren();
   const changed = (indices) => changes.some((change) => !change.indices || change.indices.join(",") === indices.join(","));
   const referenced = (indices) => reads.some((read) => read.name === name && read.indices.join(",") === indices.join(","));
@@ -30,13 +32,17 @@ export function renderValue(container, name, value, changes = [], reads = [], sh
     cell.dataset.index = indices.join(",");
     cell.classList.toggle("is-changed-element", changed(indices));
     cell.classList.toggle("is-referenced", referenced(indices));
-    cell.setAttribute("aria-label", `${name}[${indices.join(", ")}]：${formatValue(item)}`);
+    const source = sources.some((source) => source.name === name && (source.indices.length === 0 || source.indices.join(",") === indices.join(",")));
+    const target = assignments.some((assignment) => assignment.name === name && (!assignment.indices?.length || assignment.indices.join(",") === indices.join(",")));
+    cell.classList.toggle("is-assignment-source", source);
+    cell.classList.toggle("is-assignment-target", target);
+    cell.setAttribute("aria-label", `${name}[${indices.join(", ")}]：${formatValue(item)}${source ? "（代入元）" : ""}${target ? "（代入先）" : ""}`);
   }
   if (Array.isArray(value)) {
     const array = element("div", "array-value");
     array.classList.toggle("is-text-array", value.some((item) => typeof item === "string" && item.length >= 3));
     array.setAttribute("aria-label", `${name} の要素（番号は0から）`);
-    const indices = visibleArrayIndices(value.length, changes, reads.filter((read) => read.name === name), full);
+    const indices = visibleArrayIndices(value.length, changes, [...reads, ...sources].filter((read) => read.name === name), full);
     let previous = -1;
     indices.forEach((index) => {
       const item = value[index];

@@ -99,6 +99,47 @@ test("配列の交換では要素番号と変更前後を示し、過去の配�
   assert.deepEqual(longer.variables.Data, [-8, 2, 0, 10, 99]);
 });
 
+test("代入元は実際に使う変数・要素で、添字や短絡評価で省略された式を含めない", () => {
+  const swap = execute("swap");
+  assert.deepEqual(swap.trace[2].event.sources, [{ name: "x", indices: [] }]);
+  assert.deepEqual(swap.trace[3].event.sources, [{ name: "y", indices: [] }]);
+  assert.deepEqual(swap.trace[4].event.sources, [{ name: "tmp", indices: [] }]);
+  assert.deepEqual(swap.trace[5].event.sources, []);
+  assert.deepEqual(execute("array-swap").trace[2].event.sources, [{ name: "Data", indices: [2] }]);
+  const compiled = compileProgram([
+    assign(1, "Data", r("x"), r("i")),
+    assign(2, "tmp", at("Data", r("j"))),
+    assign(3, "result", op("and", op(">", r("x"), v(0)), op(">", at("Data", r("j")), v(0)))),
+  ], { initialVariables: { Data: [3, 5], x: -1, i: 0, j: 1 } });
+  const initial = createState(compiled);
+  const first = step(compiled, initial, {});
+  const second = step(compiled, first, {});
+  const third = step(compiled, second, {});
+  assert.deepEqual(first.event.sources, [{ name: "x", indices: [] }]);
+  assert.deepEqual(second.event.sources, [{ name: "Data", indices: [1] }]);
+  assert.deepEqual(third.event.sources, [{ name: "x", indices: [] }]);
+  assert.equal(third.variables.result, false);
+  assert.deepEqual(initial.variables.Data, [3, 5]);
+  assert.deepEqual(first.event.sources, [{ name: "x", indices: [] }]);
+});
+
+test("関数呼び出しで中断・再開した代入も、右辺の代入元を保持する", () => {
+  const compiled = compileProgram([
+    define(1, "square", ["n"], returnValue(2, op("*", r("n"), r("n")))),
+    assign(3, "result", op("+", r("x"), call("square", r("x")))),
+    print(4, r("result")),
+  ], { initialVariables: { x: 3 } });
+  let state = createState(compiled);
+  const trace = [];
+  while (!state.completed) { state = step(compiled, state, {}); trace.push(state); }
+  const assignment = trace.find((state) => state.currentLine === 3 && state.event.kind === "assign");
+  assert.equal(assignment.variables.result, 12);
+  assert.deepEqual(assignment.event.sources, [{ name: "x", indices: [] }, { name: "x", indices: [] }]);
+  assert.deepEqual(trace.find((state) => state.event.kind === "call").event.sources, []);
+  assert.deepEqual(state.event.sources, []);
+  assert.deepEqual(output(state), ["12"]);
+});
+
 for (const [age, lines, text] of [[0, [1, 2, 4, 5], "未成年です。"], [17, [1, 2, 4, 5], "未成年です。"], [18, [1, 2, 3], "成人です。"], [120, [1, 2, 3], "成人です。"]]) {
   test(`年齢 ${age}：境界を正しく判定し、選んだ枝だけを実行する`, () => {
     const { state, trace } = execute("condition", {}, { age });

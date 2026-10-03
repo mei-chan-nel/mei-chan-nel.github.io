@@ -1,10 +1,10 @@
 import { findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-perf";
-import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-video";
+import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-sources";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
 import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
-import { renderValue, renderChange } from "./value-view.js?v=20261003-video";
-import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-perf";
+import { renderValue, renderChange } from "./value-view.js?v=20261003-sources";
+import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-sources";
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
 import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-perf";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
@@ -49,30 +49,18 @@ function element(tag, className = "", text = null) {
 }
 
 /** 色付けだけを行う。入力を HTML として挿入しない。 */
-function highlighted(text, instruction) {
+function highlighted(text) {
   const fragment = document.createDocumentFragment();
-  const pattern = /"(?:\\.|[^"\\])*"|-?\d+(?:\.\d+)?|\b[a-zA-Z_][a-zA-Z_0-9]*\b|そうでなくもし|そうでなければ|もし|ならば|繰り返す|の間|ずつ増やしながら|外部からの入力|要素数|定義する|返す|乱数|[｜⎿]/g;
-  const targets = new Set(instruction?.type === "assign" ? instruction.assignments.map(({ name }) => name)
-    : ["input", "for"].includes(instruction?.type) ? [instruction.name] : []);
+  const pattern = /"[^"]*"|-?\d+(?:\.\d+)?|\b[a-zA-Z_][a-zA-Z_0-9]*\b|そうでなくもし|そうでなければ|もし|ならば|繰り返す|の間|ずつ増やしながら|外部からの入力|要素数|定義する|返す|乱数|[｜⎿]/g;
   let cursor = 0;
-  let depth = 0;
-  let statementStart = true;
   for (const match of text.matchAll(pattern)) {
-    const gap = text.slice(cursor, match.index);
-    // 引用符内のカンマや配列の添字を、次の代入先と取り違えない。
-    for (const character of gap) {
-      if (character === "[" || character === "(") depth++;
-      else if (character === "]" || character === ")") depth--;
-      else if (character === "," && depth === 0) statementStart = true;
-    }
-    fragment.append(document.createTextNode(gap));
+    fragment.append(document.createTextNode(text.slice(cursor, match.index)));
     const token = match[0];
     let type = "keyword";
     if (token.startsWith('"')) type = "string";
     else if (/^-?\d/.test(token)) type = "number";
-    else if (/^[a-zA-Z_]/.test(token)) type = statementStart && depth === 0 && targets.has(token) ? "assignment" : "variable";
+    else if (/^[a-zA-Z_]/.test(token)) type = "variable";
     else if (/[｜⎿]/.test(token)) type = "branch";
-    if (type !== "branch" && depth === 0) statementStart = false;
     fragment.append(element("span", `token-${type}`, token));
     cursor = match.index + token.length;
   }
@@ -90,7 +78,7 @@ function buildProgram() {
     const row = element("li", "program-line");
     row.dataset.line = String(source.line);
     const content = element("code", "source-code");
-    content.append(highlighted(source.text, compiled.instructions.find(({ line }) => line === source.line)));
+    content.append(highlighted(source.text));
     const marker = element("span", "line-marker");
     row.append(element("span", "line-number", lineLabel(example, source.line)), content, marker);
     ui["program-lines"].append(row);
@@ -277,6 +265,8 @@ function render(animate = false) {
     marker.textContent = current ? "実行中" : state.skippedLines.includes(line) ? "スキップ" : "";
   }
 
+  const sources = pendingInput ? [] : state.event?.sources ?? [];
+  const assignments = pendingInput ? [] : state.event?.assignments ?? [];
   for (const [name, nodes] of variableRows) {
     const initialized = Object.hasOwn(state.variables, name);
     const value = state.variables[name];
@@ -286,7 +276,12 @@ function render(animate = false) {
     const shape = example.arrayShapes?.[name];
     const plannedValue = workspacePlan?.variables.get(name)?.value;
     nodes.row.classList.toggle("is-array", Array.isArray(value) || value?.kind === "matrix" || Array.isArray(plannedValue) || plannedValue?.kind === "matrix");
-    renderValue(nodes.value, name, value, changes, pendingInput ? [] : state.reads, shape ? { rows: parameters[shape.rows], columns: parameters[shape.columns], start: shape.start } : null, { columnLabels: example.parameters.find((field) => field.key === name)?.columnLabels });
+    renderValue(nodes.value, name, value, changes, pendingInput ? [] : state.reads, shape ? { rows: parameters[shape.rows], columns: parameters[shape.columns], start: shape.start } : null, { columnLabels: example.parameters.find((field) => field.key === name)?.columnLabels, sources, assignments });
+    nodes.row.classList.toggle("is-source", sources.some((source) => source.name === name && source.indices.length === 0));
+    nodes.mobile.classList.toggle("is-source", sources.some((source) => source.name === name));
+    const assigned = assignments.some((assignment) => assignment.name === name);
+    nodes.row.classList.toggle("is-assignment-target", assigned);
+    nodes.mobile.classList.toggle("is-assignment-target", assigned);
     nodes.value.classList.toggle("is-unset", !initialized);
     const axes = value?.kind === "matrix" ? matrixAxes(value) : null;
     nodes.mobileValue.textContent = axes ? `${axes.rows.length}×${axes.columns.length}の表` : Array.isArray(value) ? `${value.length}個の配列` : text;
@@ -298,7 +293,7 @@ function render(animate = false) {
     }
     nodes.row.classList.toggle("is-changed", !!change);
     nodes.mobile.classList.toggle("is-changed", !!change);
-    renderChange(nodes.change, change);
+    renderChange(nodes.change, change, sources);
   }
 
   const event = pendingInput ? { line: pendingInput.line, title: "入力を待っています", explanation: `${pendingInput.name} に入れる値を入力してください。確定すると、この行の結果を反映します。` } : state.event;
@@ -575,7 +570,7 @@ ui["variable-rows"].addEventListener("click", (event) => {
   if (autoplay.running) { stop(); paused = true; render(); }
   const name = button.dataset.inspectArray;
   ui["inspector-title"].textContent = `${name} のすべての要素`;
-  renderValue(ui["inspector-content"], name, state.variables[name], state.changes.filter((change) => change.name === name), state.reads, null, { full: true });
+  renderValue(ui["inspector-content"], name, state.variables[name], state.changes.filter((change) => change.name === name), state.reads, null, { full: true, sources: state.event?.sources ?? [], assignments: state.event?.assignments ?? [] });
   ui["value-inspector"].showModal();
 });
 document.addEventListener("visibilitychange", () => {
