@@ -1,4 +1,4 @@
-import { createState, step, inputRequest } from "./interpreter.js?v=20261003-sources";
+import { createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
 import { formatValue } from "./values.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261003-sources";
 import { inputCandidate } from "./video-programs.js?v=20261003-perf";
@@ -76,6 +76,7 @@ export function planWorkspace(example, compiled, parameters) {
 export function sizeWorkspace(runner, plan) {
   const column = runner.querySelector(".result-column");
   const probe = column.cloneNode(true);
+  probe.querySelector(".assignment-flow")?.remove();
   probe.classList.add("workspace-probe");
   probe.setAttribute("aria-hidden", "true");
   probe.inert = true;

@@ -5,6 +5,7 @@ import { compileProgram, createState, evaluate, MAX_STEPS, MAX_CALL_DEPTH, nextL
 import { createAutoplay, adjustInterval, intervalSeconds } from "../program-trace/autoplay.js";
 import { finishTrace } from "../program-trace/trace-completion.js";
 import { planWorkspace } from "../program-trace/workspace.js";
+import { assignmentLinks, routeAssignment, crossesBox } from "../program-trace/assignment-flow.js";
 import { formatValue, validateField } from "../program-trace/values.js";
 import { literal as v, ref as r, op, at, call, define, returnValue, print, assign } from "../program-trace/language.js";
 
@@ -121,6 +122,41 @@ test("代入元は実際に使う変数・要素で、添字や短絡評価で�
   assert.equal(third.variables.result, false);
   assert.deepEqual(initial.variables.Data, [3, 5]);
   assert.deepEqual(first.event.sources, [{ name: "x", indices: [] }]);
+});
+
+test("代入の矢印は各右辺から対応する変数へ向かい、自己参照と重複を扱う", () => {
+  const sum = execute("for-loop").trace[2];
+  assert.deepEqual(assignmentLinks(sum.event), [
+    { source: { name: "sum", indices: [] }, target: { name: "sum", indices: [] }, self: true },
+    { source: { name: "i", indices: [] }, target: { name: "sum", indices: [] }, self: false },
+  ]);
+  const combined = compileProgram([
+    { type: "assign", line: 1, assignments: [{ name: "x", expression: op("+", r("y"), r("y")) }, { name: "z", expression: r("x") }] },
+    { type: "append", line: 2, name: "Data", expression: r("z") },
+  ], { initialVariables: { y: 3, Data: [5] } });
+  const combinedState = step(combined, createState(combined), {});
+  assert.deepEqual(assignmentLinks(combinedState.event).map(({ source, target }) => [source.name, target.name]), [["y", "x"], ["x", "z"]]);
+  const appended = step(combined, combinedState, {});
+  assert.deepEqual(assignmentLinks(appended.event), [{ source: { name: "z", indices: [] }, target: { name: "Data", indices: [1] }, self: false }]);
+  assert.deepEqual(assignmentLinks(execute("array-swap").trace[2].event), [{ source: { name: "Data", indices: [2] }, target: { name: "Data", indices: [0] }, self: false }]);
+  assert.deepEqual(assignmentLinks(execute("swap").trace[5].event), []);
+  assert.deepEqual(assignmentLinks(null), []);
+});
+
+test("離れた変数の矢印は途中の値のマスを横切らず、画面内を通る", () => {
+  const source = { left: 20, right: 90, top: 40, bottom: 80 };
+  const target = { left: 220, right: 290, top: 40, bottom: 80 };
+  const middle = { left: 120, right: 190, top: 30, bottom: 100 };
+  const boxes = [source, middle, target];
+  const bounds = { width: 310, height: 140 };
+  const path = routeAssignment(source, target, boxes, bounds);
+  assert.ok(path && path.length >= 4);
+  assert.ok(path.some(({ y }) => y < middle.top || y > middle.bottom));
+  for (let i = 1; i < path.length; i++) {
+    assert.ok(path[i - 1].x === path[i].x || path[i - 1].y === path[i].y);
+    for (const box of boxes) assert.equal(crossesBox(path[i - 1], path[i], box), false);
+  }
+  assert.ok(path.every(({ x, y }) => x >= 0 && x <= bounds.width && y >= 0 && y <= bounds.height));
 });
 
 test("関数呼び出しで中断・再開した代入も、右辺の代入元を保持する", () => {

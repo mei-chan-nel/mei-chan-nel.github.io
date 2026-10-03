@@ -394,6 +394,7 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
         const value = expression(instruction.expression, 0);
         event.sources = pending.sources[0];
         write(instruction.name, [...before, cloneValue(value)]);
+        event.assignments.push({ name: instruction.name, indices: [before.length], before: undefined, after: value, sources: event.sources });
         const change = state.changes.at(-1);
         if (change) Object.assign(change, { indices: [before.length], beforeElement: undefined, afterElement: value });
         event.title = "要素を追加する";

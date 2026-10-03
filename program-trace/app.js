@@ -1,21 +1,22 @@
 import { findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-perf";
-import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-sources";
+import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
 import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261003-sources";
-import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-sources";
+import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-arrows";
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
 import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-perf";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 import { traceRedirect } from "./routing.js?v=20261003-seo";
+import { createAssignmentFlow } from "./assignment-flow.js?v=20261003-arrows";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
   "library-view", "runner-view", "example-grid", "runner-title", "runner-focus", "example-label",
   "next-button", "play-button", "play-label", "play-icon", "reset-button", "edit-button",
   "speed-control", "speed-button", "speed-value", "speed-panel", "speed-input", "speed-decrease", "speed-increase", "speed-error",
-  "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-rows", "mobile-variables",
+  "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-table", "variable-rows", "mobile-variables",
   "detail-label", "detail-title", "detail-explanation", "condition-result", "output-lines", "output-placeholder", "output-count",
   "completion-message", "error-message", "screen-reader-status", "values-dialog", "values-form", "parameter-fields",
   "values-preview", "form-error",
@@ -25,6 +26,7 @@ const ui = Object.fromEntries([
 ].map((id) => [id, $(id)]));
 
 const settings = new Map();
+const assignmentFlow = createAssignmentFlow(ui["variable-table"], ui["variable-rows"]);
 let example = null;
 let parameters = null;
 let compiled = null;
@@ -344,6 +346,7 @@ function render(animate = false) {
   if (animate && state.event) {
     ui["screen-reader-status"].textContent = `${lineLabel(example, event.line)}行。${event.explanation}${state.completed ? "実行が終わりました。" : ""}`;
   }
+  assignmentFlow.update(pendingInput || executionError ? null : state.event);
 }
 
 function runOne(options = {}) {
@@ -585,6 +588,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 window.addEventListener("resize", () => {
-  if (workspacePlan && !ui["runner-view"].hidden) sizeWorkspace(ui["runner-view"], workspacePlan);
+  if (workspacePlan && !ui["runner-view"].hidden) {
+    sizeWorkspace(ui["runner-view"], workspacePlan);
+    assignmentFlow.redraw();
+  }
 });
 route();
