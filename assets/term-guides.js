@@ -48,6 +48,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "サーバ": {
     "url": "/terms/server/"
   },
+  "シミュレーション": {
+    "url": "/terms/simulation/"
+  },
   "ソーシャルメディア": {
     "url": "/terms/social-media/"
   },

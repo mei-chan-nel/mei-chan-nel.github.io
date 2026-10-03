@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>シミュレーションとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="シミュレーションの意味とモデル化、モンテカルロ法、各種シミュレーションの分類、基本的な流れ、利点と注意点を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="シミュレーション" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="シミュレーションとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="シミュレーションの意味とモデル化、モンテカルロ法、各種シミュレーションの分類、基本的な流れ、利点と注意点を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/simulation/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/simulation/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">シミュレーション</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">シミュレーション</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「シミュレーション」とは</h2>
+          <p><strong>シミュレーション（simulation）</strong>とは、現実の対象や現象をそのまま実験する代わりに、対象の特徴を表した<strong>モデル</strong>を作り、そのモデルに条件を与えて動かすことで、どのような結果になるかを調べる方法です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>レジに客がどのくらい並ぶか</li>
+            <li>道路でどのように渋滞が発生するか</li>
+            <li>地震が起きたとき建物がどのように揺れるか</li>
+            <li>将来の気温や降水量がどのように変化するか</li>
+            <li>集金するときおつりをどれだけ用意すればよいか</li>
+          </ul>
+          <p>といった問題を考えるとき、現実に何度も実験することが難しい場合があります。このような場合に、現実の特徴をモデルとして表し、条件を変えながら結果を調べます。</p>
+        </section>
+
+        <section>
+          <h2>モデル化とシミュレーション</h2>
+          <p>シミュレーションを行うためには、まず現実の対象を<strong>モデル化</strong>する必要があります。</p>
+          <p><strong>モデル化</strong>とは、現実の対象や現象から、目的に必要な特徴や関係を取り出し、扱いやすい形で表すことです。</p>
+          <p>例えば、レジの混雑を調べたい場合、</p>
+          <ul>
+            <li>客が来店する間隔</li>
+            <li>レジの台数</li>
+            <li>1人の会計にかかる時間</li>
+          </ul>
+          <p>などは重要です。一方、客の服装や名前などは、通常は待ち時間の計算には必要ありません。このように、目的に応じて必要な要素を選び、現実を単純化して表します。</p>
+          <p>そして、作成したモデルに具体的な条件を与え、結果や時間による変化を調べるのが<strong>シミュレーション</strong>です。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>現実の対象 → モデル化 → モデル → シミュレーション → 結果の分析</strong></p>
+          <p>という流れになります。</p>
+          <p>モデル化とシミュレーションは同じものではありません。</p>
+          <ul>
+            <li><strong>モデル化</strong>：現実を表すモデルを作る</li>
+            <li><strong>シミュレーション</strong>：作ったモデルを使って結果を調べる</li>
+          </ul>
+          <p>という違いがあります。</p>
+        </section>
+
+        <section>
+          <h2>モデルにはさまざまな表し方がある</h2>
+          <p>モデルは、必ずしもコンピュータ上のプログラムとは限りません。目的に応じてさまざまな表現方法が使われます。</p>
+
+          <h3>物理モデル</h3>
+          <p>実物や縮尺模型など、実際の物体を使って対象を表したものを<strong>物理モデル</strong>といいます。</p>
+          <p>例えば、建物の縮尺模型を振動台に載せて地震の揺れを与え、変形や損傷を調べる実験があります。また、自動車や航空機の模型を風洞に置いて空気の流れを調べる方法もあります。</p>
+          <p>このように、物理的な模型を使って現象を再現する方法を<strong>物理シミュレーション</strong>といいます。</p>
+
+          <h3>図的なモデル</h3>
+          <p>対象の位置や関係を図で表すこともできます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>鉄道路線図</li>
+            <li>組織図</li>
+            <li>建物の案内図</li>
+          </ul>
+          <p>などです。</p>
+          <p>現実をそのまま描くのではなく、目的に必要な関係を分かりやすく表しています。</p>
+
+          <h3>数理モデル</h3>
+          <p>対象の関係や変化を数式によって表したものを<strong>数理モデル</strong>といいます。</p>
+          <p>例えば、最初の水量をV₀ Lとし、毎分3 Lずつ水を加える場合、t分後の水量V(t)は</p>
+          <p class="term-formula"><strong>V(t)＝V₀＋3t</strong></p>
+          <p>と表すことができます。</p>
+          <p>人口の変化を出生率、死亡率、移動率などを使った数式で表すことも数理モデルの例です。</p>
+          <p>数式で表すことで、条件を変更した場合の結果を計算したり予測したりできます。</p>
+        </section>
+
+        <section>
+          <h2>コンピュータシミュレーション</h2>
+          <p>モデルをコンピュータ上で計算し、現象を再現する方法を<strong>コンピュータシミュレーション</strong>といいます。</p>
+          <p>現代のシミュレーションでは、非常に多くの計算を短時間で繰り返せるため、コンピュータが広く利用されています。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>気象予報</li>
+            <li>交通渋滞の予測</li>
+            <li>避難行動の分析</li>
+            <li>感染症の拡大予測</li>
+            <li>レジの待ち時間の分析</li>
+          </ul>
+          <p>などがあります。</p>
+          <p>特に、現象を数式で表し、その方程式をコンピュータで数値的に計算する方法を<strong>数値シミュレーション</strong>といいます。</p>
+          <p>気象予報では、気温、気圧、風速などの大気の状態を数理モデルで表し、現在の観測値を初期条件として、時間を進めながら将来の状態を計算しています。</p>
+        </section>
+
+        <section>
+          <h2>モンテカルロ法</h2>
+          <p>乱数を利用する代表的な方法が<strong>モンテカルロ法</strong>です。</p>
+          <p>モンテカルロ法とは、</p>
+          <p class="term-formula"><strong>乱数を使った試行を多数回繰り返し、その結果の割合や平均などから、求めたい値を近似する方法</strong></p>
+          <p>です。</p>
+          <p>確率、面積、期待値など、数式だけでは求めにくい値を推定するときに利用されます。</p>
+
+          <h3>円周率を求める例</h3>
+          <p>一辺の長さが1の正方形の中に、半径1の4分の1円を描きます。</p>
+          <p>正方形の面積は</p>
+          <p class="term-formula"><strong>1</strong></p>
+          <p>であり、4分の1円の面積は</p>
+          <p class="term-formula"><strong>π/4</strong></p>
+          <p>です。</p>
+          <p>正方形の中に乱数を使って点をランダムに多数発生させます。</p>
+          <p>正方形内の点の総数をN、そのうち4分の1円の内部に入った点の数をMとすると、</p>
+          <p class="term-formula">M/N ≒ π/4</p>
+          <p>と考えられます。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>π ≒ 4M/N</strong></p>
+          <p>として円周率を近似できます。</p>
+          <p>例えば、10000個の点を発生させ、そのうち7850個が円内に入ったなら、</p>
+          <p class="term-formula">4×7850/10000＝<strong>3.14</strong></p>
+          <p>となります。</p>
+          <p>この方法では、円周率を数式だけから厳密に計算しているのではありません。<strong>乱数による多数の試行結果から近似している</strong>ところが重要です。</p>
+        </section>
+
+        <section>
+          <h2>静的モデルと動的モデル</h2>
+          <p>モデルは、<strong>時間による変化を扱うかどうか</strong>によって分類できます。</p>
+
+          <h3>静的モデル</h3>
+          <p>ある時点での状態や関係を表すモデルを<strong>静的モデル</strong>といいます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>駅構内の案内図</li>
+            <li>会社の組織図</li>
+            <li>製品の設計図</li>
+          </ul>
+          <p>などです。</p>
+          <p>これらは主に位置、構造、関係などを表しており、時間による変化そのものを表すことが目的ではありません。</p>
+
+          <h3>動的モデル</h3>
+          <p>時間の経過とともに状態がどのように変化するかを表すモデルを<strong>動的モデル</strong>といいます。</p>
+          <p>例えば、交通シミュレーションでは、</p>
+          <ul>
+            <li>自動車の位置</li>
+            <li>自動車の速度</li>
+            <li>道路上の自動車の台数</li>
+          </ul>
+          <p>などを時間とともに変化させます。</p>
+          <p>時間を進めるたびに状態を更新することで、渋滞が発生したり解消したりする様子を調べられます。</p>
+        </section>
+
+        <section>
+          <h2>確定的モデルと確率的モデル</h2>
+          <p>モデルは、<strong>偶然性を含むかどうか</strong>によっても分類できます。</p>
+
+          <h3>確定的モデル</h3>
+          <p>同じ初期条件と同じ入力を与えれば、毎回同じ結果になるモデルを<strong>確定的モデル</strong>といいます。</p>
+          <p>例えば、最初に10 Lの水が入った水槽に毎分3 Lずつ水を入れ、漏れや蒸発がないとすれば、</p>
+          <p class="term-formula"><strong>V(t)＝10＋3t</strong></p>
+          <p>となります。</p>
+          <p>10分後なら必ず40 Lになります。</p>
+          <p>このように、条件が決まれば結果も一意に決まります。</p>
+
+          <h3>確率的モデル</h3>
+          <p>現象に含まれる偶然性やばらつきを、確率として取り入れたモデルを<strong>確率的モデル</strong>といいます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>客が次に来るまでの時間</li>
+            <li>製品が故障する時期</li>
+            <li>自動車が交差点に到着する時刻</li>
+          </ul>
+          <p>などは毎回同じとは限りません。</p>
+          <p>そこで、確率や確率分布、乱数などを利用して現象を表します。</p>
+          <p>確率的モデルでは、<strong>同じ条件でシミュレーションを実行しても、毎回同じ結果になるとは限らない</strong>ことが重要です。</p>
+        </section>
+
+        <section>
+          <h2>連続型シミュレーション</h2>
+          <p>状態を<strong>連続的な量</strong>として扱うものを<strong>連続型シミュレーション</strong>といいます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>温度</li>
+            <li>速度</li>
+            <li>水位</li>
+            <li>圧力</li>
+            <li>濃度</li>
+          </ul>
+          <p>などは連続的に変化する量として扱うことができます。</p>
+          <p>室温の時間変化を微分方程式で表し、その変化を計算するシミュレーションなどが代表例です。</p>
+          <p>実際のコンピュータでは、時間を0.01秒ごとなどの細かな間隔に区切って計算することもあります。しかし、モデルとして温度や時間などを連続量として考えているのであれば、連続型シミュレーションに分類されます。</p>
+        </section>
+
+        <section>
+          <h2>離散事象シミュレーション</h2>
+          <p>特定の<strong>出来事（事象）</strong>が発生したときに状態を更新する方法を<strong>離散事象シミュレーション</strong>といいます。</p>
+          <p>例えば、レジのシミュレーションでは、</p>
+          <ul>
+            <li>客が到着する</li>
+            <li>会計が始まる</li>
+            <li>会計が終了する</li>
+          </ul>
+          <p>などを事象として考えます。</p>
+          <p>「客が到着した」という事象が発生すれば待ち人数が増え、「会計が終了した」という事象が発生すれば待ち人数が減ります。</p>
+          <p>この方法では、何も起きていない時間について細かく状態を計算する必要はなく、<strong>状態が変化する重要な出来事に着目して計算する</strong>ことができます。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>レジ</li>
+            <li>銀行や病院の窓口</li>
+            <li>在庫管理</li>
+            <li>交通</li>
+            <li>物流</li>
+          </ul>
+          <p>などの分析によく利用されます。</p>
+        </section>
+
+        <section>
+          <h2>エージェントベースシミュレーション</h2>
+          <p>人や自動車など、個々の主体に行動規則を与えて動かす方法を<strong>エージェントベースシミュレーション</strong>といいます。</p>
+          <p>ここで、個々の主体を<strong>エージェント</strong>といいます。</p>
+          <p>例えば、歩行者のシミュレーションなら、それぞれの歩行者に</p>
+          <ul>
+            <li>移動速度</li>
+            <li>目的地</li>
+            <li>周囲の人を避ける方法</li>
+            <li>混雑したときの行動</li>
+          </ul>
+          <p>などの規則を設定します。</p>
+          <p>多数の歩行者を同時に動かすことで、個々の行動が積み重なって、</p>
+          <ul>
+            <li>混雑</li>
+            <li>行列</li>
+            <li>人の流れ</li>
+          </ul>
+          <p>などがどのように発生するかを調べます。</p>
+          <p>同様に、</p>
+          <ul>
+            <li>自動車</li>
+            <li>動物</li>
+            <li>消費者</li>
+            <li>感染症を広げる人</li>
+          </ul>
+          <p>などをエージェントとして扱うこともできます。</p>
+          <p>エージェントベースシミュレーションでは、</p>
+          <p class="term-formula"><strong>一人一人の行動 → 相互作用 → 全体の現象</strong></p>
+          <p>という関係を調べられることが特徴です。</p>
+        </section>
+
+        <section>
+          <h2>シミュレーションの分類は一つとは限らない</h2>
+          <p>「確率的」「動的」「離散事象」などの分類は、互いに完全に別々のものではありません。</p>
+          <p>例えば、レジのシミュレーションは、</p>
+          <ul>
+            <li>時間とともに待ち人数が変わるので<strong>動的</strong></li>
+            <li>客の到着時刻を乱数で決めれば<strong>確率的</strong></li>
+            <li>客の到着や会計終了のたびに状態を更新すれば<strong>離散事象</strong></li>
+          </ul>
+          <p>というように、複数の性質を同時にもつことがあります。</p>
+          <p>したがって、分類するときは「どれか一つにしか属さない」と考えるのではなく、</p>
+          <ul>
+            <li>時間変化を扱うか</li>
+            <li>偶然性を扱うか</li>
+            <li>どのような方法で状態を更新するか</li>
+            <li>何をモデルとして表しているか</li>
+          </ul>
+          <p>という異なる観点から判断することが大切です。</p>
+        </section>
+
+        <section>
+          <h2>シミュレーション結果の確かめ方</h2>
+          <p>シミュレーションを実行して結果が得られても、その結果が現実を適切に表しているとは限りません。</p>
+          <p>モデルは現実を単純化したものだからです。</p>
+          <p>そこで、実際の観測データとシミュレーション結果を比較します。</p>
+          <p>例えば、実際のデータについて</p>
+          <ul>
+            <li>平均値</li>
+            <li>中央値</li>
+            <li>四分位範囲</li>
+            <li>分散</li>
+            <li>分布の形</li>
+          </ul>
+          <p>などを求め、シミュレーション結果と比較することができます。</p>
+          <p>例えば、</p>
+          <p><strong>実データ：</strong></p>
+          <ul>
+            <li>平均値108</li>
+            <li>四分位範囲26</li>
+          </ul>
+          <p><strong>シミュレーション結果：</strong></p>
+          <ul>
+            <li>平均値102</li>
+            <li>四分位範囲18</li>
+          </ul>
+          <p>であれば、シミュレーションでは実際より平均値が小さく、ばらつきも小さくなっていることが分かります。</p>
+          <p>そこで、モデルの条件やパラメータを調整し、</p>
+          <ul>
+            <li>平均値</li>
+            <li>データの散らばり</li>
+            <li>分布の形</li>
+          </ul>
+          <p>などが実データに近づくかを確認します。</p>
+          <p>このように、シミュレーション結果と実際のデータを比較しながらモデルを修正することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>モデルは複雑であればよいわけではない</h2>
+          <p>現実を完全に再現しようとすると、モデルは非常に複雑になります。</p>
+          <p>しかし、モデルは複雑であるほど優れているとは限りません。</p>
+          <p>例えば、レジの待ち時間を調べたいだけなら、客の身長、服装、名前などまでモデルに入れる必要はありません。</p>
+          <p>必要以上に複雑なモデルを作ると、</p>
+          <ul>
+            <li>作成に時間がかかる</li>
+            <li>計算量が増える</li>
+            <li>必要なデータが増える</li>
+            <li>結果の理由が分かりにくくなる</li>
+          </ul>
+          <p>などの問題が生じます。</p>
+          <p>そのため、</p>
+          <p class="term-formula"><strong>目的に必要な特徴を残し、それ以外を適切に単純化する</strong></p>
+          <p>ことがモデル化では重要です。</p>
+        </section>
+
+        <section>
+          <h2>シミュレーションを行う基本的な流れ</h2>
+          <p>シミュレーションは、次のような流れで行います。</p>
+          <p class="term-formula"><strong>① 目的を明確にする</strong><br />何を知りたいのかを決めます。<br /><br />例えば、「レジを何台にすれば待ち時間を短くできるか」を調べます。</p>
+          <p class="term-formula"><strong>② 現実の対象をモデル化する</strong><br />目的に関係する要素を取り出します。<br /><br />例えば、客の到着間隔、会計時間、レジ台数などをモデルに含めます。</p>
+          <p class="term-formula"><strong>③ 条件やパラメータを設定する</strong><br />初期値、確率、速度など、モデルを動かすための値を設定します。</p>
+          <p class="term-formula"><strong>④ シミュレーションを実行する</strong><br />時間を進めたり、乱数を発生させたりしてモデルを動かします。</p>
+          <p class="term-formula"><strong>⑤ 結果を整理・分析する</strong><br />平均値、最大値、最小値、グラフ、度数分布などを使って結果を調べます。</p>
+          <p class="term-formula"><strong>⑥ 現実のデータと比較する</strong><br />実測値などと比較し、モデルが現実を適切に表しているかを確認します。</p>
+          <p class="term-formula"><strong>⑦ 必要に応じてモデルを修正する</strong><br />結果が実際と大きく異なる場合は、モデルの前提、構造、パラメータなどを見直します。</p>
+        </section>
+
+        <section>
+          <h2>シミュレーションの利点と注意点</h2>
+          <p>シミュレーションを利用すると、現実では実施しにくい条件でも実験できます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>大地震を実際の都市で発生させる</li>
+            <li>何万人もの人を実際に避難させる</li>
+            <li>同じ集金を1万回繰り返す</li>
+            <li>数十年後の気候を実際に待って確認する</li>
+          </ul>
+          <p>といったことは困難です。</p>
+          <p>シミュレーションなら、モデル上で条件を変えながら何度も試すことができます。</p>
+          <p>一方で、シミュレーションの結果は<strong>モデルの前提や設定した条件に依存します</strong>。</p>
+          <p>モデルに重要な要素が含まれていなかったり、設定した確率や数値が現実と異なったりすれば、計算そのものが正しくても、現実とは異なる結果になる可能性があります。</p>
+          <p>そのため、</p>
+          <p class="term-formula"><strong>シミュレーション結果は「必ず現実でその通りになる未来」ではなく、「設定したモデルと条件のもとで得られた結果」である</strong></p>
+          <p>と理解する必要があります。</p>
+          <p>シミュレーションでは、モデルを作って計算するだけでなく、</p>
+          <p class="term-formula"><strong>モデルの前提を確認し、実際のデータと比較し、どこまで現実に適用できるかを考えること</strong></p>
+          <p>までが重要です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>シミュレーション · EXAMPLE</span><span>応用情報技術者R2秋期午前 問6（改題）</span></div>
+          <h3>モンテカルロ法を用いて円周率を近似する考え方として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>正方形内に乱数で多数の点を打ち、内接する円に入った点の割合から面積比を推定する。</p></li>
+            <li><span>1</span><p>正方形内に等間隔の格子点だけを置き、乱数を使わずに円内の点を数える。</p></li>
+            <li><span>2</span><p>円に内接する正多角形の周の長さを計算し、辺の数を増やして近づける。</p></li>
+            <li><span>3</span><p>円の直径を何度も測定し、測定値の最大値だけを使って求める。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．正方形内に乱数で多数の点を打ち、内接する円に入った点の割合から面積比を推定する。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>モンテカルロ法は、乱数を用いた試行を多数行い、その結果から値を近似する方法です。正方形内にランダムな点を打ち、円の中に入る割合から面積比を推定します。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>応用情報技術者R2秋期午前 問6（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：シミュレーション</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">シミュレーションの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="シミュレーション"
+          data-limit="5"
+          data-exclude-stem="モンテカルロ法を用いて円周率を近似する考え方として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=シミュレーション">シミュレーションの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"シミュレーションとは","description":"シミュレーションの意味とモデル化、モンテカルロ法、各種シミュレーションの分類、基本的な流れ、利点と注意点を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/simulation/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"シミュレーション","item":"https://mei-chan-nel.com/terms/simulation/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026080801"></script>
+  </body>
+</html>
