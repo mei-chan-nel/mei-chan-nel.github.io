@@ -259,6 +259,7 @@ img { max-width: 100%; }
 .video-genre-back-link { margin: 12px 0 0 !important; }
 .video-genre-back-link a { display: inline-block; padding-bottom: 1px; color: var(--coral-strong); font-size: .72rem; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--coral); }
 .video-genre-back-link a:hover, .video-genre-back-link a:focus-visible { color: var(--ink); border-color: var(--ink); }
+html:has(.video-question-list) { scroll-behavior: auto; }
 .video-question-list { display: grid; gap: 18px; }
 .manual-ad-slot { width: min(100%, 920px); min-width: 0; margin: 40px auto; overflow: visible; }
 .manual-ad-slot[hidden] { display: none !important; }
@@ -286,6 +287,10 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .video-trigger { min-height: 42px; padding: 9px 18px; border: 1px solid var(--ink); border-radius: 999px; color: var(--white); background: var(--ink); cursor: pointer; font: inherit; font-size: .78rem; font-weight: 800; }
 .video-trigger:hover { background: #315f66; }
 .video-trigger:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+.video-action-row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.program-trace-link { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 9px 18px; border: 1px solid #62867a; border-radius: 999px; color: var(--ink); background: #edf4ee; font-size: .78rem; font-weight: 800; text-decoration: none; }
+.program-trace-link:hover { background: #d9e9dc; }
+.program-trace-link:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
 .video-frame { width: min(100%, 360px); aspect-ratio: 9 / 16; margin-top: 18px; border-radius: 14px; background: #0a191d; overflow: hidden; }
 .video-frame iframe { width: 100%; height: 100%; border: 0; }
 .question-code { max-width: calc(100% - 64px); margin: 0 32px 28px; padding: 20px 22px; overflow-x: auto; border: 1px solid #c9d9d6; border-radius: 14px; color: var(--ink); background: #f3f7f6; box-shadow: inset 0 0 0 1px rgb(255 255 255 / 65%); font-family: "Cascadia Code", "BIZ UDGothic", Consolas, monospace; font-size: .78rem; line-height: 1.85; white-space: pre; tab-size: 2; scrollbar-color: #78979b #e3ecea; }

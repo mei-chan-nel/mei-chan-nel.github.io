@@ -37,13 +37,15 @@
             ? "archive"
             : pagePath.includes("/lecturenote/")
               ? "lecture"
-              : pagePath.endsWith("/study-guide.html")
-                ? "study"
-                : pagePath.endsWith("/about.html")
-                  ? "about"
-                  : homePaths.has(pagePath)
-                    ? "home"
-                    : "";
+              : pagePath.includes("/program-trace/")
+                ? "trace"
+                : pagePath.endsWith("/study-guide.html")
+                  ? "study"
+                  : pagePath.endsWith("/about.html")
+                    ? "about"
+                    : homePaths.has(pagePath)
+                      ? "home"
+                      : "";
 
   const navItems = [
     ["home", siteUrl(""), "トップページ"],
@@ -52,6 +54,7 @@
     ["terms", siteUrl("terms/"), "用語一覧"],
     ["archive", siteUrl("archive/"), "解説動画"],
     ["lecture", siteUrl("LectureNote/"), "講義ノート"],
+    ["trace", siteUrl("program-trace/"), "プログラムトレース"],
     ["study", siteUrl("study-guide.html"), "使い方"],
     ["about", siteUrl("about.html"), "このサイトについて"],
   ];
@@ -59,6 +62,18 @@
     const current = key === activeSection ? ' aria-current="page"' : "";
     return `<a href="${href}"${current}>${label}</a>`;
   }).join("");
+
+  const ensureTraceLink = (nav) => {
+    if (!nav) return;
+    const href = siteUrl("program-trace/");
+    if (Array.from(nav.querySelectorAll("a")).some((link) => link.href === href)) return;
+    const link = document.createElement("a");
+    link.href = href;
+    link.textContent = "プログラムトレース";
+    const studyLink = Array.from(nav.querySelectorAll("a")).find((item) => item.href === siteUrl("study-guide.html"));
+    const lectureLink = Array.from(nav.querySelectorAll("a")).find((item) => item.href === siteUrl("LectureNote/"));
+    nav.insertBefore(link, studyLink || lectureLink?.nextElementSibling || null);
+  };
 
   let header = document.querySelector(".site-header");
   if (!header) {
@@ -76,6 +91,7 @@
     if (skipLink) skipLink.after(header);
     else document.body.prepend(header);
   } else {
+    ensureTraceLink(header.querySelector(".global-nav"));
     const expectedPaths = new Map(navItems.map(([key, href]) => [new URL(href).pathname.toLowerCase(), key]));
     header.querySelectorAll(".global-nav a").forEach((link) => {
       const key = expectedPaths.get(new URL(link.href).pathname.toLowerCase());
@@ -104,6 +120,7 @@
           <a href="${siteUrl("terms/")}">用語一覧</a>
           <a href="${siteUrl("archive/")}">解説動画</a>
           <a href="${siteUrl("LectureNote/")}">講義ノート</a>
+          <a href="${siteUrl("program-trace/")}">プログラムトレース</a>
           <a href="${siteUrl("study-guide.html")}">使い方</a>
           <a href="${siteUrl("books/")}">書籍案内</a>
           <a href="${siteUrl("about.html")}">このサイトについて</a>
@@ -114,6 +131,8 @@
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>`;
     document.body.append(footer);
   }
+  ensureTraceLink(footer.querySelector('nav[aria-label="フッターナビゲーション"]'));
+  ensureTraceLink(document.querySelector(".app-mini-nav__menu"));
 
   const initHorizontalScrollCue = (scroller, options = {}) => {
     if (!scroller || scroller.closest(".horizontal-scroll-cue")) return;
@@ -188,12 +207,17 @@
   let headerHeight = 86;
   const readHeaderHeight = () => {
     headerHeight = header.getBoundingClientRect().height;
+    root.style.setProperty("--site-header-height", `${headerHeight}px`);
   };
+  readHeaderHeight();
   if ("ResizeObserver" in window) {
     new ResizeObserver((entries) => {
       const borderBox = entries[0]?.borderBoxSize;
       const size = Array.isArray(borderBox) ? borderBox[0]?.blockSize : borderBox?.blockSize;
-      if (size > 0) headerHeight = size;
+      if (size > 0) {
+        headerHeight = size;
+        root.style.setProperty("--site-header-height", `${headerHeight}px`);
+      }
     }).observe(header);
   } else {
     const scheduleHeaderHeightRead = () => window.requestAnimationFrame(readHeaderHeight);

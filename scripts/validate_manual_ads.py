@@ -204,6 +204,25 @@ def main() -> int:
         "positions_after": ["random-question controls"],
     })
 
+    trace_path = ROOT / "program-trace" / "index.html"
+    trace_text = trace_path.read_text(encoding="utf-8")
+    target_paths.add(trace_path.resolve())
+    require_target_loaders(trace_path, trace_text, errors)
+    if trace_text.count('data-manual-ad="display"') != 1:
+        errors.append("program-trace/index.html: expected exactly one display wrapper")
+    try:
+        if not (trace_text.index("</main>") < trace_text.index('data-ad-placement="after-program-trace-main"') < trace_text.index("<footer")):
+            errors.append("program-trace/index.html: display wrapper must be after main and before footer")
+    except ValueError:
+        errors.append("program-trace/index.html: required main/ad/footer placement markers are missing")
+    page_table.append({
+        "path": "program-trace/index.html",
+        "format": "responsive-display",
+        "content_count": None,
+        "ad_count": trace_text.count('data-manual-ad="display"'),
+        "positions_after": ["program trace main"],
+    })
+
     for repository_root in (ROOT, APP_ROOT):
         for path in repository_root.rglob("*.html"):
             if path.resolve() in target_paths:

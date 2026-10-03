@@ -1,0 +1,20 @@
+/** 例題を追加するときに使う命令・式のデータ生成関数。ソース文字列は実行しない。 */
+export const literal = (value) => ({ type: "literal", value });
+export const ref = (name) => ({ type: "variable", name });
+export const param = (name) => ({ type: "parameter", name });
+export const op = (operator, left, right) => ({ type: "binary", operator, left, right });
+export const at = (name, ...indices) => ({ type: "index", name, indices });
+export const length = (name) => ({ type: "length", expression: ref(name) });
+export const call = (name, ...args) => ({ type: "call", name, args });
+export const random = () => ({ type: "random" });
+export const assign = (line, name, expression, ...indices) => ({ type: "assign", line, assignments: [{ name, expression, indices }] });
+export const print = (line, ...args) => ({ type: "print", line, args });
+export const input = (line, name, field) => ({ type: "input", line, name, field });
+export const branch = (line, condition, body, otherwise = null) => ({ type: "if", line, condition, body, otherwise });
+export const otherwise = (line, ...body) => ({ type: "else", line, body });
+export const repeat = (line, name, start, end, body, step = literal(1)) => ({ type: "for", line, name, start, end, step, body });
+export const whileLoop = (line, condition, ...body) => ({ type: "while", line, condition, body });
+export const define = (line, name, parameters, ...body) => ({ type: "define", line, name, parameters, body });
+export const returnValue = (line, expression) => ({ type: "return", line, expression });
+export const numberField = (key, label, defaultValue, min = -9999, max = 9999) => ({ type: "number", key, label, defaultValue, min, max });
+export const arrayField = (key, label, defaultValue, options = {}) => ({ type: "array", key, label, defaultValue, min: -999, max: 999, minLength: 1, maxLength: 20, ...options });

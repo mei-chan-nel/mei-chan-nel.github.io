@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import html
+import hashlib
 import json
 import re
 from collections import Counter
 from datetime import date
+from functools import lru_cache
 from pathlib import Path
 
 
@@ -134,7 +136,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{e(canonical)}" />
     <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026080901" />{ad_scripts}{video_embed_script}
+    <link rel="stylesheet" href="../assets/site.css?v=2026100303" />{ad_scripts}{video_embed_script}
   </head>"""
 
 
@@ -146,6 +148,7 @@ def header(current: str) -> str:
         ("terms", "../terms/", "用語一覧"),
         ("archive", "./", "解説動画"),
         ("lecture", "../LectureNote/", "講義ノート"),
+        ("trace", "../program-trace/", "プログラムトレース"),
         ("study", "../study-guide.html", "使い方"),
         ("about", "../about.html", "このサイトについて"),
     ]
@@ -177,6 +180,7 @@ def footer() -> str:
           <a href="../terms/">用語一覧</a>
           <a href="./">解説動画</a>
           <a href="../LectureNote/">講義ノート</a>
+          <a href="../program-trace/">プログラムトレース</a>
           <a href="../study-guide.html">使い方</a>
           <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
@@ -186,7 +190,7 @@ def footer() -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026080801"></script>
+    <script src="../assets/site-header.js?v=2026100301"></script>
   </body>
 </html>
 """
@@ -238,14 +242,35 @@ def question_markup(question: dict[str, object], section_id: str) -> str:
     return f"<h2>{prose_markup(heading)}</h2>{code_block}"
 
 
-def video_controls(number: int, videos: list[dict[str, str]]) -> str:
+@lru_cache(maxsize=1)
+def trace_programs() -> dict[int, str]:
+    source = (ROOT / 'program-trace' / 'video-program-data.js').read_text(encoding='utf-8')
+    records = json.loads(source.split('export const VIDEO_PROGRAM_DATA = ', 1)[1].strip().removesuffix(';'))
+    programs = {int(record['number']): str(record['id']) for record in records}
+    if sorted(programs) != list(range(231, 331)):
+        raise ValueError('Trace programs must cover Q231-Q330 exactly once. Run scripts/build_video_programs.py first.')
+    questions = {int(q['number']): q for section in json.loads(DATA_PATH.read_text(encoding='utf-8'))['sections'] for q in section['questions']}
+    for record in records:
+        question = questions[int(record['number'])]
+        if record['originalHash'] != hashlib.sha256(question['question'].encode('utf-8')).hexdigest():
+            raise ValueError(f"Q{record['number']}: trace data is out of sync. Run scripts/build_video_programs.py first.")
+    return programs
+
+
+def video_controls(number: int, videos: list[dict[str, str]], section_id: str) -> str:
     controls = []
     for index, video in enumerate(videos, start=1):
         frame_id = f"video-{number}-{index}"
         suffix = f" {index}" if len(videos) > 1 else ""
+        trace = ''
+        if index == 1 and number in trace_programs():
+            href = f"../program-trace/?from={section_id}#{trace_programs()[number]}"
+            trace = f'<a class="program-trace-link" href="{e(href)}">1行ずつ実行する</a>'
         controls.append(
             f'''<div class="video-control">
+              <div class="video-action-row">
               <button class="video-trigger" type="button" data-video-id="{e(video['id'])}" data-video-title="{e(video['title'])}" aria-controls="{frame_id}" aria-expanded="false">解説動画を表示{suffix}</button>
+              {trace}</div>
               <div class="video-frame" id="{frame_id}" hidden></div>
             </div>'''
         )
@@ -265,7 +290,7 @@ def question_card(question: dict[str, object], section_id: str, meta: str) -> st
               <p class="video-explanation-row"><span>解説</span><span class="video-explanation-text">{explanation}</span></p>
             </div>
           </details>
-          <div class="video-question-tools">{video_controls(number, list(question.get('videos') or []))}</div>
+          <div class="video-question-tools">{video_controls(number, list(question.get('videos') or []), section_id)}</div>
         </article>'''
 
 
@@ -561,6 +586,8 @@ def main() -> int:
         "youtube_direct_links_published": False,
         "video_viewer_aspect_ratio": "9:16",
         "programming_code_blocks": sum(1 for genre in genres if genre["field_id"] == "programming" for question in genre["questions"] if question_parts(question, str(genre["id"]))[1]),
+        "trace_program_count": len(trace_programs()),
+        "trace_link_count": len(trace_programs()) + len(course['questions']),
     }
     REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"questions=330 genres={len(genres)} course_questions={len(course['questions'])} pages={len(generated_pages)} videos={report['video_count']}")

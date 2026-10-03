@@ -532,6 +532,7 @@ def render_page(article: dict, body, question: dict) -> str:
           <a href="../" aria-current="page">用語一覧</a>
           <a href="../../archive/">解説動画</a>
           <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
           <a href="../../study-guide.html">使い方</a>
           <a href="../../about.html">このサイトについて</a>
         </nav>
@@ -613,6 +614,7 @@ def render_page(article: dict, body, question: dict) -> str:
           <a href="../">用語一覧</a>
           <a href="../../archive/">解説動画</a>
           <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
           <a href="../../study-guide.html">使い方</a>
           <a href="../../books/">書籍案内</a>
           <a href="../../about.html">このサイトについて</a>
@@ -622,7 +624,7 @@ def render_page(article: dict, body, question: dict) -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../../assets/site-header.js?v=2026080801"></script>
+    <script src="../../assets/site-header.js?v=2026100301"></script>
   </body>
 </html>
 '''

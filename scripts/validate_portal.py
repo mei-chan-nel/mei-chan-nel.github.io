@@ -59,6 +59,7 @@ class PageParser(HTMLParser):
         self.canonical = ""
         self.og_url = ""
         self.description = ""
+        self.robots = ""
         self.links: list[str] = []
         self.json_ld: list[str] = []
         self._json_ld_depth = 0
@@ -72,6 +73,8 @@ class PageParser(HTMLParser):
             self.h1_count += 1
         elif tag == "meta" and values.get("name") == "description":
             self.description = values.get("content") or ""
+        elif tag == "meta" and values.get("name") == "robots":
+            self.robots = values.get("content") or ""
         elif tag == "meta" and values.get("property") == "og:url":
             self.og_url = values.get("content") or ""
         elif tag == "link" and values.get("rel") == "canonical":
@@ -156,8 +159,17 @@ def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
     parser = PageParser()
     parser.feed(text)
     relative = path.relative_to(ROOT).as_posix()
-    if not parser.title or not parser.description or parser.h1_count != 1:
-        errors.append(f"{relative}: title, description, and exactly one h1 are required")
+    # 一覧と実行画面を切り替えるトレースには、各画面に主見出しがある。
+    is_trace = relative == "program-trace/index.html"
+    expected_headings = 2 if is_trace else 1
+    if not parser.title or not parser.description or parser.h1_count != expected_headings:
+        errors.append(f"{relative}: title, description, and {expected_headings} h1 heading(s) are required")
+    if is_trace:
+        if not re.search(r'<section id="runner-view"[^>]*\bhidden>', text):
+            errors.append(f"{relative}: the runner heading must initially be hidden")
+        robots = {value.strip().lower() for value in parser.robots.split(",")}
+        if not {"index", "follow"} <= robots or robots & {"noindex", "nofollow"}:
+            errors.append(f"{relative}: the published trace page must allow indexing and following links")
     expected = public_url(relative)
     if parser.canonical != expected or parser.og_url != expected:
         errors.append(f"{relative}: canonical/og:url must be {expected}")
@@ -277,9 +289,24 @@ def main() -> int:
         for genre in field.get("genres", [])
     }
     rendered_normal: list[int] = []
+    trace_link_count = 0
+
+    def validate_trace_links(text: str, page_id: str) -> None:
+        nonlocal trace_link_count
+        for raw_number, card in re.findall(r'<article class="video-question-card" id="q-(\d+)">([\s\S]*?)</article>', text):
+            number = int(raw_number)
+            links = re.findall(r'<a class="program-trace-link" href="([^"]+)">1行ずつ実行する</a>', card)
+            expected = [f'../program-trace/?from={page_id}#video-q-{number}'] if number >= 231 else []
+            if links != expected:
+                errors.append(f'archive/{page_id}.html Q{number}: trace link is missing or incorrect')
+            if expected and not re.search(r'<div class="video-action-row">\s*<button class="video-trigger"[^>]*>解説動画を表示(?: 1)?</button>\s*<a class="program-trace-link"', card):
+                errors.append(f'archive/{page_id}.html Q{number}: trace link must follow the first video button')
+            trace_link_count += len(links)
+
     for genre in genres:
         path = archive_dir / f"{genre['id']}.html"
         text = path.read_text(encoding="utf-8") if path.is_file() else ""
+        validate_trace_links(text, str(genre['id']))
         ids = [int(value) for value in re.findall(r'<article class="video-question-card" id="q-(\d+)"', text)]
         if ids != genre.get("numbers", []):
             errors.append(f"archive/{genre['id']}.html: question order/count does not match curriculum")
@@ -305,6 +332,9 @@ def main() -> int:
     if sorted(rendered_normal) != list(range(1, 331)) or len(rendered_normal) != len(set(rendered_normal)):
         errors.append("rendered normal video pages do not cover Q1-Q330 exactly once")
     course_text = (archive_dir / "programming-shortest-course.html").read_text(encoding="utf-8") if (archive_dir / "programming-shortest-course.html").is_file() else ""
+    validate_trace_links(course_text, 'programming-shortest-course')
+    if trace_link_count != 127:
+        errors.append(f'video pages must contain 127 trace links, got {trace_link_count}')
     course_rendered = [int(value) for value in re.findall(r'<article class="video-question-card" id="q-(\d+)"', course_text)]
     if course_rendered != expected_course:
         errors.append("programming-shortest-course.html: rendered order does not match the 27-question course")
@@ -316,7 +346,7 @@ def main() -> int:
 
     report_path = ROOT / "docs" / "video-library-build.json"
     report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else {}
-    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True)):
+    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True), ("trace_program_count", 100), ("trace_link_count", 127)):
         if report.get(key) != expected:
             errors.append(f"video-library-build.json: {key} is out of sync")
     if report.get("course_question_numbers") != expected_course:
@@ -384,8 +414,8 @@ def main() -> int:
 
     page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "使い方", "このサイトについて")
-    expected_footer_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "使い方")
+    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース", "使い方", "このサイトについて")
+    expected_footer_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース", "使い方")
     for path in page_paths:
         try:
             page_text = path.read_text(encoding="utf-8")
@@ -428,7 +458,7 @@ def main() -> int:
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
     action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("学習アプリ", "用語を調べる", "問題を探す", "解説動画を見る", "講義ノートを読む")
+    expected_actions = ("学習アプリ", "用語を調べる", "問題を探す", "解説動画を見る", "プログラムをトレースする", "講義ノートを読む")
     if action_match is None:
         errors.append("index.html: home action card grid is missing")
     else:
@@ -480,7 +510,7 @@ def main() -> int:
     expected_portal_paths = [
         "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
-        "LectureNote/statistics.html", "LectureNote/programming.html", *report.get("learning_pages", []),
+        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", *report.get("learning_pages", []),
     ]
     expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []
