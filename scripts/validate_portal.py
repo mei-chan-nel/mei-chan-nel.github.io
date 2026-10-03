@@ -398,7 +398,7 @@ def main() -> int:
             f"found {len(term_index_entries)}"
         )
     if tag_list and [label for _, label, _ in term_index_entries] != expected_term_labels:
-        errors.append("terms/index.html: published guides are out of sync with タグ一覧.xlsx or include an unpublished tag")
+        errors.append("terms/index.html: published guides are out of sync with the authoritative tag list or include an unpublished tag")
     for kind, label, href in term_index_entries:
         if kind != "is-linked":
             errors.append(f"terms/index.html: non-linked term list item is visible: {label or '(missing label)'}")
@@ -410,7 +410,7 @@ def main() -> int:
             errors.append(f"terms/index.html: linked tag does not use its metadata-derived page URL: {label}")
     unknown_term_tags = sorted(set(term_page_meta) - set(tag_list))
     if unknown_term_tags:
-        errors.append("term page tag(s) are not present in タグ一覧.xlsx: " + ", ".join(unknown_term_tags))
+        errors.append("term page tag(s) are not present in the authoritative tag list: " + ", ".join(unknown_term_tags))
 
     page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
     parsers: dict[Path, PageParser] = {}

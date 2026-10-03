@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TERMS_ROOT = ROOT / "terms"
 OUTPUT_PATH = ROOT / "assets" / "term-guides.js"
 INDEX_PATH = TERMS_ROOT / "index.html"
-DEFAULT_TAG_LIST_PATH = ROOT.parent.parent / "基礎資料" / "タグ一覧.xlsx"
+DEFAULT_TAG_LIST_PATH = ROOT / "data" / "term-tag-list.json"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
 
@@ -76,13 +76,21 @@ def build_registry(pages: list[TermPage] | None = None) -> dict[str, dict[str, s
 
 
 def read_tag_list(path: Path = DEFAULT_TAG_LIST_PATH) -> list[str]:
+    if not path.is_file():
+        raise ValueError(f"Authoritative tag list not found: {path}")
+    if path.suffix.lower() == ".json":
+        tags = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(tags, list) or not tags or any(not isinstance(tag, str) or not tag.strip() for tag in tags):
+            raise ValueError("Tag list must be a nonempty JSON array of tag names")
+        tags = [tag.strip() for tag in tags]
+        if len(tags) != len(set(tags)):
+            raise ValueError("Tag list contains duplicate tag names")
+        return tags
     try:
         from openpyxl import load_workbook
     except ImportError as exc:  # pragma: no cover - depends on the local runtime
         raise ValueError("openpyxl is required to read タグ一覧.xlsx") from exc
 
-    if not path.is_file():
-        raise ValueError(f"Authoritative tag list not found: {path}")
     workbook = load_workbook(path, read_only=True, data_only=True)
     try:
         sheet = workbook["タグ一覧"] if "タグ一覧" in workbook.sheetnames else workbook.active
@@ -250,6 +258,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Generate the term registry and static term index.")
     parser.add_argument("--tag-list", type=Path, default=DEFAULT_TAG_LIST_PATH)
+    parser.add_argument("--update-tag-list", action="store_true", help="Save the supplied Excel tag list to the checked-in JSON snapshot.")
     args = parser.parse_args()
 
     pages = scan_term_pages()
@@ -261,6 +270,11 @@ def main() -> None:
             "Term page tag(s) are not present in the authoritative tag list: "
             + ", ".join(unknown_page_tags)
         )
+
+    if args.update_tag_list:
+        if args.tag_list.suffix.lower() != ".xlsx":
+            raise SystemExit("--update-tag-list requires --tag-list with the authoritative Excel workbook.")
+        DEFAULT_TAG_LIST_PATH.write_text(json.dumps(tags, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     TERMS_ROOT.mkdir(parents=True, exist_ok=True)

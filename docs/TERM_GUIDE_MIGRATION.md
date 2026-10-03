@@ -62,4 +62,6 @@ noteマガジン [情報Ⅰ Study Atlas｜用語解説](https://note.com/mei_mat
 <meta name="study-atlas-term-tag" content="用語タグ" />
 ```
 
-`python scripts/generate_term_guides.py` を実行すると、標準の `基礎資料\タグ一覧.xlsx` を読み込み、用語タグのメタデータから `assets/term-guides.js`（解説URLのレジストリ）と `terms/index.html` を生成します。用語一覧には公開ページがあるタグだけがNo.順で表示され、ページ追加後の再生成で自動的に一覧へ加わります。タグ検索の短い解説は、学習アプリ側の `data/tags/tag_descriptions.json` で管理します。Excelにないタグの用語ページは生成時にエラーにします。別の正本を使う場合だけ `--tag-list` を指定できます。
+`python scripts/generate_term_guides.py` は、ExcelのNo.順を保持した公開用スナップショット `data/term-tag-list.json` と用語タグのメタデータから、`assets/term-guides.js`（解説URLのレジストリ）と `terms/index.html` を生成します。用語一覧には公開ページがあるタグだけがNo.順で表示され、ページ追加後の再生成で自動的に一覧へ加わります。タグ検索の短い解説は、学習アプリ側の `data/tags/tag_descriptions.json` で管理します。一覧にないタグの用語ページは生成時にエラーにします。
+
+元のExcelを更新した場合は、`openpyxl` が使える環境で `python scripts/generate_term_guides.py --tag-list <タグ一覧.xlsxのパス> --update-tag-list` を実行します。公開用JSONにはタグ名とNo.順だけを保存し、Excel本体やPC固有のパスを公開せず、CIも公開リポジトリだけで生成・検証できます。

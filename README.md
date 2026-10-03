@@ -27,6 +27,7 @@ assets/manual-ads.js       手動AdSenseユニットの中央設定・初回初�
 program-trace/             プログラムを1行ずつ実行するページ
 data/video-questions.json  問題・答え・動画情報
 data/video-curriculum.json 5分野・21ジャンル・最短コースの正本
+data/term-tag-list.json    ExcelのNo.順を保持する公開用の用語タグ一覧
 scripts/generate_video_pages.py
 scripts/generate_term_guides.py
 scripts/import_note_term_pages.py
@@ -94,6 +95,12 @@ python scripts/update_sitemap.py --app-root ..\info1-quiz-app
 ```
 
 用語一覧はExcelのNo.順を正本にし、用語ページのタグメタデータを走査して、公開ページがある用語だけをリンク付きで生成します。記事未作成のタグは表示されず、ページ追加後にこの生成処理を実行すると自動的に一覧へ加わります。URLのslugを推測して手動登録する必要はありません。
+通常の生成・検証では `data/term-tag-list.json` を読み込み、PC固有のファイルや追加ライブラリに依存しません。
+元のExcelを更新したときは、`openpyxl` が使える環境で次を実行して公開用スナップショットを更新します。
+
+```powershell
+python scripts/generate_term_guides.py --tag-list <タグ一覧.xlsxのパス> --update-tag-list
+```
 
 ## 検証
 
