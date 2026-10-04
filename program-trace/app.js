@@ -416,7 +416,6 @@ ui["speed-button"].addEventListener("click", () => {
   ui["speed-panel"].hidden = false;
   ui["speed-button"].setAttribute("aria-expanded", "true");
   ui["speed-input"].value = intervalSeconds(autoplay.interval);
-  ui["speed-input"].focus();
   fullscreen.sync();
 });
 ui["speed-input"].addEventListener("input", () => applySpeedInput());
