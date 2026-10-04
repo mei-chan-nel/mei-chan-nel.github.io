@@ -1,6 +1,7 @@
 import { ProgramEditor } from './editor.js';
 import { RunnerView } from './runner-view.js';
-import { createFullscreen } from './fullscreen.js';
+import { createFullscreen } from './fullscreen.js?v=20261005-desktop';
+import { bindStepKeys } from './step-keys.js?v=20261005-desktop';
 import { ProgramStorage } from './storage.js';
 import { documentJSON, parseDocument, validateInput } from './documents.js';
 import { encodeShare, decodeShare } from './sharing.js';
@@ -356,15 +357,11 @@ byId('play-button').addEventListener('click', () => {
     else
         next();
 });
-document.addEventListener('keydown', event => {
-    if (event.code !== 'Space' || event.isComposing || event.repeat || event.ctrlKey || event.altKey || event.metaKey || !runnerVisible || document.querySelector('dialog[open]'))
-        return;
-    const target = event.target;
-    if (target.closest('button, input, textarea, select, a, [contenteditable]'))
-        return;
-    event.preventDefault();
-    if (!running)
-        next();
+bindStepKeys({
+    isActive: () => runnerVisible,
+    canAdvance: () => !byId('next-button').disabled,
+    advance: () => byId('next-button').click(),
+    nextButton: () => byId('next-button'),
 });
 function closeSpeedPanel() {
     byId('speed-panel').hidden = true;

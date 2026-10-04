@@ -10,8 +10,9 @@ import { videoGroup, inputCandidate, navigationForProgram } from "./video-progra
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 import { traceRedirect } from "./routing.js?v=20261003-seo";
 import { createAssignmentFlow } from "./assignment-flow.js?v=20261004-fullscreen";
-import { createFullscreen } from "./fullscreen.js?v=20261004-mobile";
+import { createFullscreen } from "./fullscreen.js?v=20261005-desktop";
 import { createVariableScroll } from "./variable-scroll.js?v=20261004-scroll";
+import { bindStepKeys } from "./step-keys.js?v=20261005-desktop";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
@@ -582,13 +583,11 @@ ui["variable-rows"].addEventListener("click", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && autoplay.running) { stop(); paused = true; render(); }
 });
-document.addEventListener("keydown", (event) => {
-  if (event.code !== "Space" || event.repeat || event.altKey || event.ctrlKey || event.metaKey || ui["runner-view"].hidden || document.querySelector("dialog[open]") || event.target.closest("button, input, select, a, textarea, [contenteditable]")) return;
-  if (!autoplay.running && !(state.completed && state.currentLine === null) && !executionError) {
-    event.preventDefault();
-    paused = false;
-    runOne();
-  }
+bindStepKeys({
+  isActive: () => !ui["runner-view"].hidden,
+  canAdvance: () => !ui["next-button"].disabled,
+  advance: () => ui["next-button"].click(),
+  nextButton: () => ui["next-button"],
 });
 function layoutWorkspace() {
   if (workspacePlan && !ui["runner-view"].hidden) {

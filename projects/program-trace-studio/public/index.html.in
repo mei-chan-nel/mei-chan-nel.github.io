@@ -29,11 +29,11 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="../icon.svg">
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
-  <link rel="stylesheet" href="./trace-base.css?v=20261004-runner">
-  <link rel="stylesheet" href="./studio.css?v=20261004-runner">
+  <link rel="stylesheet" href="./trace-base.css?v=20261005-desktop">
+  <link rel="stylesheet" href="./studio.css?v=20261005-desktop">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
   <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
-  <script type="module" src="./app.js?v=20261004-runner"></script>
+  <script type="module" src="./app.js?v=20261005-desktop"></script>
   <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"プログラムトレース Studio","url":"%%CANONICAL%%","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"情報Ⅰ Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"プログラムトレース","item":"https://mei-chan-nel.com/program-trace/"},{"@type":"ListItem","position":3,"name":"Studio","item":"%%CANONICAL%%"}]}]</script>
 </head>
 <body class="studio-page" data-studio-entry="%%ENTRY%%">
@@ -86,7 +86,7 @@
       <div class="speed-control"><button id="speed-button" class="button speed-button" type="button" aria-expanded="false" aria-controls="speed-panel">実行速度 <span id="speed-value">0.5秒</span><span aria-hidden="true">⌄</span></button><div id="speed-panel" class="speed-panel" role="group" aria-label="実行速度の設定" hidden><p class="speed-title">1ステップの間隔</p><div class="speed-adjustment"><button id="speed-decrease" class="button speed-adjust-button" type="button" aria-label="実行を速くする">−</button><label class="speed-input-wrap"><input id="speed-input" type="number" min="0.001" max="10" step="any" value="0.5" aria-label="1ステップの秒数"><span>秒</span></label><button id="speed-increase" class="button speed-adjust-button" type="button" aria-label="実行を遅くする">＋</button></div><p id="speed-error" class="speed-error" role="alert" hidden></p></div></div>
       <button id="fullscreen-button" class="button fullscreen-button" type="button" aria-expanded="false" aria-controls="fullscreen-surface"><span aria-hidden="true">⛶</span>全画面</button>
     </div></div>
-    <div class="execution-status"><p><span id="status-dot" class="status-dot" aria-hidden="true"></span><strong id="status-text">実行前</strong><span id="current-line-label"></span></p><div><span id="step-count">0 ステップ</span><span class="keyboard-hint"><kbd>Space</kbd>でも次へ</span></div></div>
+    <div class="execution-status"><p><span id="status-dot" class="status-dot" aria-hidden="true"></span><strong id="status-text">実行前</strong><span id="current-line-label"></span></p><div><span id="step-count">0 ステップ</span><span class="keyboard-hint" title="長押しで連続実行"><kbd>Space</kbd> / <kbd>Enter</kbd>で次へ</span></div></div>
     <div id="workspace" class="workspace-grid studio-workspace">
       <section class="program-panel panel" aria-labelledby="program-heading"><div class="panel-heading"><h2 id="program-heading">プログラム</h2></div><ol id="program-lines" class="program-lines" aria-label="行番号付きプログラム"></ol></section>
       <div class="result-column">

@@ -1,3 +1,5 @@
+import { createResultPanels } from "./result-panels.js?v=20261005-desktop";
+
 const HISTORY_KEY = "programTraceFullscreen";
 
 /** 全画面APIを使えない端末でも、同じ横向きの操作画面を使う。 */
@@ -13,9 +15,9 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
   errorMessage.before(errorAnchor);
   const exitButton = surface.querySelector("[data-fullscreen-exit]");
   const proxies = new Map([...surface.querySelectorAll("[data-control]")].map((button) => [button.dataset.control, button]));
-  const panels = [...workspace.querySelectorAll(".result-column > .panel")];
   let active = false, ownsNative = false, requestPending = false, session = 0, historyPending = false;
   let savedScroll = [0, 0], savedState = null, layoutFrame = null, selectedLine = null;
+  const panels = createResultPanels(workspace, { onLayout: layout, isFullscreen: () => active });
 
   function layout() {
     if (layoutFrame !== null) cancelAnimationFrame(layoutFrame);
@@ -43,6 +45,7 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
   }
 
   function sync() {
+    panels.refresh();
     for (const [key, proxy] of proxies) {
       const original = controls[key];
       proxy.disabled = original.disabled;
@@ -57,15 +60,6 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
     }
     const current = workspace.querySelector(".program-line.is-current")?.dataset.line;
     if (active && current !== selectedLine) { selectedLine = current; revealLine(); }
-  }
-
-  function clearPanels() {
-    for (const panel of panels) {
-      panel.classList.remove("is-collapsed");
-      const toggle = panel.querySelector(".panel-toggle");
-      toggle.disabled = true;
-      toggle.setAttribute("aria-expanded", "true");
-    }
   }
 
   function restorePosition() {
@@ -83,7 +77,7 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
     workspaceAnchor.after(workspace);
     speedAnchor.after(speedPanel);
     errorAnchor.after(errorMessage);
-    clearPanels();
+    panels.leaveFullscreen();
     surface.hidden = true;
     root.classList.remove("trace-fullscreen", "trace-fullscreen-portrait");
     root.style.removeProperty("--trace-fullscreen-width");
@@ -134,13 +128,7 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
     surface.append(errorMessage);
     root.classList.add("trace-fullscreen");
     entryButton.setAttribute("aria-expanded", "true");
-    for (const panel of panels) {
-      const collapsed = !panel.classList.contains("variables-panel");
-      panel.classList.toggle("is-collapsed", collapsed);
-      const toggle = panel.querySelector(".panel-toggle");
-      toggle.disabled = false;
-      toggle.setAttribute("aria-expanded", String(!collapsed));
-    }
+    panels.enterFullscreen();
     sync(); layout();
     exitButton.focus({ preventScroll: true });
     void nativeFullscreen(session);
@@ -149,14 +137,6 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
   entryButton.addEventListener("click", enter);
   exitButton.addEventListener("click", () => leave());
   for (const [key, proxy] of proxies) proxy.addEventListener("click", () => { controls[key].click(); sync(); });
-  for (const panel of panels) {
-    panel.querySelector(".panel-heading").addEventListener("click", () => {
-      if (!active) return;
-      const collapsed = panel.classList.toggle("is-collapsed");
-      panel.querySelector(".panel-toggle").setAttribute("aria-expanded", String(!collapsed));
-      layout();
-    });
-  }
   window.addEventListener("resize", () => { if (active) layout(); });
   document.addEventListener("fullscreenchange", () => {
     if (active && requestPending && document.fullscreenElement === root) ownsNative = true;

@@ -152,6 +152,23 @@ dialog form { padding: 30px; }
 .panel-chevron { display: none; }
 .explanation-panel > .panel-body { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .variables-panel > .panel-body, .output-panel > .panel-body { display: flow-root; }
+.panel-resize-handle { display: none; position: absolute; bottom: 0; left: 0; right: 0; height: 10px; align-items: center; justify-content: center; border-radius: 0 0 13px 13px; background: var(--white); cursor: ns-resize; touch-action: none; }
+.panel-resize-handle::after { content: ""; width: 38px; height: 3px; border-radius: 2px; background: var(--line); }
+.panel-resize-handle:hover::after, .panel-resize-handle:focus-visible::after { background: var(--mint); }
+.panel-resize-handle:focus-visible { outline: 2px solid var(--mint); outline-offset: -2px; }
+.workspace-grid.has-adjustable-panels .result-column > .panel { display: flex; flex-direction: column; position: relative; min-height: 0; overflow: hidden; }
+.workspace-grid.has-adjustable-panels .result-column > .panel[data-height-adjusted] { height: var(--user-panel-height); }
+.workspace-grid.has-adjustable-panels .panel-heading { flex: 0 0 auto; min-height: 42px; cursor: pointer; }
+.workspace-grid.has-adjustable-panels .panel-heading h2 { flex: 1; }
+.workspace-grid.has-adjustable-panels .panel-toggle { cursor: pointer; }
+.workspace-grid.has-adjustable-panels .panel-chevron { display: inline; color: var(--muted); }
+.workspace-grid.has-adjustable-panels .panel-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.workspace-grid.has-adjustable-panels .step-detail { flex: 1 0 auto; }
+.workspace-grid.has-adjustable-panels .panel-resize-handle { display: flex; }
+.workspace-grid.has-adjustable-panels .result-column > .panel.is-collapsed { height: 42px; }
+.workspace-grid.has-adjustable-panels .is-collapsed .panel-body, .workspace-grid.has-adjustable-panels .is-collapsed .panel-resize-handle { display: none; }
+.workspace-grid.has-adjustable-panels .is-collapsed .panel-chevron { transform: rotate(-90deg); }
+.is-resizing-panel, .is-resizing-panel * { cursor: ns-resize !important; user-select: none !important; }
 #example-label { margin-left: 0; letter-spacing: .08em; }
 .program-lines { margin: 0; padding: 0 10px 12px; list-style: none; }
 .program-line { display: grid; grid-template-columns: 36px minmax(0, 1fr) 40px; align-items: baseline; min-height: 27px; margin: 0; padding: 3px 5px 3px 3px; border: 1px solid transparent; border-left-width: 3px; border-radius: 5px; font: .81rem/1.45 var(--mono); }

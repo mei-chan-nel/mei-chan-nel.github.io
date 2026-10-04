@@ -294,6 +294,8 @@ Q231〜Q330を後者へ `collection: "video"` として登録しています。
 
 ## 検証
 
+PCの実行画面では右側の3つの見出しをクリックすると折りたたみます。枠の下端をドラッグすると高さを変更でき、上下矢印キーでも調整できます。実行・リセット中も配置を維持します。Space・Enterは長押しのキーリピートでも1ステップずつ進み、入力欄やダイアログでは実行しません。Studioにも同じパネル・キー操作のモジュールをビルド時に取り込みます。
+
 ```powershell
 python -X utf8 scripts/build_video_programs.py
 python -X utf8 scripts/generate_video_pages.py

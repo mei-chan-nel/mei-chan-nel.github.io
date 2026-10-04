@@ -6,7 +6,11 @@ const portal = new URL('../../', project);
 const destination = new URL('program-trace/studio/', portal);
 execFileSync(process.execPath, [fileURLToPath(new URL('node_modules/typescript/lib/tsc.js', project)), '-p', fileURLToPath(project)], { stdio: 'inherit' });
 await mkdir(destination, { recursive: true });
-for (const name of await readdir(new URL('dist/', project))) if (name.endsWith('.js')) await copyFile(new URL(`dist/${name}`, project), new URL(name, destination));
+for (const name of await readdir(new URL('dist/', project))) if (name.endsWith('.js')) {
+  const source = await readFile(new URL(`dist/${name}`, project), 'utf8');
+  const versioned = source.replace(/(from ['"]\.\/)(fullscreen|step-keys)(\.js)(['"])/g, '$1$2$3?v=20261005-desktop$4');
+  await writeFile(new URL(name, destination), versioned, 'utf8');
+}
 const trace = await readFile(new URL('program-trace/index.html', portal), 'utf8');
 const adjust = html => html.replaceAll('href="../', 'href="../../').replaceAll('href="./"', 'href="../"');
 const header = adjust(trace.match(/<header class="site-header">[\s\S]*?<\/header>/)[0]);
@@ -28,7 +32,7 @@ for (const name of ['studio.css', 'ai-guide.md', 'ai-guide.json']) await copyFil
 await copyFile(new URL('program-trace/styles.css', portal), new URL('trace-base.css', destination));
 // Both runners use the same DOM-only interactions. Program interpretation stays
 // independent, and these modules never import the original problem collection.
-for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js']) {
+for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js', 'result-panels.js', 'step-keys.js']) {
   await copyFile(new URL(`program-trace/${name}`, portal), new URL(name, destination));
 }
 console.log('Built independent Studio → program-trace/studio/');

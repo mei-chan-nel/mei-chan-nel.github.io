@@ -1,6 +1,7 @@
 import { ProgramEditor } from './editor.js';
 import { RunnerView } from './runner-view.js';
 import { createFullscreen } from './fullscreen.js';
+import { bindStepKeys } from './step-keys.js';
 import { ProgramStorage } from './storage.js';
 import { documentJSON, parseDocument, validateInput } from './documents.js';
 import { encodeShare, decodeShare } from './sharing.js';
@@ -206,11 +207,11 @@ byId('play-button').addEventListener('click', () => {
   running = true; paused = false; controls(); renderView();
   if (state.completed) send('reset'); else next();
 });
-document.addEventListener('keydown', event => {
-  if (event.code !== 'Space' || event.isComposing || event.repeat || event.ctrlKey || event.altKey || event.metaKey || !runnerVisible || document.querySelector('dialog[open]')) return;
-  const target = event.target as HTMLElement;
-  if (target.closest('button, input, textarea, select, a, [contenteditable]')) return;
-  event.preventDefault(); if (!running) next();
+bindStepKeys({
+  isActive: () => runnerVisible,
+  canAdvance: () => !byId<HTMLButtonElement>('next-button').disabled,
+  advance: () => byId<HTMLButtonElement>('next-button').click(),
+  nextButton: () => byId<HTMLButtonElement>('next-button'),
 });
 function closeSpeedPanel(): void {
   byId('speed-panel').hidden = true; byId('speed-button').setAttribute('aria-expanded', 'false');

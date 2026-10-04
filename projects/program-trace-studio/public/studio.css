@@ -186,6 +186,12 @@
 .output-heading-actions { display: flex; align-items: center; gap: 10px; }
 .studio-workspace .output-line { max-height: 45px; overflow: hidden; }
 .studio-workspace .output-content { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.studio-workspace.has-adjustable-panels .step-detail { flex: 0 0 auto; overflow: visible; }
+.studio-workspace.has-adjustable-panels #detail-explanation { display: block; overflow: visible; }
+.studio-workspace.has-adjustable-panels #detail-title { white-space: normal; overflow: visible; }
+.studio-workspace.has-adjustable-panels .condition-result { max-height: none; overflow: visible; }
+.studio-workspace.has-adjustable-panels .output-line { max-height: none; overflow: visible; }
+.studio-workspace.has-adjustable-panels .output-content { display: block; overflow: visible; }
 .dialog-content { padding: 26px; }
 .dialog-content .dialog-heading { margin-bottom: 20px; }
 .inspect-dialog { width: min(850px, calc(100% - 32px)); }

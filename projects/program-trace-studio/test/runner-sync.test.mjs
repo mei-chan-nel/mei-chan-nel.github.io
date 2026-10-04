@@ -120,7 +120,7 @@ test('assignment arrows route around values and safely omit a route when no clea
 });
 
 test('Studio uses the latest published runner interaction modules unchanged, without its interpreter or problem collection', async () => {
-  for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js']) {
+  for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js', 'result-panels.js', 'step-keys.js']) {
     const expected = await readFile(new URL(`../../../program-trace/${name}`, import.meta.url));
     assert.deepEqual(await readFile(new URL(`../../../program-trace/studio/${name}`, import.meta.url)), expected);
   }
