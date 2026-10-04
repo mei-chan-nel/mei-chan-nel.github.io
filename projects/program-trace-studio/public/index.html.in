@@ -62,7 +62,7 @@
       <div class="panel editor-document-panel">
         <div id="editor-document-tools">
           <div id="document-tools" class="document-toolbar" aria-label="プログラムの保存と共有">
-            <div class="document-actions"><button id="new-program" class="button" type="button">新規作成</button><button id="save-button" class="button" type="button">ブラウザ内に保存</button><button id="load-button" class="button" type="button">ブラウザ内から読込</button><button id="export-button" class="button" type="button">ファイルに書出</button><button id="import-button" class="button" type="button">ファイルから読込</button><button id="share-button" class="button button-auto" type="button">URLで共有 <span aria-hidden="true">↗</span></button></div>
+            <div class="document-actions"><button id="new-program" class="button" type="button">新規作成</button><button id="share-button" class="button button-auto" type="button">URLで共有 <span aria-hidden="true">↗</span></button><button id="save-button" class="button" type="button">ブラウザ内に保存</button><button id="load-button" class="button" type="button">ブラウザ内から読込</button><button id="export-button" class="button" type="button">ファイルに書出</button><button id="import-button" class="button" type="button">ファイルから読込</button></div>
             <span id="draft-status" class="subtle-label" role="status"></span>
             <input id="file-input" type="file" accept=".json,application/json" hidden>
           </div>
