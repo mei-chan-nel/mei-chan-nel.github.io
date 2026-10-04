@@ -8,6 +8,7 @@ import { planWorkspace } from "../program-trace/workspace.js";
 import { assignmentLinks, routeAssignment, crossesBox } from "../program-trace/assignment-flow.js";
 import { formatValue, validateField } from "../program-trace/values.js";
 import { compactArrayIndices, visibleArrayIndices } from "../program-trace/value-view.js";
+import { highlightScrollTop } from "../program-trace/variable-scroll.js";
 import { literal as v, ref as r, op, at, call, define, returnValue, print, assign } from "../program-trace/language.js";
 
 const exampleFor = (id) => EXAMPLES.find((example) => example.id === id);
@@ -27,6 +28,64 @@ function execute(id, overrides = {}, inputs = {}) {
   return { state, trace, compiled, parameters };
 }
 const output = (state) => state.output.map((item) => item.text);
+
+const isVisible = (box, top, height) => box.top >= top && box.bottom <= top + height;
+
+test("変数欄の下に隠れた緑の代入先を全体が見える位置にスクロールする", () => {
+  const target = { top: 300, bottom: 344 };
+  const top = highlightScrollTop({ current: 0, height: 120, extent: 600, targets: [target] });
+  assert.ok(isVisible(target, top, 120));
+  assert.ok(top > 0);
+  assert.equal(highlightScrollTop({ current: 80, height: 120, extent: 600 }), 80);
+  assert.equal(highlightScrollTop({ current: 80, height: 0, extent: 600, targets: [target] }), 80);
+});
+
+test("赤と緑が同時に収まるときは、上下どちらの代入元も一緒に表示する", () => {
+  const target = { top: 300, bottom: 344 };
+  for (const source of [{ top: 240, bottom: 284 }, { top: 368, bottom: 412 }]) {
+    const top = highlightScrollTop({ current: 0, height: 120, extent: 600, targets: [target], sources: [source] });
+    assert.ok(isVisible(target, top, 120));
+    assert.ok(isVisible(source, top, 120));
+  }
+});
+
+test("代入元と代入先が離れすぎている場合は、緑の全表示を優先する", () => {
+  const target = { top: 400, bottom: 444 }, source = { top: 40, bottom: 84 };
+  const top = highlightScrollTop({ current: 0, height: 120, extent: 600, targets: [target], sources: [source] });
+  assert.ok(isVisible(target, top, 120));
+  assert.equal(isVisible(source, top, 120), false);
+  const nearby = { top: 350, bottom: 394 };
+  const both = highlightScrollTop({ current: 0, height: 120, extent: 600, targets: [target], sources: [source, nearby] });
+  assert.ok(isVisible(target, both, 120));
+  assert.ok(isVisible(nearby, both, 120));
+});
+
+test("複数の代入先と配列のセルも、同時に見えるならすべて表示する", () => {
+  const targets = [{ top: 320, bottom: 358 }, { top: 378, bottom: 416 }];
+  const sources = [{ top: 280, bottom: 310 }];
+  const top = highlightScrollTop({ current: 0, height: 150, extent: 650, targets, sources });
+  assert.ok([...targets, ...sources].every((box) => isVisible(box, top, 150)));
+});
+
+test("画面より大きい緑の領域は見える範囲を確保し、スクロール端を越えない", () => {
+  const target = { top: 200, bottom: 400 };
+  const top = highlightScrollTop({ current: 0, height: 100, extent: 500, targets: [target], sources: [{ top: 20, bottom: 60 }] });
+  assert.ok(top >= target.top && top + 100 <= target.bottom);
+  for (const box of [{ top: 0, bottom: 38 }, { top: 462, bottom: 500 }]) {
+    const edge = highlightScrollTop({ current: 200, height: 100, extent: 500, targets: [box] });
+    assert.ok(edge >= 0 && edge <= 400);
+    assert.ok(isVisible(box, edge, 100));
+  }
+});
+
+test("緑のないステップでは赤を表示し、既に余裕を持って見える位置は動かさない", () => {
+  const source = { top: 300, bottom: 338 };
+  const top = highlightScrollTop({ current: 0, height: 100, extent: 500, sources: [source] });
+  assert.ok(isVisible(source, top, 100));
+  const stable = { top: 130, bottom: 168 };
+  assert.equal(highlightScrollTop({ current: 100, height: 100, extent: 500, targets: [stable] }), 100);
+  assert.equal(highlightScrollTop({ current: 0, height: 500, extent: 500, targets: [source] }), 0);
+});
 
 test("全画面の配列プレビューは省略記号を含めた1行分の枠に収める", () => {
   for (const length of [0, 1, 3, 7, 20, 1000]) for (const capacity of [3, 5, 6, 8]) {

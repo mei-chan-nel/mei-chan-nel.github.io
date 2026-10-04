@@ -11,13 +11,14 @@ import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 import { traceRedirect } from "./routing.js?v=20261003-seo";
 import { createAssignmentFlow } from "./assignment-flow.js?v=20261004-fullscreen";
 import { createFullscreen } from "./fullscreen.js?v=20261004-mobile";
+import { createVariableScroll } from "./variable-scroll.js?v=20261004-scroll";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
   "library-view", "runner-view", "example-grid", "runner-title", "runner-focus", "example-label",
   "next-button", "play-button", "play-label", "play-icon", "reset-button", "edit-button",
   "speed-control", "speed-button", "speed-value", "speed-panel", "speed-input", "speed-decrease", "speed-increase", "speed-error",
-  "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-table", "variable-rows",
+  "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-table", "variable-rows", "variables-body",
   "detail-label", "detail-title", "detail-explanation", "condition-result", "output-lines", "output-placeholder", "output-count",
   "completion-message", "error-message", "screen-reader-status", "values-dialog", "values-form", "parameter-fields",
   "values-preview", "form-error",
@@ -29,6 +30,7 @@ const ui = Object.fromEntries([
 
 const settings = new Map();
 const assignmentFlow = createAssignmentFlow(ui["variable-table"], ui["variable-rows"]);
+const variableScroll = createVariableScroll(ui["variables-body"], ui["variable-rows"]);
 const fullscreen = createFullscreen({
   runner: ui["runner-view"], surface: ui["fullscreen-surface"], mount: ui["fullscreen-workspace"], entryButton: ui["fullscreen-button"],
   controls: { next: ui["next-button"], reset: ui["reset-button"], edit: ui["edit-button"], play: ui["play-button"], speed: ui["speed-button"] },
@@ -344,6 +346,7 @@ function render(animate = false) {
     ui["screen-reader-status"].textContent = `${lineLabel(example, event.line)}行。${event.explanation}${state.completed ? "実行が終わりました。" : ""}`;
   }
   assignmentFlow.update(pendingInput || executionError ? null : state.event);
+  variableScroll.update(pendingInput || executionError ? null : state.event);
   fullscreen.sync();
 }
 
@@ -593,6 +596,7 @@ function layoutWorkspace() {
     sizeWorkspace(ui["runner-view"], workspacePlan);
     render();
     assignmentFlow.redraw();
+    variableScroll.reveal();
   }
 }
 window.addEventListener("resize", () => { if (!fullscreen.active) layoutWorkspace(); });
