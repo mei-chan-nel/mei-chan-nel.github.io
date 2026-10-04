@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>プログラムトレース｜情報Ⅰ Study Atlas</title>
     <meta name="description" content="共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数の変化や繰り返しの動きを確かめる学習ツールです。" />
     <meta name="robots" content="index, follow" />
@@ -24,8 +24,8 @@
     <meta name="theme-color" content="#102f35" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />
-    <link rel="stylesheet" href="./styles.css?v=20261003-arrows" />
-    <script src="./library.js?v=20261003-arrows" type="module"></script>
+    <link rel="stylesheet" href="./styles.css?v=20261004-fullscreen" />
+    <script src="./library.js?v=20261004-fullscreen" type="module"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
     <script src="../assets/manual-ads.js?v=2026080901" defer></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"プログラムトレース","url":"https://mei-chan-nel.com/program-trace/","description":"共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数・配列・出力の変化を確かめる学習ツール。","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
@@ -125,6 +125,7 @@
                 <p id="speed-error" class="speed-error" role="alert" hidden>0.001秒以上で入力してください。0.1秒以上は0.1秒刻みです。</p>
               </div>
             </div>
+            <button id="fullscreen-button" class="button fullscreen-button" type="button" aria-expanded="false" aria-controls="fullscreen-surface"><span aria-hidden="true">⛶</span> 全画面</button>
           </div>
         </section>
 
@@ -144,8 +145,9 @@
           <div class="result-column">
           <section class="explanation-panel panel" aria-labelledby="explanation-title">
             <div class="panel-heading">
-              <h2 id="explanation-title">解説</h2>
+              <h2 id="explanation-title"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="explanation-body" disabled>解説<span class="panel-chevron" aria-hidden="true">▾</span></button></h2>
             </div>
+            <div id="explanation-body" class="panel-body">
             <div class="step-detail">
               <p class="detail-label" id="detail-label">実行前</p>
               <h3 id="detail-title">「次へ」で1行目を実行</h3>
@@ -154,31 +156,47 @@
               <div id="return-value" class="return-value" hidden></div>
             </div>
             <section id="call-stack" class="call-stack" aria-label="関数の呼び出し" hidden><h3>関数の呼び出し</h3><p id="call-stack-note" class="call-stack-note"></p><ol id="call-stack-frames"></ol></section>
+            </div>
           </section>
 
             <section class="variables-panel panel" aria-labelledby="variables-title">
               <div class="panel-heading">
-                <h2 id="variables-title">変数の値</h2>
+                <h2 id="variables-title"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="variables-body" disabled>変数の値<span class="panel-chevron" aria-hidden="true">▾</span></button></h2>
                 <span class="subtle-label">いまの状態</span>
               </div>
+              <div id="variables-body" class="panel-body">
               <div id="variable-table" class="variable-table" role="table" aria-label="現在の変数と変更前後の値">
                 <div class="variable-table-header" role="row"><span role="columnheader">変数</span><span role="columnheader">現在の値</span><span role="columnheader">このステップの変化</span></div>
                 <div id="variable-rows" class="variable-rows" role="rowgroup"></div>
               </div>
               <p id="variable-scope" class="variable-scope" hidden></p>
+              </div>
             </section>
 
             <section class="output-panel panel" aria-labelledby="output-title">
               <div class="panel-heading">
-                <h2 id="output-title">出力</h2>
+                <h2 id="output-title"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="output-body" disabled>出力<span class="panel-chevron" aria-hidden="true">▾</span></button></h2>
                 <span id="output-count" class="output-count">0 件</span>
               </div>
+              <div id="output-body" class="panel-body">
               <p id="output-placeholder" class="output-placeholder"><code>表示する()</code> の結果が、<br />ここに順番にたまります。</p>
               <ol id="output-lines" class="output-lines" role="log" aria-live="polite" aria-relevant="additions" aria-label="プログラムの出力"></ol>
               <button id="output-history-button" class="output-history-button" type="button" hidden>すべての出力を見る</button>
+              </div>
             </section>
           </div>
         </div>
+        <section id="fullscreen-surface" class="fullscreen-surface" aria-label="全画面でプログラムを実行" hidden>
+          <nav class="fullscreen-sidebar" aria-label="全画面の操作">
+            <button class="fullscreen-action fullscreen-exit" type="button" data-fullscreen-exit aria-label="全画面を終了して元の画面へ" title="全画面を終了して元の画面へ">×</button>
+            <button class="fullscreen-action fullscreen-next" type="button" data-control="next" aria-label="次へ" title="次へ">→</button>
+            <button class="fullscreen-action" type="button" data-control="reset" aria-label="最初から" title="最初から">↻</button>
+            <button class="fullscreen-action" type="button" data-control="edit" aria-label="値を変更する" title="値を変更する">✎</button>
+            <button class="fullscreen-action" type="button" data-control="play" aria-label="自動実行" aria-pressed="false" title="自動実行">▶</button>
+            <button class="fullscreen-action" type="button" data-control="speed" aria-label="実行速度" aria-expanded="false" aria-controls="speed-panel" title="実行速度">⚙</button>
+          </nav>
+          <div id="fullscreen-workspace" class="fullscreen-workspace"></div>
+        </section>
         <p id="completion-message" class="completion-message" hidden><span aria-hidden="true">✓</span><strong>実行が終わりました。</strong>「最初から」で見直したり、値を変えて試してみましょう。</p>
         <p id="error-message" class="error-message" role="alert" hidden></p>
         <p id="screen-reader-status" class="visually-hidden" role="status" aria-live="polite"></p>

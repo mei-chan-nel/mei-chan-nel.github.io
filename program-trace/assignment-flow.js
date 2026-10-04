@@ -139,14 +139,17 @@ export function createAssignmentFlow(table, rows) {
   function draw() {
     frame = null; group.replaceChildren();
     if (!links.length || !table.getClientRects().length) return;
-    const origin = table.getBoundingClientRect();
-    const bounds = { width: origin.width, height: origin.height };
+    // 端末の横向き表示で親が回転していても、SVG内の座標は変えない。
+    const bounds = { width: table.offsetWidth, height: table.offsetHeight };
     svg.setAttribute("viewBox", `0 0 ${bounds.width} ${bounds.height}`);
     const boxes = new Map();
     const boxFor = (node) => {
       if (!boxes.has(node)) {
-        const rect = node.getBoundingClientRect();
-        boxes.set(node, { left: rect.left - origin.left, right: rect.right - origin.left, top: rect.top - origin.top, bottom: rect.bottom - origin.top });
+        let left = 0, top = 0;
+        for (let current = node; current && current !== table; current = current.offsetParent) {
+          left += current.offsetLeft; top += current.offsetTop;
+        }
+        boxes.set(node, { left, right: left + node.offsetWidth, top, bottom: top + node.offsetHeight });
       }
       return boxes.get(node);
     };

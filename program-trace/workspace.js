@@ -80,7 +80,7 @@ export function sizeWorkspace(runner, plan) {
   probe.classList.add("workspace-probe");
   probe.setAttribute("aria-hidden", "true");
   probe.inert = true;
-  probe.style.width = `${column.getBoundingClientRect().width}px`;
+  probe.style.width = `${column.offsetWidth}px`;
   // コピーのidを除き、実画面のラベルや参照先と衝突させない。
   for (const node of probe.querySelectorAll("[id], [aria-labelledby]")) {
     if (node.id) node.dataset.measure = node.id;
@@ -88,7 +88,8 @@ export function sizeWorkspace(runner, plan) {
     node.removeAttribute("aria-labelledby");
   }
   for (const panel of probe.querySelectorAll(".panel")) panel.style.height = "auto";
-  runner.append(probe);
+  probe.querySelectorAll(".is-collapsed").forEach((panel) => panel.classList.remove("is-collapsed"));
+  (column.closest(".fullscreen-workspace") ?? runner).append(probe);
   const find = (id) => probe.querySelector(`[data-measure="${id}"]`);
   const explanation = probe.querySelector(".explanation-panel");
   const detail = probe.querySelector(".step-detail");
@@ -112,7 +113,7 @@ export function sizeWorkspace(runner, plan) {
     }
     returned.hidden = event.returnValue === undefined;
     returned.textContent = `返す値：${formatValue(event.returnValue)}`;
-    detailHeight = Math.max(detailHeight, detail.getBoundingClientRect().height);
+    detailHeight = Math.max(detailHeight, detail.offsetHeight);
   }
   detail.style.minHeight = `${Math.ceil(detailHeight)}px`;
   stack.hidden = !plan.calls.length;
@@ -122,7 +123,7 @@ export function sizeWorkspace(runner, plan) {
     item.textContent = `${frame.name}(${Object.values(frame.variables).map(formatValue).join(", ")}) 実行中`;
     find("call-stack-frames").append(item);
   }
-  const explanationHeight = explanation.getBoundingClientRect().height;
+  const explanationHeight = explanation.offsetHeight;
   const rows = find("variable-rows");
   for (const row of rows.children) {
     const name = row.dataset.variable;
@@ -137,15 +138,19 @@ export function sizeWorkspace(runner, plan) {
   find("variable-scope").hidden = !plan.calls.length;
   const activeCall = plan.calls.at(-1);
   find("variable-scope").textContent = activeCall ? `${activeCall.name} の ${Object.entries(activeCall.variables).map(([name, value]) => `${name} = ${formatValue(value)}`).join(", ")} を表示しています。` : "";
-  const variablesHeight = probe.querySelector(".variables-panel").getBoundingClientRect().height;
+  const variablesHeight = probe.querySelector(".variables-panel").offsetHeight;
   const list = find("output-lines");
   list.replaceChildren();
   list.style.setProperty("--output-columns", plan.outputColumns);
+  const outputPanel = probe.querySelector(".output-panel");
+  find("output-placeholder").hidden = false;
+  find("output-history-button").hidden = true;
+  const emptyOutputHeight = outputPanel.offsetHeight;
   find("output-placeholder").hidden = !!plan.outputs.length;
   const window = outputWindow(plan.outputs, plan.outputLimit);
   window.items.forEach((output, index) => list.append(outputRow(output, index + window.start)));
   find("output-history-button").hidden = !plan.outputHistory;
-  const outputHeight = Math.max(100, probe.querySelector(".output-panel").getBoundingClientRect().height);
+  const outputHeight = Math.max(column.closest(".fullscreen-workspace") ? emptyOutputHeight : 100, outputPanel.offsetHeight);
   runner.style.setProperty("--explanation-height", `${Math.ceil(explanationHeight) + 2}px`);
   runner.style.setProperty("--variables-height", `${Math.ceil(variablesHeight) + 2}px`);
   runner.style.setProperty("--output-height", `${Math.ceil(outputHeight) + 2}px`);

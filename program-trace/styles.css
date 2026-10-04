@@ -137,6 +137,11 @@ dialog form { padding: 30px; }
 .panel { min-width: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--white); }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 16px; }
 .panel-heading h2 { margin: 0; font-size: .87rem; line-height: 1.5; }
+.panel-toggle { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+.panel-toggle:disabled { opacity: 1; cursor: default; }
+.panel-chevron { display: none; }
+.explanation-panel > .panel-body { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.variables-panel > .panel-body, .output-panel > .panel-body { display: flow-root; }
 #example-label { margin-left: 0; letter-spacing: .08em; }
 .program-lines { margin: 0; padding: 0 10px 12px; list-style: none; }
 .program-line { display: grid; grid-template-columns: 36px minmax(0, 1fr) 40px; align-items: baseline; min-height: 27px; margin: 0; padding: 3px 5px 3px 3px; border: 1px solid transparent; border-left-width: 3px; border-radius: 5px; font: .81rem/1.45 var(--mono); }
@@ -374,3 +379,73 @@ dialog form { padding: 30px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* 全画面は独立した横向きの作業領域。通常画面の実行状態をそのまま使う。 */
+.fullscreen-button { display: none; }
+@media (max-width: 900px), (pointer: coarse) { .fullscreen-button { display: inline-flex; } }
+html.trace-fullscreen, html.trace-fullscreen body { height: 100%; overflow: hidden; overscroll-behavior: none; scrollbar-gutter: auto; }
+html.trace-fullscreen body > :not(main):not(dialog),
+html.trace-fullscreen .breadcrumb, html.trace-fullscreen .runner-heading,
+html.trace-fullscreen .control-panel, html.trace-fullscreen .execution-status,
+html.trace-fullscreen .mobile-variables, html.trace-fullscreen .program-variants,
+html.trace-fullscreen .completion-message { display: none !important; }
+html.trace-fullscreen .trace-shell { width: auto; margin: 0; padding: 0; }
+.fullscreen-surface {
+  position: fixed; inset: 0 auto auto 0; z-index: 100;
+  display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 6px;
+  width: var(--trace-fullscreen-width, 100dvw); height: var(--trace-fullscreen-height, 100dvh);
+  padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+  background: var(--paper); color: var(--ink); overflow: hidden;
+}
+.trace-fullscreen-portrait .fullscreen-surface { transform-origin: 0 0; transform: translateX(var(--trace-fullscreen-height)) rotate(90deg); }
+.fullscreen-sidebar { display: flex; flex-direction: column; align-items: center; gap: 4px; min-height: 0; overflow-y: auto; scrollbar-width: none; }
+.fullscreen-action { display: grid; place-items: center; flex: 1 1 0; width: 44px; min-height: 32px; max-height: 48px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink); font: 600 1.4rem/1 sans-serif; touch-action: manipulation; }
+.fullscreen-action:hover:not(:disabled) { border-color: var(--mint); background: var(--mint-pale); }
+.fullscreen-exit { position: sticky; top: 0; z-index: 2; flex: 0 0 40px; border-color: #d7a899; background: var(--coral-pale); color: var(--coral-strong); font-size: 1.8rem; }
+.fullscreen-next { background: var(--ink); border-color: var(--ink); color: var(--white); }
+.fullscreen-next:hover:not(:disabled) { background: var(--mint); border-color: var(--mint); color: var(--white); }
+.fullscreen-action.is-running { border-color: var(--mint); background: var(--mint-pale); color: var(--mint); }
+.fullscreen-workspace { min-width: 0; min-height: 0; }
+.fullscreen-workspace > .workspace-grid { height: 100%; grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr); gap: 7px; }
+.fullscreen-surface .panel { border-radius: 8px; }
+.fullscreen-surface .program-panel { position: static; display: flex; flex-direction: column; height: 100%; overflow: hidden; }
+.fullscreen-surface .program-panel > .panel-heading { display: none; }
+.fullscreen-surface .program-lines { position: relative; flex: 1; min-height: 0; overflow: auto; margin: 0; padding: 5px; overscroll-behavior: contain; scrollbar-width: thin; }
+.fullscreen-surface .program-line { grid-template-columns: 29px minmax(0, 1fr) 29px; min-height: 26px; padding: 3px 2px; font-size: .75rem; line-height: 1.45; }
+.fullscreen-surface .program-line .line-number { font-size: .6rem; }
+.fullscreen-surface .line-marker { font-size: .46rem; }
+.fullscreen-surface .result-column { height: 100%; min-height: 0; gap: 6px; }
+.fullscreen-surface .result-column > .panel { display: flex; flex-direction: column; flex-shrink: 1; min-height: 58px; overflow: hidden; }
+.fullscreen-surface .explanation-panel { flex-basis: var(--explanation-height, 130px); }
+.fullscreen-surface .result-column > .variables-panel { flex-basis: min(var(--variables-height, 150px), 50%); flex-grow: 1; flex-shrink: 0; }
+.fullscreen-surface .output-panel { flex-basis: var(--output-height, 100px); }
+.fullscreen-surface .panel-heading { flex: 0 0 32px; gap: 7px; padding: 0 9px; cursor: pointer; }
+.fullscreen-surface .panel-heading h2 { flex: 1; font-size: .75rem; }
+.fullscreen-surface .panel-toggle { min-height: 32px; cursor: pointer; }
+.fullscreen-surface .panel-chevron { display: inline; color: var(--muted); }
+.fullscreen-surface .subtle-label { display: none; }
+.fullscreen-surface .panel-body { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.fullscreen-surface .result-column > .panel.is-collapsed { flex: 0 0 32px; min-height: 32px; }
+.fullscreen-surface .is-collapsed .panel-body { display: none; }
+.fullscreen-surface .is-collapsed .panel-chevron { transform: rotate(-90deg); }
+.fullscreen-surface .step-detail { flex: 1 0 auto; margin: 0 6px 6px; padding: 8px 9px; }
+.fullscreen-surface .detail-label { margin-bottom: 3px; font-size: .58rem; }
+.fullscreen-surface .step-detail h3 { font-size: .72rem; margin-bottom: 3px; }
+.fullscreen-surface .step-detail > p:last-of-type { font-size: .7rem; line-height: 1.55; }
+.fullscreen-surface .condition-result { margin-top: 6px; }
+.fullscreen-surface .call-stack { margin: 0 6px 6px; padding: 6px; }
+.fullscreen-surface .variable-table { margin: 0 6px 6px; padding: 20px 12px 8px; }
+.fullscreen-surface .variable-rows { gap: 20px 24px; }
+.fullscreen-surface .variable-row { min-height: 38px; padding: 3px 6px; }
+.fullscreen-surface .variable-name { font-size: .66rem; }
+.fullscreen-surface .variable-value { font-size: .88rem; }
+.fullscreen-surface .output-lines { padding: 0 6px 6px; }
+.fullscreen-surface .output-line { font-size: .68rem; line-height: 1.5; padding: 4px; }
+.fullscreen-surface .output-placeholder { padding: 0 9px 8px; font-size: .65rem; }
+.fullscreen-surface .speed-panel { top: 6px; left: 58px; right: auto; width: 260px; max-height: calc(100% - 12px); overflow: auto; }
+.fullscreen-surface .error-message { position: absolute; bottom: 6px; left: 58px; right: 6px; margin: 0; max-height: 30%; overflow: auto; font-size: .75rem; }
+.fullscreen-surface .workspace-probe { height: auto; }
+.fullscreen-surface .workspace-probe > .panel { flex: none; min-height: 0; max-height: none; overflow: visible; }
+.fullscreen-surface .workspace-probe .panel-body { overflow: visible; }
+.trace-fullscreen-portrait dialog { position: fixed; top: 50%; left: 50%; right: auto; bottom: auto; margin: 0; width: min(600px, calc(var(--trace-fullscreen-width) - 32px)); max-height: calc(var(--trace-fullscreen-height) - 24px); transform: translate(-50%, -50%) rotate(90deg); }
+.trace-fullscreen-portrait .fullscreen-surface { padding: max(6px, env(safe-area-inset-left)) max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)); }

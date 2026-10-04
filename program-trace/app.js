@@ -4,12 +4,13 @@ import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adju
 import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261003-sources";
-import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261003-arrows";
+import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261004-fullscreen";
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
 import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-perf";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 import { traceRedirect } from "./routing.js?v=20261003-seo";
-import { createAssignmentFlow } from "./assignment-flow.js?v=20261003-arrows";
+import { createAssignmentFlow } from "./assignment-flow.js?v=20261004-fullscreen";
+import { createFullscreen } from "./fullscreen.js?v=20261004-fullscreen";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
@@ -23,10 +24,16 @@ const ui = Object.fromEntries([
   "input-dialog", "input-form", "input-fields", "input-description", "call-stack", "call-stack-frames", "call-stack-note", "return-value", "variable-scope",
   "example-navigation", "program-variants", "trace-breadcrumb", "value-inspector", "inspector-title", "inspector-content",
   "output-history-button",
+  "fullscreen-button", "fullscreen-surface", "fullscreen-workspace",
 ].map((id) => [id, $(id)]));
 
 const settings = new Map();
 const assignmentFlow = createAssignmentFlow(ui["variable-table"], ui["variable-rows"]);
+const fullscreen = createFullscreen({
+  runner: ui["runner-view"], surface: ui["fullscreen-surface"], mount: ui["fullscreen-workspace"], entryButton: ui["fullscreen-button"],
+  controls: { next: ui["next-button"], reset: ui["reset-button"], edit: ui["edit-button"], play: ui["play-button"], speed: ui["speed-button"] },
+  speedPanel: ui["speed-panel"], closeSpeed: closeSpeedPanel, onLayout: layoutWorkspace,
+});
 let example = null;
 let parameters = null;
 let compiled = null;
@@ -135,6 +142,7 @@ function reset() {
 }
 
 function showExample(entry) {
+  fullscreen.leave({ restoreHistory: false });
   stop();
   closeInput();
   closeInspector();
@@ -157,6 +165,7 @@ function showExample(entry) {
 }
 
 function showLibrary() {
+  fullscreen.leave({ restoreHistory: false });
   stop();
   closeInput();
   closeInspector();
@@ -347,6 +356,7 @@ function render(animate = false) {
     ui["screen-reader-status"].textContent = `${lineLabel(example, event.line)}行。${event.explanation}${state.completed ? "実行が終わりました。" : ""}`;
   }
   assignmentFlow.update(pendingInput || executionError ? null : state.event);
+  fullscreen.sync();
 }
 
 function runOne(options = {}) {
@@ -394,7 +404,8 @@ function closeSpeedPanel(focusButton = false) {
   ui["speed-input"].value = intervalSeconds(autoplay.interval);
   ui["speed-input"].setAttribute("aria-invalid", "false");
   ui["speed-error"].hidden = true;
-  if (focusButton) ui["speed-button"].focus();
+  if (focusButton) fullscreen.control("speed").focus();
+  fullscreen.sync();
 }
 
 function applySpeedInput(showError = false) {
@@ -415,6 +426,7 @@ ui["speed-button"].addEventListener("click", () => {
   ui["speed-button"].setAttribute("aria-expanded", "true");
   ui["speed-input"].value = intervalSeconds(autoplay.interval);
   ui["speed-input"].focus();
+  fullscreen.sync();
 });
 ui["speed-input"].addEventListener("input", () => applySpeedInput());
 ui["speed-input"].addEventListener("keydown", (event) => {
@@ -434,7 +446,7 @@ for (const [id, direction] of [["speed-decrease", -1], ["speed-increase", 1]]) {
   });
 }
 document.addEventListener("click", (event) => {
-  if (!ui["speed-panel"].hidden && !ui["speed-control"].contains(event.target)) closeSpeedPanel();
+  if (!ui["speed-panel"].hidden && !ui["speed-control"].contains(event.target) && !fullscreen.containsSpeedControl(event.target)) closeSpeedPanel();
 });
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !ui["speed-panel"].hidden) {
@@ -489,7 +501,7 @@ ui["values-form"].addEventListener("submit", (event) => {
   buildVariables();
   reset();
   ui["values-dialog"].close();
-  ui["next-button"].focus();
+  fullscreen.control("next").focus();
 });
 $("default-values").addEventListener("click", () => {
   const defaults = defaultParameters(example);
@@ -535,7 +547,7 @@ function cancelInput() {
   closeInput();
   paused = !!wasAutomatic || paused;
   render();
-  ui["next-button"].focus();
+  fullscreen.control("next").focus();
 }
 
 ui["input-form"].addEventListener("submit", (event) => {
@@ -549,7 +561,7 @@ ui["input-form"].addEventListener("submit", (event) => {
   runOne({ input: result.value });
   if (resume && !executionError && !document.hidden) autoplay.start({ immediate: false });
   render();
-  (autoplay.running ? ui["play-button"] : ui["next-button"]).focus();
+  fullscreen.control(autoplay.running ? "play" : "next").focus();
 });
 for (const id of ["close-input", "cancel-input"]) $(id).addEventListener("click", cancelInput);
 ui["input-dialog"].addEventListener("cancel", (event) => { event.preventDefault(); cancelInput(); });
@@ -587,10 +599,11 @@ document.addEventListener("keydown", (event) => {
     runOne();
   }
 });
-window.addEventListener("resize", () => {
+function layoutWorkspace() {
   if (workspacePlan && !ui["runner-view"].hidden) {
     sizeWorkspace(ui["runner-view"], workspacePlan);
     assignmentFlow.redraw();
   }
-});
+}
+window.addEventListener("resize", () => { if (!fullscreen.active) layoutWorkspace(); });
 route();
