@@ -1,7 +1,7 @@
 import { findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-perf";
 import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
-import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
+import { cloneValue, formatValue, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261004-mobile";
 import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261004-mobile";
@@ -17,7 +17,7 @@ const ui = Object.fromEntries([
   "library-view", "runner-view", "example-grid", "runner-title", "runner-focus", "example-label",
   "next-button", "play-button", "play-label", "play-icon", "reset-button", "edit-button",
   "speed-control", "speed-button", "speed-value", "speed-panel", "speed-input", "speed-decrease", "speed-increase", "speed-error",
-  "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-table", "variable-rows", "mobile-variables",
+  "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-table", "variable-rows",
   "detail-label", "detail-title", "detail-explanation", "condition-result", "output-lines", "output-placeholder", "output-count",
   "completion-message", "error-message", "screen-reader-status", "values-dialog", "values-form", "parameter-fields",
   "values-preview", "form-error",
@@ -98,7 +98,6 @@ function buildProgram() {
 function buildVariables() {
   variableRows = new Map();
   ui["variable-rows"].replaceChildren();
-  ui["mobile-variables"].replaceChildren();
   for (const name of compiled.variableNames) {
     const row = element("div", "variable-row");
     row.setAttribute("role", "row");
@@ -108,12 +107,8 @@ function buildVariables() {
     const change = element("span", "variable-change");
     for (const node of [label, value, change]) node.setAttribute("role", "cell");
     row.append(label, value, change);
-    const mobile = element("span", "mobile-variable");
-    const mobileValue = element("strong", "", "—");
-    mobile.append(element("span", "", name), mobileValue);
     ui["variable-rows"].append(row);
-    ui["mobile-variables"].append(mobile);
-    variableRows.set(name, { row, value, change, mobile, mobileValue });
+    variableRows.set(name, { row, value, change });
   }
 }
 
@@ -281,7 +276,6 @@ function render(animate = false) {
   for (const [name, nodes] of variableRows) {
     const initialized = Object.hasOwn(state.variables, name);
     const value = state.variables[name];
-    const text = formatValue(value);
     const changes = pendingInput ? [] : state.changes.filter((change) => change.name === name);
     const change = changes.at(-1);
     const shape = example.arrayShapes?.[name];
@@ -289,21 +283,15 @@ function render(animate = false) {
     nodes.row.classList.toggle("is-array", Array.isArray(value) || value?.kind === "matrix" || Array.isArray(plannedValue) || plannedValue?.kind === "matrix");
     renderValue(nodes.value, name, value, changes, pendingInput ? [] : state.reads, shape ? { rows: parameters[shape.rows], columns: parameters[shape.columns], start: shape.start } : null, { columnLabels: example.parameters.find((field) => field.key === name)?.columnLabels, sources, assignments });
     nodes.row.classList.toggle("is-source", sources.some((source) => source.name === name && source.indices.length === 0));
-    nodes.mobile.classList.toggle("is-source", sources.some((source) => source.name === name));
     const assigned = assignments.some((assignment) => assignment.name === name);
     nodes.row.classList.toggle("is-assignment-target", assigned);
-    nodes.mobile.classList.toggle("is-assignment-target", assigned);
     nodes.value.classList.toggle("is-unset", !initialized);
-    const axes = value?.kind === "matrix" ? matrixAxes(value) : null;
-    nodes.mobileValue.textContent = axes ? `${axes.rows.length}×${axes.columns.length}の表` : Array.isArray(value) ? `${value.length}個の配列` : text;
-    nodes.mobile.title = text;
     if (animate) {
       nodes.row.classList.remove("is-changed");
       // 同じ変数が続けて更新された場合にも、変化のアニメーションを再開する。
       if (change) void nodes.row.offsetWidth;
     }
     nodes.row.classList.toggle("is-changed", !!change);
-    nodes.mobile.classList.toggle("is-changed", !!change);
     renderChange(nodes.change, change, sources);
   }
 

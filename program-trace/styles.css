@@ -106,7 +106,6 @@ kbd { display: inline-block; padding: 1px 5px; margin-right: 3px; border: 1px so
 .completion-message > span { width: 23px; height: 23px; display: grid; place-items: center; border-radius: 50%; background: var(--mint); color: var(--white); margin-right: 3px; }
 .completion-message strong { color: var(--mint); }
 .error-message { padding: 15px 20px; border: 1px solid #d39682; border-radius: 10px; background: var(--coral-pale); color: var(--coral-strong); font-size: .8rem; }
-.mobile-variables { display: none; }
 dialog { width: min(600px, calc(100% - 32px)); max-height: min(90dvh, 900px); margin: auto; padding: 0; color: var(--ink); border: 1px solid var(--line); border-radius: 20px; background: var(--white); box-shadow: 0 24px 100px rgb(16 47 53 / 25%); }
 dialog::backdrop { background: rgb(16 47 53 / 45%); backdrop-filter: blur(3px); }
 dialog form { padding: 30px; }
@@ -307,12 +306,6 @@ dialog form { padding: 30px; }
   .runner-heading h1 { font-size: 1.5rem; }
   .runner-focus { font-size: .7rem; }
   .example-navigation { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
-  .mobile-variables { position: sticky; top: var(--site-header-height, 130px); z-index: 9; display: flex; flex-wrap: wrap; gap: 6px; margin: 0 -14px 15px; padding: 9px 14px; border-block: 1px solid var(--line); background: var(--paper); box-shadow: 0 4px 8px rgb(16 47 53 / 4%); }
-  .header-is-hidden .mobile-variables { top: 0; }
-  .mobile-variable { display: flex; align-items: center; gap: 7px; padding: 4px 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font: .76rem var(--mono); }
-  .mobile-variable.is-source { background: var(--source-pale); border-color: #e5b3aa; }
-  .mobile-variable.is-changed, .mobile-variable.is-assignment-target { color: var(--mint); background: var(--mint-pale); border-color: #a7c8b1; }
-  .mobile-variable strong { font-size: .88rem; }
   .control-panel { padding: 12px; gap: 14px; }
   .action-buttons { width: 100%; gap: 7px; }
   .action-buttons > .button { flex: 1 1 auto; min-height: 44px; font-size: .72rem; padding: 9px; gap: 5px; }
@@ -365,8 +358,6 @@ dialog form { padding: 30px; }
 #input-fields > .parameter-field { grid-column: 1 / -1; }
 .input-actions { justify-content: flex-end; }
 .dialog-actions { position: sticky; bottom: -1px; z-index: 2; padding-top: 16px; padding-bottom: 5px; background: var(--white); border-top: 1px solid var(--line); }
-.mobile-variable { min-width: 0; max-width: 100%; }
-.mobile-variable strong { overflow-wrap: anywhere; min-width: 0; }
 .trace-shell .button:hover, dialog .button:hover { transform: none; box-shadow: none; }
 
 
@@ -388,7 +379,7 @@ html.trace-fullscreen, html.trace-fullscreen body { height: 100%; overflow: hidd
 html.trace-fullscreen body > :not(main):not(dialog),
 html.trace-fullscreen .breadcrumb, html.trace-fullscreen .runner-heading,
 html.trace-fullscreen .control-panel, html.trace-fullscreen .execution-status,
-html.trace-fullscreen .mobile-variables, html.trace-fullscreen .program-variants,
+html.trace-fullscreen .program-variants,
 html.trace-fullscreen .completion-message { display: none !important; }
 html.trace-fullscreen .trace-shell { width: auto; margin: 0; padding: 0; }
 .fullscreen-surface {
