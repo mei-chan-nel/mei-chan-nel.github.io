@@ -43,6 +43,8 @@ def read_portal_urls() -> list[str]:
         "LectureNote/statistics.html",
         "LectureNote/programming.html",
         "program-trace/index.html",
+        "program-trace/studio/index.html",
+        "program-trace/studio/guide.html",
     ]
     report_path = ROOT / "docs" / "video-library-build.json"
     if not report_path.is_file():

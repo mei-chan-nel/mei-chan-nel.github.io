@@ -1,0 +1,101 @@
+<details id="file-spec" class="file-spec">
+  <summary>ファイルの仕様</summary>
+  <div class="file-spec-content">
+    <h3>読み込めるファイル</h3>
+    <p>文字コードはUTF-8、拡張子は <code>.studio.json</code> です。ファイル全体を、次の形式のJSONオブジェクトにします。Markdownの囲みやJSONの外への説明は入れません。</p>
+    <pre><code class="file-spec-example">{
+  "format": "mei-program-studio",
+  "version": 1,
+  "title": "2つの値の合計",
+  "source": "x = 3\ny = 4\ngoukei = x + y\n表示する(\"合計は\", goukei, \"です。\")",
+  "settings": {
+    "indexBase": 0,
+    "inputs": {}
+  }
+}</code></pre>
+    <ul>
+      <li><code>format</code> と <code>version</code> は上の値に固定します。</li>
+      <li><code>title</code> はプログラム名です。1～120文字にします。</li>
+      <li><code>source</code> はプログラム本文の文字列です。改行は <code>\n</code>、本文中の <code>"</code> は <code>\"</code>、<code>\</code> は <code>\\</code> としてJSONに記入します。</li>
+      <li><code>settings.indexBase</code> は、配列の番号を0から始める場合は <code>0</code>、1から始める場合は <code>1</code> です。すべての配列に適用されます。</li>
+      <li><code>settings.inputs</code> は外部入力の設定です。外部入力がない場合は <code>{}</code> にします。</li>
+    </ul>
+    <p>自分でファイルを作る場合は、完成した本文を記入します。<code>builder</code> は作成途中の行を保存するためにアプリが付ける情報なので、手動・AIで作るファイルには付けません。</p>
+
+    <h3>本文の書き方</h3>
+    <p>行番号は不要です。分岐や繰り返しの内側は、半角スペース2個で字下げします。さらに内側なら4個、6個と増やします。「そうでなくもし」「そうでなければ」は、対応する「もし」と同じ深さに置きます。</p>
+    <pre><code>x = 3
+Data = [3, 5, 9]
+Data[0] = x + 1
+Table = [[1, 2], [3, 4]]
+Table[0, 1] = 8
+もし x &lt; 10 ならば：
+  表示する("10未満です。")
+そうでなくもし x == 10 ならば：
+  表示する("10です。")
+そうでなければ：
+  表示する("10より大きいです。")
+i を 1 から 5 まで 1 ずつ増やしながら繰り返す：
+  表示する(i)
+x &lt; 10 の間繰り返す：
+  x = x + 1</code></pre>
+    <p>半角スペースの代わりに、深さごとの「｜」「⎿」でも記入できます。「⎿」はその深さの最後の行に使います。字下げ用のスペースと記号は混ぜません。「終了」「end」などの終端行は書きません。分岐・繰り返しの内側には、実行する処理を1行以上入れます。</p>
+    <ul>
+      <li>変数名は文字または <code>_</code> で始め、続きには文字・数字・<code>_</code> を使います。日本語も使えます。命令・関数と同じ名前、<code>__proto__</code>・<code>constructor</code>・<code>prototype</code> は使えません。</li>
+      <li>数値、引用符で囲んだ文字列、<code>真</code>・<code>偽</code>、一次元・二次元配列を扱えます。変数・配列は、使う前に代入してください。</li>
+      <li>計算記号は <code>+ - * / ÷ % **</code> です。<code>/</code> は通常の割り算、<code>÷</code> は商の小数部分を切り捨てて0に近い整数にします。<code>%</code> は余り、<code>**</code> は累乗です。</li>
+      <li>比較は <code>== != &lt; &lt;= &gt; &gt;=</code>、論理演算は <code>and or not</code> です。計算順を明確にするには <code>( )</code> で囲みます。</li>
+      <li>同じ行で <code>x = 1, y = x + 1</code> のように複数代入すると、左から順に処理します。文字列と数値を表示するときは <code>表示する("値は", x)</code> のように分けます。</li>
+      <li>一次元配列は <code>[3, 5, 9]</code>、二次元配列は <code>[[1, 2], [3, 4]]</code> と書きます。二次元では全行の列数をそろえます。要素は <code>Data[i]</code>・<code>Table[i, j]</code> で指定し、存在する番号の範囲内で使います。</li>
+      <li>範囲を決めた繰り返しは終了値を含みます。開始・終了・増減する値は整数にし、増減する値は1以上にします。減らす場合は「ずつ減らしながら繰り返す：」にします。</li>
+      <li><code>#</code> 以降はコメントです。引用符の中の <code>#</code> は文字として扱います。独自の関数・再帰・返す・break・continue・三次元以上の配列は使えません。</li>
+    </ul>
+
+    <h3>用意されている関数</h3>
+    <dl>
+      <dt><code>表示する("値は", x)</code></dt><dd>引数を順につなげて表示します。間に空白は自動では入りません。1行の処理として使い、計算式の中には入れません。</dd>
+      <dt><code>要素数(Data)</code></dt><dd>一次元配列の要素数、二次元配列の行数を返します。二次元の列数は、0始まりなら <code>要素数(Table[0])</code> で取得できます。</dd>
+      <dt><code>乱数()</code></dt><dd>0以上1未満の実数です。</dd>
+      <dt><code>乱数(1, 6, "整数")</code></dt><dd>最小値以上、最大値以下の整数です。範囲の両端を整数にします。</dd>
+      <dt><code>乱数(0, 10, "実数")</code></dt><dd>最小値以上、最大値未満の実数です。最小値を最大値より小さくします。</dd>
+    </dl>
+
+    <h3>外部から入力する場合</h3>
+    <p>本文に <code>age = 【外部からの入力】</code> と書き、<code>settings.inputs.age</code> に形式と範囲を設定します。外部入力は単独の変数への代入として1行に書きます。次は、そのまま読み込める例です。</p>
+    <pre><code class="file-spec-example">{
+  "format": "mei-program-studio",
+  "version": 1,
+  "title": "年齢で分岐する",
+  "source": "age = 【外部からの入力】\nもし age &gt;= 18 ならば：\n  表示する(\"成人です。\")\nそうでなければ：\n  表示する(\"未成年です。\")",
+  "settings": {
+    "indexBase": 0,
+    "inputs": {
+      "age": {
+        "kind": "number",
+        "integer": true,
+        "min": 0,
+        "max": 120,
+        "minLength": 1,
+        "maxLength": 100,
+        "elementKind": "number",
+        "rows": 2,
+        "columns": 3
+      }
+    }
+  }
+}</code></pre>
+    <p>各入力の設定には、使わない項目も含めて上の9項目をすべて記入します。</p>
+    <dl>
+      <dt><code>kind</code></dt><dd>数値は <code>"number"</code>、文字列は <code>"text"</code>、一次元配列は <code>"array"</code>、二次元配列は <code>"matrix"</code> です。</dd>
+      <dt><code>integer</code>、<code>min</code>、<code>max</code></dt><dd>数値や配列の数値要素の設定です。<code>true</code> なら整数のみ、<code>false</code> なら小数も使えます。範囲は両端を含み、最小値≤最大値にします。整数のみの場合は範囲も整数にします。不要な場合は <code>true</code>・<code>-1000000</code>・<code>1000000</code> で構いません。</dd>
+      <dt><code>minLength</code>、<code>maxLength</code></dt><dd>一次元配列の要素数の下限・上限です。それぞれ1～1000で、下限≤上限にします。不要な場合は <code>1</code>・<code>100</code> にします。</dd>
+      <dt><code>elementKind</code></dt><dd>配列の要素を数値にする場合は <code>"number"</code>、文字列にする場合は <code>"text"</code> です。不要な場合は <code>"number"</code> にします。</dd>
+      <dt><code>rows</code>、<code>columns</code></dt><dd>二次元配列の行数・列数をそれぞれ1～30で指定します。不要な場合は <code>2</code>・<code>3</code> にします。文字列入力と配列の文字列要素は1つ1000文字までです。</dd>
+    </dl>
+    <p>入力設定だけでは、配列が昇順かどうかなどは判定しません。探索などで順序に条件がある場合は、本文で確認するか並べ替えます。特定の要素番号を使う場合は、その番号まで含むよう要素数の下限を決めます。</p>
+
+    <h3>上限</h3>
+    <p>ファイルはUTF-8で300,000バイトまで、本文は500行・50,000バイトまでです。入れ子は32段まで、実行は10,000ステップまで、変数は128個までです。配列は1つ1,000要素・セルまで、全体で5,000まで。出力は1,000回・合計200,000文字までです。数値は有限の値で、整数は±9,007,199,254,740,991以内にします。</p>
+    <p>読込時にはファイルと本文を検証します。読み込んだだけでは実行しません。詳しい表記・設定・上限は <a href="./ai-guide.md">AI向けの完全な仕様</a>、データの形式は <a href="./ai-guide.json">JSON Schema</a> で確認できます。</p>
+  </div>
+</details>

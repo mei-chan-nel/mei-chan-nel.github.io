@@ -41,8 +41,9 @@ test("旧実行URLは問題・比較用ID・遷移元を保持し、空または
   assert.equal(traceRedirect(library + "#examples", null), null);
 });
 
-test("サイトマップにはプログラム一覧だけを登録し、実行入口・条件・ハッシュを登録しない", () => {
+test("サイトマップには一覧・Studio・書き方を登録し、実行入口・条件・ハッシュを登録しない", () => {
   const traceUrls = [...read("sitemap.xml").matchAll(/<loc>([^<]*\/program-trace\/[^<]*)<\/loc>/g)].map(match => match[1]);
-  assert.deepEqual(traceUrls, [library]);
+  assert.deepEqual(traceUrls, [library, library + "studio/", library + "studio/guide.html"]);
+  assert.ok(!traceUrls.some(url => /(?:run|share)\.html|[?#]/.test(url)));
   assert.ok(!read("sitemap.html").includes("program-trace/run.html"));
 });

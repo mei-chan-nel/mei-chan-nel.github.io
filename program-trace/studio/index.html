@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="index, follow">
+  <title>プログラムトレース Studio｜情報Ⅰ Study Atlas</title>
+  <meta name="description" content="共通テスト「情報Ⅰ」のプログラム表記で自分のプログラムを書き、1行ずつ実行。変数や配列の変化を確かめ、ブラウザに保存したりURLで共有できます。">
+  <link rel="alternate" type="application/schema+json" href="./ai-guide.json" title="Program Trace Studio file schema for AI">
+  <link rel="help" type="text/markdown" href="./ai-guide.md" title="Program Trace Studio instructions for AI">
+  <!-- AI authoring contract (not part of the visible editor):
+       Read ai-guide.md and ai-guide.json before generating an import file.
+       Emit a UTF-8 JSON object: {"format":"mei-program-studio","version":1,
+       "title":"...","source":"...","settings":{"indexBase":0,"inputs":{}}}.
+       source is Information I pseudocode, not JavaScript. Use two-space indentation
+       or correct ｜ / ⎿ markers; no end keywords. No custom functions or recursion.
+       Supported built-ins: 表示する(...), 要素数(array), 乱数(), 乱数(min,max,"整数"|"実数").
+       Initialize 1D/rectangular 2D arrays before writing elements. Set every external
+       input's bounds and type in settings.inputs. Generate complete source only;
+       omit builder (reserved for the app's unfinished editor drafts).
+       Never put HTML, eval, imports, or instructions to the user in the program.
+  -->
+  <link rel="canonical" href="https://mei-chan-nel.com/program-trace/studio/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="プログラムトレース Studio｜情報Ⅰ Study Atlas">
+  <meta property="og:description" content="自分のプログラムを書いて、1行ずつ動きを確かめよう。">
+  <meta property="og:url" content="https://mei-chan-nel.com/program-trace/studio/">
+  <meta property="og:image" content="https://mei-chan-nel.com/assets/og-study-atlas.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../icon.svg">
+  <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
+  <link rel="stylesheet" href="./trace-base.css?v=20261004-runner">
+  <link rel="stylesheet" href="./studio.css?v=20261004-runner">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+  <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+  <script type="module" src="./app.js?v=20261004-runner"></script>
+  <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"プログラムトレース Studio","url":"https://mei-chan-nel.com/program-trace/studio/","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"情報Ⅰ Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"プログラムトレース","item":"https://mei-chan-nel.com/program-trace/"},{"@type":"ListItem","position":3,"name":"Studio","item":"https://mei-chan-nel.com/program-trace/studio/"}]}]</script>
+</head>
+<body class="studio-page" data-studio-entry="editor">
+<a class="skip-link" href="#main-content">本文へスキップ</a>
+<header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../" aria-current="page">プログラムトレース</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+        </nav>
+      </div>
+    </header>
+<script src="../../assets/site-header.js?v=20261004" defer></script>
+<main id="main-content" class="trace-shell">
+  <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><span>Studio</span></nav>
+  <div class="studio-heading">
+    <div><p class="eyebrow">プログラムトレース Studio</p><h1 id="studio-title" tabindex="-1">プログラムを、<em>書いて動かす。</em></h1></div>
+    <button id="to-editor" class="button" type="button" hidden>プログラムを編集</button>
+  </div>
+  <p id="notice" class="studio-notice" role="status" hidden></p>
+  <button id="recover-draft" class="button recovery-button" type="button" hidden>移行前の下書きをファイルに書出</button>
+  <noscript><p class="error-message">Studioを使うには、ブラウザのJavaScriptを有効にしてください。</p></noscript>
+  <section id="editor-view" class="workspace-grid studio-editor-layout" aria-label="プログラムを作成する">
+    <div class="editor-main panel">
+      <div class="editor-title-field"><label for="program-name">プログラム名</label><input id="program-name" type="text" maxlength="120" autocomplete="off" value=""></div>
+      <div class="panel-heading builder-program-heading"><h2>プログラム</h2><span id="source-size" class="subtle-label"></span><button id="builder-first-plus" class="builder-plus" type="button" aria-label="1行目の上に行を追加">＋</button></div>
+      <ol id="builder-rows" class="program-lines builder-rows" aria-label="プログラムの処理"></ol>
+      <p id="drag-status" class="drag-status" role="status"></p>
+      <pre id="builder-source" hidden></pre>
+      <p id="editor-error" class="error-message" role="alert" hidden></p>
+    </div>
+    <aside class="editor-sidebar" aria-label="編集の操作">
+      <div class="panel editor-document-panel">
+        <div id="editor-document-tools">
+          <div id="document-tools" class="document-toolbar" aria-label="プログラムの保存と共有">
+            <div class="document-actions"><button id="new-program" class="button" type="button">新規作成</button><button id="save-button" class="button" type="button">ブラウザ内に保存</button><button id="load-button" class="button" type="button">ブラウザ内から読込</button><button id="export-button" class="button" type="button">ファイルに書出</button><button id="import-button" class="button" type="button">ファイルから読込</button><button id="share-button" class="button button-auto" type="button">URLで共有 <span aria-hidden="true">↗</span></button></div>
+            <span id="draft-status" class="subtle-label" role="status"></span>
+            <input id="file-input" type="file" accept=".json,application/json" hidden>
+          </div>
+        </div>
+        <div class="editor-run-action"><button id="prepare-button" class="button button-primary" type="button">実行画面へ <span aria-hidden="true">→</span></button></div>
+      </div>
+      <div class="panel editor-edit-panel">
+        <div class="builder-history"><button id="builder-undo" class="button" type="button" disabled>元に戻す</button><button id="builder-redo" class="button" type="button" disabled>やり直す</button></div>
+        <div class="builder-index"><label for="index-base">配列の番号：</label><select id="index-base"><option value="0">0から始める</option><option value="1">1から始める</option></select></div>
+      </div>
+      <details id="file-spec" class="file-spec">
+  <summary>ファイルの仕様</summary>
+  <div class="file-spec-content">
+    <h3>読み込めるファイル</h3>
+    <p>文字コードはUTF-8、拡張子は <code>.studio.json</code> です。ファイル全体を、次の形式のJSONオブジェクトにします。Markdownの囲みやJSONの外への説明は入れません。</p>
+    <pre><code class="file-spec-example">{
+  "format": "mei-program-studio",
+  "version": 1,
+  "title": "2つの値の合計",
+  "source": "x = 3\ny = 4\ngoukei = x + y\n表示する(\"合計は\", goukei, \"です。\")",
+  "settings": {
+    "indexBase": 0,
+    "inputs": {}
+  }
+}</code></pre>
+    <ul>
+      <li><code>format</code> と <code>version</code> は上の値に固定します。</li>
+      <li><code>title</code> はプログラム名です。1～120文字にします。</li>
+      <li><code>source</code> はプログラム本文の文字列です。改行は <code>\n</code>、本文中の <code>"</code> は <code>\"</code>、<code>\</code> は <code>\\</code> としてJSONに記入します。</li>
+      <li><code>settings.indexBase</code> は、配列の番号を0から始める場合は <code>0</code>、1から始める場合は <code>1</code> です。すべての配列に適用されます。</li>
+      <li><code>settings.inputs</code> は外部入力の設定です。外部入力がない場合は <code>{}</code> にします。</li>
+    </ul>
+    <p>自分でファイルを作る場合は、完成した本文を記入します。<code>builder</code> は作成途中の行を保存するためにアプリが付ける情報なので、手動・AIで作るファイルには付けません。</p>
+
+    <h3>本文の書き方</h3>
+    <p>行番号は不要です。分岐や繰り返しの内側は、半角スペース2個で字下げします。さらに内側なら4個、6個と増やします。「そうでなくもし」「そうでなければ」は、対応する「もし」と同じ深さに置きます。</p>
+    <pre><code>x = 3
+Data = [3, 5, 9]
+Data[0] = x + 1
+Table = [[1, 2], [3, 4]]
+Table[0, 1] = 8
+もし x &lt; 10 ならば：
+  表示する("10未満です。")
+そうでなくもし x == 10 ならば：
+  表示する("10です。")
+そうでなければ：
+  表示する("10より大きいです。")
+i を 1 から 5 まで 1 ずつ増やしながら繰り返す：
+  表示する(i)
+x &lt; 10 の間繰り返す：
+  x = x + 1</code></pre>
+    <p>半角スペースの代わりに、深さごとの「｜」「⎿」でも記入できます。「⎿」はその深さの最後の行に使います。字下げ用のスペースと記号は混ぜません。「終了」「end」などの終端行は書きません。分岐・繰り返しの内側には、実行する処理を1行以上入れます。</p>
+    <ul>
+      <li>変数名は文字または <code>_</code> で始め、続きには文字・数字・<code>_</code> を使います。日本語も使えます。命令・関数と同じ名前、<code>__proto__</code>・<code>constructor</code>・<code>prototype</code> は使えません。</li>
+      <li>数値、引用符で囲んだ文字列、<code>真</code>・<code>偽</code>、一次元・二次元配列を扱えます。変数・配列は、使う前に代入してください。</li>
+      <li>計算記号は <code>+ - * / ÷ % **</code> です。<code>/</code> は通常の割り算、<code>÷</code> は商の小数部分を切り捨てて0に近い整数にします。<code>%</code> は余り、<code>**</code> は累乗です。</li>
+      <li>比較は <code>== != &lt; &lt;= &gt; &gt;=</code>、論理演算は <code>and or not</code> です。計算順を明確にするには <code>( )</code> で囲みます。</li>
+      <li>同じ行で <code>x = 1, y = x + 1</code> のように複数代入すると、左から順に処理します。文字列と数値を表示するときは <code>表示する("値は", x)</code> のように分けます。</li>
+      <li>一次元配列は <code>[3, 5, 9]</code>、二次元配列は <code>[[1, 2], [3, 4]]</code> と書きます。二次元では全行の列数をそろえます。要素は <code>Data[i]</code>・<code>Table[i, j]</code> で指定し、存在する番号の範囲内で使います。</li>
+      <li>範囲を決めた繰り返しは終了値を含みます。開始・終了・増減する値は整数にし、増減する値は1以上にします。減らす場合は「ずつ減らしながら繰り返す：」にします。</li>
+      <li><code>#</code> 以降はコメントです。引用符の中の <code>#</code> は文字として扱います。独自の関数・再帰・返す・break・continue・三次元以上の配列は使えません。</li>
+    </ul>
+
+    <h3>用意されている関数</h3>
+    <dl>
+      <dt><code>表示する("値は", x)</code></dt><dd>引数を順につなげて表示します。間に空白は自動では入りません。1行の処理として使い、計算式の中には入れません。</dd>
+      <dt><code>要素数(Data)</code></dt><dd>一次元配列の要素数、二次元配列の行数を返します。二次元の列数は、0始まりなら <code>要素数(Table[0])</code> で取得できます。</dd>
+      <dt><code>乱数()</code></dt><dd>0以上1未満の実数です。</dd>
+      <dt><code>乱数(1, 6, "整数")</code></dt><dd>最小値以上、最大値以下の整数です。範囲の両端を整数にします。</dd>
+      <dt><code>乱数(0, 10, "実数")</code></dt><dd>最小値以上、最大値未満の実数です。最小値を最大値より小さくします。</dd>
+    </dl>
+
+    <h3>外部から入力する場合</h3>
+    <p>本文に <code>age = 【外部からの入力】</code> と書き、<code>settings.inputs.age</code> に形式と範囲を設定します。外部入力は単独の変数への代入として1行に書きます。次は、そのまま読み込める例です。</p>
+    <pre><code class="file-spec-example">{
+  "format": "mei-program-studio",
+  "version": 1,
+  "title": "年齢で分岐する",
+  "source": "age = 【外部からの入力】\nもし age &gt;= 18 ならば：\n  表示する(\"成人です。\")\nそうでなければ：\n  表示する(\"未成年です。\")",
+  "settings": {
+    "indexBase": 0,
+    "inputs": {
+      "age": {
+        "kind": "number",
+        "integer": true,
+        "min": 0,
+        "max": 120,
+        "minLength": 1,
+        "maxLength": 100,
+        "elementKind": "number",
+        "rows": 2,
+        "columns": 3
+      }
+    }
+  }
+}</code></pre>
+    <p>各入力の設定には、使わない項目も含めて上の9項目をすべて記入します。</p>
+    <dl>
+      <dt><code>kind</code></dt><dd>数値は <code>"number"</code>、文字列は <code>"text"</code>、一次元配列は <code>"array"</code>、二次元配列は <code>"matrix"</code> です。</dd>
+      <dt><code>integer</code>、<code>min</code>、<code>max</code></dt><dd>数値や配列の数値要素の設定です。<code>true</code> なら整数のみ、<code>false</code> なら小数も使えます。範囲は両端を含み、最小値≤最大値にします。整数のみの場合は範囲も整数にします。不要な場合は <code>true</code>・<code>-1000000</code>・<code>1000000</code> で構いません。</dd>
+      <dt><code>minLength</code>、<code>maxLength</code></dt><dd>一次元配列の要素数の下限・上限です。それぞれ1～1000で、下限≤上限にします。不要な場合は <code>1</code>・<code>100</code> にします。</dd>
+      <dt><code>elementKind</code></dt><dd>配列の要素を数値にする場合は <code>"number"</code>、文字列にする場合は <code>"text"</code> です。不要な場合は <code>"number"</code> にします。</dd>
+      <dt><code>rows</code>、<code>columns</code></dt><dd>二次元配列の行数・列数をそれぞれ1～30で指定します。不要な場合は <code>2</code>・<code>3</code> にします。文字列入力と配列の文字列要素は1つ1000文字までです。</dd>
+    </dl>
+    <p>入力設定だけでは、配列が昇順かどうかなどは判定しません。探索などで順序に条件がある場合は、本文で確認するか並べ替えます。特定の要素番号を使う場合は、その番号まで含むよう要素数の下限を決めます。</p>
+
+    <h3>上限</h3>
+    <p>ファイルはUTF-8で300,000バイトまで、本文は500行・50,000バイトまでです。入れ子は32段まで、実行は10,000ステップまで、変数は128個までです。配列は1つ1,000要素・セルまで、全体で5,000まで。出力は1,000回・合計200,000文字までです。数値は有限の値で、整数は±9,007,199,254,740,991以内にします。</p>
+    <p>読込時にはファイルと本文を検証します。読み込んだだけでは実行しません。詳しい表記・設定・上限は <a href="./ai-guide.md">AI向けの完全な仕様</a>、データの形式は <a href="./ai-guide.json">JSON Schema</a> で確認できます。</p>
+  </div>
+</details>
+
+    </aside>
+  </section>
+  <section id="runner-view" aria-label="プログラムを実行する" hidden>
+    <div id="runner-document-tools"></div>
+    <div class="control-panel"><div class="action-buttons">
+      <button id="next-button" class="button button-primary" type="button"><span class="button-icon" aria-hidden="true">→</span>次へ</button>
+      <button id="reset-button" class="button" type="button"><span aria-hidden="true">↺</span>最初から</button>
+      <button id="edit-values-button" class="button button-edit" type="button"><span aria-hidden="true">◇</span>値を変更する</button>
+      <button id="play-button" class="button button-auto" type="button" aria-pressed="false"><span id="play-icon" aria-hidden="true">▶</span><span id="play-label">自動実行</span></button>
+      <div class="speed-control"><button id="speed-button" class="button speed-button" type="button" aria-expanded="false" aria-controls="speed-panel">実行速度 <span id="speed-value">0.5秒</span><span aria-hidden="true">⌄</span></button><div id="speed-panel" class="speed-panel" role="group" aria-label="実行速度の設定" hidden><p class="speed-title">1ステップの間隔</p><div class="speed-adjustment"><button id="speed-decrease" class="button speed-adjust-button" type="button" aria-label="実行を速くする">−</button><label class="speed-input-wrap"><input id="speed-input" type="number" min="0.001" max="10" step="any" value="0.5" aria-label="1ステップの秒数"><span>秒</span></label><button id="speed-increase" class="button speed-adjust-button" type="button" aria-label="実行を遅くする">＋</button></div><p id="speed-error" class="speed-error" role="alert" hidden></p></div></div>
+      <button id="fullscreen-button" class="button fullscreen-button" type="button" aria-expanded="false" aria-controls="fullscreen-surface"><span aria-hidden="true">⛶</span>全画面</button>
+    </div></div>
+    <div class="execution-status"><p><span id="status-dot" class="status-dot" aria-hidden="true"></span><strong id="status-text">実行前</strong><span id="current-line-label"></span></p><div><span id="step-count">0 ステップ</span><span class="keyboard-hint"><kbd>Space</kbd>でも次へ</span></div></div>
+    <div id="workspace" class="workspace-grid studio-workspace">
+      <section class="program-panel panel" aria-labelledby="program-heading"><div class="panel-heading"><h2 id="program-heading">プログラム</h2></div><ol id="program-lines" class="program-lines" aria-label="行番号付きプログラム"></ol></section>
+      <div class="result-column">
+        <section class="explanation-panel panel" aria-labelledby="explanation-heading"><div class="panel-heading"><h2 id="explanation-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="explanation-body" disabled>解説<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><button id="explanation-full" class="text-button" type="button" hidden>全文を見る</button></div><div id="explanation-body" class="panel-body"><div id="step-detail" class="step-detail"><p id="detail-label" class="detail-label">実行前</p><h3 id="detail-title">「次へ」で1行目から実行</h3><p id="detail-explanation">実行中の行と、変数の変化を確かめましょう。</p><div id="condition-result" class="condition-result" hidden></div></div></div></section>
+        <section class="variables-panel panel" aria-labelledby="variables-heading"><div class="panel-heading"><h2 id="variables-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="variables-body" disabled>変数の値<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><button id="variables-full" class="text-button" type="button">すべて見る</button></div><div id="variables-body" class="panel-body"><div id="variable-table" class="variable-table" role="table" aria-label="現在の変数と変更前後の値"><div id="variable-rows" class="variable-rows studio-variable-rows" role="rowgroup"></div></div></div></section>
+        <section class="output-panel panel" aria-labelledby="output-heading"><div class="panel-heading"><h2 id="output-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="output-body" disabled>出力<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><div class="output-heading-actions"><span id="output-count" class="output-count">0件</span><button id="output-full" class="text-button" type="button" disabled>すべて見る</button></div></div><div id="output-body" class="panel-body"><p id="output-placeholder" class="output-placeholder">表示する()を実行すると、ここに表示されます。</p><ol id="output-lines" class="output-lines" role="log" aria-label="プログラムの出力"></ol></div></section>
+      </div>
+    </div>
+    <section id="fullscreen-surface" class="fullscreen-surface" aria-label="全画面でプログラムを実行" hidden>
+      <nav class="fullscreen-sidebar" aria-label="全画面の操作">
+        <button class="fullscreen-action fullscreen-exit" type="button" data-fullscreen-exit aria-label="全画面を終了して元の画面へ" title="全画面を終了して元の画面へ">×</button>
+        <button class="fullscreen-action fullscreen-next" type="button" data-control="next" aria-label="次へ" title="次へ">→</button>
+        <button class="fullscreen-action" type="button" data-control="reset" aria-label="最初から" title="最初から">↻</button>
+        <button class="fullscreen-action" type="button" data-control="edit" aria-label="値を変更する" title="値を変更する">✎</button>
+        <button class="fullscreen-action" type="button" data-control="play" aria-label="自動実行" aria-pressed="false" title="自動実行">▶</button>
+        <button class="fullscreen-action" type="button" data-control="speed" aria-label="実行速度" aria-expanded="false" aria-controls="speed-panel" title="実行速度">⚙</button>
+      </nav>
+      <div id="fullscreen-workspace" class="fullscreen-workspace"></div>
+    </section>
+    <p id="run-error" class="error-message" role="alert" hidden></p>
+    <div id="completion-message" class="completion-message" hidden><span aria-hidden="true">✓</span><strong>実行が終わりました。</strong><span class="completion-copy">「最初から」で実行し直せます。</span></div>
+  </section>
+  <span id="execution-announcement" class="sr-only" role="status" aria-live="polite"></span>
+</main>
+<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-program-studio-main" hidden></div>
+<footer class="site-footer">
+      <div class="footer-grid">
+        <div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../">プログラムトレース</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+<dialog id="save-dialog" aria-labelledby="save-heading"><form id="save-form"><div class="dialog-heading"><h2 id="save-heading">名前をつけて保存</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><p class="dialog-description">このブラウザに保存します。</p><div class="parameter-field"><label for="save-name">プログラム名</label><input id="save-name" maxlength="120" required></div><p class="form-error" role="alert" hidden></p><div class="dialog-actions"><button id="save-copy" type="button" class="button">別の名前で保存</button><button id="save-submit" class="button button-primary" type="submit">保存する</button></div></form></dialog>
+<dialog id="new-dialog" aria-labelledby="new-heading"><div class="dialog-content"><div class="dialog-heading"><h2 id="new-heading">現在のプログラムは未保存です</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><p class="dialog-description">変更した内容を保存してから、新しいプログラムを作りますか。</p><p class="form-error" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>キャンセル</button><div><button id="new-discard" type="button" class="button">保存しない</button><button id="new-save" type="button" class="button button-primary">保存する</button></div></div></div></dialog>
+<dialog id="export-dialog" aria-labelledby="export-heading"><form id="export-form" novalidate><div class="dialog-heading"><h2 id="export-heading">ファイルに書出</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><div class="parameter-field"><label for="export-name">ファイル名</label><input id="export-name" type="text" maxlength="160" autocomplete="off" required></div><p class="form-error" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>キャンセル</button><button type="submit" class="button button-primary">書き出す</button></div></form></dialog>
+<dialog id="load-dialog" aria-labelledby="load-heading"><div class="dialog-content"><div class="dialog-heading"><h2 id="load-heading">保存したプログラム</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><div id="saved-list" class="saved-list"></div></div></dialog>
+<dialog id="confirm-dialog" aria-labelledby="confirm-heading"><form id="confirm-form"><div class="dialog-heading"><h2 id="confirm-heading">プログラムを読み込む</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><p id="confirm-copy" class="dialog-description"></p><p class="dialog-description">現在のプログラムは置き換わります。残したい場合は先に保存してください。</p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>キャンセル</button><button type="submit" class="button button-primary">読み込む</button></div></form></dialog>
+<dialog id="share-dialog" aria-labelledby="share-heading"><div class="dialog-content"><div class="dialog-heading"><h2 id="share-heading">URLで共有</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><p class="dialog-description">このURLにプログラムと設定が含まれます。受け取った人が編集しても、あなたの保存には影響しません。</p><label class="share-label" for="share-url">共有URL</label><textarea id="share-url" class="share-url" readonly rows="3"></textarea><p id="share-status" class="field-help" role="status"></p><p id="share-error" class="form-error" role="alert" hidden></p><div class="dialog-actions"><button id="share-export" type="button" class="button">ファイルに書き出す</button><div><button id="native-share" type="button" class="button" hidden>共有する</button><button id="copy-url" type="button" class="button button-primary">URLをコピー</button></div></div></div></dialog>
+<dialog id="values-dialog" aria-labelledby="values-heading"><form id="values-form"><div class="dialog-heading"><h2 id="values-heading">値を変更する</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><p class="dialog-description">初期値や繰り返しの範囲を変更して、最初から実行します。</p><div id="value-fields" class="parameter-fields"></div><p class="form-error" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>キャンセル</button><button type="submit" class="button button-primary">変更して最初から</button></div></form></dialog>
+<dialog id="input-dialog" aria-labelledby="input-heading"><form id="input-form"><div class="dialog-heading"><h2 id="input-heading" tabindex="-1">外部からの入力</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><p id="input-description" class="dialog-description"></p><div id="input-fields" class="parameter-fields"></div><p class="form-error" role="alert" hidden></p><div class="dialog-actions"><button type="button" class="button" data-close-dialog>キャンセル</button><button type="submit" class="button button-primary">入力して実行</button></div></form></dialog>
+<dialog id="inspect-dialog" class="inspect-dialog" aria-labelledby="inspect-heading"><div class="dialog-content"><div class="dialog-heading"><h2 id="inspect-heading">変数の値</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><div id="inspect-content" class="inspector-content"></div></div></dialog>
+<dialog id="row-dialog" class="row-dialog" aria-labelledby="row-heading"><form id="row-form" novalidate><div class="dialog-heading"><h2 id="row-heading">行を設定する</h2><button type="button" class="close-button" data-close-dialog aria-label="閉じる">×</button></div><div id="row-fields"></div><p class="form-error" role="alert" hidden></p><div class="dialog-actions row-dialog-footer"><div id="row-actions" class="row-edit-actions"></div><div class="row-confirm-actions"><button type="button" class="button" data-close-dialog>キャンセル</button><button id="row-submit" type="submit" class="button button-primary">この行に反映</button></div></div></form></dialog>
+</body>
+</html>

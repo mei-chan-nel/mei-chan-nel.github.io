@@ -25,6 +25,8 @@ assets/video-embeds.js     クリック時の動画埋め込み
 assets/home-learning.js    学習履歴サマリー
 assets/manual-ads.js       手動AdSenseユニットの中央設定・初回初期化
 program-trace/             プログラムを1行ずつ実行するページ
+program-trace/studio/      Studioのブラウザ用生成物
+projects/program-trace-studio/  自作プログラムの編集・実行・保存・共有を扱う独立したTypeScriptプロジェクト
 data/video-questions.json  問題・答え・動画情報
 data/video-curriculum.json 5分野・21ジャンル・最短コースの正本
 data/term-tag-list.json    ExcelのNo.順を保持する公開用の用語タグ一覧
@@ -65,6 +67,25 @@ node --test scripts/program-trace.test.mjs scripts/program-trace-video.test.mjs 
 ヘッダーの「学習アプリ」も本番と同じパスで確認できます。別の配置では `--app-root` を指定します。
 詳細は [docs/PROGRAM_TRACE.md](docs/PROGRAM_TRACE.md) を参照してください。
 既存の統合検証は `scripts/*.test.mjs` を自動的に検出するため、移したテストも対象になります。
+
+## プログラムトレース Studio
+
+`/program-trace/studio/` では共通テストの表記で自分のプログラムを編集し、1行ずつ実行できます。
+ソースは独立した `projects/program-trace-studio/` で管理し、既存問題の実行エンジンには依存しません。
+一次元・二次元配列、条件分岐、繰り返し、外部入力、表示・要素数・乱数を扱います。
+名前を付けたローカル保存、JSONファイルの読込・書き出し、外部保存先を使わない圧縮URL共有を用意しています。
+共有入口の `share.html` は `noindex, follow` とし、共有プログラムを自動実行しません。
+URLで扱えないサイズ・破損データにはファイルによる代替を案内します。
+
+```powershell
+npm.cmd --prefix projects/program-trace-studio ci --ignore-scripts
+npm.cmd --prefix projects/program-trace-studio run check
+npm.cmd --prefix projects/program-trace-studio test
+```
+
+テスト時に公開フォルダーもビルドします。画面・表記の説明は `/program-trace/studio/guide.html`、
+保守方法と保存・共有の仕様は [projects/program-trace-studio/README.md](projects/program-trace-studio/README.md) を参照してください。
+既存のプログラムトレース一覧からStudio、代表15問、折りたたみの動画解説問題へ進めます。
 
 ## 動画ページの再生成
 
@@ -116,7 +137,7 @@ python scripts/validate_manual_ads.py
 python scripts/validate_study_atlas.py --portal-root . --app-root <info1-quiz-appのリポジトリルート>
 ```
 
-ポータル検証では、動画の数値・URL、用語一覧が公開済み記事だけをメタデータ由来リンクで表示していること、SEOメタデータ・JSON-LD・パンくず・内部リンク・トップ構成・動画キーワード機能の不在・サイトマップ同期を確認します。手動広告検証では、対象ページだけに共通コードが1回あり、動画・講義・用語・アプリの枠数と位置が規則どおりであることを確認します。統合検証では、アプリの1,438問・229タグ、タグAND検索、アプリ復帰URL、学習アプリ本体の保護ハッシュも確認します。管理画面とスロット設定は [`docs/ADSENSE_CONFIGURATION.md`](docs/ADSENSE_CONFIGURATION.md) を参照してください。
+ポータル検証では、動画の数値・URL、用語一覧が公開済み記事だけをメタデータ由来リンクで表示していること、SEOメタデータ・JSON-LD・パンくず・内部リンク・トップ構成・動画キーワード機能の不在・サイトマップ同期を確認します。手動広告検証では、対象ページだけに共通コードが1回あり、動画・講義・用語・アプリの枠数と位置が規則どおりであることを確認します。統合検証では、アプリの1,438問・225タグ、タグAND検索、アプリ復帰URL、学習アプリ本体の保護ハッシュも確認します。管理画面とスロット設定は [`docs/ADSENSE_CONFIGURATION.md`](docs/ADSENSE_CONFIGURATION.md) を参照してください。
 
 ## 公開URL
 

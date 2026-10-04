@@ -10,7 +10,12 @@
     window.dataLayer.push(arguments);
   };
   window.gtag("js", new Date());
-  window.gtag("config", GA_MEASUREMENT_ID);
+  const isProgramStudio = /\/program-trace\/studio(?:\/|$)/i.test(window.location.pathname);
+  // Shared source lives in the fragment; analytics only receives the page URL.
+  window.gtag("config", GA_MEASUREMENT_ID, isProgramStudio ? {
+    page_location: window.location.href.split("#")[0],
+    page_referrer: document.referrer.split("#")[0],
+  } : {});
 
   if (!document.querySelector(`script[data-site-analytics="ga4"][data-measurement-id="${GA_MEASUREMENT_ID}"]`)) {
     const analyticsScript = document.createElement("script");

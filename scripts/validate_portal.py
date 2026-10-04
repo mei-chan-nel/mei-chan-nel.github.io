@@ -173,6 +173,10 @@ def check_metadata(path: Path, text: str, errors: list[str]) -> PageParser:
                 errors.append(f"{relative}: execution HTML must be noindex, follow before JavaScript runs")
         elif not {"index", "follow"} <= robots or robots & {"noindex", "nofollow"}:
             errors.append(f"{relative}: the trace library must allow indexing and following links")
+    if relative == "program-trace/studio/share.html":
+        robots = {value.strip().lower() for value in parser.robots.split(",")}
+        if not {"noindex", "follow"} <= robots or robots & {"index", "nofollow"}:
+            errors.append(f"{relative}: shared execution entry must be noindex, follow")
     expected = public_url(relative)
     if parser.canonical != expected or parser.og_url != expected:
         errors.append(f"{relative}: canonical/og:url must be {expected}")
@@ -513,7 +517,7 @@ def main() -> int:
     expected_portal_paths = [
         "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
-        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", *report.get("learning_pages", []),
+        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html", *report.get("learning_pages", []),
     ]
     expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []
@@ -526,6 +530,8 @@ def main() -> int:
         errors.append("sitemap.xml is not synchronized with the current portal/app build reports")
     if public_url("program-trace/run.html") in sitemap_urls:
         errors.append("sitemap.xml must not include the noindex program execution entry")
+    if public_url("program-trace/studio/share.html") in sitemap_urls:
+        errors.append("sitemap.xml must not include the noindex shared execution entry")
     if any("archive/keywords.html" in url or "questions/tags.html" in url for url in sitemap_urls):
         errors.append("sitemap.xml contains an obsolete keyword or legacy question URL")
 

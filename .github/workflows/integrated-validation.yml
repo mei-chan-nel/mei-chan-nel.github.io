@@ -46,7 +46,14 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Run integrated validation
+      - name: Check Studio TypeScript build
+        # Runtime files are committed for static hosting; keep them synchronized.
+        run: |
+          npm --prefix portal/projects/program-trace-studio ci --ignore-scripts
+          npm --prefix portal/projects/program-trace-studio run build
+          git -C portal diff --exit-code -- program-trace/studio
+
+      - name: Run portal and app validation
         run: >-
           python portal/scripts/validate_study_atlas.py
           --portal-root portal

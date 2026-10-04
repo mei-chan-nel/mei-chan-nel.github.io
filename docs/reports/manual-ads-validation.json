@@ -6,7 +6,7 @@
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 92,
+  "target_pages": 95,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -918,6 +918,33 @@
     },
     {
       "path": "program-trace/run.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "program trace main"
+      ]
+    },
+    {
+      "path": "program-trace/studio/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "program trace main"
+      ]
+    },
+    {
+      "path": "program-trace/studio/share.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "program trace main"
+      ]
+    },
+    {
+      "path": "program-trace/studio/guide.html",
       "format": "responsive-display",
       "content_count": null,
       "ad_count": 1,

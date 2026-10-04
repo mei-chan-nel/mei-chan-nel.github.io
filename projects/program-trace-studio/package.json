@@ -1,0 +1,13 @@
+{
+  "name": "@mei-chan-nel/program-trace-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "tsc --noEmit",
+    "test": "npm run build && node --test test/*.test.mjs",
+    "benchmark:shares": "npm run build && node scripts/benchmark-shares.mjs"
+  },
+  "devDependencies": { "typescript": "5.9.3" }
+}

@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mei-chan-nel.com/program-trace/studio/ai-guide.json",
+  "title": "Program Trace Studio: AI-authored import file v1",
+  "description": "Read ai-guide.md for Information I source grammar. Generate a complete source-only UTF-8 .studio.json file. Do not generate builder metadata.",
+  "$comment": "Source <=500 physical lines / 50000 UTF-8 bytes; file <=300000 UTF-8 bytes. All executable blocks must be nonempty. Only 表示する, 要素数, 乱数 are built in. No custom functions or recursion. Source is internally interpreted, not JavaScript.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "format",
+    "version",
+    "title",
+    "source",
+    "settings"
+  ],
+  "properties": {
+    "format": {
+      "const": "mei-program-studio"
+    },
+    "version": {
+      "const": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 120
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 50000,
+      "description": "Complete Information I pseudocode, two spaces per nesting level. No end keywords. JSON-escape line breaks and quotes. See ai-guide.md."
+    },
+    "settings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "indexBase",
+        "inputs"
+      ],
+      "properties": {
+        "indexBase": {
+          "type": "integer",
+          "enum": [
+            0,
+            1
+          ],
+          "description": "Global first array index. Match all indices and loop bounds to this."
+        },
+        "inputs": {
+          "type": "object",
+          "maxProperties": 128,
+          "additionalProperties": {
+            "$ref": "#/$defs/input"
+          },
+          "description": "One matching variable name / input spec for each external input line."
+        }
+      }
+    }
+  },
+  "$defs": {
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "integer",
+        "min",
+        "max",
+        "minLength",
+        "maxLength",
+        "elementKind",
+        "rows",
+        "columns"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "number",
+            "text",
+            "array",
+            "matrix"
+          ]
+        },
+        "integer": {
+          "type": "boolean"
+        },
+        "min": {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "max": {
+          "type": "number",
+          "minimum": -9007199254740991,
+          "maximum": 9007199254740991
+        },
+        "minLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "maxLength": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "elementKind": {
+          "type": "string",
+          "enum": [
+            "number",
+            "text"
+          ]
+        },
+        "rows": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "columns": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "integer": {
+                "const": true
+              }
+            },
+            "required": [
+              "integer"
+            ]
+          },
+          "then": {
+            "properties": {
+              "min": {
+                "type": "integer"
+              },
+              "max": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      ],
+      "description": "min <= max and minLength <= maxLength; all fields required, including irrelevant defaults. Matrix rows/columns fixed; numeric range inclusive."
+    }
+  },
+  "examples": [
+    {
+      "format": "mei-program-studio",
+      "version": 1,
+      "title": "2つの値の合計",
+      "source": "x = 3\ny = 4\ngoukei = x + y\n表示する(\"合計は\", goukei, \"です。\")",
+      "settings": {
+        "indexBase": 0,
+        "inputs": {}
+      }
+    },
+    {
+      "format": "mei-program-studio",
+      "version": 1,
+      "title": "年齢で分岐する",
+      "source": "age = 【外部からの入力】\nもし age >= 18 ならば：\n  表示する(\"成人です。\")\nそうでなければ：\n  表示する(\"未成年です。\")",
+      "settings": {
+        "indexBase": 0,
+        "inputs": {
+          "age": {
+            "kind": "number",
+            "integer": true,
+            "min": 0,
+            "max": 120,
+            "minLength": 1,
+            "maxLength": 100,
+            "elementKind": "number",
+            "rows": 2,
+            "columns": 3
+          }
+        }
+      }
+    }
+  ]
+}

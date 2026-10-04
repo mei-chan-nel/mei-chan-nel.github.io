@@ -204,8 +204,13 @@ def main() -> int:
         "positions_after": ["random-question controls"],
     })
 
-    for trace_name in ("index.html", "run.html"):
-        relative = f"program-trace/{trace_name}"
+    for relative, placement in (
+        ("program-trace/index.html", "after-program-trace-main"),
+        ("program-trace/run.html", "after-program-trace-main"),
+        ("program-trace/studio/index.html", "after-program-studio-main"),
+        ("program-trace/studio/share.html", "after-program-studio-main"),
+        ("program-trace/studio/guide.html", "after-program-studio-guide-main"),
+    ):
         trace_path = ROOT / relative
         trace_text = trace_path.read_text(encoding="utf-8")
         target_paths.add(trace_path.resolve())
@@ -213,7 +218,7 @@ def main() -> int:
         if trace_text.count('data-manual-ad="display"') != 1:
             errors.append(f"{relative}: expected exactly one display wrapper")
         try:
-            if not (trace_text.index("</main>") < trace_text.index('data-ad-placement="after-program-trace-main"') < trace_text.index("<footer")):
+            if not (trace_text.index("</main>") < trace_text.index(f'data-ad-placement="{placement}"') < trace_text.index("<footer")):
                 errors.append(f"{relative}: display wrapper must be after main and before footer")
         except ValueError:
             errors.append(f"{relative}: required main/ad/footer placement markers are missing")
