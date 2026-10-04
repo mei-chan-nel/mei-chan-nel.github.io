@@ -60,8 +60,6 @@
     ["archive", siteUrl("archive/"), "解説動画"],
     ["lecture", siteUrl("LectureNote/"), "講義ノート"],
     ["trace", siteUrl("program-trace/"), "プログラムトレース"],
-    ["study", siteUrl("study-guide.html"), "使い方"],
-    ["about", siteUrl("about.html"), "このサイトについて"],
   ];
   const navHtml = navItems.map(([key, href, label]) => {
     const current = key === activeSection ? ' aria-current="page"' : "";
@@ -77,7 +75,7 @@
     link.textContent = "プログラムトレース";
     const studyLink = Array.from(nav.querySelectorAll("a")).find((item) => item.href === siteUrl("study-guide.html"));
     const lectureLink = Array.from(nav.querySelectorAll("a")).find((item) => item.href === siteUrl("LectureNote/"));
-    nav.insertBefore(link, studyLink || lectureLink?.nextElementSibling || null);
+    nav.insertBefore(link, lectureLink?.nextElementSibling || studyLink || null);
   };
 
   let header = document.querySelector(".site-header");
@@ -126,8 +124,8 @@
           <a href="${siteUrl("archive/")}">解説動画</a>
           <a href="${siteUrl("LectureNote/")}">講義ノート</a>
           <a href="${siteUrl("program-trace/")}">プログラムトレース</a>
-          <a href="${siteUrl("study-guide.html")}">使い方</a>
           <a href="${siteUrl("books/")}">書籍案内</a>
+          <a href="${siteUrl("study-guide.html")}">使い方</a>
           <a href="${siteUrl("about.html")}">このサイトについて</a>
           <a href="${siteUrl("privacy.html")}">プライバシーポリシー</a>
           <a href="${siteUrl("sitemap.html")}">サイトマップ</a>

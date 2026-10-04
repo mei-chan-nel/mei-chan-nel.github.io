@@ -421,8 +421,8 @@ def main() -> int:
 
     page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース", "使い方", "このサイトについて")
-    expected_footer_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース", "使い方")
+    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース")
+    expected_footer_labels = (*expected_nav_labels, "書籍案内", "使い方", "このサイトについて", "プライバシーポリシー", "サイトマップ")
     for path in page_paths:
         try:
             page_text = path.read_text(encoding="utf-8")
@@ -431,16 +431,16 @@ def main() -> int:
                 errors.append(f"{path.relative_to(ROOT)}: global header navigation is missing")
             else:
                 nav_text = nav_match.group(1)
-                nav_positions = [nav_text.find(f">{label}</a>") for label in expected_nav_labels]
-                if any(position < 0 for position in nav_positions) or nav_positions != sorted(nav_positions):
+                nav_labels = tuple(unescape(label.strip()) for label in re.findall(r'<a\b[^>]*>(.*?)</a>', nav_text, flags=re.DOTALL))
+                if nav_labels != expected_nav_labels:
                     errors.append(f"{path.relative_to(ROOT)}: global header navigation is missing or out of order")
             footer_match = re.search(r'<nav aria-label="フッターナビゲーション">(.*?)</nav>', page_text, flags=re.DOTALL)
             if footer_match is None:
                 errors.append(f"{path.relative_to(ROOT)}: global footer navigation is missing")
             else:
                 footer_text = footer_match.group(1)
-                footer_positions = [footer_text.find(f">{label}</a>") for label in expected_footer_labels]
-                if any(position < 0 for position in footer_positions) or footer_positions != sorted(footer_positions):
+                footer_labels = tuple(unescape(label.strip()) for label in re.findall(r'<a\b[^>]*>(.*?)</a>', footer_text, flags=re.DOTALL))
+                if footer_labels != expected_footer_labels:
                     errors.append(f"{path.relative_to(ROOT)}: global footer navigation is missing or out of order")
             parsers[path.resolve()] = check_metadata(path, page_text, errors)
         except OSError as exc:

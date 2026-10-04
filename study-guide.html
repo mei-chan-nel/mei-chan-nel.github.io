@@ -4,27 +4,27 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>情報Ⅰ Study Atlas｜使い方</title>
-    <meta name="description" content="問題を解く、間違いを復習する、動画や講義ノートで理解を深める。情報Ⅰ Study Atlasの使い方を紹介します。" />
+    <meta name="description" content="学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。" />
     <meta name="theme-color" content="#102f35" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="ja_JP" />
     <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
     <meta property="og:title" content="情報Ⅰ Study Atlas｜使い方" />
-    <meta property="og:description" content="問題を解く、間違いを復習する、動画や講義ノートで理解を深める。情報Ⅰ Study Atlasの使い方を紹介します。" />
+    <meta property="og:description" content="学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。" />
     <meta property="og:url" content="https://mei-chan-nel.com/study-guide.html" />
     <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
     <link rel="canonical" href="https://mei-chan-nel.com/study-guide.html" />
     <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./assets/site.css?v=2026080802" />
+    <link rel="stylesheet" href="./assets/site.css?v=2026100303" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
     <header class="site-header">
       <div class="header-inner">
         <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
-        <nav class="global-nav" aria-label="メインナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./program-trace/">プログラムトレース</a><a href="./study-guide.html" aria-current="page">使い方</a><a href="./about.html">このサイトについて</a></nav>
+        <nav class="global-nav" aria-label="メインナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./program-trace/">プログラムトレース</a></nav>
       </div>
     </header>
     <main id="main-content" class="subpage prose-page">
@@ -32,86 +32,145 @@
       <header class="page-hero compact-hero">
         <p class="eyebrow">HOW TO USE</p>
         <h1>このサイトの使い方</h1>
-        <p>問題を解いて、答えと解説を確かめる。わからないところは動画や講義ノートで補い、もう一度解く。情報Ⅰを自分のペースで学ぶための使い方を紹介します。</p>
+        <p>問題を解く、用語を調べる、動画を見る、プログラムを動かす・作る、講義ノートを読む。各教材の基本操作と、学習記録やプログラムの保存・共有について紹介します。</p>
       </header>
 
       <article class="prose-content">
-        <div class="study-summary"><p><strong>おすすめは「解く → 確認する → 復習する」です。</strong>まずは学習アプリで数問解き、気になった問題だけを復習してみてください。</p></div>
-
         <nav class="table-of-contents" aria-label="このページの目次">
           <h2>このページの内容</h2>
-          <ol><li><a href="#app">学習アプリで問題を解く</a></li><li><a href="#review">学習履歴</a></li><li><a href="#search">問題を探す</a></li><li><a href="#resources">動画・講義ノートで理解を深める</a></li><li><a href="#routine">自分に合うペースで続ける</a></li></ol>
+          <ol>
+            <li><a href="#app">学習アプリで問題を解く・復習する</a></li>
+            <li><a href="#search">問題を探す</a></li>
+            <li><a href="#terms">用語を調べる</a></li>
+            <li><a href="#resources">解説動画を見る</a></li>
+            <li><a href="#trace">プログラムを1行ずつ実行する</a></li>
+            <li><a href="#studio">Studioでプログラムを作る・共有する</a></li>
+            <li><a href="#lecture">講義ノートを読む</a></li>
+            <li><a href="#books">書籍案内を見る</a></li>
+            <li><a href="#routine">記録・保存データについて</a></li>
+          </ol>
         </nav>
 
         <section id="app">
-          <h2>1．学習アプリで問題を解く</h2>
-          <p><a href="./info1-quiz-app/app/">学習アプリ</a>では、学びたい分野と問題数を選んで、すぐに問題に取り組めます。</p>
-          <h3>出題範囲を選ぶ</h3>
+          <h2>1．学習アプリで問題を解く・復習する</h2>
+          <p><a href="./info1-quiz-app/app/">学習アプリ</a>では、知識問題や基本計算に取り組めます。</p>
+          <h3>出題条件を選んで始める</h3>
+          <ol>
+            <li>出題分野と出題数を選びます。</li>
+            <li>回答状況で絞り込むときは「詳細な設定」を開きます。「まだ答えていない問題のみ」「間違えたままの問題のみ」「3回連続正答の問題を除く」などを選べます。</li>
+            <li>「計算問題」では、「すべて」「除く」「計算だけ」から選べます。</li>
+            <li>「挑戦を開始」を押し、選択肢を選びます。正答と解説を確認し、「次の問題」で進みます。</li>
+          </ol>
+          <h3>気になる問題を確認する</h3>
           <ul>
-            <li>分野を選びます。</li>
-            <li>すべての問題、まだ解いていない問題のみ、間違えたままの問題のみなどから選びます。</li>
-            <li>計算問題を含めるかどうかを選びます。</li>
+            <li>あとで見返したい問題は「保存」を押します。</li>
+            <li>解答前の「ChatGPTのヒント」、解答後の「ChatGPTの解説」から、問題と相談用の文を入れたChatGPTの画面を開けます。</li>
+            <li>結果画面や復習画面で「類題5問に挑戦」が表示されている場合は、関連する問題に続けて取り組めます。</li>
           </ul>
-          <h3>解答後に確認する</h3>
+          <h3 id="review">学習記録から復習する</h3>
+          <p>「詳細な設定」の「学習記録を見る」、メニューの「学習記録」、結果画面の「学習記録」から、分野別の正答率やこれまでの学習状況を確認できます。</p>
           <ul>
-            <li>正解だけでなく、答えに至る考え方や間違えた理由を確認します。</li>
-            <li>あとで解き直したい問題は「保存」しておきます。</li>
-            <li>「ChatGPTの解説」でさらに詳しく学べます。</li>
-          </ul>
-        </section>
-
-        <section id="review">
-          <h2>2．学習履歴</h2>
-          <p>解答した内容は学習履歴に記録されます。</p>
-          <h3>復習に使える機能</h3>
-          <ul>
-            <li><strong>間違えたままの問題：</strong>理解があいまいな問題をまとめて解き直します。</li>
-            <li><strong>保存した問題：</strong>計算手順や用語など、あとで確認したい問題を見返します。</li>
-            <li><strong>解いた問題：</strong>これまでに取り組んだ問題を振り返ります。</li>
+            <li><strong>間違えたままの問題：</strong>最後に間違えた問題を確認し、解き直せます。</li>
+            <li><strong>保存した問題：</strong>自分で保存した問題を見返せます。</li>
+            <li><strong>解いた問題：</strong>これまでに取り組んだ問題を振り返れます。</li>
           </ul>
         </section>
 
         <section id="search">
-          <h2>3．問題を探す</h2>
-          <p><a href="./info1-quiz-app/questions/">問題を探す</a>では、問題に付いているタグから検索できます。複数のタグを選ぶと、選んだタグをすべて含む問題に絞り込めます。</p>
-          <ul>
-            <li>気になる用語やテーマのタグを選び、関連する問題を探します。</li>
-            <li>タグを選んだ状態で「アプリで出題」すると、その条件の問題に挑戦できます。</li>
-            <li>アプリを終えると、元のタグ検索に戻って続きから探せます。</li>
-            <li>問題詳細や復習画面の「類題に挑戦」から、近い内容の問題に挑戦できます。</li>
-          </ul>
+          <h2>2．問題を探す</h2>
+          <p><a href="./info1-quiz-app/questions/">問題を探す</a>では、用語やテーマのタグから問題を検索できます。</p>
+          <ol>
+            <li>「タグ一覧から問題を絞り込む」を開き、調べたいタグを選びます。複数選ぶと、選んだタグをすべて含む問題に絞り込めます。</li>
+            <li>気になる問題の「正答と解説を確認」を開き、正答・解説・出典を確認します。</li>
+            <li>その条件の問題を解くときは、出題数を選んで「アプリでランダムに出題」を押します。</li>
+          </ol>
+        </section>
+
+        <section id="terms">
+          <h2>3．用語を調べる</h2>
+          <ol>
+            <li><a href="./terms/">用語一覧</a>から、調べたい用語を選びます。</li>
+            <li>意味、仕組み、具体例などの解説を読み、「例題」の「解答・解説を確認」で理解を確かめます。</li>
+            <li>関連する問題に取り組むときは「アプリで解く」を押します。ページ下部のリンクから、関連問題の検索にも進めます。</li>
+          </ol>
         </section>
 
         <section id="resources">
-          <h2>4．動画・講義ノートで理解を深める</h2>
-          <h3>解説動画</h3>
-          <p><a href="./archive/">解説動画</a>は、問題と解説動画がセットとなっています。プログラミングには、最短学習コースを用意しています。</p>
-          <h3>講義ノート</h3>
-          <p><a href="./LectureNote/">講義ノート</a>は、体系的な学習ができます。授業の予習・復習にも役立ちます。</p>
-          <h3>書籍案内</h3>
-          <p><a href="./books/">書籍案内</a>では、解説動画で出題した問題とその解説を書籍にしています。Kindleで読みやすくなっています。</p>
+          <h2>4．解説動画を見る</h2>
+          <ol>
+            <li><a href="./archive/">解説動画</a>の一覧から、学びたいジャンルを選びます。</li>
+            <li>問題を考え、「答えと解説を見る」を開いて答えを確かめます。</li>
+            <li>「解説動画を表示」を押すと、ページ内に動画が表示されます。</li>
+          </ol>
+          <p>プログラミングを効率的に学びたい場合は、<a href="./archive/programming-shortest-course.html">プログラミング最短学習コース</a>を利用できます。プログラミング問題の「1行ずつ実行する」からは、その問題のプログラムを動かして確認できます。</p>
+        </section>
+
+        <section id="trace">
+          <h2>5．プログラムを1行ずつ実行する</h2>
+          <p><a href="./program-trace/">プログラムトレース</a>では、共通テスト用プログラム表記で書かれたプログラムを1行ずつ実行できます。</p>
+          <ol>
+            <li>一覧から代表問題を選びます。動画の問題を動かす場合は「動画解説問題」を開いて選ぶか、動画ページの「1行ずつ実行する」から進みます。</li>
+            <li>「次へ」を押し、実行した行と「変数の値」「出力」を確認します。</li>
+            <li>外部入力があるプログラムでは、入力画面に値を入れ、「入力して実行」で進みます。</li>
+          </ol>
+          <h3>繰り返して試す</h3>
+          <ul>
+            <li><strong>最初から：</strong>実行をリセットし、同じ条件でもう一度確認します。</li>
+            <li><strong>値を変更する：</strong>初期値や条件を変え、「適用して最初から」で動きの違いを確認します。</li>
+            <li><strong>自動実行：</strong>一定の間隔で行を進めます。「実行速度」で間隔を調整できます。</li>
+          </ul>
+          <h3>スマートフォンの全画面表示</h3>
+          <p>「全画面」を押すと、横向きの実行画面を開けます。解説・変数・出力の見出しで各欄を開閉できます。「×」で通常表示へ戻ります。</p>
+        </section>
+
+        <section id="studio">
+          <h2>6．Studioでプログラムを作る・共有する</h2>
+          <p><a href="./program-trace/studio/">プログラムトレース Studio</a>では、共通テスト用プログラム表記を使って、自分でプログラムを書いて実行できます。</p>
+          <h3>プログラムを作って実行する</h3>
+          <ol>
+            <li>「新規作成」を押し、空白行をタップします。「変数・配列」「分岐」「繰り返し」「関数」から処理を選び、値や式、条件を設定して「この行に反映」を押します。</li>
+            <li>行を増やすときは「＋」を押します。字下げや「｜」「⎿」は自動で付きます。入力済みの行をタップすると、その行の内容を変更できます。</li>
+            <li>「実行画面へ」を押し、「次へ」で変数の値の変化や出力を確認します。「自動実行」「実行速度」「全画面」も利用できます。</li>
+            <li>内容を直すときは「プログラムを編集」で編集画面へ戻ります。</li>
+          </ol>
+          <p>行の移動や配列・外部入力などの詳しい設定は、<a href="./program-trace/studio/guide.html">プログラムの作り方</a>をご覧ください。</p>
+          <h3>保存・読込・共有</h3>
+          <ul>
+            <li><strong>ブラウザ内に保存／ブラウザ内から読込：</strong>名前を付けて保存し、後から選んで開けます。作成中の下書きは自動保存されます。保存先は利用中のブラウザ内なので、別の端末やブラウザからは開けません。</li>
+            <li><strong>ファイルに書出／ファイルから読込：</strong>プログラムをファイルとして手元に残し、別の端末でも読み込めます。</li>
+            <li><strong>URLで共有：</strong>プログラムと設定を含むリンクを作成します。リンクを開いた人は、そのプログラムを実行・編集できます。</li>
+          </ul>
+          <p>共有URLが長くて送れない場合は、書き出したファイルを共有できます。</p>
+        </section>
+
+        <section id="lecture">
+          <h2>7．講義ノートを読む</h2>
+          <p><a href="./LectureNote/">講義ノート</a>の一覧から分野を選び、見出しや「重要キーワード」から読みたい部分へ進みます。</p>
+          <ul>
+            <li><strong>しおりを挟む：</strong>読んでいる見出しにしおりを設定できます。次回は「しおりから読む」で、その位置から再開できます。</li>
+            <li><strong>さらに詳しく／解答・解説：</strong>折りたたみを開くと、補足説明や練習問題の解説を確認できます。</li>
+          </ul>
+        </section>
+
+        <section id="books">
+          <h2>8．書籍案内を見る</h2>
+          <p><a href="./books/">書籍案内</a>から分野別の問題集を選び、「Amazonで詳細を見る」で販売ページへ進めます。</p>
         </section>
 
         <section id="routine">
-          <h2>5．自分に合うペースで続ける</h2>
-          <ol>
-            <li>学習アプリで5〜10問解く。</li>
-            <li>あいまいな問題は保存する。</li>
-            <li>さらに学びたい問題では類題機能を使う。</li>
-            <li>気になる分野はタグ検索で関連問題を解く。</li>
-            <li>仕組みがわからないときは講義ノートを読む。</li>
-            <li>翌日以降に「間違えたまま」をもう一度解く。</li>
-          </ol>
-          <p>学習履歴は、使っているブラウザに保存されます。別の端末やブラウザでは履歴を共有できませんが、問題・動画・講義ノートはいつでも利用できます。</p>
+          <h2>9．記録・保存データについて</h2>
+          <p>学習アプリの記録・保存した問題、講義ノートのしおり、Studioの下書き・ブラウザ内に保存したプログラムは、利用中のブラウザに保存されます。別の端末・ブラウザには自動で引き継がれず、ブラウザのサイトデータを削除すると消えます。</p>
+          <p>Studioのプログラムを別の端末で使う場合や、手元に残す場合は「ファイルに書出」を利用できます。</p>
+          <p class="small-note">最終更新日：<time datetime="2026-10-05">2026年10月5日</time></p>
         </section>
       </article>
     </main>
     <footer class="site-footer">
-      <div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./program-trace/">プログラムトレース</a><a href="./study-guide.html">使い方</a><a href="./books/">書籍案内</a><a href="./about.html">このサイトについて</a><a href="./privacy.html">プライバシーポリシー</a><a href="./sitemap.html">サイトマップ</a></nav></div>
+      <div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./program-trace/">プログラムトレース</a><a href="./books/">書籍案内</a><a href="./study-guide.html">使い方</a><a href="./about.html">このサイトについて</a><a href="./privacy.html">プライバシーポリシー</a><a href="./sitemap.html">サイトマップ</a></nav></div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"問題を解く、間違いを復習する、動画や講義ノートで理解を深める。情報Ⅰ Study Atlasの使い方を紹介します。","datePublished":"2026-07-14","dateModified":"2026-08-08","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-10-05","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"トップページ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"使い方","item":"https://mei-chan-nel.com/study-guide.html"}]}</script>
-    <script src="./assets/site-header.js?v=2026100301"></script>
+    <script src="./assets/site-header.js?v=2026100501"></script>
   </body>
 </html>

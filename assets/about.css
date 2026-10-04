@@ -1,0 +1,26 @@
+.prose-content .about-content-table {
+  display: table;
+  table-layout: fixed;
+  white-space: normal;
+}
+
+.about-content-table .about-content-name {
+  width: 27%;
+}
+
+.prose-content .about-content-table tbody th {
+  background: var(--white);
+  font-size: .82rem;
+}
+
+@media (max-width: 600px) {
+  .about-content-table .about-content-name {
+    width: 32%;
+  }
+
+  .prose-content .about-content-table th,
+  .prose-content .about-content-table td {
+    padding: 12px 10px;
+    overflow-wrap: anywhere;
+  }
+}
