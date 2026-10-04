@@ -134,7 +134,13 @@ export function createFullscreen({ runner, surface, mount, entryButton, controls
     surface.append(errorMessage);
     root.classList.add("trace-fullscreen");
     entryButton.setAttribute("aria-expanded", "true");
-    for (const panel of panels) panel.querySelector(".panel-toggle").disabled = false;
+    for (const panel of panels) {
+      const collapsed = !panel.classList.contains("variables-panel");
+      panel.classList.toggle("is-collapsed", collapsed);
+      const toggle = panel.querySelector(".panel-toggle");
+      toggle.disabled = false;
+      toggle.setAttribute("aria-expanded", String(!collapsed));
+    }
     sync(); layout();
     exitButton.focus({ preventScroll: true });
     void nativeFullscreen(session);

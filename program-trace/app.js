@@ -3,14 +3,14 @@ import { compileProgram, createState, step, inputRequest } from "./interpreter.j
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
 import { cloneValue, formatValue, matrixAxes, validateField } from "./values.js?v=20261003-video";
 import { createFieldEditor } from "./field-editor.js?v=20261003-video";
-import { renderValue, renderChange } from "./value-view.js?v=20261003-sources";
-import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261004-fullscreen";
+import { renderValue, renderChange } from "./value-view.js?v=20261004-mobile";
+import { planWorkspace, sizeWorkspace } from "./workspace.js?v=20261004-mobile";
 import { finishTrace } from "./trace-completion.js?v=20261003-video";
 import { videoGroup, inputCandidate, navigationForProgram } from "./video-programs.js?v=20261003-perf";
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 import { traceRedirect } from "./routing.js?v=20261003-seo";
 import { createAssignmentFlow } from "./assignment-flow.js?v=20261004-fullscreen";
-import { createFullscreen } from "./fullscreen.js?v=20261004-fullscreen";
+import { createFullscreen } from "./fullscreen.js?v=20261004-mobile";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
@@ -539,7 +539,8 @@ function openInput(request) {
   ui["input-description"].textContent = `${lineLabel(example, request.line)}行：${request.name} に入れる値を入力してください。${request.field.sorted ? "二分探索では、小さい順に並んだ配列を使います。" : ""}`;
   render();
   ui["input-dialog"].showModal();
-  inputEditor.focus();
+  // 入力欄への自動フォーカスでスマホのキーボードを開かない。
+  $("input-title").focus({ preventScroll: true });
 }
 
 function cancelInput() {
@@ -602,6 +603,7 @@ document.addEventListener("keydown", (event) => {
 function layoutWorkspace() {
   if (workspacePlan && !ui["runner-view"].hidden) {
     sizeWorkspace(ui["runner-view"], workspacePlan);
+    render();
     assignmentFlow.redraw();
   }
 }

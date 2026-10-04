@@ -40,21 +40,38 @@ export function renderValue(container, name, value, changes = [], reads = [], sh
   }
   if (Array.isArray(value)) {
     const array = element("div", "array-value");
+    const compact = !full && !!container.closest(".fullscreen-workspace");
+    array.classList.toggle("is-compact", compact);
     array.classList.toggle("is-text-array", value.some((item) => typeof item === "string" && item.length >= 3));
     array.setAttribute("aria-label", `${name} の要素（番号は0から）`);
-    const indices = visibleArrayIndices(value.length, changes, [...reads, ...sources].filter((read) => read.name === name), full);
+    const references = [...reads, ...sources, ...assignments].filter((read) => read.name === name);
+    const indices = compact
+      ? compactArrayIndices(value.length, Math.floor((container.clientWidth + 12) / 48), [...changes, ...references])
+      : visibleArrayIndices(value.length, changes, references, full);
+    function omit(count) {
+      const omitted = element(compact ? "button" : "span", "array-ellipsis", compact ? "……" : `… ${count}個 …`);
+      if (compact) {
+        omitted.type = "button";
+        omitted.dataset.inspectArray = name;
+        omitted.setAttribute("aria-label", `${count}要素を省略。${name} の全${value.length}要素を見る`);
+        omitted.title = `${name} の全${value.length}要素を見る`;
+      }
+      array.append(omitted);
+    }
     let previous = -1;
     indices.forEach((index) => {
       const item = value[index];
-      if (index > previous + 1) array.append(element("span", "array-ellipsis", `… ${index - previous - 1}個 …`));
+      if (index > previous + 1) omit(index - previous - 1);
       const cell = element("span", "array-element");
       cell.append(element("span", "element-index", `[${index}]`), element("strong", "element-value", formatValue(item)));
       mark(cell, [index], item);
       array.append(cell);
       previous = index;
     });
+    if (compact && previous < value.length - 1) omit(value.length - previous - 1);
+    array.style.setProperty("--array-columns", Math.max(1, array.children.length));
     container.append(array);
-    if (!full && value.length > 40) {
+    if (!full && !compact && value.length > 40) {
       const button = element("button", "array-inspect", `全${value.length}要素を見る`);
       button.type = "button";
       button.dataset.inspectArray = name;
@@ -108,4 +125,29 @@ export function visibleArrayIndices(length, changes = [], reads = [], full = fal
     for (const index of [focus - 1, focus, focus + 1]) if (index >= 0 && index < length && indices.size < 40) indices.add(index);
   }
   return [...indices].sort((a, b) => a - b);
+}
+
+/** 省略記号も1マスと数え、代入・参照する要素を残した1行分のプレビュー。 */
+export function compactArrayIndices(length, capacity = 6, references = []) {
+  if (!length) return [];
+  const selected = new Set(references.filter((item) => item.indices?.length === 1)
+    .map((item) => item.indices[0]).filter((index) => Number.isInteger(index) && index >= 0 && index < length));
+  const slots = Math.max(3, capacity);
+  const slotCount = (indices) => {
+    const sorted = [...indices].sort((a, b) => a - b);
+    if (!sorted.length) return 0;
+    return sorted.length + Number(sorted[0] > 0) + Number(sorted.at(-1) < length - 1)
+      + sorted.slice(1).filter((index, position) => index > sorted[position] + 1).length;
+  };
+  const candidates = new Set([0, length - 1, ...[...selected].flatMap((index) => [index - 1, index + 1])]);
+  for (let index = 0; index < Math.min(length, slots); index++) {
+    candidates.add(index); candidates.add(length - index - 1);
+  }
+  const limit = Math.max(slots, slotCount(selected));
+  for (const index of candidates) {
+    if (index < 0 || index >= length || selected.has(index)) continue;
+    const proposed = new Set([...selected, index]);
+    if (slotCount(proposed) <= limit) selected.add(index);
+  }
+  return [...selected].sort((a, b) => a - b);
 }

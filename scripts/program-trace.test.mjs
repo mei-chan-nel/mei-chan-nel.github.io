@@ -7,6 +7,7 @@ import { finishTrace } from "../program-trace/trace-completion.js";
 import { planWorkspace } from "../program-trace/workspace.js";
 import { assignmentLinks, routeAssignment, crossesBox } from "../program-trace/assignment-flow.js";
 import { formatValue, validateField } from "../program-trace/values.js";
+import { compactArrayIndices, visibleArrayIndices } from "../program-trace/value-view.js";
 import { literal as v, ref as r, op, at, call, define, returnValue, print, assign } from "../program-trace/language.js";
 
 const exampleFor = (id) => EXAMPLES.find((example) => example.id === id);
@@ -26,6 +27,34 @@ function execute(id, overrides = {}, inputs = {}) {
   return { state, trace, compiled, parameters };
 }
 const output = (state) => state.output.map((item) => item.text);
+
+test("全画面の配列プレビューは省略記号を含めた1行分の枠に収める", () => {
+  for (const length of [0, 1, 3, 7, 20, 1000]) for (const capacity of [3, 5, 6, 8]) {
+    const indices = compactArrayIndices(length, capacity);
+    assert.deepEqual(indices, [...new Set(indices)].sort((a, b) => a - b));
+    assert.ok(indices.every((index) => index >= 0 && index < length));
+    let slots = indices.length;
+    if (indices.length) {
+      slots += Number(indices[0] > 0) + Number(indices.at(-1) < length - 1);
+      for (let index = 1; index < indices.length; index++) slots += Number(indices[index] > indices[index - 1] + 1);
+    }
+    assert.ok(slots <= capacity);
+    if (length <= capacity) assert.equal(indices.length, length);
+  }
+});
+
+test("配列を省略しても、遠く離れた代入元・先と参照中の要素を残す", () => {
+  const indices = compactArrayIndices(100, 6, [
+    { indices: [12] }, { indices: [84] }, { indices: [12] },
+    { indices: [-1] }, { indices: [100] }, { indices: [2, 3] },
+  ]);
+  assert.ok(indices.includes(12));
+  assert.ok(indices.includes(84));
+  assert.ok(indices.length < 100);
+  assert.ok(indices.every((index) => index >= 0 && index < 100));
+  assert.deepEqual(visibleArrayIndices(20), Array.from({ length: 20 }, (_, index) => index));
+  assert.equal(visibleArrayIndices(100, [], [], true).length, 100);
+});
 
 test("15の代表問題を指定順に収録し、動画解説問題は別のコレクションにする", () => {
   assert.equal(EXAMPLES.length, 15);

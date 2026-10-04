@@ -1,6 +1,6 @@
 import { createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
 import { formatValue } from "./values.js?v=20261003-video";
-import { renderValue, renderChange } from "./value-view.js?v=20261003-sources";
+import { renderValue, renderChange } from "./value-view.js?v=20261004-mobile";
 import { inputCandidate } from "./video-programs.js?v=20261003-perf";
 import { outputRow, outputWindow, MAX_VISIBLE_OUTPUTS } from "./output-view.js?v=20261003-video";
 
