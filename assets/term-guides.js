@@ -96,6 +96,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "プロトコル": {
     "url": "/terms/protocol/"
   },
+  "マルウェア": {
+    "url": "/terms/malware/"
+  },
   "メディア": {
     "url": "/terms/media/"
   },

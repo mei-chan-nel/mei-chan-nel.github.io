@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-10-04",
+  "validated_on": "2026-10-06",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 95,
+  "target_pages": 96,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -639,6 +639,15 @@
     },
     {
       "path": "terms/machine-learning/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/malware/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
