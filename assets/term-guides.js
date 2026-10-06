@@ -45,6 +45,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "アクセシビリティ": {
     "url": "/terms/accessibility/"
   },
+  "アクセス制御": {
+    "url": "/terms/access-control/"
+  },
   "サーバ": {
     "url": "/terms/server/"
   },

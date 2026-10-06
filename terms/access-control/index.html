@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>アクセス制御とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="アクセス制御の意味と、認証・認可、アクセス権、最小権限、ファイアウォール、Webフィルタリングなどを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="アクセス制御" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="アクセス制御とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="アクセス制御の意味と、認証・認可、アクセス権、最小権限、ファイアウォール、Webフィルタリングなどを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/access-control/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/access-control/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">アクセス制御</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">アクセス制御</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「アクセス制御」とは</h2>
+          <p><strong>アクセス制御</strong>とは、情報やシステム、部屋などに対して、<strong>「誰が、何に、どのような操作をしてよいか」を決め、許可されていない利用を防ぐ仕組み</strong>です。</p>
+          <p>例えば、学校の成績管理システムについて、</p>
+          <ul>
+            <li>生徒は自分の成績だけを閲覧できる</li>
+            <li>教員は担当する生徒の成績を閲覧・入力できる</li>
+            <li>管理者は利用者の登録や権限設定ができる</li>
+          </ul>
+          <p>というように、利用者によってできることを変えるのがアクセス制御です。</p>
+          <p>アクセス制御の対象は電子データだけではありません。例えば、<strong>関係者だけが鍵を開けられるキャビネットに機密文書を保管することや、許可された社員だけが特定の部屋に入室できるようにすること</strong>もアクセス制御です。</p>
+        </section>
+
+        <section>
+          <h2>認証と認可</h2>
+          <p>アクセス制御を理解するときには、<strong>認証</strong>と<strong>認可</strong>を区別することが重要です。</p>
+          <p><strong>認証（Authentication）</strong>は、アクセスしようとしている人が「誰なのか」を確認することです。</p>
+          <p>代表的な方法には、</p>
+          <ul>
+            <li>IDとパスワード</li>
+            <li>ICカード</li>
+            <li>指紋や顔などの生体認証</li>
+            <li>ワンタイムパスワード</li>
+          </ul>
+          <p>などがあります。</p>
+          <p>一方、<strong>認可（Authorization）</strong>は、認証された利用者に対して、<strong>どの情報や機能を利用してよいかを判断すること</strong>です。</p>
+          <p>例えば、</p>
+          <ol>
+            <li>IDとパスワードを入力する</li>
+            <li>正しい利用者であることを確認する</li>
+            <li>その利用者が管理者か一般利用者かを調べる</li>
+            <li>管理者であれば管理画面へのアクセスを許可する</li>
+          </ol>
+          <p>という処理では、1～2が<strong>認証</strong>、3～4が<strong>認可</strong>に当たります。</p>
+          <p>つまり、</p>
+          <p class="term-formula"><strong>認証：あなたは誰ですね。<br />認可：あなたはこれをしてよいですよ。</strong></p>
+          <p>という違いです。</p>
+        </section>
+
+        <section>
+          <h2>アクセス権</h2>
+          <p>利用者ごとに「何をしてよいか」を具体的に設定したものを<strong>アクセス権</strong>といいます。</p>
+          <p>代表的なアクセス権には、</p>
+          <ul>
+            <li>読取り（閲覧）</li>
+            <li>書込み</li>
+            <li>変更</li>
+            <li>削除</li>
+            <li>実行</li>
+          </ul>
+          <p>などがあります。</p>
+          <p>例えば、共有フォルダについて、</p>
+          <table>
+            <thead>
+              <tr><th>利用者</th><th>閲覧</th><th>変更</th><th>削除</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>一般利用者</td><td>○</td><td>×</td><td>×</td></tr>
+              <tr><td>担当者</td><td>○</td><td>○</td><td>×</td></tr>
+              <tr><td>管理者</td><td>○</td><td>○</td><td>○</td></tr>
+            </tbody>
+          </table>
+          <p>のように設定できます。</p>
+          <p>アクセス権を適切に設定すると、<strong>権限のない人による閲覧や変更、削除を防ぎやすくなります。</strong></p>
+        </section>
+
+        <section>
+          <h2>アクセス制御と機密性・完全性</h2>
+          <p>情報セキュリティでは、特に次の三つが重要です。</p>
+          <ul>
+            <li><strong>機密性</strong>：許可された人だけが情報を利用できる</li>
+            <li><strong>完全性</strong>：情報が勝手に変更・破壊されていない</li>
+            <li><strong>可用性</strong>：必要なときに情報やシステムを利用できる</li>
+          </ul>
+          <p>アクセス制御は、特に<strong>機密性と完全性</strong>を守るために重要です。</p>
+          <p>例えば、部外秘ファイルを許可された人だけが閲覧できるようにすれば、情報漏えいを防ぎ、<strong>機密性</strong>を高められます。</p>
+          <p>また、書込みや削除ができる人を制限すれば、権限のない人による改ざんや削除を防ぎ、<strong>完全性</strong>を守ることにもつながります。</p>
+          <p>一方、アクセス権を設定しただけでは、</p>
+          <ul>
+            <li>大量の通信を送り付ける攻撃</li>
+            <li>画面ののぞき見</li>
+            <li>機器の物理的な故障</li>
+            <li>通信途中での盗聴</li>
+          </ul>
+          <p>などを直接防ぐことはできません。</p>
+          <p><strong>アクセス制御が何を防げるのかを考えるときは、「権限のない利用を防ぐ仕組みか」という点に注目します。</strong></p>
+        </section>
+
+        <section>
+          <h2>最小権限の原則</h2>
+          <p>アクセス権は、多く与えればよいわけではありません。</p>
+          <p>基本となるのが<strong>最小権限の原則</strong>です。</p>
+          <p>これは、</p>
+          <blockquote>利用者には、業務に必要な範囲の権限だけを与える</blockquote>
+          <p>という考え方です。</p>
+          <p>例えば、図書館システムを利用する全職員に図書データの削除権限を与える必要はありません。削除が必要な担当者だけに権限を与えればよいです。</p>
+          <p>また、</p>
+          <ul>
+            <li>必要な人だけに与える</li>
+            <li>必要な操作だけを許可する</li>
+            <li>必要な期間だけ有効にする</li>
+            <li>異動・退職時には不要な権限を削除する</li>
+          </ul>
+          <p>といった管理も重要です。</p>
+          <p>権限を必要以上に与えると、誤操作や内部不正が起きたときの被害が大きくなります。</p>
+        </section>
+
+        <section>
+          <h2>管理者にもアクセス制御が必要</h2>
+          <p>システム管理者は一般利用者より大きな権限を持っているため、管理者による内部不正にも注意する必要があります。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>管理者ごとに個別のIDを使用する</li>
+            <li>必要以上の権限を与えない</li>
+            <li>管理者の操作をログに残す</li>
+            <li>重要な作業を別の人が確認する</li>
+          </ul>
+          <p>といった対策を行います。</p>
+          <p>複数人で一つの共通IDを使用すると、問題が発生したときに<strong>誰が操作したのか分からなくなる</strong>ため、適切ではありません。</p>
+          <p>また、管理者本人だけが自分の操作ログを確認できる仕組みでは、内部不正の監視として不十分です。</p>
+          <p>重要な操作については、<strong>本人以外の人も確認できる仕組み</strong>を用意することが有効です。</p>
+        </section>
+
+        <section>
+          <h2>アクセスログ</h2>
+          <p>誰が、いつ、どの情報やシステムにアクセスしたかを記録したものを<strong>アクセスログ</strong>といいます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>利用者ID</li>
+            <li>アクセスした日時</li>
+            <li>アクセス先</li>
+            <li>行った操作</li>
+            <li>成功したか拒否されたか</li>
+          </ul>
+          <p>などを記録します。</p>
+          <p>アクセスログを残しておけば、不正アクセスなどが起こった場合に、後から状況を調査できます。</p>
+          <p>ただし、</p>
+          <p class="term-formula"><strong>アクセス制御＝不正な操作を制限する仕組み<br />ログ＝行われた操作を記録する仕組み</strong></p>
+          <p>であり、役割は異なります。</p>
+          <p>両方を組み合わせることが重要です。</p>
+        </section>
+
+        <section>
+          <h2>入退室管理もアクセス制御</h2>
+          <p>アクセス制御はコンピュータ上だけで行われるものではありません。</p>
+          <p>例えば、生体認証によって、</p>
+          <p class="term-formula"><strong>「この社員はサーバ室に入室できる」<br />「この社員は入室できない」</strong></p>
+          <p>と判断する仕組みもアクセス制御です。</p>
+          <p>さらに、入室を試みた時刻や許可・拒否の結果を記録すれば、アクセスログとして利用できます。</p>
+          <p>ただし、<strong>入室だけを記録して退室を記録していない場合</strong>、</p>
+          <ul>
+            <li>いつ退室したか</li>
+            <li>何時間滞在したか</li>
+            <li>現在何人いるか</li>
+          </ul>
+          <p>などは分かりません。</p>
+          <p>システムで何が分かるかは、<strong>実際に何を記録しているか</strong>を確認して判断する必要があります。</p>
+        </section>
+
+        <section>
+          <h2>紙の文書でもアクセス制御を行う</h2>
+          <p>アクセス制御は電子ファイルだけを対象にするものではありません。</p>
+          <p>例えば、関係者外秘の紙文書であれば、</p>
+          <ul>
+            <li>関係者だけが開けられる施錠キャビネットに保管する</li>
+            <li>鍵を持つ人を必要な人に限定する</li>
+          </ul>
+          <p>といった方法でアクセスを制限できます。</p>
+          <p>また、不要になった機密文書をそのままごみに捨てると情報漏えいにつながるため、<strong>シュレッダーなどで復元しにくい状態にして廃棄する</strong>ことも重要です。</p>
+          <p>つまり、情報は、</p>
+          <p class="term-formula"><strong>利用中だけでなく、保管から廃棄まで適切に管理する必要があります。</strong></p>
+        </section>
+
+        <section>
+          <h2>ファイアウォールによるアクセス制御</h2>
+          <p>アクセス制御は、利用者だけでなく<strong>ネットワーク通信</strong>に対しても行われます。</p>
+          <p>代表的な仕組みが<strong>ファイアウォール</strong>です。</p>
+          <p>ファイアウォールは、あらかじめ設定された通信規則に基づいて、</p>
+          <p class="term-formula"><strong>通信を許可するか、遮断するか</strong></p>
+          <p>を判断します。</p>
+          <p>判断材料として、</p>
+          <ul>
+            <li>送信元IPアドレス</li>
+            <li>宛先IPアドレス</li>
+            <li>ポート番号</li>
+            <li>通信の種類</li>
+            <li>通信の状態</li>
+          </ul>
+          <p>などが使われます。</p>
+          <p>例えば、学校のWebサーバについて、</p>
+          <ul>
+            <li>インターネットからWebページを見る通信 → 許可</li>
+            <li>インターネットから管理画面を操作する通信 → 拒否</li>
+            <li>校内LANから管理画面を操作する通信 → 許可</li>
+          </ul>
+          <p>という設定ができます。</p>
+          <p>このように、<strong>必要な通信だけを許可し、不要な通信を遮断する</strong>ことによって、不正アクセスの危険を減らします。</p>
+        </section>
+
+        <section>
+          <h2>ファイアウォールで何でも防げるわけではない</h2>
+          <p>ファイアウォールは重要なアクセス制御の仕組みですが、すべての攻撃を防げるわけではありません。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>許可された通信を悪用する攻撃</li>
+            <li>USBメモリなどから持ち込まれたマルウェア</li>
+            <li>利用者をだましてパスワードを入力させるフィッシング</li>
+            <li>利用者自身による内部不正</li>
+          </ul>
+          <p>などは、ファイアウォールだけでは十分に防げません。</p>
+          <p>そのため、</p>
+          <ul>
+            <li>認証</li>
+            <li>アクセス権</li>
+            <li>マルウェア対策</li>
+            <li>ソフトウェアの更新</li>
+            <li>ログ監視</li>
+          </ul>
+          <p>など、複数の対策を組み合わせる必要があります。</p>
+        </section>
+
+        <section>
+          <h2>Webフィルタリング</h2>
+          <p>Webサイトへのアクセスを制限する<strong>Webフィルタリング</strong>もアクセス制御の一種です。</p>
+          <p>代表的な方法には、<strong>ブラックリスト方式</strong>と<strong>ホワイトリスト方式</strong>があります。</p>
+
+          <h3>ブラックリスト方式</h3>
+          <p><strong>禁止するサイトを登録し、それ以外は原則として許可する方式</strong>です。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>危険なサイト</li>
+            <li>不適切なサイト</li>
+          </ul>
+          <p>をブラックリストに登録して遮断します。</p>
+          <p>利点は、登録されていないサイトを広く利用できることです。</p>
+          <p>一方、新しく作られた危険なサイトなどがまだ登録されていなければ、アクセスできてしまう可能性があります。</p>
+
+          <h3>ホワイトリスト方式</h3>
+          <p><strong>許可するサイトを登録し、それ以外は原則として遮断する方式</strong>です。</p>
+          <p>未確認のサイトにはアクセスできないため、強くアクセスを制限できます。</p>
+          <p>その一方で、新しく見つけた有益なサイトでも、リストに追加されるまでは利用できません。</p>
+          <p>まとめると、</p>
+          <p class="term-formula"><strong>ブラックリスト：禁止したもの以外は許可<br />ホワイトリスト：許可したもの以外は禁止</strong></p>
+          <p>です。</p>
+        </section>
+
+        <section>
+          <h2>データベースとアクセス制御</h2>
+          <p>データベース管理システム（DBMS）にもアクセス制御の機能があります。</p>
+          <p>例えば学校のデータベースなら、</p>
+          <ul>
+            <li>生徒：自分の情報を閲覧</li>
+            <li>教員：担当する生徒の情報を閲覧・更新</li>
+            <li>管理者：利用者やアクセス権を管理</li>
+          </ul>
+          <p>というように、利用者や役割ごとに権限を設定できます。</p>
+          <p>DBMSを使うことで、データを一元的に管理するとともに、</p>
+          <ul>
+            <li>誰が閲覧できるか</li>
+            <li>誰が変更できるか</li>
+            <li>誰が削除できるか</li>
+          </ul>
+          <p>などを管理しやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>組織外へ情報を共有するときのアクセス制御</h2>
+          <p>機密性のあるデータを組織外の人と共有するときにも、アクセス制御が重要です。</p>
+          <p>例えば共同研究者一人だけとデータを共有したい場合には、</p>
+          <ul>
+            <li>相手を認証する</li>
+            <li>その人だけにアクセスを許可する</li>
+            <li>閲覧だけ、編集可など権限を決める</li>
+            <li>有効期限を設定する</li>
+            <li>アクセス記録を残す</li>
+          </ul>
+          <p>といった方法を組み合わせます。</p>
+          <p>つまり、</p>
+          <p class="term-formula"><strong>誰が・何を・どこまで・いつまで利用できるか</strong></p>
+          <p>を明確にすることが重要です。</p>
+          <p>誰でも利用できる公開URLに機密情報を置く方法では、適切なアクセス制御ができません。</p>
+        </section>
+
+        <section>
+          <h2>アクセス制御と他のセキュリティ対策の違い</h2>
+          <p>問題では、アクセス制御とは異なる対策が選択肢に混ぜられることが多くあります。</p>
+          <table>
+            <thead>
+              <tr><th>対策</th><th>主な目的</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>認証</td><td>利用者が誰かを確認する</td></tr>
+              <tr><td>アクセス制御・認可</td><td>何を利用してよいかを制限する</td></tr>
+              <tr><td>暗号化</td><td>内容を第三者に読まれにくくする</td></tr>
+              <tr><td>デジタル署名</td><td>作成者や改ざんの有無を確認する</td></tr>
+              <tr><td>バックアップ</td><td>消失・破損したデータを復元する</td></tr>
+              <tr><td>ファイアウォール</td><td>通信を規則に基づいて許可・遮断する</td></tr>
+              <tr><td>ログ</td><td>操作の記録を残し、後から追跡する</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、</p>
+          <p class="term-formula"><strong>「権限のない人にファイルを読ませたくない」</strong></p>
+          <p>なら、アクセス制御が適しています。</p>
+          <p class="term-formula"><strong>「通信途中で内容を盗み見られたくない」</strong></p>
+          <p>なら、暗号化が必要です。</p>
+          <p class="term-formula"><strong>「ファイルが改ざんされていないことを確認したい」</strong></p>
+          <p>なら、デジタル署名などが利用できます。</p>
+          <p class="term-formula"><strong>「ファイルが消えたときに元に戻したい」</strong></p>
+          <p>なら、バックアップが必要です。</p>
+          <p>問題文で<strong>何を防ぎたいのか</strong>を確認して対策を選ぶことが重要です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>アクセス制御 · EXAMPLE</span><span>ITパスポートH26春期 問76（改題）</span></div>
+          <h3>適切なアクセス権を設定することで効果がある対策だけを選んだ組合せはどれか。a: 大量の通信による攻撃を防ぐ。b: 情報漏えいを防ぐ。c: 画面をのぞき見されることを防ぐ。d: 権限のない人による改ざんを防ぐ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>a、b</p></li>
+            <li><span>1</span><p>a、c</p></li>
+            <li><span>2</span><p>b、d</p></li>
+            <li><span>3</span><p>c、d</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．b、d</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>アクセス権は、誰がどの情報を読んだり書き換えたりできるかを制御します。したがって情報漏えいや権限のない改ざんを防ぐ効果があります。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH26春期 問76（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：アクセス権／アクセス制御</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">アクセス制御の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="アクセス制御"
+          data-limit="5"
+          data-exclude-stem="適切なアクセス権を設定することで効果がある対策だけを選んだ組合せはどれか。a: 大量の通信による攻撃を防ぐ。b: 情報漏えいを防ぐ。c: 画面をのぞき見されることを防ぐ。d: 権限のない人による改ざんを防ぐ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=アクセス制御">アクセス制御の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"アクセス制御とは","description":"アクセス制御の意味と、認証・認可、アクセス権、最小権限、ファイアウォール、Webフィルタリングなどを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/access-control/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"アクセス制御","item":"https://mei-chan-nel.com/terms/access-control/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026100501"></script>
+  </body>
+</html>
