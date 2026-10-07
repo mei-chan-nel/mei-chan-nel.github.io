@@ -37,3 +37,6 @@ export const groups = [
     hint: "相手に伝わり、使いやすい情報のかたちを考える。",
   },
 ];
+
+// Add completed exhibits here; category headings are not content cards.
+export const contents = [];

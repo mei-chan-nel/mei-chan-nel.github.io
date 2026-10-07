@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { groups } from "../catalog.mjs";
+import { groups, contents } from "../catalog.mjs";
 const root = new URL("../", import.meta.url);
 const check = process.argv.includes("--check");
 const nav = [
@@ -13,6 +13,8 @@ const nav = [
 ];
 const footer = [...nav, ["books/", "書籍案内"], ["study-guide.html", "使い方"], ["about.html", "このサイトについて"], ["privacy.html", "プライバシーポリシー"], ["sitemap.html", "サイトマップ"]];
 const links = (list) => list.map(([path, name]) => `<a href="../${path}">${name}</a>`).join("\n");
+const esc = (text) => String(text).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
+const cards = (group) => contents.filter((content) => content.group === group.id).map((content, i) => `<a class="archive-field-card" href="./${esc(content.id)}/"><span aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(content.name)}</h3><p>${esc(content.description)}</p></div><b aria-hidden="true">→</b></a>`).join("\n");
 const title = "Interactive Lab｜情報Ⅰ Study Atlas";
 const description = "情報Ⅰの概念を、操作・実験・可視化で理解するInteractive Lab。学習アプリと同じ6分野から、情報処理のしくみを探ります。";
 const url = "https://mei-chan-nel.com/lab/";
@@ -37,7 +39,7 @@ const html = `<!doctype html>
 <main id="main-content" class="lab-shell">
 <nav class="breadcrumb" aria-label="パンくず"><a href="../">Study Atlas</a><span aria-hidden="true">/</span><span>Interactive Lab</span></nav>
 <header class="lab-hero"><h1 id="lab-title">Interactive <em>Lab.</em></h1><p class="lab-tagline">触って、変えて、仕組みが見えてくる。</p></header>
-<div class="category-grid">${groups.map((g, i) => `<section class="lab-category" id="${g.id}" aria-labelledby="heading-${g.id}" style="--lab-accent:var(--${g.color}-strong)"><div class="category-top"><span class="category-number" aria-hidden="true">0${i + 1}</span><span class="category-status">準備中</span></div><h2 id="heading-${g.id}">${g.name}</h2><p class="category-description">${g.hint}</p></section>`).join("\n")}</div>
+${groups.map((g, i) => `<section class="lab-category" id="${g.id}" aria-labelledby="heading-${g.id}" style="--lab-accent:var(--${g.color}-strong)"><div class="section-heading lab-category-heading"><div class="category-title"><span class="category-number" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><h2 id="heading-${g.id}">${g.name}</h2></div><p>${g.hint}</p></div><div class="archive-field-grid lab-content-grid">${cards(g)}</div></section>`).join("\n")}
 </main>
 <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション">${links(footer)}</nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
 <script type="module" src="./navigation.mjs?v=1"></script>
