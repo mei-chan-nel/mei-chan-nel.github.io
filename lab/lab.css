@@ -1,0 +1,36 @@
+.lab-shell {
+  width: min(1180px, calc(100% - 40px));
+  margin: auto;
+  padding-bottom: 80px;
+}
+.lab-hero { padding: 48px 0 42px; }
+.lab-hero h1 {
+  margin: 0;
+  font: 500 clamp(3.1rem, 7vw, 6.5rem)/1.05 Georgia, serif;
+  letter-spacing: -0.045em;
+}
+.lab-hero h1 em { color: var(--mint-strong); }
+.lab-tagline { margin: 22px 0 0; font-size: 1.1rem; color: var(--ink-soft); }
+.category-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.lab-category {
+  padding: 26px 30px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--lab-accent);
+  border-radius: 20px;
+  background: var(--white);
+}
+.category-top { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+.category-number { font: italic 1.6rem Georgia, serif; color: var(--lab-accent); }
+.category-status { border: 1px solid var(--line); border-radius: 20px; padding: 3px 12px; color: var(--ink-soft); font-size: .72rem; }
+.lab-category h2 { margin: 18px 0 10px; font-size: 1.4rem; }
+.category-description { color: var(--ink-soft); font-size: .85rem; margin: 0; }
+.lab-shell a:focus-visible { outline: 3px solid var(--mint-strong); outline-offset: 4px; }
+@media (max-width: 600px) {
+  .lab-shell { width: calc(100% - 32px); padding-bottom: 48px; }
+  .lab-hero { padding: 30px 0; }
+  .lab-hero h1 { font-size: clamp(2.75rem, 12vw, 4.3rem); }
+  .lab-tagline { font-size: .9rem; margin-top: 16px; }
+  .category-grid { grid-template-columns: 1fr; gap: 18px; }
+  .lab-category { padding: 23px; }
+  .lab-category h2 { font-size: 1.25rem; }
+}
