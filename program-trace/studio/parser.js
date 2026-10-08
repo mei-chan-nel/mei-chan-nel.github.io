@@ -1,6 +1,7 @@
 import { LIMITS, StudioError, validName } from './errors.js';
-import { normalizeSymbols, splitComment, tokenize } from './lexer.js';
-import { ExpressionParser, parseExpression, toTarget, constantValue } from './expressions.js';
+import { normalizeSymbols, splitComment, tokenize } from './lexer.js?v=20261009-functions';
+import { ExpressionParser, parseExpression, toTarget, constantValue } from './expressions.js?v=20261009-functions';
+import { builtinRegistry, getBuiltin } from './builtins.js';
 const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
 export function sourceLines(source) {
     const raw = source.replace(/\r\n?/g, '\n').split('\n');
@@ -31,6 +32,20 @@ export function parseProgram(source) {
     const executable = lines.filter(line => line.code);
     let cursor = 0;
     const names = new Set(), inputs = new Set();
+    const functions = new Map();
+    for (const row of executable) {
+        const match = row.code.match(/^定義する\s+([\p{L}_][\p{L}\p{N}_]*)\s*\((.*?)\)\s*:?(?:\s*)$/u);
+        if (!match)
+            continue;
+        const parameters = match[2].trim() ? match[2].split(',').map(name => name.trim()) : [];
+        if (row.depth || !validName(match[1]) || builtinRegistry.has(match[1]) || ['and', 'or', 'not', '真', '偽', 'true', 'false'].includes(match[1]) || functions.has(match[1]))
+            throw new StudioError('関数は一番外側で、重複しない名前で定義してください。', row.line);
+        if (parameters.length > LIMITS.variables || parameters.some(name => !validName(name) || builtinRegistry.has(name) || ['and', 'or', 'not', '真', '偽', 'true', 'false'].includes(name)) || new Set(parameters).size !== parameters.length)
+            throw new StudioError('関数の引数名を確認してください。名前は重複させないでください。', row.line);
+        functions.set(match[1], parameters);
+    }
+    let functionDepth = 0;
+    const arities = new Map([...functions].map(([name, parameters]) => [name, parameters.length]));
     const register = (name, line) => {
         if (!validName(name))
             throw new StudioError('変数名を確認してください。', line);
@@ -38,7 +53,7 @@ export function parseProgram(source) {
         if (names.size > LIMITS.variables)
             throw new StudioError(`変数は${LIMITS.variables}個以内にしてください。`, line);
     };
-    const expr = (text, row) => parseExpression(text, row.line, row.column + Math.max(0, row.code.indexOf(text)));
+    const expr = (text, row) => parseExpression(text, row.line, row.column + Math.max(0, row.code.indexOf(text)), arities);
     const takeBody = (row) => {
         if (!executable[cursor] || executable[cursor].depth !== row.depth + 1)
             throw new StudioError('内側の処理を1段字下げして、次の行に書いてください。', row.line);
@@ -71,8 +86,25 @@ export function parseProgram(source) {
                 break;
             if (row.depth > depth)
                 throw new StudioError('この行の字下げが深すぎます。直前の分岐・繰り返しを確認してください。', row.line);
-            if (/^(?:定義する|返す)(?:\s|$)/u.test(row.code))
-                throw new StudioError('独自の関数と「返す」は、このページでは使いません。', row.line);
+            const definition = row.code.match(/^定義する\s+([\p{L}_][\p{L}\p{N}_]*)\s*\((.*?)\)\s*:?(?:\s*)$/u);
+            if (definition) {
+                cursor++;
+                functionDepth++;
+                const body = takeBody(row);
+                functionDepth--;
+                const parameters = functions.get(definition[1]);
+                parameters.forEach(name => register(name, row.line));
+                nodes.push({ kind: 'define', line: row.line, depth, name: definition[1], parameters, body });
+                continue;
+            }
+            const returned = row.code.match(/^返す(?:\s+(.+))?$/u);
+            if (returned) {
+                if (!functionDepth)
+                    throw new StudioError('「返す」は関数の内側に書いてください。', row.line);
+                nodes.push({ kind: 'return', line: row.line, depth, ...(returned[1] ? { expression: expr(returned[1], row) } : {}) });
+                cursor++;
+                continue;
+            }
             const condition = row.code.match(/^もし\s*(.+?)\s*ならば\s*:?[ \t]*$/u);
             if (condition) {
                 nodes.push(conditionNode(row, condition[1]));
@@ -93,11 +125,16 @@ export function parseProgram(source) {
                 nodes.push({ kind: 'while', line: row.line, depth, condition: expr(whileMatch[1], row), body: takeBody(row) });
                 continue;
             }
-            const parser = new ExpressionParser(tokenize(row.code, row.line, row.column), row.line, /^表示する\s*\(/u.test(row.code));
+            const parser = new ExpressionParser(tokenize(row.code, row.line, row.column), row.line, /^表示する\s*\(/u.test(row.code), arities);
             const first = parser.expression();
             if (first.kind === 'call' && first.name === '表示する') {
                 parser.complete();
                 nodes.push({ kind: 'print', line: row.line, depth, args: first.args });
+                cursor++;
+                continue;
+            }
+            if (first.kind === 'call' && parser.token.kind === 'eof') {
+                nodes.push({ kind: 'call', line: row.line, depth, expression: first });
                 cursor++;
                 continue;
             }
@@ -151,8 +188,16 @@ export function parseProgram(source) {
             scan(expression.left);
             scan(expression.right);
         }
-        else if (expression.kind === 'call')
+        else if (expression.kind === 'call') {
+            const parameters = functions.get(expression.name);
+            if (parameters) {
+                if (parameters.length !== expression.args.length)
+                    throw new StudioError(`${expression.name}()の引数は${parameters.length}個で指定してください。`, 1, expression.column);
+            }
+            else
+                getBuiltin(expression.name, expression.args.length, 1, expression.column);
             expression.args.forEach(scan);
+        }
     }
     function scanNodes(items) {
         for (const node of items) {
@@ -160,6 +205,8 @@ export function parseProgram(source) {
                 node.assignments.forEach(a => { a.target.indices.forEach(expr => scanExpr(expr)); scanExpr(a.expression); });
             if (node.kind === 'print')
                 node.args.forEach(expr => scanExpr(expr));
+            if ((node.kind === 'return' || node.kind === 'call') && node.expression)
+                scanExpr(node.expression);
             if (node.kind === 'if' || node.kind === 'while')
                 scanExpr(node.condition);
             if (node.kind === 'for') {
@@ -167,8 +214,15 @@ export function parseProgram(source) {
                 scanExpr(node.end);
                 scanExpr(node.step);
             }
-            if ('body' in node)
-                scanNodes(node.body);
+            try {
+                if ('body' in node)
+                    scanNodes(node.body);
+            }
+            catch (error) {
+                if (error instanceof StudioError && error.line === 1)
+                    error.line = node.line;
+                throw error;
+            }
             if (node.kind === 'if' && node.otherwise)
                 scanNodes([node.otherwise]);
         }

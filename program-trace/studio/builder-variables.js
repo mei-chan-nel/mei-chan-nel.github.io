@@ -1,5 +1,5 @@
-import { constantValue } from './expressions.js';
-export function builderContext(model, specs, base) {
+import { constantValue } from './expressions.js?v=20261009-functions';
+export function builderContext(model, specs, base, functionId) {
     const catalog = new Map(), strings = new Set();
     const add = (item) => {
         const previous = catalog.get(item.name);
@@ -59,11 +59,20 @@ export function builderContext(model, specs, base) {
             scan(node.condition);
         if (node.kind === 'print')
             node.args.forEach(scan);
+        if ((node.kind === 'return' || node.kind === 'call') && node.expression)
+            scan(node.expression);
         if ('body' in node)
             node.body.forEach(visit);
         if (node.kind === 'if' && node.otherwise)
             visit(node.otherwise);
     }
-    model.nodes.forEach(visit);
-    return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base };
+    const functions = model.nodes.filter((node) => node.kind === 'define');
+    const active = functions.find(node => node.id === functionId);
+    if (active) {
+        active.parameters.forEach(name => add({ name, kind: 'variable' }));
+        active.body.forEach(visit);
+    }
+    else
+        model.nodes.filter(node => node.kind !== 'define').forEach(visit);
+    return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base, parameters: active?.parameters, functions: functions.map(({ name, parameters }) => ({ name, parameters })) };
 }

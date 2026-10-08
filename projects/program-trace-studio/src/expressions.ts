@@ -7,7 +7,7 @@ import { literalText, numeric, validateValue } from './values.js';
 const precedence: Record<string, number> = { or: 1, and: 2, '==': 3, '!=': 3, '<': 3, '<=': 3, '>': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5, '÷': 5, '%': 5, '**': 7 };
 export class ExpressionParser {
   public position = 0;
-  constructor(public tokens: Token[], public line: number, private allowOutput = false) {}
+  constructor(public tokens: Token[], public line: number, private allowOutput = false, private functions: Map<string, number> = new Map()) {}
   get token(): Token { return this.tokens[this.position]; }
   at(text: string): boolean { return this.token.text === text; }
   consume(text?: string): Token {
@@ -38,8 +38,10 @@ export class ExpressionParser {
         this.consume('('); const args: Expr[] = [];
         if (!this.at(')')) do { args.push(this.expression(0, depth + 1)); if (!this.at(',')) break; this.consume(','); } while (true);
         this.consume(')');
-        const definition = getBuiltin(token.text, args.length, this.line, token.column);
-        if (definition.effect === 'output' && !(this.allowOutput && depth === 0)) this.fail('表示する()は、値を代入する式の中では使えません。', token);
+        const count = this.functions.get(token.text);
+        const definition = count === undefined ? getBuiltin(token.text, args.length, this.line, token.column) : undefined;
+        if (count !== undefined && count !== args.length) this.fail(`${token.text}()の引数は${count}個で指定してください。`, token);
+        if (definition?.effect === 'output' && !(this.allowOutput && depth === 0)) this.fail('表示する()は、値を代入する式の中では使えません。', token);
         left = { kind: 'call', name: token.text, args, column: token.column };
       } else left = { kind: 'variable', name: token.text, column: token.column };
     } else this.fail(token.kind === 'input' ? '【外部からの入力】は「x = 【外部からの入力】」の形で使います。' : '値・変数・式を指定してください。', token);
@@ -57,8 +59,8 @@ export class ExpressionParser {
   }
   complete(): void { if (this.token.kind !== 'eof') this.fail(`「${this.token.text}」の前後の式を確認してください。`); }
 }
-export function parseExpression(text: string, line: number, column = 1): Expr {
-  const parser = new ExpressionParser(tokenize(text, line, column), line);
+export function parseExpression(text: string, line: number, column = 1, functions: Map<string, number> = new Map()): Expr {
+  const parser = new ExpressionParser(tokenize(text, line, column), line, false, functions);
   const expr = parser.expression(); parser.complete(); return expr;
 }
 export function toTarget(expression: Expr, line: number): Target {

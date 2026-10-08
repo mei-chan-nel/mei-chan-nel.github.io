@@ -47,9 +47,31 @@ x < 10 の間繰り返す：
 x = 1 # An inline comment
 ```
 
-Indent each nested body by two ASCII spaces. Align `そうでなくもし` and `そうでなければ` with their owning `もし`. No `end`, `endif`, `終了`, braces, or block terminator statements exist. Alternatively, use one `｜` or `⎿` per nesting level; `⎿` denotes the last row at that level. Do not mix leading spaces and markers. Optional fullwidth line numbers `（1）` or `（01）` are accepted, but omit them in generated files. Nesting is at most 32 levels. Custom functions, function definitions, return statements, recursion, `break`, and `continue` are unsupported.
+Indent each nested body by two ASCII spaces. Align `そうでなくもし` and `そうでなければ` with their owning `もし`. No `end`, `endif`, `終了`, braces, or block terminator statements exist. Alternatively, use one `｜` or `⎿` per nesting level; `⎿` denotes the last row at that level. Do not mix leading spaces and markers. Optional fullwidth line numbers `（1）` or `（01）` are accepted, but omit them in generated files. Nesting is at most 32 levels. `break` and `continue` are unsupported.
 
 External input is one assignment to a plain variable on its own line. Define its type and bounds under `settings.inputs` using the same variable name. Input opens a dialog during step execution. Never silently hard-code an external input in place of the user's request.
+
+## Custom functions
+
+Define functions at the outermost level, preferably after the main program:
+
+```text
+result = double(3)
+表示する(result)
+定義する double(n)：
+  返す n * 2
+```
+
+Definitions are available before execution and their bodies run only when called.
+Use unique function names distinct from built-ins, with unique parameter names.
+Calls can appear in expressions or as standalone statements. `返す value` returns a
+value; bare `返す` or falling off the body ends a standalone call, but using that
+call in an expression requires a returned value. Parameters and local variables
+are independent for each invocation; arrays are copied, and main variables are
+not visible inside functions. Pass all required values as arguments. Nested
+function definitions are unsupported. Recursion is supported up to 32 calls.
+Every function body must contain executable code. Functions and returns persist
+in files and shared URLs using the existing version 1 document envelope.
 
 ## Values and expressions
 

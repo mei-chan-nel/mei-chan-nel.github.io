@@ -1,17 +1,19 @@
 import { getBuiltin, builtinRegistry } from './builtins.js';
 import { StudioError, LIMITS, validName } from './errors.js';
-import { tokenize } from './lexer.js';
+import { tokenize } from './lexer.js?v=20261009-functions';
 import { literalText, numeric, validateValue } from './values.js';
 const precedence = { or: 1, and: 2, '==': 3, '!=': 3, '<': 3, '<=': 3, '>': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5, '÷': 5, '%': 5, '**': 7 };
 export class ExpressionParser {
     tokens;
     line;
     allowOutput;
+    functions;
     position = 0;
-    constructor(tokens, line, allowOutput = false) {
+    constructor(tokens, line, allowOutput = false, functions = new Map()) {
         this.tokens = tokens;
         this.line = line;
         this.allowOutput = allowOutput;
+        this.functions = functions;
     }
     get token() { return this.tokens[this.position]; }
     at(text) { return this.token.text === text; }
@@ -66,8 +68,11 @@ export class ExpressionParser {
                         this.consume(',');
                     } while (true);
                 this.consume(')');
-                const definition = getBuiltin(token.text, args.length, this.line, token.column);
-                if (definition.effect === 'output' && !(this.allowOutput && depth === 0))
+                const count = this.functions.get(token.text);
+                const definition = count === undefined ? getBuiltin(token.text, args.length, this.line, token.column) : undefined;
+                if (count !== undefined && count !== args.length)
+                    this.fail(`${token.text}()の引数は${count}個で指定してください。`, token);
+                if (definition?.effect === 'output' && !(this.allowOutput && depth === 0))
                     this.fail('表示する()は、値を代入する式の中では使えません。', token);
                 left = { kind: 'call', name: token.text, args, column: token.column };
             }
@@ -96,8 +101,8 @@ export class ExpressionParser {
     complete() { if (this.token.kind !== 'eof')
         this.fail(`「${this.token.text}」の前後の式を確認してください。`); }
 }
-export function parseExpression(text, line, column = 1) {
-    const parser = new ExpressionParser(tokenize(text, line, column), line);
+export function parseExpression(text, line, column = 1, functions = new Map()) {
+    const parser = new ExpressionParser(tokenize(text, line, column), line, false, functions);
     const expr = parser.expression();
     parser.complete();
     return expr;

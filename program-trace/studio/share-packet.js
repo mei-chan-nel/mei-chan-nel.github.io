@@ -1,5 +1,5 @@
-import { validateDraft, validateInputSpec } from './documents.js';
-import { assertReady, builderSource, modelFromDraft, modelFromSource, rowId, validateBuilder } from './builder-model.js';
+import { validateDraft, validateInputSpec } from './documents.js?v=20261009-functions';
+import { assertReady, builderSource, modelFromDraft, modelFromSource, rowId, validateBuilder } from './builder-model.js?v=20261009-functions';
 import { LIMITS, StudioError, validName } from './errors.js';
 // These tables are part of share v2. Append in a future format; never reorder.
 const unary = ['+', '-', 'not'];
@@ -53,6 +53,15 @@ function packNode(node) {
             break;
         case 'comment':
             row = [8, node.text];
+            break;
+        case 'define':
+            row = [9, node.name, node.parameters, node.body.map(packNode)];
+            break;
+        case 'return':
+            row = [10, ...(node.expression ? [packExpression(node.expression)] : [])];
+            break;
+        case 'call':
+            row = [11, packExpression(node.expression)];
             break;
     }
     if (node.comment)
@@ -199,6 +208,18 @@ export function readSharePacket(value) {
                 if (row.length !== 2)
                     return fail();
                 return { ...base, kind: 'comment', text: text(row[1]) };
+            case 9:
+                if (row.length !== 4)
+                    return fail();
+                return { ...base, kind: 'define', name: name(row[1]), parameters: list(row[2], 0, LIMITS.variables).map(name), body: nodes(row[3], depth + 1) };
+            case 10:
+                if (row.length > 2)
+                    return fail();
+                return { ...base, kind: 'return', ...(row.length === 2 ? { expression: expression(row[1]) } : {}) };
+            case 11:
+                if (row.length !== 2)
+                    return fail();
+                return { ...base, kind: 'call', expression: expression(row[1]) };
             default: return fail();
         }
     }

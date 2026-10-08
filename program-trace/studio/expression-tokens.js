@@ -1,4 +1,4 @@
-import { expressionText, parseExpression } from './expressions.js';
+import { expressionText, parseExpression } from './expressions.js?v=20261009-functions';
 import { StudioError } from './errors.js';
 export const valueToken = (expr) => ({ text: expressionText(expr), expr: structuredClone(expr) });
 export function expressionTokens(expr) {

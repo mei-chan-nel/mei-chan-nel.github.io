@@ -88,7 +88,7 @@ test('builder validation rejects corrupt or executable metadata and a mismatchin
   const deep = newCommand('for'); let tail = deep; for (let i = 0; i < 33; i++) { const next = newCommand('for'); tail.body.push(next); tail = next; }
   assert.throws(() => validateBuilder({ version: 1, nodes: [deep] }));
   assert.throws(() => validateDraft({ ...draft(model), source: 'x = 900' }), /一致/u);
-  assert.throws(() => modelFromSource('定義する test(n)\n  返す n'));
+  assert.throws(() => modelFromSource('定義する test(n)\n  定義する nested()\n    返す n'));
   // An unfinished draft has metadata as well as source. Never export a file the importer cannot read.
   const large = newCommand('array'); large.assignments[0].expression.items = Array.from({ length: 1000 }, () => ({ kind: 'binary', operator: '+', left: literal(0), right: literal(0), column: 1 }));
   assert.throws(() => documentJSON(draft({ version: 1, nodes: [large, newCommand('if')] })), /300KB/u);

@@ -1,10 +1,11 @@
-import { compile, initialState, step, finish } from './runtime.js';
-import { defaultInput, validateDraft, validateInput } from './documents.js';
+import { compile, initialState, step, finish } from './runtime.js?v=20261009-functions';
+import { defaultInput, validateDraft, validateInput } from './documents.js?v=20261009-functions';
 import { diagnostic, StudioError } from './errors.js';
 let compiled, state, draft;
 let generation = -1, seed = 1;
+let history = [];
 function response(kind, resetOutput = false) {
-    const result = { generation, kind };
+    const result = { generation, kind, canGoBack: history.length > 0 };
     if (state)
         result.state = { ...state, output: [] };
     if (resetOutput)
@@ -25,6 +26,7 @@ scope.addEventListener('message', (event) => {
         if (message.action === 'prepare') {
             compiled = undefined;
             state = undefined;
+            history = [];
             draft = validateDraft(message.draft);
             compiled = compile(draft.source);
             seed = crypto.getRandomValues(new Uint32Array(1))[0];
@@ -39,7 +41,13 @@ scope.addEventListener('message', (event) => {
             throw new StudioError('プログラムを準備してから実行してください。');
         if (message.action === 'reset') {
             state = initialState(compiled, seed);
+            history = [];
             scope.postMessage(response('ready', true));
+            return;
+        }
+        if (message.action === 'previous') {
+            state = history.pop() ?? state;
+            scope.postMessage({ ...response('state'), outputReset: true, outputAppend: state.output });
             return;
         }
         if (message.action !== 'step')
@@ -62,7 +70,10 @@ scope.addEventListener('message', (event) => {
         }
         else if (message.input !== undefined)
             throw new StudioError('この行では外部入力を受け付けません。', instruction?.line);
+        const previous = state;
         state = state.completed ? finish(state) : step(compiled, state, draft.settings, message.input);
+        if (state !== previous)
+            history.push(previous);
         scope.postMessage({ ...response('state'), outputAppend: state.output.slice(outputCount) });
     }
     catch (error) {

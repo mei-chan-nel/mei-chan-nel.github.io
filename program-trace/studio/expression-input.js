@@ -1,6 +1,6 @@
-import { normalizeSymbols, tokenize } from './lexer.js';
-import { constantValue, parseExpression } from './expressions.js';
-import { getBuiltin } from './builtins.js';
+import { normalizeSymbols, tokenize } from './lexer.js?v=20261009-functions';
+import { constantValue, parseExpression } from './expressions.js?v=20261009-functions';
+import { getBuiltin, builtinRegistry } from './builtins.js';
 import { StudioError, LIMITS } from './errors.js';
 import { binary, numeric, truth } from './values.js';
 // Only formatting is repaired. Unclosed delimiters and missing operands stay errors.
@@ -21,7 +21,8 @@ export function normalizeExpressionInput(text, condition = false) {
 }
 export function expressionKind(expr, context) {
     const scalar = (item) => {
-        if (expressionKind(item, context) !== 'scalar')
+        const kind = expressionKind(item, context);
+        if (kind !== 'scalar' && kind !== 'unknown')
             throw new StudioError('配列全体はここに使えません。Data[0] のように要素を指定してください。');
     };
     switch (expr.kind) {
@@ -30,6 +31,8 @@ export function expressionKind(expr, context) {
             const choice = context.catalog?.find(item => item.name === expr.name);
             if (!choice && !context.variables.includes(expr.name))
                 throw new StudioError(`「${expr.name}」という変数はまだ作られていません。文字列は " " で囲んでください。`);
+            if (context.parameters?.includes(expr.name) && choice?.kind === 'variable')
+                return 'unknown';
             return choice?.kind === 'matrix' ? 'matrix' : choice?.kind === 'array' || context.arrays.includes(expr.name) ? 'array' : 'scalar';
         }
         case 'array': {
@@ -61,7 +64,7 @@ export function expressionKind(expr, context) {
                 indices = [...target.indices, ...indices];
                 target = target.target;
             }
-            const kind = expressionKind(target, context), dimensions = kind === 'matrix' ? 2 : kind === 'array' ? 1 : 0;
+            const kind = expressionKind(target, context), dimensions = kind === 'matrix' || kind === 'unknown' ? 2 : kind === 'array' ? 1 : 0;
             if (!dimensions || indices.length > dimensions)
                 throw new StudioError('配列の次元に合った要素番号を指定してください。');
             for (const index of indices) {
@@ -70,7 +73,7 @@ export function expressionKind(expr, context) {
                 if (value !== undefined && (typeof value !== 'number' || !Number.isSafeInteger(value) || value < context.base))
                     throw new StudioError(`要素番号は ${context.base} 以上の整数にしてください。`);
             }
-            return dimensions - indices.length === 1 ? 'array' : 'scalar';
+            return kind === 'unknown' ? 'unknown' : dimensions - indices.length === 1 ? 'array' : 'scalar';
         }
         case 'unary':
             scalar(expr.expression);
@@ -80,6 +83,13 @@ export function expressionKind(expr, context) {
             scalar(expr.right);
             return 'scalar';
         case 'call': {
+            const custom = context.functions?.find(fn => fn.name === expr.name);
+            if (custom) {
+                if (expr.args.length !== custom.parameters.length)
+                    throw new StudioError(`${expr.name}()の引数は${custom.parameters.length}個で指定してください。`);
+                expr.args.forEach(arg => validateExpression(arg, context));
+                return 'unknown';
+            }
             const builtin = getBuiltin(expr.name, expr.args.length);
             expr.args.forEach((arg, i) => validateExpression(arg, context, builtin.argumentKinds?.[i] ?? 'any'));
             if (expr.name === '乱数' && expr.args.length) {
@@ -95,6 +105,10 @@ export function expressionKind(expr, context) {
 }
 export function validateExpression(expr, context, expected = 'any') {
     const kind = expressionKind(expr, context);
+    // Parameter and custom return types depend on the actual call. The runtime
+    // checks their values, indices and arithmetic without evaluating ahead.
+    if (kind === 'unknown')
+        return expr;
     if (expected === 'scalar' && kind !== 'scalar')
         throw new StudioError('変数には配列全体を入れられません。配列の要素を指定してください。');
     if (expected === 'collection' && kind === 'scalar')
@@ -109,7 +123,7 @@ export function readExpressionInput(text, context, expected = 'any', condition =
     const normalized = normalizeExpressionInput(text, condition);
     if (!normalized)
         throw new StudioError('値や式を入力してください。');
-    const expr = validateExpression(parseExpression(normalized, 1), context, expected);
+    const expr = validateExpression(parseExpression(normalized, 1, 1, new Map(context.functions?.map(fn => [fn.name, fn.parameters.length]))), context, expected);
     checkConstantCalculation(expr);
     if (condition && scalarType(expr) !== 'boolean' && scalarType(expr) !== 'unknown')
         throw new StudioError('条件には x < 10 のような比較式を指定してください。');
@@ -126,7 +140,7 @@ function scalarType(expr) {
         return ['==', '!=', '<', '<=', '>', '>=', 'and', 'or'].includes(expr.operator) ? 'boolean'
             : expr.operator === '+' && scalarType(expr.left) === 'string' && scalarType(expr.right) === 'string' ? 'string' : 'number';
     if (expr.kind === 'call')
-        return getBuiltin(expr.name, expr.args.length).scalarType ?? 'unknown';
+        return builtinRegistry.has(expr.name) ? getBuiltin(expr.name, expr.args.length).scalarType ?? 'unknown' : 'unknown';
     return 'unknown';
 }
 // Detect mistakes that can be decided from literals alone. No variables or

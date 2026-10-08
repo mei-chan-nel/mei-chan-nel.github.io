@@ -1,5 +1,5 @@
-import { parseProgram } from './parser.js';
-import { valueExpression, expressionText } from './expressions.js';
+import { parseProgram } from './parser.js?v=20261009-functions';
+import { valueExpression, expressionText } from './expressions.js?v=20261009-functions';
 import { StudioError } from './errors.js';
 import { validateValue } from './values.js';
 export function replaceInitialValues(source, values) {

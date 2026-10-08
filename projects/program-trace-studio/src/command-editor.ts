@@ -6,11 +6,12 @@ import { literal } from './builder-model.js';
 import { settingsEditor } from './input-settings.js';
 import { defaultInput } from './documents.js';
 import { constantValue } from './expressions.js';
-import { StudioError } from './errors.js';
+import { StudioError, validName } from './errors.js';
+import { builtinRegistry } from './builtins.js';
 import type { Assignment, BuilderNode, Expr, InputSpec, Target } from './types.js';
 
 export interface CommandEditor { node: HTMLElement; read: () => BuilderNode; inputSpec?: () => InputSpec; choosingLeft: () => boolean; nextToRight: () => void; onStageChange: (callback: () => void) => void }
-export function commandEditor(initial: BuilderNode, context: ExpressionContext, specs: Record<string, InputSpec>, fresh = false, valueFunction?: '要素数' | '乱数'): CommandEditor {
+export function commandEditor(initial: BuilderNode, context: ExpressionContext, specs: Record<string, InputSpec>, fresh = false, valueFunction?: string): CommandEditor {
   const node = element('div', 'command-fields'), draft = structuredClone(initial);
   let readBody: () => BuilderNode = () => draft, inputSpec: (() => InputSpec) | undefined;
   const leftSteps: { choosing: () => boolean; next: () => void }[] = [];
@@ -47,7 +48,8 @@ export function commandEditor(initial: BuilderNode, context: ExpressionContext, 
             const spec = originalSpec && inputKinds.includes(originalSpec.kind) ? originalSpec : { ...defaultInput(), kind: inputKinds[0] };
             readSpec = settingsEditor(content, [selected.target.name], { [selected.target.name]: spec }, () => {}, inputKinds);
           } else {
-            const functionValue: Expr | undefined = valueFunction === '乱数' ? { kind: 'call', name: '乱数', args: [], column: 1 } : valueFunction === '要素数' ? { kind: 'call', name: '要素数', args: [rhsContext.arrays.length ? { kind: 'variable', name: rhsContext.arrays[0], column: 1 } : { kind: 'array', items: [], column: 1 }], column: 1 } : undefined;
+            const custom = context.functions?.find(fn => fn.name === valueFunction);
+            const functionValue: Expr | undefined = custom ? { kind: 'call', name: custom.name, args: custom.parameters.map(() => literal(0)), column: 1 } : valueFunction === '乱数' ? { kind: 'call', name: '乱数', args: [], column: 1 } : valueFunction === '要素数' ? { kind: 'call', name: '要素数', args: [rhsContext.arrays.length ? { kind: 'variable', name: rhsContext.arrays[0], column: 1 } : { kind: 'array', items: [], column: 1 }], column: 1 } : undefined;
             const defaultValue: Expr | undefined = expected === 'scalar' ? undefined : { kind: 'array', items: expected === 'matrix' ? [{ kind: 'array', items: [literal(0), literal(0)], column: 1 }] : [literal(0), literal(0), literal(0)], column: 1 };
             if (!value) value = expressionEditor(preservedValue ?? (fresh ? functionValue ?? defaultValue : selected.kind === (context.catalog?.find(item => item.name === assignment.target.name)?.kind ?? 'variable') && !!selected.target.indices.length === !!assignment.target.indices.length ? assignment.expression : defaultValue), '入れる値（右辺）', rhsContext, false, expected);
             content.append(value.node);
@@ -101,6 +103,18 @@ export function commandEditor(initial: BuilderNode, context: ExpressionContext, 
         const value = constantValue(expr); if (value !== undefined && (typeof value !== 'number' || !Number.isSafeInteger(value) || label === '増減する値' && value < 1)) throw new StudioError(`${label}は${label === '増減する値' ? '1以上の' : ''}整数にしてください。`);
       } return draft;
     };
+  } else if (draft.kind === 'define') {
+    const name = field('関数名', draft.name), parameters = field('引数名（カンマで区切る・省略可）', draft.parameters.join(', '));
+    node.append(name.node, parameters.node, element('p', 'dialog-description', '関数の処理は、メインの下の専用ブロックで作成します。引数と関数内の変数は、呼び出すたびに別に用意します。'));
+    readBody = () => {
+      draft.name = name.input.value.trim(); draft.parameters = parameters.input.value.trim() ? parameters.input.value.replaceAll('，', ',').split(',').map(item => item.trim()) : [];
+      if (!validName(draft.name) || builtinRegistry.has(draft.name)) throw new StudioError('関数名を確認してください。組み込み関数と同じ名前は使えません。');
+      if (draft.parameters.some(parameter => !validName(parameter)) || new Set(draft.parameters).size !== draft.parameters.length) throw new StudioError('引数名を確認してください。名前は重複させないでください。');
+      return draft;
+    };
+  } else if (draft.kind === 'return' || draft.kind === 'call') {
+    const value = expressionEditor(draft.expression, draft.kind === 'return' ? '呼び出し元に返す値' : '呼び出す関数と引数', context);
+    node.append(value.node); readBody = () => { draft.expression = value.read(); if (draft.kind === 'call' && draft.expression.kind !== 'call') throw new StudioError('関数名(引数) の形で指定してください。'); return draft; };
   } else if (draft.kind === 'comment') {
     const text = field('メモ', draft.text); node.append(text.node); readBody = () => { draft.text = text.input.value; return draft; };
   } else if (draft.kind === 'else') node.append(element('p', 'dialog-description', 'ほかの条件に当てはまらなかったときに実行します。内側の処理は、プログラムの空白行をタップして設定します。'));

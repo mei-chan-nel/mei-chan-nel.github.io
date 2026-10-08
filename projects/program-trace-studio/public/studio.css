@@ -283,3 +283,8 @@ html.trace-fullscreen #runner-document-tools, html.trace-fullscreen .recovery-bu
   .action-buttons #edit-values-button { flex: 1 1 40%; } .is-tracing .studio-heading h1 { font-size: 1.55rem; }
 }
 @media (prefers-reduced-motion: reduce) { .is-changed, .is-new, .status-dot { animation: none !important; } }
+
+.builder-function-block { margin: 18px 12px; overflow: hidden; }
+.builder-function-block .panel-heading { padding: 12px 16px; }
+.builder-function-block .builder-rows { padding: 8px 0; }
+.function-scope { margin: 0; padding: 8px 14px; font-size: .8rem; color: var(--ink-light); background: var(--paper); }

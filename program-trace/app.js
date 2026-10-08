@@ -10,14 +10,14 @@ import { videoGroup, inputCandidate, navigationForProgram } from "./video-progra
 import { outputRow, outputWindow } from "./output-view.js?v=20261003-video";
 import { traceRedirect } from "./routing.js?v=20261003-seo";
 import { createAssignmentFlow } from "./assignment-flow.js?v=20261004-fullscreen";
-import { createFullscreen } from "./fullscreen.js?v=20261005-desktop";
+import { createFullscreen } from "./fullscreen.js?v=20261009-functions";
 import { createVariableScroll } from "./variable-scroll.js?v=20261004-scroll";
-import { bindStepKeys } from "./step-keys.js?v=20261005-desktop";
+import { bindStepKeys } from "./step-keys.js?v=20261009-functions";
 
 const $ = (id) => document.getElementById(id);
 const ui = Object.fromEntries([
   "library-view", "runner-view", "example-grid", "runner-title", "runner-focus", "example-label",
-  "next-button", "play-button", "play-label", "play-icon", "reset-button", "edit-button",
+  "previous-button", "next-button", "play-button", "play-label", "play-icon", "reset-button", "edit-button",
   "speed-control", "speed-button", "speed-value", "speed-panel", "speed-input", "speed-decrease", "speed-increase", "speed-error",
   "status-text", "status-dot", "current-line-label", "step-count", "program-lines", "variable-table", "variable-rows", "variables-body",
   "detail-label", "detail-title", "detail-explanation", "condition-result", "output-lines", "output-placeholder", "output-count",
@@ -34,13 +34,14 @@ const assignmentFlow = createAssignmentFlow(ui["variable-table"], ui["variable-r
 const variableScroll = createVariableScroll(ui["variables-body"], ui["variable-rows"]);
 const fullscreen = createFullscreen({
   runner: ui["runner-view"], surface: ui["fullscreen-surface"], mount: ui["fullscreen-workspace"], entryButton: ui["fullscreen-button"],
-  controls: { next: ui["next-button"], reset: ui["reset-button"], edit: ui["edit-button"], play: ui["play-button"], speed: ui["speed-button"] },
+  controls: { previous: ui["previous-button"], next: ui["next-button"], reset: ui["reset-button"], edit: ui["edit-button"], play: ui["play-button"], speed: ui["speed-button"] },
   speedPanel: ui["speed-panel"], closeSpeed: closeSpeedPanel, onLayout: layoutWorkspace,
 });
 let example = null;
 let parameters = null;
 let compiled = null;
 let state = null;
+let executionHistory = [];
 let paused = false;
 const autoplay = createAutoplay({ advance: runOne });
 let executionError = "";
@@ -132,6 +133,7 @@ function reset() {
   paused = false;
   executionError = "";
   state = createState(compiled, { seed: crypto.getRandomValues(new Uint32Array(1))[0] });
+  executionHistory = [];
   clearOutputs();
   workspacePlan = planWorkspace(example, compiled, parameters);
   ui["output-lines"].style.setProperty("--output-columns", workspacePlan.outputColumns);
@@ -246,6 +248,7 @@ function render(animate = false) {
   ui["example-label"].textContent = `${example.collection === "video" ? `動画解説問題 Q${example.number}` : `例${example.number}`}${example.variantLabel ? ` · ${example.variantLabel}` : ""}${modified ? " · 値を変更済み" : ""}`;
   ui["edit-button"].disabled = !example.parameters.length || !!pendingInput;
   ui["next-button"].disabled = running || !!pendingInput || (state.completed && state.currentLine === null) || !!executionError;
+  ui["previous-button"].disabled = !executionHistory.length || !!pendingInput;
   ui["play-button"].disabled = !!executionError || !!pendingInput;
   ui["play-label"].textContent = running ? "一時停止" : "自動実行";
   ui["play-icon"].setAttribute("d", running ? "M5 3h3v14H5zm7 0h3v14h-3z" : "m6 3 10 7-10 7Z");
@@ -327,6 +330,7 @@ function render(animate = false) {
   const outputView = outputWindow(state.output, workspacePlan?.outputLimit);
   if (outputList.dataset.firstOutput !== String(outputView.start)) outputList.replaceChildren();
   outputList.dataset.firstOutput = String(outputView.start);
+  while (outputList.children.length > outputView.items.length) outputList.lastElementChild.remove();
   for (const row of outputList.children) row.classList.remove("is-new");
   while (outputList.children.length < outputView.items.length) {
     const index = outputView.start + outputList.children.length;
@@ -356,6 +360,7 @@ function runOne(options = {}) {
   if (state.completed) {
     stop();
     paused = false;
+    executionHistory.push(state);
     state = finishTrace(state);
     render();
     return false;
@@ -366,7 +371,9 @@ function runOne(options = {}) {
     return false;
   }
   try {
+    const previous = state;
     state = step(compiled, state, parameters, options);
+    executionHistory.push(previous);
   } catch (error) {
     stop();
     executionError = error instanceof Error ? error.message : "実行中にエラーが起きました。最初から実行してください。";
@@ -376,6 +383,16 @@ function runOne(options = {}) {
 }
 
 ui["next-button"].addEventListener("click", () => { paused = false; runOne(); });
+ui["previous-button"].addEventListener("click", () => {
+  if (!executionHistory.length || pendingInput) return;
+  stop();
+  paused = false;
+  executionError = "";
+  closeInspector();
+  state = executionHistory.pop();
+  render();
+  ui["screen-reader-status"].textContent = state.currentLine === null ? "実行前に戻りました。" : `${lineLabel(example, state.currentLine)}行の実行後に戻りました。`;
+});
 ui["play-button"].addEventListener("click", () => {
   if (executionError) return;
   if (autoplay.running) {

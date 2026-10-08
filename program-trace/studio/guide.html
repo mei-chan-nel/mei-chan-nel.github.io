@@ -13,7 +13,7 @@
        Emit a UTF-8 JSON object: {"format":"mei-program-studio","version":1,
        "title":"...","source":"...","settings":{"indexBase":0,"inputs":{}}}.
        source is Information I pseudocode, not JavaScript. Use two-space indentation
-       or correct ｜ / ⎿ markers; no end keywords. No custom functions or recursion.
+       or correct ｜ / ⎿ markers; no end keywords. Custom functions use 定義する name(args)： and 返す value.
        Supported built-ins: 表示する(...), 要素数(array), 乱数(), 乱数(min,max,"整数"|"実数").
        Initialize 1D/rectangular 2D arrays before writing elements. Set every external
        input's bounds and type in settings.inputs. Generate complete source only;
@@ -29,8 +29,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="../icon.svg">
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
-  <link rel="stylesheet" href="./trace-base.css?v=20261005-desktop">
-  <link rel="stylesheet" href="./studio.css?v=20261005-desktop">
+  <link rel="stylesheet" href="./trace-base.css?v=20261009-functions">
+  <link rel="stylesheet" href="./studio.css?v=20261009-functions">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
   <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
   <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"プログラムトレース Studio","url":"https://mei-chan-nel.com/program-trace/studio/guide.html","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"情報Ⅰ Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"プログラムトレース","item":"https://mei-chan-nel.com/program-trace/"},{"@type":"ListItem","position":3,"name":"Studio","item":"https://mei-chan-nel.com/program-trace/studio/guide.html"}]}]</script>
@@ -65,7 +65,9 @@
     <h2>条件分岐と繰り返し</h2><p>「分岐」で「もし … ならば」を選び、変数や比較記号をタップして条件を作ります。反映すると内側に空白行ができるので、条件が成り立ったときの処理を設定します。その内側、または分岐の直後の空白行から「分岐」を選ぶと、対応する「そうでなくもし」「そうでなければ」を追加できます。字下げと「｜」「⎿」は自動で付きます。</p><p>「繰り返し」の「範囲を決めて繰り返す」では、変数と開始値・終了値・増減する値を指定します。各値を開いて、画面上のボタンで式を変更できます。終了値も含み、増減する値は1以上の整数です。「条件を満たす間繰り返す」では比較条件を指定します。内側には実行する処理を設定してください。さらに分岐や繰り返しを入れることもできます。</p>
     <h2>行を並べ替える</h2><p>行をタップすると、下の操作欄に「1行上に」「1行下に」「ひとつ内側へ」「ひとつ外側へ」「削除」が表示されます。行番号をつかんでドラッグしても移動できます。PCではプログラムの文字の部分からもドラッグできます。横に動かすと入れ子の深さを選べ、左端へ動かすといちばん外側へ移します。移動先は線で表示されます。分岐・繰り返しの見出しを動かすと、内側の行も一緒に移ります。「そうでなくもし」「そうでなければ」は元の「もし」と一緒に移します。「元に戻す」「やり直す」で取り消し・復元ができます。</p>
     <h2>一次元・二次元配列</h2><p>左辺で一次元・二次元配列を選ぶと、右辺は要素ごとの入力欄になります。値や式を直接入力し、「要素を追加する」や「×」で個数を変えられます。二次元では行と列を追加・削除できます。「式で入力する」では[3, 5, 9]のような配列や、別の配列を指定できます。既存の配列を左辺で選んだときは、配列全体かひとつの要素かを選べます。二次元の要素には行番号・列番号を指定します。変数の右辺にはData[0]のような要素を使い、配列全体を入れる候補は表示しません。</p><p>編集画面の右側にある「配列の番号」で、すべての配列を0始まり・1始まりのどちらにするか選びます。既存の要素番号は自動で書き換わらないので、指定した番号も合わせてください。配列は要素の変更より前に作り、各行の列数をそろえます。</p>
-    <h2>外部入力と乱数</h2><p>代入の右辺で「外部からの入力」を選び、形式・範囲などを設定します。数値・文字列・一次元配列・二次元配列に対応します。その行を実行すると入力ダイアログが開きます。</p><p>右辺の「乱数()」で範囲と整数／実数を指定できます。整数は範囲の両端を含み、実数は最大値を含みません。「式に入れる」で確定します。「最初から」では同じ乱数の流れを再現します。独自の関数の定義・再帰は扱いません。</p>
+    <h2>自分の関数を作る</h2><p>空白行をタップし、「関数」→「関数を定義する」で関数名と引数名を設定します。メインの下に関数用のプログラムブロックができます。そのブロックの空白行や「＋」から処理を追加し、「関数」→「値を返す」で計算結果を指定します。</p><p>メインやほかの関数では、「関数」から自作関数を呼び出すか、右辺の式の候補にある関数を選び、引数を設定します。関数内の変数は呼び出しごとに独立し、配列の引数もコピーされます。関数内も1行ずつ実行できます。再帰は32段までです。</p>
+    <h2>1ステップ戻る</h2><p>実行の「←前へ」で、直前のステップへ戻ります。変数・配列・出力・繰り返し・関数の呼び出し状態も戻ります。自動実行中に押すと停止して戻り、実行前まで戻るとボタンは無効になります。外部入力の行を戻して再実行すると、入力をやり直せます。</p>
+    <h2>外部入力と乱数</h2><p>代入の右辺で「外部からの入力」を選び、形式・範囲などを設定します。数値・文字列・一次元配列・二次元配列に対応します。その行を実行すると入力ダイアログが開きます。</p><p>右辺の「乱数()」で範囲と整数／実数を指定できます。整数は範囲の両端を含み、実数は最大値を含みません。「式に入れる」で確定します。「最初から」では同じ乱数の流れを再現します。「前へ」で戻った場合も、同じ乱数を再現します。</p>
     <h2>1行ずつ実行する</h2><p>右側の「実行画面へ」で実行画面に切り替わります。「次へ」で実行した行が緑になり、その結果が変数と出力に反映されます。「プログラムを編集」で編集画面へ戻れます。変数を使う前に値を設定してください。内側が空の分岐や繰り返しは、処理を追加してから実行します。</p>
     <h2>保存と共有</h2><p>下書きはこのブラウザに自動保存します。「ブラウザ内に保存」で名前をつけて残し、「ブラウザ内から読込」で選べます。「ファイルに書出」ではファイル名を指定してJSONファイルを保存し、「ファイルから読込」で開けます。「新規作成」の前に未保存の変更がある場合は、保存するか選びます。保存の途中でキャンセルしても元のプログラムを保持します。ブラウザのデータを削除するとブラウザ内の保存は消えます。作成途中のプログラムも保存できます。</p><p>「URLで共有」はプログラムと設定をURLにまとめます。受け取った人が編集しても、あなたの保存には影響しません。長いURLがうまく送れない場合は書き出したファイルを共有できます。読み込んだプログラムは自動実行されません。</p>
     <h2>上限とエラー</h2><p>500行・50KB、1回の実行は10,000ステップまでです。配列は1つあたり1,000要素（セル）・全体で5,000要素、出力は1,000回までです。範囲外の添字・未代入の変数・0での除算などは該当する行を示して停止します。設定を変更して実行し直せます。</p>
