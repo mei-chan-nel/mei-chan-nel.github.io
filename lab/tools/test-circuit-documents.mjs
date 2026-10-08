@@ -88,7 +88,15 @@ try {
     await page.addScriptTag({ path: axePath });
     assert.equal(await page.locator("#circuit-example").count(), 0);
     await press("#load-circuit");
-    assert.equal(await page.locator("#circuit-example-list button").count(), 5);
+    assert.equal(await page.locator("#circuit-example-list button").count(), 7);
+    assert.equal(
+      await page
+        .locator(
+          '#circuit-example-list [data-example="and"], #circuit-example-list [data-example="or"], #circuit-example-list [data-example="not"]',
+        )
+        .count(),
+      0,
+    );
     await audit(page);
     await press("#load-dialog [data-close-circuit-dialog]");
     await loadExample(page, "adder", touch);
@@ -276,7 +284,7 @@ try {
     sharingURL = url;
     sharedDocument = exported;
     // Identical name/content must not attach an example to an owned record.
-    await loadExample(page, "and", touch);
+    await loadExample(page, "xor", touch);
     await press("#save-circuit");
     assert.doesNotMatch(
       await page.locator("#save-submit").textContent(),
@@ -284,14 +292,14 @@ try {
     );
     await press("#save-submit");
     const beforeExample = await stored(page, SAVED_KEY);
-    const originalAnd = JSON.parse(beforeExample).find(
-      (record) => record.document.title === "論理積（AND）",
+    const originalXor = JSON.parse(beforeExample).find(
+      (record) => record.document.title === "排他的論理和",
     );
-    await loadExample(page, "and", touch);
+    await loadExample(page, "xor", touch);
     assert.equal(JSON.parse(await stored(page, DRAFT_KEY)).recordId, null);
     assert.deepEqual(
       parseDocument(await stored(page, DRAFT_KEY)),
-      originalAnd.document,
+      originalXor.document,
     );
     await page.reload();
     await press("#save-circuit");
@@ -307,15 +315,15 @@ try {
       await page.locator("#save-submit").textContent(),
       /上書き/,
     );
-    await page.locator("#save-name").fill(`ANDの実験 ${width}`);
+    await page.locator("#save-name").fill(`XORの実験 ${width}`);
     await press("#save-submit");
     const afterExample = JSON.parse(await stored(page, SAVED_KEY));
     assert.equal(afterExample.length, JSON.parse(beforeExample).length + 1);
     assert.deepEqual(
-      afterExample.find((record) => record.id === originalAnd.id),
-      originalAnd,
+      afterExample.find((record) => record.id === originalXor.id),
+      originalXor,
     );
-    await loadExample(page, "and", touch);
+    await loadExample(page, "xor", touch);
     assert.equal(
       await page.locator(".current-row").getAttribute("data-row"),
       "0",
@@ -335,7 +343,7 @@ try {
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base + "/lab/logic-circuit/");
-  await loadExample(page, "not", true);
+  await loadExample(page, "full-adder", true);
   await page.locator("#circuit-name").fill("自分の作業");
   await page.locator("#save-circuit").click();
   await page.locator("#save-submit").click();

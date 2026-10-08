@@ -4,10 +4,10 @@ import {
   evaluate,
   orderedNodes,
   truthTable,
-} from "./circuit.mjs?v=2";
+} from "./circuit.mjs?v=4";
 import { symbol, portOffset, miniSymbol } from "./symbols.mjs";
-import { exampleCircuit } from "./examples.mjs?v=3";
-import { installDocumentControls } from "./document-ui.mjs?v=3";
+import { exampleCircuit, arithmeticReadout } from "./examples.mjs?v=4";
+import { installDocumentControls } from "./document-ui.mjs?v=4";
 
 const $ = (id) => document.getElementById(id);
 const board = $("circuit-board"),
@@ -22,11 +22,13 @@ const showValue = (value) => (value === null ? "—" : value);
 const signalClass = (value) =>
   value === 1 ? "one" : value === 0 ? "zero" : "unknown";
 const gateTypes = ["and", "or", "not"];
+const minimumZoom = 0.12;
 let graph,
   documentTools,
   selected,
   pendingPort,
   gesture,
+  fitAfterResize,
   suppressPaletteClick = false;
 let past = [],
   future = [],
@@ -420,7 +422,7 @@ function renderBoard(values = evaluate(graph)) {
         output = node.type === "output";
       let body;
       if (input)
-        body = `<text class="node-title" y="-31">入力 ${node.label}</text><rect class="input-body" x="-32" y="-20" width="64" height="40"/><text class="input-value" y="1">${value}</text><path class="symbol-stub" d="M32 0H44"/>`;
+        body = `<text class="node-title" y="-31">入力 ${node.label}</text><rect class="input-body" x="-32" y="-20" width="64" height="40"/><text class="input-value" y="1">${value}</text><path class="symbol-stub" d="M32 0H44"/>${node.meaning ? `<text class="node-type" y="41">${esc(node.meaning)}</text>` : ""}`;
       else if (output)
         body = `<text class="node-title" x="8" y="-35">出力 ${node.label}</text><circle class="output-lamp" cx="8" r="23"/><text class="input-value" x="8" y="1">${showValue(value)}</text><path class="symbol-stub" d="M-34 0H-15"/>${node.meaning ? `<text class="node-type" x="8" y="41">${esc(node.meaning)}</text>` : ""}`;
       else if (node.type === "branch")
@@ -464,6 +466,10 @@ function renderTruth() {
 function render() {
   restoreCounters();
   const values = evaluate(graph);
+  stage.classList.toggle("complex-circuit", graph.nodes.length > 20);
+  const readout = arithmeticReadout(graph, values);
+  $("circuit-calculation").textContent = readout;
+  $("circuit-calculation").hidden = !readout;
   renderBoard(values);
   renderTruth();
   $("undo-circuit").disabled = !past.length;
@@ -494,14 +500,14 @@ function updateCamera() {
     height: height / camera.zoom,
   }))
     background.setAttribute(key, value);
-  $("zoom-out-circuit").disabled = camera.zoom <= 0.3;
+  $("zoom-out-circuit").disabled = camera.zoom <= minimumZoom;
   $("zoom-in-circuit").disabled = camera.zoom >= 2;
   renderBoard();
 }
 function zoomAt(zoom, clientX, clientY) {
   const rect = board.getBoundingClientRect(),
     anchor = worldPoint(clientX, clientY);
-  camera.zoom = Math.max(0.3, Math.min(2, zoom));
+  camera.zoom = Math.max(minimumZoom, Math.min(2, zoom));
   camera.x = anchor.x - (clientX - rect.left) / camera.zoom;
   camera.y = anchor.y - (clientY - rect.top) / camera.zoom;
   updateCamera();
@@ -510,14 +516,13 @@ function zoomBy(factor) {
   const r = board.getBoundingClientRect();
   zoomAt(camera.zoom * factor, r.left + r.width / 2, r.top + r.height / 2);
 }
-function fitAll() {
-  const size = dimensions(),
-    left = Math.min(...graph.nodes.map((n) => n.x)) - 72,
+function fitAll(size = dimensions()) {
+  const left = Math.min(...graph.nodes.map((n) => n.x)) - 72,
     right = Math.max(...graph.nodes.map((n) => n.x)) + 78;
   const top = Math.min(...graph.nodes.map((n) => n.y)) - 65,
     bottom = Math.max(...graph.nodes.map((n) => n.y)) + 56;
   camera.zoom = Math.max(
-    0.3,
+    minimumZoom,
     Math.min(1, size.width / (right - left), size.height / (bottom - top)),
   );
   camera.x = (left + right) / 2 - size.width / camera.zoom / 2;
@@ -690,7 +695,7 @@ window.addEventListener(
         x = (a.x + b.x) / 2,
         y = (a.y + b.y) / 2;
       camera.zoom = Math.max(
-        0.3,
+        minimumZoom,
         Math.min(
           2,
           (gesture.zoom * Math.hypot(a.x - b.x, a.y - b.y)) /
@@ -872,7 +877,7 @@ $("redo-circuit").onclick = () => undo(true);
 $("delete-selected").onclick = deleteSelected;
 $("zoom-out-circuit").onclick = () => zoomBy(1 / 1.2);
 $("zoom-in-circuit").onclick = () => zoomBy(1.2);
-$("fit-circuit").onclick = fitAll;
+$("fit-circuit").onclick = () => fitAll();
 $("clear-circuit").onclick = () => {
   cancelGesture();
   change(() => {
@@ -887,12 +892,30 @@ $("clear-circuit").onclick = () => {
 graph = exampleCircuit("and", stage.clientWidth, stage.clientHeight);
 render();
 updateCamera();
-new ResizeObserver(() => updateCamera()).observe(stage);
+new ResizeObserver(([entry]) => {
+  if (
+    fitAfterResize?.graph === graph &&
+    Math.abs(entry.contentRect.height - fitAfterResize.height) > 0.5
+  ) {
+    fitAfterResize = undefined;
+    fitAll({
+      width: entry.contentRect.width,
+      height: entry.contentRect.height,
+    });
+  } else updateCamera();
+}).observe(stage);
 documentTools = installDocumentControls({
   read: () => graph,
   makeExample: (type) =>
     exampleCircuit(type, stage.clientWidth, stage.clientHeight),
   replace: (incoming) => {
+    // A change in the drawing area's height commits after the modal closes.
+    // Refit using the actual new size when ResizeObserver reports it.
+    const largerStage = incoming.nodes.length > 20;
+    fitAfterResize =
+      stage.classList.contains("complex-circuit") === largerStage
+        ? undefined
+        : { graph: incoming, height: stage.clientHeight };
     graph = incoming;
     selected = pendingPort = undefined;
     past = [];

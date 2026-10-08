@@ -7,9 +7,9 @@ import {
   exportFilename,
   fingerprint,
   FILE_BYTES,
-} from "./documents.mjs?v=3";
-import { encodeShare, decodeShare, isCircuitShare } from "./sharing.mjs";
-import { circuitExamples } from "./examples.mjs?v=3";
+} from "./documents.mjs?v=4";
+import { encodeShare, decodeShare, isCircuitShare } from "./sharing.mjs?v=4";
+import { circuitExamples } from "./examples.mjs?v=4";
 
 const $ = (id) => document.getElementById(id);
 const errorText = (error) =>
@@ -251,7 +251,11 @@ export function installDocumentControls({
   function renderExamples() {
     const list = $("circuit-example-list");
     for (const example of circuitExamples) {
-      const button = element("button", "", example.name);
+      const button = element("button", "");
+      button.append(
+        element("span", "", example.name),
+        element("small", "", example.description),
+      );
       button.type = "button";
       button.dataset.example = example.id;
       button.onclick = () =>
@@ -316,8 +320,10 @@ export function installDocumentControls({
     event.preventDefault();
     if (!pendingLoad) return;
     generation++;
-    apply(pendingLoad.document, pendingLoad.options);
+    const loading = pendingLoad;
+    // Release the inert background before measuring the resized drawing area.
     $("confirm-dialog").close();
+    apply(loading.document, loading.options);
     message("回路を読み込みました。", false, true);
   };
   $("confirm-dialog").addEventListener("close", () => {

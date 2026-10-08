@@ -8,7 +8,17 @@ import {
   validCircuit,
   orderedNodes,
 } from "../lab/logic-circuit/circuit.mjs";
-import { exampleCircuit } from "../lab/logic-circuit/examples.mjs";
+import {
+  exampleCircuit,
+  circuitExamples,
+  arithmeticReadout,
+} from "../lab/logic-circuit/examples.mjs";
+import {
+  circuitDocument,
+  parseDocument,
+  documentJSON,
+} from "../lab/logic-circuit/documents.mjs";
+import { encodeShare, decodeShare } from "../lab/logic-circuit/sharing.mjs";
 
 test("AND, OR and NOT have the standard truth tables", () => {
   for (const [type, expected] of [
@@ -65,6 +75,92 @@ test("unconnected gates remain incomplete instead of treating a floating input a
   for (const row of truthTable(graph)) {
     assert.equal(row.values.get(gate.id), null);
     assert.equal(row.values.get(output.id), null);
+  }
+});
+
+test("useful three-input circuits enumerate all eight combinations with correct sum, vote, selection and even parity", () => {
+  assert.deepEqual(
+    circuitExamples.map((e) => e.id),
+    [
+      "xor",
+      "adder",
+      "full-adder",
+      "two-bit-adder",
+      "majority",
+      "selector",
+      "parity",
+    ],
+  );
+  for (const type of ["full-adder", "majority", "selector", "parity"]) {
+    const graph = exampleCircuit(type),
+      { inputs, outputs } = orderedNodes(graph);
+    assert.ok(validCircuit(graph));
+    assert.equal(inputs.length, 3);
+    const rows = truthTable(graph);
+    assert.equal(rows.length, 8);
+    for (const row of rows) {
+      const [a, b, c] = inputs.map((n) => row.inputs[n.id]);
+      const x = row.values.get(outputs.find((n) => n.label === "X").id);
+      assert.ok([...row.values.values()].every((v) => v === 0 || v === 1));
+      if (type === "full-adder") {
+        const y = row.values.get(outputs.find((n) => n.label === "Y").id);
+        assert.equal(x + 2 * y, a + b + c);
+      }
+      if (type === "majority") assert.equal(x, a + b + c >= 2 ? 1 : 0);
+      if (type === "selector") assert.equal(x, c ? b : a);
+      if (type === "parity") {
+        assert.equal(x, (a + b + c) % 2);
+        assert.equal((a + b + c + x) % 2, 0);
+      }
+    }
+  }
+});
+
+test("two-bit addition handles all 16 operand pairs and propagates the lower carry into the higher full adder", () => {
+  const graph = exampleCircuit("two-bit-adder"),
+    { inputs, outputs, gates } = orderedNodes(graph);
+  assert.ok(validCircuit(graph));
+  assert.equal(inputs.length, 4);
+  assert.equal(outputs.length, 3);
+  assert.equal(gates.length, 13);
+  const rows = truthTable(graph);
+  for (let a = 0; a < 4; a++)
+    for (let b = 0; b < 4; b++) {
+      const row = rows[a * 4 + b];
+      const [x, y, z] = outputs.map((n) => row.values.get(n.id));
+      assert.equal(4 * x + 2 * y + z, a + b);
+      assert.equal(
+        row.values.get(gates.find((n) => n.number === 2).id),
+        a & 1 & (b & 1),
+      );
+      assert.ok([...row.values.values()].every((v) => v === 0 || v === 1));
+    }
+  assert.match(arithmeticReadout(graph, rows[15].values), /110₂（6）/);
+  // The readout uses actual output signals after edits, including incompleteness.
+  const changed = structuredClone(graph),
+    output = outputs.find((n) => n.label === "X");
+  changed.edges = changed.edges.filter((e) => e.to.node !== output.id);
+  assert.match(arithmeticReadout(changed, evaluate(changed)), /未接続/);
+});
+
+test("every new example survives JSON and shared-URL round trips with its input meanings, truth table and immutable source", async () => {
+  for (const example of circuitExamples) {
+    const graph = exampleCircuit(example.id),
+      pristine = structuredClone(graph);
+    const doc = circuitDocument(graph, example.name);
+    assert.deepEqual(parseDocument(documentJSON(doc)), doc);
+    const shared = await decodeShare(
+      await encodeShare(doc, "https://mei-chan-nel.com/lab/logic-circuit/"),
+    );
+    assert.deepEqual(shared, doc);
+    assert.deepEqual(
+      truthTable(shared.circuit).map((r) => [...r.values]),
+      truthTable(graph).map((r) => [...r.values]),
+    );
+    graph.nodes[0].value = 1;
+    graph.nodes[0].x += 80;
+    graph.edges.splice(0, 1);
+    assert.deepEqual(exampleCircuit(example.id), pristine);
   }
 });
 test("reconnecting an input replaces its old wire and cannot create feedback", () => {

@@ -279,6 +279,34 @@
   padding: 8px 10px;
   min-height: 38px;
 }
+.circuit-example-list button span {
+  display: block;
+  font-weight: 600;
+}
+.circuit-example-list button small {
+  display: block;
+  font-size: 0.64rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin-top: 3px;
+}
+.circuit-stage.complex-circuit {
+  height: clamp(400px, 60vh, 580px);
+}
+.circuit-calculation {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.83rem;
+  line-height: 1.7;
+  font-weight: 600;
+  background: #eaf2f6;
+  font-variant-numeric: tabular-nums;
+}
+.circuit-calculation[hidden] {
+  display: none;
+}
 .document-help,
 .document-description {
   color: var(--ink-soft);
@@ -889,6 +917,13 @@
   .circuit-stage {
     height: 320px;
     border-radius: 9px;
+  }
+  .circuit-stage.complex-circuit {
+    height: 380px;
+  }
+  .circuit-calculation {
+    font-size: 0.74rem;
+    padding: 7px 9px;
   }
   .circuit-status-line {
     align-items: flex-start;

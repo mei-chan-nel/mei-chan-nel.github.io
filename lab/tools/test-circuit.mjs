@@ -119,12 +119,21 @@ try {
       await node(page, "output", "X").locator(".input-value").textContent(),
       "1",
     );
-    await loadExample(page, "or", touch);
+    await loadExample(page, "xor", touch);
     x = await node(page, "output", "X").getAttribute("data-id");
-    assert.deepEqual(await values(page, x), ["0", "1", "1", "1"]);
-    await loadExample(page, "not", touch);
+    assert.deepEqual(await values(page, x), ["0", "1", "1", "0"]);
+    await loadExample(page, "full-adder", touch);
     x = await node(page, "output", "X").getAttribute("data-id");
-    assert.deepEqual(await values(page, x), ["1", "0"]);
+    assert.deepEqual(await values(page, x), [
+      "0",
+      "1",
+      "1",
+      "0",
+      "1",
+      "0",
+      "0",
+      "1",
+    ]);
     await page.locator("#clear-circuit").click();
     assert.equal(await node(page, "and").count(), 0);
     x = await node(page, "output", "X").getAttribute("data-id");

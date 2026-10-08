@@ -166,7 +166,7 @@ export function validCircuit(graph) {
       return false;
     if (
       node.meaning !== undefined &&
-      (node.type !== "output" ||
+      (!["input", "output"].includes(node.type) ||
         typeof node.meaning !== "string" ||
         node.meaning.length > 80)
     )

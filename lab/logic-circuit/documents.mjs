@@ -1,4 +1,5 @@
-import { validCircuit } from "./circuit.mjs?v=2";
+import { validCircuit } from "./circuit.mjs?v=4";
+import { circuitExamples } from "./examples.mjs?v=4";
 
 export const FORMAT = "interactive-lab-logic-circuit";
 export const FILE_BYTES = 100000;
@@ -34,7 +35,11 @@ export function validateDocument(value) {
     x: node.x,
     y: node.y,
     ...(node.type === "input"
-      ? { label: node.label, value: node.value }
+      ? {
+          label: node.label,
+          value: node.value,
+          ...(node.meaning ? { meaning: node.meaning } : {}),
+        }
       : node.type === "output"
         ? {
             label: node.label,
@@ -82,9 +87,13 @@ export function validateDocument(value) {
       nodes,
       edges,
       ...counters,
-      example: ["and", "or", "not", "xor", "adder", "blank"].includes(
-        graph.example,
-      )
+      example: [
+        "and",
+        "or",
+        "not",
+        "blank",
+        ...circuitExamples.map((e) => e.id),
+      ].includes(graph.example)
         ? graph.example
         : "",
     },
