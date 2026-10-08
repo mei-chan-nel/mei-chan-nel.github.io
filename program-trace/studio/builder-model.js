@@ -1,7 +1,7 @@
-import { parseProgram } from './parser.js';
-import { expressionText, parseExpression } from './expressions.js';
+import { parseProgram } from './parser.js?v=20261009-function-help3';
+import { expressionText, parseExpression } from './expressions.js?v=20261009-function-help3';
 import { LIMITS, StudioError, validName } from './errors.js';
-import { getBuiltin } from './builtins.js';
+import { getBuiltin, builtinRegistry } from './builtins.js';
 import { validateValue } from './values.js';
 export const rowId = () => `row-${crypto.randomUUID()}`;
 export const blankRow = () => ({ kind: 'blank', id: rowId(), comment: '' });
@@ -14,6 +14,7 @@ export const commandOptions = [
     ['assign', '値を設定する'], ['calculate', '計算する'], ['array', '配列を作る'], ['element', '配列の要素を変更する'],
     ['print', '表示する'], ['input', '外部から入力する'], ['if', '条件で分ける'], ['for', '範囲を決めて繰り返す'],
     ['while', '条件を満たす間繰り返す'], ['comment', 'メモを書く'],
+    ['define', '関数を定義する'], ['return', '値を返す'], ['call', '関数を呼び出す'],
 ];
 export function commandOf(node) {
     if (node.kind !== 'assign')
@@ -35,6 +36,9 @@ export function newCommand(command, indexBase = 0) {
         case 'for': return { ...base, kind: 'for', name: 'i', start: literal(1), end: literal(5), step: literal(1), direction: 1, body: [] };
         case 'while': return { ...base, kind: 'while', condition: { kind: 'binary', operator: '<', left: variable('i'), right: literal(5), column: 1 }, body: [] };
         case 'comment': return { ...base, kind: 'comment', text: '' };
+        case 'define': return { ...base, kind: 'define', name: '自作関数', parameters: [], body: [] };
+        case 'return': return { ...base, kind: 'return', expression: literal(0) };
+        case 'call': return { ...base, kind: 'call', expression: { kind: 'call', name: '自作関数', args: [literal(0)], column: 1 } };
     }
 }
 export function statement(node, elseif = false) {
@@ -48,6 +52,9 @@ export function statement(node, elseif = false) {
         case 'while': return `${expressionText(node.condition)} の間繰り返す：`;
         case 'comment': return `# ${node.text}`;
         case 'blank': return '';
+        case 'define': return `定義する ${node.name}(${node.parameters.join(', ')})：`;
+        case 'return': return `返す${node.expression ? ` ${expressionText(node.expression)}` : ''}`;
+        case 'call': return expressionText(node.expression);
     }
 }
 export function builderLines(document) {
@@ -154,7 +161,7 @@ export function validateBuilder(value) {
                 return { kind: 'binary', operator: String(value.operator), left: expression(value.left, depth + 1), right: expression(value.right, depth + 1), column };
             case 'call': {
                 const args = list(value.args, 128).map(item => expression(item, depth + 1)), callName = name(value.name);
-                if (getBuiltin(callName, args.length).effect !== 'value')
+                if (builtinRegistry.has(callName) && getBuiltin(callName, args.length).effect !== 'value')
                     return fail();
                 return { kind: 'call', name: callName, args, column };
             }
@@ -166,7 +173,7 @@ export function validateBuilder(value) {
             return fail();
         const target = { name: name(value.target.name), indices: list(value.target.indices, 2).map(item => expression(item)) };
         // Use the language's own target validation as well as the data shape.
-        parseExpression(`${target.name}${target.indices.length ? `[${target.indices.map(expressionText).join(', ')}]` : ''}`, 1);
+        parseExpression(target.name, 1);
         return { target, expression: expression(value.expression) };
     }
     function node(value, depth = 0, branch = false) {
@@ -202,6 +209,17 @@ export function validateBuilder(value) {
                     return fail();
                 return { ...base, kind: 'for', name: name(value.name), start: expression(value.start), end: expression(value.end), step: expression(value.step), direction: value.direction, body: body() };
             case 'while': return { ...base, kind: 'while', condition: expression(value.condition), body: body() };
+            case 'define':
+                if (depth || branch)
+                    return fail();
+                return { ...base, kind: 'define', name: name(value.name), parameters: list(value.parameters, LIMITS.variables).map(name), body: body() };
+            case 'return': return { ...base, kind: 'return', ...(value.expression === undefined ? {} : { expression: expression(value.expression) }) };
+            case 'call': {
+                const call = expression(value.expression);
+                if (call.kind !== 'call')
+                    return fail();
+                return { ...base, kind: 'call', expression: call };
+            }
             case 'comment': return { ...base, kind: 'comment', text: text(value.text) };
             case 'blank':
                 if (base.comment)

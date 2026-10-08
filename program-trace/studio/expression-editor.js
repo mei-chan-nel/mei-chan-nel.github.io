@@ -1,10 +1,10 @@
-import { element, button } from './dom.js';
-import { expressionText, valueExpression } from './expressions.js';
+import { element, button } from './dom.js?v=20261009-function-help3';
+import { expressionText, valueExpression } from './expressions.js?v=20261009-function-help3';
 import { builtinRegistry, getBuiltin } from './builtins.js';
 import { StudioError, LIMITS } from './errors.js';
-import { literal, variable } from './builder-model.js';
-import { readExpressionInput, normalizeExpressionInput, validateExpression } from './expression-input.js';
-import { openTapPad, tapControls } from './tap-controls.js';
+import { literal, variable } from './builder-model.js?v=20261009-function-help3';
+import { readExpressionInput, normalizeExpressionInput, validateExpression } from './expression-input.js?v=20261009-function-help3';
+import { openTapPad, tapControls } from './tap-controls.js?v=20261009-function-help3';
 let serial = 0;
 export function field(label, value, type = 'text') {
     const node = element('div', 'builder-field'), caption = element('label', '', label), input = element('input');
@@ -243,6 +243,9 @@ export function expressionEditor(initial, label, context, condition = false, exp
     for (const definition of builtinRegistry.values())
         if (definition.effect === 'value' && (expected !== 'collection' || definition.returnKind === 'array' || definition.returnKind === 'matrix'))
             functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
+    for (const definition of context.functions ?? [])
+        if (definition.returnsValue)
+            functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
     if (expected === 'collection') {
         operators.parentElement.hidden = true;
         comparisons.parentElement.hidden = true;
@@ -260,6 +263,13 @@ export function expressionEditor(initial, label, context, condition = false, exp
     }
     function functionConfig(name) {
         const area = config(`${name}()`);
+        const custom = context.functions?.find(fn => fn.name === name);
+        if (custom) {
+            const args = custom.parameters.map(parameter => expressionEditor(undefined, `引数 ${parameter}`, context));
+            area.append(...args.map(arg => arg.node));
+            confirmConfig(() => ({ kind: 'call', name, args: args.map(arg => arg.read()), column: 1 }));
+            return;
+        }
         if (name === '乱数') {
             const kind = selection('乱数の種類', [['整数', '整数'], ['実数', '実数']], '整数');
             const min = expressionEditor(literal(1), '最小値', context, false, 'scalar'), max = expressionEditor(literal(10), '最大値', context, false, 'scalar');

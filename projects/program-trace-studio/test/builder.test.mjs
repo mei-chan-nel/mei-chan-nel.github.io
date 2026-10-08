@@ -88,7 +88,7 @@ test('builder validation rejects corrupt or executable metadata and a mismatchin
   const deep = newCommand('for'); let tail = deep; for (let i = 0; i < 33; i++) { const next = newCommand('for'); tail.body.push(next); tail = next; }
   assert.throws(() => validateBuilder({ version: 1, nodes: [deep] }));
   assert.throws(() => validateDraft({ ...draft(model), source: 'x = 900' }), /一致/u);
-  assert.throws(() => modelFromSource('定義する test(n)\n  返す n'));
+  assert.throws(() => modelFromSource('定義する test(n)\n  定義する nested()\n    返す n'));
   // An unfinished draft has metadata as well as source. Never export a file the importer cannot read.
   const large = newCommand('array'); large.assignments[0].expression.items = Array.from({ length: 1000 }, () => ({ kind: 'binary', operator: '+', left: literal(0), right: literal(0), column: 1 }));
   assert.throws(() => documentJSON(draft({ version: 1, nodes: [large, newCommand('if')] })), /300KB/u);
@@ -119,9 +119,10 @@ test('AI instructions remain discoverable and their example files import as edit
   for (const label of ['ブラウザ内に保存', 'ブラウザ内から読込', 'ファイルに書出', 'ファイルから読込']) assert.ok(body.includes(label));
   const schema = JSON.parse(await readFile(new URL('ai-guide.json', root), 'utf8'));
   assert.equal(schema.properties.format.const, 'mei-program-studio'); assert.ok(!('builder' in schema.properties));
+  const expectedLastOutput = { '2つの値の合計': '合計は7です。', '年齢で分岐する': '成人です。', 'フィボナッチ数列（再帰）': 'F(9) = 34', '戻り値なしの関数': '処理を始めます。' };
   for (const example of schema.examples) {
     const file = parseDocument(JSON.stringify(example)); const model = modelFromDraft(file); assertReady(model);
     for (const name of parseProgram(file.source).inputNames) assert.deepEqual(file.settings.inputs[name], { ...defaultInput(), min: 0, max: 120 });
-    const result = execute(builderSource(model), { age: 18 }, file.settings); assert.equal(result.output.at(-1), example.title.includes('年齢') ? '成人です。' : '合計は7です。');
+    const result = execute(builderSource(model), { age: 18 }, file.settings); assert.equal(result.output.at(-1), expectedLastOutput[example.title]);
   }
 });

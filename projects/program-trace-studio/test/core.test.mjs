@@ -115,7 +115,7 @@ for (const [source, line, match] of [
   ['x = 0\n# 配列の形が不正\nA = [[1], [2, 3]]', 3, /列数/],
   ['x = 9007199254740991\nx = x + 1', 2, /正確/], ['x = 2 ** 1024', 1, /数値/],
   ['もし 真 ならば：\n表示する(1)', 1, /字下げ/], ['そうでなければ：\n  x = 1', 1, /対応/],
-  ['x = alert(1)', 1, /使えません/], ['x = 表示する(1)', 1, /式/], ['定義する f(n)\n  返す n', 1, /独自/],
+  ['x = alert(1)', 1, /使えません/], ['x = 表示する(1)', 1, /式/], ['返す 1', 1, /関数/],
   ['i を 1 から 5 まで 0 ずつ増やしながら繰り返す：\n  x = 1', 1, /1以上/], ['constructor = 1', 1, /値|変数/],
 ]) test(`diagnostic: ${source.split('\n')[0]}`, () => { assert.throws(() => execute(source), error => error.line === line && match.test(error.message)); });
 test('infinite loops, too much output, oversized source stop with bounded errors', () => {
