@@ -1,3 +1,4 @@
+import "./build-render-worker.mjs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { groups, contents } from "../catalog.mjs";
 import { renderPage } from "./shell.mjs";

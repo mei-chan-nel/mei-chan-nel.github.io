@@ -25,18 +25,16 @@ const sizes = [
   4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024,
 ];
 async function resolution(page, index) {
-  const target = sizes[index];
-  for (let i = 0; i < 16; i++) {
-    const current = Number(
-      (await page.locator("#resolution-label").innerText()).split(" × ")[0],
-    );
-    if (current === target) return;
-    const button = page.locator(
-      current < target ? "#resolution-up" : "#resolution-down",
-    );
-    if (await button.isDisabled()) return;
-    await button.click();
-  }
+  await page.locator("#resolution").evaluate(
+    (input, { index, sizes }) => {
+      const max = sizes.findLastIndex(
+        (n) => n <= document.querySelector("#source-canvas").width,
+      );
+      input.value = Math.round((Math.min(index, max) / max) * 1000) || 0;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    },
+    { index, sizes },
+  );
 }
 async function bits(page, channel, value) {
   for (let i = 0; i < 8; i++) {
@@ -57,9 +55,13 @@ async function pixelValues(page) {
     );
 }
 try {
-  for (const width of [1280, 390, 320]) {
+  for (const { width, height } of [
+    { width: 1280, height: 720 },
+    { width: 390, height: 844 },
+    { width: 320, height: 740 },
+  ]) {
     const context = await browser.newContext({
-      viewport: { width, height: 900 },
+      viewport: { width, height },
       hasTouch: width < 600,
       reducedMotion: "reduce",
     });
@@ -89,6 +91,47 @@ try {
     );
     await page.locator('a[href="./digital-image/"]').click();
     await waitText(page, "#metric-pixels", "4,096");
+    await page.waitForTimeout(100);
+    const visible = await page.evaluate(() =>
+      [".image-controls", ".image-comparison", ".image-metrics"].map((s) => ({
+        selector: s,
+        bottom: document.querySelector(s).getBoundingClientRect().bottom,
+      })),
+    );
+    for (const r of visible)
+      assert.ok(
+        r.bottom <= height + 1,
+        `${r.selector} below viewport at ${width}x${height}: ${r.bottom}`,
+      );
+    assert.ok(await page.locator("#show-grid").isChecked());
+    assert.ok(
+      await page.locator("#source-grid").evaluate((c) =>
+        c
+          .getContext("2d")
+          .getImageData(0, 0, c.width, c.height)
+          .data.some((v, i) => i % 4 === 3 && v > 0),
+      ),
+    );
+    await page.uncheck("#show-grid");
+    assert.ok(
+      await page.locator("#source-grid").evaluate((c) =>
+        c
+          .getContext("2d")
+          .getImageData(0, 0, c.width, c.height)
+          .data.every((v, i) => i % 4 !== 3 || v === 0),
+      ),
+    );
+    await page.check("#show-grid");
+    await page.locator("#resolution").evaluate((input) => {
+      input.value = 430;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    assert.equal(await page.locator("#resolution").inputValue(), "430");
+    await page.locator("#resolution").focus();
+    await page.keyboard.press("ArrowRight");
+    await waitText(page, "#metric-pixels", "9,216");
+    await resolution(page, 6);
+    await waitText(page, "#metric-pixels", "4,096");
     const sourceBefore = await page
       .locator("#source-canvas")
       .evaluate((c) => c.toDataURL());
@@ -104,6 +147,10 @@ try {
       });
     await resolution(page, 0);
     await waitText(page, "#metric-pixels", "16画素");
+    assert.equal(
+      await page.locator("#source-grid").getAttribute("data-cells"),
+      "4",
+    );
     await bits(page, "r", 2);
     await bits(page, "g", 2);
     await bits(page, "b", 2);
@@ -142,9 +189,7 @@ try {
     );
     assert.equal(
       await page
-        .locator(
-          "#pixel-inspector, .image-notes, input[type=range], select, #link-bits",
-        )
+        .locator("#pixel-inspector, .image-notes, select, #link-bits")
         .count(),
       0,
     );
@@ -235,7 +280,10 @@ try {
     assert.deepEqual(await pixelValues(page), uploaded);
     await resolution(page, 14);
     await waitText(page, "#metric-pixels", "1,024画素");
-    assert.ok(await page.locator("#resolution-up").isDisabled());
+    assert.equal(
+      await page.locator("#output-canvas").getAttribute("width"),
+      "32",
+    );
     await page.addScriptTag({ path: axePath });
     const result = await page.evaluate(() =>
       axe.run({
@@ -253,7 +301,7 @@ try {
       [],
     );
     console.log(
-      `PASS ${width}px: controls, RGB, grayscale, data size, hold/release, reset, keyboard/touch, zoom, image upload, accessibility`,
+      `PASS ${width}px: controls, RGB, grayscale, viewport fit, sampling grid, data size, hold/release, reset, keyboard/touch, zoom, image upload, accessibility`,
     );
     await context.close();
   }
@@ -261,7 +309,9 @@ try {
   const page = await browser.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("request", (r) =>
-    errors.push("Standalone external request: " + r.url()),
+    r.url().startsWith("blob:") || r.url().startsWith("data:")
+      ? undefined
+      : errors.push("Standalone external request: " + r.url()),
   );
   await page.setContent(
     await readFile(
@@ -281,6 +331,18 @@ try {
   await resolution(page, 14);
   await waitText(page, "#metric-pixels", "1,048,576画素");
   await waitText(page, "#metric-size", "384 KiB");
+  await page.locator("#resolution").evaluate((input) => {
+    for (const value of [0, 1000, 80, 850, 72]) {
+      input.value = value;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  });
+  await waitText(page, "#metric-pixels", "64画素");
+  assert.equal(
+    await page.locator("#source-grid").getAttribute("data-cells"),
+    "8",
+  );
+  assert.equal(await page.locator("#output-canvas").getAttribute("width"), "8");
   await page.close();
   assert.deepEqual(errors, []);
   console.log(

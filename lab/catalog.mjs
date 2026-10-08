@@ -43,8 +43,8 @@ export const contents = [
   {
     id: "digital-image",
     group: "digital-representation",
-    styles: ["image.css?v=2"],
-    scripts: ["image.mjs?v=2"],
+    styles: ["image.css?v=3"],
+    scripts: ["image.mjs?v=3"],
     name: "画像のデジタル化",
     description:
       "画素数と量子化ビット数を変えて、元画像と見比べる。RGBの各成分も表示できます。",

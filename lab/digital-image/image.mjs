@@ -4,6 +4,7 @@ import {
   averagePixels,
   convertPixels,
 } from "./pixels.mjs";
+import { renderWorkerSource } from "./render-source.mjs";
 const $ = (id) => document.getElementById(id);
 const source = $("source-canvas"),
   output = $("output-canvas");
@@ -15,6 +16,7 @@ const state = {
   grayBits: 8,
   channel: "rgb",
   index: 6,
+  slider: 429,
 };
 let integral,
   averages,
@@ -23,7 +25,62 @@ let integral,
   announceTimer,
   imageVersion = 0,
   zoomKind,
-  maxResolution = resolutions.length - 1;
+  maxResolution = resolutions.length - 1,
+  renderedSize = 64,
+  sourceVersion = 0,
+  renderId = 0,
+  busy = false,
+  readyVersion = 0,
+  pendingSource,
+  pendingRender,
+  worker;
+let workerUrl;
+try {
+  workerUrl = URL.createObjectURL(
+    new Blob([renderWorkerSource], { type: "text/javascript" }),
+  );
+  worker = new Worker(workerUrl);
+  worker.onmessage = ({ data }) => {
+    busy = false;
+    if (data.type === "ready") {
+      readyVersion = data.version;
+      if (workerUrl) {
+        URL.revokeObjectURL(workerUrl);
+        workerUrl = undefined;
+      }
+    } else if (data.version === sourceVersion && data.id === renderId)
+      applyFrame(data);
+    pump();
+  };
+  worker.onerror = (event) => {
+    event.preventDefault();
+    worker.terminate();
+    worker = undefined;
+    if (workerUrl) URL.revokeObjectURL(workerUrl);
+    integral = integralImage(
+      sourceContext.getImageData(0, 0, source.width, source.height).data,
+      source.width,
+      source.height,
+    );
+    averages = undefined;
+    lastSize = undefined;
+    schedule();
+  };
+} catch {
+  if (workerUrl) URL.revokeObjectURL(workerUrl);
+}
+function pump() {
+  if (!worker || busy) return;
+  if (pendingSource) {
+    busy = true;
+    worker.postMessage(pendingSource, [pendingSource.pixels.buffer]);
+    pendingSource = undefined;
+  } else if (pendingRender && readyVersion === sourceVersion) {
+    busy = true;
+    worker.postMessage(pendingRender);
+    pendingRender = undefined;
+  }
+}
 const number = (v) => v.toLocaleString("ja-JP");
 function makeSample() {
   source.width = source.height = 1024;
@@ -71,16 +128,29 @@ function makeSample() {
   refreshSource();
 }
 function refreshSource() {
-  integral = integralImage(
-    sourceContext.getImageData(0, 0, source.width, source.height).data,
+  sourceVersion++;
+  const pixels = sourceContext.getImageData(
+    0,
+    0,
     source.width,
     source.height,
-  );
+  ).data;
+  if (worker) {
+    pendingSource = {
+      type: "source",
+      version: sourceVersion,
+      pixels,
+      width: source.width,
+      height: source.height,
+    };
+    pump();
+  } else integral = integralImage(pixels, source.width, source.height);
   averages = undefined;
   lastSize = undefined;
-  const max = resolutions.findLastIndex((n) => n <= source.width);
-  maxResolution = max;
-  state.index = Math.min(state.index, max);
+  maxResolution = resolutions.findLastIndex((n) => n <= source.width);
+  state.index = Math.min(state.index, maxResolution);
+  state.slider = Math.round((state.index / maxResolution) * 1000) || 0;
+  syncControls();
   schedule();
 }
 function schedule() {
@@ -94,8 +164,12 @@ function syncControls() {
   const gray = state.mode === "gray";
   $("resolution-label").textContent =
     `${resolutions[state.index]} × ${resolutions[state.index]}`;
-  $("resolution-down").disabled = state.index === 0;
-  $("resolution-up").disabled = state.index === maxResolution;
+  $("resolution").value = state.slider;
+  $("resolution").disabled = maxResolution === 0;
+  $("resolution").setAttribute(
+    "aria-valuetext",
+    `${resolutions[state.index]} × ${resolutions[state.index]}画素`,
+  );
   $("color-bits").hidden = gray;
   $("gray-bits").hidden = !gray;
   $("channel-control").hidden = gray;
@@ -111,16 +185,32 @@ function syncControls() {
   }
 }
 function render() {
-  if (!integral) return;
   const size = resolutions[state.index];
+  const settings = { ...state, bits: [...state.bits] };
+  const request = {
+    type: "render",
+    id: ++renderId,
+    version: sourceVersion,
+    size,
+    settings,
+  };
+  if (worker) {
+    pendingRender = request;
+    pump();
+    return;
+  }
+  if (!integral) return;
   if (size !== lastSize || !averages) {
     averages = averagePixels(integral, size);
     lastSize = size;
   }
-  const pixelData = convertPixels(averages, state);
+  applyFrame({ ...request, pixels: convertPixels(averages, settings) });
+}
+function applyFrame({ size, settings: state, pixels: pixelData }) {
   output.width = output.height = size;
   outputContext.putImageData(new ImageData(pixelData, size, size), 0, 0);
-  syncControls();
+  renderedSize = size;
+  drawSourceGrid();
   const gray = state.mode === "gray";
   const bits = gray ? state.grayBits : state.bits.reduce((a, b) => a + b, 0),
     pixels = size * size,
@@ -131,16 +221,16 @@ function render() {
   $("levels-title").textContent = gray ? "明るさの段階数" : "表現できる色数";
   $("metric-levels").textContent =
     `${number(2 ** bits)}${gray ? "段階" : "色"}`;
-  $("metric-bits").innerHTML =
-    `${bits} bit${gray ? "" : `<small>R ${state.bits[0]} + G ${state.bits[1]} + B ${state.bits[2]}</small>`}`;
+  $("metric-bits").innerHTML = `${bits} bit`;
   const scaled =
     bytes >= 1048576
       ? `${(bytes / 1048576).toLocaleString("ja-JP", { maximumFractionDigits: 2 })} MiB`
       : bytes >= 1024
         ? `${(bytes / 1024).toLocaleString("ja-JP", { maximumFractionDigits: 2 })} KiB`
         : `${number(bytes)} B`;
-  $("metric-size").innerHTML =
-    `${scaled}<small>${number(pixels)} × ${bits} ÷ 8 = ${number(bytes)} B</small>`;
+  $("metric-size").textContent = scaled;
+  $("metric-size").title =
+    `${number(pixels)} × ${bits} ÷ 8 = ${number(bytes)} B`;
   if ($("image-zoom").open) drawZoom();
   clearTimeout(announceTimer);
   announceTimer = setTimeout(() => {
@@ -149,9 +239,7 @@ function render() {
   }, 250);
 }
 function adjust(control, step) {
-  if (control === "resolution")
-    state.index = Math.max(0, Math.min(maxResolution, state.index + step));
-  else if (control === "gray")
+  if (control === "gray")
     state.grayBits = Math.max(1, Math.min(8, state.grayBits + step));
   else {
     const c = "rgb".indexOf(control);
@@ -160,6 +248,29 @@ function adjust(control, step) {
   syncControls();
   schedule();
 }
+$("resolution").addEventListener("input", (event) => {
+  state.slider = Number(event.target.value);
+  const index = Math.round((state.slider / 1000) * maxResolution);
+  if (index !== state.index) {
+    state.index = index;
+    syncControls();
+    schedule();
+  }
+});
+$("resolution").addEventListener("keydown", (event) => {
+  const steps = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 };
+  if (!(event.key in steps) && !["Home", "End"].includes(event.key)) return;
+  event.preventDefault();
+  state.index =
+    event.key === "Home"
+      ? 0
+      : event.key === "End"
+        ? maxResolution
+        : Math.max(0, Math.min(maxResolution, state.index + steps[event.key]));
+  state.slider = Math.round((state.index / maxResolution) * 1000) || 0;
+  syncControls();
+  schedule();
+});
 // A short tap changes one step; holding repeats. Release/cancel/blur always stop.
 let stopRepeat = () => {};
 for (const button of document.querySelectorAll("button[data-control]")) {
@@ -234,12 +345,103 @@ $("reset-settings").onclick = () => {
     grayBits: 8,
     channel: "rgb",
     index: Math.min(6, maxResolution),
+    slider:
+      Math.round((Math.min(6, maxResolution) / maxResolution) * 1000) || 0,
   });
   document.querySelector('input[name="mode"][value="color"]').checked = true;
   document.querySelector('input[name="channel"][value="rgb"]').checked = true;
   syncControls();
   schedule();
 };
+function gridLines(context, physicalSize, displaySize) {
+  if (!$("show-grid").checked || !renderedSize) return;
+  const step = physicalSize / renderedSize;
+  const density = Math.min(1, displaySize / renderedSize / 6);
+  context.beginPath();
+  for (let i = 1; i < renderedSize; i++) {
+    const p = i * step;
+    context.moveTo(p, 0);
+    context.lineTo(p, physicalSize);
+    context.moveTo(0, p);
+    context.lineTo(physicalSize, p);
+  }
+  const scale = physicalSize / displaySize;
+  context.lineWidth = 1.6 * scale;
+  context.strokeStyle = `rgba(255,255,255,${0.38 * density})`;
+  context.stroke();
+  context.lineWidth = 0.7 * scale;
+  context.strokeStyle = `rgba(16,47,53,${0.42 * density})`;
+  context.stroke();
+}
+function drawSourceGrid() {
+  const canvas = $("source-grid"),
+    box = source.getBoundingClientRect(),
+    width = box.width;
+  if (!width) return;
+  const pixels = Math.max(
+    1,
+    Math.round(width * Math.min(2, devicePixelRatio || 1)),
+  );
+  canvas.dataset.cells = renderedSize;
+  canvas.width = canvas.height = pixels;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, pixels, pixels);
+  gridLines(context, pixels, width);
+}
+$("show-grid").onchange = () => {
+  drawSourceGrid();
+  if ($("image-zoom").open) drawZoom();
+};
+function fitViewport() {
+  const lab = document.querySelector(".image-lab"),
+    comparison = document.querySelector(".image-comparison");
+  const controls = document.querySelector(".image-controls"),
+    metrics = document.querySelector(".image-metrics");
+  const stacked = matchMedia("(max-width:820px)").matches;
+  const chrome = Math.max(
+    ...Array.from(
+      comparison.querySelectorAll(".image-figure"),
+      (figure) =>
+        figure.querySelector("figcaption").getBoundingClientRect().height +
+        figure.querySelector(".image-caption").getBoundingClientRect().height +
+        10,
+    ),
+  );
+  const top = lab.getBoundingClientRect().top + scrollY;
+  const available =
+    innerHeight -
+    top -
+    metrics.getBoundingClientRect().height -
+    chrome -
+    22 -
+    (stacked ? controls.getBoundingClientRect().height + 10 : 0);
+  const width =
+    (comparison.getBoundingClientRect().width - (stacked ? 10 : 14)) / 2;
+  const size = Math.round(
+    Math.max(stacked ? 112 : 144, Math.min(width, available)),
+  );
+  const value = `${size}px`;
+  if (lab.style.getPropertyValue("--picture-size") !== value)
+    lab.style.setProperty("--picture-size", value);
+}
+new ResizeObserver(drawSourceGrid).observe(source);
+let fitFrame;
+const fitObserver = new ResizeObserver(() => {
+  if (!fitFrame)
+    fitFrame = requestAnimationFrame(() => {
+      fitFrame = undefined;
+      fitViewport();
+    });
+});
+for (const selector of [
+  ".image-controls",
+  ".image-metrics",
+  ".image-comparison",
+])
+  fitObserver.observe(document.querySelector(selector));
+window.addEventListener("resize", fitViewport);
+fitViewport();
+
 function drawZoom() {
   const canvas = $("zoom-canvas"),
     c = canvas.getContext("2d");
@@ -247,12 +449,14 @@ function drawZoom() {
   c.clearRect(0, 0, 1024, 1024);
   c.drawImage(zoomKind === "source" ? source : output, 0, 0, 1024, 1024);
   canvas.style.imageRendering = zoomKind === "source" ? "auto" : "pixelated";
+  if (zoomKind === "source")
+    gridLines(c, 1024, canvas.getBoundingClientRect().width || 600);
 }
 function openZoom(kind) {
   zoomKind = kind;
   $("zoom-title").textContent = kind === "source" ? "元画像" : "デジタル化後";
-  drawZoom();
   $("image-zoom").showModal();
+  drawZoom();
 }
 $("zoom-source").onclick = () => openZoom("source");
 $("zoom-output").onclick = () => openZoom("output");

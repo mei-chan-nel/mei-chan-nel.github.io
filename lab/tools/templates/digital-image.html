@@ -1,8 +1,16 @@
 <header class="image-heading">
   <h1>画像のデジタル化</h1>
   <div class="image-actions">
-    <button type="button" id="choose-image">画像を変更</button
-    ><button type="button" id="reset-settings">初期設定に戻す</button>
+    <button type="button" id="choose-image" aria-label="画像を変更">
+      <span class="wide-label">画像を変更</span
+      ><span class="short-label" aria-hidden="true">画像</span></button
+    ><button
+      type="button"
+      id="reset-settings"
+      aria-label="リセット（初期設定に戻す）"
+    >
+      リセット
+    </button>
   </div>
 </header>
 <section
@@ -12,32 +20,19 @@
 >
   <div class="image-controls">
     <div class="resolution-control control-panel">
-      <span id="resolution-heading" class="control-label">画素数</span>
-      <div
-        class="stepper resolution-stepper"
-        role="group"
-        aria-labelledby="resolution-heading"
-      >
-        <button
-          type="button"
-          id="resolution-down"
-          data-control="resolution"
-          data-step="-1"
-          aria-label="画素数を一段階減らす"
-        >
-          −</button
-        ><output aria-live="off" id="resolution-label" aria-label="現在の画素数"
-          >64 × 64</output
-        ><button
-          type="button"
-          id="resolution-up"
-          data-control="resolution"
-          data-step="1"
-          aria-label="画素数を一段階増やす"
-        >
-          ＋
-        </button>
+      <div class="resolution-caption">
+        <label id="resolution-heading" for="resolution">画素数</label
+        ><output aria-live="off" id="resolution-label">64 × 64</output>
       </div>
+      <input
+        id="resolution"
+        type="range"
+        min="0"
+        max="1000"
+        step="1"
+        value="429"
+        aria-labelledby="resolution-heading"
+      />
     </div>
     <div
       class="color-settings control-panel"
@@ -199,7 +194,9 @@
     <figure class="image-figure">
       <figcaption>
         <h2>元画像</h2>
-        <span aria-hidden="true">拡大 ↗</span>
+        <label class="grid-toggle"
+          ><input type="checkbox" id="show-grid" checked />グリッド</label
+        >
       </figcaption>
       <button
         type="button"
@@ -212,7 +209,8 @@
           width="1024"
           height="1024"
           aria-label="デジタル化の元となる画像"
-        ></canvas>
+        ></canvas
+        ><canvas id="source-grid" aria-hidden="true"></canvas>
       </button>
       <p class="image-caption" id="source-caption">サンプル画像</p>
     </figure>
