@@ -52,7 +52,7 @@ export const contents = [
   {
     id: "logic-circuit",
     group: "digital-representation",
-    styles: ["circuit.css?v=6"],
+    styles: ["circuit.css?v=7"],
     scripts: ["editor.mjs?v=6"],
     name: "論理回路をつくる",
     description:
