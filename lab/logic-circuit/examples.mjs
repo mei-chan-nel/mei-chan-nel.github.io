@@ -1,3 +1,13 @@
+export const circuitExamples = Object.freeze(
+  [
+    { id: "and", name: "論理積（AND）" },
+    { id: "or", name: "論理和（OR）" },
+    { id: "not", name: "否定（NOT）" },
+    { id: "xor", name: "排他的論理和" },
+    { id: "adder", name: "半加算器" },
+  ].map(Object.freeze),
+);
+
 export function exampleCircuit(type, width = 900, height = 340) {
   const nodes = [],
     edges = [];

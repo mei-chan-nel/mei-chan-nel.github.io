@@ -7,8 +7,9 @@ import {
   exportFilename,
   fingerprint,
   FILE_BYTES,
-} from "./documents.mjs";
+} from "./documents.mjs?v=3";
 import { encodeShare, decodeShare, isCircuitShare } from "./sharing.mjs";
+import { circuitExamples } from "./examples.mjs?v=3";
 
 const $ = (id) => document.getElementById(id);
 const errorText = (error) =>
@@ -20,13 +21,20 @@ const element = (tag, className, text) => {
   return node;
 };
 
-export function installDocumentControls({ read, replace, cancel, message }) {
+export function installDocumentControls({
+  read,
+  replace,
+  makeExample,
+  cancel,
+  message,
+}) {
   let storage,
     storageError = "",
     savedId,
     shared = false,
     draftUnavailable = false,
-    previousDraft;
+    previousDraft,
+    previousRecordId;
   let pendingLoad,
     pendingExport,
     generation = 0;
@@ -63,7 +71,7 @@ export function installDocumentControls({ read, replace, cancel, message }) {
   function autosave() {
     if (shared || !storage || draftUnavailable) return;
     try {
-      storage.saveDraft(current());
+      storage.saveDraft(current(), savedId);
     } catch {
       /* Named saves report storage failures; file export remains available. */
     }
@@ -73,6 +81,7 @@ export function installDocumentControls({ read, replace, cancel, message }) {
     draftUnavailable = false;
     shared = false;
     previousDraft = undefined;
+    previousRecordId = undefined;
     clearShareLocation();
     showShared();
     autosave();
@@ -85,14 +94,20 @@ export function installDocumentControls({ read, replace, cancel, message }) {
     cancel();
     if (fromShare && !shared) {
       try {
-        previousDraft = storage?.draft() ?? null;
+        const previous = storage?.draftState();
+        previousDraft = previous?.document ?? null;
+        previousRecordId = previous?.legacy
+          ? savedId
+          : (previous?.recordId ?? undefined);
       } catch {
         previousDraft = null;
+        previousRecordId = undefined;
       }
     }
     shared = fromShare;
     if (!shared) {
       previousDraft = undefined;
+      previousRecordId = undefined;
       if (!preserveLocation) clearShareLocation();
     }
     savedId = id;
@@ -233,6 +248,19 @@ export function installDocumentControls({ read, replace, cancel, message }) {
       formError("load-dialog", errorText(error));
     }
   }
+  function renderExamples() {
+    const list = $("circuit-example-list");
+    for (const example of circuitExamples) {
+      const button = element("button", "", example.name);
+      button.type = "button";
+      button.dataset.example = example.id;
+      button.onclick = () =>
+        confirmLoad(circuitDocument(makeExample(example.id), example.name), {
+          write: true,
+        });
+      list.append(button);
+    }
+  }
   async function receiveLocation() {
     if (!isCircuitShare(location.hash)) return;
     const token = ++generation;
@@ -325,7 +353,8 @@ export function installDocumentControls({ read, replace, cancel, message }) {
     }
   };
   $("restore-own-circuit").onclick = () => {
-    if (previousDraft) confirmLoad(previousDraft, { write: true });
+    if (previousDraft)
+      confirmLoad(previousDraft, { id: previousRecordId, write: true });
   };
   $("share-circuit").onclick = async () => {
     cancel();
@@ -401,20 +430,30 @@ export function installDocumentControls({ read, replace, cancel, message }) {
     cancel();
     autosave();
   });
+  renderExamples();
 
   return {
     edited,
     start() {
       try {
-        const draft = storage?.draft();
+        const draft = storage?.draftState();
         if (draft) {
-          apply(draft, { preserveLocation: true });
+          apply(draft.document, {
+            id: draft.recordId ?? undefined,
+            preserveLocation: true,
+          });
           try {
-            savedId = storage
-              .list()
-              .find(
-                (record) => fingerprint(record.document) === fingerprint(draft),
+            const records = storage.list();
+            if (draft.legacy) {
+              savedId = records.find(
+                (record) =>
+                  fingerprint(record.document) === fingerprint(draft.document),
               )?.id;
+            } else if (
+              savedId &&
+              !records.some((record) => record.id === savedId)
+            )
+              savedId = undefined;
           } catch {}
         }
       } catch (error) {

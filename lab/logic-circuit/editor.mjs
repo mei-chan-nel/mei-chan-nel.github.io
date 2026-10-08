@@ -6,8 +6,8 @@ import {
   truthTable,
 } from "./circuit.mjs?v=2";
 import { symbol, portOffset, miniSymbol } from "./symbols.mjs";
-import { exampleCircuit } from "./examples.mjs";
-import { installDocumentControls } from "./document-ui.mjs";
+import { exampleCircuit } from "./examples.mjs?v=3";
+import { installDocumentControls } from "./document-ui.mjs?v=3";
 
 const $ = (id) => document.getElementById(id);
 const board = $("circuit-board"),
@@ -472,7 +472,6 @@ function render() {
   for (const type of ["input", "output"])
     document.querySelector(`[data-part="${type}"]`).disabled =
       graph.nodes.filter((n) => n.type === type).length >= 4;
-  $("circuit-example").value = graph.example || "";
   clearTimeout(announcementTimer);
   announcementTimer = setTimeout(() => {
     $("circuit-announcement").textContent = graph.nodes
@@ -884,20 +883,6 @@ $("clear-circuit").onclick = () => {
   camera.zoom = 1;
   updateCamera();
 };
-$("circuit-example").onchange = (event) => {
-  const type = event.target.value;
-  if (!type) return;
-  const before = clone(graph);
-  cancelGesture();
-  graph = exampleCircuit(type, stage.clientWidth, stage.clientHeight);
-  remember(before);
-  selected = undefined;
-  pendingPort = undefined;
-  render();
-  fitAll();
-  save();
-  message("入力を切り替えて、途中の値と出力を見比べられます。", false, true);
-};
 
 graph = exampleCircuit("and", stage.clientWidth, stage.clientHeight);
 render();
@@ -905,6 +890,8 @@ updateCamera();
 new ResizeObserver(() => updateCamera()).observe(stage);
 documentTools = installDocumentControls({
   read: () => graph,
+  makeExample: (type) =>
+    exampleCircuit(type, stage.clientWidth, stage.clientHeight),
   replace: (incoming) => {
     graph = incoming;
     selected = pendingPort = undefined;

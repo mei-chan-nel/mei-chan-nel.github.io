@@ -62,6 +62,13 @@ async function chooseFile(page, buffer) {
     await chooser
   ).setFiles({ name: "circuit.json", mimeType: "application/json", buffer });
 }
+async function loadExample(page, type, touch = false) {
+  const press = async (selector) =>
+    touch ? page.locator(selector).tap() : page.locator(selector).click();
+  await press("#load-circuit");
+  await press(`#circuit-example-list [data-example="${type}"]`);
+  await press('#confirm-form button[type="submit"]');
+}
 let sharingURL, sharedDocument;
 try {
   for (const width of [1280, 390, 320]) {
@@ -79,10 +86,15 @@ try {
     await page.goto(base + "/lab/logic-circuit/");
     await until(page, '.circuit-node[data-type="and"]');
     await page.addScriptTag({ path: axePath });
-    await page.locator("#circuit-example").selectOption("adder");
+    assert.equal(await page.locator("#circuit-example").count(), 0);
+    await press("#load-circuit");
+    assert.equal(await page.locator("#circuit-example-list button").count(), 5);
+    await audit(page);
+    await press("#load-dialog [data-close-circuit-dialog]");
+    await loadExample(page, "adder", touch);
     await page.locator("#circuit-name").fill(`半加算器 ${width}`);
     await press('tr[data-row="3"]');
-    const initial = JSON.parse(await stored(page, DRAFT_KEY));
+    const initial = parseDocument(await stored(page, DRAFT_KEY));
     await press("#save-circuit");
     await audit(page);
     await press("#save-submit");
@@ -92,6 +104,9 @@ try {
     // An edit can overwrite the selected record; copying preserves the original.
     await page.locator('.circuit-node[data-type="not"] .node-body').focus();
     await page.keyboard.press("ArrowRight");
+    await page.reload();
+    await until(page, '.circuit-node[data-type="not"]');
+    await page.addScriptTag({ path: axePath });
     await press("#save-circuit");
     assert.match(await page.locator("#save-submit").textContent(), /上書き/);
     await press("#save-submit");
@@ -127,7 +142,7 @@ try {
     );
     const text = await readFile(await download.path(), "utf8"),
       exported = parseDocument(text);
-    assert.deepEqual(exported, JSON.parse(await stored(page, DRAFT_KEY)));
+    assert.deepEqual(exported, parseDocument(await stored(page, DRAFT_KEY)));
     assert.ok(!text.includes(overwritten[0].id));
 
     await press("#clear-circuit");
@@ -154,7 +169,8 @@ try {
     await chooseFile(page, Buffer.from(text));
     await until(page, "#confirm-dialog[open]");
     await press('#confirm-form button[type="submit"]');
-    assert.deepEqual(JSON.parse(await stored(page, DRAFT_KEY)), exported);
+    assert.deepEqual(parseDocument(await stored(page, DRAFT_KEY)), exported);
+    assert.equal(JSON.parse(await stored(page, DRAFT_KEY)).recordId, null);
     assert.equal(
       await page.locator('.circuit-node[data-type="branch"]').count(),
       3,
@@ -247,7 +263,7 @@ try {
       .first()
       .click();
     await press('#confirm-form button[type="submit"]');
-    assert.deepEqual(JSON.parse(await stored(page, DRAFT_KEY)), exported);
+    assert.deepEqual(parseDocument(await stored(page, DRAFT_KEY)), exported);
     await press("#load-circuit");
     const oldRow = page
       .locator(".saved-circuit-item")
@@ -259,9 +275,55 @@ try {
     await press("#load-dialog [data-close-circuit-dialog]");
     sharingURL = url;
     sharedDocument = exported;
+    // Identical name/content must not attach an example to an owned record.
+    await loadExample(page, "and", touch);
+    await press("#save-circuit");
+    assert.doesNotMatch(
+      await page.locator("#save-submit").textContent(),
+      /上書き/,
+    );
+    await press("#save-submit");
+    const beforeExample = await stored(page, SAVED_KEY);
+    const originalAnd = JSON.parse(beforeExample).find(
+      (record) => record.document.title === "論理積（AND）",
+    );
+    await loadExample(page, "and", touch);
+    assert.equal(JSON.parse(await stored(page, DRAFT_KEY)).recordId, null);
+    assert.deepEqual(
+      parseDocument(await stored(page, DRAFT_KEY)),
+      originalAnd.document,
+    );
+    await page.reload();
+    await press("#save-circuit");
+    assert.doesNotMatch(
+      await page.locator("#save-submit").textContent(),
+      /上書き/,
+    );
+    await press("#save-dialog [data-close-circuit-dialog]");
+    await press('tr[data-row="3"]');
+    await page.reload();
+    await press("#save-circuit");
+    assert.doesNotMatch(
+      await page.locator("#save-submit").textContent(),
+      /上書き/,
+    );
+    await page.locator("#save-name").fill(`ANDの実験 ${width}`);
+    await press("#save-submit");
+    const afterExample = JSON.parse(await stored(page, SAVED_KEY));
+    assert.equal(afterExample.length, JSON.parse(beforeExample).length + 1);
+    assert.deepEqual(
+      afterExample.find((record) => record.id === originalAnd.id),
+      originalAnd,
+    );
+    await loadExample(page, "and", touch);
+    assert.equal(
+      await page.locator(".current-row").getAttribute("data-row"),
+      "0",
+    );
+    assert.equal(await stored(page, SAVED_KEY), JSON.stringify(afterExample));
     await context.close();
     console.log(
-      `PASS ${width}px: named save/overwrite/copy/delete, JSON download/import/cancel, invalid files, reload, copy fallback, native sharing and accessible dialogs`,
+      `PASS ${width}px: named save/overwrite/copy/delete, JSON download/import/cancel, example load/edit/reload/new save, preserved originals, copy fallback, native sharing and accessible dialogs`,
     );
   }
 
@@ -273,7 +335,7 @@ try {
   const page = await context.newPage();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(base + "/lab/logic-circuit/");
-  await page.locator("#circuit-example").selectOption("not");
+  await loadExample(page, "not", true);
   await page.locator("#circuit-name").fill("自分の作業");
   await page.locator("#save-circuit").click();
   await page.locator("#save-submit").click();

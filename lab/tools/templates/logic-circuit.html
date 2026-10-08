@@ -100,17 +100,6 @@
       </button>
       <button type="button" id="delete-selected" disabled>削除</button>
     </div>
-    <label class="example-control"
-      ><span class="visually-hidden">回路例</span
-      ><select id="circuit-example">
-        <option value="">回路例…</option>
-        <option value="and">例：論理積</option>
-        <option value="or">例：論理和</option>
-        <option value="not">例：否定</option>
-        <option value="xor">例：排他的論理和</option>
-        <option value="adder">例：半加算器</option>
-      </select></label
-    >
     <div class="zoom-actions">
       <button type="button" id="zoom-out-circuit" aria-label="回路を縮小">
         −</button
@@ -208,8 +197,8 @@
       </button>
     </div>
     <div class="document-file-action">
-      <span>端末にファイルで保存</span
-      ><button type="button" id="export-circuit">ファイルに書出</button>
+      <span>端末に保存</span
+      ><button type="button" id="export-circuit">JSONファイルに書出</button>
     </div>
   </form>
 </dialog>
@@ -220,7 +209,7 @@
 >
   <form id="export-form" novalidate>
     <div class="document-dialog-heading">
-      <h2 id="export-heading">ファイルに書出</h2>
+      <h2 id="export-heading">JSONファイルに書出</h2>
       <button
         type="button"
         class="document-close"
@@ -254,10 +243,17 @@
     </button>
   </div>
   <div class="document-file-action document-file-action-first">
-    <span>JSONファイル</span
-    ><button type="button" id="import-circuit">ファイルから読込</button>
+    <span>端末から</span
+    ><button type="button" id="import-circuit">JSONファイルから読込</button>
   </div>
   <input id="circuit-file" type="file" accept=".json,application/json" hidden />
+  <h3 class="document-section-title" id="example-list-heading">回路例</h3>
+  <div
+    id="circuit-example-list"
+    class="circuit-example-list"
+    role="group"
+    aria-labelledby="example-list-heading"
+  ></div>
   <h3 class="document-section-title">このブラウザに保存した回路</h3>
   <div id="saved-list" class="saved-circuit-list"></div>
   <p class="document-error" role="alert" hidden></p>
@@ -334,7 +330,7 @@
   </p>
   <p class="document-error" role="alert" hidden></p>
   <div class="document-dialog-actions document-share-actions">
-    <button id="share-export" type="button">ファイルに書出</button>
+    <button id="share-export" type="button">JSONファイルに書出</button>
     <div>
       <button id="native-share" type="button" hidden>共有する</button
       ><button id="copy-url" type="button" class="document-primary" disabled>

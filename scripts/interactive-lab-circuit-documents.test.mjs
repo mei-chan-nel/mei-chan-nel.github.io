@@ -154,6 +154,33 @@ test("a corrupt save list or full storage never silently replaces the existing r
   assert.equal(storage.list().length, 100);
 });
 
+test("drafts retain an explicit overwrite target; examples and JSON imports remain new after reload", () => {
+  const memory = new MemoryStorage(),
+    storage = new CircuitStorage(memory),
+    doc = fixture();
+  const owned = storage.save(doc);
+  const edited = { ...doc, title: "編集中の自分の回路" };
+  storage.saveDraft(edited, owned.id);
+  assert.deepEqual(storage.draftState(), {
+    document: edited,
+    recordId: owned.id,
+    legacy: false,
+  });
+  assert.ok(!documentJSON(storage.draft()).includes(owned.id));
+  // Even identical content must not reattach an example to a named save.
+  storage.saveDraft(doc);
+  assert.deepEqual(storage.draftState(), {
+    document: doc,
+    recordId: null,
+    legacy: false,
+  });
+  assert.deepEqual(storage.list()[0], owned);
+  assert.deepEqual(parseDocument(memory.getItem(DRAFT_KEY)), doc);
+  assert.throws(() => storage.saveDraft(doc, { id: owned.id }), /保存先/);
+  memory.setItem(DRAFT_KEY, documentJSON(doc));
+  assert.equal(storage.draftState().legacy, true);
+});
+
 test("compressed share URLs round-trip Japanese titles and every circuit detail without server storage", async () => {
   const doc = fixture(),
     url = await encodeShare(

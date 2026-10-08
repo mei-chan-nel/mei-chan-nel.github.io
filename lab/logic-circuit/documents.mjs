@@ -156,22 +156,46 @@ export class CircuitStorage {
       );
     }
   }
-  draft() {
+  draftState() {
     const raw = this.get(DRAFT_KEY);
     if (!raw) return null;
     try {
       if (byteLength(raw) > FILE_BYTES) throw new Error("size");
       const data = JSON.parse(raw);
       // Migrate the graph-only automatic save from the first circuit release.
-      return data?.format ? validateDocument(data) : circuitDocument(data);
+      const document = data?.format
+        ? validateDocument(data)
+        : circuitDocument(data);
+      const legacy = !Object.hasOwn(data, "recordId");
+      if (
+        !legacy &&
+        data.recordId !== null &&
+        (typeof data.recordId !== "string" ||
+          !/^[\w-]{1,80}$/u.test(data.recordId))
+      )
+        throw new Error("record");
+      return { document, recordId: legacy ? null : data.recordId, legacy };
     } catch {
       throw new Error(
         "前回の作業を読み取れませんでした。保存一覧やファイルから読み込めます。",
       );
     }
   }
-  saveDraft(document) {
-    this.put(DRAFT_KEY, JSON.stringify(validateDocument(document)));
+  draft() {
+    return this.draftState()?.document ?? null;
+  }
+  saveDraft(document, recordId = null) {
+    if (
+      recordId !== null &&
+      (typeof recordId !== "string" || !/^[\w-]{1,80}$/u.test(recordId))
+    )
+      throw new Error("保存先を読み取れません。");
+    // The association belongs to this browser's draft only. Imported/exported
+    // documents and shared URLs never carry a recipient's overwrite target.
+    this.put(
+      DRAFT_KEY,
+      JSON.stringify({ ...validateDocument(document), recordId }),
+    );
   }
   list() {
     const raw = this.get(SAVED_KEY);

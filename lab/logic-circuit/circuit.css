@@ -269,6 +269,16 @@
   font-size: 0.85rem;
   margin: 20px 0 8px;
 }
+.circuit-example-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.circuit-example-list button {
+  text-align: left;
+  padding: 8px 10px;
+  min-height: 38px;
+}
 .document-help,
 .document-description {
   color: var(--ink-soft);
@@ -429,12 +439,6 @@
 #undo-circuit,
 #redo-circuit {
   font-size: 1.1rem;
-}
-.example-control select {
-  height: 30px;
-  padding: 2px 7px;
-  font-size: 0.73rem;
-  max-width: 170px;
 }
 .circuit-stage {
   height: clamp(300px, 45vh, 400px);
@@ -881,12 +885,6 @@
     height: 28px;
     font-size: 0.68rem;
     padding: 2px 6px;
-  }
-  .example-control select {
-    height: 28px;
-    font-size: 0.65rem;
-    max-width: 127px;
-    padding-inline: 3px;
   }
   .circuit-stage {
     height: 320px;

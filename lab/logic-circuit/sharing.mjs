@@ -1,4 +1,4 @@
-import { validateDocument, FORMAT, FILE_BYTES } from "./documents.mjs";
+import { validateDocument, FORMAT, FILE_BYTES } from "./documents.mjs?v=3";
 const TYPES = ["input", "output", "and", "or", "not", "branch"];
 const URL_LIMIT = 100000;
 const tooLarge = () =>

@@ -35,6 +35,14 @@ async function activate(locator, touch) {
   if (touch) await locator.tap();
   else await locator.click();
 }
+async function loadExample(page, type, touch = false) {
+  await activate(page.locator("#load-circuit"), touch);
+  await activate(
+    page.locator(`#circuit-example-list [data-example="${type}"]`),
+    touch,
+  );
+  await activate(page.locator('#confirm-form button[type="submit"]'), touch);
+}
 async function wire(page, from, to, touch, fromPort = 0, toPort = 0) {
   await activate(port(page, from, "out", fromPort), touch);
   await activate(port(page, to, "in", toPort), touch);
@@ -111,10 +119,10 @@ try {
       await node(page, "output", "X").locator(".input-value").textContent(),
       "1",
     );
-    await page.locator("#circuit-example").selectOption("or");
+    await loadExample(page, "or", touch);
     x = await node(page, "output", "X").getAttribute("data-id");
     assert.deepEqual(await values(page, x), ["0", "1", "1", "1"]);
-    await page.locator("#circuit-example").selectOption("not");
+    await loadExample(page, "not", touch);
     x = await node(page, "output", "X").getAttribute("data-id");
     assert.deepEqual(await values(page, x), ["1", "0"]);
     await page.locator("#clear-circuit").click();
@@ -254,7 +262,7 @@ try {
     ),
   );
   await page.waitForSelector('.circuit-node[data-type="and"]');
-  await page.locator("#circuit-example").selectOption("adder");
+  await loadExample(page, "adder");
   const sum = await node(page, "output", "X").getAttribute("data-id"),
     carry = await node(page, "output", "Y").getAttribute("data-id");
   assert.deepEqual(await values(page, sum), ["0", "1", "1", "0"]);
