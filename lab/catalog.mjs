@@ -1,4 +1,4 @@
-// Match the learning app's six subject areas. No individual exhibits yet.
+// Match the learning app's six subject areas.
 export const groups = [
   {
     id: "society-security",
@@ -39,4 +39,14 @@ export const groups = [
 ];
 
 // Add completed exhibits here; category headings are not content cards.
-export const contents = [];
+export const contents = [
+  {
+    id: "digital-image",
+    group: "digital-representation",
+    styles: ["image.css?v=1"],
+    scripts: ["image.mjs?v=1"],
+    name: "画像のデジタル化",
+    description:
+      "画素数と量子化ビット数を変えて、元画像と見比べる。RGBの各成分も表示できます。",
+  },
+];
