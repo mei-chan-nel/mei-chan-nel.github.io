@@ -531,11 +531,6 @@ export class FlowCanvas {
   }
   key(e) {
     if (document.querySelector("dialog[open]")) return;
-    if (e.key === "Escape") {
-      this.cancel();
-      this.render();
-      return;
-    }
     const port = this.port(e.target),
       node = e.target.closest(".flow-node"),
       edge = e.target.closest("[data-edge]");
@@ -550,18 +545,9 @@ export class FlowCanvas {
       return;
     }
     if (this.run()) return;
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-      e.preventDefault();
-      this.undo(e.shiftKey);
-      return;
-    }
-    if (["Delete", "Backspace"].includes(e.key)) {
-      e.preventDefault();
-      document.getElementById("delete-selected").click();
-      return;
-    }
     if (node && !port && e.key.startsWith("Arrow")) {
       e.preventDefault();
+      this.selected = { kind: "node", id: node.dataset.id };
       const step = e.shiftKey ? 32 : 8;
       this.change((g) => {
         const n = g.nodes.find((n) => n.id === node.dataset.id);

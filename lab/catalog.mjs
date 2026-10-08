@@ -53,7 +53,7 @@ export const contents = [
     id: "logic-circuit",
     group: "digital-representation",
     styles: ["circuit.css?v=8"],
-    scripts: ["editor.mjs?v=8"],
+    scripts: ["editor.mjs?v=9"],
     name: "論理回路をつくる",
     description:
       "AND・OR・NOTと分岐を配置して配線。各ゲートの出力と真理値表を見比べます。",
@@ -62,7 +62,7 @@ export const contents = [
     id: "flowchart",
     group: "algorithm",
     styles: ["../logic-circuit/circuit.css?v=8", "flowchart.css?v=1"],
-    scripts: ["editor.mjs?v=1"],
+    scripts: ["editor.mjs?v=2"],
     name: "フローチャートをつくる",
     description: "図記号をつないで手順を作り、1つずつ実行。変数・分岐・繰返しを図で確かめます。",
   },

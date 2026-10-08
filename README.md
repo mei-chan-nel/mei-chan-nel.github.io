@@ -91,6 +91,8 @@ npm.cmd --prefix projects/program-trace-studio test
 
 `lab/` の入口から、画像のデジタル化・論理回路・フローチャートへ進めます。サイト全体のトップには追加していません。各ページは `noindex, nofollow` です。
 
+論理回路とフローチャートは、選択中の部品・線を Delete で削除、Esc で選択解除できます。部品は Ctrl+C／Ctrl+V（Mac は ⌘C／⌘V）でコピー・貼り付けでき、番号を新しく付けます。外部への接続は複製しません。繰返しの始端・終端は対で複製します。入力欄・ダイアログでは通常の文字編集を優先し、フローチャートの実行中は編集しません。
+
 フローチャートは `lab/flowchart/`。図記号は講義ノートの基本構造の図に合わせ、処理・入出力・判断・開始／終了・対になった繰返しを使います。関数は別の図で編集します。実行・入力検証・式の解釈には Studio の生成済みモジュールを直接使い、図の番号と共通エンジンの命令を対応付けています。前へ／次へ・乱数の再現・自動実行は履歴を保持して処理します。
 
 プログラムと図を共有URLで受け渡します。順次・分岐・繰返し・関数を相互変換でき、配列番号と入力設定も引き継ぎます。図の任意の戻り矢印は実行できますが、プログラムへの変換には対の繰返し記号を使います。動画問題の独自命令は構造化済みの命令から変換します。数値と文字列が混在する選択入力（Q307・Q308）とグラフ描画（Q328）は理由を表示して元ページに留まります。順序や選択肢など問題固有の入力条件はコメントとして引き継ぎます。部品120個、共通エンジンの実行10,000ステップまで（開始・終了・結合子・繰返し終端も1ステップに数えます）。
@@ -103,6 +105,7 @@ node lab/tools/build-pages.mjs
 node --test scripts/interactive-lab*.test.mjs
 node lab/tools/test-flowchart.mjs
 LAB_ESBUILD_MODULE=/path/to/esbuild node lab/tools/build-preview.mjs /path/to/review
+node lab/tools/test-diagram-keys.mjs
 ```
 
 ブラウザ検証には Playwright と Chromium、axe-core を使います。`LAB_PLAYWRIGHT_MODULE`・`LAB_AXE_MODULE` で依存の場所、`LAB_BASE_URL` でプレビューURLを指定できます。単独HTMLは画像・CSS・実行コードを内包し、ブラウザ保存が利用できない環境でも操作とJSON書出を使えます。元のJSON・共有URLは図の配置を含み、プログラムへの変換では配置は保存されません。ブラウザ保存は他の2教材・Studioとは別のキーです。

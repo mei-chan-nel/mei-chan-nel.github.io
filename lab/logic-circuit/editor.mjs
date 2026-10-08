@@ -8,6 +8,8 @@ import {
 import { symbol, portOffset, miniSymbol } from "./symbols.mjs";
 import { exampleCircuit, arithmeticReadout } from "./examples.mjs?v=6";
 import { installDocumentControls } from "./document-ui.mjs?v=6";
+import { bindDiagramKeys, editingText } from "../shared/diagram-keys.mjs";
+import { copyPart, pastePart } from "./clipboard.mjs";
 
 const $ = (id) => document.getElementById(id);
 const board = $("circuit-board"),
@@ -285,6 +287,8 @@ function addPart(type, point, fromDrag = false) {
 }
 function deleteSelected() {
   if (!selected) return;
+  cancelGesture();
+  render();
   const node = selected.kind === "node" ? findNode(selected.id) : null;
   if (
     node &&
@@ -896,28 +900,45 @@ board.addEventListener("keydown", (event) => {
       node.y +=
         event.key === "ArrowDown" ? step : event.key === "ArrowUp" ? -step : 0;
     });
-  } else if (event.key === "Escape") {
+  }
+});
+document.addEventListener("keydown", (event) => {
+  if (event.defaultPrevented || event.isComposing || editingText(event)) return;
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    event.preventDefault();
+    undo(event.shiftKey);
+  }
+});
+bindDiagramKeys({
+  editor: "logic-circuit",
+  selected: () => selected,
+  cancel: () => {
     cancelGesture();
     pendingPort = undefined;
     selected = undefined;
     render();
     message("選択を解除しました。", false, true);
-  }
-});
-document.addEventListener("keydown", (event) => {
-  if (event.target.closest("input,select,textarea,dialog")) return;
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
-    event.preventDefault();
-    undo(event.shiftKey);
-  }
-  if (
-    (event.key === "Delete" || event.key === "Backspace") &&
-    event.target.closest(".circuit-lab") &&
-    selected
-  ) {
-    event.preventDefault();
-    deleteSelected();
-  }
+  },
+  remove: deleteSelected,
+  copy: () => {
+    if (selected?.kind !== "node") return null;
+    cancelGesture();
+    render();
+    return copyPart(graph, selected.id);
+  },
+  paste: (data) => {
+    cancelGesture();
+    render();
+    const anchor = selected?.kind === "node" ? findNode(selected.id) : null,
+      point = anchor ? { x: anchor.x + 32, y: anchor.y + 32 } : freePoint(),
+      result = pastePart(graph, data, { x: snap(point.x), y: snap(point.y) });
+    change(() => {
+      graph = result.graph;
+      selected = { kind: "node", id: result.id };
+    });
+    reveal(findNode(result.id));
+  },
+  message: (text, error) => message(text, error, true),
 });
 $("circuit-truth").addEventListener("click", (event) => {
   const row = event.target.closest("[data-row]");

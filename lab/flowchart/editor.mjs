@@ -23,6 +23,8 @@ import {
 } from "./studio.mjs";
 import { createAutoplay } from "../../program-trace/autoplay.js";
 import { bindStepKeys } from "../../program-trace/step-keys.js";
+import { bindDiagramKeys, editingText } from "../shared/diagram-keys.mjs";
+import { copyPart, pastePart } from "./clipboard.mjs";
 const $ = (id) => document.getElementById(id),
   message = (text, error = false) => {
     $("circuit-message").textContent = text;
@@ -218,6 +220,8 @@ function openNode(id) {
     return;
   }
   editing = id;
+  canvas.selected = { kind: "node", id };
+  canvas.render();
   $("node-heading").textContent = `${parts[n.type]} ${n.id.slice(1)} の内容`;
   $("node-code-label").textContent =
     n.type === "decision"
@@ -351,9 +355,10 @@ $("delete-function").onclick = () =>
   });
 $("undo-circuit").onclick = () => undo();
 $("redo-circuit").onclick = () => undo(true);
-$("delete-selected").onclick = () =>
-  guard(() => {
-    if (!canvas.selected) return;
+function deleteSelected() {
+  return guard(() => {
+    if (runner || !canvas.selected) return;
+    canvas.cancel();
     const selected = canvas.selected;
     transaction((g) => {
       if (selected.kind === "edge")
@@ -364,6 +369,63 @@ $("delete-selected").onclick = () =>
     canvas.pending = null;
     canvas.render();
   });
+}
+$("delete-selected").onclick = deleteSelected;
+document.addEventListener("keydown", (event) => {
+  if (
+    runner ||
+    event.defaultPrevented ||
+    event.isComposing ||
+    editingText(event)
+  )
+    return;
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    event.preventDefault();
+    undo(event.shiftKey);
+  }
+});
+bindDiagramKeys({
+  editor: "flowchart",
+  enabled: () => !runner,
+  selected: () => canvas.selected,
+  cancel: () => {
+    canvas.cancel();
+    canvas.selected = null;
+    canvas.render();
+    message("選択を解除しました。");
+  },
+  remove: deleteSelected,
+  copy: () => {
+    if (canvas.selected?.kind !== "node") return null;
+    canvas.cancel();
+    return copyPart(graph, canvas.selected.id);
+  },
+  paste: (data) => {
+    canvas.cancel();
+    const anchor = graph.nodes.find(
+        (n) => canvas.selected?.kind === "node" && n.id === canvas.selected.id,
+      ),
+      point = anchor
+        ? { x: anchor.x + 32, y: anchor.y + 32 }
+        : {
+            x:
+              canvas.camera.x +
+              canvas.stage.clientWidth / canvas.camera.zoom / 2,
+            y:
+              canvas.camera.y +
+              canvas.stage.clientHeight / canvas.camera.zoom / 2,
+          },
+      result = pastePart(graph, data, scope, {
+        x: Math.max(-9000, Math.min(9000, Math.round(point.x / 8) * 8)),
+        y: Math.max(-9000, Math.min(9000, Math.round(point.y / 8) * 8)),
+      });
+    transaction((g) => Object.assign(g, result.graph));
+    canvas.selected = { kind: "node", id: result.id };
+    canvas.render();
+    canvas.reveal(result.id);
+  },
+  message,
+});
 $("zoom-out-circuit").onclick = () => canvas.zoom(1 / 1.2);
 $("zoom-in-circuit").onclick = () => canvas.zoom(1.2);
 $("fit-circuit").onclick = () => canvas.fit();
