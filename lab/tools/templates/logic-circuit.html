@@ -133,10 +133,21 @@
           <g id="circuit-nodes"></g>
           <path id="wire-preview" />
         </svg>
+        <div
+          class="circuit-resize-edge circuit-resize-right"
+          data-resize-axis="width"
+          aria-hidden="true"
+        ></div>
+        <div
+          class="circuit-resize-edge circuit-resize-bottom"
+          data-resize-axis="height"
+          aria-hidden="true"
+        ></div>
         <button
           type="button"
           id="resize-circuit"
           class="circuit-resize"
+          data-resize-axis="both"
           aria-label="編集画面の大きさを変更"
           aria-describedby="resize-help"
           title="ドラッグでサイズ変更"

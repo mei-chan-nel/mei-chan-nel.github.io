@@ -948,31 +948,39 @@ function resizeStage(width, height) {
   stage.style.width = `${Math.max(Math.min(260, maximumWidth), Math.min(maximumWidth, width))}px`;
   stage.style.height = `${Math.max(260, Math.min(1400, height))}px`;
 }
-resizeHandle.addEventListener("pointerdown", (event) => {
-  if (event.button !== 0) return;
-  event.preventDefault();
-  cancelGesture();
-  const size = stage.getBoundingClientRect();
-  stageResize = {
-    pointer: event.pointerId,
-    x: event.clientX,
-    y: event.clientY,
-    width: size.width,
-    height: size.height,
-  };
-  resizeHandle.setPointerCapture(event.pointerId);
-});
-resizeHandle.addEventListener("pointermove", (event) => {
+function resizeFromPointer(event) {
   if (stageResize?.pointer !== event.pointerId) return;
   resizeStage(
-    stageResize.width + event.clientX - stageResize.x,
-    stageResize.height + event.clientY - stageResize.y,
+    stageResize.width +
+      (stageResize.axis === "height" ? 0 : event.clientX - stageResize.x),
+    stageResize.height +
+      (stageResize.axis === "width" ? 0 : event.clientY - stageResize.y),
   );
-});
-for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
-  resizeHandle.addEventListener(type, () => {
-    stageResize = undefined;
+}
+for (const handle of stage.querySelectorAll("[data-resize-axis]")) {
+  handle.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    event.preventDefault();
+    cancelGesture();
+    const size = stage.getBoundingClientRect();
+    stageResize = {
+      pointer: event.pointerId,
+      axis: handle.dataset.resizeAxis,
+      x: event.clientX,
+      y: event.clientY,
+      width: size.width,
+      height: size.height,
+    };
+    handle.setPointerCapture(event.pointerId);
   });
+  handle.addEventListener("pointermove", resizeFromPointer);
+  for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
+    handle.addEventListener(type, (event) => {
+      if (stageResize?.pointer !== event.pointerId) return;
+      if (type === "pointerup") resizeFromPointer(event);
+      stageResize = undefined;
+    });
+}
 resizeHandle.addEventListener("keydown", (event) => {
   if (event.key === "Home") {
     event.preventDefault();

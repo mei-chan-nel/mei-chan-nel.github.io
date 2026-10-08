@@ -52,8 +52,8 @@ export const contents = [
   {
     id: "logic-circuit",
     group: "digital-representation",
-    styles: ["circuit.css?v=7"],
-    scripts: ["editor.mjs?v=6"],
+    styles: ["circuit.css?v=8"],
+    scripts: ["editor.mjs?v=8"],
     name: "論理回路をつくる",
     description:
       "AND・OR・NOTと分岐を配置して配線。各ゲートの出力と真理値表を見比べます。",

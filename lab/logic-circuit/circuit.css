@@ -500,6 +500,7 @@
 }
 .circuit-stage .circuit-resize {
   position: absolute;
+  z-index: 2;
   right: 0;
   bottom: 0;
   width: 34px;
@@ -511,6 +512,36 @@
   line-height: 1;
   cursor: nwse-resize;
   touch-action: none;
+}
+.circuit-resize-edge {
+  position: absolute;
+  z-index: 1;
+  touch-action: none;
+}
+.circuit-resize-edge:hover {
+  background: rgba(37, 94, 119, 0.12);
+}
+.circuit-resize-right {
+  top: 12px;
+  right: 0;
+  bottom: 28px;
+  width: 10px;
+  cursor: ew-resize;
+}
+.circuit-resize-bottom {
+  right: 34px;
+  bottom: 0;
+  left: 12px;
+  height: 10px;
+  cursor: ns-resize;
+}
+@media (pointer: coarse) {
+  .circuit-resize-right {
+    width: 16px;
+  }
+  .circuit-resize-bottom {
+    height: 16px;
+  }
 }
 .node-name {
   cursor: text;
