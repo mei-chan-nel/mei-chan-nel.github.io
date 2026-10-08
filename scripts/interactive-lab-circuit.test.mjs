@@ -179,7 +179,8 @@ test("reconnecting an input replaces its old wire and cannot create feedback", (
       .length,
     1,
   );
-  assert.equal(evaluate(changed, { [a.id]: 1, [b.id]: 0 }).get(gate.id), 1);
+  assert.equal(evaluate(changed, { [a.id]: 1, [b.id]: 0 }).get(gate.id), null);
+  assert.equal(changed.edges.filter((e) => e.from.node === a.id).length, 1);
   assert.throws(
     () =>
       connect(

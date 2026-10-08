@@ -47,23 +47,33 @@ export function exampleCircuit(type, width = 900, height = 340) {
   const center = height / 2;
   // XOR = (a OR b) AND NOT(a AND b). The AND output is also
   // the half-adder's carry, so a full adder can reuse both XOR blocks' ANDs.
-  const xorBlock = (a, b, x, y) => {
+  const xorBlock = (
+    a,
+    b,
+    x,
+    y,
+    { aPort = 0, bPort = 0, splitCarry = false } = {},
+  ) => {
     const ja = add("branch", x - 180, y - 20),
       jb = add("branch", x - 180, y + 160);
     const either = add("or", x, y),
       both = add("and", x, y + 150);
     const invert = add("not", x + 180, y + 150),
       sum = add("and", x + 370, y + 65);
-    wire(a, ja);
-    wire(b, jb);
+    wire(a, ja, 0, aPort);
+    wire(b, jb, 0, bPort);
     wire(ja, either);
     wire(jb, either, 1);
     wire(ja, both, 0, 1);
     wire(jb, both, 1, 1);
-    wire(both, invert);
+    const carryFork = splitCarry ? add("branch", x + 120, y + 230) : null;
+    if (carryFork) {
+      wire(both, carryFork);
+      wire(carryFork, invert);
+    } else wire(both, invert);
     wire(either, sum);
     wire(invert, sum, 1);
-    return { sum, carry: both };
+    return { sum, carry: carryFork || both, carryPort: carryFork ? 1 : 0 };
   };
   if (type === "majority") {
     const a = add("input", 44, 100, "A"),
@@ -112,7 +122,9 @@ export function exampleCircuit(type, width = 900, height = 340) {
   } else if (["full-adder", "parity"].includes(type)) {
     const a = add("input", 44, 80, "A"),
       b = add("input", 44, 260, "B");
-    const first = xorBlock(a, b, 350, 100);
+    const first = xorBlock(a, b, 350, 100, {
+      splitCarry: type === "full-adder",
+    });
     const c = add(
       "input",
       565,
@@ -120,7 +132,9 @@ export function exampleCircuit(type, width = 900, height = 340) {
       "C",
       type === "full-adder" ? "桁上がり入力" : "データ",
     );
-    const second = xorBlock(first.sum, c, 1050, 145);
+    const second = xorBlock(first.sum, c, 1050, 145, {
+      splitCarry: type === "full-adder",
+    });
     wire(
       second.sum,
       add(
@@ -133,8 +147,8 @@ export function exampleCircuit(type, width = 900, height = 340) {
     );
     if (type === "full-adder") {
       const carry = add("or", 1420, 425);
-      wire(first.carry, carry);
-      wire(second.carry, carry, 1);
+      wire(first.carry, carry, 0, first.carryPort);
+      wire(second.carry, carry, 1, second.carryPort);
       wire(carry, add("output", 1590, 425, "Y", "桁上がり"));
     }
   } else if (type === "two-bit-adder") {
@@ -144,12 +158,15 @@ export function exampleCircuit(type, width = 900, height = 340) {
       b = add("input", 44, 80, "B", "a：1の位");
     const c = add("input", 44, 585, "C", "b：2の位"),
       d = add("input", 44, 260, "D", "b：1の位");
-    const low = xorBlock(b, d, 350, 100);
-    const high = xorBlock(a, c, 350, 425);
-    const second = xorBlock(high.sum, low.carry, 1050, 465);
+    const low = xorBlock(b, d, 350, 100, { splitCarry: true });
+    const high = xorBlock(a, c, 350, 425, { splitCarry: true });
+    const second = xorBlock(high.sum, low.carry, 1050, 465, {
+      bPort: low.carryPort,
+      splitCarry: true,
+    });
     const carry = add("or", 1420, 735);
-    wire(high.carry, carry);
-    wire(second.carry, carry, 1);
+    wire(high.carry, carry, 0, high.carryPort);
+    wire(second.carry, carry, 1, second.carryPort);
     wire(carry, add("output", 1590, 735, "X", "4の位"));
     wire(second.sum, add("output", 1590, 530, "Y", "2の位"));
     wire(low.sum, add("output", 1590, 165, "Z", "1の位"));

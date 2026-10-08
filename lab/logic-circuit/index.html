@@ -13,8 +13,8 @@
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="../lab.css?v=3" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"論理回路をつくる","item":"https://mei-chan-nel.com/lab/logic-circuit/"}]}</script>
-<link rel="stylesheet" href="./circuit.css?v=5" />
-<script type="module" src="./editor.mjs?v=5"></script>
+<link rel="stylesheet" href="./circuit.css?v=6" />
+<script type="module" src="./editor.mjs?v=6"></script>
 </head><body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
@@ -28,7 +28,7 @@
 <nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>論理回路をつくる</span></nav>
 <header class="circuit-heading">
   <h1>論理回路をつくる</h1>
-  <button type="button" id="clear-circuit">白紙にする</button>
+  <button type="button" id="new-circuit">新規作成</button>
 </header>
 <section class="circuit-lab" aria-label="論理回路の実験">
   <div class="circuit-document-bar" role="group" aria-label="回路の保存と共有">
@@ -53,117 +53,132 @@
       前の作業に戻る
     </button>
   </div>
-  <div class="parts-bar" role="group" aria-label="回路の部品">
-    <button
-      type="button"
-      class="part-button"
-      data-part="and"
-      aria-label="論理積 ANDを追加"
-    >
-      <span class="part-icon"></span><span>論理積 <b>AND</b></span>
-    </button>
-    <button
-      type="button"
-      class="part-button"
-      data-part="or"
-      aria-label="論理和 ORを追加"
-    >
-      <span class="part-icon"></span><span>論理和 <b>OR</b></span>
-    </button>
-    <button
-      type="button"
-      class="part-button"
-      data-part="not"
-      aria-label="否定 NOTを追加"
-    >
-      <span class="part-icon"></span><span>否定 <b>NOT</b></span>
-    </button>
-    <button
-      type="button"
-      class="part-button"
-      data-part="branch"
-      aria-label="分岐パーツを追加"
-    >
-      <span class="part-icon"></span><span>分岐</span>
-    </button>
-    <button
-      type="button"
-      class="part-button extra-part"
-      data-part="input"
-      aria-label="0/1 入力＋（最大4つ）"
-    >
-      <span class="part-text-icon" aria-hidden="true">0/1</span
-      ><span>入力＋</span>
-    </button>
-    <button
-      type="button"
-      class="part-button extra-part"
-      data-part="output"
-      aria-label="出力を追加（最大4つ）"
-    >
-      <span class="part-text-icon" aria-hidden="true">◉</span
-      ><span>出力＋</span>
-    </button>
-  </div>
-  <p class="circuit-hint">
-    部品はドラッグ・タップで追加。端子どうしをつなぎ、入力の0／1を切り替えます。
-  </p>
-  <div class="circuit-toolbar">
-    <div class="edit-actions">
+  <div class="circuit-workspace">
+    <div class="parts-bar" role="group" aria-label="回路の部品">
       <button
         type="button"
-        id="undo-circuit"
-        aria-label="元に戻す"
-        title="元に戻す"
+        class="part-button"
+        data-part="and"
+        aria-label="論理積 ANDを追加"
       >
-        ↶
+        <span class="part-icon"></span><span>論理積 <b>AND</b></span>
       </button>
       <button
         type="button"
-        id="redo-circuit"
-        aria-label="やり直す"
-        title="やり直す"
+        class="part-button"
+        data-part="or"
+        aria-label="論理和 ORを追加"
       >
-        ↷
+        <span class="part-icon"></span><span>論理和 <b>OR</b></span>
       </button>
-      <button type="button" id="delete-selected" disabled>削除</button>
-    </div>
-    <div class="zoom-actions">
-      <button type="button" id="zoom-out-circuit" aria-label="回路を縮小">
-        −</button
-      ><button type="button" id="fit-circuit">全体</button
-      ><button type="button" id="zoom-in-circuit" aria-label="回路を拡大">
-        ＋
+      <button
+        type="button"
+        class="part-button"
+        data-part="not"
+        aria-label="否定 NOTを追加"
+      >
+        <span class="part-icon"></span><span>否定 <b>NOT</b></span>
+      </button>
+      <button
+        type="button"
+        class="part-button"
+        data-part="branch"
+        aria-label="分岐パーツを追加"
+      >
+        <span class="part-icon"></span><span>分岐</span>
+      </button>
+      <button
+        type="button"
+        class="part-button extra-part"
+        data-part="input"
+        aria-label="0/1 入力＋（最大4つ）"
+      >
+        <span class="part-text-icon" aria-hidden="true">0/1</span
+        ><span>入力＋</span>
+      </button>
+      <button
+        type="button"
+        class="part-button extra-part"
+        data-part="output"
+        aria-label="出力を追加（最大4つ）"
+      >
+        <span class="part-text-icon" aria-hidden="true">◉</span
+        ><span>出力＋</span>
       </button>
     </div>
-  </div>
-  <div class="circuit-stage" id="circuit-stage">
-    <svg
-      id="circuit-board"
-      role="group"
-      aria-label="回路の描画場所"
-      tabindex="0"
-    >
-      <defs>
-        <pattern
-          id="circuit-dots"
-          width="16"
-          height="16"
-          patternUnits="userSpaceOnUse"
+    <div class="circuit-editor">
+      <p class="circuit-hint">
+        部品はドラッグ・タップで追加。端子どうしをつなぎ、入力の0／1を切り替えます。
+      </p>
+      <div class="circuit-toolbar">
+        <div class="edit-actions">
+          <button
+            type="button"
+            id="undo-circuit"
+            aria-label="元に戻す"
+            title="元に戻す"
+          >
+            ↶
+          </button>
+          <button
+            type="button"
+            id="redo-circuit"
+            aria-label="やり直す"
+            title="やり直す"
+          >
+            ↷
+          </button>
+          <button type="button" id="delete-selected" disabled>削除</button>
+        </div>
+        <div class="zoom-actions">
+          <button type="button" id="zoom-out-circuit" aria-label="回路を縮小">
+            −</button
+          ><button type="button" id="fit-circuit">全体</button
+          ><button type="button" id="zoom-in-circuit" aria-label="回路を拡大">
+            ＋
+          </button>
+        </div>
+      </div>
+      <div class="circuit-stage" id="circuit-stage">
+        <svg
+          id="circuit-board"
+          role="group"
+          aria-label="回路の描画場所"
+          tabindex="0"
         >
-          <circle cx="0" cy="0" r="1" fill="#c8d5d3" />
-        </pattern>
-      </defs>
-      <rect id="board-background" fill="url(#circuit-dots)" />
-      <g id="circuit-wires"></g>
-      <g id="circuit-nodes"></g>
-      <path id="wire-preview" />
-    </svg>
+          <defs>
+            <pattern
+              id="circuit-dots"
+              width="16"
+              height="16"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="0" cy="0" r="1" fill="#c8d5d3" />
+            </pattern>
+          </defs>
+          <rect id="board-background" fill="url(#circuit-dots)" />
+          <g id="circuit-wires"></g>
+          <g id="circuit-nodes"></g>
+          <path id="wire-preview" />
+        </svg>
+        <button
+          type="button"
+          id="resize-circuit"
+          class="circuit-resize"
+          aria-label="編集画面の大きさを変更"
+          aria-describedby="resize-help"
+          title="ドラッグでサイズ変更"
+        >
+          ↘
+        </button>
+      </div>
+      <span id="resize-help" class="visually-hidden"
+        >矢印キーで幅と高さを変更。Homeキーで元の大きさに戻します。</span
+      >
+    </div>
   </div>
   <div class="circuit-status-line">
-    <p id="circuit-message" role="status" aria-live="polite">
-      入力を切り替えて試せます。
-    </p>
+    <p id="circuit-message" role="status" aria-live="polite"></p>
     <span class="signal-legend"
       ><i class="legend-zero"></i>0 <i class="legend-one"></i>1
       <span>— 未接続</span></span
@@ -178,7 +193,7 @@
   <section class="truth-section" aria-labelledby="truth-title">
     <div class="truth-heading">
       <h2 id="truth-title">真理値表</h2>
-      <p>行を押すと、その入力で試せます。</p>
+      <p>行を押すと、その入力になります。</p>
       <button
         type="button"
         id="toggle-intermediate"
@@ -202,9 +217,6 @@
         <tbody></tbody>
       </table>
     </div>
-    <p class="circuit-footnote">
-      接続が完成した部分の定常値を表示します。信号の遅延は扱いません。
-    </p>
   </section>
   <p
     class="visually-hidden"
@@ -214,6 +226,58 @@
   ></p>
 </section>
 <div id="part-ghost" hidden aria-hidden="true"></div>
+<dialog
+  class="circuit-dialog"
+  id="terminal-dialog"
+  aria-labelledby="terminal-heading"
+>
+  <form id="terminal-form">
+    <div class="document-dialog-heading">
+      <h2 id="terminal-heading">端子の名前</h2>
+      <button
+        type="button"
+        class="document-close"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="terminal-name"
+      ><span>名前</span
+      ><input id="terminal-name" type="text" maxlength="80" autocomplete="off"
+    /></label>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button>
+      <button type="submit" class="document-primary">変更</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="unsaved-dialog"
+  aria-labelledby="unsaved-heading"
+>
+  <div class="document-dialog-heading">
+    <h2 id="unsaved-heading">新規作成の前に保存しますか？</h2>
+    <button
+      type="button"
+      class="document-close"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <p class="document-description">この回路には未保存の変更があります。</p>
+  <div class="document-dialog-actions new-actions">
+    <button type="button" data-close-circuit-dialog>キャンセル</button>
+    <button type="button" id="discard-and-new">保存せず新規作成</button>
+    <button type="button" id="save-and-new" class="document-primary">
+      保存して新規作成
+    </button>
+  </div>
+</dialog>
 <dialog class="circuit-dialog" id="save-dialog" aria-labelledby="save-heading">
   <form id="save-form">
     <div class="document-dialog-heading">
@@ -340,6 +404,7 @@
       </button>
     </div>
     <p id="confirm-copy" class="document-description"></p>
+    <p class="document-error" role="alert" hidden></p>
     <div class="document-dialog-actions">
       <button type="button" data-close-circuit-dialog>キャンセル</button
       ><button type="submit" class="document-primary">読み込む</button>

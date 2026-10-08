@@ -43,6 +43,11 @@ async function loadExample(page, type, touch = false) {
   );
   await activate(page.locator('#confirm-form button[type="submit"]'), touch);
 }
+async function newCircuit(page) {
+  await page.locator("#new-circuit").click();
+  if (await page.locator("#unsaved-dialog").isVisible())
+    await page.locator("#discard-and-new").click();
+}
 async function wire(page, from, to, touch, fromPort = 0, toPort = 0) {
   await activate(port(page, from, "out", fromPort), touch);
   await activate(port(page, to, "in", toPort), touch);
@@ -134,7 +139,7 @@ try {
       "0",
       "1",
     ]);
-    await page.locator("#clear-circuit").click();
+    await newCircuit(page);
     assert.equal(await node(page, "and").count(), 0);
     x = await node(page, "output", "X").getAttribute("data-id");
     assert.deepEqual(await values(page, x), ["—", "—", "—", "—"]);
@@ -185,7 +190,7 @@ try {
     await page.reload();
     await page.waitForSelector(`.circuit-node[data-id="${branch}"]`);
     assert.deepEqual(await values(page, x), ["1", "1", "1", "0"]);
-    await page.locator("#clear-circuit").click();
+    await newCircuit(page);
     const palettePoint = await point(page.locator('[data-part="or"]')),
       boardBox = await page.locator("#circuit-board").boundingBox();
     await drag(

@@ -13,7 +13,7 @@ import {
 } from "../lab/logic-circuit/documents.mjs";
 import { encodeShare, decodeShare } from "../lab/logic-circuit/sharing.mjs";
 import { exampleCircuit } from "../lab/logic-circuit/examples.mjs";
-import { truthTable } from "../lab/logic-circuit/circuit.mjs";
+import { truthTable, validCircuit } from "../lab/logic-circuit/circuit.mjs";
 
 class MemoryStorage {
   data = new Map();
@@ -33,6 +33,67 @@ function fixture() {
   return circuitDocument(graph, "半加算器：和と桁上がり 🔴");
 }
 const rows = (graph) => truthTable(graph).map((row) => [...row.values]);
+
+test("legacy fan-out files gain explicit branches without losing signals or reusing deleted numbers", () => {
+  const graph = exampleCircuit("and");
+  const gate = graph.nodes.find((n) => n.type === "and");
+  graph.nodes.push(
+    { id: "n10", type: "not", number: 2, x: 600, y: 280 },
+    { id: "n11", type: "output", label: "Y", x: 800, y: 280 },
+  );
+  graph.edges.push(
+    {
+      id: "w10",
+      from: { node: gate.id, port: 0 },
+      to: { node: "n10", port: 0 },
+    },
+    { id: "w11", from: { node: "n10", port: 0 }, to: { node: "n11", port: 0 } },
+  );
+  graph.nextBranch = 20;
+  assert.equal(validCircuit(graph), false);
+  assert.equal(validCircuit(graph, { allowFanout: true }), true);
+  const restored = circuitDocument(graph).circuit;
+  assert.equal(validCircuit(restored), true);
+  assert.equal(restored.nodes.find((n) => n.type === "branch").number, 20);
+  const originals = truthTable(graph),
+    converted = truthTable(restored);
+  for (let i = 0; i < originals.length; i++)
+    for (const node of graph.nodes)
+      assert.equal(
+        converted[i].values.get(node.id),
+        originals[i].values.get(node.id),
+      );
+  assert.equal(graph.nodes.filter((n) => n.type === "branch").length, 0);
+});
+
+test("terminal names round-trip through JSON and sharing; saved-state metadata stays local", async () => {
+  const graph = exampleCircuit("adder");
+  graph.nodes.find((n) => n.label === "A").name = "入力する数 a";
+  graph.nodes.find((n) => n.label === "X").name = "和 <S>";
+  const document = circuitDocument(graph, "名前付きの加算器");
+  assert.deepEqual(parseDocument(documentJSON(document)), document);
+  assert.deepEqual(
+    await decodeShare(
+      await encodeShare(
+        document,
+        "https://mei-chan-nel.com/lab/logic-circuit/",
+      ),
+    ),
+    document,
+  );
+  const storage = new CircuitStorage(new MemoryStorage()),
+    baseline = fingerprint(document);
+  storage.saveDraft(document, null, baseline);
+  assert.equal(storage.draftState().cleanFingerprint, baseline);
+  const changed = structuredClone(document);
+  changed.circuit.nodes[0].name = "別の名前";
+  storage.saveDraft(changed, null, baseline);
+  assert.notEqual(
+    fingerprint(storage.draftState().document),
+    storage.draftState().cleanFingerprint,
+  );
+  assert.ok(!documentJSON(changed).includes("cleanFingerprint"));
+});
 
 test("circuit JSON preserves layout, wire ports, input states, numbered gates and all truth-table rows", () => {
   const doc = fixture(),
@@ -165,6 +226,7 @@ test("drafts retain an explicit overwrite target; examples and JSON imports rema
     document: edited,
     recordId: owned.id,
     legacy: false,
+    cleanFingerprint: null,
   });
   assert.ok(!documentJSON(storage.draft()).includes(owned.id));
   // Even identical content must not reattach an example to a named save.
@@ -173,6 +235,7 @@ test("drafts retain an explicit overwrite target; examples and JSON imports rema
     document: doc,
     recordId: null,
     legacy: false,
+    cleanFingerprint: null,
   });
   assert.deepEqual(storage.list()[0], owned);
   assert.deepEqual(parseDocument(memory.getItem(DRAFT_KEY)), doc);

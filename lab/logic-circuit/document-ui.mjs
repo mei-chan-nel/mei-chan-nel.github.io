@@ -7,9 +7,9 @@ import {
   exportFilename,
   fingerprint,
   FILE_BYTES,
-} from "./documents.mjs?v=4";
-import { encodeShare, decodeShare, isCircuitShare } from "./sharing.mjs?v=4";
-import { circuitExamples } from "./examples.mjs?v=4";
+} from "./documents.mjs?v=6";
+import { encodeShare, decodeShare, isCircuitShare } from "./sharing.mjs?v=6";
+import { circuitExamples } from "./examples.mjs?v=6";
 
 const $ = (id) => document.getElementById(id);
 const errorText = (error) =>
@@ -25,6 +25,7 @@ export function installDocumentControls({
   read,
   replace,
   makeExample,
+  makeNew,
   cancel,
   message,
 }) {
@@ -34,7 +35,10 @@ export function installDocumentControls({
     shared = false,
     draftUnavailable = false,
     previousDraft,
-    previousRecordId;
+    previousRecordId,
+    previousCleanFingerprint,
+    cleanFingerprint = null,
+    pendingNew = false;
   let pendingLoad,
     pendingExport,
     generation = 0;
@@ -71,7 +75,7 @@ export function installDocumentControls({
   function autosave() {
     if (shared || !storage || draftUnavailable) return;
     try {
-      storage.saveDraft(current(), savedId);
+      storage.saveDraft(current(), savedId, cleanFingerprint);
     } catch {
       /* Named saves report storage failures; file export remains available. */
     }
@@ -82,13 +86,20 @@ export function installDocumentControls({
     shared = false;
     previousDraft = undefined;
     previousRecordId = undefined;
+    previousCleanFingerprint = undefined;
     clearShareLocation();
     showShared();
     autosave();
   }
   function apply(
     document,
-    { id, fromShare = false, write = false, preserveLocation = false } = {},
+    {
+      id,
+      fromShare = false,
+      write = false,
+      preserveLocation = false,
+      baseline,
+    } = {},
   ) {
     const checked = validateDocument(document);
     cancel();
@@ -96,21 +107,25 @@ export function installDocumentControls({
       try {
         const previous = storage?.draftState();
         previousDraft = previous?.document ?? null;
+        previousCleanFingerprint = previous?.cleanFingerprint ?? null;
         previousRecordId = previous?.legacy
           ? savedId
           : (previous?.recordId ?? undefined);
       } catch {
         previousDraft = null;
         previousRecordId = undefined;
+        previousCleanFingerprint = undefined;
       }
     }
     shared = fromShare;
     if (!shared) {
       previousDraft = undefined;
       previousRecordId = undefined;
+      previousCleanFingerprint = undefined;
       if (!preserveLocation) clearShareLocation();
     }
     savedId = id;
+    cleanFingerprint = baseline === undefined ? fingerprint(checked) : baseline;
     $("circuit-name").value = checked.title;
     replace(checked.circuit);
     showShared();
@@ -123,8 +138,9 @@ export function installDocumentControls({
     for (const dialog of document.querySelectorAll(".circuit-dialog[open]"))
       dialog.close();
   }
-  function openSave() {
+  function openSave({ forNew = false } = {}) {
     cancel();
+    pendingNew = forNew;
     $("save-name").value = current().title;
     $("save-copy").hidden = !savedId;
     $("save-submit").textContent = savedId
@@ -143,6 +159,7 @@ export function installDocumentControls({
       );
       savedId = record.id;
       $("circuit-name").value = record.document.title;
+      cleanFingerprint = fingerprint(record.document);
       edited();
       $("save-dialog").close();
       message(
@@ -150,6 +167,7 @@ export function installDocumentControls({
         false,
         true,
       );
+      finishNew();
     } catch (error) {
       formError("save-dialog", errorText(error));
     }
@@ -186,7 +204,23 @@ export function installDocumentControls({
     pendingLoad = { document: checked, options };
     $("confirm-copy").textContent =
       `「${checked.title}」を読み込みます。現在の回路は置き換わります。`;
+    formError("confirm-dialog", "");
     $("confirm-dialog").showModal();
+  }
+  function createNew() {
+    pendingNew = false;
+    closeDialogs();
+    apply(circuitDocument(makeNew()), { write: true });
+    message("");
+  }
+  function finishNew() {
+    if (pendingNew) createNew();
+  }
+  function cancelDialog(dialog) {
+    if (["save-dialog", "export-dialog", "unsaved-dialog"].includes(dialog.id))
+      pendingNew = false;
+    if (dialog.id === "confirm-dialog") pendingLoad = undefined;
+    if (dialog.id === "export-dialog") pendingExport = undefined;
   }
   function renderSaved() {
     const container = $("saved-list");
@@ -280,7 +314,21 @@ export function installDocumentControls({
   }
 
   $("circuit-name").addEventListener("input", edited);
-  $("save-circuit").onclick = openSave;
+  $("save-circuit").onclick = () => openSave();
+  $("new-circuit").onclick = () => {
+    cancel();
+    if (
+      cleanFingerprint !== null &&
+      fingerprint(current()) === cleanFingerprint
+    )
+      createNew();
+    else $("unsaved-dialog").showModal();
+  };
+  $("discard-and-new").onclick = createNew;
+  $("save-and-new").onclick = () => {
+    $("unsaved-dialog").close();
+    openSave({ forNew: true });
+  };
   $("save-form").onsubmit = (event) => {
     event.preventDefault();
     saveNamed();
@@ -301,16 +349,16 @@ export function installDocumentControls({
         exported = pendingExport;
       download(exported.text, name);
       $("circuit-name").value = exported.document.title;
+      cleanFingerprint = fingerprint(exported.document);
       edited();
       $("export-dialog").close();
       message(`「${name}」を書き出しました。`, false, true);
+      pendingExport = undefined;
+      finishNew();
     } catch (error) {
       formError("export-dialog", errorText(error));
     }
   };
-  $("export-dialog").addEventListener("close", () => {
-    pendingExport = undefined;
-  });
   $("load-circuit").onclick = () => {
     cancel();
     renderSaved();
@@ -318,17 +366,25 @@ export function installDocumentControls({
   };
   $("confirm-form").onsubmit = (event) => {
     event.preventDefault();
-    if (!pendingLoad) return;
+    if (!pendingLoad) {
+      formError("confirm-dialog", "回路を選び直してください。");
+      return;
+    }
     generation++;
     const loading = pendingLoad;
     // Release the inert background before measuring the resized drawing area.
-    $("confirm-dialog").close();
-    apply(loading.document, loading.options);
-    message("回路を読み込みました。", false, true);
+    try {
+      validateDocument(loading.document);
+      pendingLoad = undefined;
+      $("confirm-dialog").close();
+      apply(loading.document, loading.options);
+      message("回路を読み込みました。", false, true);
+    } catch (error) {
+      pendingLoad = loading;
+      if (!$("confirm-dialog").open) $("confirm-dialog").showModal();
+      formError("confirm-dialog", errorText(error));
+    }
   };
-  $("confirm-dialog").addEventListener("close", () => {
-    pendingLoad = undefined;
-  });
   $("import-circuit").onclick = () => $("circuit-file").click();
   $("circuit-file").addEventListener("change", async () => {
     const file = $("circuit-file").files?.[0];
@@ -360,7 +416,11 @@ export function installDocumentControls({
   };
   $("restore-own-circuit").onclick = () => {
     if (previousDraft)
-      confirmLoad(previousDraft, { id: previousRecordId, write: true });
+      confirmLoad(previousDraft, {
+        id: previousRecordId,
+        write: true,
+        baseline: previousCleanFingerprint,
+      });
   };
   $("share-circuit").onclick = async () => {
     cancel();
@@ -414,6 +474,7 @@ export function installDocumentControls({
     }
   };
   $("share-export").onclick = () => {
+    pendingNew = false;
     try {
       openExport();
     } catch (error) {
@@ -423,8 +484,14 @@ export function installDocumentControls({
   for (const button of document.querySelectorAll(
     "[data-close-circuit-dialog]",
   )) {
-    button.onclick = () => button.closest("dialog").close();
+    button.onclick = () => {
+      const dialog = button.closest("dialog");
+      cancelDialog(dialog);
+      dialog.close();
+    };
   }
+  for (const dialog of document.querySelectorAll(".circuit-dialog"))
+    dialog.addEventListener("cancel", () => cancelDialog(dialog));
   document.addEventListener("keydown", (event) => {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
       event.preventDefault();
@@ -441,12 +508,14 @@ export function installDocumentControls({
   return {
     edited,
     start() {
+      cleanFingerprint = fingerprint(current());
       try {
         const draft = storage?.draftState();
         if (draft) {
           apply(draft.document, {
             id: draft.recordId ?? undefined,
             preserveLocation: true,
+            baseline: draft.cleanFingerprint,
           });
           try {
             const records = storage.list();
@@ -460,6 +529,10 @@ export function installDocumentControls({
               !records.some((record) => record.id === savedId)
             )
               savedId = undefined;
+            if (savedId && !draft.cleanFingerprint) {
+              const record = records.find((record) => record.id === savedId);
+              if (record) cleanFingerprint = fingerprint(record.document);
+            }
           } catch {}
         }
       } catch (error) {

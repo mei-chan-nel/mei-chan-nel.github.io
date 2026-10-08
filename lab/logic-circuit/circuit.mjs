@@ -8,7 +8,16 @@ export const parts = {
   branch: { inputs: 1, outputs: 2, name: "分岐" },
 };
 
-export function connectionProblem(graph, from, to) {
+const otherConnection = (edge, from, to) =>
+  !(edge.from.node === from.node && edge.from.port === from.port) &&
+  !(edge.to.node === to.node && edge.to.port === to.port);
+
+export function connectionProblem(
+  graph,
+  from,
+  to,
+  { allowFanout = false } = {},
+) {
   const source = graph.nodes.find((n) => n.id === from.node);
   const target = graph.nodes.find((n) => n.id === to.node);
   if (
@@ -24,8 +33,10 @@ export function connectionProblem(graph, from, to) {
     to.port >= parts[target.type].inputs
   )
     return "出力端子から入力端子へつないでください。";
-  const remaining = graph.edges.filter(
-    (e) => e.to.node !== to.node || e.to.port !== to.port,
+  const remaining = graph.edges.filter((e) =>
+    allowFanout
+      ? e.to.node !== to.node || e.to.port !== to.port
+      : otherConnection(e, from, to),
   );
   const visit = (id) => {
     if (id === source.id) return true;
@@ -45,9 +56,7 @@ export function connect(graph, from, to, id) {
   return {
     ...graph,
     edges: [
-      ...graph.edges.filter(
-        (e) => e.to.node !== to.node || e.to.port !== to.port,
-      ),
+      ...graph.edges.filter((e) => otherConnection(e, from, to)),
       { id, from: { ...from }, to: { ...to } },
     ],
   };
@@ -126,7 +135,7 @@ export function truthTable(graph) {
 }
 
 // Imported, shared and local circuits are checked before replacing the editor.
-export function validCircuit(graph) {
+export function validCircuit(graph, { allowFanout = false } = {}) {
   if (
     !graph ||
     !Array.isArray(graph.nodes) ||
@@ -172,6 +181,13 @@ export function validCircuit(graph) {
     )
       return false;
     if (
+      node.name !== undefined &&
+      (!["input", "output"].includes(node.type) ||
+        typeof node.name !== "string" ||
+        node.name.length > 80)
+    )
+      return false;
+    if (
       !["input", "output"].includes(node.type) &&
       (!Number.isInteger(node.number) ||
         node.number < 1 ||
@@ -196,6 +212,7 @@ export function validCircuit(graph) {
   )
     return false;
   const connected = new Set(),
+    sources = new Set(),
     wireIds = new Set();
   const staged = { nodes: graph.nodes, edges: [] };
   for (const edge of graph.edges) {
@@ -206,14 +223,79 @@ export function validCircuit(graph) {
       wireIds.has(edge.id) ||
       !edge.from ||
       !edge.to ||
-      connectionProblem(staged, edge.from, edge.to)
+      connectionProblem(staged, edge.from, edge.to, { allowFanout })
     )
       return false;
     const key = `${edge.to.node}:${edge.to.port}`;
-    if (connected.has(key)) return false;
+    const sourceKey = `${edge.from.node}:${edge.from.port}`;
+    if (connected.has(key) || (!allowFanout && sources.has(sourceKey)))
+      return false;
     connected.add(key);
+    sources.add(sourceKey);
     wireIds.add(edge.id);
     staged.edges.push(edge);
   }
   return true;
+}
+
+// Older files allowed several wires from one outlet. Preserve every signal by
+// inserting explicit branch parts; never choose one legacy wire and drop others.
+export function explicitBranches(graph) {
+  const nodes = graph.nodes.map((n) => ({ ...n })),
+    edges = graph.edges.map((e) => ({
+      ...e,
+      from: { ...e.from },
+      to: { ...e.to },
+    }));
+  const nextCount = (key, minimum) =>
+    Number.isSafeInteger(graph[key]) ? Math.max(minimum, graph[key]) : minimum;
+  let nextNode = nextCount(
+      "nextNode",
+      Math.max(0, ...nodes.map((n) => Number(n.id.slice(1)))) + 1,
+    ),
+    nextWire = nextCount(
+      "nextWire",
+      Math.max(0, ...edges.map((e) => Number(e.id.slice(1)))) + 1,
+    ),
+    nextBranch = nextCount(
+      "nextBranch",
+      Math.max(
+        0,
+        ...nodes.filter((n) => n.type === "branch").map((n) => n.number),
+      ) + 1,
+    );
+  const groups = new Map();
+  for (const edge of edges) {
+    const key = `${edge.from.node}:${edge.from.port}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(edge);
+  }
+  for (const wires of groups.values()) {
+    if (wires.length < 2) continue;
+    if (nodes.length + wires.length - 1 > 40)
+      throw new Error(
+        "分岐を追加すると部品が40個を超えます。元の回路の部品を減らしてから読み込んでください。",
+      );
+    const source = nodes.find((n) => n.id === wires[0].from.node);
+    let outlet = { ...wires[0].from };
+    for (let i = 0; i < wires.length - 1; i++) {
+      const branch = {
+        id: `n${nextNode++}`,
+        type: "branch",
+        number: nextBranch++,
+        x: Math.min(9900, source.x + 110 + i * 105),
+        y: Math.min(9900, source.y + 90 + i * 50),
+      };
+      nodes.push(branch);
+      edges.push({
+        id: `w${nextWire++}`,
+        from: outlet,
+        to: { node: branch.id, port: 0 },
+      });
+      wires[i].from = { node: branch.id, port: 0 };
+      outlet = { node: branch.id, port: 1 };
+    }
+    wires.at(-1).from = outlet;
+  }
+  return { ...graph, nodes, edges };
 }

@@ -1,4 +1,4 @@
-import { validateDocument, FORMAT, FILE_BYTES } from "./documents.mjs?v=4";
+import { validateDocument, FORMAT, FILE_BYTES } from "./documents.mjs?v=6";
 const TYPES = ["input", "output", "and", "or", "not", "branch"];
 const URL_LIMIT = 100000;
 const tooLarge = () =>
@@ -50,9 +50,17 @@ function packet(document) {
       n.x,
       n.y,
       ...(n.type === "input"
-        ? [n.label, n.value, ...(n.meaning ? [n.meaning] : [])]
+        ? [
+            n.label,
+            n.value,
+            ...(n.name
+              ? [n.meaning ?? "", n.name]
+              : n.meaning
+                ? [n.meaning]
+                : []),
+          ]
         : n.type === "output"
-          ? [n.label, n.meaning ?? ""]
+          ? [n.label, n.meaning ?? "", ...(n.name ? [n.name] : [])]
           : [n.number]),
     ]),
     g.edges.map((e) => [e.id, e.from.node, e.from.port, e.to.node, e.to.port]),
@@ -80,8 +88,10 @@ function readPacket(p) {
       n[1] < 0 ||
       n[1] >= TYPES.length ||
       !(n[1] === 0
-        ? [6, 7].includes(n.length)
-        : n.length === (n[1] === 1 ? 6 : 5))
+        ? [6, 7, 8].includes(n.length)
+        : n[1] === 1
+          ? [6, 7].includes(n.length)
+          : n.length === 5)
     )
       throw new Error("共有URLの部品を読み取れません。");
     return {
@@ -93,10 +103,15 @@ function readPacket(p) {
         ? {
             label: n[4],
             value: n[5],
-            ...(n.length === 7 ? { meaning: n[6] } : {}),
+            ...(n.length >= 7 ? { meaning: n[6] } : {}),
+            ...(n.length === 8 ? { name: n[7] } : {}),
           }
         : n[1] === 1
-          ? { label: n[4], meaning: n[5] }
+          ? {
+              label: n[4],
+              meaning: n[5],
+              ...(n.length === 7 ? { name: n[6] } : {}),
+            }
           : { number: n[4] }),
     };
   });

@@ -419,7 +419,12 @@ def main() -> int:
     if unknown_term_tags:
         errors.append("term page tag(s) are not present in the authoritative tag list: " + ", ".join(unknown_term_tags))
 
-    page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
+    page_paths = sorted(
+        path for path in ROOT.rglob("*.html")
+        if not path.name.startswith("google")
+        # Lab templates are fragments; validate their generated pages instead.
+        and not path.is_relative_to(ROOT / "lab" / "tools" / "templates")
+    )
     parsers: dict[Path, PageParser] = {}
     expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース")
     expected_footer_labels = (*expected_nav_labels, "書籍案内", "使い方", "このサイトについて", "プライバシーポリシー", "サイトマップ")

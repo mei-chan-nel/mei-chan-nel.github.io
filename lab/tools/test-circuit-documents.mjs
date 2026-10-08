@@ -69,6 +69,11 @@ async function loadExample(page, type, touch = false) {
   await press(`#circuit-example-list [data-example="${type}"]`);
   await press('#confirm-form button[type="submit"]');
 }
+async function newCircuit(page) {
+  await page.locator("#new-circuit").click();
+  if (await page.locator("#unsaved-dialog").isVisible())
+    await page.locator("#discard-and-new").click();
+}
 let sharingURL, sharedDocument;
 try {
   for (const width of [1280, 390, 320]) {
@@ -153,7 +158,7 @@ try {
     assert.deepEqual(exported, parseDocument(await stored(page, DRAFT_KEY)));
     assert.ok(!text.includes(overwritten[0].id));
 
-    await press("#clear-circuit");
+    await newCircuit(page);
     const blank = await circuit(page);
     await press("#load-circuit");
     await audit(page);
@@ -262,7 +267,7 @@ try {
     await press("#share-dialog [data-close-circuit-dialog]");
 
     // Browser-list load and its two-click delete confirmation.
-    await press("#clear-circuit");
+    await newCircuit(page);
     await press("#load-circuit");
     await page
       .locator(".saved-circuit-item")

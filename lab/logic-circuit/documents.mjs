@@ -1,5 +1,5 @@
-import { validCircuit } from "./circuit.mjs?v=4";
-import { circuitExamples } from "./examples.mjs?v=4";
+import { validCircuit, explicitBranches } from "./circuit.mjs?v=6";
+import { circuitExamples } from "./examples.mjs?v=6";
 
 export const FORMAT = "interactive-lab-logic-circuit";
 export const FILE_BYTES = 100000;
@@ -23,17 +23,21 @@ export function validateDocument(value) {
     throw new Error("論理回路の保存形式・バージョンに対応していません。");
   if (typeof value.title !== "string" || value.title.length > 120)
     throw new Error("回路名は120文字以内にしてください。");
-  if (!validCircuit(value.circuit))
+  if (!validCircuit(value.circuit, { allowFanout: true }))
     throw new Error(
       "部品や配線を読み取れません。論理回路から書き出したファイルを選んでください。",
     );
   // Keep only document fields, never runtime state or properties from an import.
-  const graph = value.circuit;
+  const graph = explicitBranches(value.circuit);
+  if (!validCircuit(graph)) throw new Error("分岐の部品を読み取れません。");
   const nodes = graph.nodes.map((node) => ({
     id: node.id,
     type: node.type,
     x: node.x,
     y: node.y,
+    ...(["input", "output"].includes(node.type) && node.name?.trim()
+      ? { name: node.name.trim() }
+      : {}),
     ...(node.type === "input"
       ? {
           label: node.label,
@@ -169,7 +173,7 @@ export class CircuitStorage {
     const raw = this.get(DRAFT_KEY);
     if (!raw) return null;
     try {
-      if (byteLength(raw) > FILE_BYTES) throw new Error("size");
+      if (byteLength(raw) > FILE_BYTES * 2 + 4096) throw new Error("size");
       const data = JSON.parse(raw);
       // Migrate the graph-only automatic save from the first circuit release.
       const document = data?.format
@@ -183,7 +187,19 @@ export class CircuitStorage {
           !/^[\w-]{1,80}$/u.test(data.recordId))
       )
         throw new Error("record");
-      return { document, recordId: legacy ? null : data.recordId, legacy };
+      if (
+        data.cleanFingerprint !== undefined &&
+        data.cleanFingerprint !== null &&
+        (typeof data.cleanFingerprint !== "string" ||
+          byteLength(data.cleanFingerprint) > FILE_BYTES)
+      )
+        throw new Error("baseline");
+      return {
+        document,
+        recordId: legacy ? null : data.recordId,
+        legacy,
+        cleanFingerprint: data.cleanFingerprint ?? null,
+      };
     } catch {
       throw new Error(
         "前回の作業を読み取れませんでした。保存一覧やファイルから読み込めます。",
@@ -193,17 +209,27 @@ export class CircuitStorage {
   draft() {
     return this.draftState()?.document ?? null;
   }
-  saveDraft(document, recordId = null) {
+  saveDraft(document, recordId = null, cleanFingerprint = null) {
     if (
       recordId !== null &&
       (typeof recordId !== "string" || !/^[\w-]{1,80}$/u.test(recordId))
     )
       throw new Error("保存先を読み取れません。");
+    if (
+      cleanFingerprint !== null &&
+      (typeof cleanFingerprint !== "string" ||
+        byteLength(cleanFingerprint) > FILE_BYTES)
+    )
+      throw new Error("保存状態を読み取れません。");
     // The association belongs to this browser's draft only. Imported/exported
     // documents and shared URLs never carry a recipient's overwrite target.
     this.put(
       DRAFT_KEY,
-      JSON.stringify({ ...validateDocument(document), recordId }),
+      JSON.stringify({
+        ...validateDocument(document),
+        recordId,
+        cleanFingerprint,
+      }),
     );
   }
   list() {

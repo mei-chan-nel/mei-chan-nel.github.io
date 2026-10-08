@@ -4,10 +4,10 @@ import {
   evaluate,
   orderedNodes,
   truthTable,
-} from "./circuit.mjs?v=4";
+} from "./circuit.mjs?v=6";
 import { symbol, portOffset, miniSymbol } from "./symbols.mjs";
-import { exampleCircuit, arithmeticReadout } from "./examples.mjs?v=4";
-import { installDocumentControls } from "./document-ui.mjs?v=4";
+import { exampleCircuit, arithmeticReadout } from "./examples.mjs?v=6";
+import { installDocumentControls } from "./document-ui.mjs?v=6";
 
 const $ = (id) => document.getElementById(id);
 const board = $("circuit-board"),
@@ -29,6 +29,8 @@ let graph,
   pendingPort,
   gesture,
   fitAfterResize,
+  editingTerminal,
+  stageResize,
   suppressPaletteClick = false;
 let past = [],
   future = [],
@@ -60,9 +62,9 @@ const insideStage = (clientX, clientY) => {
 const snap = (n) => Math.max(-9000, Math.min(9000, Math.round(n / 8) * 8));
 const label = (node) =>
   node.type === "input"
-    ? `入力${node.label}`
+    ? `入力${node.name || node.label}`
     : node.type === "output"
-      ? `出力${node.label}`
+      ? `出力${node.name || node.label}`
       : node.type === "branch"
         ? `分岐${node.number}`
         : `ゲート${node.number} ${node.type.toUpperCase()}`;
@@ -105,8 +107,7 @@ function message(text, error = false, timed = false) {
   clearTimeout(toastTimer);
   $("circuit-message").textContent = text;
   $("circuit-message").classList.toggle("is-error", error);
-  if (timed)
-    toastTimer = setTimeout(() => message("入力を切り替えて試せます。"), 4500);
+  if (timed) toastTimer = setTimeout(() => message(""), 4500);
 }
 function save() {
   documentTools?.edited();
@@ -368,6 +369,39 @@ function toggleInput(id) {
   render();
   save();
 }
+const terminalTitle = (node) =>
+  node.name || `${node.type === "input" ? "入力" : "出力"} ${node.label}`;
+function shortTitle(name) {
+  let width = 0,
+    result = "";
+  for (const character of name) {
+    width += /[ -~]/.test(character) ? 0.55 : 1;
+    if (width > 8) return result + "…";
+    result += character;
+  }
+  return result;
+}
+function openTerminalName(id) {
+  const node = findNode(id);
+  if (!node || !["input", "output"].includes(node.type)) return;
+  cancelGesture();
+  editingTerminal = id;
+  $("terminal-name").value = terminalTitle(node);
+  $("terminal-dialog").showModal();
+  $("terminal-name").select();
+}
+$("terminal-form").onsubmit = (event) => {
+  event.preventDefault();
+  const node = findNode(editingTerminal),
+    name = $("terminal-name").value.trim();
+  $("terminal-dialog").close();
+  if (node && name && name !== terminalTitle(node))
+    change(() => {
+      node.name = name;
+    });
+  if (node) restoreFocus(`name-${node.id}`);
+  editingTerminal = undefined;
+};
 function applyRow(index) {
   const row = truthTable(graph)[index];
   for (const node of graph.nodes)
@@ -423,9 +457,9 @@ function renderBoard(values = evaluate(graph)) {
         output = node.type === "output";
       let body;
       if (input)
-        body = `<text class="node-title" y="-31">入力 ${node.label}</text><rect class="input-body" x="-32" y="-20" width="64" height="40"/><text class="input-value" y="1">${value}</text><path class="symbol-stub" d="M32 0H44"/>${node.meaning ? `<text class="node-type" y="41">${esc(node.meaning)}</text>` : ""}`;
+        body = `<rect class="input-body" x="-32" y="-20" width="64" height="40"/><text class="input-value" y="1">${value}</text><path class="symbol-stub" d="M32 0H44"/>${node.meaning ? `<text class="node-type" y="41">${esc(node.meaning)}</text>` : ""}`;
       else if (output)
-        body = `<text class="node-title" x="8" y="-35">出力 ${node.label}</text><circle class="output-lamp" cx="8" r="23"/><text class="input-value" x="8" y="1">${showValue(value)}</text><path class="symbol-stub" d="M-34 0H-15"/>${node.meaning ? `<text class="node-type" x="8" y="41">${esc(node.meaning)}</text>` : ""}`;
+        body = `<circle class="output-lamp" cx="8" r="23"/><text class="input-value" x="8" y="1">${showValue(value)}</text><path class="symbol-stub" d="M-34 0H-15"/>${node.meaning ? `<text class="node-type" x="8" y="41">${esc(node.meaning)}</text>` : ""}`;
       else if (node.type === "branch")
         body = `<text class="node-title" y="-35">分${node.number}</text>${symbol(node.type)}${valueBadge(value, 38, -35)}`;
       else
@@ -435,7 +469,11 @@ function renderBoard(values = evaluate(graph)) {
         ports.push(portHTML(node, "in", i, values));
       for (let i = 0; i < parts[node.type].outputs; i++)
         ports.push(portHTML(node, "out", i, values));
-      return `<g class="circuit-node value-${signalClass(value)}" data-id="${node.id}" data-type="${node.type}" data-number="${node.number || ""}" data-label="${esc(node.label)}" transform="translate(${node.x} ${node.y})" role="group" aria-label="${esc(label(node))}、出力${showValue(value)}"><g class="node-body" role="button" tabindex="0" data-focus-key="node-${node.id}" aria-description="${esc(label(node))}${input ? `、現在${value}、押すと切り替え` : "を選択。矢印キーで移動"}">${selected?.kind === "node" && selected.id === node.id ? '<rect class="node-selected" x="-61" y="-54" width="133" height="100"/>' : ""}${body}</g>${ports.join("")}</g>`;
+      const title =
+        input || output
+          ? `<g class="node-name" role="button" tabindex="0" data-node-name="${node.id}" data-focus-key="name-${node.id}" aria-label="${esc(shortTitle(terminalTitle(node)))}の名前を編集${shortTitle(terminalTitle(node)) === terminalTitle(node) ? "" : `：${esc(terminalTitle(node))}`}"><title>${esc(terminalTitle(node))}：名前を変更</title><rect class="node-name-hit" x="${output ? -58 : -66}" y="-53" width="132" height="27"/><text class="node-title" x="${output ? 8 : 0}" y="-35">${esc(shortTitle(terminalTitle(node)))}</text></g>`
+          : "";
+      return `<g class="circuit-node value-${signalClass(value)}" data-id="${node.id}" data-type="${node.type}" data-number="${node.number || ""}" data-label="${esc(node.label)}" transform="translate(${node.x} ${node.y})" role="group" aria-label="${esc(label(node))}、出力${showValue(value)}"><g class="node-body" role="button" tabindex="0" data-focus-key="node-${node.id}" aria-description="${esc(label(node))}${input ? `、現在${value}、押すと切り替え` : "を選択。矢印キーで移動"}">${selected?.kind === "node" && selected.id === node.id ? '<rect class="node-selected" x="-61" y="-54" width="133" height="100"/>' : ""}${body}</g>${ports.join("")}${title}</g>`;
     })
     .join("");
   updatePreview();
@@ -445,7 +483,7 @@ function headerLabel(node) {
   if (gateTypes.includes(node.type))
     return `<span class="table-number">${node.number}</span>${node.type.toUpperCase()}`;
   return (
-    esc(node.label) +
+    esc(node.name || node.label) +
     (node.meaning ? `<small> ${esc(node.meaning)}</small>` : "")
   );
 }
@@ -625,7 +663,8 @@ board.addEventListener("pointerdown", (event) => {
   pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
   board.setPointerCapture(event.pointerId);
   if (pointers.size === 2) return startPinch();
-  const port = portFromElement(event.target),
+  const nameElement = event.target.closest("[data-node-name]"),
+    port = portFromElement(event.target),
     nodeElement = event.target.closest(".circuit-node"),
     edgeElement = event.target.closest("[data-edge]");
   const common = {
@@ -634,7 +673,9 @@ board.addEventListener("pointerdown", (event) => {
     startY: event.clientY,
     moved: false,
   };
-  if (port)
+  if (nameElement)
+    gesture = { ...common, kind: "name", id: nameElement.dataset.nodeName };
+  else if (port)
     gesture = {
       ...common,
       kind: "wire",
@@ -754,7 +795,9 @@ window.addEventListener("pointerup", (event) => {
   gesture = undefined;
   $("part-ghost").hidden = true;
   updatePreview();
-  if (completed.kind === "new") {
+  if (completed.kind === "name") {
+    if (!completed.moved) openTerminalName(completed.id);
+  } else if (completed.kind === "new") {
     if (completed.moved) {
       suppressPaletteClick = true;
       setTimeout(() => (suppressPaletteClick = false), 0);
@@ -784,6 +827,7 @@ window.addEventListener("pointercancel", () => {
   render();
 });
 window.addEventListener("blur", () => {
+  stageResize = undefined;
   cancelGesture();
   render();
 });
@@ -808,6 +852,14 @@ board.addEventListener(
   { passive: false },
 );
 board.addEventListener("keydown", (event) => {
+  const nameElement = event.target.closest("[data-node-name]");
+  if (nameElement) {
+    if (["Enter", " "].includes(event.key)) {
+      event.preventDefault();
+      openTerminalName(nameElement.dataset.nodeName);
+    }
+    return;
+  }
   const port = portFromElement(event.target),
     nodeElement = event.target.closest(".circuit-node"),
     wireElement = event.target.closest("[data-edge]");
@@ -890,16 +942,62 @@ $("delete-selected").onclick = deleteSelected;
 $("zoom-out-circuit").onclick = () => zoomBy(1 / 1.2);
 $("zoom-in-circuit").onclick = () => zoomBy(1.2);
 $("fit-circuit").onclick = () => fitAll();
-$("clear-circuit").onclick = () => {
+const resizeHandle = $("resize-circuit");
+function resizeStage(width, height) {
+  const maximumWidth = stage.parentElement.clientWidth;
+  stage.style.width = `${Math.max(Math.min(260, maximumWidth), Math.min(maximumWidth, width))}px`;
+  stage.style.height = `${Math.max(260, Math.min(1400, height))}px`;
+}
+resizeHandle.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0) return;
+  event.preventDefault();
   cancelGesture();
-  change(() => {
-    graph = exampleCircuit("blank", stage.clientWidth, stage.clientHeight);
-    selected = undefined;
-  }, "部品を置いて回路をつくれます。");
-  camera.x = camera.y = 0;
-  camera.zoom = 1;
-  updateCamera();
-};
+  const size = stage.getBoundingClientRect();
+  stageResize = {
+    pointer: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    width: size.width,
+    height: size.height,
+  };
+  resizeHandle.setPointerCapture(event.pointerId);
+});
+resizeHandle.addEventListener("pointermove", (event) => {
+  if (stageResize?.pointer !== event.pointerId) return;
+  resizeStage(
+    stageResize.width + event.clientX - stageResize.x,
+    stageResize.height + event.clientY - stageResize.y,
+  );
+});
+for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
+  resizeHandle.addEventListener(type, () => {
+    stageResize = undefined;
+  });
+resizeHandle.addEventListener("keydown", (event) => {
+  if (event.key === "Home") {
+    event.preventDefault();
+    stage.style.width = "";
+    stage.style.height = "";
+    return;
+  }
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key))
+    return;
+  event.preventDefault();
+  const size = stage.getBoundingClientRect(),
+    step = event.shiftKey ? 64 : 16,
+    width = parseFloat(stage.style.width) || size.width,
+    height = parseFloat(stage.style.height) || size.height;
+  resizeStage(
+    width +
+      (event.key === "ArrowLeft"
+        ? -step
+        : event.key === "ArrowRight"
+          ? step
+          : 0),
+    height +
+      (event.key === "ArrowUp" ? -step : event.key === "ArrowDown" ? step : 0),
+  );
+});
 
 graph = exampleCircuit("and", stage.clientWidth, stage.clientHeight);
 render();
@@ -920,11 +1018,13 @@ documentTools = installDocumentControls({
   read: () => graph,
   makeExample: (type) =>
     exampleCircuit(type, stage.clientWidth, stage.clientHeight),
+  makeNew: () => exampleCircuit("blank", stage.clientWidth, stage.clientHeight),
   replace: (incoming) => {
     // A change in the drawing area's height commits after the modal closes.
     // Refit using the actual new size when ResizeObserver reports it.
     const largerStage = incoming.nodes.length > 20;
     fitAfterResize =
+      stage.style.height ||
       stage.classList.contains("complex-circuit") === largerStage
         ? undefined
         : { graph: incoming, height: stage.clientHeight };
