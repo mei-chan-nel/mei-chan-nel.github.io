@@ -1,14 +1,14 @@
-import { byId, button, element, showFormError, showMessage } from './dom.js?v=20261009-function-editor2';
-import { validateDraft } from './documents.js?v=20261009-function-editor2';
-import { commandEditor } from './command-editor.js?v=20261009-function-editor2';
-import { assertReady, blankRow, builderLines, builderSource, modelFromDraft, newCommand, validateBuilder } from './builder-model.js?v=20261009-function-editor2';
-import { tapControls } from './tap-controls.js?v=20261009-function-editor2';
-import { colorCode } from './runner-view.js?v=20261009-function-editor2';
-import { builderContext } from './builder-variables.js?v=20261009-function-editor2';
-import { functionReferenceLines, hasValueReturn } from './builder-functions.js?v=20261009-function-editor2';
+import { byId, button, element, showFormError, showMessage } from './dom.js?v=20261009-function-help3';
+import { validateDraft } from './documents.js?v=20261009-function-help3';
+import { commandEditor } from './command-editor.js?v=20261009-function-help3';
+import { assertReady, blankRow, builderLines, builderSource, modelFromDraft, newCommand, validateBuilder } from './builder-model.js?v=20261009-function-help3';
+import { tapControls } from './tap-controls.js?v=20261009-function-help3';
+import { colorCode } from './runner-view.js?v=20261009-function-help3';
+import { builderContext } from './builder-variables.js?v=20261009-function-help3';
+import { functionReferenceLines } from './builder-functions.js?v=20261009-function-help3';
 import { StudioError } from './errors.js';
-import { splitComment } from './lexer.js?v=20261009-function-editor2';
-import { dropDestination, moveRow, rowLocations, rowMoveDestination } from './builder-moves.js?v=20261009-function-editor2';
+import { splitComment } from './lexer.js?v=20261009-function-help3';
+import { dropDestination, moveRow, rowLocations, rowMoveDestination } from './builder-moves.js?v=20261009-function-help3';
 export class ProgramEditor {
     changed;
     title = byId('program-name');
@@ -374,7 +374,6 @@ export class ProgramEditor {
                 remove.title = 'この関数を削除';
                 heading.append(element('h2', '', `関数：${node.name}`), remove);
                 block.append(heading);
-                block.append(element('p', 'function-block-help', hasValueReturn(node.body) ? '返す値あり：変数・配列の右辺の候補から使えます。' : '返す値なし：「関数」から呼び出せます。値を返す場合は、空白行 → 関数 → 値を返すで設定します。'));
                 container = element('ol', 'program-lines builder-rows');
                 container.setAttribute('aria-label', `${node.name} のプログラム`);
                 block.append(container);

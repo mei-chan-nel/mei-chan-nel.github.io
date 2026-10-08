@@ -1,5 +1,5 @@
-import { validateDraft, validateInputSpec } from './documents.js?v=20261009-function-editor2';
-import { assertReady, builderSource, modelFromDraft, modelFromSource, rowId, validateBuilder } from './builder-model.js?v=20261009-function-editor2';
+import { validateDraft, validateInputSpec } from './documents.js?v=20261009-function-help3';
+import { assertReady, builderSource, modelFromDraft, modelFromSource, rowId, validateBuilder } from './builder-model.js?v=20261009-function-help3';
 import { LIMITS, StudioError, validName } from './errors.js';
 // These tables are part of share v2. Append in a future format; never reorder.
 const unary = ['+', '-', 'not'];

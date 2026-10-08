@@ -288,7 +288,6 @@ html.trace-fullscreen #runner-document-tools, html.trace-fullscreen .recovery-bu
 .builder-function-block .panel-heading { padding: 12px 16px; }
 .builder-function-block .panel-heading h2 { min-width: 0; overflow-wrap: anywhere; }
 .function-delete { flex: 0 0 40px; width: 40px; height: 40px; margin-left: auto; color: var(--coral-strong); }
-.function-block-help { margin: 0; padding: 0 16px 8px; color: var(--ink-soft); font: .72rem/1.7 var(--sans); }
 .builder-definition { cursor: default; }
 .builder-row.is-definition:hover { background: transparent; }
 .function-parameters { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }

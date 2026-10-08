@@ -1,5 +1,5 @@
-import { constantValue } from './expressions.js?v=20261009-function-editor2';
-import { hasValueReturn } from './builder-functions.js?v=20261009-function-editor2';
+import { constantValue } from './expressions.js?v=20261009-function-help3';
+import { hasValueReturn } from './builder-functions.js?v=20261009-function-help3';
 export function builderContext(model, specs, base, functionId) {
     const catalog = new Map(), strings = new Set();
     const add = (item) => {

@@ -1,10 +1,10 @@
-import { element, button } from './dom.js?v=20261009-function-editor2';
-import { expressionText, valueExpression } from './expressions.js?v=20261009-function-editor2';
+import { element, button } from './dom.js?v=20261009-function-help3';
+import { expressionText, valueExpression } from './expressions.js?v=20261009-function-help3';
 import { builtinRegistry, getBuiltin } from './builtins.js';
 import { StudioError, LIMITS } from './errors.js';
-import { literal, variable } from './builder-model.js?v=20261009-function-editor2';
-import { readExpressionInput, normalizeExpressionInput, validateExpression } from './expression-input.js?v=20261009-function-editor2';
-import { openTapPad, tapControls } from './tap-controls.js?v=20261009-function-editor2';
+import { literal, variable } from './builder-model.js?v=20261009-function-help3';
+import { readExpressionInput, normalizeExpressionInput, validateExpression } from './expression-input.js?v=20261009-function-help3';
+import { openTapPad, tapControls } from './tap-controls.js?v=20261009-function-help3';
 let serial = 0;
 export function field(label, value, type = 'text') {
     const node = element('div', 'builder-field'), caption = element('label', '', label), input = element('input');

@@ -1,13 +1,13 @@
-import { element, button, showFormError } from './dom.js?v=20261009-function-editor2';
-import { expressionEditor, field, nameField, selection, subExpression } from './expression-editor.js?v=20261009-function-editor2';
-import { targetEditor, targetText } from './target-editor.js?v=20261009-function-editor2';
-import { literal } from './builder-model.js?v=20261009-function-editor2';
-import { settingsEditor } from './input-settings.js?v=20261009-function-editor2';
-import { defaultInput } from './documents.js?v=20261009-function-editor2';
-import { constantValue } from './expressions.js?v=20261009-function-editor2';
+import { element, button, showFormError } from './dom.js?v=20261009-function-help3';
+import { expressionEditor, field, nameField, selection, subExpression } from './expression-editor.js?v=20261009-function-help3';
+import { targetEditor, targetText } from './target-editor.js?v=20261009-function-help3';
+import { literal } from './builder-model.js?v=20261009-function-help3';
+import { settingsEditor } from './input-settings.js?v=20261009-function-help3';
+import { defaultInput } from './documents.js?v=20261009-function-help3';
+import { constantValue } from './expressions.js?v=20261009-function-help3';
 import { LIMITS, StudioError, validName } from './errors.js';
 import { builtinRegistry, getBuiltin } from './builtins.js';
-import { normalizeSymbols } from './lexer.js?v=20261009-function-editor2';
+import { normalizeSymbols } from './lexer.js?v=20261009-function-help3';
 export function commandEditor(initial, context, specs, fresh = false, valueFunction) {
     const node = element('div', 'command-fields'), draft = structuredClone(initial);
     let readBody = () => draft, inputSpec;

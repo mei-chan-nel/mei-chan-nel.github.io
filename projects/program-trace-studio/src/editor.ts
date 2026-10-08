@@ -8,7 +8,7 @@ import type { ExpressionContext } from './expression-editor.js';
 import { tapControls } from './tap-controls.js';
 import { colorCode } from './runner-view.js';
 import { builderContext } from './builder-variables.js';
-import { functionReferenceLines, hasValueReturn } from './builder-functions.js';
+import { functionReferenceLines } from './builder-functions.js';
 import { StudioError } from './errors.js';
 import { splitComment } from './lexer.js';
 import { dropDestination, moveRow, rowLocations, rowMoveDestination } from './builder-moves.js';
@@ -205,7 +205,6 @@ export class ProgramEditor {
         const block = element('section', 'builder-function-block panel'), heading = element('div', 'panel-heading');
         const remove = button('×', () => this.removeFunction(node), 'close-button function-delete'); remove.setAttribute('aria-label', `関数「${node.name}」を削除`); remove.title = 'この関数を削除';
         heading.append(element('h2', '', `関数：${node.name}`), remove); block.append(heading);
-        block.append(element('p', 'function-block-help', hasValueReturn(node.body) ? '返す値あり：変数・配列の右辺の候補から使えます。' : '返す値なし：「関数」から呼び出せます。値を返す場合は、空白行 → 関数 → 値を返すで設定します。'));
         container = element('ol', 'program-lines builder-rows'); container.setAttribute('aria-label', `${node.name} のプログラム`);
         block.append(container); blocks.append(block);
       } else container = byId('builder-rows');

@@ -1,4 +1,4 @@
-import { builderLines } from './builder-model.js?v=20261009-function-editor2';
+import { builderLines } from './builder-model.js?v=20261009-function-help3';
 export function hasValueReturn(nodes) {
     return nodes.some(node => node.kind === 'return' && !!node.expression
         || node.kind !== 'define' && 'body' in node && hasValueReturn(node.body)

@@ -1,4 +1,4 @@
-import { validateBuilder } from './builder-model.js?v=20261009-function-editor2';
+import { validateBuilder } from './builder-model.js?v=20261009-function-help3';
 import { StudioError, LIMITS } from './errors.js';
 export function rowLocations(model) {
     const result = new Map();

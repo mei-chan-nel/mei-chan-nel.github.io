@@ -1,6 +1,6 @@
 import { LIMITS, StudioError, validName } from './errors.js';
-import { normalizeSymbols, splitComment, tokenize } from './lexer.js?v=20261009-function-editor2';
-import { ExpressionParser, parseExpression, toTarget, constantValue } from './expressions.js?v=20261009-function-editor2';
+import { normalizeSymbols, splitComment, tokenize } from './lexer.js?v=20261009-function-help3';
+import { ExpressionParser, parseExpression, toTarget, constantValue } from './expressions.js?v=20261009-function-help3';
 import { builtinRegistry, getBuiltin } from './builtins.js';
 const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
 export function sourceLines(source) {

@@ -1,5 +1,5 @@
-import { normalizeSymbols, tokenize } from './lexer.js?v=20261009-function-editor2';
-import { constantValue, parseExpression } from './expressions.js?v=20261009-function-editor2';
+import { normalizeSymbols, tokenize } from './lexer.js?v=20261009-function-help3';
+import { constantValue, parseExpression } from './expressions.js?v=20261009-function-help3';
 import { getBuiltin, builtinRegistry } from './builtins.js';
 import { StudioError, LIMITS } from './errors.js';
 import { binary, numeric, truth } from './values.js';

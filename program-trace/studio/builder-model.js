@@ -1,5 +1,5 @@
-import { parseProgram } from './parser.js?v=20261009-function-editor2';
-import { expressionText, parseExpression } from './expressions.js?v=20261009-function-editor2';
+import { parseProgram } from './parser.js?v=20261009-function-help3';
+import { expressionText, parseExpression } from './expressions.js?v=20261009-function-help3';
 import { LIMITS, StudioError, validName } from './errors.js';
 import { getBuiltin, builtinRegistry } from './builtins.js';
 import { validateValue } from './values.js';
