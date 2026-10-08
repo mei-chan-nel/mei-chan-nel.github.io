@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { resolutions as sizes } from "../digital-image/pixels.mjs";
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.LAB_PLAYWRIGHT_MODULE || "playwright");
 const axePath = require.resolve(
@@ -21,10 +22,9 @@ async function waitText(page, selector, text) {
     { selector, text },
   );
 }
-const sizes = [
-  4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024,
-];
-async function resolution(page, index) {
+async function resolution(page, size) {
+  const index = sizes.indexOf(size);
+  assert.ok(index >= 0, `Unsupported resolution: ${size}`);
   await page.locator("#resolution").evaluate(
     (input, { index, sizes }) => {
       const max = sizes.findLastIndex(
@@ -122,15 +122,40 @@ try {
       ),
     );
     await page.check("#show-grid");
-    await page.locator("#resolution").evaluate((input) => {
-      input.value = 430;
+    const smoothPosition = String(
+      Number(await page.locator("#resolution").inputValue()) + 1,
+    );
+    await page.locator("#resolution").evaluate((input, value) => {
+      input.value = value;
       input.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-    assert.equal(await page.locator("#resolution").inputValue(), "430");
+    }, smoothPosition);
+    assert.equal(
+      await page.locator("#resolution").inputValue(),
+      smoothPosition,
+    );
     await page.locator("#resolution").focus();
     await page.keyboard.press("ArrowRight");
-    await waitText(page, "#metric-pixels", "9,216");
-    await resolution(page, 6);
+    await waitText(page, "#metric-pixels", "4,624画素");
+    assert.equal(
+      await page.locator("#source-grid").getAttribute("data-cells"),
+      "68",
+    );
+    await resolution(page, 8);
+    await page.keyboard.press("ArrowRight");
+    await waitText(page, "#metric-pixels", "81画素");
+    assert.equal(
+      await page.locator("#output-canvas").getAttribute("width"),
+      "9",
+    );
+    assert.equal(
+      await page.locator("#source-grid").getAttribute("data-cells"),
+      "9",
+    );
+    await waitText(page, "#metric-size", "243 B");
+    await resolution(page, 32);
+    await page.keyboard.press("ArrowRight");
+    await waitText(page, "#metric-pixels", "1,156画素");
+    await resolution(page, 64);
     await waitText(page, "#metric-pixels", "4,096");
     const sourceBefore = await page
       .locator("#source-canvas")
@@ -145,7 +170,7 @@ try {
         path: "/tmp/lab-image-mobile.png",
         fullPage: true,
       });
-    await resolution(page, 0);
+    await resolution(page, 4);
     await waitText(page, "#metric-pixels", "16画素");
     assert.equal(
       await page.locator("#source-grid").getAttribute("data-cells"),
@@ -239,7 +264,7 @@ try {
       await page.locator("#bits-g-down").tap();
       assert.match(await page.locator("#bits-g").innerText(), /^7/);
     }
-    await resolution(page, 0);
+    await resolution(page, 4);
     // Upload a known red/blue rectangle. The central square must preserve both halves.
     const fixture = await page.evaluate(() => {
       const c = document.createElement("canvas");
@@ -278,7 +303,7 @@ try {
     });
     await waitText(page, "#image-error", "読み込めません");
     assert.deepEqual(await pixelValues(page), uploaded);
-    await resolution(page, 14);
+    await resolution(page, 1024);
     await waitText(page, "#metric-pixels", "1,024画素");
     assert.equal(
       await page.locator("#output-canvas").getAttribute("width"),
@@ -328,15 +353,18 @@ try {
     await page.locator("script[src],link[rel=stylesheet]").count(),
     0,
   );
-  await resolution(page, 14);
+  await resolution(page, 1024);
   await waitText(page, "#metric-pixels", "1,048,576画素");
   await waitText(page, "#metric-size", "384 KiB");
-  await page.locator("#resolution").evaluate((input) => {
-    for (const value of [0, 1000, 80, 850, 72]) {
+  await page.locator("#resolution").evaluate((input, sizes) => {
+    const lastPosition = Math.round(
+      (sizes.indexOf(8) / (sizes.length - 1)) * 1000,
+    );
+    for (const value of [0, 1000, 80, 850, lastPosition]) {
       input.value = value;
       input.dispatchEvent(new Event("input", { bubbles: true }));
     }
-  });
+  }, sizes);
   await waitText(page, "#metric-pixels", "64画素");
   assert.equal(
     await page.locator("#source-grid").getAttribute("data-cells"),

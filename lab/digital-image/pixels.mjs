@@ -1,7 +1,14 @@
 // Values here are encoded RGB intensities (0..255), not linear-light radiance.
 export const resolutions = [
-  4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024,
-];
+  [4, 32, 1],
+  [34, 64, 2],
+  [68, 128, 4],
+  [136, 256, 8],
+  [272, 512, 16],
+  [544, 1024, 32],
+].flatMap(([first, last, step]) =>
+  Array.from({ length: (last - first) / step + 1 }, (_, i) => first + i * step),
+);
 function quantizedCode(value, max) {
   return Math.round((Math.min(255, Math.max(0, value)) * max) / 255);
 }

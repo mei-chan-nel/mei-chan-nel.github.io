@@ -3,20 +3,21 @@ import {
   integralImage,
   averagePixels,
   convertPixels,
-} from "./pixels.mjs";
-import { renderWorkerSource } from "./render-source.mjs";
+} from "./pixels.mjs?v=4";
+import { renderWorkerSource } from "./render-source.mjs?v=4";
 const $ = (id) => document.getElementById(id);
 const source = $("source-canvas"),
   output = $("output-canvas");
 const sourceContext = source.getContext("2d", { willReadFrequently: true });
 const outputContext = output.getContext("2d");
+const defaultIndex = resolutions.indexOf(64);
 const state = {
   mode: "color",
   bits: [8, 8, 8],
   grayBits: 8,
   channel: "rgb",
-  index: 6,
-  slider: 429,
+  index: defaultIndex,
+  slider: Math.round((defaultIndex / (resolutions.length - 1)) * 1000),
 };
 let integral,
   averages,
@@ -344,9 +345,11 @@ $("reset-settings").onclick = () => {
     bits: [8, 8, 8],
     grayBits: 8,
     channel: "rgb",
-    index: Math.min(6, maxResolution),
+    index: Math.min(defaultIndex, maxResolution),
     slider:
-      Math.round((Math.min(6, maxResolution) / maxResolution) * 1000) || 0,
+      Math.round(
+        (Math.min(defaultIndex, maxResolution) / maxResolution) * 1000,
+      ) || 0,
   });
   document.querySelector('input[name="mode"][value="color"]').checked = true;
   document.querySelector('input[name="channel"][value="rgb"]').checked = true;
