@@ -13,7 +13,11 @@
        Emit a UTF-8 JSON object: {"format":"mei-program-studio","version":1,
        "title":"...","source":"...","settings":{"indexBase":0,"inputs":{}}}.
        source is Information I pseudocode, not JavaScript. Use two-space indentation
-       or correct ｜ / ⎿ markers; no end keywords. Custom functions use 定義する name(args)： and 返す value.
+       or correct ｜ / ⎿ markers; no end keywords. Put custom definitions in the same
+       source, at the outermost level: 定義する name(args)： with an indented body.
+       返す value returns a value; bare 返す ends a standalone call without a value.
+       Pass local values as arguments. Recursion requires a terminating condition;
+       at most 32 calls deep and 10000 execution steps. Keep document version 1.
        Supported built-ins: 表示する(...), 要素数(array), 乱数(), 乱数(min,max,"整数"|"実数").
        Initialize 1D/rectangular 2D arrays before writing elements. Set every external
        input's bounds and type in settings.inputs. Generate complete source only;

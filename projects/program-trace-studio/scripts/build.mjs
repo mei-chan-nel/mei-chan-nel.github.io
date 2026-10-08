@@ -31,6 +31,10 @@ for (const name of ['index.html', 'share.html', 'guide.html']) {
   await writeFile(new URL(name, destination), html, 'utf8');
 }
 for (const name of ['studio.css', 'ai-guide.md', 'ai-guide.json']) await copyFile(new URL(`public/${name}`, project), new URL(name, destination));
+await mkdir(new URL('examples/', destination), { recursive: true });
+for (const name of await readdir(new URL('public/examples/', project))) if (name.endsWith('.studio.json')) {
+  await copyFile(new URL(`public/examples/${name}`, project), new URL(`examples/${name}`, destination));
+}
 // Snapshot the existing runner's design without importing its problem collection.
 await copyFile(new URL('program-trace/styles.css', portal), new URL('trace-base.css', destination));
 // Both runners use the same DOM-only interactions. Program interpretation stays

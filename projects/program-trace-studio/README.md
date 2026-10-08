@@ -31,7 +31,8 @@ npm.cmd test
 
 - `/program-trace/studio/`：編集画面。
 - `/program-trace/studio/guide.html`：行の追加・設定・保存などの使い方。
-- `/program-trace/studio/ai-guide.md`, `ai-guide.json`：AI向けのファイル生成指示とJSON Schema。HTML headのリンクとコメントから発見できます。編集画面の「ファイルの仕様」を開くと、日本語の規則とJSON例、完全な仕様へのリンクを読めます。
+- `/program-trace/studio/examples/fibonacci.studio.json`：最初の10項を再帰で求める読込用JSON。日本語のファイル仕様・使い方・AI向け仕様からダウンロードできます。ビルド元は `public/examples/`。
+- `/program-trace/studio/ai-guide.md`, `ai-guide.json`：AI向けのファイル生成指示とJSON Schema。HTML headのリンクとコメントから発見できます。編集画面の「ファイルの仕様」を開くと、日本語の規則、自作関数・値なしの呼び出し・再帰のJSON例、完全な仕様へのリンクを読めます。例をテストで読み込み・実行し、ダウンロード版との一致を確認します。
 - `/program-trace/studio/share.html#v2.d.<deflate-base64url>` または `#v2.j.<json-base64url>`：共有プログラムの実行画面。「プログラムを編集」で編集へ移れます。静的HTMLで `noindex, follow`、サイトマップに登録しません。受信後も自動実行しません。`#v1.<gzip-base64url>` も引き続き復元します。
 - 完成したプログラムは従来の `{ version: 1, title, source, settings: { indexBase, inputs } }` を維持。ファイルには `format: "mei-program-studio"` を付けます。旧ファイル・旧共有URLも本文から行へ変換して編集できます。
 - 空のプログラムや内側が空の分岐／繰り返しは、追加の `builder: { version: 1, nodes }` で作成途中の構造を保存します。本文との一致、命令・式・ID・深さ・サイズを検証します。実行前には各まとまりに実行できる処理が必要です。完成後はこのメタデータを省き、共有URLが不要に大きくならないようにします。
@@ -42,7 +43,7 @@ URL生成の上限は100,000文字、展開後の共有データは180KB。本�
 
 ## 実行の仕様
 
-行の設定から生成した本文や、読み込んだ本文をJavaScriptとして実行しません。代入、配列要素の代入、表示、外部入力、分岐、範囲ループ、条件ループだけを解釈します。独自関数・再帰はありません。
+行の設定から生成した本文や、読み込んだ本文をJavaScriptとして実行しません。代入、配列要素の代入、表示、外部入力、分岐、範囲ループ、条件ループ、自作関数の定義・呼び出し・戻り値・再帰を専用インタープリターで処理します。自作関数もJavaScriptとして実行しません。
 
 配列は一次元・矩形の二次元まで。添字は全体で0始まりまたは1始まり。配列の代入はコピー、要素の追加は初期値の編集で行い、未代入・範囲外にはエラーを返します。外部入力の形式と範囲はUIとWorkerで検証します。
 

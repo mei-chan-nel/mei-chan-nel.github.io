@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://mei-chan-nel.com/program-trace/studio/ai-guide.json",
   "title": "Program Trace Studio: AI-authored import file v1",
-  "description": "Read ai-guide.md for Information I source grammar. Generate a complete source-only UTF-8 .studio.json file. Do not generate builder metadata.",
-  "$comment": "Source <=500 physical lines / 50000 UTF-8 bytes; file <=300000 UTF-8 bytes. All executable blocks must be nonempty. Only 表示する, 要素数, 乱数 are built in. Custom functions use outermost 定義する name(args)： and 返す value, with local variables and recursion up to 32 calls. Source is internally interpreted, not JavaScript.",
+  "description": "Read ai-guide.md for Information I source grammar and import examples, including recursive custom functions. Generate a complete source-only UTF-8 .studio.json file using the unchanged version 1 envelope. Put main and definitions together in source. Do not generate builder metadata.",
+  "$comment": "Source <=500 physical lines / 50000 UTF-8 bytes; file <=300000 UTF-8 bytes. All executable blocks must be nonempty. Only 表示する, 要素数, 乱数 are built in. Custom functions use outermost 定義する name(args)： and 返す value, with local variables and matching call arity. Bare 返す or the end of a body finishes a standalone call without a value. Expression calls must return a value. Recursion needs a terminating base case, at most 32 calls deep and 10000 execution steps. Source is internally interpreted, not JavaScript. Files preserve program/settings, not execution history.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -29,7 +29,7 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 50000,
-      "description": "Complete Information I pseudocode, two spaces per nesting level. No end keywords. JSON-escape line breaks and quotes. See ai-guide.md."
+      "description": "Complete Information I pseudocode: main statements and outermost function definitions in one string, with two spaces per nesting level. Use 定義する name(args)： and 返す value or bare 返す. No end keywords. JSON-escape line breaks and quotes. See ai-guide.md and the examples."
     },
     "settings": {
       "type": "object",
@@ -182,6 +182,26 @@
             "columns": 3
           }
         }
+      }
+    },
+    {
+      "format": "mei-program-studio",
+      "version": 1,
+      "title": "フィボナッチ数列（再帰）",
+      "source": "項数 = 10\ni を 0 から 項数 - 1 まで 1 ずつ増やしながら繰り返す：\n  値 = フィボナッチ(i)\n  表示する(\"F(\", i, \") = \", 値)\n定義する フィボナッチ(n)：\n  もし n <= 1 ならば：\n    返す n\n  返す フィボナッチ(n - 1) + フィボナッチ(n - 2)",
+      "settings": {
+        "indexBase": 0,
+        "inputs": {}
+      }
+    },
+    {
+      "format": "mei-program-studio",
+      "version": 1,
+      "title": "戻り値なしの関数",
+      "source": "通知(\"処理を始めます。\")\n定義する 通知(内容)：\n  表示する(内容)\n  返す",
+      "settings": {
+        "indexBase": 0,
+        "inputs": {}
       }
     }
   ]
