@@ -1,4 +1,4 @@
-import { validateDraft } from './documents.js?v=20261009-functions';
+import { validateDraft } from './documents.js?v=20261009-function-editor2';
 import { LIMITS, StudioError } from './errors.js';
 const PREFIX = 'mei-program-studio:v1:';
 export class ProgramStorage {

@@ -1,6 +1,6 @@
 import { getBuiltin, builtinRegistry } from './builtins.js';
 import { StudioError, LIMITS, validName } from './errors.js';
-import { tokenize } from './lexer.js?v=20261009-functions';
+import { tokenize } from './lexer.js?v=20261009-function-editor2';
 import { literalText, numeric, validateValue } from './values.js';
 const precedence = { or: 1, and: 2, '==': 3, '!=': 3, '<': 3, '<=': 3, '>': 3, '>=': 3, '+': 4, '-': 4, '*': 5, '/': 5, '÷': 5, '%': 5, '**': 7 };
 export class ExpressionParser {

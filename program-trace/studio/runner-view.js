@@ -1,10 +1,10 @@
-import { element, byId, button } from './dom.js?v=20261009-functions';
-import { tokenize } from './lexer.js?v=20261009-functions';
+import { element, byId, button } from './dom.js?v=20261009-function-editor2';
+import { tokenize } from './lexer.js?v=20261009-function-editor2';
 import { formatValue, isMatrix } from './values.js';
-import { branchMarkers } from './builder-model.js?v=20261009-functions';
-import { createAssignmentFlow } from './assignment-flow.js?v=20261009-functions';
-import { createVariableScroll } from './variable-scroll.js?v=20261009-functions';
-import { matchesReference, previewIndices } from './runner-model.js?v=20261009-functions';
+import { branchMarkers } from './builder-model.js?v=20261009-function-editor2';
+import { createAssignmentFlow } from './assignment-flow.js?v=20261009-function-editor2';
+import { createVariableScroll } from './variable-scroll.js?v=20261009-function-editor2';
+import { matchesReference, previewIndices } from './runner-model.js?v=20261009-function-editor2';
 const keywords = /^(?:定義する|返す|もし|ならば|そうでなければ|そうでなくもし|繰り返す|増やしながら|減らしながら|の間繰り返す|表示する|要素数|乱数|and|or|not|真|偽)$/u;
 export function colorCode(source) {
     const result = element('span', 'source-code');

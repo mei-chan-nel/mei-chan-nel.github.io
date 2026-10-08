@@ -8,7 +8,7 @@ import { binary, numeric, truth } from './values.js';
 export type ExpressionKind = 'scalar' | 'array' | 'matrix' | 'unknown';
 export type ExpectedExpression = ExpressionKind | 'collection' | 'any';
 export interface VariableChoice { name: string; kind: 'variable' | 'array' | 'matrix'; value?: Value }
-export interface ExpressionContext { variables: string[]; arrays: string[]; base: 0 | 1; catalog?: VariableChoice[]; strings?: string[]; parameters?: string[]; functions?: { name: string; parameters: string[] }[] }
+export interface ExpressionContext { variables: string[]; arrays: string[]; base: 0 | 1; catalog?: VariableChoice[]; strings?: string[]; parameters?: string[]; activeFunction?: string; functions?: { name: string; parameters: string[]; returnsValue: boolean }[] }
 
 // Only formatting is repaired. Unclosed delimiters and missing operands stay errors.
 export function normalizeExpressionInput(text: string, condition = false): string {
@@ -70,6 +70,7 @@ export function expressionKind(expr: Expr, context: ExpressionContext): Expressi
     case 'call': {
       const custom = context.functions?.find(fn => fn.name === expr.name);
       if (custom) {
+        if (!custom.returnsValue) throw new StudioError(`「${custom.name}」には返す値がありません。関数ブロックで「値を返す」を設定するか、「関数」から呼び出してください。`);
         if (expr.args.length !== custom.parameters.length) throw new StudioError(`${expr.name}()の引数は${custom.parameters.length}個で指定してください。`);
         expr.args.forEach(arg => validateExpression(arg, context)); return 'unknown';
       }

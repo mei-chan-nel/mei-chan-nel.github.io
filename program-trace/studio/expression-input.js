@@ -1,5 +1,5 @@
-import { normalizeSymbols, tokenize } from './lexer.js?v=20261009-functions';
-import { constantValue, parseExpression } from './expressions.js?v=20261009-functions';
+import { normalizeSymbols, tokenize } from './lexer.js?v=20261009-function-editor2';
+import { constantValue, parseExpression } from './expressions.js?v=20261009-function-editor2';
 import { getBuiltin, builtinRegistry } from './builtins.js';
 import { StudioError, LIMITS } from './errors.js';
 import { binary, numeric, truth } from './values.js';
@@ -85,6 +85,8 @@ export function expressionKind(expr, context) {
         case 'call': {
             const custom = context.functions?.find(fn => fn.name === expr.name);
             if (custom) {
+                if (!custom.returnsValue)
+                    throw new StudioError(`「${custom.name}」には返す値がありません。関数ブロックで「値を返す」を設定するか、「関数」から呼び出してください。`);
                 if (expr.args.length !== custom.parameters.length)
                     throw new StudioError(`${expr.name}()の引数は${custom.parameters.length}個で指定してください。`);
                 expr.args.forEach(arg => validateExpression(arg, context));

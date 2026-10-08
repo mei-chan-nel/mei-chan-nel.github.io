@@ -1,10 +1,10 @@
-import { element, button } from './dom.js?v=20261009-functions';
-import { expressionText, valueExpression } from './expressions.js?v=20261009-functions';
+import { element, button } from './dom.js?v=20261009-function-editor2';
+import { expressionText, valueExpression } from './expressions.js?v=20261009-function-editor2';
 import { builtinRegistry, getBuiltin } from './builtins.js';
 import { StudioError, LIMITS } from './errors.js';
-import { literal, variable } from './builder-model.js?v=20261009-functions';
-import { readExpressionInput, normalizeExpressionInput, validateExpression } from './expression-input.js?v=20261009-functions';
-import { openTapPad, tapControls } from './tap-controls.js?v=20261009-functions';
+import { literal, variable } from './builder-model.js?v=20261009-function-editor2';
+import { readExpressionInput, normalizeExpressionInput, validateExpression } from './expression-input.js?v=20261009-function-editor2';
+import { openTapPad, tapControls } from './tap-controls.js?v=20261009-function-editor2';
 let serial = 0;
 export function field(label, value, type = 'text') {
     const node = element('div', 'builder-field'), caption = element('label', '', label), input = element('input');
@@ -244,7 +244,8 @@ export function expressionEditor(initial, label, context, condition = false, exp
         if (definition.effect === 'value' && (expected !== 'collection' || definition.returnKind === 'array' || definition.returnKind === 'matrix'))
             functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
     for (const definition of context.functions ?? [])
-        functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
+        if (definition.returnsValue)
+            functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
     if (expected === 'collection') {
         operators.parentElement.hidden = true;
         comparisons.parentElement.hidden = true;

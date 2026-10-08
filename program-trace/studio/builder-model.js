@@ -1,5 +1,5 @@
-import { parseProgram } from './parser.js?v=20261009-functions';
-import { expressionText, parseExpression } from './expressions.js?v=20261009-functions';
+import { parseProgram } from './parser.js?v=20261009-function-editor2';
+import { expressionText, parseExpression } from './expressions.js?v=20261009-function-editor2';
 import { LIMITS, StudioError, validName } from './errors.js';
 import { getBuiltin, builtinRegistry } from './builtins.js';
 import { validateValue } from './values.js';
@@ -36,7 +36,7 @@ export function newCommand(command, indexBase = 0) {
         case 'for': return { ...base, kind: 'for', name: 'i', start: literal(1), end: literal(5), step: literal(1), direction: 1, body: [] };
         case 'while': return { ...base, kind: 'while', condition: { kind: 'binary', operator: '<', left: variable('i'), right: literal(5), column: 1 }, body: [] };
         case 'comment': return { ...base, kind: 'comment', text: '' };
-        case 'define': return { ...base, kind: 'define', name: '自作関数', parameters: ['n'], body: [] };
+        case 'define': return { ...base, kind: 'define', name: '自作関数', parameters: [], body: [] };
         case 'return': return { ...base, kind: 'return', expression: literal(0) };
         case 'call': return { ...base, kind: 'call', expression: { kind: 'call', name: '自作関数', args: [literal(0)], column: 1 } };
     }

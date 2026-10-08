@@ -1,4 +1,4 @@
-import { element, button } from './dom.js?v=20261009-functions';
+import { element, button } from './dom.js?v=20261009-function-editor2';
 import { numeric } from './values.js';
 import { LIMITS } from './errors.js';
 const phrases = ['合計は', '平均点は', '現在の値は', '現在の合計は', '最終的な合計は', 'です。', '点です。', '成人です。', '未成年です。', '見つかりました。', '見つかりませんでした。', 'はい', 'いいえ', '終了', '整数', '実数'];

@@ -8,6 +8,8 @@ import type { ExpressionContext } from './expression-editor.js';
 import { tapControls } from './tap-controls.js';
 import { colorCode } from './runner-view.js';
 import { builderContext } from './builder-variables.js';
+import { functionReferenceLines, hasValueReturn } from './builder-functions.js';
+import { StudioError } from './errors.js';
 import { splitComment } from './lexer.js';
 import { dropDestination, moveRow, rowLocations, rowMoveDestination } from './builder-moves.js';
 import type { MoveDestination } from './builder-moves.js';
@@ -86,10 +88,11 @@ export class ProgramEditor {
   private notify(): void { byId('editor-error').hidden = true; this.changed(); }
   private context(): ExpressionContext { return builderContext(this.model, this.specs, Number(this.base.value) as 0 | 1, this.editingFunctionId); }
   private open(node: BuilderNode, placement: Placement, branchOwner?: Extract<BuilderNode, { kind: 'if' }>): void {
+    if (node.kind === 'define') return;
     const locations = rowLocations(this.model); let location = locations.get(node.id);
     while (location?.parent && location.node.kind !== 'define') location = locations.get(location.parent.id);
     this.editingFunctionId = location?.node.kind === 'define' ? location.node.id : undefined;
-    byId('row-fields').replaceChildren(); byId('row-actions').replaceChildren(); showFormError(byId('row-form'), '');
+    byId('row-fields').replaceChildren(); byId('row-actions').replaceChildren(); byId('row-actions').hidden = false; showFormError(byId('row-form'), '');
     const apply = (changed: BuilderNode): void => {
       if (branchOwner) { branchOwner.otherwise = changed; return; }
       const children = !('body' in changed) && 'body' in node ? this.collectChildren(node) : [];
@@ -100,7 +103,8 @@ export class ProgramEditor {
       const editor = commandEditor(next, this.context(), this.specs, fresh, valueFunction); this.pending = { editor, apply: replacement };
       byId('row-heading').textContent = label ?? `（${builderLines(this.model).find(row => row.id === node.id)?.line ?? ''}）行を設定する`;
       byId('row-fields').replaceChildren(editor.node); showFormError(byId('row-form'), ''); byId<HTMLButtonElement>('row-submit').hidden = false;
-      editor.onStageChange(() => { byId('row-submit').textContent = editor.choosingLeft() ? '右辺を入力' : 'この行に反映'; showFormError(byId('row-form'), ''); });
+      byId('row-actions').hidden = next.kind === 'define';
+      editor.onStageChange(() => { byId('row-submit').textContent = next.kind === 'define' ? '関数を作成' : editor.choosingLeft() ? '右辺を入力' : 'この行に反映'; showFormError(byId('row-form'), ''); });
       tapControls(editor.node, this.context().strings);
     };
     const categories = (): void => {
@@ -108,7 +112,7 @@ export class ProgramEditor {
       const area = element('div', 'command-categories'), choices = element('div', 'command-category-choices');
       const select = (command: Command, valueFunction?: string): void => {
         const next = newCommand(command, Number(this.base.value) as 0 | 1); next.id = node.id; next.comment = node.comment;
-        if ('body' in next && 'body' in node) next.body = next.kind === 'if' && node.kind === 'if' ? structuredClone(node.body) : this.collectChildren(node);
+        if (next.kind !== 'define' && 'body' in next && 'body' in node) next.body = next.kind === 'if' && node.kind === 'if' ? structuredClone(node.body) : this.collectChildren(node);
         if (next.kind === 'if' && node.kind === 'if' && node.otherwise) next.otherwise = structuredClone(node.otherwise);
         if (command === 'define') {
           const names = new Set(this.context().functions?.map(fn => fn.name)); let suffix = 1;
@@ -140,13 +144,8 @@ export class ProgramEditor {
       button('関数', () => showChoices('関数', [
         { text: '関数を定義する', action: () => select('define'), disabled: !!branchOwner },
         { text: '表示する()', action: () => select('print'), disabled: !!branchOwner },
-        { text: '要素数() の結果を変数に入れる', action: () => select('assign', '要素数'), disabled: !!branchOwner },
-        { text: '乱数() の結果を変数に入れる', action: () => select('assign', '乱数'), disabled: !!branchOwner },
         ...(!this.editingFunctionId ? [] : [{ text: '値を返す', action: () => select('return'), disabled: !!branchOwner }]),
-        ...(this.context().functions ?? []).flatMap(fn => [
-          { text: `${fn.name}() の結果を変数に入れる`, action: () => select('assign', fn.name), disabled: !!branchOwner },
-          { text: `${fn.name}() を呼び出す`, action: () => select('call', fn.name), disabled: !!branchOwner },
-        ]),
+        ...(this.context().functions ?? []).filter(fn => !fn.returnsValue).map(fn => ({ text: `${fn.name}() を呼び出す`, action: () => select('call', fn.name), disabled: !!branchOwner })),
       ]), 'command-category'));
       if (branchOwner) { const first = area.querySelector<HTMLButtonElement>('button')!; first.disabled = true; }
       byId('row-fields').replaceChildren(area, choices);
@@ -174,18 +173,25 @@ export class ProgramEditor {
       else placement.list.splice(placement.index, 1);
     });
   }
+  private removeFunction(node: Extract<BuilderNode, { kind: 'define' }>): void {
+    const references = functionReferenceLines(this.model, node.name, node.id);
+    if (references.length) throw new StudioError(`「${node.name}」は${references.join('・')}行目で使われています。先にその行の呼び出しを変更または削除してください。`);
+    this.transaction(() => { this.model.nodes = this.model.nodes.filter(item => item.id !== node.id); });
+    showMessage(`関数「${node.name}」を削除しました。「元に戻す」で復元できます。`);
+  }
   private render(): void {
     let container = byId('builder-rows'); container.replaceChildren();
     const blocks = byId('builder-function-blocks'); blocks.replaceChildren();
     const lines = builderLines(this.model), byRow = new Map(lines.map(row => [row.id, row]));
     const renderRow = (node: BuilderNode, placement: Placement, branchOwner?: Extract<BuilderNode, { kind: 'if' }>): void => {
       const line = byRow.get(node.id)!, row = element('li', 'program-line builder-row'); row.dataset.rowId = node.id; row.dataset.line = String(line.line); row.classList.toggle('is-blank', node.kind === 'blank');
-      row.dataset.depth = String(line.depth); row.draggable = !branchOwner;
-      const handle = element('span', 'line-number builder-drag-handle', `（${line.line}）`); handle.title = branchOwner ? '分岐は「もし」の行と一緒に移動します' : 'ドラッグして移動（横に動かすと内側・外側へ）'; handle.setAttribute('aria-hidden', 'true');
-      if (!branchOwner) this.pointerDrag(handle, node.id);
+      const definition = node.kind === 'define'; row.classList.toggle('is-definition', definition);
+      row.dataset.depth = String(line.depth); row.draggable = !branchOwner && !definition;
+      const handle = element('span', 'line-number builder-drag-handle', `（${line.line}）`); handle.title = definition ? '関数名と引数の定義（編集不可）' : branchOwner ? '分岐は「もし」の行と一緒に移動します' : 'ドラッグして移動（横に動かすと内側・外側へ）'; handle.setAttribute('aria-hidden', 'true');
+      if (!branchOwner && !definition) this.pointerDrag(handle, node.id);
       row.append(handle);
-      const code = button('', () => { if (!this.suppressRowClick) this.open(node, placement, branchOwner); }, 'builder-code'); code.setAttribute('aria-label', `${line.line}行目${node.kind === 'blank' ? 'の処理を選ぶ' : 'を編集'}`);
-      if (!branchOwner) this.pointerDrag(code, node.id, false);
+      const code = definition ? element('div', 'builder-code builder-definition') : button('', () => { if (!this.suppressRowClick) this.open(node, placement, branchOwner); }, 'builder-code');
+      if (!definition) { code.setAttribute('aria-label', `${line.line}行目${node.kind === 'blank' ? 'の処理を選ぶ' : 'を編集'}`); if (!branchOwner) this.pointerDrag(code, node.id, false); }
       if (line.markers) code.append(element('span', 'branch-prefix', line.markers + ' '));
       if (node.kind === 'blank') code.append(element('span', 'blank-line-label', 'タップして処理を選ぶ'));
       else { const source = splitComment(line.text), text = colorCode(source.code.trimEnd()); if (source.comment) text.append(element('span', 'source-comment', ` ${source.comment}`)); code.append(text); } row.append(code);
@@ -197,7 +203,9 @@ export class ProgramEditor {
     this.model.nodes.forEach((node, index) => {
       if (node.kind === 'define') {
         const block = element('section', 'builder-function-block panel'), heading = element('div', 'panel-heading');
-        heading.append(element('h2', '', `関数：${node.name}`)); block.append(heading);
+        const remove = button('×', () => this.removeFunction(node), 'close-button function-delete'); remove.setAttribute('aria-label', `関数「${node.name}」を削除`); remove.title = 'この関数を削除';
+        heading.append(element('h2', '', `関数：${node.name}`), remove); block.append(heading);
+        block.append(element('p', 'function-block-help', hasValueReturn(node.body) ? '返す値あり：変数・配列の右辺の候補から使えます。' : '返す値なし：「関数」から呼び出せます。値を返す場合は、空白行 → 関数 → 値を返すで設定します。'));
         container = element('ol', 'program-lines builder-rows'); container.setAttribute('aria-label', `${node.name} のプログラム`);
         block.append(container); blocks.append(block);
       } else container = byId('builder-rows');

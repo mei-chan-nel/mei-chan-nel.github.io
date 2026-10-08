@@ -1,4 +1,4 @@
-import { element, button } from './dom.js?v=20261009-functions';
+import { element, button } from './dom.js?v=20261009-function-editor2';
 import { cloneValue, isMatrix, validateValue } from './values.js';
 import { StudioError, LIMITS } from './errors.js';
 let serial = 0;

@@ -1,11 +1,11 @@
-import { element } from './dom.js?v=20261009-functions';
-import { nameField, selection, subExpression } from './expression-editor.js?v=20261009-functions';
-import { literal } from './builder-model.js?v=20261009-functions';
+import { element } from './dom.js?v=20261009-function-editor2';
+import { nameField, selection, subExpression } from './expression-editor.js?v=20261009-function-editor2';
+import { literal } from './builder-model.js?v=20261009-function-editor2';
 import { validName, StudioError } from './errors.js';
-import { expressionText } from './expressions.js?v=20261009-functions';
+import { expressionText } from './expressions.js?v=20261009-function-editor2';
 import { formatValue } from './values.js';
 import { builtinRegistry } from './builtins.js';
-import { normalizeSymbols } from './lexer.js?v=20261009-functions';
+import { normalizeSymbols } from './lexer.js?v=20261009-function-editor2';
 let serial = 0;
 export const targetText = (target) => target.name + (target.indices.length ? `[${target.indices.map(expressionText).join(', ')}]` : '');
 export function targetEditor(initial, context, scalarOnly = false) {

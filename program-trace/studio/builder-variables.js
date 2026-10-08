@@ -1,4 +1,5 @@
-import { constantValue } from './expressions.js?v=20261009-functions';
+import { constantValue } from './expressions.js?v=20261009-function-editor2';
+import { hasValueReturn } from './builder-functions.js?v=20261009-function-editor2';
 export function builderContext(model, specs, base, functionId) {
     const catalog = new Map(), strings = new Set();
     const add = (item) => {
@@ -74,5 +75,5 @@ export function builderContext(model, specs, base, functionId) {
     }
     else
         model.nodes.filter(node => node.kind !== 'define').forEach(visit);
-    return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base, parameters: active?.parameters, functions: functions.map(({ name, parameters }) => ({ name, parameters })) };
+    return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base, parameters: active?.parameters, activeFunction: active?.name, functions: functions.map(({ name, parameters, body }) => ({ name, parameters, returnsValue: hasValueReturn(body) })) };
 }

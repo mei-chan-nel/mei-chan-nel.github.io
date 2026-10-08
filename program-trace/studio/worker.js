@@ -1,5 +1,5 @@
-import { compile, initialState, step, finish } from './runtime.js?v=20261009-functions';
-import { defaultInput, validateDraft, validateInput } from './documents.js?v=20261009-functions';
+import { compile, initialState, step, finish } from './runtime.js?v=20261009-function-editor2';
+import { defaultInput, validateDraft, validateInput } from './documents.js?v=20261009-function-editor2';
 import { diagnostic, StudioError } from './errors.js';
 let compiled, state, draft;
 let generation = -1, seed = 1;

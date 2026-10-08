@@ -1,5 +1,5 @@
 import { getBuiltin } from './builtins.js';
-import { parseProgram } from './parser.js?v=20261009-functions';
+import { parseProgram } from './parser.js?v=20261009-function-editor2';
 import { StudioError, LIMITS } from './errors.js';
 import { binary, cloneValue, formatValue, numeric, readVariable, readIndices, truth, validateVariables, validateValue } from './values.js';
 export function compile(source) {

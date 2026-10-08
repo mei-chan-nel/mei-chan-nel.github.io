@@ -286,5 +286,16 @@ html.trace-fullscreen #runner-document-tools, html.trace-fullscreen .recovery-bu
 
 .builder-function-block { margin: 18px 12px; overflow: hidden; }
 .builder-function-block .panel-heading { padding: 12px 16px; }
+.builder-function-block .panel-heading h2 { min-width: 0; overflow-wrap: anywhere; }
+.function-delete { flex: 0 0 40px; width: 40px; height: 40px; margin-left: auto; color: var(--coral-strong); }
+.function-block-help { margin: 0; padding: 0 16px 8px; color: var(--ink-soft); font: .72rem/1.7 var(--sans); }
+.builder-definition { cursor: default; }
+.builder-row.is-definition:hover { background: transparent; }
+.function-parameters { min-width: 0; margin: 0; padding: 14px; border: 1px solid var(--line); border-radius: 8px; }
+.function-parameters legend { padding: 0 5px; font-weight: 700; }
+.function-parameter-items { display: grid; gap: 10px; margin-block: 12px; }
+.function-parameter-item { position: relative; padding-right: 42px; }
+.function-parameter-item .array-remove { position: absolute; top: auto; right: 0; bottom: 0; width: 36px; min-height: 36px; }
+.function-call-name { margin: 0; font-weight: 700; }
 .builder-function-block .builder-rows { padding: 8px 0; }
 .function-scope { margin: 0; padding: 8px 14px; font-size: .8rem; color: var(--ink-light); background: var(--paper); }

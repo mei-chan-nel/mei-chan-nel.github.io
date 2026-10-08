@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { compile, initialState, step } from '../../../program-trace/studio/runtime.js';
 import { modelFromSource, builderSource, validateBuilder, newCommand, assertReady } from '../../../program-trace/studio/builder-model.js';
 import { builderContext } from '../../../program-trace/studio/builder-variables.js';
+import { functionReferenceLines, hasValueReturn } from '../../../program-trace/studio/builder-functions.js';
 import { readExpressionInput } from '../../../program-trace/studio/expression-input.js';
 import { documentJSON, parseDocument, validateDraft } from '../../../program-trace/studio/documents.js';
 import { encodeShare, decodeShare } from '../../../program-trace/studio/sharing.js';
@@ -62,5 +63,19 @@ test('function editing contexts expose local parameters and functions; files and
   assert.throws(() => assertReady(unfinished));
   const partial = { ...draft, source: builderSource(unfinished), builder: unfinished };
   const loaded = await decodeShare(new URL(await encodeShare(partial, 'https://example.test/studio/')).hash);
-  assert.equal(loaded.builder.nodes[1].kind, 'define'); assert.deepEqual(loaded.builder.nodes[1].parameters, ['n']);
+  assert.equal(loaded.builder.nodes[1].kind, 'define'); assert.deepEqual(loaded.builder.nodes[1].parameters, []);
+});
+test('only functions with value returns are expression candidates, including returns in branches and loops', () => {
+  const model = modelFromSource('通知()\n定義する 通知()：\n  表示する("hello")\n  返す\n定義する 計算(n)：\n  もし n > 0 ならば：\n    返す n\n  そうでなければ：\n    n の間繰り返す：\n      返す 0');
+  const context = builderContext(model, {}, 0);
+  assert.deepEqual(context.functions.map(fn => [fn.name, fn.returnsValue]), [['通知', false], ['計算', true]]);
+  assert.throws(() => readExpressionInput('通知()', context), /返す値がありません/);
+  assert.throws(() => readExpressionInput('計算(通知())', context), /返す値がありません/);
+  assert.equal(readExpressionInput('計算(1)', context).kind, 'call');
+  assert.equal(hasValueReturn(model.nodes[1].body), false); assert.equal(hasValueReturn(model.nodes[2].body), true);
+});
+test('deletion identifies call sites inside expressions, arguments, indices and branches, excluding its own recursive body', () => {
+  const model = modelFromSource('A = [0]\nA[f(0)] = f(f(1))\n表示する(f(2))\nもし f(3) > 0 ならば：\n  f(4)\n定義する f(n)：\n  返す f(n - 1)\n定義する g()：\n  返す f(5)');
+  assert.deepEqual(functionReferenceLines(model, 'f', model.nodes[4].id), [2, 3, 4, 5, 9]);
+  assert.deepEqual(functionReferenceLines(model, 'g', model.nodes[5].id), []);
 });

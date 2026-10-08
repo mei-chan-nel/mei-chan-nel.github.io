@@ -1,4 +1,5 @@
 import { constantValue } from './expressions.js';
+import { hasValueReturn } from './builder-functions.js';
 import type { ExpressionContext, VariableChoice } from './expression-editor.js';
 import type { BuilderDocument, BuilderNode, Expr, InputSpec } from './types.js';
 
@@ -39,5 +40,5 @@ export function builderContext(model: BuilderDocument, specs: Record<string, Inp
   const active = functions.find(node => node.id === functionId);
   if (active) { active.parameters.forEach(name => add({ name, kind: 'variable' })); active.body.forEach(visit); }
   else model.nodes.filter(node => node.kind !== 'define').forEach(visit);
-  return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base, parameters: active?.parameters, functions: functions.map(({ name, parameters }) => ({ name, parameters })) };
+  return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base, parameters: active?.parameters, activeFunction: active?.name, functions: functions.map(({ name, parameters, body }) => ({ name, parameters, returnsValue: hasValueReturn(body) })) };
 }

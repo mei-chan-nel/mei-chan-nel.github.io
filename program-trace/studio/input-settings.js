@@ -1,6 +1,6 @@
-import { defaultInput, validateInputSpec } from './documents.js?v=20261009-functions';
-import { element } from './dom.js?v=20261009-functions';
-import { normalizeSymbols, splitComment } from './lexer.js?v=20261009-functions';
+import { defaultInput, validateInputSpec } from './documents.js?v=20261009-function-editor2';
+import { element } from './dom.js?v=20261009-function-editor2';
+import { normalizeSymbols, splitComment } from './lexer.js?v=20261009-function-editor2';
 let serial = 0;
 export function inputNames(source) {
     const names = new Set();

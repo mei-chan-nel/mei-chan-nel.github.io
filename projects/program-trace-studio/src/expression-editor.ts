@@ -133,7 +133,7 @@ export function expressionEditor(initial: Expr | undefined, label: string, conte
   if (!condition) { const details = element('details', 'comparison-palette'); details.append(element('summary', '', '比較・条件も使う'), comparisons.parentElement!); palette.append(details); }
   const functions = section('関数');
   for (const definition of builtinRegistry.values()) if (definition.effect === 'value' && (expected !== 'collection' || definition.returnKind === 'array' || definition.returnKind === 'matrix')) functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
-  for (const definition of context.functions ?? []) functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
+  for (const definition of context.functions ?? []) if (definition.returnsValue) functions.append(button(`${definition.name}()`, () => functionConfig(definition.name), 'tap-chip'));
   if (expected === 'collection') { operators.parentElement!.hidden = true; comparisons.parentElement!.hidden = true; functions.parentElement!.hidden = !functions.childElementCount; }
   function config(title: string): HTMLElement { closeConfig(); pendingConfig = true; auxiliary.hidden = false; auxiliary.append(element('h3', '', title)); return auxiliary; }
   function confirmConfig(read: () => Expr): void {

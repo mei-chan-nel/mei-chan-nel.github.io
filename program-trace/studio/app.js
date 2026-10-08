@@ -1,16 +1,16 @@
-import { ProgramEditor } from './editor.js?v=20261009-functions';
-import { RunnerView } from './runner-view.js?v=20261009-functions';
-import { createFullscreen } from './fullscreen.js?v=20261009-functions';
-import { bindStepKeys } from './step-keys.js?v=20261009-functions';
-import { ProgramStorage } from './storage.js?v=20261009-functions';
-import { documentJSON, parseDocument, validateInput } from './documents.js?v=20261009-functions';
-import { encodeShare, decodeShare } from './sharing.js?v=20261009-functions';
-import { replaceInitialValues } from './edit-values.js?v=20261009-functions';
-import { valueEditor, inputInitial } from './value-editor.js?v=20261009-functions';
+import { ProgramEditor } from './editor.js?v=20261009-function-editor2';
+import { RunnerView } from './runner-view.js?v=20261009-function-editor2';
+import { createFullscreen } from './fullscreen.js?v=20261009-function-editor2';
+import { bindStepKeys } from './step-keys.js?v=20261009-function-editor2';
+import { ProgramStorage } from './storage.js?v=20261009-function-editor2';
+import { documentJSON, parseDocument, validateInput } from './documents.js?v=20261009-function-editor2';
+import { encodeShare, decodeShare } from './sharing.js?v=20261009-function-editor2';
+import { replaceInitialValues } from './edit-values.js?v=20261009-function-editor2';
+import { valueEditor, inputInitial } from './value-editor.js?v=20261009-function-editor2';
 import { LIMITS, diagnostic, StudioError } from './errors.js';
-import { draftFingerprint, emptyDraft, exportFilename } from './document-actions.js?v=20261009-functions';
-import { tapControls } from './tap-controls.js?v=20261009-functions';
-import { byId, element, button, showMessage, showFormError, download, setupDialogs, diagnosticText } from './dom.js?v=20261009-functions';
+import { draftFingerprint, emptyDraft, exportFilename } from './document-actions.js?v=20261009-function-editor2';
+import { tapControls } from './tap-controls.js?v=20261009-function-editor2';
+import { byId, element, button, showMessage, showFormError, download, setupDialogs, diagnosticText } from './dom.js?v=20261009-function-editor2';
 let worker, generation = 0, busy = false, preparing = false, watchdog = 0;
 let info, state, activeDraft = emptyDraft();
 let storage, savedId, storageError = '';
@@ -189,7 +189,7 @@ function createWorker() {
     if (typeof Worker !== 'function')
         throw new StudioError('このブラウザでは実行機能を利用できません。新しいブラウザで開いてください。');
     worker?.terminate();
-    const nextWorker = new Worker(new URL('./worker.js?v=20261009-functions', import.meta.url), { type: 'module' });
+    const nextWorker = new Worker(new URL('./worker.js?v=20261009-function-editor2', import.meta.url), { type: 'module' });
     nextWorker.addEventListener('message', (event) => receive(event.data));
     nextWorker.addEventListener('error', () => failWorker('実行処理を読み込めませんでした。ページを再読み込みしてください。'));
     worker = nextWorker;
