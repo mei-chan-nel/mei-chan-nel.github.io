@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>バックアップとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="バックアップの意味と保存場所、ランサムウェア対策、フル・差分・増分バックアップ、復元方法を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="バックアップ" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="バックアップとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="バックアップの意味と保存場所、ランサムウェア対策、フル・差分・増分バックアップ、復元方法を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/backup/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/backup/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">バックアップ</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">バックアップ</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「バックアップ」とは</h2>
+          <p><strong>バックアップ</strong>とは、コンピュータの故障、データの誤削除、マルウェアへの感染などによってデータが失われたり、利用できなくなったりした場合に備えて、<strong>元のデータとは別に、復旧に使用できるデータのコピーを保存しておくこと</strong>です。</p>
+          <p>例えば、パソコンに保存していた写真や文書が、故障によって読み出せなくなった場合でも、外付けSSDやクラウドストレージにバックアップを保存していれば、そのデータを復元できる可能性があります。</p>
+          <p>バックアップは、情報セキュリティの3要素である「機密性」「完全性」「可用性」のうち、特に<strong>可用性</strong>を高めるための対策です。可用性とは、必要なときに情報やシステムを利用できることであり、バックアップによって障害発生後もデータを復旧し、利用を再開しやすくなります。</p>
+          <p>ただし、バックアップは事故や攻撃そのものを防ぐものではありません。データが失われたり、利用できなくなったりした場合に、その影響を小さくするための対策です。</p>
+        </section>
+
+        <section>
+          <h2>バックアップの保存場所と管理</h2>
+          <p>バックアップは、元のデータと同時に失われないように保存することが重要です。</p>
+          <p>例えば、パソコンの内蔵SSDの別フォルダにデータをコピーしただけでは、SSDそのものが故障した場合に両方のデータを失ってしまいます。そのため、外付けSSD、USBメモリ、クラウドストレージなど、元のデータとは異なる保存先を利用することが望ましいです。</p>
+          <p>複数の場所に保存することで、機器の故障だけでなく、火災や水害などによって同じ場所にある機器がまとめて被害を受けるリスクも減らせます。</p>
+          <p>また、バックアップ先へのアクセス権も適切に管理する必要があります。すべての利用者に書込み権限を与えると、誤操作や不正アクセスによってバックアップが削除・改ざんされる危険が高まります。</p>
+        </section>
+
+        <section>
+          <h2>ランサムウェアへの対策</h2>
+          <p><strong>ランサムウェア</strong>とは、データを暗号化するなどして利用できなくし、復旧と引き換えに金銭を要求するマルウェアです。</p>
+          <p>ランサムウェアに感染した場合、パソコン内のデータだけでなく、そのパソコンから書込み可能な共有フォルダや、常時接続されているバックアップ先のデータまで暗号化されることがあります。</p>
+          <p>このような被害を防ぐためには、次の対策が有効です。</p>
+          <ul>
+            <li><strong>切り離して保管する</strong>：バックアップ取得後に外付け記憶装置を取り外すなどして、感染した端末からアクセスできない状態にする。</li>
+            <li><strong>変更できない状態で保存する</strong>：一定期間、データの変更や削除ができない仕組みを利用する。</li>
+            <li><strong>複数世代を保存する</strong>：最新のバックアップだけでなく、過去の異なる時点のバックアップも残す。</li>
+            <li><strong>復元テストを実施する</strong>：バックアップから実際にデータを復元できるか、定期的に確認する。</li>
+          </ul>
+          <p>特に複数世代の保存は重要です。例えば、月曜日に感染したことに気付かず、水曜日に暗号化されたデータをバックアップしてしまっても、感染前の日曜日のバックアップが残っていれば、そこから復旧できる可能性があります。</p>
+          <p>ランサムウェア感染後の復旧では、感染端末を隔離して被害範囲を調査し、マルウェアなどの侵害要因を取り除いた安全な環境を用意します。そのうえで、正常であることを確認したバックアップからデータを復元します。感染原因を除去しないまま復元すると、再び被害を受ける危険があります。</p>
+        </section>
+
+        <section>
+          <h2>バックアップの種類</h2>
+          <p>バックアップには、保存するデータの範囲によって、主に次の3種類があります。</p>
+          <table>
+            <thead>
+              <tr><th>種類</th><th>保存するデータ</th><th>特徴</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>フルバックアップ</strong></td><td>すべての対象データ</td><td>復元しやすいが、保存するデータ量が多い</td></tr>
+              <tr><td><strong>差分バックアップ</strong></td><td>直近のフルバックアップ以降の変更分</td><td>復元時はフルと最新の差分を使用する</td></tr>
+              <tr><td><strong>増分バックアップ</strong></td><td>直前のバックアップ以降の変更分</td><td>1回の保存量を抑えやすいが、復元時に複数のバックアップが必要になる</td></tr>
+            </tbody>
+          </table>
+          <figure class="term-note-figure"><img src="backup-types.svg" alt="フルバックアップ、差分バックアップ、増分バックアップについて、日曜日から火曜日までに保存するデータの違いを示した図" width="340" height="296" loading="lazy"></figure>
+          <p>例えば、日曜日にフルバックアップを取得し、月曜日と火曜日にデータを変更したとします。</p>
+          <p><strong>フルバックアップ</strong>は、毎回すべての対象データを保存する方法です。バックアップに必要な時間や保存容量が大きくなりやすいですが、復元時には基本的に対象時点のフルバックアップを使えばよいです。</p>
+          <p><strong>差分バックアップ</strong>は、最後のフルバックアップ以降に変更されたデータを保存する方法です。月曜日には月曜日の変更分、火曜日には月曜日と火曜日の変更分を保存します。したがって、火曜日の状態へ復元するときは、<strong>日曜日のフルバックアップと火曜日の差分バックアップ</strong>を使用します。</p>
+          <p><strong>増分バックアップ</strong>は、直前のバックアップ以降に変更されたデータだけを保存する方法です。月曜日には月曜日の変更分、火曜日には火曜日の変更分を保存します。したがって、火曜日の状態へ復元するときは、<strong>日曜日のフルバックアップ、月曜日の増分バックアップ、火曜日の増分バックアップ</strong>を順番に使用します。</p>
+          <p>増分バックアップでは、更新されたことを示す管理情報をバックアップ取得後にリセットする方式もあります。そのため、次回は前回以降の変更分だけを取得できます。なお、具体的な変更の検出方法はバックアップソフトウェアによって異なります。</p>
+          <p>一般に、増分バックアップは差分バックアップよりも1回当たりの保存量を抑えやすい一方、復元に必要なバックアップの数が多くなりやすいです。</p>
+        </section>
+
+        <section>
+          <h2>バックアップの頻度</h2>
+          <p>バックアップは、どの程度の間隔で取得するかによって、障害発生時に失われる可能性のあるデータ量が変わります。</p>
+          <p>例えば、1週間に1回しかバックアップしない場合、障害が発生する時期によっては約1週間分の更新データを失う可能性があります。一方、毎日バックアップを取得していれば、通常は失われる更新を約1日分以内に抑えられます。</p>
+          <p>このように、<strong>バックアップの間隔を短くするほど、失われる可能性のある更新データを少なくできます</strong>。</p>
+          <p>ただし、頻繁にフルバックアップを取得すると、保存容量や処理時間などの負担が大きくなります。そのため、週1回のフルバックアップと毎日の差分・増分バックアップを組み合わせるなど、効率的な運用が行われます。</p>
+        </section>
+
+        <section>
+          <h2>他のセキュリティ対策との組合せ</h2>
+          <p>バックアップは、情報セキュリティ対策の一つであり、それだけで安全性を確保できるわけではありません。</p>
+          <p>例えば、OSやソフトウェアの脆弱性が公表された場合は、対象のバージョンや影響範囲を確認し、修正プログラムを適用する必要があります。ただし、更新によってシステムに不具合が生じる可能性もあるため、事前にバックアップなどの復旧手段を確保し、可能な範囲で動作を検証してから速やかに適用します。</p>
+          <p>また、マルウェア対策では、OSの更新、不審なメールやリンクへの注意、ウイルス対策ソフトの利用、アクセス権の制限、バックアップなどを組み合わせることが有効です。このように、異なる役割を持つ対策を重ねる考え方を<strong>多層防御</strong>といいます。</p>
+          <p>特に、バックアップは感染や不正アクセスを直接防ぐものではなく、被害が発生した後の復旧を支える役割を持ちます。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>バックアップ · EXAMPLE</span><span>ITパスポートH28春期 問61（改題）</span></div>
+          <h3>ランサムウェアに感染した端末から、バックアップまで暗号化される事態を避けるための運用として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>バックアップ取得後は通常のネットワークから切り離すか変更不能な状態で保管し、定期的に復元を試す。</p></li>
+            <li><span>1</span><p>バックアップ先を常時接続し、全ての利用者に書込み権限を与える。</p></li>
+            <li><span>2</span><p>元のデータとバックアップを、同じ端末の同じ記憶装置だけに保存する。</p></li>
+            <li><span>3</span><p>感染を確認したらバックアップを削除し、復号の対価を直ちに支払う。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．バックアップ取得後は通常のネットワークから切り離すか変更不能な状態で保管し、定期的に復元を試す。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ランサムウェアは、接続中で書込み可能な共有フォルダやバックアップも暗号化することがあります。バックアップ取得後に通常のネットワークから切り離す、変更不能なストレージへ保存する、世代を分けて保持するなどして、感染端末から書き換えられないコピーを確保します。さらに復元テストを行い、実際に利用できることを確認します。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH28春期 問61（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ランサムウェア／バックアップ</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">バックアップの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="バックアップ"
+          data-limit="5"
+          data-exclude-stem="ランサムウェアに感染した端末から、バックアップまで暗号化される事態を避けるための運用として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=バックアップ">バックアップの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"バックアップとは","description":"バックアップの意味と保存場所、ランサムウェア対策、フル・差分・増分バックアップ、復元方法を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/backup/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"バックアップ","item":"https://mei-chan-nel.com/terms/backup/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026100501"></script>
+  </body>
+</html>
