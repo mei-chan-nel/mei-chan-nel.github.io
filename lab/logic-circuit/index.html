@@ -13,8 +13,8 @@
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="../lab.css?v=3" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"論理回路をつくる","item":"https://mei-chan-nel.com/lab/logic-circuit/"}]}</script>
-<link rel="stylesheet" href="./circuit.css?v=1" />
-<script type="module" src="./editor.mjs?v=1"></script>
+<link rel="stylesheet" href="./circuit.css?v=2" />
+<script type="module" src="./editor.mjs?v=2"></script>
 </head><body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
@@ -31,6 +31,28 @@
   <button type="button" id="clear-circuit">白紙にする</button>
 </header>
 <section class="circuit-lab" aria-label="論理回路の実験">
+  <div class="circuit-document-bar" role="group" aria-label="回路の保存と共有">
+    <label class="circuit-name-field" for="circuit-name"
+      ><span>回路名</span
+      ><input
+        id="circuit-name"
+        type="text"
+        value="名前のない回路"
+        maxlength="120"
+        autocomplete="off"
+    /></label>
+    <div class="circuit-document-actions">
+      <button type="button" id="save-circuit">保存</button>
+      <button type="button" id="load-circuit">読込</button>
+      <button type="button" id="share-circuit">共有</button>
+    </div>
+  </div>
+  <div class="shared-circuit" id="shared-circuit" hidden>
+    <span>共有された回路</span
+    ><button type="button" id="restore-own-circuit" hidden>
+      前の作業に戻る
+    </button>
+  </div>
   <div class="parts-bar" role="group" aria-label="回路の部品">
     <button
       type="button"
@@ -189,6 +211,166 @@
   ></p>
 </section>
 <div id="part-ghost" hidden aria-hidden="true"></div>
+<dialog class="circuit-dialog" id="save-dialog" aria-labelledby="save-heading">
+  <form id="save-form">
+    <div class="document-dialog-heading">
+      <h2 id="save-heading">回路を保存</h2>
+      <button
+        type="button"
+        class="document-close"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="save-name"
+      ><span>回路名</span
+      ><input id="save-name" maxlength="120" required autocomplete="off"
+    /></label>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" id="save-copy" hidden>別の名前で保存</button
+      ><button type="submit" id="save-submit" class="document-primary">
+        ブラウザ内に保存
+      </button>
+    </div>
+    <div class="document-file-action">
+      <span>端末にファイルで保存</span
+      ><button type="button" id="export-circuit">ファイルに書出</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="export-dialog"
+  aria-labelledby="export-heading"
+>
+  <form id="export-form" novalidate>
+    <div class="document-dialog-heading">
+      <h2 id="export-heading">ファイルに書出</h2>
+      <button
+        type="button"
+        class="document-close"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="export-name"
+      ><span>ファイル名</span
+      ><input id="export-name" maxlength="160" required autocomplete="off"
+    /></label>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button type="submit" class="document-primary">書き出す</button>
+    </div>
+  </form>
+</dialog>
+<dialog class="circuit-dialog" id="load-dialog" aria-labelledby="load-heading">
+  <div class="document-dialog-heading">
+    <h2 id="load-heading">回路を読み込む</h2>
+    <button
+      type="button"
+      class="document-close"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <div class="document-file-action document-file-action-first">
+    <span>JSONファイル</span
+    ><button type="button" id="import-circuit">ファイルから読込</button>
+  </div>
+  <input id="circuit-file" type="file" accept=".json,application/json" hidden />
+  <h3 class="document-section-title">このブラウザに保存した回路</h3>
+  <div id="saved-list" class="saved-circuit-list"></div>
+  <p class="document-error" role="alert" hidden></p>
+  <details class="document-url-load">
+    <summary>共有URLから読込</summary>
+    <form id="load-url-form">
+      <label class="document-field" for="load-url"
+        ><span>共有URL</span
+        ><textarea
+          id="load-url"
+          rows="3"
+          maxlength="100000"
+          required
+          spellcheck="false"
+          autocapitalize="off"
+          autocomplete="off"
+        ></textarea>
+      </label>
+      <div class="document-dialog-actions">
+        <button type="submit" id="load-url-submit" class="document-primary">
+          URLから読込
+        </button>
+      </div>
+    </form>
+  </details>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="confirm-dialog"
+  aria-labelledby="confirm-heading"
+>
+  <form id="confirm-form">
+    <div class="document-dialog-heading">
+      <h2 id="confirm-heading">回路を読み込む</h2>
+      <button
+        type="button"
+        class="document-close"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <p id="confirm-copy" class="document-description"></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button type="submit" class="document-primary">読み込む</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="share-dialog"
+  aria-labelledby="share-heading"
+>
+  <div class="document-dialog-heading">
+    <h2 id="share-heading">URLで共有</h2>
+    <button
+      type="button"
+      class="document-close"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <label class="document-field" for="share-url"
+    ><span>共有URL</span
+    ><textarea id="share-url" readonly rows="3" spellcheck="false"></textarea>
+  </label>
+  <p id="share-status" class="document-help" role="status"></p>
+  <p id="share-offline-help" class="document-help" hidden>
+    HTMLファイルで使う場合は、受け取ったURLを「読込」に貼り付けられます。
+  </p>
+  <p class="document-error" role="alert" hidden></p>
+  <div class="document-dialog-actions document-share-actions">
+    <button id="share-export" type="button">ファイルに書出</button>
+    <div>
+      <button id="native-share" type="button" hidden>共有する</button
+      ><button id="copy-url" type="button" class="document-primary" disabled>
+        URLをコピー
+      </button>
+    </div>
+  </div>
+</dialog>
 
 </main>
 <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a>

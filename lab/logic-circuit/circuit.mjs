@@ -125,7 +125,7 @@ export function truthTable(graph) {
   });
 }
 
-// Local saved circuits are bounded and checked before use.
+// Imported, shared and local circuits are checked before replacing the editor.
 export function validCircuit(graph) {
   if (
     !graph ||
@@ -135,13 +135,18 @@ export function validCircuit(graph) {
     graph.edges.length > 80
   )
     return false;
-  const ids = new Set();
+  const ids = new Set(),
+    gateNumbers = new Set(),
+    branchNumbers = new Set();
   for (const node of graph.nodes) {
     if (
+      !node ||
+      typeof node !== "object" ||
       typeof node.id !== "string" ||
-      !/^n\d+$/.test(node.id) ||
+      !/^n[1-9]\d{0,8}$/.test(node.id) ||
       ids.has(node.id) ||
-      !parts[node.type] ||
+      typeof node.type !== "string" ||
+      !Object.hasOwn(parts, node.type) ||
       !Number.isFinite(node.x) ||
       !Number.isFinite(node.y) ||
       Math.abs(node.x) > 10000 ||
@@ -150,15 +155,34 @@ export function validCircuit(graph) {
       return false;
     ids.add(node.id);
     if (
-      ["input", "output"].includes(node.type) &&
-      !/^[A-DX-ZW]$/.test(node.label)
+      node.type === "input" &&
+      (typeof node.label !== "string" || !/^[A-D]$/.test(node.label))
+    )
+      return false;
+    if (
+      node.type === "output" &&
+      (typeof node.label !== "string" || !/^[XYZW]$/.test(node.label))
+    )
+      return false;
+    if (
+      node.meaning !== undefined &&
+      (node.type !== "output" ||
+        typeof node.meaning !== "string" ||
+        node.meaning.length > 80)
     )
       return false;
     if (
       !["input", "output"].includes(node.type) &&
-      (!Number.isInteger(node.number) || node.number < 1 || node.number > 999)
+      (!Number.isInteger(node.number) ||
+        node.number < 1 ||
+        node.number > 999999)
     )
       return false;
+    if (!["input", "output"].includes(node.type)) {
+      const numbers = node.type === "branch" ? branchNumbers : gateNumbers;
+      if (numbers.has(node.number)) return false;
+      numbers.add(node.number);
+    }
     if (node.type === "input" && ![0, 1].includes(node.value)) return false;
   }
   const { inputs, outputs } = orderedNodes(graph);
@@ -178,7 +202,7 @@ export function validCircuit(graph) {
     if (
       !edge ||
       typeof edge.id !== "string" ||
-      !/^w\d+$/.test(edge.id) ||
+      !/^w[1-9]\d{0,8}$/.test(edge.id) ||
       wireIds.has(edge.id) ||
       !edge.from ||
       !edge.to ||

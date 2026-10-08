@@ -41,6 +41,11 @@
 - 全体表示、拡大縮小、余白のドラッグによる表示の移動。スマートフォンはピンチで拡大縮小。
 - AND・OR・NOT・排他的論理和・半加算器の回路例。排他的論理和と半加算器もAND・OR・NOTの組合せで構成。
 - 作成した回路はブラウザ内に自動保存。保存機能が使用できない環境でも操作できます。外部通信は行いません。
+- 「保存・読込・共有」を回路名と同じ行に配置。名前付きのブラウザ内保存（100件まで）、上書き／別名保存、一覧からの読込・削除。Ctrl／⌘＋Sでも保存画面を開けます。
+- JSONファイルの書き出し・読込。ファイル名を指定でき、部品・配線・配置・番号・入力値・回路名を保持します。100KB以内のバージョン1形式で、読み込めないデータでは回路を変更しません。最初のリリースの自動保存にも対応します。
+- URL共有、コピー、対応ブラウザでの共有メニュー。データはURLのフラグメントに含め、サーバーには保存しません。DEFLATE圧縮が使用できない環境ではJSON形式で生成。復号時は展開後のサイズも制限します。
+- 共有URLを開くだけでは、受信者の自動保存や名前付き保存を変更しません。前の作業へ戻れます。編集または保存したときに共有状態を解除し、自分の作業として自動保存します。
+- 未公開のダウンロードHTMLでも、共有URLを「読込」の「共有URLから読込」に貼り付けて復元できます。ファイルとして開いた場合の共有URLは公開予定の `/lab/logic-circuit/` を指すため、公開前は直接開かず貼り付け読込またはJSONファイルを使います。
 
 ## 構成
 
@@ -53,6 +58,7 @@
 - `logic-circuit/circuit.mjs`: 接続検証・組合せ回路の評価・真理値表。
 - `logic-circuit/symbols.mjs` / `examples.mjs`: 講義ノートに合わせた記号と回路例。
 - `logic-circuit/editor.mjs` / `circuit.css`: 配置・配線・表示・操作。
+- `logic-circuit/documents.mjs` / `sharing.mjs` / `document-ui.mjs`: 保存形式・検証、ブラウザ内保存、共有URL、保存・読込・共有の画面。
 - `tools/build-render-worker.mjs` / `digital-image/render-source.mjs`: 同じ計算モデルから生成するWeb Worker。画像処理を操作とは別のスレッドで行い、最新の設定を優先します。Workerが使えない環境では通常処理に切り替えます。ダウンロードHTMLにも内包します。
 - `navigation.mjs`: ナビゲーションの表示補助。解析・広告スクリプトは読み込みません。
 
@@ -77,11 +83,17 @@ node lab/tools/test-image.mjs
 LAB_PLAYWRIGHT_MODULE=/workspace/.lab-test-tools/node_modules/playwright \
 LAB_AXE_MODULE=/workspace/.lab-test-tools/node_modules/axe-core/axe.min.js \
 node lab/tools/test-circuit.mjs
+
+LAB_PLAYWRIGHT_MODULE=/workspace/.lab-test-tools/node_modules/playwright \
+LAB_AXE_MODULE=/workspace/.lab-test-tools/node_modules/axe-core/axe.min.js \
+node lab/tools/test-circuit-documents.mjs
 ```
 
 1280×720、390×844、320×740pxで操作欄・比較画像・結果が表示範囲内に収まることを確認します。色とビット数、画素数、成分表示、データ量、グリッド、長押しと停止、初期設定へのリセット、キーボード・タッチ操作、拡大、画像アップロード、読み込み失敗も検証します。WCAG A/AAは自動検出可能な範囲の検査です。
 
 回路は幅1280・390・320pxで、部品の追加／移動、マウスとタッチによる配線、分岐の挿入、入力と真理値表の連動、未接続、循環接続の拒否、削除と取り消し、保存からの復元、キーボード操作を検証します。ダウンロードHTMLは外部リソースなしで半加算器の出力を確認します。
+
+保存・共有も同じ3種類の幅で、ブラウザ保存の上書き・コピー・削除、JSONの実際のダウンロードと読込、キャンセル・不正ファイル時の保持、コピーとフォールバック、共有メニューへのデータ受け渡し、各ダイアログのアクセシビリティを確認します。共有先の下書きの保護、編集後の自動保存、共有URLの貼り付け、ブラウザ保存が使えない単体HTMLでのファイル書き出しも検証します。共有メニューはテストで置き換え、実際の外部送信は行いません。
 
 ## ダウンロード用HTML
 

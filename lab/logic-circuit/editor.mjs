@@ -4,15 +4,14 @@ import {
   evaluate,
   orderedNodes,
   truthTable,
-  validCircuit,
-} from "./circuit.mjs";
+} from "./circuit.mjs?v=2";
 import { symbol, portOffset, miniSymbol } from "./symbols.mjs";
 import { exampleCircuit } from "./examples.mjs";
+import { installDocumentControls } from "./document-ui.mjs";
 
 const $ = (id) => document.getElementById(id);
 const board = $("circuit-board"),
   stage = $("circuit-stage");
-const storageKey = "interactive-lab:logic-circuit:v1";
 const clone = (graph) => structuredClone(graph);
 const esc = (value) =>
   String(value ?? "")
@@ -24,6 +23,7 @@ const signalClass = (value) =>
   value === 1 ? "one" : value === 0 ? "zero" : "unknown";
 const gateTypes = ["and", "or", "not"];
 let graph,
+  documentTools,
   selected,
   pendingPort,
   gesture,
@@ -106,9 +106,7 @@ function message(text, error = false, timed = false) {
     toastTimer = setTimeout(() => message("入力を切り替えて試せます。"), 4500);
 }
 function save() {
-  try {
-    localStorage.setItem(storageKey, JSON.stringify(graph));
-  } catch {}
+  documentTools?.edited();
 }
 function remember(before) {
   past.push(before);
@@ -843,7 +841,7 @@ board.addEventListener("keydown", (event) => {
   }
 });
 document.addEventListener("keydown", (event) => {
-  if (event.target.closest("input,select,textarea")) return;
+  if (event.target.closest("input,select,textarea,dialog")) return;
   if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
     event.preventDefault();
     undo(event.shiftKey);
@@ -901,17 +899,21 @@ $("circuit-example").onchange = (event) => {
   message("入力を切り替えて、途中の値と出力を見比べられます。", false, true);
 };
 
-let restored = false;
-try {
-  const saved = JSON.parse(localStorage.getItem(storageKey));
-  if (validCircuit(saved)) {
-    graph = saved;
-    restored = true;
-  }
-} catch {}
-if (!graph)
-  graph = exampleCircuit("and", stage.clientWidth, stage.clientHeight);
+graph = exampleCircuit("and", stage.clientWidth, stage.clientHeight);
 render();
 updateCamera();
-if (restored) fitAll();
 new ResizeObserver(() => updateCamera()).observe(stage);
+documentTools = installDocumentControls({
+  read: () => graph,
+  replace: (incoming) => {
+    graph = incoming;
+    selected = pendingPort = undefined;
+    past = [];
+    future = [];
+    render();
+    fitAll();
+  },
+  cancel: cancelGesture,
+  message,
+});
+documentTools.start();
