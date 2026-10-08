@@ -1,0 +1,163 @@
+<header class="circuit-heading">
+  <h1>論理回路をつくる</h1>
+  <button type="button" id="clear-circuit">白紙にする</button>
+</header>
+<section class="circuit-lab" aria-label="論理回路の実験">
+  <div class="parts-bar" role="group" aria-label="回路の部品">
+    <button
+      type="button"
+      class="part-button"
+      data-part="and"
+      aria-label="論理積 ANDを追加"
+    >
+      <span class="part-icon"></span><span>論理積 <b>AND</b></span>
+    </button>
+    <button
+      type="button"
+      class="part-button"
+      data-part="or"
+      aria-label="論理和 ORを追加"
+    >
+      <span class="part-icon"></span><span>論理和 <b>OR</b></span>
+    </button>
+    <button
+      type="button"
+      class="part-button"
+      data-part="not"
+      aria-label="否定 NOTを追加"
+    >
+      <span class="part-icon"></span><span>否定 <b>NOT</b></span>
+    </button>
+    <button
+      type="button"
+      class="part-button"
+      data-part="branch"
+      aria-label="分岐パーツを追加"
+    >
+      <span class="part-icon"></span><span>分岐</span>
+    </button>
+    <button
+      type="button"
+      class="part-button extra-part"
+      data-part="input"
+      aria-label="0/1 入力＋（最大4つ）"
+    >
+      <span class="part-text-icon" aria-hidden="true">0/1</span
+      ><span>入力＋</span>
+    </button>
+    <button
+      type="button"
+      class="part-button extra-part"
+      data-part="output"
+      aria-label="出力を追加（最大4つ）"
+    >
+      <span class="part-text-icon" aria-hidden="true">◉</span
+      ><span>出力＋</span>
+    </button>
+  </div>
+  <p class="circuit-hint">
+    部品はドラッグ・タップで追加。端子どうしをつなぎ、入力の0／1を切り替えます。
+  </p>
+  <div class="circuit-toolbar">
+    <div class="edit-actions">
+      <button
+        type="button"
+        id="undo-circuit"
+        aria-label="元に戻す"
+        title="元に戻す"
+      >
+        ↶
+      </button>
+      <button
+        type="button"
+        id="redo-circuit"
+        aria-label="やり直す"
+        title="やり直す"
+      >
+        ↷
+      </button>
+      <button type="button" id="delete-selected" disabled>削除</button>
+    </div>
+    <label class="example-control"
+      ><span class="visually-hidden">回路例</span
+      ><select id="circuit-example">
+        <option value="">回路例…</option>
+        <option value="and">例：論理積</option>
+        <option value="or">例：論理和</option>
+        <option value="not">例：否定</option>
+        <option value="xor">例：排他的論理和</option>
+        <option value="adder">例：半加算器</option>
+      </select></label
+    >
+    <div class="zoom-actions">
+      <button type="button" id="zoom-out-circuit" aria-label="回路を縮小">
+        −</button
+      ><button type="button" id="fit-circuit">全体</button
+      ><button type="button" id="zoom-in-circuit" aria-label="回路を拡大">
+        ＋
+      </button>
+    </div>
+  </div>
+  <div class="circuit-stage" id="circuit-stage">
+    <svg
+      id="circuit-board"
+      role="group"
+      aria-label="回路の描画場所"
+      tabindex="0"
+    >
+      <defs>
+        <pattern
+          id="circuit-dots"
+          width="16"
+          height="16"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="0" cy="0" r="1" fill="#c8d5d3" />
+        </pattern>
+      </defs>
+      <rect id="board-background" fill="url(#circuit-dots)" />
+      <g id="circuit-wires"></g>
+      <g id="circuit-nodes"></g>
+      <path id="wire-preview" />
+    </svg>
+  </div>
+  <div class="circuit-status-line">
+    <p id="circuit-message" role="status" aria-live="polite">
+      入力を切り替えて試せます。
+    </p>
+    <span class="signal-legend"
+      ><i class="legend-zero"></i>0 <i class="legend-one"></i>1
+      <span>— 未接続</span></span
+    >
+  </div>
+  <section class="truth-section" aria-labelledby="truth-title">
+    <div class="truth-heading">
+      <h2 id="truth-title">真理値表</h2>
+      <p>行を押すと、その入力で試せます。</p>
+    </div>
+    <div
+      class="truth-scroll"
+      tabindex="0"
+      role="region"
+      aria-label="回路の真理値表"
+    >
+      <table id="circuit-truth">
+        <caption class="visually-hidden">
+          すべての入力の組合せと、各部品および最終出力の値
+        </caption>
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="circuit-footnote">
+      接続が完成した部分の定常値を表示します。信号の遅延は扱いません。
+    </p>
+  </section>
+  <p
+    class="visually-hidden"
+    id="circuit-announcement"
+    role="status"
+    aria-live="polite"
+  ></p>
+</section>
+<div id="part-ghost" hidden aria-hidden="true"></div>

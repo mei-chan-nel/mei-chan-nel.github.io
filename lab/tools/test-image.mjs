@@ -86,7 +86,9 @@ try {
     await page.goto(base + "/lab/");
     assert.equal(await page.locator(".lab-category").count(), 6);
     assert.equal(
-      await page.locator("#digital-representation .archive-field-card").count(),
+      await page
+        .locator('#digital-representation a[href="./digital-image/"]')
+        .count(),
       1,
     );
     await page.locator('a[href="./digital-image/"]').click();

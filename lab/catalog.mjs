@@ -49,4 +49,13 @@ export const contents = [
     description:
       "画素数と量子化ビット数を変えて、元画像と見比べる。RGBの各成分も表示できます。",
   },
+  {
+    id: "logic-circuit",
+    group: "digital-representation",
+    styles: ["circuit.css?v=1"],
+    scripts: ["editor.mjs?v=1"],
+    name: "論理回路をつくる",
+    description:
+      "AND・OR・NOTと分岐を配置して配線。各ゲートの出力と真理値表を見比べます。",
+  },
 ];
