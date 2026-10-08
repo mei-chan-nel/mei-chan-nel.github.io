@@ -98,17 +98,20 @@ function makeSample() {
     c.fillStyle = `rgb(${Math.round((255 * y) / 127)} ${Math.round((255 * y) / 127)} ${Math.round((255 * y) / 127)})`;
     c.fillRect(0, 768 + y * 2, 1024, 2);
   }
-  for (const [x, y, color, radius] of [
-    [162, 130, "#ff0000", 108],
-    [432, 130, "#00ff00", 108],
-    [702, 130, "#0000ff", 108],
-    [162, 382, "#00ffff", 108],
-    [432, 382, "#ff00ff", 108],
-    [702, 382, "#ffff00", 108],
-    [162, 634, "#ff8800", 108],
-    [432, 634, "#8844ff", 108],
-    [702, 634, "#88ff44", 108],
-  ]) {
+  // Clockwise hue order places each secondary color between its RGB primaries.
+  const colors = [
+    "#ff0000",
+    "#ffff00",
+    "#00ff00",
+    "#00ffff",
+    "#0000ff",
+    "#ff00ff",
+  ];
+  for (const [index, color] of colors.entries()) {
+    const angle = (index * Math.PI) / 3 - Math.PI / 2;
+    const x = 432 + 248 * Math.cos(angle),
+      y = 382 + 248 * Math.sin(angle),
+      radius = 108;
     const g = c.createRadialGradient(
       x - radius * 0.28,
       y - radius * 0.35,
