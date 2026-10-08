@@ -99,14 +99,28 @@ function makeSample() {
     c.fillRect(0, 768 + y * 2, 1024, 2);
   }
   for (const [x, y, color, radius] of [
-    [220, 245, "#e64343", 155],
-    [665, 280, "#35ac54", 180],
-    [470, 635, "#345bea", 165],
+    [162, 130, "#ff0000", 108],
+    [432, 130, "#00ff00", 108],
+    [702, 130, "#0000ff", 108],
+    [162, 382, "#00ffff", 108],
+    [432, 382, "#ff00ff", 108],
+    [702, 382, "#ffff00", 108],
+    [162, 634, "#ff8800", 108],
+    [432, 634, "#8844ff", 108],
+    [702, 634, "#88ff44", 108],
   ]) {
-    const g = c.createRadialGradient(x - 45, y - 60, 10, x, y, radius);
+    const g = c.createRadialGradient(
+      x - radius * 0.28,
+      y - radius * 0.35,
+      radius * 0.06,
+      x,
+      y,
+      radius,
+    );
     g.addColorStop(0, "#fffef9");
-    g.addColorStop(0.25, color);
-    g.addColorStop(1, "#102f35");
+    g.addColorStop(0.28, color);
+    g.addColorStop(0.62, color);
+    g.addColorStop(1, "#000000");
     c.fillStyle = g;
     c.beginPath();
     c.arc(x, y, radius, 0, Math.PI * 2);
@@ -114,14 +128,14 @@ function makeSample() {
   }
   c.save();
   c.beginPath();
-  c.rect(790, 500, 200, 200);
+  c.rect(878, 36, 116, 704);
   c.clip();
   c.strokeStyle = "#fffef9";
   c.lineWidth = 5;
-  for (let i = -220; i < 450; i += 12) {
+  for (let i = -704; i < 116; i += 12) {
     c.beginPath();
-    c.moveTo(790 + i, 500);
-    c.lineTo(790 + i + 200, 700);
+    c.moveTo(878 + i, 36);
+    c.lineTo(878 + i + 704, 740);
     c.stroke();
   }
   c.restore();
