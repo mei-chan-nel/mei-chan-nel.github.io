@@ -150,6 +150,14 @@ Only these built-ins are currently supported. Additional built-ins may be regist
 | `乱数(min, max, "整数")` | two integer bounds and the literal string `"整数"` | Inclusive integer range [min, max]; min <= max. |
 | `乱数(min, max, "実数")` | two finite numeric bounds and the literal string `"実数"` | Real range [min, max); min < max. |
 
+| `整数(number)` | one number | Floor toward negative infinity. `整数(-1.2)` is -2. |
+| `べき乗(base, exponent)` | two numbers | Finite numeric power, also expressible with `**`. |
+| `配列結合(arrays...)` | one or more arrays | A new array containing the arrays in order, at most 1,000 elements. |
+| `逆順(array)` | one array | A new reversed array. To update `Data`, write `Data = 逆順(Data)`. |
+| `含む(array, value)` | array and value | Boolean membership using equality of values, including array contents. |
+| `ランダム整数(min, max)` | two integers | Inclusive integer range, equivalent to `乱数(min, max, "整数")`. |
+| `ランダム日付()` | none | Month/day string from 365 equally likely days, excluding February 29. |
+
 Resetting an execution replays its random sequence. Preparing a new execution gives a new sequence.
 
 ## External input specifications

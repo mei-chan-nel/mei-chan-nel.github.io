@@ -1,3 +1,4 @@
+import { bindFlowchartConversion } from './flowchart-link.js?v=20261009-flowchart1';
 import { findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-perf";
 import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";
@@ -616,3 +617,5 @@ function layoutWorkspace() {
 }
 window.addEventListener("resize", () => { if (!fullscreen.active) layoutWorkspace(); });
 route();
+
+bindFlowchartConversion({read:()=>({example,parameters}),pause:stop});

@@ -1,6 +1,7 @@
 import { ProgramEditor } from './editor.js';
 import { RunnerView } from './runner-view.js';
 import { createFullscreen } from './fullscreen.js';
+import { bindFlowchartConversion } from './flowchart-link.js';
 import { bindStepKeys } from './step-keys.js';
 import { ProgramStorage } from './storage.js';
 import { documentJSON, parseDocument, validateInput } from './documents.js';
@@ -394,4 +395,5 @@ async function start(): Promise<void> {
   else if (error) showMessage(error, true);
   else byId('draft-status').textContent = '下書きはこのブラウザに自動保存されます';
 }
+bindFlowchartConversion({read: currentDraft, pause});
 void start();

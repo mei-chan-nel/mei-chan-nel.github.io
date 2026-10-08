@@ -39,7 +39,7 @@ for (const name of await readdir(new URL('public/examples/', project))) if (name
 await copyFile(new URL('program-trace/styles.css', portal), new URL('trace-base.css', destination));
 // Both runners use the same DOM-only interactions. Program interpretation stays
 // independent, and these modules never import the original problem collection.
-for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js', 'result-panels.js', 'step-keys.js']) {
+for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js', 'result-panels.js', 'step-keys.js', 'flowchart-link.js']) {
   await copyFile(new URL(`program-trace/${name}`, portal), new URL(name, destination));
 }
 console.log('Built independent Studio → program-trace/studio/');

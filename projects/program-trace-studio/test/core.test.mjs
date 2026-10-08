@@ -162,3 +162,17 @@ test('unavailable or full local storage reports file fallback', () => {
   const storage = new ProgramStorage({ getItem() { throw Error('denied'); }, setItem() { throw Error('quota'); } });
   assert.throws(() => storage.draft(), /ファイル/); assert.throws(() => storage.saveDraft(draft('x = 1')), /ファイル/);
 });
+
+test('serializing a negative base preserves exponent precedence', async () => {
+  const {parseExpression,expressionText,valueExpression} = await import('../../../program-trace/studio/expressions.js');
+  const parsed = parseExpression('(-1) ** 2');
+  assert.equal(execute(`x = ${expressionText(parsed)}`).state.variables.x, 1);
+  const built = {kind:'binary',operator:'**',left:valueExpression(-2),right:valueExpression(2),column:1};
+  assert.equal(execute(`x = ${expressionText(built)}`).state.variables.x, 4);
+});
+test('compatibility helpers have exact numeric and array semantics', () => {
+  const {state}=execute('x = 整数(-1.2)\ny = べき乗(2, 3)\nA = [1, 2]\nB = 配列結合(A, [3], [4])\nC = 逆順(B)\nB[0] = 9\np = 含む(C, 3)\nq = 含む(C, 9)');
+  assert.deepEqual({...state.variables},{x:-2,y:8,A:[1,2],B:[9,2,3,4],C:[4,3,2,1],p:true,q:false});
+  assert.throws(()=>execute('x = ランダム整数(3, 2)'));
+  assert.throws(()=>execute('x = 配列結合([1], 2)'));
+});

@@ -1,0 +1,564 @@
+<header class="circuit-heading">
+  <h1>フローチャートをつくる</h1>
+  <button type="button" id="new-circuit">新規作成</button>
+</header>
+<section
+  class="circuit-lab flowchart-lab"
+  aria-label="フローチャートの作成と実行"
+>
+  <div class="circuit-document-bar">
+    <label class="circuit-name-field" for="circuit-name"
+      ><span>図の名前</span
+      ><input
+        id="circuit-name"
+        type="text"
+        maxlength="120"
+        value="条件で分岐"
+        autocomplete="off"
+    /></label>
+    <div class="circuit-document-actions">
+      <button id="save-circuit" type="button">保存</button
+      ><button id="load-circuit" type="button">読込</button
+      ><button id="share-circuit" type="button">共有</button
+      ><button id="to-program" type="button">プログラムに変換</button>
+    </div>
+  </div>
+  <div id="shared-circuit" class="shared-circuit" hidden>
+    <span>共有されたフローチャート</span
+    ><button id="restore-own-circuit" type="button" hidden>
+      前の作業に戻る
+    </button>
+  </div>
+  <div class="flow-scope-bar">
+    <label for="flow-scope">表示する図</label
+    ><select id="flow-scope">
+      <option value="main">メイン</option></select
+    ><button id="add-function" type="button">関数＋</button
+    ><button id="delete-function" type="button" hidden>関数を削除</button
+    ><label class="flow-index" for="index-base"
+      >配列の番号
+      <select id="index-base">
+        <option value="0">0から</option>
+        <option value="1">1から</option>
+      </select></label
+    >
+  </div>
+  <div class="circuit-workspace">
+    <div class="parts-bar" role="group" aria-label="フローチャートの図記号">
+      <button class="part-button" type="button" data-part="process">
+        <span class="part-icon"></span><span>処理</span>
+      </button>
+      <button class="part-button" type="button" data-part="input">
+        <span class="part-icon"></span><span>入力</span>
+      </button>
+      <button class="part-button" type="button" data-part="output">
+        <span class="part-icon"></span><span>出力</span>
+      </button>
+      <button class="part-button" type="button" data-part="decision">
+        <span class="part-icon"></span><span>判断</span>
+      </button>
+      <button class="part-button" type="button" data-part="loopStart">
+        <span class="part-icon"></span><span>繰返し（始端・終端）</span>
+      </button>
+      <button class="part-button" type="button" data-part="connector">
+        <span class="part-icon"></span><span>結合子</span>
+      </button>
+      <button class="part-button" type="button" data-part="call">
+        <span class="part-icon"></span><span>定義済み処理</span>
+      </button>
+      <button class="part-button" type="button" data-part="return">
+        <span class="part-icon"></span><span>値を返す（関数）</span>
+      </button>
+      <button class="part-button extra-part" type="button" data-part="start">
+        <span class="part-icon"></span><span>開始＋</span>
+      </button>
+      <button class="part-button extra-part" type="button" data-part="end">
+        <span class="part-icon"></span><span>終了＋</span>
+      </button>
+    </div>
+    <div class="circuit-editor">
+      <p class="circuit-hint">
+        図記号はドラッグ・タップで追加。入口と出口をつなぎ、図記号を押して内容を編集します。
+      </p>
+      <div class="circuit-toolbar">
+        <div class="edit-actions" id="edit-actions">
+          <button id="undo-circuit" type="button" aria-label="元に戻す">
+            ↶</button
+          ><button id="redo-circuit" type="button" aria-label="やり直す">
+            ↷</button
+          ><button id="delete-selected" type="button" disabled>削除</button
+          ><button id="prepare-run" class="flow-primary" type="button">
+            実行画面へ
+          </button>
+        </div>
+        <div class="flow-run-actions" id="run-actions" hidden>
+          <button id="previous-button" type="button" disabled>← 前へ</button
+          ><button id="next-button" class="flow-primary" type="button">
+            次へ →</button
+          ><button id="play-button" type="button" aria-pressed="false">
+            自動実行</button
+          ><button id="reset-button" type="button">最初から</button
+          ><button id="edit-button" type="button">編集に戻る</button
+          ><label for="speed-input"
+            >間隔
+            <input
+              id="speed-input"
+              type="number"
+              value="0.5"
+              min="0.001"
+              max="10"
+              step="any"
+            />秒</label
+          >
+        </div>
+        <div class="zoom-actions">
+          <button id="zoom-out-circuit" type="button" aria-label="図を縮小">
+            −</button
+          ><button id="fit-circuit" type="button">全体</button
+          ><button id="zoom-in-circuit" type="button" aria-label="図を拡大">
+            ＋
+          </button>
+        </div>
+      </div>
+      <div class="circuit-stage" id="circuit-stage">
+        <svg
+          id="flow-board"
+          role="group"
+          aria-label="フローチャートの編集画面"
+          tabindex="0"
+        >
+          <defs>
+            <pattern
+              id="flow-dots"
+              width="16"
+              height="16"
+              patternUnits="userSpaceOnUse"
+            >
+              <circle cx="0" cy="0" r="1" fill="#c8d5d3" />
+            </pattern>
+            <marker
+              id="flow-arrow"
+              markerWidth="9"
+              markerHeight="8"
+              refX="8"
+              refY="4"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <path d="M0 0L8 4 0 8Z" fill="#607e83" />
+            </marker>
+            <marker
+              id="flow-arrow-active"
+              markerWidth="9"
+              markerHeight="8"
+              refX="8"
+              refY="4"
+              orient="auto"
+              markerUnits="strokeWidth"
+            >
+              <path d="M0 0L8 4 0 8Z" fill="#255e77" />
+            </marker>
+          </defs>
+          <rect
+            x="-12000"
+            y="-12000"
+            width="24000"
+            height="24000"
+            fill="url(#flow-dots)"
+          />
+          <g id="flow-pairs"></g>
+          <g id="flow-wires"></g>
+          <g id="flow-nodes"></g>
+          <path id="flow-preview" />
+        </svg>
+        <div
+          class="circuit-resize-edge circuit-resize-right"
+          data-resize-axis="width"
+          aria-hidden="true"
+        ></div>
+        <div
+          class="circuit-resize-edge circuit-resize-bottom"
+          data-resize-axis="height"
+          aria-hidden="true"
+        ></div>
+        <button
+          id="resize-circuit"
+          class="circuit-resize"
+          data-resize-axis="both"
+          type="button"
+          aria-label="編集画面の大きさを変更"
+          aria-describedby="resize-help"
+          title="ドラッグでサイズ変更"
+        >
+          ↘
+        </button>
+      </div>
+      <span class="visually-hidden" id="resize-help"
+        >矢印キーで幅と高さを変更。Homeキーで元に戻します。</span
+      >
+    </div>
+  </div>
+  <div class="circuit-status-line">
+    <p id="circuit-message" role="status" aria-live="polite"></p>
+    <span id="flow-step-count">実行前</span>
+  </div>
+  <section
+    class="flow-results"
+    id="flow-results"
+    aria-label="実行の様子"
+    hidden
+  >
+    <div class="flow-result">
+      <h2>現在の処理 <span id="current-node"></span></h2>
+      <h3 id="detail-title">実行前</h3>
+      <p id="detail-explanation"></p>
+      <p id="condition-result" hidden></p>
+      <p id="next-node"></p>
+    </div>
+    <div class="flow-result">
+      <h2>変数の値 <span id="variable-scope"></span></h2>
+      <div
+        class="flow-result-scroll"
+        tabindex="0"
+        role="region"
+        aria-label="変数の値"
+      >
+        <table id="variable-table">
+          <thead>
+            <tr>
+              <th>変数</th>
+              <th>値</th>
+              <th>変化</th>
+            </tr>
+          </thead>
+          <tbody id="variable-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="flow-result">
+      <div class="flow-output-heading">
+        <h2>出力 <span id="output-count">0件</span></h2>
+        <button id="output-full" type="button" disabled>すべて見る</button>
+      </div>
+      <ol
+        id="output-lines"
+        aria-label="プログラムの出力"
+        aria-live="polite"
+      ></ol>
+      <p id="output-placeholder">まだ出力はありません。</p>
+    </div>
+  </section>
+</section>
+<div id="part-ghost" hidden aria-hidden="true"></div>
+<dialog class="circuit-dialog" id="node-dialog" aria-labelledby="node-heading">
+  <form id="node-form">
+    <div class="document-dialog-heading">
+      <h2 id="node-heading">内容を編集</h2>
+      <button
+        class="document-close"
+        type="button"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="node-code"
+      ><span id="node-code-label">処理</span
+      ><textarea
+        id="node-code"
+        rows="3"
+        maxlength="2000"
+        spellcheck="false"
+      ></textarea>
+    </label>
+    <p id="node-help" class="document-help"></p>
+    <div id="input-spec-fields" hidden></div>
+    <label class="document-field" for="node-note"
+      ><span>メモ（任意）</span
+      ><input id="node-note" maxlength="2000" autocomplete="off"
+    /></label>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button class="document-primary" type="submit">変更する</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="function-dialog"
+  aria-labelledby="function-heading"
+>
+  <form id="function-form">
+    <div class="document-dialog-heading">
+      <h2 id="function-heading">関数を追加</h2>
+      <button
+        class="document-close"
+        type="button"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="function-name"
+      ><span>関数名</span
+      ><input id="function-name" maxlength="80" required /></label
+    ><label class="document-field" for="function-args"
+      ><span>引数（カンマで区切る）</span
+      ><input id="function-args" maxlength="1000"
+    /></label>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button class="document-primary" type="submit">追加する</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="input-dialog"
+  aria-labelledby="input-heading"
+>
+  <form id="input-form">
+    <div class="document-dialog-heading">
+      <h2 id="input-heading">外部からの入力</h2>
+      <button
+        class="document-close"
+        type="button"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="input-value"
+      ><span id="input-label">値</span
+      ><textarea id="input-value" rows="2" maxlength="20000"></textarea>
+    </label>
+    <p id="input-help" class="document-help"></p>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button class="document-primary" type="submit">入力して実行</button>
+    </div>
+  </form>
+</dialog>
+<dialog class="circuit-dialog" id="save-dialog" aria-labelledby="save-heading">
+  <form id="save-form">
+    <div class="document-dialog-heading">
+      <h2 id="save-heading">保存</h2>
+      <button
+        class="document-close"
+        type="button"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="save-name"
+      ><span>図の名前</span><input id="save-name" maxlength="120" required
+    /></label>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-save-options">
+      <button class="document-primary" id="save-submit" type="submit">
+        ブラウザ内に保存</button
+      ><button id="save-copy" type="button" hidden>新しいものとして保存</button
+      ><button id="export-circuit" type="button">JSONファイルに書出</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="export-dialog"
+  aria-labelledby="export-heading"
+>
+  <form id="export-form">
+    <div class="document-dialog-heading">
+      <h2 id="export-heading">JSONファイルに書出</h2>
+      <button
+        class="document-close"
+        type="button"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <label class="document-field" for="export-name"
+      ><span>ファイル名</span><input id="export-name" maxlength="120" required
+    /></label>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button class="document-primary" type="submit">書き出す</button>
+    </div>
+  </form>
+</dialog>
+<dialog class="circuit-dialog" id="load-dialog" aria-labelledby="load-heading">
+  <div class="document-dialog-heading">
+    <h2 id="load-heading">読込</h2>
+    <button
+      class="document-close"
+      type="button"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <p class="document-error" role="alert" hidden></p>
+  <button id="import-circuit" type="button">JSONファイルから読込</button
+  ><input
+    id="circuit-file"
+    type="file"
+    accept=".json,application/json"
+    hidden
+  />
+  <section class="document-load-section">
+    <h3>例</h3>
+    <div id="flow-example-list" class="circuit-example-list"></div>
+  </section>
+  <section class="document-load-section">
+    <h3>ブラウザ内の保存</h3>
+    <div id="saved-list"></div>
+  </section>
+  <form id="load-url-form" class="document-load-section">
+    <h3>共有URLから読込</h3>
+    <label class="document-field" for="load-url"
+      ><span>フローチャート／スタジオの共有URL</span
+      ><input
+        id="load-url"
+        type="text"
+        maxlength="100500"
+        autocomplete="off" /></label
+    ><button id="load-url-submit" type="submit">読み込む</button>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="confirm-dialog"
+  aria-labelledby="confirm-heading"
+>
+  <form id="confirm-form">
+    <div class="document-dialog-heading">
+      <h2 id="confirm-heading">読み込みますか？</h2>
+      <button
+        class="document-close"
+        type="button"
+        data-close-circuit-dialog
+        aria-label="閉じる"
+      >
+        ×
+      </button>
+    </div>
+    <p id="confirm-copy"></p>
+    <p class="document-error" role="alert" hidden></p>
+    <div class="document-dialog-actions">
+      <button type="button" data-close-circuit-dialog>キャンセル</button
+      ><button class="document-primary" type="submit">読み込む</button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="unsaved-dialog"
+  aria-labelledby="unsaved-heading"
+>
+  <div class="document-dialog-heading">
+    <h2 id="unsaved-heading">新規作成の前に保存しますか？</h2>
+    <button
+      class="document-close"
+      type="button"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <p>この図には未保存の変更があります。</p>
+  <div class="document-dialog-actions new-actions">
+    <button type="button" data-close-circuit-dialog>キャンセル</button
+    ><button id="discard-and-new" type="button">保存せず新規作成</button
+    ><button id="save-and-new" class="document-primary" type="button">
+      保存して新規作成
+    </button>
+  </div>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="share-dialog"
+  aria-labelledby="share-heading"
+>
+  <div class="document-dialog-heading">
+    <h2 id="share-heading">共有</h2>
+    <button
+      class="document-close"
+      type="button"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <label class="document-field" for="share-url"
+    ><span>共有URL</span><textarea id="share-url" readonly rows="3"></textarea>
+  </label>
+  <p id="share-status" class="document-help" role="status"></p>
+  <p class="document-error" role="alert" hidden></p>
+  <div class="document-dialog-actions">
+    <button id="copy-url" type="button" disabled>URLをコピー</button
+    ><button id="native-share" type="button" hidden>共有メニュー</button>
+  </div>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="program-dialog"
+  aria-labelledby="program-heading"
+>
+  <div class="document-dialog-heading">
+    <h2 id="program-heading">プログラムに変換</h2>
+    <button
+      class="document-close"
+      type="button"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <label class="document-field" for="program-source"
+    ><span>共通テスト用プログラム表記</span
+    ><textarea id="program-source" readonly rows="10"></textarea>
+  </label>
+  <p class="document-error" role="alert" hidden></p>
+  <div class="document-dialog-actions">
+    <button id="download-program" type="button">スタジオのJSONを書出</button
+    ><a class="flow-open-program" id="open-program" href="#"
+      >スタジオで開く →</a
+    >
+  </div>
+  <p id="offline-program-help" class="document-help" hidden>
+    未公開の間はJSONをスタジオで読み込めます。
+  </p>
+</dialog>
+<dialog
+  class="circuit-dialog"
+  id="output-dialog"
+  aria-labelledby="output-heading"
+>
+  <div class="document-dialog-heading">
+    <h2 id="output-heading">すべての出力</h2>
+    <button
+      class="document-close"
+      type="button"
+      data-close-circuit-dialog
+      aria-label="閉じる"
+    >
+      ×
+    </button>
+  </div>
+  <ol id="all-outputs"></ol>
+</dialog>

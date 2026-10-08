@@ -127,7 +127,10 @@ export function expressionText(expr) {
         case 'array': return `[${expr.items.map(expressionText).join(', ')}]`;
         case 'index': return `${expressionText(expr.target)}[${expr.indices.map(expressionText).join(', ')}]`;
         case 'unary': return `${expr.operator === 'not' ? 'not ' : expr.operator}(${expressionText(expr.expression)})`;
-        case 'binary': return `(${expressionText(expr.left)} ${expr.operator} ${expressionText(expr.right)})`;
+        case 'binary': {
+            const left = expressionText(expr.left);
+            return `(${expr.left.kind === 'unary' || expr.left.kind === 'literal' && typeof expr.left.value === 'number' && expr.left.value < 0 ? '(' + left + ')' : left} ${expr.operator} ${expressionText(expr.right)})`;
+        }
         case 'call': return `${expr.name}(${expr.args.map(expressionText).join(', ')})`;
     }
 }

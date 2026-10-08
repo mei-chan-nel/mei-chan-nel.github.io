@@ -58,4 +58,12 @@ export const contents = [
     description:
       "AND・OR・NOTと分岐を配置して配線。各ゲートの出力と真理値表を見比べます。",
   },
+  {
+    id: "flowchart",
+    group: "algorithm",
+    styles: ["../logic-circuit/circuit.css?v=8", "flowchart.css?v=1"],
+    scripts: ["editor.mjs?v=1"],
+    name: "フローチャートをつくる",
+    description: "図記号をつないで手順を作り、1つずつ実行。変数・分岐・繰返しを図で確かめます。",
+  },
 ];

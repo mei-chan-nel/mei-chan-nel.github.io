@@ -87,6 +87,26 @@ npm.cmd --prefix projects/program-trace-studio test
 保守方法と保存・共有の仕様は [projects/program-trace-studio/README.md](projects/program-trace-studio/README.md) を参照してください。
 既存のプログラムトレース一覧からStudio、代表15問、折りたたみの動画解説問題へ進めます。
 
+## Interactive Lab（作業ブランチ・未公開）
+
+`lab/` の入口から、画像のデジタル化・論理回路・フローチャートへ進めます。サイト全体のトップには追加していません。各ページは `noindex, nofollow` です。
+
+フローチャートは `lab/flowchart/`。図記号は講義ノートの基本構造の図に合わせ、処理・入出力・判断・開始／終了・対になった繰返しを使います。関数は別の図で編集します。実行・入力検証・式の解釈には Studio の生成済みモジュールを直接使い、図の番号と共通エンジンの命令を対応付けています。前へ／次へ・乱数の再現・自動実行は履歴を保持して処理します。
+
+プログラムと図を共有URLで受け渡します。順次・分岐・繰返し・関数を相互変換でき、配列番号と入力設定も引き継ぎます。図の任意の戻り矢印は実行できますが、プログラムへの変換には対の繰返し記号を使います。動画問題の独自命令は構造化済みの命令から変換します。数値と文字列が混在する選択入力（Q307・Q308）とグラフ描画（Q328）は理由を表示して元ページに留まります。順序や選択肢など問題固有の入力条件はコメントとして引き継ぎます。部品120個、共通エンジンの実行10,000ステップまで（開始・終了・結合子・繰返し終端も1ステップに数えます）。
+
+HTML生成・単体検証と、ローカルサーバーでのブラウザ検証：
+
+```bash
+npm --prefix projects/program-trace-studio run build
+node lab/tools/build-pages.mjs
+node --test scripts/interactive-lab*.test.mjs
+node lab/tools/test-flowchart.mjs
+LAB_ESBUILD_MODULE=/path/to/esbuild node lab/tools/build-preview.mjs /path/to/review
+```
+
+ブラウザ検証には Playwright と Chromium、axe-core を使います。`LAB_PLAYWRIGHT_MODULE`・`LAB_AXE_MODULE` で依存の場所、`LAB_BASE_URL` でプレビューURLを指定できます。単独HTMLは画像・CSS・実行コードを内包し、ブラウザ保存が利用できない環境でも操作とJSON書出を使えます。元のJSON・共有URLは図の配置を含み、プログラムへの変換では配置は保存されません。ブラウザ保存は他の2教材・Studioとは別のキーです。
+
 ## 動画ページの再生成
 
 原本と動画メタデータを更新した場合は、次の順で実行します。キーワード専用データや検索ページは現在の構成にありません。
