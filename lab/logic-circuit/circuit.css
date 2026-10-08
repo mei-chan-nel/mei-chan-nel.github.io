@@ -720,6 +720,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  flex-wrap: wrap;
   margin-bottom: 8px;
 }
 .truth-heading h2 {
@@ -729,7 +730,17 @@
 .truth-heading p {
   font-size: 0.68rem;
   color: var(--ink-soft);
-  margin: 0;
+  margin: 0 0 0 auto;
+}
+#toggle-intermediate {
+  min-height: 28px;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+#toggle-intermediate[hidden] {
+  display: none;
 }
 .truth-scroll {
   overflow: auto;
@@ -939,6 +950,13 @@
   }
   .truth-heading p {
     font-size: 0.61rem;
+    order: 3;
+    flex-basis: 100%;
+    text-align: right;
+  }
+  #toggle-intermediate {
+    margin-left: auto;
+    font-size: 0.65rem;
   }
   #circuit-truth th,
   #circuit-truth td {

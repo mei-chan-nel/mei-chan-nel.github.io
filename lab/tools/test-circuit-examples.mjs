@@ -119,6 +119,15 @@ async function verifyExample(page, id, touch) {
     if (await output.count())
       outputIds.push(await output.getAttribute("data-id"));
   }
+  for (const branch of await page
+    .locator('.circuit-node[data-type="branch"]')
+    .all()) {
+    const branchId = await branch.getAttribute("data-id");
+    assert.equal(
+      await page.locator(`#circuit-truth [data-column="${branchId}"]`).count(),
+      0,
+    );
+  }
   const rows = page.locator("#circuit-truth tbody tr");
   assert.equal(await rows.count(), 2 ** inputCount);
   for (let index = 0; index < 2 ** inputCount; index++) {
@@ -149,6 +158,59 @@ async function verifyExample(page, id, touch) {
         String(result[i]),
       );
   }
+  const boardBefore = await page.locator("#circuit-nodes").innerHTML();
+  const toggle = page.locator("#toggle-intermediate");
+  if (touch) await toggle.tap();
+  else {
+    await toggle.focus();
+    await page.keyboard.press("Enter");
+  }
+  assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+  assert.equal(
+    await page.locator("#circuit-truth thead th[data-column]").count(),
+    inputCount + outputIds.length,
+  );
+  assert.equal(await page.locator("#circuit-nodes").innerHTML(), boardBefore);
+  assert.ok(
+    !(await page.locator("#circuit-truth thead").textContent()).includes(
+      "途中の出力",
+    ),
+  );
+  const zero = page.locator('#circuit-truth tr[data-row="0"]');
+  if (touch) await zero.tap();
+  else {
+    await zero.focus();
+    await page.keyboard.press("Enter");
+  }
+  assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+  for (let i = 0; i < outputIds.length; i++)
+    assert.equal(
+      await page
+        .locator(`.circuit-node[data-id="${outputIds[i]}"] .input-value`)
+        .textContent(),
+      String(expected[id](Array(inputCount).fill(0))[i]),
+    );
+  if (touch) await toggle.tap();
+  else {
+    await toggle.focus();
+    await page.keyboard.press("Space");
+  }
+  assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+  assert.equal(
+    await page.locator("#circuit-truth thead th[data-column]").count(),
+    inputCount +
+      outputIds.length +
+      (await page
+        .locator(
+          '.circuit-node[data-type="and"], .circuit-node[data-type="or"], .circuit-node[data-type="not"]',
+        )
+        .count()),
+  );
+  const last = page.locator(
+    `#circuit-truth tr[data-row="${2 ** inputCount - 1}"]`,
+  );
+  if (touch) await last.tap();
+  else await last.click();
 }
 try {
   for (const width of [1280, 390, 320]) {
@@ -164,12 +226,23 @@ try {
     await page.waitForSelector(".circuit-node");
     for (const id of Object.keys(expected))
       await verifyExample(page, id, touch);
+    await page.locator("#toggle-intermediate").click();
     await loadExample(page, "two-bit-adder", touch);
+    assert.equal(
+      await page.locator("#toggle-intermediate").getAttribute("aria-expanded"),
+      "false",
+    );
+    assert.equal(
+      await page.locator("#circuit-truth thead th[data-column]").count(),
+      7,
+    );
     await page.locator('tr[data-row="15"]').click();
     assert.equal(
       await page.locator("#circuit-calculation").textContent(),
       "a 11₂（3） ＋ b 11₂（3） → 110₂（6）",
     );
+    await page.addScriptTag({ path: axePath });
+    await audit(page);
     const document = parseDocument(
       await page.evaluate((key) => localStorage.getItem(key), DRAFT_KEY),
     );
@@ -215,7 +288,7 @@ try {
       "a：2の位",
     );
     console.log(
-      `PASS ${width}px: seven compound circuits, every input, full view, captions, sharing and accessibility`,
+      `PASS ${width}px: seven compound circuits, every input, branch-free truth tables, intermediate-column toggle, full view, sharing and accessibility`,
     );
     await context.close();
   }

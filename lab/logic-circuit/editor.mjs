@@ -32,6 +32,7 @@ let graph,
   suppressPaletteClick = false;
 let past = [],
   future = [],
+  showIntermediate = true,
   announcementTimer,
   toastTimer;
 const pointers = new Map();
@@ -443,7 +444,6 @@ function renderBoard(values = evaluate(graph)) {
 function headerLabel(node) {
   if (gateTypes.includes(node.type))
     return `<span class="table-number">${node.number}</span>${node.type.toUpperCase()}`;
-  if (node.type === "branch") return `分${node.number}`;
   return (
     esc(node.label) +
     (node.meaning ? `<small> ${esc(node.meaning)}</small>` : "")
@@ -451,10 +451,18 @@ function headerLabel(node) {
 }
 function renderTruth() {
   const key = focusedKey(),
-    { inputs, gates, branches, outputs, columns } = orderedNodes(graph);
-  const middle = gates.length + branches.length;
+    { inputs, gates, outputs } = orderedNodes(graph);
+  const visibleGates = showIntermediate ? gates : [],
+    columns = [...inputs, ...visibleGates, ...outputs];
+  const toggle = $("toggle-intermediate");
+  toggle.hidden = gates.length === 0;
+  toggle.textContent = showIntermediate ? "中間値を非表示" : "中間値を表示";
+  toggle.setAttribute("aria-expanded", String(showIntermediate));
+  $("circuit-truth").querySelector("caption").textContent = visibleGates.length
+    ? "すべての入力の組合せと、各ゲートおよび最終出力の値"
+    : "すべての入力の組合せと、最終出力の値";
   $("circuit-truth").querySelector("thead").innerHTML =
-    `<tr><th scope="colgroup" colspan="${inputs.length}">入力</th>${middle ? `<th scope="colgroup" colspan="${middle}">途中の出力</th>` : ""}<th scope="colgroup" colspan="${outputs.length}">最終出力</th></tr><tr>${columns.map((n) => `<th scope="col" data-column="${n.id}">${headerLabel(n)}</th>`).join("")}</tr>`;
+    `<tr><th scope="colgroup" colspan="${inputs.length}">入力</th>${visibleGates.length ? `<th scope="colgroup" colspan="${visibleGates.length}">途中の出力</th>` : ""}<th scope="colgroup" colspan="${outputs.length}">最終出力</th></tr><tr>${columns.map((n) => `<th scope="col" data-column="${n.id}">${headerLabel(n)}</th>`).join("")}</tr>`;
   $("circuit-truth").querySelector("tbody").innerHTML = truthTable(graph)
     .map((row) => {
       const current = inputs.every((n) => n.value === row.inputs[n.id]);
@@ -872,6 +880,10 @@ $("circuit-truth").addEventListener("keydown", (event) => {
     }
   }
 });
+$("toggle-intermediate").onclick = () => {
+  showIntermediate = !showIntermediate;
+  renderTruth();
+};
 $("undo-circuit").onclick = () => undo();
 $("redo-circuit").onclick = () => undo(true);
 $("delete-selected").onclick = deleteSelected;

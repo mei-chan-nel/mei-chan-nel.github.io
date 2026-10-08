@@ -151,6 +151,14 @@
     <div class="truth-heading">
       <h2 id="truth-title">真理値表</h2>
       <p>行を押すと、その入力で試せます。</p>
+      <button
+        type="button"
+        id="toggle-intermediate"
+        aria-controls="circuit-truth"
+        aria-expanded="true"
+      >
+        中間値を非表示
+      </button>
     </div>
     <div
       class="truth-scroll"
@@ -160,7 +168,7 @@
     >
       <table id="circuit-truth">
         <caption class="visually-hidden">
-          すべての入力の組合せと、各部品および最終出力の値
+          すべての入力の組合せと、各ゲートおよび最終出力の値
         </caption>
         <thead></thead>
         <tbody></tbody>

@@ -13,8 +13,8 @@
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="../lab.css?v=3" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"論理回路をつくる","item":"https://mei-chan-nel.com/lab/logic-circuit/"}]}</script>
-<link rel="stylesheet" href="./circuit.css?v=4" />
-<script type="module" src="./editor.mjs?v=4"></script>
+<link rel="stylesheet" href="./circuit.css?v=5" />
+<script type="module" src="./editor.mjs?v=5"></script>
 </head><body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
@@ -179,6 +179,14 @@
     <div class="truth-heading">
       <h2 id="truth-title">真理値表</h2>
       <p>行を押すと、その入力で試せます。</p>
+      <button
+        type="button"
+        id="toggle-intermediate"
+        aria-controls="circuit-truth"
+        aria-expanded="true"
+      >
+        中間値を非表示
+      </button>
     </div>
     <div
       class="truth-scroll"
@@ -188,7 +196,7 @@
     >
       <table id="circuit-truth">
         <caption class="visually-hidden">
-          すべての入力の組合せと、各部品および最終出力の値
+          すべての入力の組合せと、各ゲートおよび最終出力の値
         </caption>
         <thead></thead>
         <tbody></tbody>
