@@ -21,11 +21,33 @@ async function waitText(page, selector, text) {
     { selector, text },
   );
 }
+const sizes = [
+  4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024,
+];
 async function resolution(page, index) {
-  await page.locator("#resolution").evaluate((el, index) => {
-    el.value = index;
-    el.dispatchEvent(new Event("input", { bubbles: true }));
-  }, index);
+  const target = sizes[index];
+  for (let i = 0; i < 16; i++) {
+    const current = Number(
+      (await page.locator("#resolution-label").innerText()).split(" × ")[0],
+    );
+    if (current === target) return;
+    const button = page.locator(
+      current < target ? "#resolution-up" : "#resolution-down",
+    );
+    if (await button.isDisabled()) return;
+    await button.click();
+  }
+}
+async function bits(page, channel, value) {
+  for (let i = 0; i < 8; i++) {
+    const current = parseInt(
+      await page.locator("#bits-" + channel).innerText(),
+    );
+    if (current === value) return;
+    await page
+      .locator("#bits-" + channel + (current < value ? "-up" : "-down"))
+      .click();
+  }
 }
 async function pixelValues(page) {
   return page
@@ -82,18 +104,19 @@ try {
       });
     await resolution(page, 0);
     await waitText(page, "#metric-pixels", "16画素");
-    await page.selectOption("#bits-r", "2");
+    await bits(page, "r", 2);
+    await bits(page, "g", 2);
+    await bits(page, "b", 2);
     await waitText(page, "#metric-bits", "6 bit");
-    assert.equal(await page.inputValue("#bits-g"), "2");
-    assert.equal(await page.inputValue("#bits-b"), "2");
+    assert.match(await page.locator("#bits-g").innerText(), /^2/);
+    assert.match(await page.locator("#bits-b").innerText(), /^2/);
     await waitText(page, "#metric-size", "12 B");
     const low = pixelValues(page);
     for (const [i, v] of (await low).entries())
       if (i % 4 !== 3) assert.ok([0, 85, 170, 255].includes(v));
-    await page.uncheck("#link-bits");
-    await page.selectOption("#bits-r", "1");
-    await page.selectOption("#bits-g", "4");
-    await page.selectOption("#bits-b", "3");
+    await bits(page, "r", 1);
+    await bits(page, "g", 4);
+    await bits(page, "b", 3);
     await waitText(page, "#metric-bits", "8 bit");
     await page.locator('label:has(input[name="channel"][value="r"])').click();
     await waitText(page, "#output-caption", "R表示");
@@ -104,7 +127,7 @@ try {
     }
     await waitText(page, "#metric-size", "16 B");
     await page.locator('label:has(input[name="mode"][value="gray"])').click();
-    await page.selectOption("#bits-gray", "3");
+    await bits(page, "gray", 3);
     await waitText(page, "#metric-levels", "8段階");
     const gray = await pixelValues(page);
     for (let i = 0; i < gray.length; i += 4) {
@@ -117,16 +140,13 @@ try {
       await page.locator("#source-canvas").evaluate((c) => c.toDataURL()),
       sourceBefore,
     );
-    await page.locator("#output-canvas").click();
-    assert.ok(
-      (await page.locator("#pixel-inspector").getAttribute("open")) !== null,
-    );
-    await page.locator("#output-canvas").focus();
-    await page.keyboard.press("ArrowRight");
-    assert.equal(await page.locator("#pixel-values tr").count(), 1);
-    assert.match(
-      await page.locator("#pixel-values code").innerText(),
-      /^[01]{3}$/,
+    assert.equal(
+      await page
+        .locator(
+          "#pixel-inspector, .image-notes, input[type=range], select, #link-bits",
+        )
+        .count(),
+      0,
     );
     await page.locator("#zoom-output").click();
     assert.ok(await page.locator("#image-zoom").isVisible());
@@ -137,6 +157,44 @@ try {
         () => document.documentElement.scrollWidth > innerWidth + 1,
       )),
     );
+    await page.locator("#reset-settings").click();
+    await waitText(page, "#metric-bits", "24 bit");
+    await waitText(page, "#metric-pixels", "4,096");
+    assert.ok(
+      await page.locator('input[name="mode"][value="color"]').isChecked(),
+    );
+    assert.ok(
+      await page.locator('input[name="channel"][value="rgb"]').isChecked(),
+    );
+    assert.equal(
+      await page.locator("#source-canvas").evaluate((c) => c.toDataURL()),
+      sourceBefore,
+    );
+    // Hold, release outside the control, then verify that changes stop.
+    const holdBox = await page.locator("#bits-r-down").boundingBox();
+    await page.mouse.move(
+      holdBox.x + holdBox.width / 2,
+      holdBox.y + holdBox.height / 2,
+    );
+    await page.mouse.down();
+    await page.waitForFunction(
+      () => parseInt(document.querySelector("#bits-r").textContent) <= 5,
+    );
+    await page.mouse.move(0, 0);
+    await page.mouse.up();
+    const released = await page.locator("#bits-r").innerText();
+    await page.waitForTimeout(250);
+    assert.equal(await page.locator("#bits-r").innerText(), released);
+    await page.locator("#reset-settings").click();
+    await page.locator("#bits-r-down").focus();
+    await page.keyboard.press("ArrowDown");
+    assert.match(await page.locator("#bits-r").innerText(), /^7/);
+    assert.match(await page.locator("#bits-g").innerText(), /^8/);
+    if (width < 600) {
+      await page.locator("#bits-g-down").tap();
+      assert.match(await page.locator("#bits-g").innerText(), /^7/);
+    }
+    await resolution(page, 0);
     // Upload a known red/blue rectangle. The central square must preserve both halves.
     const fixture = await page.evaluate(() => {
       const c = document.createElement("canvas");
@@ -149,18 +207,17 @@ try {
       g.fillRect(32, 0, 32, 32);
       return c.toDataURL().split(",")[1];
     });
-    await page
-      .locator("#image-file")
-      .setInputFiles({
-        name: "red-blue.png",
-        mimeType: "image/png",
-        buffer: Buffer.from(fixture, "base64"),
-      });
+    await page.locator("#image-file").setInputFiles({
+      name: "red-blue.png",
+      mimeType: "image/png",
+      buffer: Buffer.from(fixture, "base64"),
+    });
     await waitText(page, "#source-caption", "32 × 32");
     await page.locator('label:has(input[name="mode"][value="color"])').click();
     await page.locator('label:has(input[name="channel"][value="rgb"])').click();
-    await page.check("#link-bits");
-    await page.selectOption("#bits-r", "8");
+    await bits(page, "r", 8);
+    await bits(page, "g", 8);
+    await bits(page, "b", 8);
     await waitText(page, "#metric-bits", "24 bit");
     await page.waitForFunction(() => {
       const c = document.querySelector("#output-canvas");
@@ -169,13 +226,11 @@ try {
     const uploaded = await pixelValues(page);
     assert.deepEqual(uploaded.slice(0, 4), [255, 0, 0, 255]);
     assert.deepEqual(uploaded.slice(12, 16), [0, 0, 255, 255]);
-    await page
-      .locator("#image-file")
-      .setInputFiles({
-        name: "invalid.png",
-        mimeType: "image/png",
-        buffer: Buffer.from("not an image"),
-      });
+    await page.locator("#image-file").setInputFiles({
+      name: "invalid.png",
+      mimeType: "image/png",
+      buffer: Buffer.from("not an image"),
+    });
     await waitText(page, "#image-error", "読み込めません");
     assert.deepEqual(await pixelValues(page), uploaded);
     await resolution(page, 14);
@@ -198,7 +253,7 @@ try {
       [],
     );
     console.log(
-      `PASS ${width}px: controls, RGB, grayscale, data size, inspection, zoom, image upload, accessibility`,
+      `PASS ${width}px: controls, RGB, grayscale, data size, hold/release, reset, keyboard/touch, zoom, image upload, accessibility`,
     );
     await context.close();
   }
@@ -215,7 +270,9 @@ try {
     ),
   );
   await waitText(page, "#metric-pixels", "4,096");
-  await page.selectOption("#bits-b", "1");
+  await bits(page, "r", 1);
+  await bits(page, "g", 1);
+  await bits(page, "b", 1);
   await waitText(page, "#metric-levels", "8色");
   assert.equal(
     await page.locator("script[src],link[rel=stylesheet]").count(),

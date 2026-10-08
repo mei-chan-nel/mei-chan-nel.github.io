@@ -1,89 +1,209 @@
-<header class="image-heading"><h1>画像のデジタル化</h1></header>
+<header class="image-heading">
+  <h1>画像のデジタル化</h1>
+  <div class="image-actions">
+    <button type="button" id="choose-image">画像を変更</button
+    ><button type="button" id="reset-settings">初期設定に戻す</button>
+  </div>
+</header>
 <section
   class="image-lab"
   aria-label="画像のデジタル化の実験"
   data-source-image=""
 >
   <div class="image-controls">
-    <fieldset class="mode-control">
-      <legend>表現</legend>
-      <div class="segmented">
-        <label
-          ><input type="radio" name="mode" value="color" checked />カラー</label
-        ><label
-          ><input type="radio" name="mode" value="gray" />グレースケール</label
-        >
-      </div>
-    </fieldset>
-    <div class="resolution-control">
-      <div class="control-caption">
-        <label for="resolution">画素数</label
-        ><output id="resolution-label" for="resolution">64 × 64</output>
-      </div>
-      <div class="resolution-slider">
+    <div class="resolution-control control-panel">
+      <span id="resolution-heading" class="control-label">画素数</span>
+      <div
+        class="stepper resolution-stepper"
+        role="group"
+        aria-labelledby="resolution-heading"
+      >
         <button
           type="button"
           id="resolution-down"
+          data-control="resolution"
+          data-step="-1"
           aria-label="画素数を一段階減らす"
         >
           −</button
-        ><input
-          id="resolution"
-          type="range"
-          min="0"
-          max="14"
-          step="1"
-          value="6"
-        /><button
+        ><output aria-live="off" id="resolution-label" aria-label="現在の画素数"
+          >64 × 64</output
+        ><button
           type="button"
           id="resolution-up"
+          data-control="resolution"
+          data-step="1"
           aria-label="画素数を一段階増やす"
         >
           ＋
         </button>
       </div>
     </div>
-    <fieldset class="bits-control" id="color-bits">
-      <legend>量子化ビット数</legend>
-      <div class="bit-selectors">
-        <label class="channel-r" for="bits-r"
-          >R
-          <select id="bits-r"></select></label
-        ><label class="channel-g" for="bits-g"
-          >G
-          <select id="bits-g"></select></label
-        ><label class="channel-b" for="bits-b"
-          >B
-          <select id="bits-b"></select
-        ></label>
+    <div
+      class="color-settings control-panel"
+      role="group"
+      aria-label="色の設定"
+    >
+      <div class="color-settings-row">
+        <fieldset class="mode-control">
+          <legend>表現</legend>
+          <div class="segmented">
+            <label
+              ><input
+                type="radio"
+                name="mode"
+                value="color"
+                checked
+              />カラー</label
+            ><label
+              ><input
+                type="radio"
+                name="mode"
+                value="gray"
+              />グレースケール</label
+            >
+          </div>
+        </fieldset>
+        <fieldset class="bits-control" id="color-bits">
+          <legend>量子化ビット数</legend>
+          <div class="bit-controls">
+            <div class="bit-control channel-r">
+              <span id="r-label" class="channel-name">R</span>
+              <div class="stepper" role="group" aria-labelledby="r-label">
+                <button
+                  type="button"
+                  id="bits-r-down"
+                  data-control="r"
+                  data-step="-1"
+                  aria-label="Rの量子化ビット数を減らす"
+                >
+                  −</button
+                ><output
+                  aria-live="off"
+                  id="bits-r"
+                  aria-label="Rの量子化ビット数"
+                  >8 <small>bit</small></output
+                ><button
+                  type="button"
+                  id="bits-r-up"
+                  data-control="r"
+                  data-step="1"
+                  aria-label="Rの量子化ビット数を増やす"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+            <div class="bit-control channel-g">
+              <span id="g-label" class="channel-name">G</span>
+              <div class="stepper" role="group" aria-labelledby="g-label">
+                <button
+                  type="button"
+                  id="bits-g-down"
+                  data-control="g"
+                  data-step="-1"
+                  aria-label="Gの量子化ビット数を減らす"
+                >
+                  −</button
+                ><output
+                  aria-live="off"
+                  id="bits-g"
+                  aria-label="Gの量子化ビット数"
+                  >8 <small>bit</small></output
+                ><button
+                  type="button"
+                  id="bits-g-up"
+                  data-control="g"
+                  data-step="1"
+                  aria-label="Gの量子化ビット数を増やす"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+            <div class="bit-control channel-b">
+              <span id="b-label" class="channel-name">B</span>
+              <div class="stepper" role="group" aria-labelledby="b-label">
+                <button
+                  type="button"
+                  id="bits-b-down"
+                  data-control="b"
+                  data-step="-1"
+                  aria-label="Bの量子化ビット数を減らす"
+                >
+                  −</button
+                ><output
+                  aria-live="off"
+                  id="bits-b"
+                  aria-label="Bの量子化ビット数"
+                  >8 <small>bit</small></output
+                ><button
+                  type="button"
+                  id="bits-b-up"
+                  data-control="b"
+                  data-step="1"
+                  aria-label="Bの量子化ビット数を増やす"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="bits-control" id="gray-bits" hidden>
+          <legend>量子化ビット数</legend>
+          <div class="stepper" role="group" aria-label="明るさの量子化ビット数">
+            <button
+              type="button"
+              id="bits-gray-down"
+              data-control="gray"
+              data-step="-1"
+              aria-label="明るさの量子化ビット数を減らす"
+            >
+              −</button
+            ><output
+              aria-live="off"
+              id="bits-gray"
+              aria-label="明るさの量子化ビット数"
+              >8 <small>bit</small></output
+            ><button
+              type="button"
+              id="bits-gray-up"
+              data-control="gray"
+              data-step="1"
+              aria-label="明るさの量子化ビット数を増やす"
+            >
+              ＋
+            </button>
+          </div>
+        </fieldset>
       </div>
-      <label class="link-bits"
-        ><input
-          type="checkbox"
-          id="link-bits"
-          checked
-        />RGBをまとめて変更</label
-      >
-    </fieldset>
-    <fieldset class="bits-control" id="gray-bits" hidden>
-      <legend>量子化ビット数</legend>
-      <label for="bits-gray"
-        >明るさ
-        <select id="bits-gray"></select
-      ></label>
-    </fieldset>
+      <fieldset class="channel-control" id="channel-control">
+        <legend>表示する成分 <small>表示のみ</small></legend>
+        <div class="segmented">
+          <label
+            ><input
+              type="radio"
+              name="channel"
+              value="rgb"
+              checked
+            />RGB合成</label
+          ><label><input type="radio" name="channel" value="r" />Rだけ</label
+          ><label><input type="radio" name="channel" value="g" />Gだけ</label
+          ><label><input type="radio" name="channel" value="b" />Bだけ</label>
+        </div>
+      </fieldset>
+    </div>
   </div>
   <div class="image-comparison">
     <figure class="image-figure">
       <figcaption>
         <h2>元画像</h2>
-        <button type="button" class="text-button" id="choose-image">
-          画像を変更
-        </button>
+        <span aria-hidden="true">拡大 ↗</span>
       </figcaption>
       <button
         type="button"
-        class="source-picture"
+        class="picture-button source-picture"
         id="zoom-source"
         aria-label="元画像を拡大"
       >
@@ -99,40 +219,24 @@
     <figure class="image-figure">
       <figcaption>
         <h2>デジタル化後</h2>
-        <button type="button" class="text-button" id="zoom-output">拡大</button>
+        <span aria-hidden="true">拡大 ↗</span>
       </figcaption>
-      <div class="output-picture">
+      <button
+        type="button"
+        class="picture-button output-picture"
+        id="zoom-output"
+        aria-label="デジタル化後の画像を拡大"
+      >
         <canvas
           id="output-canvas"
           width="64"
           height="64"
-          tabindex="0"
-          role="img"
-          aria-label="処理後の画像。クリックまたは矢印キーで画素を選択できます。"
-        ></canvas
-        ><canvas
-          id="selection-canvas"
-          width="1024"
-          height="1024"
-          aria-hidden="true"
+          aria-label="デジタル化後の画像"
         ></canvas>
-      </div>
+      </button>
       <p class="image-caption" id="output-caption">64 × 64画素・RGB各8ビット</p>
     </figure>
   </div>
-  <fieldset class="channel-control" id="channel-control">
-    <legend>表示する成分</legend>
-    <div class="segmented">
-      <label
-        ><input type="radio" name="channel" value="rgb" checked />RGB合成</label
-      ><label><input type="radio" name="channel" value="r" />Rだけ</label
-      ><label><input type="radio" name="channel" value="g" />Gだけ</label
-      ><label><input type="radio" name="channel" value="b" />Bだけ</label>
-    </div>
-    <p id="channel-note" hidden>
-      成分の表示だけを切り替えます。RGBのデータ量は変わりません。
-    </p>
-  </fieldset>
   <dl class="image-metrics">
     <div>
       <dt>画素数</dt>
@@ -151,65 +255,6 @@
       <dd id="metric-size"></dd>
     </div>
   </dl>
-  <details class="pixel-inspector" id="pixel-inspector">
-    <summary>画素の値を見る <span id="selected-coordinate"></span></summary>
-    <p class="inspector-hint">
-      処理後の画像をクリックして画素を選択。矢印キーでも移動できます。
-    </p>
-    <div class="pixel-pipeline">
-      <div>
-        <span>領域の平均色</span
-        ><span class="pixel-swatch" id="average-swatch"></span>
-      </div>
-      <span aria-hidden="true">→</span>
-      <div>
-        <span>量子化後の色</span
-        ><span class="pixel-swatch" id="quantized-swatch"></span>
-      </div>
-    </div>
-    <div
-      class="pixel-table-wrap"
-      tabindex="0"
-      role="region"
-      aria-label="画素の数値。左右にスクロールできます。"
-    >
-      <table>
-        <caption class="visually-hidden">
-          選択した画素の量子化
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">成分</th>
-            <th scope="col">領域の平均<br /><small>0〜255</small></th>
-            <th scope="col">量子化値</th>
-            <th scope="col">ビット列</th>
-            <th scope="col">表示値<br /><small>0〜255</small></th>
-          </tr>
-        </thead>
-        <tbody id="pixel-values"></tbody>
-      </table>
-    </div>
-  </details>
-  <details class="image-notes">
-    <summary>この実験での処理</summary>
-    <ul>
-      <li>
-        画像を中央で正方形に切り出し、最大1024×1024画素で扱います。元の写真自体も、すでにデジタル画像です。
-      </li>
-      <li>
-        画素数を減らすときは、各領域の平均色を1画素の色にします。表示は画素の境界が見えるよう、補間せずに拡大します。
-      </li>
-      <li>
-        各成分は1〜8ビット。bビットでは2ᵇ段階を表します。0〜255の値を、等間隔の段階のうち最も近いものに丸めます。
-      </li>
-      <li>
-        グレースケールは、R・G・Bを0.299・0.587・0.114の重みで合成した明るさの近似です。
-      </li>
-      <li>
-        データ量は「画素数×1画素のビット数」です。ファイルのヘッダー・圧縮・透明度は含みません。JPEGやPNGのファイルサイズとは異なります。
-      </li>
-    </ul>
-  </details>
   <input type="file" id="image-file" accept="image/*" hidden />
   <p
     id="image-status"

@@ -2,9 +2,15 @@
 export const resolutions = [
   4, 8, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024,
 ];
+function quantizedCode(value, max) {
+  return Math.round((Math.min(255, Math.max(0, value)) * max) / 255);
+}
+function displayValue(value, max) {
+  return Math.round((quantizedCode(value, max) * 255) / max);
+}
 export function quantize(value, bits) {
   const max = 2 ** bits - 1;
-  const code = Math.round((Math.min(255, Math.max(0, value)) * max) / 255);
+  const code = quantizedCode(value, max);
   return {
     code,
     display: Math.round((code * 255) / max),
@@ -77,18 +83,20 @@ export function averagePixels(integral, size) {
 }
 export function convertPixels(averages, { mode, bits, grayBits, channel }) {
   const out = new Uint8ClampedArray((averages.length / 3) * 4);
+  const channelMax = bits.map((b) => 2 ** b - 1),
+    grayMax = 2 ** grayBits - 1;
   for (let p = 0, to = 0; p < averages.length; p += 3, to += 4) {
     if (mode === "gray") {
-      const v = quantize(
+      const v = displayValue(
         grayValue(averages[p], averages[p + 1], averages[p + 2]),
-        grayBits,
-      ).display;
+        grayMax,
+      );
       out[to] = out[to + 1] = out[to + 2] = v;
     } else {
       for (let c = 0; c < 3; c++)
         out[to + c] =
           channel === "rgb" || channel === "rgb"[c]
-            ? quantize(averages[p + c], bits[c]).display
+            ? displayValue(averages[p + c], channelMax[c])
             : 0;
     }
     out[to + 3] = 255;

@@ -1,15 +1,12 @@
 import {
   resolutions,
-  quantize,
-  grayValue,
   integralImage,
   averagePixels,
   convertPixels,
 } from "./pixels.mjs";
 const $ = (id) => document.getElementById(id);
 const source = $("source-canvas"),
-  output = $("output-canvas"),
-  selection = $("selection-canvas");
+  output = $("output-canvas");
 const sourceContext = source.getContext("2d", { willReadFrequently: true });
 const outputContext = output.getContext("2d");
 const state = {
@@ -18,8 +15,6 @@ const state = {
   grayBits: 8,
   channel: "rgb",
   index: 6,
-  selected: [32, 32],
-  touched: false,
 };
 let integral,
   averages,
@@ -27,15 +22,9 @@ let integral,
   lastFrame,
   announceTimer,
   imageVersion = 0,
-  zoomKind;
+  zoomKind,
+  maxResolution = resolutions.length - 1;
 const number = (v) => v.toLocaleString("ja-JP");
-const options = Array.from(
-  { length: 8 },
-  (_, i) =>
-    `<option value="${i + 1}" ${i === 7 ? "selected" : ""}>${i + 1} bit</option>`,
-).join("");
-for (const id of ["bits-r", "bits-g", "bits-b", "bits-gray"])
-  $(id).innerHTML = options;
 function makeSample() {
   source.width = source.height = 1024;
   const c = sourceContext,
@@ -90,7 +79,7 @@ function refreshSource() {
   averages = undefined;
   lastSize = undefined;
   const max = resolutions.findLastIndex((n) => n <= source.width);
-  $("resolution").max = max;
+  maxResolution = max;
   state.index = Math.min(state.index, max);
   schedule();
 }
@@ -101,42 +90,24 @@ function schedule() {
     render();
   });
 }
-function inspect() {
-  const size = resolutions[state.index],
-    [x, y] = state.selected,
-    p = (y * size + x) * 3;
-  const rgb = Array.from(averages.slice(p, p + 3));
-  const input = state.mode === "gray" ? [grayValue(...rgb)] : rgb;
-  const bitValues = state.mode === "gray" ? [state.grayBits] : state.bits;
-  const values = input.map((v, i) => quantize(v, bitValues[i]));
-  $("selected-coordinate").textContent = `(${x + 1}, ${y + 1})`;
-  $("average-swatch").style.background =
-    state.mode === "gray"
-      ? `rgb(${input[0]} ${input[0]} ${input[0]})`
-      : `rgb(${rgb.join(" ")})`;
-  const q = values.map((v) => v.display);
-  $("quantized-swatch").style.background =
-    state.mode === "gray"
-      ? `rgb(${q[0]} ${q[0]} ${q[0]})`
-      : `rgb(${q.join(" ")})`;
-  $("pixel-values").innerHTML = values
-    .map(
-      (v, i) =>
-        `<tr><th scope="row">${state.mode === "gray" ? "明るさ" : "RGB"[i]}</th><td>${input[i].toFixed(1)}</td><td>${v.code} <small>（0〜${2 ** bitValues[i] - 1}）</small></td><td><code>${v.binary}</code></td><td>${v.display}</td></tr>`,
-    )
-    .join("");
-  const c = selection.getContext("2d");
-  c.clearRect(0, 0, 1024, 1024);
-  if (state.touched || $("pixel-inspector").open) {
-    const cell = 1024 / size,
-      px = x * cell,
-      py = y * cell;
-    c.strokeStyle = "white";
-    c.lineWidth = 4;
-    c.strokeRect(px, py, cell, cell);
-    c.strokeStyle = "#102f35";
-    c.lineWidth = 2;
-    c.strokeRect(px, py, cell, cell);
+function syncControls() {
+  const gray = state.mode === "gray";
+  $("resolution-label").textContent =
+    `${resolutions[state.index]} × ${resolutions[state.index]}`;
+  $("resolution-down").disabled = state.index === 0;
+  $("resolution-up").disabled = state.index === maxResolution;
+  $("color-bits").hidden = gray;
+  $("gray-bits").hidden = !gray;
+  $("channel-control").hidden = gray;
+  for (const [key, bits] of [
+    ["r", state.bits[0]],
+    ["g", state.bits[1]],
+    ["b", state.bits[2]],
+    ["gray", state.grayBits],
+  ]) {
+    $("bits-" + key).innerHTML = `${bits} <small>bit</small>`;
+    $("bits-" + key + "-down").disabled = bits === 1;
+    $("bits-" + key + "-up").disabled = bits === 8;
   }
 }
 function render() {
@@ -149,20 +120,8 @@ function render() {
   const pixelData = convertPixels(averages, state);
   output.width = output.height = size;
   outputContext.putImageData(new ImageData(pixelData, size, size), 0, 0);
-  state.selected = state.selected.map((v) =>
-    Math.min(size - 1, Math.max(0, v)),
-  );
-  $("resolution").value = state.index;
-  $("resolution").setAttribute("aria-valuetext", `${size} × ${size}画素`);
-  $("resolution-label").textContent = `${size} × ${size}`;
-  $("resolution-down").disabled = state.index === 0;
-  $("resolution-up").disabled = state.index === Number($("resolution").max);
+  syncControls();
   const gray = state.mode === "gray";
-  $("color-bits").hidden = gray;
-  $("gray-bits").hidden = !gray;
-  $("channel-control").hidden = gray;
-  $("channel-note").hidden = state.channel === "rgb";
-  for (let i = 0; i < 3; i++) $("bits-" + "rgb"[i]).value = state.bits[i];
   const bits = gray ? state.grayBits : state.bits.reduce((a, b) => a + b, 0),
     pixels = size * size,
     bytes = (pixels * bits) / 8;
@@ -182,7 +141,6 @@ function render() {
         : `${number(bytes)} B`;
   $("metric-size").innerHTML =
     `${scaled}<small>${number(pixels)} × ${bits} ÷ 8 = ${number(bytes)} B</small>`;
-  inspect();
   if ($("image-zoom").open) drawZoom();
   clearTimeout(announceTimer);
   announceTimer = setTimeout(() => {
@@ -190,78 +148,98 @@ function render() {
       `${size} × ${size}画素、${gray ? "グレースケール" : "カラー"}、1画素${bits}ビット、データ量${number(bytes)}バイト。`;
   }, 250);
 }
-function changeResolution(index) {
-  const before = resolutions[state.index];
-  state.index = Math.max(0, Math.min(Number($("resolution").max), index));
-  const after = resolutions[state.index];
-  state.selected = state.selected.map((v) =>
-    Math.floor(((v + 0.5) * after) / before),
-  );
+function adjust(control, step) {
+  if (control === "resolution")
+    state.index = Math.max(0, Math.min(maxResolution, state.index + step));
+  else if (control === "gray")
+    state.grayBits = Math.max(1, Math.min(8, state.grayBits + step));
+  else {
+    const c = "rgb".indexOf(control);
+    state.bits[c] = Math.max(1, Math.min(8, state.bits[c] + step));
+  }
+  syncControls();
   schedule();
 }
-$("resolution").addEventListener("input", (e) =>
-  changeResolution(Number(e.target.value)),
-);
-$("resolution-down").onclick = () => changeResolution(state.index - 1);
-$("resolution-up").onclick = () => changeResolution(state.index + 1);
+// A short tap changes one step; holding repeats. Release/cancel/blur always stop.
+let stopRepeat = () => {};
+for (const button of document.querySelectorAll("button[data-control]")) {
+  let timer,
+    repeated = false;
+  const stop = () => {
+    clearTimeout(timer);
+    timer = undefined;
+  };
+  const change = () =>
+    adjust(button.dataset.control, Number(button.dataset.step));
+  button.addEventListener("click", (event) => {
+    if (repeated && event.detail > 0) {
+      repeated = false;
+      return;
+    }
+    repeated = false;
+    change();
+  });
+  button.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
+    stopRepeat();
+    repeated = false;
+    stopRepeat = stop;
+    button.setPointerCapture(event.pointerId);
+    const repeat = () => {
+      if (button.disabled || document.hidden || !button.getClientRects().length)
+        return stop();
+      repeated = true;
+      change();
+      timer = setTimeout(repeat, 110);
+    };
+    timer = setTimeout(repeat, 400);
+  });
+  button.addEventListener("pointerup", stop);
+  button.addEventListener("pointercancel", stop);
+  button.addEventListener("lostpointercapture", stop);
+  button.addEventListener("keydown", (event) => {
+    if (
+      !["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(event.key)
+    )
+      return;
+    event.preventDefault();
+    adjust(
+      button.dataset.control,
+      ["ArrowUp", "ArrowRight"].includes(event.key) ? 1 : -1,
+    );
+  });
+}
+window.addEventListener("blur", () => stopRepeat());
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) stopRepeat();
+});
 for (const radio of document.querySelectorAll('input[name="mode"]'))
   radio.addEventListener("change", () => {
+    stopRepeat();
     state.mode = radio.value;
+    syncControls();
     schedule();
   });
-for (let c = 0; c < 3; c++)
-  $("bits-" + "rgb"[c]).addEventListener("change", (e) => {
-    const bits = Number(e.target.value);
-    if ($("link-bits").checked) state.bits.fill(bits);
-    else state.bits[c] = bits;
-    schedule();
-  });
-$("link-bits").addEventListener("change", () => {
-  if ($("link-bits").checked) {
-    state.bits.fill(state.bits[0]);
-    schedule();
-  }
-});
-$("bits-gray").addEventListener("change", (e) => {
-  state.grayBits = Number(e.target.value);
-  schedule();
-});
 for (const radio of document.querySelectorAll('input[name="channel"]'))
   radio.addEventListener("change", () => {
     state.channel = radio.value;
+    syncControls();
     schedule();
   });
-output.addEventListener("click", (e) => {
-  const box = output.getBoundingClientRect(),
-    size = resolutions[state.index];
-  state.selected = [
-    Math.min(size - 1, Math.floor(((e.clientX - box.left) / box.width) * size)),
-    Math.min(size - 1, Math.floor(((e.clientY - box.top) / box.height) * size)),
-  ];
-  state.touched = true;
-  $("pixel-inspector").open = true;
-  inspect();
-});
-output.addEventListener("keydown", (e) => {
-  const deltas = {
-    ArrowLeft: [-1, 0],
-    ArrowRight: [1, 0],
-    ArrowUp: [0, -1],
-    ArrowDown: [0, 1],
-  };
-  if (!deltas[e.key]) return;
-  e.preventDefault();
-  const size = resolutions[state.index];
-  state.selected = state.selected.map((v, i) =>
-    Math.max(0, Math.min(size - 1, v + deltas[e.key][i])),
-  );
-  state.touched = true;
-  $("pixel-inspector").open = true;
-  inspect();
-});
-$("pixel-inspector").addEventListener("toggle", () => {
-  if (averages) inspect();
-});
+$("reset-settings").onclick = () => {
+  stopRepeat();
+  Object.assign(state, {
+    mode: "color",
+    bits: [8, 8, 8],
+    grayBits: 8,
+    channel: "rgb",
+    index: Math.min(6, maxResolution),
+  });
+  document.querySelector('input[name="mode"][value="color"]').checked = true;
+  document.querySelector('input[name="channel"][value="rgb"]').checked = true;
+  syncControls();
+  schedule();
+};
 function drawZoom() {
   const canvas = $("zoom-canvas"),
     c = canvas.getContext("2d");
@@ -321,7 +299,6 @@ async function loadImage(url, name, version) {
   sourceContext.putImageData(pixels, 0, 0);
   $("source-caption").textContent =
     `${name} · ${size} × ${size}（中央を正方形に切り出し）`;
-  state.touched = false;
   refreshSource();
 }
 $("image-file").addEventListener("change", async (e) => {
