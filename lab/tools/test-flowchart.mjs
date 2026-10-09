@@ -74,6 +74,8 @@ try {
       no: port(1),
       noPath: noWire.getAttribute("d"),
       circles: join.querySelectorAll(".flow-node-body circle").length,
+      junction: join.dataset.junction,
+      joinPorts: join.querySelectorAll(".flow-port").length,
       mergeChoices: document.querySelectorAll('[data-part="connector"]').length,
     };
   });
@@ -81,6 +83,8 @@ try {
   assert.equal(branchLayout.no, "translate(110 0)");
   assert.match(branchLayout.noPath, /^M[\d.]+ [\d.]+H[\d.]+V[\d.]+$/);
   assert.equal(branchLayout.circles, 0);
+  assert.equal(branchLayout.junction, "true");
+  assert.equal(branchLayout.joinPorts, 0);
   assert.equal(branchLayout.mergeChoices, 0);
   const align = await p.evaluate(() => ({
     left: document

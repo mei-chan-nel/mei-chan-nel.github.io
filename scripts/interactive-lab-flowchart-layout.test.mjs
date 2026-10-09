@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { fromProgram, toProgram } from "../lab/flowchart/conversion.mjs";
-import { exampleDocument } from "../lab/flowchart/examples.mjs";
+import { examples, exampleDocument } from "../lab/flowchart/examples.mjs";
 import { nextOf, flowDocument } from "../lab/flowchart/graph.mjs";
 import { dimensions, portPoint, shape } from "../lab/flowchart/symbols.mjs";
 import { wireGeometry } from "../lab/flowchart/wires.mjs";
@@ -39,6 +39,26 @@ function run(document) {
   }
   return runner.state.output;
 }
+
+test("every example uses line junctions without separate connector parts, and terminal branches need no join", () => {
+  for (const example of examples) {
+    const graph = exampleDocument(example.id).graph;
+    for (const join of graph.nodes.filter((n) => n.type === "connector")) {
+      assert.equal(join.junction, true, example.id);
+      assert.deepEqual(portPoint(join, "in"), portPoint(join, "out"));
+      assert.ok(
+        graph.edges.filter((e) => e.to === join.id).length >= 2,
+        example.id,
+      );
+    }
+  }
+  assert.equal(
+    exampleDocument("fibonacci").graph.nodes.some(
+      (n) => n.type === "connector",
+    ),
+    false,
+  );
+});
 
 test("YES leaves the diamond bottom, NO leaves its right, without changing truth semantics", () => {
   for (const score of [72, 40]) {
@@ -187,6 +207,7 @@ test("old saved coordinates and branch ports remain intact through JSON import a
   const document = exampleDocument("decision"),
     graph = document.graph,
     decision = graph.nodes.find((n) => n.type === "decision");
+  for (const node of graph.nodes) delete node.junction;
   byId(graph, nextOf(graph, decision.id, 0)).x = decision.x - 220;
   byId(graph, nextOf(graph, decision.id, 1)).x = decision.x + 220;
   const restored = parseDocument(documentJSON(document));

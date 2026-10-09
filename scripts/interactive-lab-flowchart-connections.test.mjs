@@ -156,6 +156,7 @@ test("failed upward, own-line, cross-scope and capacity attempts are atomic", ()
 
 test("deleting or rewiring the last joining arrow restores one continuous original line", () => {
   const { graph, no, stem } = fixture(),
+    continuation = graph.edges.find((e) => e.from === stem.to),
     result = joinWire(graph, no.id, 0, stem.id, { x: 400, y: 508 }),
     joined = result.graph;
   joined.edges = joined.edges.filter(
@@ -167,11 +168,15 @@ test("deleting or rewiring the last joining arrow restores one continuous origin
     false,
   );
   const restored = joined.edges.find((e) => e.id === stem.id);
-  assert.equal(restored.to, stem.to);
-  assert.deepEqual(
-    wireGeometry(joined, restored).points,
-    wireGeometry(graph, stem).points,
+  assert.equal(restored.to, continuation.to);
+  assert.equal(
+    joined.nodes.some((n) => n.junction),
+    false,
   );
+  assert.deepEqual(wireGeometry(joined, restored).points, [
+    wireGeometry(graph, stem).points[0],
+    wireGeometry(graph, continuation).points.at(-1),
+  ]);
 });
 
 test("zero-height cyclic connections and moves that reverse a connection are refused", () => {

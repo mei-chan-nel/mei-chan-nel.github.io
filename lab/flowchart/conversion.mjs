@@ -84,9 +84,13 @@ export function fromProgram(value) {
               ])
           : { tails: [{ id: n.id, port: 1 }], y: y + 100 };
         y = Math.max(left.y, right.y) - 40;
-        const join = put("connector", scope, x, y);
-        attach([...left.tails, ...right.tails], join.id);
-        tails = [{ id: join.id, port: 0 }];
+        tails = [...left.tails, ...right.tails];
+        if (tails.length > 1) {
+          const join = put("connector", scope, x, y);
+          join.junction = true;
+          attach(tails, join.id);
+          tails = [{ id: join.id, port: 0 }];
+        }
         y += 100;
         continue;
       }
