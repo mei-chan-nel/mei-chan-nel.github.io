@@ -77,7 +77,7 @@ test("RGB components use independent bit depths; component view only masks displ
     [255, 255, 255, 255],
   );
 });
-test("Lab links the image exhibit only under digital representation and remains unpublished", async () => {
+test("Lab links the image exhibit under digital representation and its public pages are indexable", async () => {
   const home = await readFile(
     new URL("../lab/index.html", import.meta.url),
     "utf8",
@@ -88,7 +88,7 @@ test("Lab links the image exhibit only under digital representation and remains 
     "utf8",
   );
   for (const html of [home, page]) {
-    assert.match(html, /<meta name="robots" content="noindex, nofollow"/);
+    assert.doesNotMatch(html, /<meta name="robots" content="[^"]*noindex/);
     assert.doesNotMatch(html, /googletagmanager|adsbygoogle/);
   }
 });

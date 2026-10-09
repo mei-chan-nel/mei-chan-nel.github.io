@@ -43,7 +43,7 @@
 <body class="studio-page" data-studio-entry="%%ENTRY%%">
 <a class="skip-link" href="#main-content">本文へスキップ</a>
 <!--site-header-->
-<script src="../../assets/site-header.js?v=2026100501" defer></script>
+<script src="../../assets/site-header.js?v=2026100901" defer></script>
 <main id="main-content" class="trace-shell">
   <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><span>Studio</span></nav>
   <div class="studio-heading">

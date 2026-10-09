@@ -5,20 +5,21 @@ const nav = [
   ["info1-quiz-app/questions/", "問題を探す"],
   ["terms/", "用語一覧"],
   ["archive/", "解説動画"],
-  ["LectureNote/", "講義ノート"],
   ["program-trace/", "プログラムトレース"],
+  ["LectureNote/", "講義ノート"],
+  ["lab/", "ラボ"],
 ];
 const footer = [
   ...nav,
-  ["books/", "書籍案内"],
   ["study-guide.html", "使い方"],
+  ["books/", "書籍案内"],
   ["about.html", "このサイトについて"],
   ["privacy.html", "プライバシーポリシー"],
   ["sitemap.html", "サイトマップ"],
 ];
 const links = (list, prefix) =>
   list
-    .map(([path, name]) => `<a href="${prefix}${path}">${name}</a>`)
+    .map(([path, name]) => `<a href="${prefix}${path}"${path === "lab/" ? ' aria-current="page"' : ""}>${name}</a>`)
     .join("\n");
 
 export function renderPage({
@@ -56,7 +57,6 @@ export function renderPage({
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>${title}</title>
 <meta name="description" content="${description}" />
-<meta name="robots" content="noindex, nofollow" />
 <meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
 <meta property="og:title" content="${title}" /><meta property="og:description" content="${description}" />
 <meta property="og:url" content="${url}" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />

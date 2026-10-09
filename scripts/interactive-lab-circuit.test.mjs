@@ -261,7 +261,7 @@ test("four inputs enumerate all 16 combinations; invalid local circuits are reje
     false,
   );
 });
-test("Lab links the unpublished circuit exhibit under digital representation", async () => {
+test("Lab links the public circuit exhibit under digital representation", async () => {
   const home = await readFile(
     new URL("../lab/index.html", import.meta.url),
     "utf8",
@@ -271,6 +271,6 @@ test("Lab links the unpublished circuit exhibit under digital representation", a
     "utf8",
   );
   assert.equal((home.match(/href="\.\/logic-circuit\/"/g) || []).length, 1);
-  assert.match(page, /<meta name="robots" content="noindex, nofollow"/);
+  assert.doesNotMatch(page, /<meta name="robots" content="[^"]*noindex/);
   assert.doesNotMatch(page, /googletagmanager|adsbygoogle/);
 });

@@ -436,8 +436,8 @@ def main() -> int:
         and not path.is_relative_to(ROOT / "lab" / "tools" / "templates")
     )
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース")
-    expected_footer_labels = (*expected_nav_labels, "書籍案内", "使い方", "このサイトについて", "プライバシーポリシー", "サイトマップ")
+    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "プログラムトレース", "講義ノート", "ラボ")
+    expected_footer_labels = (*expected_nav_labels, "使い方", "書籍案内", "このサイトについて", "プライバシーポリシー", "サイトマップ")
     for path in page_paths:
         try:
             page_text = path.read_text(encoding="utf-8")
@@ -480,7 +480,7 @@ def main() -> int:
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
     action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む")
+    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む", "しくみを体験する")
     if action_match is None:
         errors.append("index.html: home action card grid is missing")
     else:
@@ -490,7 +490,9 @@ def main() -> int:
             errors.append("index.html: home action cards are missing or out of order")
         if 'href="./terms/"' not in action_text:
             errors.append("index.html: the 用語を調べる card must link to ./terms/")
-    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./study-guide.html", "./books/", "./terms/"):
+        if 'href="./lab/"' not in action_text:
+            errors.append("index.html: the しくみを体験する card must link to ./lab/")
+    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./program-trace/", "./lab/", "./study-guide.html", "./books/", "./terms/"):
         if f'href="{href}"' not in top_text:
             errors.append(f"index.html: primary link is missing: {href}")
     archive_index_text = (ROOT / "archive" / "index.html").read_text(encoding="utf-8")
@@ -532,7 +534,8 @@ def main() -> int:
     expected_portal_paths = [
         "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
-        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html", *report.get("learning_pages", []),
+        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html",
+        "lab/index.html", "lab/digital-image/index.html", "lab/logic-circuit/index.html", "lab/flowchart/index.html", *report.get("learning_pages", []),
     ]
     expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []
