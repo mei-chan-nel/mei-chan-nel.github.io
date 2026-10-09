@@ -704,3 +704,40 @@ refreshSyntax();
 sync();
 canvas.fit();
 documents.start();
+
+async function openVideoQuestion() {
+  if (!new URLSearchParams(location.search).has("question")) return;
+  const search = location.search,
+    launch = location.hash === "#run";
+  if (launch) {
+    document.querySelector(".flowchart-lab").hidden = true;
+    $("new-circuit").disabled = true;
+    $("flow-video-status").hidden = false;
+    $("flow-video-message").textContent = "フローチャートを準備しています…";
+  }
+  try {
+    const { videoEntry } = await import("./video-entry.mjs"),
+      entry = videoEntry(search);
+    $("return-to-question").href = entry.backHref;
+    $("flow-question-navigation").hidden = false;
+    $("trace-fallback").href = entry.traceHref;
+    if (!launch) return;
+    if (location.hash !== "#run" || location.search !== search) {
+      document.querySelector(".flowchart-lab").hidden = false;
+      $("new-circuit").disabled = false;
+      $("flow-video-status").hidden = true;
+      return;
+    }
+    documents.openExternal(entry.document());
+    document.querySelector(".flowchart-lab").hidden = false;
+    $("new-circuit").disabled = false;
+    $("flow-video-status").hidden = true;
+    $("prepare-run").click();
+  } catch (e) {
+    $("flow-video-status").hidden = false;
+    $("flow-video-message").textContent =
+      e.message || "問題を読み込めませんでした。";
+    $("trace-fallback").hidden = !$("trace-fallback").hasAttribute("href");
+  }
+}
+void openVideoQuestion();

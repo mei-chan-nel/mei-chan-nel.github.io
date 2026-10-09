@@ -80,6 +80,7 @@ export function installDocuments({ read, replace, pause, message }) {
       clean,
       write = true,
       preserveLocation = false,
+      sourceLabel = "共有されたフローチャート",
     } = {},
   ) {
     const checked = validateDocument(d);
@@ -105,6 +106,7 @@ export function installDocuments({ read, replace, pause, message }) {
     baseline = clean === undefined ? fingerprint(checked) : clean;
     $("circuit-name").value = checked.title;
     replace(checked.graph);
+    $("shared-circuit").querySelector("span").textContent = sourceLabel;
     showShare();
     if (write && !shared) {
       corrupt = false;
@@ -457,6 +459,13 @@ export function installDocuments({ read, replace, pause, message }) {
   window.addEventListener("hashchange", receive);
   return {
     edited,
+    openExternal(d) {
+      apply(d, {
+        fromShare: true,
+        write: false,
+        sourceLabel: "動画のプログラム",
+      });
+    },
     start() {
       baseline = fingerprint(current());
       try {

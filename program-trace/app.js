@@ -1,4 +1,4 @@
-import { bindFlowchartConversion } from './flowchart-link.js?v=20261009-flowchart1';
+import { bindFlowchartConversion } from './flowchart-link.js?v=20261009-flowchart2';
 import { findProgram, defaultParameters, parameterText, sourceLines, lineLabel, validateParameters } from "./examples.js?v=20261003-perf";
 import { compileProgram, createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
 import { createAutoplay, MIN_INTERVAL_MS, MAX_INTERVAL_MS, intervalSeconds, adjustInterval } from "./autoplay.js?v=20261003-video";

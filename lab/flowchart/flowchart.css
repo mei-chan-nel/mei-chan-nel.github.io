@@ -1,3 +1,21 @@
+.flow-question-navigation {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+}
+.flow-video-status {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+.flow-video-status p {
+  margin: 0 0 8px;
+}
+.flow-question-navigation[hidden],
+.flow-video-status[hidden],
+.flowchart-lab[hidden] {
+  display: none;
+}
 .flowchart-lab .part-button {
   min-height: 58px;
   padding: 5px 6px;

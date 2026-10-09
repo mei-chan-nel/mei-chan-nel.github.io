@@ -96,7 +96,10 @@ test('すべての動画ページで各問題の最初の動画ボタンの右�
   for(const [,rawNumber,card] of cards){
    const number=Number(rawNumber),href=`../program-trace/run.html?from=${page.id}#video-q-${number}`;
    const matches=[...card.matchAll(/<a class="program-trace-link" href="([^"]+)">1行ずつ実行する<\/a>/g)];
+   const flowLinks=[...card.matchAll(/<a class="program-flowchart-link program-trace-link" href="([^"]+)">フローチャートで表示する<\/a>/g)];
    assert.equal(matches.length,number>=231?1:0,`Q${number} links`);
+   assert.equal(flowLinks.length,matches.length,`Q${number} flowchart links`);
+   if(number>=231){assert.equal(flowLinks[0][1],`../lab/flowchart/?from=${page.id}&amp;question=video-q-${number}#run`);assert.match(card,/>1行ずつ実行する<\/a>\s*<a class="program-flowchart-link program-trace-link"/);}
    if(number>=231){assert.equal(matches[0][1],href);assert.match(card,/<div class="video-action-row">\s*<button class="video-trigger"[^>]*>解説動画を表示(?: 1)?<\/button>\s*<a class="program-trace-link"/);links++;}
   }
  }

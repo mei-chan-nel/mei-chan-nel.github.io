@@ -11,7 +11,7 @@ for (const name of await readdir(new URL('dist/', project))) if (name.endsWith('
   // Keep the unchanged registry and value/error helpers at their canonical URL:
   // callers registering a builtin must share the same module instance.
   const versioned = source.replace(/(from ['"]\.\/)([^'"]+\.js)(['"])/g, (match, prefix, name, quote) =>
-    ['builtins.js', 'errors.js', 'values.js'].includes(name) ? match : `${prefix}${name}?v=20261009-function-help3${quote}`);
+    ['builtins.js', 'errors.js', 'values.js'].includes(name) ? match : `${prefix}${name}?v=${name === 'flowchart-link.js' ? '20261009-flowchart2' : '20261009-function-help3'}${quote}`);
   await writeFile(new URL(name, destination), versioned, 'utf8');
 }
 const trace = await readFile(new URL('program-trace/index.html', portal), 'utf8');

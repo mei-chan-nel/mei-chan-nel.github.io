@@ -52,7 +52,20 @@ export function bindFlowchartConversion({ read, pause }) {
         draft = value.example
           ? bridge.traceDraft(value.example, value.parameters)
           : value;
-      const url = await bridge.toFlowURL(draft, base.href);
+      let url = await bridge.toFlowURL(draft, base.href);
+      if (value.example?.collection === "video") {
+        const { videoOrigin } = await import(
+            new URL("video-entry.mjs", base).href
+          ),
+          origin = videoOrigin(
+            value.example,
+            new URLSearchParams(location.search).get("from") ?? "",
+          ),
+          target = new URL(url);
+        target.searchParams.set("question", origin.question);
+        target.searchParams.set("from", origin.from);
+        url = target.href;
+      }
       if (token !== generation) return;
       source.textContent = draft.source;
       source.hidden = false;

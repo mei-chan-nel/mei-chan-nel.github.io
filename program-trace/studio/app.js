@@ -1,7 +1,7 @@
 import { ProgramEditor } from './editor.js?v=20261009-function-help3';
 import { RunnerView } from './runner-view.js?v=20261009-function-help3';
 import { createFullscreen } from './fullscreen.js?v=20261009-function-help3';
-import { bindFlowchartConversion } from './flowchart-link.js?v=20261009-function-help3';
+import { bindFlowchartConversion } from './flowchart-link.js?v=20261009-flowchart2';
 import { bindStepKeys } from './step-keys.js?v=20261009-function-help3';
 import { ProgramStorage } from './storage.js?v=20261009-function-help3';
 import { documentJSON, parseDocument, validateInput } from './documents.js?v=20261009-function-help3';

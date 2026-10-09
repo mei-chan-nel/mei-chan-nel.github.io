@@ -297,9 +297,10 @@ def main() -> int:
     }
     rendered_normal: list[int] = []
     trace_link_count = 0
+    flowchart_link_count = 0
 
     def validate_trace_links(text: str, page_id: str) -> None:
-        nonlocal trace_link_count
+        nonlocal trace_link_count, flowchart_link_count
         for raw_number, card in re.findall(r'<article class="video-question-card" id="q-(\d+)">([\s\S]*?)</article>', text):
             number = int(raw_number)
             links = re.findall(r'<a class="program-trace-link" href="([^"]+)">1行ずつ実行する</a>', card)
@@ -309,6 +310,13 @@ def main() -> int:
             if expected and not re.search(r'<div class="video-action-row">\s*<button class="video-trigger"[^>]*>解説動画を表示(?: 1)?</button>\s*<a class="program-trace-link"', card):
                 errors.append(f'archive/{page_id}.html Q{number}: trace link must follow the first video button')
             trace_link_count += len(links)
+            flow_links = re.findall(r'<a class="program-flowchart-link program-trace-link" href="([^"]+)">フローチャートで表示する</a>', card)
+            flow_expected = [f'../lab/flowchart/?from={page_id}&amp;question=video-q-{number}#run'] if expected else []
+            if flow_links != flow_expected:
+                errors.append(f'archive/{page_id}.html Q{number}: flowchart link is missing or incorrect')
+            if expected and not re.search(r'>1行ずつ実行する</a>\s*<a class="program-flowchart-link program-trace-link"', card):
+                errors.append(f'archive/{page_id}.html Q{number}: flowchart link must follow the trace link')
+            flowchart_link_count += len(flow_links)
 
     for genre in genres:
         path = archive_dir / f"{genre['id']}.html"
@@ -342,6 +350,8 @@ def main() -> int:
     validate_trace_links(course_text, 'programming-shortest-course')
     if trace_link_count != 127:
         errors.append(f'video pages must contain 127 trace links, got {trace_link_count}')
+    if flowchart_link_count != 127:
+        errors.append(f'video pages must contain 127 flowchart links, got {flowchart_link_count}')
     course_rendered = [int(value) for value in re.findall(r'<article class="video-question-card" id="q-(\d+)"', course_text)]
     if course_rendered != expected_course:
         errors.append("programming-shortest-course.html: rendered order does not match the 27-question course")
@@ -353,7 +363,7 @@ def main() -> int:
 
     report_path = ROOT / "docs" / "video-library-build.json"
     report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else {}
-    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True), ("trace_program_count", 100), ("trace_link_count", 127)):
+    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True), ("trace_program_count", 100), ("trace_link_count", 127), ("flowchart_link_count", 127)):
         if report.get(key) != expected:
             errors.append(f"video-library-build.json: {key} is out of sync")
     if report.get("course_question_numbers") != expected_course:

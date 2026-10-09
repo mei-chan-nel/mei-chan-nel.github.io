@@ -264,6 +264,8 @@ def video_controls(number: int, videos: list[dict[str, str]], section_id: str) -
         if index == 1 and number in trace_programs():
             href = f"../program-trace/run.html?from={section_id}#{trace_programs()[number]}"
             trace = f'<a class="program-trace-link" href="{e(href)}">1行ずつ実行する</a>'
+            flow_href = f"../lab/flowchart/?from={section_id}&question={trace_programs()[number]}#run"
+            trace += f'\n              <a class="program-flowchart-link program-trace-link" href="{e(flow_href)}">フローチャートで表示する</a>'
         controls.append(
             f'''<div class="video-control">
               <div class="video-action-row">
@@ -586,6 +588,7 @@ def main() -> int:
         "programming_code_blocks": sum(1 for genre in genres if genre["field_id"] == "programming" for question in genre["questions"] if question_parts(question, str(genre["id"]))[1]),
         "trace_program_count": len(trace_programs()),
         "trace_link_count": len(trace_programs()) + len(course['questions']),
+        "flowchart_link_count": len(trace_programs()) + len(course['questions']),
     }
     REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"questions=330 genres={len(genres)} course_questions={len(course['questions'])} pages={len(generated_pages)} videos={report['video_count']}")
