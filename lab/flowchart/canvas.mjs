@@ -15,6 +15,7 @@ import {
   mini,
 } from "./symbols.mjs";
 import { installCanvasResize } from "../shared/resize.mjs";
+import { wireGeometry } from "./wires.mjs";
 export class FlowCanvas {
   constructor({
     stage,
@@ -123,11 +124,30 @@ export class FlowCanvas {
       this.updateCamera();
       return;
     }
+    const ids = new Set(nodes.map((n) => n.id)),
+      wires = this.read()
+        .edges.filter((e) => ids.has(e.from))
+        .map((e) => wireGeometry(this.read(), e).bounds);
     const minX =
-        Math.min(...nodes.map((n) => n.x - dimensions(n.type).w / 2)) - 70,
-      maxX = Math.max(...nodes.map((n) => n.x + dimensions(n.type).w / 2)) + 70,
-      minY = Math.min(...nodes.map((n) => n.y - dimensions(n.type).h / 2)) - 45,
-      maxY = Math.max(...nodes.map((n) => n.y + dimensions(n.type).h / 2)) + 45;
+        Math.min(
+          ...nodes.map((n) => n.x - dimensions(n.type).w / 2),
+          ...wires.map((w) => w.minX),
+        ) - 70,
+      maxX =
+        Math.max(
+          ...nodes.map((n) => n.x + dimensions(n.type).w / 2),
+          ...wires.map((w) => w.maxX),
+        ) + 70,
+      minY =
+        Math.min(
+          ...nodes.map((n) => n.y - dimensions(n.type).h / 2),
+          ...wires.map((w) => w.minY),
+        ) - 45,
+      maxY =
+        Math.max(
+          ...nodes.map((n) => n.y + dimensions(n.type).h / 2),
+          ...wires.map((w) => w.maxY),
+        ) + 45;
     const zoom = Math.max(
       0.12,
       Math.min(
@@ -175,28 +195,6 @@ export class FlowCanvas {
       r.top + r.height / 2,
     );
   }
-  wirePath(e) {
-    const g = this.read(),
-      aNode = g.nodes.find((n) => n.id === e.from),
-      bNode = g.nodes.find((n) => n.id === e.to),
-      a = portPoint(aNode, "out", e.port),
-      b = portPoint(bNode, "in");
-    let d;
-    if (aNode.type === "decision") {
-      const turn = a.x + (e.port === 0 ? -35 : 35);
-      d = `M${a.x} ${a.y}H${turn}V${b.y - 25}H${b.x}V${b.y}`;
-    } else if (b.y > a.y + 4) {
-      const mid = (a.y + b.y) / 2;
-      d = `M${a.x} ${a.y}V${mid}H${b.x}V${b.y}`;
-    } else {
-      const turn = Math.min(
-        a.x - dimensions(aNode.type).w / 2 - 55,
-        b.x - dimensions(bNode.type).w / 2 - 55,
-      );
-      d = `M${a.x} ${a.y}V${a.y + 25}H${turn}V${b.y - 25}H${b.x}V${b.y}`;
-    }
-    return d;
-  }
   render() {
     const g = this.read(),
       scope = this.scope(),
@@ -207,10 +205,10 @@ export class FlowCanvas {
       nodes = document.getElementById("flow-nodes");
     wires.innerHTML = g.edges
       .filter((e) => g.nodes.find((n) => n.id === e.from).scope === scope)
-      .map(
-        (e) =>
-          `<g class="flow-wire ${r?.lastEdge === e.id ? "is-current" : ""} ${this.selected?.kind === "edge" && this.selected.id === e.id ? "is-selected" : ""}" data-edge="${e.id}" tabindex="${r ? -1 : 0}" role="button" aria-label="${e.from.slice(1)}番から${e.to.slice(1)}番への矢印を選択" data-focus-key="edge-${e.id}"><path class="flow-wire-hit" d="${this.wirePath(e)}"/><path class="flow-wire-line" d="${this.wirePath(e)}" marker-end="url(#flow-arrow${r?.lastEdge === e.id ? "-active" : ""})"/></g>`,
-      )
+      .map((e) => {
+        const { path, arrow } = wireGeometry(g, e);
+        return `<g class="flow-wire ${r?.lastEdge === e.id ? "is-current" : ""} ${this.selected?.kind === "edge" && this.selected.id === e.id ? "is-selected" : ""}" data-edge="${e.id}" tabindex="${r ? -1 : 0}" role="button" aria-label="${e.from.slice(1)}番から${e.to.slice(1)}番への矢印を選択" data-focus-key="edge-${e.id}"><path class="flow-wire-hit" d="${path}"/><path class="flow-wire-line" d="${path}"${arrow ? ` marker-end="url(#flow-arrow${r?.lastEdge === e.id ? "-active" : ""})"` : ""}/></g>`;
+      })
       .join("");
     document.getElementById("flow-pairs").innerHTML = this.visibleNodes()
       .filter(
@@ -252,9 +250,13 @@ export class FlowCanvas {
         }
         const labels =
           n.type === "decision"
-            ? `<text class="flow-branch-label" x="${-w / 2 - 22}" y="-12">はい</text><text class="flow-branch-label" x="${w / 2 + 25}" y="-12">いいえ</text>`
+            ? `<text class="flow-branch-label" data-branch="yes" x="-23" y="${h / 2 + 24}">はい</text><text class="flow-branch-label" data-branch="no" x="${w / 2 + 34}" y="-12">いいえ</text>`
             : "";
-        return `<g class="flow-node ${current ? "is-current" : ""} ${next ? "is-next" : ""} ${this.selected?.id === n.id ? "is-selected" : ""}" data-id="${n.id}" data-type="${n.type}" transform="translate(${n.x} ${n.y})"><g class="flow-node-body" role="button" tabindex="0" data-focus-key="node-${n.id}" aria-label="${esc(lines.join(" "))} ${n.id.slice(1)}を${r ? "選択" : "編集"}"><title>${esc(text)}</title>${shape(n.type)}<text class="flow-node-code">${lines.map((line, i) => `<tspan x="0" y="${(i - (lines.length - 1) / 2) * 18 + 5}">${esc(line)}</tspan>`).join("")}</text></g><text class="flow-node-number" x="${w / 2 - 5}" y="${-h / 2 - 10}">${n.id.slice(1)}</text>${labels}${ports}</g>`;
+        const hit =
+          n.type === "connector"
+            ? '<rect class="flow-merge-hit" x="-20" y="-18" width="40" height="36"/>'
+            : "";
+        return `<g class="flow-node ${current ? "is-current" : ""} ${next ? "is-next" : ""} ${this.selected?.id === n.id ? "is-selected" : ""}" data-id="${n.id}" data-type="${n.type}" transform="translate(${n.x} ${n.y})"><g class="flow-node-body" role="button" tabindex="0" data-focus-key="node-${n.id}" aria-label="${esc(lines.join(" ") || parts[n.type])} ${n.id.slice(1)}を${r ? "選択" : "編集"}"><title>${esc(text || parts[n.type])}</title>${hit}${shape(n.type)}<text class="flow-node-code"${n.type === "connector" ? ' transform="translate(-28 0)"' : ""}>${lines.map((line, i) => `<tspan x="0" y="${(i - (lines.length - 1) / 2) * 18 + 5}">${esc(line)}</tspan>`).join("")}</text></g><text class="flow-node-number" x="${w / 2 - 5}" y="${-h / 2 - 10}">${n.id.slice(1)}</text>${labels}${ports}</g>`;
       })
       .join("");
     this.updateCamera();

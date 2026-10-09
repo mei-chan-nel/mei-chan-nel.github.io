@@ -16,7 +16,7 @@ export const parts = {
   decision: "判断",
   loopStart: "繰返し始端",
   loopEnd: "繰返し終端",
-  connector: "結合子",
+  connector: "合流",
   call: "定義済み処理",
   return: "値を返す",
 };
@@ -105,7 +105,7 @@ export function validateDocument(value) {
     )
       throw Error("部品の内容や配置を読み取れません。");
     if (n.type === "connector" && [...n.code].length > 2)
-      throw Error("結合子の印は2文字以内にしてください。");
+      throw Error("合流点の印は2文字以内にしてください。");
     ids.add(n.id);
     if (
       n.note !== undefined &&

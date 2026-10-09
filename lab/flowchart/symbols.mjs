@@ -17,7 +17,7 @@ export function shape(type) {
     y = h / 2;
   if (["start", "end", "return"].includes(type))
     return `<rect x="${-x}" y="${-y}" width="${w}" height="${h}" rx="${y}"/>`;
-  if (type === "connector") return '<circle r="20"/>';
+  if (type === "connector") return '<path d="M0 -20V20"/>';
   if (["input", "output"].includes(type))
     return `<path d="M${-x + 20} ${-y}H${x}L${x - 20} ${y}H${-x}Z"/>`;
   if (type === "decision") return `<path d="M0 ${-y}L${x} 0 0 ${y} ${-x} 0Z"/>`;
@@ -37,12 +37,14 @@ export function portPoint(n, direction, port = 0) {
   return {
     x:
       n.x +
-      (direction === "out" && n.type === "decision"
-        ? port === 0
-          ? -w / 2
-          : w / 2
-        : 0),
-    y: n.y + (direction === "in" ? -h / 2 : n.type === "decision" ? 0 : h / 2),
+      (direction === "out" && n.type === "decision" && port === 1 ? w / 2 : 0),
+    y:
+      n.y +
+      (direction === "in"
+        ? -h / 2
+        : n.type === "decision" && port === 1
+          ? 0
+          : h / 2),
   };
 }
 export function linesOf(text, type) {
@@ -75,5 +77,7 @@ export function linesOf(text, type) {
 }
 export function mini(type) {
   const { w, h } = dimensions(type);
+  if (type === "connector")
+    return '<svg viewBox="-30 -25 60 50" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="3"><path d="M-16 -22V22M24 -22V0H-16M-10 -5L-16 0 -10 5"/></g></svg>';
   return `<svg viewBox="${-w / 2 - 5} ${-h / 2 - 5} ${w + 10} ${h + 10}" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="5">${shape(type)}</g></svg>`;
 }

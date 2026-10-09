@@ -119,6 +119,27 @@
   font-size: 12px;
   fill: var(--ink-soft);
 }
+.flowchart-lab
+  .flow-node[data-type="connector"]
+  .flow-node-body
+  > .flow-merge-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+}
+.flow-node[data-type="connector"] .flow-node-code {
+  text-anchor: end;
+  font-size: 12px;
+}
+.flow-node[data-type="connector"].is-selected .flow-node-body > .flow-merge-hit,
+.flow-node[data-type="connector"]
+  .flow-node-body:focus-visible
+  > .flow-merge-hit {
+  fill: #e0eff733;
+  stroke: #255e77;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
 .flow-branch-label {
   text-anchor: middle;
   font-size: 13px;

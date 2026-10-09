@@ -61,6 +61,29 @@ try {
   p.on("pageerror", (e) => errors.push(e.message));
   await p.goto(base + "/lab/flowchart/");
   await p.locator(".flow-node").first().waitFor();
+  const branchLayout = await p.evaluate(() => {
+    const decision = document.querySelector('[data-type="decision"]'),
+      port = (p) =>
+        decision
+          .querySelector(`[data-direction="out"][data-port="${p}"]`)
+          .getAttribute("transform"),
+      noWire = document.querySelector('[data-edge="w4"] .flow-wire-line'),
+      join = document.querySelector('[data-type="connector"]');
+    return {
+      yes: port(0),
+      no: port(1),
+      noPath: noWire.getAttribute("d"),
+      circles: join.querySelectorAll(".flow-node-body circle").length,
+      mergeName: document
+        .querySelector('[data-part="connector"]')
+        .textContent.trim(),
+    };
+  });
+  assert.equal(branchLayout.yes, "translate(0 60)");
+  assert.equal(branchLayout.no, "translate(110 0)");
+  assert.match(branchLayout.noPath, /^M[\d.]+ [\d.]+H[\d.]+V[\d.]+$/);
+  assert.equal(branchLayout.circles, 0);
+  assert.equal(branchLayout.mergeName, "合流");
   const align = await p.evaluate(() => ({
     left: document
       .querySelector('[data-part="process"]')
@@ -84,6 +107,18 @@ try {
     "n5",
   );
   assert.equal(await p.locator(".flow-wire.is-current").count(), 1);
+  await p.locator("#next-button").click();
+  assert.equal(
+    await p.locator(".flow-node.is-current").getAttribute("data-type"),
+    "connector",
+  );
+  assert.equal(
+    await p
+      .locator(".flow-node.is-current .flow-merge-hit")
+      .evaluate((n) => getComputedStyle(n).stroke),
+    "none",
+  );
+  await p.locator("#previous-button").click();
   await p.locator("#previous-button").click();
   assert.equal(await p.locator("#output-lines li").count(), 0);
   await p.locator("#reset-button").click();
@@ -155,6 +190,18 @@ try {
   await p.locator("#edit-button").click();
   // Keyboard/tap connections, add/delete/undo and both canvas edges.
   await p.locator("#new-circuit").click();
+  await p.locator(".flow-wire").first().focus();
+  await p.keyboard.press("Enter");
+  await p.locator('[data-part="connector"]').click();
+  assert.equal(await p.locator("dialog[open]").count(), 0);
+  const withMerge = await stored(p),
+    insertedMerge = withMerge.graph.nodes.find((n) => n.type === "connector");
+  assert.equal(
+    insertedMerge.x,
+    withMerge.graph.nodes.find((n) => n.type === "start").x,
+  );
+  assert.equal(withMerge.graph.edges.length, 2);
+  await p.locator("#undo-circuit").click();
   const palette = await p.locator('[data-part="process"]').boundingBox(),
     wire = await p.locator(".flow-wire-line").boundingBox();
   await p.mouse.move(

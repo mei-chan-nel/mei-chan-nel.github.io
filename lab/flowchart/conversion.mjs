@@ -42,6 +42,25 @@ export function fromProgram(value) {
   };
   const attach = (tails, id) =>
     tails.forEach((t) => connect(g, t.id, t.port, id));
+  const otherwiseItems = (a) =>
+    !a.otherwise
+      ? []
+      : a.otherwise.kind === "else"
+        ? a.otherwise.body
+        : [a.otherwise];
+  // Every YES path stays on its column. Reserve the full width of its nested
+  // branches before placing NO, so nested decisions do not overlap siblings.
+  const columns = (items) =>
+    Math.max(
+      1,
+      ...items.map((a) =>
+        a.kind === "if"
+          ? columns(a.body) + columns(otherwiseItems(a))
+          : ["for", "while"].includes(a.kind)
+            ? columns(a.body)
+            : 1,
+      ),
+    );
   function block(items, scope, x, y, tails) {
     for (const a of items) {
       if (a.kind === "define") continue;
@@ -50,23 +69,25 @@ export function fromProgram(value) {
         n = put("decision", scope, x, y, expressionText(a.condition));
         attach(tails, n.id);
         n.note = parsed.lines[a.line - 1].comment.replace(/^#\s*/, "");
-        const left = block(a.body, scope, x - 220, y + 150, [
-          { id: n.id, port: 0 },
-        ]);
+        const left = block(a.body, scope, x, y + 150, [{ id: n.id, port: 0 }]);
         const right = a.otherwise
           ? a.otherwise.kind === "else"
-            ? block(a.otherwise.body, scope, x + 220, y + 150, [
-                { id: n.id, port: 1 },
-              ])
-            : block([a.otherwise], scope, x + 220, y + 150, [
+            ? block(
+                a.otherwise.body,
+                scope,
+                x + 320 * columns(a.body),
+                y + 150,
+                [{ id: n.id, port: 1 }],
+              )
+            : block([a.otherwise], scope, x + 320 * columns(a.body), y + 150, [
                 { id: n.id, port: 1 },
               ])
           : { tails: [{ id: n.id, port: 1 }], y: y + 100 };
-        y = Math.max(left.y, right.y) + 20;
+        y = Math.max(left.y, right.y) - 40;
         const join = put("connector", scope, x, y);
         attach([...left.tails, ...right.tails], join.id);
         tails = [{ id: join.id, port: 0 }];
-        y += 90;
+        y += 100;
         continue;
       }
       if (["for", "while"].includes(a.kind)) {

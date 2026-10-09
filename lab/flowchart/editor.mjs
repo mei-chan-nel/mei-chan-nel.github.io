@@ -25,6 +25,7 @@ import { createAutoplay } from "../../program-trace/autoplay.js";
 import { bindStepKeys } from "../../program-trace/step-keys.js";
 import { bindDiagramKeys, editingText } from "../shared/diagram-keys.mjs";
 import { copyPart, pastePart } from "./clipboard.mjs";
+import { portPoint } from "./symbols.mjs";
 const $ = (id) => document.getElementById(id),
   message = (text, error = false) => {
     $("circuit-message").textContent = text;
@@ -133,6 +134,18 @@ const canvas = new FlowCanvas({
             Math.round(p.y / 8) * 8,
           );
         id = n.id;
+        if (edge && type === "connector") {
+          const a = portPoint(
+              g.nodes.find((n) => n.id === edge.from),
+              "out",
+              edge.port,
+            ),
+            b = portPoint(
+              g.nodes.find((n) => n.id === edge.to),
+              "in",
+            );
+          if (Math.abs(a.x - b.x) < 0.01) n.x = a.x;
+        }
         if (type === "call") {
           const s = g.scopes.find((s) => s.id !== "main");
           n.code = `${s.name}(${s.parameters.map(() => 0).join(", ")})`;
@@ -149,7 +162,8 @@ const canvas = new FlowCanvas({
       canvas.selected = { kind: "node", id };
       canvas.render();
       canvas.reveal(id);
-      if (!["start", "end", "loopEnd"].includes(type)) openNode(id);
+      if (!["start", "end", "loopEnd", "connector"].includes(type))
+        openNode(id);
     }),
   message,
   undo,
@@ -205,7 +219,7 @@ const helps = {
     "条件式を指定します。例：点数 >= 60。はい／いいえの2つの出口があります。",
   loopStart:
     "範囲：i を 1 から 5 まで 1 ずつ増やしながら繰り返す：\n条件：i < 5 の間繰り返す：",
-  connector: "同じ図の矢印を合流できます。印は2文字以内（例：A）。",
+  connector: "右側の経路を縦の流れ線に合流させます。印は任意で2文字以内です。",
   call: "例：二倍(7)。戻り値を変数に入れる場合は処理の部品で 結果 = 二倍(7) とします。",
   return: "返す値・式を指定します。例：n * 2。空欄なら値を返さず戻ります。",
 };
@@ -560,6 +574,7 @@ function fitForRun() {
 $("prepare-run").onclick = () =>
   guard(() => {
     canvas.cancel();
+    canvas.selected = null;
     runner = new FlowRunner(
       graph,
       crypto.getRandomValues(new Uint32Array(1))[0],
