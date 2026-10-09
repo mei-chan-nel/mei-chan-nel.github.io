@@ -102,7 +102,7 @@ export function convertPixels(averages, { mode, bits, grayBits, channel }) {
     } else {
       for (let c = 0; c < 3; c++)
         out[to + c] =
-          channel === "rgb" || channel === "rgb"[c]
+          channel.includes("rgb"[c])
             ? displayValue(averages[p + c], channelMax[c])
             : 0;
     }

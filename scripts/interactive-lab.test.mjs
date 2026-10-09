@@ -53,26 +53,37 @@ test("area sampling averages a full region and weights partial pixels", () => {
   );
 });
 test("RGB components use independent bit depths; component view only masks display", () => {
-  const averages = new Float32Array([100, 150, 200]);
+  const averages = new Float32Array([200, 150, 200]);
   const settings = {
     mode: "color",
     bits: [1, 2, 3],
     grayBits: 8,
     channel: "rgb",
   };
-  assert.deepEqual(
-    Array.from(convertPixels(averages, settings)),
-    [0, 170, 182, 255],
-  );
-  assert.deepEqual(
-    Array.from(convertPixels(averages, { ...settings, channel: "g" })),
-    [0, 170, 0, 255],
-  );
+  for (const [channel, expected] of [
+    ["rgb", [255, 170, 182, 255]],
+    ["rg", [255, 170, 0, 255]],
+    ["rb", [255, 0, 182, 255]],
+    ["gb", [0, 170, 182, 255]],
+    ["r", [255, 0, 0, 255]],
+    ["g", [0, 170, 0, 255]],
+    ["b", [0, 0, 182, 255]],
+    ["", [0, 0, 0, 255]],
+  ])
+    assert.deepEqual(
+      Array.from(convertPixels(averages, { ...settings, channel })),
+      expected,
+    );
   assert.deepEqual(settings.bits, [1, 2, 3]);
   assert.ok(Math.abs(grayValue(255, 0, 0) - 76.245) < 0.0001);
   assert.deepEqual(
     Array.from(
-      convertPixels(averages, { ...settings, mode: "gray", grayBits: 1 }),
+      convertPixels(averages, {
+        ...settings,
+        mode: "gray",
+        grayBits: 1,
+        channel: "",
+      }),
     ),
     [255, 255, 255, 255],
   );

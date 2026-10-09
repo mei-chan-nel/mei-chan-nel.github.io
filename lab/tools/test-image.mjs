@@ -54,6 +54,23 @@ async function pixelValues(page) {
       Array.from(c.getContext("2d").getImageData(0, 0, c.width, c.height).data),
     );
 }
+async function showChannels(page, enabled, touch = false) {
+  for (const channel of "rgb") {
+    const input = page.locator(`input[name="channel"][value="${channel}"]`);
+    if ((await input.isChecked()) === enabled.includes(channel)) continue;
+    const label = page.locator(
+      `label:has(input[name="channel"][value="${channel}"])`,
+    );
+    if (touch) await label.tap();
+    else await label.click();
+  }
+  await page.waitForFunction((enabled) => {
+    const caption = document.querySelector("#output-caption").textContent;
+    return enabled === "rgb"
+      ? !caption.endsWith("表示")
+      : caption.endsWith((enabled.toUpperCase() || "黒") + "表示");
+  }, enabled);
+}
 try {
   for (const { width, height } of [
     { width: 1280, height: 720 },
@@ -79,7 +96,9 @@ try {
       )
         route.continue();
       else if (
-        url.startsWith("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?")
+        url.startsWith(
+          "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?",
+        )
       )
         route.fulfill({ contentType: "application/javascript", body: "" });
       else {
@@ -97,6 +116,10 @@ try {
     );
     await page.locator('a[href="./digital-image/"]').click();
     await waitText(page, "#metric-pixels", "4,096");
+    assert.equal(
+      await page.locator('input[name="channel"]:checked').count(),
+      3,
+    );
     await page.waitForTimeout(100);
     const visible = await page.evaluate(() =>
       [".image-controls", ".image-comparison", ".image-metrics"].map((s) => ({
@@ -196,12 +219,15 @@ try {
     await bits(page, "g", 4);
     await bits(page, "b", 3);
     await waitText(page, "#metric-bits", "8 bit");
-    await page.locator('label:has(input[name="channel"][value="r"])').click();
-    await waitText(page, "#output-caption", "R表示");
-    const reds = await pixelValues(page);
-    for (let i = 0; i < reds.length; i += 4) {
-      assert.equal(reds[i + 1], 0);
-      assert.equal(reds[i + 2], 0);
+    const fullColor = await pixelValues(page);
+    for (const enabled of ["rg", "rb", "gb", "r", "g", "b", "", "rgb", "r"]) {
+      await showChannels(page, enabled, width < 600);
+      const expected = fullColor.map((value, i) =>
+        i % 4 === 3 || enabled.includes("rgb"[i % 4]) ? value : 0,
+      );
+      assert.deepEqual(await pixelValues(page), expected);
+      await waitText(page, "#metric-size", "16 B");
+      await waitText(page, "#metric-bits", "8 bit");
     }
     await waitText(page, "#metric-size", "16 B");
     await page.locator('label:has(input[name="mode"][value="gray"])').click();
@@ -239,8 +265,9 @@ try {
     assert.ok(
       await page.locator('input[name="mode"][value="color"]').isChecked(),
     );
-    assert.ok(
-      await page.locator('input[name="channel"][value="rgb"]').isChecked(),
+    assert.equal(
+      await page.locator('input[name="channel"]:checked').count(),
+      3,
     );
     assert.equal(
       await page.locator("#source-canvas").evaluate((c) => c.toDataURL()),
@@ -290,7 +317,7 @@ try {
     });
     await waitText(page, "#source-caption", "32 × 32");
     await page.locator('label:has(input[name="mode"][value="color"])').click();
-    await page.locator('label:has(input[name="channel"][value="rgb"])').click();
+    await showChannels(page, "rgb", width < 600);
     await bits(page, "r", 8);
     await bits(page, "g", 8);
     await bits(page, "b", 8);
@@ -351,6 +378,14 @@ try {
     ),
   );
   await waitText(page, "#metric-pixels", "4,096");
+  await showChannels(page, "");
+  const black = await pixelValues(page);
+  assert.ok(black.every((value, i) => value === (i % 4 === 3 ? 255 : 0)));
+  await page.locator('input[name="channel"][value="r"]').focus();
+  await page.keyboard.press("Space");
+  await waitText(page, "#output-caption", "R表示");
+  assert.ok(await page.locator('input[name="channel"][value="r"]').isChecked());
+  await showChannels(page, "rgb");
   await bits(page, "r", 1);
   await bits(page, "g", 1);
   await bits(page, "b", 1);

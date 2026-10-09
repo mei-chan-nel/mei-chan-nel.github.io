@@ -3,8 +3,8 @@ import {
   integralImage,
   averagePixels,
   convertPixels,
-} from "./pixels.mjs?v=4";
-import { renderWorkerSource } from "./render-source.mjs?v=4";
+} from "./pixels.mjs?v=5";
+import { renderWorkerSource } from "./render-source.mjs?v=5";
 const $ = (id) => document.getElementById(id);
 const source = $("source-canvas"),
   output = $("output-canvas");
@@ -191,6 +191,8 @@ function syncControls() {
   $("color-bits").hidden = gray;
   $("gray-bits").hidden = !gray;
   $("channel-control").hidden = gray;
+  for (const checkbox of document.querySelectorAll('input[name="channel"]'))
+    checkbox.checked = state.channel.includes(checkbox.value);
   for (const [key, bits] of [
     ["r", state.bits[0]],
     ["g", state.bits[1]],
@@ -234,7 +236,7 @@ function applyFrame({ size, settings: state, pixels: pixelData }) {
     pixels = size * size,
     bytes = (pixels * bits) / 8;
   $("output-caption").textContent =
-    `${size} × ${size}画素 · ${gray ? state.grayBits + "ビット / " + 2 ** state.grayBits + "段階" : "R" + state.bits[0] + "・G" + state.bits[1] + "・B" + state.bits[2] + "ビット"}${!gray && state.channel !== "rgb" ? " · " + state.channel.toUpperCase() + "表示" : ""}`;
+    `${size} × ${size}画素 · ${gray ? state.grayBits + "ビット / " + 2 ** state.grayBits + "段階" : "R" + state.bits[0] + "・G" + state.bits[1] + "・B" + state.bits[2] + "ビット"}${!gray && state.channel !== "rgb" ? " · " + (state.channel.toUpperCase() || "黒") + "表示" : ""}`;
   $("metric-pixels").textContent = `${number(pixels)}画素`;
   $("levels-title").textContent = gray ? "明るさの段階数" : "表現できる色数";
   $("metric-levels").textContent =
@@ -349,9 +351,12 @@ for (const radio of document.querySelectorAll('input[name="mode"]'))
     syncControls();
     schedule();
   });
-for (const radio of document.querySelectorAll('input[name="channel"]'))
-  radio.addEventListener("change", () => {
-    state.channel = radio.value;
+for (const checkbox of document.querySelectorAll('input[name="channel"]'))
+  checkbox.addEventListener("change", () => {
+    state.channel = Array.from(
+      document.querySelectorAll('input[name="channel"]:checked'),
+      (input) => input.value,
+    ).join("");
     syncControls();
     schedule();
   });
@@ -369,7 +374,6 @@ $("reset-settings").onclick = () => {
       ) || 0,
   });
   document.querySelector('input[name="mode"][value="color"]').checked = true;
-  document.querySelector('input[name="channel"][value="rgb"]').checked = true;
   syncControls();
   schedule();
 };
