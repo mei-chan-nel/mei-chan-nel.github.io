@@ -92,12 +92,11 @@
           <button id="previous-button" type="button" disabled>← 前へ</button
           ><button id="next-button" class="flow-primary" type="button">
             次へ →</button
+          ><button id="reset-button" type="button">最初から</button
           ><button id="play-button" type="button" aria-pressed="false">
             自動実行</button
-          ><button id="reset-button" type="button">最初から</button
-          ><button id="edit-button" type="button">編集に戻る</button
           ><label for="speed-input"
-            >間隔
+            >実行速度（
             <input
               id="speed-input"
               type="number"
@@ -105,7 +104,9 @@
               min="0.001"
               max="10"
               step="any"
-            />秒</label
+            />）秒</label
+          ><button id="edit-button" class="flow-primary" type="button">
+            編集に戻る</button
           >
         </div>
         <div class="zoom-actions">

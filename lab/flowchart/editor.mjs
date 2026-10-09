@@ -622,7 +622,7 @@ $("speed-input").onchange = () => {
   const ms = Math.round(Number($("speed-input").value) * 1000);
   if (ms < 1 || ms > 10000 || !autoplay.setInterval(ms)) {
     message(
-      "間隔は0.001～10秒。0.1秒以上は0.1秒刻みで指定してください。",
+      "実行速度には0.001～10秒を指定してください。0.1秒以上は0.1秒刻みです。",
       true,
     );
     $("speed-input").value = String(autoplay.interval / 1000);
