@@ -78,6 +78,10 @@ try {
         url.startsWith("data:")
       )
         route.continue();
+      else if (
+        url.startsWith("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?")
+      )
+        route.fulfill({ contentType: "application/javascript", body: "" });
       else {
         errors.push("External request: " + url);
         route.abort();

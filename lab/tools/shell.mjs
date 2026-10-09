@@ -64,6 +64,8 @@ export function renderPage({
 <link rel="icon" href="${local}icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="${prefix}assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="${local}lab.css?v=3" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+<script src="${prefix}assets/manual-ads.js?v=2026080901" defer></script>
 <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: crumbs })}</script>
 ${styles.map((path) => `<link rel="stylesheet" href="./${path}" />`).join("\n")}
 ${scripts.map((path) => `<script type="module" src="./${path}"></script>`).join("\n")}
@@ -74,6 +76,7 @@ ${scripts.map((path) => `<script type="module" src="./${path}"></script>`).join(
 <nav class="breadcrumb" aria-label="パンくず"><a href="${prefix}">Study Atlas</a><span aria-hidden="true">/</span>${slug ? `<a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>${name}</span>` : "<span>Interactive Lab</span>"}</nav>
 ${body}
 </main>
+<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
 <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション">${links(footer, prefix)}</nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
 <script type="module" src="${local}navigation.mjs?v=1"></script>
 </body></html>\n`;

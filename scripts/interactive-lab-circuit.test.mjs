@@ -272,5 +272,5 @@ test("Lab links the public circuit exhibit under digital representation", async 
   );
   assert.equal((home.match(/href="\.\/logic-circuit\/"/g) || []).length, 1);
   assert.doesNotMatch(page, /<meta name="robots" content="[^"]*noindex/);
-  assert.doesNotMatch(page, /googletagmanager|adsbygoogle/);
+  assert.doesNotMatch(page, /googletagmanager/);
 });

@@ -17,6 +17,15 @@ const pages = [
 for (const { id, name } of pages) {
   const source = new URL(`lab/${id ? id + "/" : ""}index.html`, repository);
   let html = await readFile(source, "utf8");
+  // Downloadable experiments run offline without requesting ad services.
+  html = html.replace(
+    /<script\b[^>]*src="[^"]*\/(?:adsbygoogle|manual-ads)\.js\?[^"]*"[^>]*><\/script>\n?/g,
+    "",
+  );
+  html = html.replace(
+    /<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden><\/div>\n?/g,
+    "",
+  );
   const imageSource = /data-source-image="([^"]+)"/.exec(html);
   if (imageSource && !imageSource[1].startsWith("data:")) {
     const path = new URL(imageSource[1], source);

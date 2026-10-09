@@ -89,6 +89,6 @@ test("Lab links the image exhibit under digital representation and its public pa
   );
   for (const html of [home, page]) {
     assert.doesNotMatch(html, /<meta name="robots" content="[^"]*noindex/);
-    assert.doesNotMatch(html, /googletagmanager|adsbygoogle/);
+    assert.doesNotMatch(html, /googletagmanager/);
   }
 });
