@@ -3,7 +3,7 @@
   "$id": "https://mei-chan-nel.com/program-trace/studio/ai-guide.json",
   "title": "Program Trace Studio: AI-authored import file v1",
   "description": "Read ai-guide.md for Information I source grammar and import examples, including recursive custom functions. Generate a complete source-only UTF-8 .studio.json file using the unchanged version 1 envelope. Put main and definitions together in source. Do not generate builder metadata.",
-  "$comment": "Source <=500 physical lines / 50000 UTF-8 bytes; file <=300000 UTF-8 bytes. All executable blocks must be nonempty. Only 表示する, 要素数, 乱数 are built in. Custom functions use outermost 定義する name(args)： and 返す value, with local variables and matching call arity. Bare 返す or the end of a body finishes a standalone call without a value. Expression calls must return a value. Recursion needs a terminating base case, at most 32 calls deep and 10000 execution steps. Source is internally interpreted, not JavaScript. Files preserve program/settings, not execution history.",
+  "$comment": "Source <=500 physical lines / 50000 UTF-8 bytes; file <=300000 UTF-8 bytes. All executable blocks must be nonempty. Built-ins: 表示する, 要素数, 乱数, 整数 (floor), べき乗, 配列結合, 逆順 (new array), 含む, ランダム整数, ランダム日付 (365 days). Custom functions use outermost 定義する name(args)： and 返す value, with local variables and matching call arity. Bare 返す or the end of a body finishes a standalone call without a value. Expression calls must return a value. Recursion needs a terminating base case, at most 32 calls deep and 10000 execution steps. Source is internally interpreted, not JavaScript. Files preserve program/settings, not execution history.",
   "type": "object",
   "additionalProperties": false,
   "required": [

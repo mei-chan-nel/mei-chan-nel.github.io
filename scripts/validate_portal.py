@@ -297,9 +297,10 @@ def main() -> int:
     }
     rendered_normal: list[int] = []
     trace_link_count = 0
+    flowchart_link_count = 0
 
     def validate_trace_links(text: str, page_id: str) -> None:
-        nonlocal trace_link_count
+        nonlocal trace_link_count, flowchart_link_count
         for raw_number, card in re.findall(r'<article class="video-question-card" id="q-(\d+)">([\s\S]*?)</article>', text):
             number = int(raw_number)
             links = re.findall(r'<a class="program-trace-link" href="([^"]+)">1行ずつ実行する</a>', card)
@@ -309,6 +310,13 @@ def main() -> int:
             if expected and not re.search(r'<div class="video-action-row">\s*<button class="video-trigger"[^>]*>解説動画を表示(?: 1)?</button>\s*<a class="program-trace-link"', card):
                 errors.append(f'archive/{page_id}.html Q{number}: trace link must follow the first video button')
             trace_link_count += len(links)
+            flow_links = re.findall(r'<a class="program-flowchart-link program-trace-link" href="([^"]+)">フローチャートで表示する</a>', card)
+            flow_expected = [f'../lab/flowchart/?from={page_id}&amp;question=video-q-{number}#run'] if expected else []
+            if flow_links != flow_expected:
+                errors.append(f'archive/{page_id}.html Q{number}: flowchart link is missing or incorrect')
+            if expected and not re.search(r'>1行ずつ実行する</a>\s*<a class="program-flowchart-link program-trace-link"', card):
+                errors.append(f'archive/{page_id}.html Q{number}: flowchart link must follow the trace link')
+            flowchart_link_count += len(flow_links)
 
     for genre in genres:
         path = archive_dir / f"{genre['id']}.html"
@@ -342,6 +350,8 @@ def main() -> int:
     validate_trace_links(course_text, 'programming-shortest-course')
     if trace_link_count != 127:
         errors.append(f'video pages must contain 127 trace links, got {trace_link_count}')
+    if flowchart_link_count != 127:
+        errors.append(f'video pages must contain 127 flowchart links, got {flowchart_link_count}')
     course_rendered = [int(value) for value in re.findall(r'<article class="video-question-card" id="q-(\d+)"', course_text)]
     if course_rendered != expected_course:
         errors.append("programming-shortest-course.html: rendered order does not match the 27-question course")
@@ -353,7 +363,7 @@ def main() -> int:
 
     report_path = ROOT / "docs" / "video-library-build.json"
     report = json.loads(report_path.read_text(encoding="utf-8")) if report_path.is_file() else {}
-    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True), ("trace_program_count", 100), ("trace_link_count", 127)):
+    for key, expected in (("question_count", 330), ("field_counts", field_counts), ("genre_counts", genre_counts), ("genre_pages", [f"archive/{genre['id']}.html" for genre in genres]), ("course_pages", ["archive/programming-shortest-course.html"]), ("video_keyword_feature", False), ("explanation_text_published", True), ("trace_program_count", 100), ("trace_link_count", 127), ("flowchart_link_count", 127)):
         if report.get(key) != expected:
             errors.append(f"video-library-build.json: {key} is out of sync")
     if report.get("course_question_numbers") != expected_course:
@@ -419,10 +429,15 @@ def main() -> int:
     if unknown_term_tags:
         errors.append("term page tag(s) are not present in the authoritative tag list: " + ", ".join(unknown_term_tags))
 
-    page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
+    page_paths = sorted(
+        path for path in ROOT.rglob("*.html")
+        if not path.name.startswith("google")
+        # Lab templates are fragments; validate their generated pages instead.
+        and not path.is_relative_to(ROOT / "lab" / "tools" / "templates")
+    )
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース")
-    expected_footer_labels = (*expected_nav_labels, "書籍案内", "使い方", "このサイトについて", "プライバシーポリシー", "サイトマップ")
+    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "プログラムトレース", "講義ノート", "ラボ")
+    expected_footer_labels = (*expected_nav_labels, "使い方", "書籍案内", "このサイトについて", "プライバシーポリシー", "サイトマップ")
     for path in page_paths:
         try:
             page_text = path.read_text(encoding="utf-8")
@@ -465,7 +480,7 @@ def main() -> int:
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
     action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む")
+    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む", "しくみを体験する")
     if action_match is None:
         errors.append("index.html: home action card grid is missing")
     else:
@@ -475,7 +490,9 @@ def main() -> int:
             errors.append("index.html: home action cards are missing or out of order")
         if 'href="./terms/"' not in action_text:
             errors.append("index.html: the 用語を調べる card must link to ./terms/")
-    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./study-guide.html", "./books/", "./terms/"):
+        if 'href="./lab/"' not in action_text:
+            errors.append("index.html: the しくみを体験する card must link to ./lab/")
+    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./program-trace/", "./lab/", "./study-guide.html", "./books/", "./terms/"):
         if f'href="{href}"' not in top_text:
             errors.append(f"index.html: primary link is missing: {href}")
     archive_index_text = (ROOT / "archive" / "index.html").read_text(encoding="utf-8")
@@ -517,7 +534,8 @@ def main() -> int:
     expected_portal_paths = [
         "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
-        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html", *report.get("learning_pages", []),
+        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html",
+        "lab/index.html", "lab/digital-image/index.html", "lab/logic-circuit/index.html", "lab/flowchart/index.html", *report.get("learning_pages", []),
     ]
     expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []

@@ -1,6 +1,6 @@
 {
   "status": "pass",
-  "html_pages_checked": 105,
+  "html_pages_checked": 109,
   "archive_html": 23,
   "normal_video_questions": 330,
   "shortest_course_questions": 27,
@@ -37,7 +37,7 @@
     "programming-functions": 5,
     "programming-simulation": 8
   },
-  "sitemap_urls": 105,
+  "sitemap_urls": 109,
   "errors": [],
   "warnings": [],
   "checks": [

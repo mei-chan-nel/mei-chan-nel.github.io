@@ -1,7 +1,7 @@
 <body class="studio-page">
 <a class="skip-link" href="#main-content">本文へスキップ</a>
 <!--site-header-->
-<script src="../../assets/site-header.js?v=2026100501" defer></script>
+<script src="../../assets/site-header.js?v=2026100901" defer></script>
 <main id="main-content" class="trace-shell studio-guide">
   <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><a href="./">Studio</a><span aria-hidden="true">/</span><span>作り方</span></nav>
   <div class="studio-heading"><div><p class="eyebrow">プログラムトレース Studio</p><h1>プログラムの作り方</h1></div><a class="button" href="./">Studioを開く →</a></div>

@@ -26,7 +26,7 @@
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./styles.css?v=20261009-functions" />
-    <script src="./app.js?v=20261009-functions" type="module"></script>
+    <script src="./app.js?v=20261009-flowchart2" type="module"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
     <script src="../assets/manual-ads.js?v=2026080901" defer></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"プログラムトレース","url":"https://mei-chan-nel.com/program-trace/run.html","description":"共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数・配列・出力の変化を確かめる学習ツール。","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
@@ -46,8 +46,9 @@
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
           <a href="../archive/">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="./" aria-current="page">プログラムトレース</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
         </nav>
       </div>
     </header>
@@ -118,6 +119,7 @@
                 <p id="speed-error" class="speed-error" role="alert" hidden>0.001秒以上で入力してください。0.1秒以上は0.1秒刻みです。</p>
               </div>
             </div>
+            <button id="flowchart-button" class="button" type="button">フローチャートに変換</button>
             <button id="fullscreen-button" class="button fullscreen-button" type="button" aria-expanded="false" aria-controls="fullscreen-surface"><span aria-hidden="true">⛶</span> 全画面</button>
           </div>
         </section>
@@ -210,10 +212,11 @@
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
           <a href="../archive/">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="./">プログラムトレース</a>
-          <a href="../books/">書籍案内</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
           <a href="../study-guide.html">使い方</a>
+          <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
           <a href="../sitemap.html">サイトマップ</a>
@@ -221,7 +224,7 @@
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026100501"></script>
+    <script src="../assets/site-header.js?v=2026100901"></script>
 
     <dialog id="values-dialog" aria-labelledby="values-title" aria-describedby="values-description">
       <form id="values-form" novalidate>
