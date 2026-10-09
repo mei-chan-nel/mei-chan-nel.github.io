@@ -74,16 +74,14 @@ try {
       no: port(1),
       noPath: noWire.getAttribute("d"),
       circles: join.querySelectorAll(".flow-node-body circle").length,
-      mergeName: document
-        .querySelector('[data-part="connector"]')
-        .textContent.trim(),
+      mergeChoices: document.querySelectorAll('[data-part="connector"]').length,
     };
   });
   assert.equal(branchLayout.yes, "translate(0 60)");
   assert.equal(branchLayout.no, "translate(110 0)");
   assert.match(branchLayout.noPath, /^M[\d.]+ [\d.]+H[\d.]+V[\d.]+$/);
   assert.equal(branchLayout.circles, 0);
-  assert.equal(branchLayout.mergeName, "合流");
+  assert.equal(branchLayout.mergeChoices, 0);
   const align = await p.evaluate(() => ({
     left: document
       .querySelector('[data-part="process"]')
@@ -97,6 +95,22 @@ try {
   await audit(p);
   // Editing and exclusive outlet rewiring through actual pointer taps.
   await p.locator('.flow-node[data-id="n2"] .flow-node-body').click();
+  assert.equal(await p.locator("#node-dialog[open]").count(), 0);
+  assert.equal(
+    await p.locator(".flow-node.is-selected").getAttribute("data-id"),
+    "n2",
+  );
+  assert.equal(await p.locator("#delete-selected").isEnabled(), true);
+  await p.locator('.flow-node[data-id="n4"] .flow-node-body').click();
+  assert.equal(await p.locator("#node-dialog[open]").count(), 0);
+  assert.equal(
+    await p.locator(".flow-node.is-selected").getAttribute("data-id"),
+    "n4",
+  );
+  await p.locator('.flow-node[data-id="n2"] .flow-node-body').click();
+  assert.equal(await p.locator("#node-dialog[open]").count(), 0);
+  await p.locator('.flow-node[data-id="n2"] .flow-node-body').click();
+  assert.equal(await p.locator("#node-dialog[open]").count(), 1);
   await p.locator("#node-code").fill("点数 = 40");
   await p.locator('#node-form button[type="submit"]').click();
   await p.locator("#prepare-run").click();
@@ -190,18 +204,6 @@ try {
   await p.locator("#edit-button").click();
   // Keyboard/tap connections, add/delete/undo and both canvas edges.
   await p.locator("#new-circuit").click();
-  await p.locator(".flow-wire").first().focus();
-  await p.keyboard.press("Enter");
-  await p.locator('[data-part="connector"]').click();
-  assert.equal(await p.locator("dialog[open]").count(), 0);
-  const withMerge = await stored(p),
-    insertedMerge = withMerge.graph.nodes.find((n) => n.type === "connector");
-  assert.equal(
-    insertedMerge.x,
-    withMerge.graph.nodes.find((n) => n.type === "start").x,
-  );
-  assert.equal(withMerge.graph.edges.length, 2);
-  await p.locator("#undo-circuit").click();
   const palette = await p.locator('[data-part="process"]').boundingBox(),
     wire = await p.locator(".flow-wire-line").boundingBox();
   await p.mouse.move(
@@ -234,6 +236,7 @@ try {
   await p.mouse.up();
   const moved = (await stored(p)).graph.nodes.find((n) => n.id === id);
   assert.ok(moved.x !== beforeDrag.x);
+  assert.equal(await p.locator("#node-dialog[open]").count(), 0);
   const box2 = await body.boundingBox();
   await p.mouse.move(box2.x + box2.width / 2, box2.y + box2.height / 2);
   await p.mouse.down();
@@ -358,6 +361,16 @@ try {
     for (let i = 0; i < 5; i++) await press(page, "#next-button", true);
     assert.equal(await page.locator("#output-lines").textContent(), "7");
     await press(page, "#edit-button", true);
+    await press(page, "#fit-circuit", true);
+    const existing = '.flow-node[data-type="process"] .flow-node-body';
+    await page.locator(existing).first().tap();
+    assert.equal(await page.locator("#node-dialog[open]").count(), 0);
+    await page.locator(existing).first().tap();
+    assert.equal(await page.locator("#node-dialog[open]").count(), 1);
+    await press(page, "#node-dialog .document-close", true);
+    await page.keyboard.press("Escape");
+    await page.locator(existing).first().tap();
+    assert.equal(await page.locator("#node-dialog[open]").count(), 0);
     await press(page, "#new-circuit", true);
     await press(page, '[data-part="process"]', true);
     assert.ok(await page.locator("#node-dialog").isVisible());
@@ -386,6 +399,12 @@ try {
     ),
   );
   await offline.locator(".flow-node").first().waitFor();
+  assert.equal(await offline.locator('[data-part="connector"]').count(), 0);
+  await offline.locator('[data-id="n2"] .flow-node-body').click();
+  assert.equal(await offline.locator("#node-dialog[open]").count(), 0);
+  await offline.locator('[data-id="n2"] .flow-node-body').click();
+  assert.equal(await offline.locator("#node-dialog[open]").count(), 1);
+  await offline.keyboard.press("Escape");
   await load(offline, "sum");
   await offline.locator("#prepare-run").click();
   await offline.locator("#speed-input").fill("0.001");

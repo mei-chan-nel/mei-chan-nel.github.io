@@ -484,12 +484,15 @@ export class FlowCanvas {
     ) {
       this.join(this.nearestWire(this.point(e.clientX, e.clientY)));
     } else if (node && !this.run()) {
-      const n = this.read().nodes.find((n) => n.id === node.dataset.id);
+      const n = this.read().nodes.find((n) => n.id === node.dataset.id),
+        wasSelected =
+          this.selected?.kind === "node" && this.selected.id === n.id;
       this.selected = { kind: "node", id: n.id };
       this.gesture = {
         ...common,
         kind: "node",
         id: n.id,
+        wasSelected,
         initial: { x: n.x, y: n.y },
         point: this.point(e.clientX, e.clientY),
       };
@@ -603,7 +606,7 @@ export class FlowCanvas {
           ) === false
         )
           this.render();
-      } else this.edit(t.id);
+      } else if (t.wasSelected) this.edit(t.id);
     } else if (t.kind === "wire") {
       if (t.moved) {
         const point = this.point(e.clientX, e.clientY),

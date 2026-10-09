@@ -45,7 +45,14 @@ async function selectEdge(p, graph, source) {
   return edge;
 }
 async function editScore(p, score) {
-  await p.locator('[data-id="n2"] .flow-node-body').click();
+  const body = p.locator('[data-id="n2"] .flow-node-body');
+  if (
+    !(await body.evaluate((el) =>
+      el.closest(".flow-node").classList.contains("is-selected"),
+    ))
+  )
+    await body.click();
+  await body.click();
   await p.locator("#node-code").fill(`点数 = ${score}`);
   await p.locator('#node-form button[type="submit"]').click();
 }

@@ -26,7 +26,6 @@ import { createAutoplay } from "../../program-trace/autoplay.js";
 import { bindStepKeys } from "../../program-trace/step-keys.js";
 import { bindDiagramKeys, editingText } from "../shared/diagram-keys.mjs";
 import { copyPart, pastePart } from "./clipboard.mjs";
-import { portPoint } from "./symbols.mjs";
 import { collapseJunctions } from "./connections.mjs";
 const $ = (id) => document.getElementById(id),
   message = (text, error = false) => {
@@ -149,18 +148,6 @@ const canvas = new FlowCanvas({
             Math.round(p.y / 8) * 8,
           );
         id = n.id;
-        if (edge && type === "connector") {
-          const a = portPoint(
-              g.nodes.find((n) => n.id === edge.from),
-              "out",
-              edge.port,
-            ),
-            b = portPoint(
-              g.nodes.find((n) => n.id === edge.to),
-              "in",
-            );
-          if (Math.abs(a.x - b.x) < 0.01) n.x = a.x;
-        }
         if (type === "call") {
           const s = g.scopes.find((s) => s.id !== "main");
           n.code = `${s.name}(${s.parameters.map(() => 0).join(", ")})`;
