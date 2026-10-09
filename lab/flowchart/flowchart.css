@@ -211,6 +211,38 @@
   stroke-dasharray: 6 3;
   pointer-events: none;
 }
+#flow-join-preview {
+  fill: #e0eff7;
+  stroke: #255e77;
+  stroke-width: 2;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+#flow-join-preview[hidden] {
+  display: none;
+}
+.flow-wire.is-target .flow-wire-line {
+  stroke: #255e77;
+  stroke-width: 3;
+}
+.flow-edge-end {
+  cursor: grab;
+}
+.flow-edge-end circle {
+  fill: white;
+  stroke: #255e77;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.flow-edge-end .flow-end-hit {
+  fill: transparent;
+  stroke: none;
+}
+.flow-wire.is-invalid .flow-wire-line,
+#flow-preview.is-invalid {
+  stroke: #b95847;
+  stroke-dasharray: 5 3;
+}
 .flow-results {
   display: grid;
   grid-template-columns: 1fr 1.1fr 0.9fr;

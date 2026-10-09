@@ -63,6 +63,7 @@ export function pastePart(graph, data, scope, point) {
       code: source.code,
       ...(source.note !== undefined ? { note: source.note } : {}),
       ...(source.pair ? { pair: mapping.get(source.pair) } : {}),
+      ...(source.junction !== undefined ? { junction: source.junction } : {}),
     });
     if (
       source.type === "input" &&

@@ -33,6 +33,7 @@ export function shape(type) {
   );
 }
 export function portPoint(n, direction, port = 0) {
+  if (n.junction) return { x: n.x, y: n.y };
   const { w, h } = dimensions(n.type);
   return {
     x:

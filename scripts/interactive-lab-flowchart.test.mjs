@@ -164,11 +164,12 @@ test("source outlets replace old wires and decision paths merge", () => {
   assert.equal(g.edges[0].to, p.id);
   assert.throws(() => connect(g, p.id, 0, "n1"));
   const choice = addNode(g, "decision", "main", 400, 300);
+  g.nodes.find((n) => n.type === "end").y = 650;
   connect(g, choice.id, 0, "n2");
   connect(g, choice.id, 1, "n2");
   assert.doesNotThrow(() => flowDocument(g));
 });
-test("directed decision cycle runs but source conversion refuses unstructured jumps", () => {
+test("backward decision connections are refused; old saved cycles remain editable but cannot execute", () => {
   const g = emptyGraph(),
     init = addNode(g, "process", "main", 400, 160),
     choice = addNode(g, "decision", "main", 400, 300),
@@ -176,13 +177,23 @@ test("directed decision cycle runs but source conversion refuses unstructured ju
   init.code = "x = 0";
   choice.code = "x < 3";
   inc.code = "x = x + 1";
+  g.nodes.find((n) => n.type === "end").y = 650;
   connect(g, "n1", 0, init.id);
   connect(g, init.id, 0, choice.id);
   connect(g, choice.id, 0, inc.id);
-  connect(g, inc.id, 0, choice.id);
+  const before = JSON.stringify(g);
+  assert.throws(() => connect(g, inc.id, 0, choice.id), /上方向/);
+  assert.equal(JSON.stringify(g), before);
+  // An old document still loads so the user can repair it, rather than lose it.
+  g.edges.push({
+    id: `w${g.nextWire++}`,
+    from: inc.id,
+    port: 0,
+    to: choice.id,
+  });
   connect(g, choice.id, 1, "n2");
   const d = flowDocument(g);
-  assert.equal(flow(d).state.variables.x, 3);
+  assert.throws(() => new FlowRunner(d.graph), /上へ戻/);
   assert.throws(() => toProgram(d), /繰返し/);
 });
 test("incomplete exits, bad pairs, cross scope, oversized and executable syntax rejected", () => {

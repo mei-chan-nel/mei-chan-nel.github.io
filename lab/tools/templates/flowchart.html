@@ -78,7 +78,7 @@
     </div>
     <div class="circuit-editor">
       <p class="circuit-hint">
-        図記号はドラッグ・タップで追加。入口と出口をつなぎ、図記号を押して内容を編集します。
+        図記号はドラッグ・タップで追加。出口から入口・線の途中へつなぎます。
       </p>
       <div class="circuit-toolbar">
         <div class="edit-actions" id="edit-actions">
@@ -170,6 +170,8 @@
           <g id="flow-wires"></g>
           <g id="flow-nodes"></g>
           <path id="flow-preview" />
+          <circle id="flow-join-preview" r="7" hidden aria-hidden="true" />
+          <g id="flow-wire-handles"></g>
         </svg>
         <div
           class="circuit-resize-edge circuit-resize-right"

@@ -8,6 +8,7 @@ import {
   syntax,
   parts,
   displayNode,
+  checkForwardChanges,
 } from "./graph.mjs";
 import { FlowCanvas } from "./canvas.mjs";
 import { FlowRunner } from "./runner.mjs";
@@ -26,6 +27,7 @@ import { bindStepKeys } from "../../program-trace/step-keys.js";
 import { bindDiagramKeys, editingText } from "../shared/diagram-keys.mjs";
 import { copyPart, pastePart } from "./clipboard.mjs";
 import { portPoint } from "./symbols.mjs";
+import { collapseJunctions } from "./connections.mjs";
 const $ = (id) => document.getElementById(id),
   message = (text, error = false) => {
     $("circuit-message").textContent = text;
@@ -66,7 +68,20 @@ function transaction(mutator) {
   const old = clone(graph),
     candidate = clone(graph);
   mutator(candidate);
-  graph = flowDocument(candidate).graph;
+  const moved = new Set(
+    candidate.nodes
+      .filter((n) => {
+        const previous = old.nodes.find((p) => p.id === n.id);
+        return previous && (previous.x !== n.x || previous.y !== n.y);
+      })
+      .map((n) => n.id),
+  );
+  for (const edge of candidate.edges)
+    if (moved.has(edge.from) || moved.has(edge.to)) delete edge.via;
+  collapseJunctions(candidate);
+  const validated = flowDocument(candidate).graph;
+  checkForwardChanges(old, validated);
+  graph = validated;
   past.push(old);
   if (past.length > 60) past.shift();
   future = [];
@@ -192,7 +207,7 @@ function sync() {
     .classList.toggle("is-executing", !!runner);
   document.querySelector(".circuit-hint").textContent = runner
     ? "青い部品が現在の処理、点線の部品が次の処理です。"
-    : "図記号はドラッグ・タップで追加。入口と出口をつなぎ、図記号を押して内容を編集します。";
+    : "図記号はドラッグ・タップで追加。出口から入口・線の途中へつなぎます。";
   $("undo-circuit").disabled = !past.length;
   $("redo-circuit").disabled = !future.length;
   for (const b of document.querySelectorAll("[data-part]"))
@@ -226,7 +241,7 @@ const helps = {
 function openNode(id) {
   if (runner) return;
   const n = graph.nodes.find((n) => n.id === id);
-  if (!n || ["start", "end", "loopEnd"].includes(n.type)) {
+  if (!n || n.junction || ["start", "end", "loopEnd"].includes(n.type)) {
     if (n) {
       canvas.selected = { kind: "node", id };
       canvas.render();

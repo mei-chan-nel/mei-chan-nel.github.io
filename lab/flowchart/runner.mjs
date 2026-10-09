@@ -5,10 +5,17 @@ import {
   validateInput,
   defaultInput,
 } from "./studio.mjs";
-import { flowDocument, syntax, nextOf, outputs } from "./graph.mjs";
+import {
+  flowDocument,
+  syntax,
+  nextOf,
+  outputs,
+  checkFlowDirection,
+} from "./graph.mjs";
 export function compileFlow(graph) {
   const g = flowDocument(graph).graph,
     { parsed, asts } = syntax(g);
+  checkFlowDirection(g);
   const ids = new Map(g.nodes.map((n, i) => [n.id, i])),
     byId = new Map(g.nodes.map((n) => [n.id, n]));
   const entryFor = (scope) => {
@@ -138,7 +145,13 @@ export class FlowRunner {
     const target =
       this.state.pc === null ? null : this.graph.nodes[this.state.pc].id;
     this.lastEdge =
-      this.graph.edges.find((e) => e.from === n.id && e.to === target)?.id ??
+      this.graph.edges.find(
+        (e) =>
+          e.from === n.id &&
+          e.to === target &&
+          (n.type !== "decision" ||
+            e.port === (next.event?.condition?.result ? 0 : 1)),
+      )?.id ??
       (n.type === "loopStart"
         ? this.graph.edges.find((e) => e.from === n.pair && e.to === target)?.id
         : null);

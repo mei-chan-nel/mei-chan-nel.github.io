@@ -61,8 +61,8 @@ export const contents = [
   {
     id: "flowchart",
     group: "algorithm",
-    styles: ["../logic-circuit/circuit.css?v=8", "flowchart.css?v=3"],
-    scripts: ["editor.mjs?v=3"],
+    styles: ["../logic-circuit/circuit.css?v=8", "flowchart.css?v=4"],
+    scripts: ["editor.mjs?v=4"],
     name: "フローチャートをつくる",
     description: "図記号をつないで手順を作り、1つずつ実行。変数・分岐・繰返しを図で確かめます。",
   },

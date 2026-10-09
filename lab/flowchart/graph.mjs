@@ -5,6 +5,7 @@ import {
   statement,
   expressionText,
 } from "./studio.mjs";
+import { portPoint } from "./symbols.mjs";
 export const FORMAT = "interactive-lab-flowchart";
 export const MAX_BYTES = 300000;
 export const parts = {
@@ -104,6 +105,11 @@ export function validateDocument(value) {
       (n.type === "return" && n.scope === "main")
     )
       throw Error("部品の内容や配置を読み取れません。");
+    if (
+      n.junction !== undefined &&
+      (n.junction !== true || n.type !== "connector")
+    )
+      throw Error("合流点を読み取れません。");
     if (n.type === "connector" && [...n.code].length > 2)
       throw Error("合流点の印は2文字以内にしてください。");
     ids.add(n.id);
@@ -123,6 +129,7 @@ export function validateDocument(value) {
       code: n.code,
       ...(n.pair ? { pair: n.pair } : {}),
       ...(n.note ? { note: n.note } : {}),
+      ...(n.junction ? { junction: true } : {}),
     };
   });
   const byId = new Map(nodes.map((n) => [n.id, n]));
@@ -166,7 +173,27 @@ export function validateDocument(value) {
       throw Error("矢印のつながりを読み取れません。");
     wires.add(e.id);
     ports.add(`${a.id}:${e.port}`);
-    return { id: e.id, from: e.from, port: e.port, to: e.to };
+    if (
+      e.via !== undefined &&
+      (!Array.isArray(e.via) ||
+        e.via.length > 8 ||
+        e.via.some(
+          (p) =>
+            !p ||
+            !Number.isFinite(p.x) ||
+            !Number.isFinite(p.y) ||
+            Math.abs(p.x) > 10000 ||
+            Math.abs(p.y) > 10000,
+        ))
+    )
+      throw Error("矢印の経路を読み取れません。");
+    return {
+      id: e.id,
+      from: e.from,
+      port: e.port,
+      to: e.to,
+      ...(e.via?.length ? { via: e.via.map((p) => ({ x: p.x, y: p.y })) } : {}),
+    };
   });
   const counter = (key, min) => {
     const v = g[key] ?? min;
@@ -220,10 +247,60 @@ export function connect(graph, from, port, to) {
     port >= outputs(a)
   )
     throw Error("出口から、同じ図の部品の入口へつないでください。");
+  if (portPoint(b, "in").y < portPoint(a, "out", port).y)
+    throw Error(
+      "上方向へ戻る矢印はつなげません。繰返しは始端・終端で表します。",
+    );
+  const remaining = graph.edges.filter(
+    (e) => !(e.from === from && e.port === port),
+  );
+  if (reaches(remaining, to, from))
+    throw Error("矢印を使って前の処理へ戻る接続はできません。");
   graph.edges = graph.edges.filter(
     (e) => !(e.from === from && e.port === port),
   );
   graph.edges.push({ id: `w${graph.nextWire++}`, from, port, to });
+}
+function reaches(edges, from, to) {
+  const visited = new Set(),
+    queue = [from];
+  for (let i = 0; i < queue.length; i++) {
+    const id = queue[i];
+    if (id === to) return true;
+    if (visited.has(id)) continue;
+    visited.add(id);
+    queue.push(...edges.filter((e) => e.from === id).map((e) => e.to));
+  }
+  return false;
+}
+export function backwardEdges(graph) {
+  const nodes = new Map(graph.nodes.map((n) => [n.id, n]));
+  return graph.edges.filter((e) => {
+    const points = [
+      portPoint(nodes.get(e.from), "out", e.port),
+      ...(e.via ?? []),
+      portPoint(nodes.get(e.to), "in"),
+    ];
+    return points.some((p, i) => i > 0 && p.y < points[i - 1].y);
+  });
+}
+export function checkFlowDirection(graph) {
+  const bad = backwardEdges(graph);
+  if (bad.length)
+    throw Error(
+      `${bad[0].from.slice(1)}番から${bad[0].to.slice(1)}番の矢印が上へ戻っています。図形の位置や接続を直してください。`,
+    );
+  for (const e of graph.edges)
+    if (reaches(graph.edges, e.to, e.from))
+      throw Error(
+        "矢印で前の処理へ戻る接続はできません。繰返しの始端・終端を使ってください。",
+      );
+}
+export function checkForwardChanges(before, after) {
+  const oldBad = new Set(backwardEdges(before).map((e) => e.id));
+  for (const e of backwardEdges(after))
+    if (!oldBad.has(e.id))
+      throw Error("矢印が上向きになる位置には移動・接続できません。");
 }
 export const nextOf = (g, id, port = 0) =>
   g.edges.find((e) => e.from === id && e.port === port)?.to ?? null;

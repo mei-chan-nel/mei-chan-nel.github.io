@@ -5,6 +5,7 @@ import {
   connect,
   nextOf,
   displayNode,
+  backwardEdges,
 } from "./graph.mjs";
 import {
   esc,
@@ -15,7 +16,8 @@ import {
   mini,
 } from "./symbols.mjs";
 import { installCanvasResize } from "../shared/resize.mjs";
-import { wireGeometry } from "./wires.mjs";
+import { wireGeometry, pointOnWire } from "./wires.mjs";
+import { joinWire } from "./connections.mjs";
 export class FlowCanvas {
   constructor({
     stage,
@@ -202,12 +204,13 @@ export class FlowCanvas {
       asts = this.asts(),
       focus = document.activeElement?.dataset?.focusKey;
     const wires = document.getElementById("flow-wires"),
-      nodes = document.getElementById("flow-nodes");
+      nodes = document.getElementById("flow-nodes"),
+      bad = new Set(backwardEdges(g).map((e) => e.id));
     wires.innerHTML = g.edges
       .filter((e) => g.nodes.find((n) => n.id === e.from).scope === scope)
       .map((e) => {
         const { path, arrow } = wireGeometry(g, e);
-        return `<g class="flow-wire ${r?.lastEdge === e.id ? "is-current" : ""} ${this.selected?.kind === "edge" && this.selected.id === e.id ? "is-selected" : ""}" data-edge="${e.id}" tabindex="${r ? -1 : 0}" role="button" aria-label="${e.from.slice(1)}番から${e.to.slice(1)}番への矢印を選択" data-focus-key="edge-${e.id}"><path class="flow-wire-hit" d="${path}"/><path class="flow-wire-line" d="${path}"${arrow ? ` marker-end="url(#flow-arrow${r?.lastEdge === e.id ? "-active" : ""})"` : ""}/></g>`;
+        return `<g class="flow-wire ${bad.has(e.id) ? "is-invalid" : ""} ${r?.lastEdge === e.id ? "is-current" : ""} ${this.selected?.kind === "edge" && this.selected.id === e.id ? "is-selected" : ""}" data-edge="${e.id}" tabindex="${r ? -1 : 0}" role="button" aria-label="${e.from.slice(1)}番から${e.to.slice(1)}番への矢印を選択" data-focus-key="edge-${e.id}"><path class="flow-wire-hit" d="${path}"/><path class="flow-wire-line" d="${path}"${arrow ? ` marker-end="url(#flow-arrow${r?.lastEdge === e.id ? "-active" : ""})"` : ""}/></g>`;
       })
       .join("");
     document.getElementById("flow-pairs").innerHTML = this.visibleNodes()
@@ -224,12 +227,12 @@ export class FlowCanvas {
       .map((n) => {
         const text = displayNode(n, asts),
           lines = linesOf(text, n.type),
-          { w, h } = dimensions(n.type),
+          { w, h } = n.junction ? { w: 24, h: 0 } : dimensions(n.type),
           current = r?.active === n.id,
           next =
             r?.state.pc !== null && r?.graph.nodes[r.state.pc]?.id === n.id;
         let ports = "";
-        if (!r) {
+        if (!r && !n.junction) {
           for (const direction of ["in", "out"])
             for (
               let p = 0;
@@ -252,13 +255,32 @@ export class FlowCanvas {
           n.type === "decision"
             ? `<text class="flow-branch-label" data-branch="yes" x="-23" y="${h / 2 + 24}">はい</text><text class="flow-branch-label" data-branch="no" x="${w / 2 + 34}" y="-12">いいえ</text>`
             : "";
-        const hit =
-          n.type === "connector"
+        const hit = n.junction
+          ? '<rect class="flow-merge-hit" x="-8" y="-8" width="16" height="16"/>'
+          : n.type === "connector"
             ? '<rect class="flow-merge-hit" x="-20" y="-18" width="40" height="36"/>'
             : "";
-        return `<g class="flow-node ${current ? "is-current" : ""} ${next ? "is-next" : ""} ${this.selected?.id === n.id ? "is-selected" : ""}" data-id="${n.id}" data-type="${n.type}" transform="translate(${n.x} ${n.y})"><g class="flow-node-body" role="button" tabindex="0" data-focus-key="node-${n.id}" aria-label="${esc(lines.join(" ") || parts[n.type])} ${n.id.slice(1)}を${r ? "選択" : "編集"}"><title>${esc(text || parts[n.type])}</title>${hit}${shape(n.type)}<text class="flow-node-code"${n.type === "connector" ? ' transform="translate(-28 0)"' : ""}>${lines.map((line, i) => `<tspan x="0" y="${(i - (lines.length - 1) / 2) * 18 + 5}">${esc(line)}</tspan>`).join("")}</text></g><text class="flow-node-number" x="${w / 2 - 5}" y="${-h / 2 - 10}">${n.id.slice(1)}</text>${labels}${ports}</g>`;
+        const body = n.junction
+          ? current
+            ? '<circle class="flow-junction-active" r="3"/>'
+            : ""
+          : shape(n.type);
+        return `<g class="flow-node ${current ? "is-current" : ""} ${next ? "is-next" : ""} ${this.selected?.id === n.id ? "is-selected" : ""}" data-id="${n.id}" data-type="${n.type}" data-junction="${!!n.junction}" transform="translate(${n.x} ${n.y})"><g class="flow-node-body" role="button" tabindex="0" data-focus-key="node-${n.id}" aria-label="${esc(lines.join(" ") || parts[n.type])} ${n.id.slice(1)}を${r ? "選択" : "編集"}"><title>${esc(text || parts[n.type])}</title>${hit}${body}<text class="flow-node-code"${n.type === "connector" ? ' transform="translate(-28 0)"' : ""}>${lines.map((line, i) => `<tspan x="0" y="${(i - (lines.length - 1) / 2) * 18 + 5}">${esc(line)}</tspan>`).join("")}</text></g><text class="flow-node-number" x="${w / 2 - 5}" y="${-h / 2 - 10}">${n.id.slice(1)}</text>${labels}${ports}</g>`;
       })
       .join("");
+    const selectedEdge =
+      !r && this.selected?.kind === "edge"
+        ? g.edges.find((e) => e.id === this.selected.id)
+        : null;
+    document.getElementById("flow-wire-handles").innerHTML = selectedEdge
+      ? (() => {
+          const point = portPoint(
+            g.nodes.find((n) => n.id === selectedEdge.to),
+            "in",
+          );
+          return `<g class="flow-edge-end" data-rewire-edge="${selectedEdge.id}" transform="translate(${point.x} ${point.y})" role="button" tabindex="0" data-focus-key="head-${selectedEdge.id}" aria-label="矢印の先をドラッグ・選択して接続先を変更"><circle class="flow-end-hit" r="15"/><circle r="6"/></g>`;
+        })()
+      : "";
     this.updateCamera();
     this.preview();
     if (focus)
@@ -269,6 +291,10 @@ export class FlowCanvas {
   }
   preview(point) {
     const path = document.getElementById("flow-preview");
+    const indicator = document.getElementById("flow-join-preview");
+    indicator.toggleAttribute("hidden", true);
+    for (const wire of this.board.querySelectorAll(".flow-wire.is-target"))
+      wire.classList.remove("is-target");
     if (!this.pending || !point) {
       path.setAttribute("d", "");
       return;
@@ -276,7 +302,72 @@ export class FlowCanvas {
     const n = this.read().nodes.find((n) => n.id === this.pending.node);
     if (!n) return;
     const a = portPoint(n, this.pending.direction, this.pending.port);
+    const target =
+      this.pending.direction === "out"
+        ? this.nearestWire(point, this.pending)
+        : null;
+    if (target && target.point.y >= a.y) {
+      point = target.point;
+      indicator.setAttribute("cx", point.x);
+      indicator.setAttribute("cy", point.y);
+      indicator.toggleAttribute("hidden", false);
+      this.board
+        .querySelector(`[data-edge="${target.edge.id}"]`)
+        ?.classList.add("is-target");
+    }
+    path.classList.toggle(
+      "is-invalid",
+      this.pending.direction === "out" && point.y < a.y,
+    );
     path.setAttribute("d", `M${a.x} ${a.y}L${point.x} ${point.y}`);
+  }
+  nearestWire(point, from = this.pending) {
+    let best,
+      distance = 14 / this.camera.zoom;
+    const g = this.read(),
+      scope = this.scope();
+    for (const edge of g.edges) {
+      if (
+        (edge.from === from?.node && edge.port === from?.port) ||
+        g.nodes.find((n) => n.id === edge.from).scope !== scope
+      )
+        continue;
+      const hit = pointOnWire(g, edge, point);
+      if (hit && hit.distance < distance) {
+        distance = hit.distance;
+        best = { ...hit, edge };
+      }
+    }
+    return best;
+  }
+  join(target) {
+    if (this.run() || this.pending?.direction !== "out") return;
+    const from = this.pending;
+    this.pending = null;
+    let id;
+    const changed = this.change((g) => {
+      const result = joinWire(
+        g,
+        from.node,
+        from.port,
+        target.edge.id,
+        target.point,
+      );
+      Object.assign(g, result.graph);
+      id = result.id;
+    });
+    if (changed !== false) {
+      this.selected = { kind: "node", id };
+      this.message("線の途中に合流しました。");
+    }
+    this.render();
+  }
+  rewire(id) {
+    const edge = this.read().edges.find((e) => e.id === id);
+    if (!edge) return;
+    this.pending = { node: edge.from, port: edge.port, direction: "out" };
+    this.render();
+    this.message("矢印の先を入口・線の途中へつなぎます。");
   }
   choose(port) {
     if (this.run()) return;
@@ -309,7 +400,7 @@ export class FlowCanvas {
   nearest(point, direction) {
     let nearest = null,
       distance = 22 / this.camera.zoom;
-    for (const n of this.visibleNodes())
+    for (const n of this.visibleNodes().filter((n) => !n.junction))
       for (
         let p = 0;
         p < (direction === "in" ? incoming(n) : outputs(n));
@@ -367,8 +458,17 @@ export class FlowCanvas {
       },
       port = this.port(e.target),
       node = e.target.closest(".flow-node"),
-      edge = e.target.closest("[data-edge]");
-    if (port && !this.run()) {
+      edge = e.target.closest("[data-edge]"),
+      handle = e.target.closest("[data-rewire-edge]");
+    if (handle && !this.run()) {
+      this.rewire(handle.dataset.rewireEdge);
+      this.gesture = {
+        ...common,
+        kind: "wire",
+        port: this.pending,
+        oldPending: this.pending,
+      };
+    } else if (port && !this.run()) {
       this.gesture = {
         ...common,
         kind: "wire",
@@ -377,6 +477,12 @@ export class FlowCanvas {
       };
       this.pending = port;
       this.render();
+    } else if (
+      this.pending?.direction === "out" &&
+      !this.run() &&
+      this.nearestWire(this.point(e.clientX, e.clientY))
+    ) {
+      this.join(this.nearestWire(this.point(e.clientX, e.clientY)));
     } else if (node && !this.run()) {
       const n = this.read().nodes.find((n) => n.id === node.dataset.id);
       this.selected = { kind: "node", id: n.id };
@@ -404,7 +510,11 @@ export class FlowCanvas {
     if (this.pointers.has(e.pointerId))
       this.pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const t = this.gesture;
-    if (!t) return;
+    if (!t) {
+      if (this.pending && this.inStage(e.clientX, e.clientY))
+        this.preview(this.point(e.clientX, e.clientY));
+      return;
+    }
     if (t.kind === "pinch") {
       if (this.pointers.size !== 2) return;
       const [a, b] = [...this.pointers.values()],
@@ -484,20 +594,32 @@ export class FlowCanvas {
           position = { x: n.x, y: n.y };
         n.x = t.initial.x;
         n.y = t.initial.y;
-        this.change((g) =>
-          Object.assign(
-            g.nodes.find((n) => n.id === t.id),
-            position,
-          ),
-        );
+        if (
+          this.change((g) =>
+            Object.assign(
+              g.nodes.find((n) => n.id === t.id),
+              position,
+            ),
+          ) === false
+        )
+          this.render();
       } else this.edit(t.id);
     } else if (t.kind === "wire") {
       if (t.moved) {
-        const target = this.nearest(
-          this.point(e.clientX, e.clientY),
-          t.port.direction === "out" ? "in" : "out",
-        );
+        const point = this.point(e.clientX, e.clientY),
+          element = document.elementFromPoint(e.clientX, e.clientY),
+          direct = this.port(element),
+          target =
+            direct && direct.direction !== t.port.direction ? direct : null,
+          wire =
+            t.port.direction === "out" ? this.nearestWire(point, t.port) : null,
+          nearby = this.nearest(
+            point,
+            t.port.direction === "out" ? "in" : "out",
+          );
         if (target) this.choose(target);
+        else if (wire) this.join(wire);
+        else if (nearby) this.choose(nearby);
         else {
           this.pending = null;
           this.render();
@@ -535,12 +657,41 @@ export class FlowCanvas {
     if (document.querySelector("dialog[open]")) return;
     const port = this.port(e.target),
       node = e.target.closest(".flow-node"),
-      edge = e.target.closest("[data-edge]");
+      edge = e.target.closest("[data-edge]"),
+      handle = e.target.closest("[data-rewire-edge]");
     if (["Enter", " "].includes(e.key) && !this.run()) {
       e.preventDefault();
-      if (port) this.choose(port);
+      if (handle) this.rewire(handle.dataset.rewireEdge);
+      else if (port) this.choose(port);
       else if (node) this.edit(node.dataset.id);
       else if (edge) {
+        if (this.pending?.direction === "out") {
+          const model = this.read().edges.find(
+              (w) => w.id === edge.dataset.edge,
+            ),
+            points = wireGeometry(this.read(), model).points;
+          const a = portPoint(
+            this.read().nodes.find((n) => n.id === this.pending.node),
+            "out",
+            this.pending.port,
+          );
+          const segments = points
+            .slice(1)
+            .map((p, i) => ({
+              edge: model,
+              point: { x: (p.x + points[i].x) / 2, y: (p.y + points[i].y) / 2 },
+              length: Math.hypot(p.x - points[i].x, p.y - points[i].y),
+            }))
+            .filter((s) => s.point.y >= a.y)
+            .sort((a, b) => b.length - a.length);
+          if (segments.length) this.join(segments[0]);
+          else {
+            this.pending = null;
+            this.render();
+            this.message("上方向へ戻る矢印はつなげません。", true);
+          }
+          return;
+        }
         this.selected = { kind: "edge", id: edge.dataset.edge };
         this.render();
       }
