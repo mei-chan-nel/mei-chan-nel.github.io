@@ -90,7 +90,9 @@ npm.cmd --prefix projects/program-trace-studio test
 
 ## Interactive Lab
 
-`lab/` の入口から、画像のデジタル化・論理回路・フローチャートへ進めます。トップページの7枚目「しくみを体験する」と、共通ヘッダー・フッターの「ラボ」からアクセスできます。共通ナビゲーションはカードと同じ順に並びます。入口と3教材をXML・HTMLのサイトマップに登録し、検索対象にしています。
+`lab/` の入口から、画像のデジタル化・音のデジタル化・論理回路・フローチャートへ進めます。トップページの7枚目「しくみを体験する」と、共通ヘッダー・フッターの「ラボ」からアクセスできます。共通ナビゲーションはカードと同じ順に並びます。入口と4教材をXML・HTMLのサイトマップに登録しています。
+
+音のデジタル化は `lab/digital-audio/`。ブラウザ内で生成する短いピアノ演奏と純音を使い、標本化周波数・量子化ビット数を変更して原音と加工後を比較します。標本点・量子化段階・PCM容量を表示し、標本化前のフィルタを省いた条件でエイリアシングを観察できます。再構成して48,000 Hzで再生するため、標本化周波数を変えてもテンポは変わりません。計算はWeb Workerで行い、単独HTMLにも音源生成・描画・再生を内包します。
 
 論理回路とフローチャートは、選択中の部品・線を Delete で削除、Esc で選択解除できます。部品は Ctrl+C／Ctrl+V（Mac は ⌘C／⌘V）でコピー・貼り付けでき、番号を新しく付けます。外部への接続は複製しません。繰返しの始端・終端は対で複製します。入力欄・ダイアログでは通常の文字編集を優先し、フローチャートの実行中は編集しません。
 
@@ -116,6 +118,7 @@ HTML生成・単体検証と、ローカルサーバーでのブラウザ検証�
 npm --prefix projects/program-trace-studio run build
 node lab/tools/build-pages.mjs
 node --test scripts/interactive-lab*.test.mjs
+node lab/tools/test-audio.mjs
 node lab/tools/test-flowchart.mjs
 LAB_ESBUILD_MODULE=/path/to/esbuild node lab/tools/build-preview.mjs /path/to/review
 node lab/tools/test-diagram-keys.mjs

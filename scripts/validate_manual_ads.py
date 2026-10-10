@@ -212,6 +212,7 @@ def main() -> int:
         ("program-trace/studio/guide.html", "after-program-studio-guide-main"),
         ("lab/index.html", "after-interactive-lab-main"),
         ("lab/digital-image/index.html", "after-interactive-lab-main"),
+        ("lab/digital-audio/index.html", "after-interactive-lab-main"),
         ("lab/logic-circuit/index.html", "after-interactive-lab-main"),
         ("lab/flowchart/index.html", "after-interactive-lab-main"),
     ):
