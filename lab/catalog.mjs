@@ -1,4 +1,4 @@
-// Match the learning app's six subject areas. No individual exhibits yet.
+// Match the learning app's six subject areas.
 export const groups = [
   {
     id: "society-security",
@@ -39,4 +39,11 @@ export const groups = [
 ];
 
 // Add completed exhibits here; category headings are not content cards.
-export const contents = [];
+export const contents = [
+  {
+    id: "packet-routing",
+    group: "network",
+    name: "パケット通信とルーティング",
+    description: "メッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路の更新を観察しよう。",
+  },
+];

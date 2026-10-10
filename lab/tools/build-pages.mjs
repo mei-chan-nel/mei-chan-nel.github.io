@@ -50,4 +50,4 @@ if (check) {
 } else {
   await writeFile(target, html);
 }
-console.log(`${check ? "Checked" : "Built"} Interactive Lab shell (6 fields, no individual exhibits)`);
+console.log(`${check ? "Checked" : "Built"} Interactive Lab (6 fields, ${contents.length} exhibits)`);
