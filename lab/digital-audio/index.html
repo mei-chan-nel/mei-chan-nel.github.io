@@ -14,8 +14,8 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
 <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"音のデジタル化","item":"https://mei-chan-nel.com/lab/digital-audio/"}]}</script>
-<link rel="stylesheet" href="./audio.css?v=3" />
-<script type="module" src="./audio.mjs?v=3"></script>
+<link rel="stylesheet" href="./audio.css?v=4" />
+<script type="module" src="./audio.mjs?v=4"></script>
 </head><body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
@@ -149,7 +149,10 @@
     </div>
     <figure class="wave-card">
       <figcaption>
-        <h2>音の波形</h2>
+        <div class="wave-title">
+          <h2>音の波形</h2>
+          <output id="window-label">40–45 ms</output>
+        </div>
         <div class="play-buttons">
           <button type="button" id="play-original" disabled>
             ▶ 原音を再生
@@ -159,48 +162,75 @@
           </button>
         </div>
       </figcaption>
-      <div class="wave-range">
-        <label for="window-size">波形の範囲</label
-        ><select id="window-size">
-          <option value="0.0005">0.5 ms</option>
-          <option value="0.001">1 ms</option>
-          <option value="0.002">2 ms</option>
-          <option value="0.005" selected>5 ms</option>
-          <option value="0.01">10 ms</option>
-          <option value="0.02">20 ms</option>
-          <option value="0.05">50 ms</option>
-          <option value="0.1">100 ms</option>
-          <option value="0.5">500 ms</option>
-          <option value="6">全体</option></select
-        ><output id="window-label">40–45 ms</output>
+      <div class="wave-controls">
+        <div class="wave-range">
+          <label for="window-size">波形の範囲</label
+          ><select id="window-size">
+            <option value="0.0005">0.5 ms</option>
+            <option value="0.001">1 ms</option>
+            <option value="0.002">2 ms</option>
+            <option value="0.005" selected>5 ms</option>
+            <option value="0.01">10 ms</option>
+            <option value="0.02">20 ms</option>
+            <option value="0.05">50 ms</option>
+            <option value="0.1">100 ms</option>
+            <option value="0.5">500 ms</option>
+            <option value="6">全体</option>
+          </select>
+        </div>
+        <fieldset class="wave-layers">
+          <legend>表示</legend>
+          <label class="layer-original"
+            ><input type="checkbox" id="show-original" checked /><span
+              >原音の波形</span
+            ></label
+          >
+          <label class="layer-samples"
+            ><input type="checkbox" id="show-samples" checked /><span
+              >標本点</span
+            ><small id="sample-density" hidden>拡大で表示</small></label
+          >
+          <label class="layer-quantized"
+            ><input type="checkbox" id="show-quantized" checked /><span
+              >量子化後の値</span
+            ></label
+          >
+          <label class="layer-reconstructed"
+            ><input type="checkbox" id="show-reconstructed" /><span
+              >再構成波形</span
+            ></label
+          >
+        </fieldset>
       </div>
-      <fieldset class="wave-layers">
-        <legend>表示</legend>
-        <label class="layer-original"
-          ><input type="checkbox" id="show-original" checked /><span
-            >原音の波形</span
-          ></label
-        >
-        <label class="layer-samples"
-          ><input type="checkbox" id="show-samples" checked /><span>標本点</span
-          ><small id="sample-density" hidden>拡大で表示</small></label
-        >
-        <label class="layer-quantized"
-          ><input type="checkbox" id="show-quantized" checked /><span
-            >量子化後の値</span
-          ></label
-        >
-        <label class="layer-reconstructed"
-          ><input type="checkbox" id="show-reconstructed" /><span
-            >再構成波形</span
-          ></label
-        >
-      </fieldset>
       <canvas
         id="combined-wave"
         role="img"
         aria-label="原音の波形に標本点と量子化後の階段を重ねたグラフ"
       ></canvas>
+      <div
+        class="wave-resize-edge wave-resize-right"
+        data-resize-axis="width"
+        aria-hidden="true"
+      ></div>
+      <div
+        class="wave-resize-edge wave-resize-bottom"
+        data-resize-axis="height"
+        aria-hidden="true"
+      ></div>
+      <button
+        id="resize-wave"
+        class="wave-resize"
+        data-resize-axis="both"
+        type="button"
+        aria-label="波形カードの大きさを変更"
+        aria-describedby="wave-resize-help"
+        title="ドラッグでサイズ変更"
+      >
+        ↘
+      </button>
+      <span id="wave-resize-help" class="visually-hidden"
+        >矢印キーで幅と高さを変更。Homeキーで元に戻します。</span
+      >
     </figure>
     <div class="audio-playback">
       <output id="audio-status" role="status">波形を計算しています…</output

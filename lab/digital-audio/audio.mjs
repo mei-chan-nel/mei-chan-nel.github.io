@@ -8,6 +8,7 @@ import {
 } from "./pcm.mjs?v=3";
 import { audioWorkerSource } from "./worker-source.mjs?v=3";
 import { Waveforms } from "./waveform.mjs?v=3";
+import { installCanvasResize } from "../shared/resize.mjs";
 const $ = (id) => document.getElementById(id),
   fmt = (n) => n.toLocaleString("ja-JP");
 const defaults = { source: "twinkle", tone: 1000, sampleRate: 48000, bits: 16 };
@@ -28,6 +29,8 @@ let audioContext,
   playToken = 0,
   frame = 0;
 const lab = document.querySelector(".audio-lab");
+const waveCard = document.querySelector(".wave-card");
+installCanvasResize(waveCard);
 const defaultSpan = window.matchMedia("(max-width: 500px)").matches
   ? 0.001
   : 0.005;
@@ -364,6 +367,7 @@ $("reset-audio").addEventListener("click", () => {
   config = { ...defaults };
   $("volume").value = 35;
   syncVolume();
+  waveCard.style.width = waveCard.style.height = "";
   waves.span = defaultSpan;
   $("window-size").value = String(defaultSpan);
   setWindow(0.04);

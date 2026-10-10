@@ -208,6 +208,93 @@ async function aliasSetup(page) {
   await bits(page, 16);
   await page.locator("#window-size").selectOption("0.01");
 }
+async function resizeWave(page, width) {
+  const card = page.locator(".wave-card"),
+    canvas = page.locator("#combined-wave");
+  const original = await card.boundingBox(),
+    graph = await canvas.boundingBox();
+  await page.evaluate(() => {
+    const r = document.querySelector(".wave-card").getBoundingClientRect();
+    window.scrollTo({
+      top: window.scrollY + r.bottom - innerHeight * 0.55,
+      behavior: "instant",
+    });
+  });
+  const drag = async (selector, dx, dy) => {
+    const r = await page.locator(selector).boundingBox(),
+      x = r.x + r.width / 2,
+      y = r.y + r.height / 2;
+    if (width < 500) {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [{ x, y }],
+      });
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [{ x: x + dx, y: y + dy }],
+      });
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
+      await cdp.detach();
+    } else {
+      await page.mouse.move(x, y);
+      await page.mouse.down();
+      await page.mouse.move(x + dx, y + dy, { steps: 5 });
+      await page.mouse.up();
+    }
+  };
+  await drag(".wave-resize-bottom", 0, 140);
+  const taller = await card.boundingBox(),
+    tallerGraph = await canvas.boundingBox();
+  assert.ok(
+    Math.abs(taller.height - original.height - 140) < 1,
+    "Bottom edge increases card height",
+  );
+  assert.ok(
+    Math.abs(tallerGraph.height - graph.height - 140) < 1,
+    "The graph uses the added height",
+  );
+  await page.waitForFunction(() => {
+    const c = document.querySelector("#combined-wave"),
+      ratio = Math.min(2, devicePixelRatio || 1);
+    return c.height === Math.round(c.clientHeight * ratio);
+  });
+  const shrink = width < 500 ? 30 : 100;
+  await drag(".wave-resize-right", -shrink, 0);
+  const narrower = await card.boundingBox();
+  assert.ok(
+    Math.abs(narrower.width - original.width + shrink) < 1,
+    "Right edge changes width",
+  );
+  assert.ok(
+    Math.abs(narrower.height - taller.height) < 1,
+    "Width resizing keeps card height",
+  );
+  await page.locator("#resize-wave").focus();
+  await page.keyboard.press("Home");
+  await page.keyboard.press("ArrowDown");
+  assert.ok(
+    Math.abs((await card.boundingBox()).height - original.height - 16) < 1,
+  );
+  await page.keyboard.press("Home");
+  assert.ok(Math.abs((await card.boundingBox()).height - original.height) < 1);
+  assert.ok(Math.abs((await card.boundingBox()).width - original.width) < 1);
+  assert.equal(await page.locator("#sample-rate").inputValue(), "48000");
+  assert.equal(
+    await page.evaluate(() => window.audioChecks.contexts),
+    0,
+    "Resizing does not start audio",
+  );
+  assert.ok(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  );
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+}
 try {
   for (const [width, height] of [
     [1280, 720],
@@ -250,6 +337,22 @@ try {
       true,
     );
     assert.equal(await page.locator("#show-reconstructed").isChecked(), false);
+    const range = await page.locator(".wave-range").boundingBox(),
+      layers = await page.locator(".wave-layers").boundingBox();
+    assert.ok(
+      layers.x >= range.x + range.width,
+      "Display options sit to the right of the range selector",
+    );
+    if (width === 1280) {
+      assert.ok(
+        Math.abs(layers.y + layers.height / 2 - range.y - range.height / 2) < 1,
+        "Range and display options share one row",
+      );
+      assert.ok(
+        combined.height > 200,
+        "The compact toolbar gives more height to the graph",
+      );
+    }
     if (width === 1280) {
       const metrics = await page.locator(".audio-metrics").boundingBox();
       assert.ok(
@@ -266,6 +369,7 @@ try {
       background: "rgb(24, 55, 79)",
       color: "rgb(255, 255, 255)",
     });
+    await resizeWave(page, width);
     await axe(page);
     // A full-quality digitization must not introduce constant hiss in the buffer
     // or through the real browser audio graph, including device-rate conversion.
