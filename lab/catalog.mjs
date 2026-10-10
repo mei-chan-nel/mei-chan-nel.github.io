@@ -50,6 +50,15 @@ export const contents = [
       "画素数と量子化ビット数を変えて、元画像と見比べる。RGBの各成分も表示できます。",
   },
   {
+    id: "digital-audio",
+    group: "digital-representation",
+    styles: ["audio.css?v=1"],
+    scripts: ["audio.mjs?v=1"],
+    name: "音のデジタル化",
+    description:
+      "標本化周波数と量子化ビット数を変えて、音と波形を比較。標本点や折り返しも確かめます。",
+  },
+  {
     id: "logic-circuit",
     group: "digital-representation",
     styles: ["circuit.css?v=8"],
@@ -64,6 +73,7 @@ export const contents = [
     styles: ["../logic-circuit/circuit.css?v=8", "flowchart.css?v=5"],
     scripts: ["editor.mjs?v=9"],
     name: "フローチャートをつくる",
-    description: "図記号をつないで手順を作り、1つずつ実行。変数・分岐・繰返しを図で確かめます。",
+    description:
+      "図記号をつないで手順を作り、1つずつ実行。変数・分岐・繰返しを図で確かめます。",
   },
 ];

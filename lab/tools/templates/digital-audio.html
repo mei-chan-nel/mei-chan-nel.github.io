@@ -1,0 +1,217 @@
+<header class="audio-heading">
+  <h1>音のデジタル化</h1>
+  <div class="audio-actions">
+    <label for="volume">音量</label
+    ><input id="volume" type="range" min="0" max="100" value="35" /><button
+      type="button"
+      id="reset-audio"
+    >
+      リセット
+    </button>
+  </div>
+</header>
+<section class="audio-lab" aria-label="音のデジタル化の実験" aria-busy="true">
+  <div class="audio-controls">
+    <div class="audio-panel source-panel">
+      <label for="sound-source">音源</label>
+      <select id="sound-source">
+        <option value="twinkle">キラキラ星（旋律）</option>
+        <option value="ode">歓喜の歌（和音付き）</option>
+        <option value="sine">純音（実験用）</option>
+      </select>
+      <div id="tone-control" hidden>
+        <label for="tone"
+          >純音の周波数 <output id="tone-label">1,000 Hz</output></label
+        ><input
+          id="tone"
+          type="range"
+          min="100"
+          max="4000"
+          step="10"
+          value="1000"
+        />
+      </div>
+      <small>6秒・モノラル</small>
+    </div>
+    <div class="audio-panel sampling-panel">
+      <label for="sample-rate">標本化周波数</label>
+      <div class="rate-number">
+        <input
+          id="sample-rate"
+          type="number"
+          min="500"
+          max="48000"
+          step="1"
+          value="8000"
+        /><span>Hz</span>
+      </div>
+      <input
+        id="sample-rate-slider"
+        type="range"
+        min="0"
+        max="1000"
+        step="1"
+        value="607"
+        aria-label="標本化周波数のスライダー"
+      />
+      <div class="range-extents"><span>500</span><span>48,000 Hz</span></div>
+      <p class="control-detail">
+        標本の間隔 <output id="sample-interval">0.125 ms</output>
+      </p>
+    </div>
+    <div class="audio-panel bits-panel">
+      <div>
+        <label for="bits">量子化ビット数</label>
+        <p class="control-detail"><output id="levels">256</output> 段階</p>
+      </div>
+      <div class="audio-stepper">
+        <output id="bits" aria-live="off">8 <small>bit</small></output>
+        <div>
+          <button
+            type="button"
+            id="bits-up"
+            aria-label="量子化ビット数を増やす"
+          >
+            ＋</button
+          ><button
+            type="button"
+            id="bits-down"
+            aria-label="量子化ビット数を減らす"
+          >
+            −
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="audio-presets" role="group" aria-label="実験の設定">
+      <button type="button" data-preset="clear">原音に近く</button
+      ><button type="button" data-preset="quantize">量子化の段差</button
+      ><button type="button" data-preset="alias">折り返しを試す</button>
+    </div>
+  </div>
+  <div class="audio-visuals">
+    <div class="wave-navigation audio-panel">
+      <div class="wave-navigation-heading">
+        <label for="window-size">波形の範囲</label
+        ><select id="window-size">
+          <option value="0.0005">0.5 ms</option>
+          <option value="0.001">1 ms</option>
+          <option value="0.002">2 ms</option>
+          <option value="0.005">5 ms</option>
+          <option value="0.01" selected>10 ms</option>
+          <option value="0.02">20 ms</option>
+          <option value="0.05">50 ms</option>
+          <option value="0.1">100 ms</option>
+          <option value="0.5">500 ms</option>
+          <option value="6">全体</option></select
+        ><output id="window-label">40–50 ms</output>
+      </div>
+      <canvas
+        id="overview-wave"
+        role="img"
+        aria-label="6秒間の原音の波形。触れると表示する場所を移動します。"
+      ></canvas>
+      <div class="position-control">
+        <label for="wave-position">位置</label
+        ><input
+          id="wave-position"
+          type="range"
+          min="0"
+          max="10000"
+          step="1"
+          value="67"
+        /><output id="position-label">0.040 秒</output>
+      </div>
+    </div>
+    <div class="wave-comparison">
+      <figure class="wave-card">
+        <figcaption>
+          <h2>原音</h2>
+          <button type="button" id="play-original" disabled>
+            ▶ 原音を再生
+          </button>
+        </figcaption>
+        <canvas
+          id="original-wave"
+          role="img"
+          aria-label="元の波形と、標本化する位置の点"
+        ></canvas>
+        <p class="wave-key">
+          <span class="key-original">元の波形</span
+          ><span class="key-sample">標本点</span>
+        </p>
+      </figure>
+      <figure class="wave-card">
+        <figcaption>
+          <h2>デジタル化後</h2>
+          <button type="button" id="play-processed" disabled>
+            ▶ 加工後を再生
+          </button>
+        </figcaption>
+        <canvas
+          id="processed-wave"
+          role="img"
+          aria-label="量子化後の標本値と、そこから再構成した波形。触れると標本値を確認できます。"
+        ></canvas>
+        <p class="wave-key">
+          <span class="key-processed">再構成した波形</span
+          ><span class="key-quantized">量子化後の点</span>
+          <span class="key-levels" hidden>量子化の段階</span>
+        </p>
+      </figure>
+    </div>
+    <div class="audio-playback">
+      <output id="audio-status" role="status">波形を計算しています…</output
+      ><output id="playback-position" aria-live="off">0.00 / 6.00 秒</output
+      ><button type="button" id="stop-audio" disabled>停止</button>
+    </div>
+    <div class="sample-inspector audio-panel">
+      <span>標本値</span
+      ><button type="button" id="sample-prev" aria-label="前の標本">‹</button
+      ><button type="button" id="sample-next" aria-label="次の標本">›</button
+      ><output id="sample-detail"
+        >波形の点を選ぶと、その値が分かります。</output
+      >
+    </div>
+    <p class="alias-notice" id="alias-notice"></p>
+    <p class="filter-note">標本化前のローパスフィルタを省いた実験です。</p>
+  </div>
+  <div class="audio-metrics audio-panel">
+    <div>
+      <span>ナイキスト周波数</span><output id="nyquist">4,000 Hz</output>
+    </div>
+    <div><span>標本数</span><output id="sample-count">48,000</output></div>
+    <div class="pcm-metric">
+      <span>PCMデータ量（理論値）</span><output id="pcm-size">48.0 kB</output
+      ><small id="pcm-formula">8,000 Hz × 6秒 × 8 bit ÷ 8</small>
+    </div>
+  </div>
+</section>
+<details class="audio-model">
+  <summary>この実験のモデル</summary>
+  <ul>
+    <li>
+      ピアノは複数の正弦波と減衰を組み合わせた合成音です。曲はパブリックドメインの旋律を用い、演奏をブラウザ内で生成しています。原音は連続時間の数式から作り、48,000
+      Hzで再生します。
+    </li>
+    <li>
+      標本化は、連続時間の数式を指定した間隔で読み取ります。高い周波数を事前に除くフィルタは省いています。実際の録音では、エイリアシングを防ぐために標本化前のフィルタを使います。元の信号を復元するには、信号に含まれる最高周波数の2倍を超える標本化周波数が必要です。
+    </li>
+    <li>
+      量子化は符号付きPCMです。振幅−1から1未満を2<sup>b</sup>段階（間隔 2 ÷
+      2<sup>b</sup>）に分け、最寄りの値に丸めます。整数コードは2の補数で表示します。1
+      bitでは表現できる振幅は−1と0です。
+    </li>
+    <li>
+      再生用の波形は、量子化後の標本から有限長のsinc補間で48,000
+      Hzに再構成します。理想的な復元の近似なので、特にナイキスト周波数付近では誤差があります。端では範囲外を0として扱います。再生機器の周波数が異なる場合はブラウザがさらに変換します。
+    </li>
+    <li>
+      PCMデータ量は「標本化周波数 × 秒数 × 量子化ビット数 × チャンネル数 ÷
+      8」です。圧縮・ヘッダ・保存形式の詰め物は含みません。ここではモノラル1チャンネル、1
+      kB =
+      1,000バイトです。実際のファイルは保存単位の都合で大きくなる場合があります。
+    </li>
+  </ul>
+</details>
+<noscript><p>操作するにはJavaScriptを有効にしてください。</p></noscript>

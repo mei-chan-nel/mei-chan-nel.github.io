@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-10-09",
+  "validated_on": "2026-10-10",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 102,
+  "target_pages": 103,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -990,6 +990,15 @@
     },
     {
       "path": "lab/digital-image/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/digital-audio/index.html",
       "format": "responsive-display",
       "content_count": null,
       "ad_count": 1,

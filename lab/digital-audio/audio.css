@@ -1,0 +1,593 @@
+.lab-content-page {
+  padding-bottom: 24px;
+}
+.lab-content-page .breadcrumb {
+  padding: 4px 0;
+  margin: 10px 0 8px;
+  font-size: 0.72rem;
+}
+.audio-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.audio-heading h1 {
+  margin: 0;
+  line-height: 1.3;
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+.audio-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+}
+.audio-actions input {
+  width: 80px;
+}
+.audio-lab {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  display: grid;
+  grid-template-columns: 276px minmax(0, 1fr);
+  gap: 12px 18px;
+  align-items: start;
+}
+.audio-controls {
+  display: grid;
+  gap: 10px;
+}
+.audio-controls .audio-panel {
+  padding: 10px;
+}
+.audio-panel,
+.wave-card {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--white);
+  padding: 12px;
+}
+.audio-lab button,
+.audio-heading button {
+  font: inherit;
+  font-size: 0.75rem;
+  color: var(--ink);
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  min-height: 32px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.audio-lab button:hover,
+.audio-heading button:hover {
+  background: var(--blue-light, #eff6fb);
+  border-color: var(--blue-strong);
+}
+.audio-lab button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.audio-lab button[data-playing="true"] {
+  background: var(--blue-strong);
+  border-color: var(--blue-strong);
+  color: #fff;
+}
+.audio-lab input,
+.audio-lab select {
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--ink);
+  min-width: 0;
+}
+.audio-lab select,
+.rate-number input {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  padding: 7px;
+}
+.audio-controls label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  margin-bottom: 7px;
+}
+.source-panel select {
+  width: 100%;
+}
+.source-panel small {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+#tone-control {
+  margin-top: 12px;
+}
+#tone-control output {
+  float: right;
+  font-weight: 400;
+}
+.audio-lab input[type="range"],
+.audio-actions input {
+  accent-color: var(--blue-strong);
+  cursor: pointer;
+}
+.audio-controls input[type="range"] {
+  width: 100%;
+  margin: 5px 0;
+}
+.rate-number {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+}
+.rate-number input {
+  width: 100%;
+  font-size: 1.25rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  padding: 5px 7px;
+}
+.range-extents {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+}
+.control-detail {
+  margin: 8px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+.bits-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.bits-panel label {
+  margin: 0;
+}
+.audio-stepper {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.audio-stepper output {
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 46px;
+  text-align: center;
+}
+.audio-stepper output small {
+  font-size: 0.7rem;
+  font-weight: 400;
+}
+.audio-stepper > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.audio-stepper button {
+  min-height: 27px;
+  width: 32px;
+  padding: 0;
+  font-size: 1rem;
+}
+.audio-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.audio-presets button {
+  font-size: 0.7rem;
+  padding: 5px 7px;
+}
+.audio-visuals {
+  min-width: 0;
+}
+.wave-navigation {
+  padding: 9px 12px 5px;
+}
+.wave-navigation-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+}
+.wave-navigation-heading label {
+  font-weight: 700;
+}
+.wave-navigation-heading select {
+  padding: 3px 6px;
+  font-size: 0.72rem;
+}
+.wave-navigation-heading output {
+  margin-left: auto;
+  font-size: 0.65rem;
+  color: var(--ink-soft);
+}
+#overview-wave {
+  display: block;
+  width: 100%;
+  height: 32px;
+  margin-top: 4px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.position-control {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.62rem;
+  color: var(--ink-soft);
+}
+.position-control input {
+  min-width: 0;
+  flex: 1;
+}
+.position-control output {
+  min-width: 58px;
+  text-align: right;
+}
+.wave-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+.wave-card {
+  margin: 0;
+  padding: 10px;
+  overflow: hidden;
+  font-size: 0.7rem;
+}
+.wave-card figcaption {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+}
+.wave-card h2 {
+  font-size: 0.88rem;
+  margin: 0;
+  white-space: nowrap;
+}
+.wave-card figcaption button {
+  font-size: 0.7rem;
+  padding: 4px 7px;
+}
+.wave-card canvas {
+  display: block;
+  width: 100%;
+  height: 160px;
+  touch-action: none;
+  cursor: crosshair;
+}
+.wave-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+}
+.wave-key span::before {
+  content: "";
+  display: inline-block;
+  width: 13px;
+  height: 3px;
+  margin: 0 4px 3px 0;
+  background: var(--blue-strong);
+}
+.wave-key .key-sample::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #20576d;
+  margin-bottom: 1px;
+}
+.wave-key .key-processed::before {
+  background: #9a4e09;
+}
+.wave-key .key-quantized::before {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a14908;
+  margin-bottom: 1px;
+}
+.audio-playback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  font-size: 0.7rem;
+}
+.wave-key .key-levels::before {
+  background: #a1aeb5;
+  height: 1px;
+}
+.audio-lab[aria-busy="true"] .wave-comparison {
+  opacity: 0.6;
+}
+#audio-status {
+  flex: 1;
+  color: var(--ink-soft);
+}
+#playback-position {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.65rem;
+}
+.audio-playback button {
+  min-height: 28px;
+  font-size: 0.7rem;
+  padding: 3px 8px;
+}
+.sample-inspector {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 0.68rem;
+  padding: 3px 10px;
+}
+.sample-inspector > span {
+  font-weight: 700;
+  margin-right: 2px;
+}
+.sample-inspector button {
+  padding: 0;
+  min-height: 28px;
+  width: 28px;
+  font-size: 1rem;
+}
+.sample-inspector output {
+  flex: 1;
+  min-width: 150px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.alias-notice {
+  margin: 9px 0 3px;
+  font-size: 0.74rem;
+  line-height: 1.5;
+}
+.filter-note {
+  margin: 0;
+  font-size: 0.65rem;
+  color: var(--ink-soft);
+}
+.audio-metrics {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 6px 14px;
+}
+.audio-metrics > div {
+  display: grid;
+  gap: 2px;
+  line-height: 1.2;
+}
+.audio-metrics span {
+  color: var(--ink-soft);
+  font-size: 0.65rem;
+}
+.audio-metrics output {
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.audio-metrics small {
+  font-size: 0.65rem;
+  color: var(--ink-soft);
+}
+.pcm-metric {
+  margin-left: auto;
+  text-align: right;
+}
+.audio-model {
+  margin-top: 16px;
+  color: var(--ink-soft);
+  font-size: 0.76rem;
+  line-height: 1.7;
+}
+.audio-model summary {
+  cursor: pointer;
+}
+.audio-model ul {
+  padding-left: 22px;
+}
+.audio-model li {
+  margin: 8px 0;
+}
+.audio-lab :focus-visible,
+.audio-heading :focus-visible,
+.audio-model :focus-visible {
+  outline: 3px solid var(--blue-strong);
+  outline-offset: 3px;
+}
+.audio-lab [hidden] {
+  display: none;
+}
+@media (max-width: 800px) {
+  .audio-lab {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .audio-controls {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .audio-presets {
+    grid-column: 1/-1;
+  }
+  .audio-panel {
+    padding: 9px;
+  }
+  .bits-panel {
+    align-items: start;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .bits-panel .control-detail {
+    margin-top: 3px;
+  }
+  .audio-stepper {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .audio-visuals {
+    grid-row: 2;
+  }
+  .wave-card canvas {
+    height: 160px;
+  }
+}
+@media (max-width: 500px) {
+  .lab-shell {
+    width: calc(100% - 24px);
+  }
+  .audio-heading {
+    margin-bottom: 10px;
+    gap: 6px;
+  }
+  .audio-heading h1 {
+    font-size: 1.16rem;
+  }
+  .audio-actions {
+    gap: 5px;
+    font-size: 0.65rem;
+  }
+  .audio-actions input {
+    width: 45px;
+  }
+  .audio-actions button {
+    padding: 4px 6px;
+    font-size: 0.65rem;
+  }
+  .audio-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .source-panel {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 7px;
+  }
+  .source-panel label,
+  .source-panel small {
+    margin: 0;
+  }
+  .source-panel select {
+    font-size: 0.7rem;
+    padding: 6px 4px;
+  }
+  #tone-control {
+    grid-column: 1/-1;
+    margin: 0;
+  }
+  .bits-panel {
+    flex-direction: row;
+    align-items: center;
+  }
+  .audio-stepper {
+    width: auto;
+    gap: 5px;
+  }
+  .audio-stepper output {
+    font-size: 1.25rem;
+    min-width: 38px;
+  }
+  .audio-controls label {
+    font-size: 0.7rem;
+  }
+  .rate-number input {
+    font-size: 1.07rem;
+    padding: 4px 6px;
+  }
+  .audio-stepper button {
+    width: 30px;
+    min-height: 30px;
+  }
+  .audio-presets {
+    gap: 4px;
+  }
+  .wave-comparison {
+    gap: 7px;
+    margin-top: 8px;
+  }
+  .wave-card {
+    padding: 7px;
+  }
+  .wave-card figcaption {
+    display: grid;
+    grid-template-rows: 18px 30px;
+    justify-content: start;
+    gap: 4px;
+  }
+  .wave-card h2 {
+    font-size: 0.78rem;
+  }
+  .wave-card figcaption button {
+    font-size: 0.64rem;
+    min-height: 30px;
+    padding: 3px 6px;
+  }
+  .wave-card canvas {
+    height: 132px;
+  }
+  .wave-key {
+    font-size: 0.56rem;
+    gap: 3px;
+  }
+  .wave-navigation-heading output {
+    font-size: 0.58rem;
+  }
+  .wave-navigation-heading {
+    gap: 5px;
+    font-size: 0.67rem;
+  }
+  #overview-wave {
+    height: 28px;
+  }
+  .audio-playback {
+    gap: 6px;
+    font-size: 0.65rem;
+  }
+  #playback-position {
+    font-size: 0.58rem;
+  }
+  .sample-inspector output {
+    font-size: 0.61rem;
+  }
+  .audio-metrics {
+    gap: 12px;
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .audio-metrics output {
+    font-size: 0.98rem;
+  }
+  .pcm-metric {
+    margin-left: 0;
+    text-align: left;
+    flex: 1 0 100%;
+    border-top: 1px solid var(--line);
+    padding-top: 7px;
+    display: grid !important;
+    grid-template-columns: 1fr auto;
+  }
+  .pcm-metric small {
+    grid-column: 1/-1;
+    font-size: 0.6rem;
+  }
+}

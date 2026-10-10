@@ -535,7 +535,7 @@ def main() -> int:
         "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
         "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html",
-        "lab/index.html", "lab/digital-image/index.html", "lab/logic-circuit/index.html", "lab/flowchart/index.html", *report.get("learning_pages", []),
+        "lab/index.html", "lab/digital-image/index.html", "lab/digital-audio/index.html", "lab/logic-circuit/index.html", "lab/flowchart/index.html", *report.get("learning_pages", []),
     ]
     expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []
