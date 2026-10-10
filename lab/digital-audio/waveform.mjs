@@ -1,4 +1,4 @@
-import { createSignal, PLAYBACK_RATE, DURATION } from "./pcm.mjs?v=1";
+import { createSignal, PLAYBACK_RATE, DURATION } from "./pcm.mjs?v=2";
 export const plotInsets = { left: 28, right: 8, top: 12, bottom: 24 };
 const blue = "#286788",
   orange = "#a14908",
@@ -54,11 +54,10 @@ function envelope(ctx, values, x, width, height, start, span, rate) {
   ctx.stroke();
 }
 export class Waveforms {
-  constructor({ overview, original, processed, onWindow, onSample }) {
-    Object.assign(this, { overview, original, processed, onWindow, onSample });
+  constructor({ overview, original, processed, onWindow }) {
+    Object.assign(this, { overview, original, processed, onWindow });
     this.start = 0.04;
     this.span = 0.01;
-    this.selected = 0;
     this.playhead = null;
     this.observer = new ResizeObserver(() => this.draw());
     for (const canvas of [overview, original, processed])
@@ -78,25 +77,18 @@ export class Waveforms {
         ((event.clientX - box.left) / box.width) * DURATION - this.span / 2,
       );
     });
-    for (const canvas of [original, processed])
-      pointer(canvas, (event) => {
-        if (!this.data) return;
-        const box = canvas.getBoundingClientRect(),
-          p = plotInsets;
-        const fraction = Math.max(
-          0,
-          Math.min(
-            1,
-            (event.clientX - box.left - p.left) /
-              (box.width - p.left - p.right),
-          ),
-        );
-        this.onSample(
-          Math.round(
-            (this.start + fraction * this.span) * this.config.sampleRate,
-          ),
-        );
-      });
+    overview.addEventListener("keydown", (event) => {
+      const step = (this.span / 2) * (event.shiftKey ? 10 : 1);
+      const positions = {
+        ArrowLeft: this.start - step,
+        ArrowRight: this.start + step,
+        Home: 0,
+        End: DURATION - this.span,
+      };
+      if (!Object.hasOwn(positions, event.key)) return;
+      event.preventDefault();
+      this.onWindow(positions[event.key]);
+    });
   }
   setData(data, config) {
     this.data = data;
@@ -247,25 +239,6 @@ export class Waveforms {
         ctx.fillStyle = processed ? orange : "#20576d";
         ctx.fill();
       }
-    }
-    const selectedTime = this.selected / sampleRate;
-    if (selectedTime >= this.start && selectedTime <= this.start + this.span) {
-      const px = x(selectedTime),
-        value = processed
-          ? this.data.quantized[this.selected]
-          : this.data.raw[this.selected];
-      ctx.strokeStyle = "#657783";
-      ctx.setLineDash([3, 3]);
-      ctx.beginPath();
-      ctx.moveTo(px, top);
-      ctx.lineTo(px, top + h);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.strokeStyle = processed ? orange : blue;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(px, y(value), 4.5, 0, Math.PI * 2);
-      ctx.stroke();
     }
     ctx.restore();
     canvas.setAttribute(

@@ -98,6 +98,20 @@ async function axe(page) {
     [],
   );
 }
+async function bits(page, target) {
+  while (parseInt(await page.locator("#bits").innerText()) !== target) {
+    const current = parseInt(await page.locator("#bits").innerText());
+    await page.locator(current < target ? "#bits-up" : "#bits-down").click();
+  }
+  await ready(page);
+}
+async function aliasSetup(page) {
+  await page.locator("#sound-source").selectOption("sine");
+  await ready(page);
+  await rate(page, 1500);
+  await bits(page, 16);
+  await page.locator("#window-size").selectOption("0.01");
+}
 try {
   for (const [width, height] of [
     [1280, 720],
@@ -124,55 +138,73 @@ try {
     const original = await page.locator("#original-wave").boundingBox(),
       processed = await page.locator("#processed-wave").boundingBox();
     assert.ok(Math.abs(original.y - processed.y) < 1, "Waveform axes line up");
-    if (width === 1280)
+    if (width === 1280) {
+      const metrics = await page.locator(".audio-metrics").boundingBox();
       assert.ok(
-        (await page.locator(".audio-metrics").boundingBox()).y +
-          (await page.locator(".audio-metrics").boundingBox()).height <=
-          height,
-        "Controls, plots and results fit on desktop",
+        metrics.y + metrics.height <= height,
+        "Controls, plots and data size fit on desktop",
       );
+    }
+    assert.equal(await page.locator("#audio-status").innerText(), "");
+    const colors = await page
+      .locator("#play-original")
+      .evaluate((el) => ({
+        background: getComputedStyle(el).backgroundColor,
+        color: getComputedStyle(el).color,
+      }));
+    assert.deepEqual(colors, {
+      background: "rgb(24, 55, 79)",
+      color: "rgb(255, 255, 255)",
+    });
     await axe(page);
-    await page.locator("#bits-down").click();
+    await page.locator("#rate-up").click();
     await ready(page);
-    assert.match(await page.locator("#bits").innerText(), /^7/);
-    await page.locator("#bits-up").focus();
-    await page.keyboard.press("Enter");
+    assert.equal(await page.locator("#sample-rate").inputValue(), "8500");
+    await page.locator("#rate-down").click();
     await ready(page);
-    assert.match(
-      await page.locator("#pcm-formula").innerText(),
-      /48,000 バイト/,
-    );
-    await page.locator("[data-preset=quantize]").click();
+    assert.equal(await page.locator("#sample-rate").inputValue(), "8000");
+    await page.locator("#sample-rate").focus();
+    await page.keyboard.press("ArrowDown");
     await ready(page);
-    assert.match(await page.locator("#levels").innerText(), /^16$/);
-    assert.match(
-      await page.locator("#pcm-formula").innerText(),
-      /24,000 バイト/,
-    );
+    assert.equal(await page.locator("#sample-rate").inputValue(), "7500");
+    await rate(page, 8000);
+    await bits(page, 4);
+    assert.equal(await page.locator("#levels").innerText(), "16");
+    assert.equal(await page.locator("#pcm-bytes").innerText(), "24,000 バイト");
     await page.locator("#window-size").selectOption("0.0005");
     assert.match(
       await page.locator("#processed-wave").getAttribute("aria-label"),
       /標本点を表示/,
     );
-    const detail = await page.locator("#sample-detail").innerText();
-    await page.locator("#sample-next").click();
-    assert.notEqual(await page.locator("#sample-detail").innerText(), detail);
-    const at = await page.locator("#processed-wave").boundingBox();
-    if (width < 500)
-      await page.touchscreen.tap(at.x + at.width * 0.7, at.y + at.height * 0.5);
-    else await page.mouse.click(at.x + at.width * 0.7, at.y + at.height * 0.5);
-    assert.match(
-      await page.locator("#sample-detail").innerText(),
-      /→.*[01]{4}/,
-    );
     await page.locator("#window-size").selectOption("6");
-    assert.equal(await page.locator("#wave-position").isDisabled(), true);
+    assert.equal(
+      await page.locator("#overview-wave").getAttribute("aria-disabled"),
+      "true",
+    );
     await page.locator("#window-size").selectOption("0.01");
-    await page.locator("#wave-position").evaluate((el) => {
-      el.value = 5000;
-      el.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-    assert.match(await page.locator("#position-label").innerText(), /2\.995/);
+    const at = await page.locator("#overview-wave").boundingBox();
+    if (width < 500)
+      await page.touchscreen.tap(at.x + at.width * 0.5, at.y + at.height * 0.5);
+    else await page.mouse.click(at.x + at.width * 0.5, at.y + at.height * 0.5);
+    assert.ok(
+      Math.abs(
+        Number(
+          await page.locator("#overview-wave").getAttribute("aria-valuenow"),
+        ) - 2995,
+      ) < 20,
+    );
+    await page.locator("#overview-wave").focus();
+    await page.keyboard.press("End");
+    assert.equal(
+      await page.locator("#overview-wave").getAttribute("aria-valuenow"),
+      "5990",
+    );
+    await page.keyboard.press("Home");
+    await page.keyboard.press("ArrowRight");
+    assert.equal(
+      await page.locator("#overview-wave").getAttribute("aria-valuenow"),
+      "5",
+    );
     await page.locator("#sound-source").selectOption("ode");
     await ready(page);
     await page.locator("#play-original").click();
@@ -201,19 +233,22 @@ try {
       assert.ok(buffer.energy > 0);
     }
     await page.locator("#stop-audio").click();
-    await page.locator("[data-preset=alias]").click();
-    await ready(page);
-    assert.match(
-      await page.locator("#alias-notice").innerText(),
-      /1,000 Hz → 500 Hz/,
+    await aliasSetup(page);
+    assert.equal(
+      await page.locator("#alias-warning").innerText(),
+      "※ エイリアシングが発生",
+    );
+    assert.equal(
+      await page
+        .locator("#alias-warning")
+        .evaluate((el) => el.closest(".sampling-panel") !== null),
+      true,
     );
     if (width === 1280) {
       const metrics = await page.locator(".audio-metrics").boundingBox();
-      assert.ok(
-        metrics.y + metrics.height <= height,
-        "The pure tone controls also fit on desktop",
-      );
+      assert.ok(metrics.y + metrics.height <= height);
     }
+    await axe(page);
     await page.locator("#play-processed").click();
     await page.waitForFunction(
       () =>
@@ -223,12 +258,12 @@ try {
       await page.evaluate(
         () => window.audioChecks.buffers.at(-1).aliasRms < 0.002,
       ),
-      "The buffer played is the folded 500 Hz tone",
+      "The playback buffer is the folded 500 Hz tone",
     );
     await page.locator("#stop-audio").click();
     await rate(page, 2000);
     assert.match(
-      await page.locator("#alias-notice").innerText(),
+      await page.locator("#alias-warning").innerText(),
       /2倍ちょうど/,
     );
     await page.locator("#play-processed").click();
@@ -241,23 +276,31 @@ try {
       0,
     );
     await page.locator("#stop-audio").click();
-    // Rapid slider changes must finish with the most recent setting.
+    await rate(page, 2001);
+    assert.equal(await page.locator("#alias-warning").innerText(), "");
+    // Preserve smooth, arbitrary slider values despite the coarse increment buttons.
     await page.locator("#sample-rate-slider").evaluate((el) => {
-      for (const value of [100, 800, 300, 950, 0]) {
+      for (const value of [100, 800, 300, 950, 601]) {
         el.value = value;
         el.dispatchEvent(new Event("input", { bubbles: true }));
       }
     });
     await ready(page);
-    assert.equal(await page.locator("#sample-rate").inputValue(), "500");
-    assert.match(
-      await page.locator("#sample-detail").innerText(),
-      /0\.0000 → 0\.0000/,
+    assert.equal(
+      await page.locator("#sample-rate").inputValue(),
+      String(Math.round(500 * 96 ** 0.601)),
     );
+    await rate(page, 7951);
+    await page.locator("#rate-up").click();
+    await ready(page);
+    assert.equal(await page.locator("#sample-rate").inputValue(), "8451");
+    await rate(page, 500);
+    assert.equal(await page.locator("#rate-down").isDisabled(), true);
     await page.locator("#sample-rate").fill("999999");
     await page.locator("#sample-rate").press("Tab");
     await ready(page);
     assert.equal(await page.locator("#sample-rate").inputValue(), "48000");
+    assert.equal(await page.locator("#rate-up").isDisabled(), true);
     await page.locator("#reset-audio").click();
     await ready(page);
     assert.equal(await page.locator("#sound-source").inputValue(), "twinkle");
@@ -294,9 +337,11 @@ try {
     await noAudio.locator("#audio-status").innerText(),
     /波形の実験は続けられます/,
   );
-  await noAudio.locator("[data-preset=alias]").click();
-  await ready(noAudio);
-  assert.match(await noAudio.locator("#alias-notice").innerText(), /500 Hz/);
+  await aliasSetup(noAudio);
+  assert.match(
+    await noAudio.locator("#alias-warning").innerText(),
+    /エイリアシング/,
+  );
   await noAudio.close();
   const offline = await browser.newPage({
     viewport: { width: 390, height: 844 },
@@ -311,8 +356,7 @@ try {
     ),
   );
   await ready(offline);
-  await offline.locator("[data-preset=alias]").click();
-  await ready(offline);
+  await aliasSetup(offline);
   await offline.locator("#play-processed").click();
   await offline.waitForFunction(
     () => document.querySelector("#play-processed").dataset.playing === "true",

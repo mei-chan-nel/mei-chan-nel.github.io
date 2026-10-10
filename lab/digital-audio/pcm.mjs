@@ -8,11 +8,11 @@ export const SOURCES = Object.freeze({
   ode: "歓喜の歌（和音付き）",
   sine: "純音（実験用）",
 });
-const beat = 0.32;
 const partials = [1, 0.32, 0.15, 0.075, 0.035, 0.018];
 const partialSum = partials.reduce((a, b) => a + b, 0);
 const midiHz = (note) => 440 * 2 ** ((note - 69) / 12);
 function score(kind) {
+  const beat = kind === "ode" ? 0.375 : 0.32;
   const melody =
     kind === "twinkle"
       ? [
@@ -60,17 +60,31 @@ function score(kind) {
     return event;
   });
   if (kind === "ode") {
-    const chords = [
-      [48, 52, 55],
-      [43, 47, 50],
-      [48, 52, 55],
-      [43, 47, 50],
+    // Re-strike a chord with every melody note so the accompaniment remains
+    // audible throughout the phrase, including the held final note.
+    const chords = { C: [48, 52, 55], F: [41, 45, 48], G: [43, 47, 50] };
+    const harmony = [
+      "C",
+      "C",
+      "F",
+      "C",
+      "C",
+      "F",
+      "C",
+      "G",
+      "C",
+      "C",
+      "G",
+      "C",
+      "C",
+      "G",
+      "G",
     ];
-    for (let bar = 0; bar < 4; bar++)
-      for (const note of chords[bar])
+    for (const [index, event] of [...notes].entries())
+      for (const note of chords[harmony[index]])
         notes.push({
-          start: bar * 4 * beat,
-          duration: 4 * beat,
+          start: event.start,
+          duration: event.duration,
           frequency: midiHz(note),
           gain: 0.08,
         });
@@ -123,6 +137,25 @@ export function pcmCode(code, bits) {
 }
 export function aliasFrequency(frequency, sampleRate) {
   return Math.abs(frequency - Math.round(frequency / sampleRate) * sampleRate);
+}
+// Classification uses the deliberately synthesized tones, not the much smaller
+// spectral tails introduced by attack/release envelopes. This is disclosed in UI.
+export function samplingStatus(config) {
+  createSignal(config);
+  const highest =
+    config.source === "sine"
+      ? config.tone
+      : Math.max(...score(config.source).map((note) => note.frequency)) *
+        partials.length;
+  return {
+    highest,
+    status:
+      config.sampleRate < 2 * highest
+        ? "aliasing"
+        : config.sampleRate === 2 * highest
+          ? "boundary"
+          : "clear",
+  };
 }
 export function sampleAudio(config) {
   const { sampleRate, bits } = config;

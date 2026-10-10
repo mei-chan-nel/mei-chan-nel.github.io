@@ -1,14 +1,13 @@
 import {
   DURATION,
   PLAYBACK_RATE,
-  aliasFrequency,
   digitizeAudio,
-  pcmCode,
   pcmSize,
   referenceAudio,
-} from "./pcm.mjs?v=1";
-import { audioWorkerSource } from "./worker-source.mjs?v=1";
-import { Waveforms } from "./waveform.mjs?v=1";
+  samplingStatus,
+} from "./pcm.mjs?v=2";
+import { audioWorkerSource } from "./worker-source.mjs?v=2";
+import { Waveforms } from "./waveform.mjs?v=2";
 const $ = (id) => document.getElementById(id),
   fmt = (n) => n.toLocaleString("ja-JP");
 const defaults = { source: "twinkle", tone: 1000, sampleRate: 8000, bits: 8 };
@@ -36,39 +35,27 @@ const waves = new Waveforms({
   original: $("original-wave"),
   processed: $("processed-wave"),
   onWindow: setWindow,
-  onSample: selectSample,
 });
 waves.span = defaultSpan;
 $("window-size").value = String(defaultSpan);
 function setWindow(start) {
   waves.start = Math.max(0, Math.min(DURATION - waves.span, start));
-  $("wave-position").value = Math.round(
-    (waves.start / Math.max(0.0001, DURATION - waves.span)) * 10000,
+  $("overview-wave").setAttribute("aria-valuenow", String(waves.start * 1000));
+  $("overview-wave").setAttribute(
+    "aria-valuemax",
+    String((DURATION - waves.span) * 1000),
   );
-  $("wave-position").disabled = waves.span === DURATION;
+  $("overview-wave").setAttribute(
+    "aria-disabled",
+    String(waves.span === DURATION),
+  );
   $("window-label").textContent =
     `${(waves.start * 1000).toFixed(waves.span <= 0.002 ? 1 : 0)}–${((waves.start + waves.span) * 1000).toFixed(waves.span <= 0.002 ? 1 : 0)} ms`;
-  $("position-label").textContent = `${waves.start.toFixed(3)} 秒`;
+  $("overview-wave").setAttribute(
+    "aria-valuetext",
+    $("window-label").textContent,
+  );
   waves.draw();
-}
-function selectSample(index) {
-  if (!data || lab.getAttribute("aria-busy") === "true") return;
-  waves.selected = Math.max(0, Math.min(data.raw.length - 1, index));
-  const n = waves.selected,
-    c = waves.config;
-  $("sample-detail").textContent =
-    `${((n / c.sampleRate) * 1000).toFixed(3)} ms：${data.raw[n].toFixed(4)} → ${data.quantized[n].toFixed(4)} ｜ ${data.codes[n]}（${pcmCode(data.codes[n], c.bits)}）`;
-  $("sample-prev").disabled = n === 0;
-  $("sample-next").disabled = n === data.raw.length - 1;
-  waves.draw();
-}
-function moveSample(delta) {
-  if (!data) return;
-  const n = Math.max(0, Math.min(data.raw.length - 1, waves.selected + delta)),
-    t = n / waves.config.sampleRate;
-  if (t < waves.start || t > waves.start + waves.span)
-    setWindow(t - waves.span / 2);
-  selectSample(n);
 }
 function displaySettings() {
   const { sampleRate, bits, source, tone } = config;
@@ -81,33 +68,35 @@ function displaySettings() {
     (Math.log(sampleRate / 500) / Math.log(96)) * 1000,
   );
   $("sample-interval").textContent = `${(1000 / sampleRate).toFixed(3)} ms`;
+  $("rate-up").disabled = sampleRate === PLAYBACK_RATE;
+  $("rate-down").disabled = sampleRate === 500;
   $("bits").innerHTML = `${bits} <small>bit</small>`;
   $("bits-up").disabled = bits === 16;
   $("bits-down").disabled = bits === 1;
   $("levels").textContent = fmt(2 ** bits);
-  $("nyquist").textContent = `${fmt(sampleRate / 2)} Hz`;
   const size = pcmSize(sampleRate, bits);
-  $("sample-count").textContent = fmt(size.samples);
-  $("pcm-size").textContent =
+  const amount =
     size.bytes >= 1000000
-      ? `${(size.bytes / 1000000).toFixed(2)} MB`
-      : `${(size.bytes / 1000).toFixed(1)} kB`;
+      ? (size.bytes / 1000000).toFixed(2)
+      : (size.bytes / 1000).toFixed(1);
+  $("pcm-size").innerHTML =
+    `<strong>${amount}</strong> <span>${size.bytes >= 1000000 ? "MB" : "kB"}</span>`;
   $("pcm-size").title = `${fmt(size.bitCount)} bit = ${fmt(size.bytes)} バイト`;
   $("pcm-formula").textContent =
-    `${fmt(sampleRate)} Hz × 6秒 × ${bits} bit × 1ch ÷ 8 = ${fmt(size.bytes)} バイト`;
-  let notice;
-  if (source !== "sine")
-    notice =
-      "ピアノの音には基音と倍音が含まれます。標本化周波数を下げると、高い成分が折り返して音色が変わります。";
-  else if (sampleRate === tone * 2)
-    notice = `${fmt(tone)} Hzの2倍ちょうどです。この純音の位相では標本点がすべて0になり、元の波形を復元できません。`;
-  else if (sampleRate > tone * 2)
-    notice = `純音 ${fmt(tone)} Hz ＜ ナイキスト周波数 ${fmt(sampleRate / 2)} Hz：折り返しは起こりません。`;
-  else {
-    const alias = aliasFrequency(tone, sampleRate);
-    notice = `純音 ${fmt(tone)} Hz → ${fmt(alias)} Hzに折り返します。${alias === 0 ? "この位相では標本点がすべて0になり、音が消えます。" : "標本点だけでは、この低い周波数の波と区別できません。"}`;
-  }
-  $("alias-notice").textContent = notice;
+    `${fmt(sampleRate)} Hz × 6秒 × ${bits} bit ÷ 8`;
+  $("pcm-bytes").textContent = `${fmt(size.bytes)} バイト`;
+  const { status } = samplingStatus(config);
+  $("alias-warning").textContent =
+    status === "aliasing"
+      ? "※ エイリアシングが発生"
+      : status === "boundary"
+        ? "※ 2倍ちょうど（復元できない場合あり）"
+        : "";
+  $("alias-warning").dataset.status = status;
+  $("alias-warning").title =
+    source === "sine"
+      ? "純音の周波数を基準に判定"
+      : "合成する基音・倍音の周波数を基準に判定";
 }
 function playbackButtons() {
   const busy = lab.getAttribute("aria-busy") === "true";
@@ -191,7 +180,7 @@ async function play(kind, from = 0) {
     node.onended = () => {
       if (token === playToken) {
         stop();
-        $("audio-status").textContent = "再生が終わりました。";
+        $("audio-status").textContent = "";
       }
     };
     node.start(0, offset);
@@ -250,8 +239,7 @@ function receive(result) {
   data = result;
   lab.setAttribute("aria-busy", "false");
   waves.setData(data, result.config);
-  selectSample(Math.round((waves.start + waves.span / 2) * config.sampleRate));
-  $("audio-status").textContent = "原音と加工後を聞き比べられます。";
+  $("audio-status").textContent = "";
   playbackButtons();
   if (pendingResume) {
     const resume = pendingResume;
@@ -330,25 +318,20 @@ for (const delta of [-1, 1])
     config.bits = Math.max(1, Math.min(16, config.bits + delta));
     update();
   });
-for (const button of document.querySelectorAll("[data-preset]"))
-  button.addEventListener("click", () => {
-    const oldSource = config.source;
-    if (button.dataset.preset === "clear")
-      Object.assign(config, { sampleRate: 48000, bits: 16 });
-    if (button.dataset.preset === "quantize")
-      Object.assign(config, { sampleRate: 8000, bits: 4 });
-    if (button.dataset.preset === "alias")
-      Object.assign(config, {
-        source: "sine",
-        tone: 1000,
-        sampleRate: 1500,
-        bits: 16,
-      });
-    waves.span = button.dataset.preset === "alias" ? 0.01 : defaultSpan;
-    $("window-size").value = String(waves.span);
-    setWindow(0.04);
-    update({ sourceChanged: oldSource !== config.source });
-  });
+function stepRate(delta) {
+  config.sampleRate = Math.max(
+    500,
+    Math.min(PLAYBACK_RATE, config.sampleRate + delta * 500),
+  );
+  update();
+}
+$("rate-up").addEventListener("click", () => stepRate(1));
+$("rate-down").addEventListener("click", () => stepRate(-1));
+$("sample-rate").addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+  event.preventDefault();
+  stepRate(event.key === "ArrowUp" ? 1 : -1);
+});
 $("reset-audio").addEventListener("click", () => {
   stop();
   config = { ...defaults };
@@ -363,23 +346,16 @@ $("window-size").addEventListener("change", () => {
   waves.span = Number($("window-size").value);
   setWindow(center - waves.span / 2);
 });
-$("wave-position").addEventListener("input", () =>
-  setWindow(
-    (Number($("wave-position").value) / 10000) * (DURATION - waves.span),
-  ),
-);
-$("sample-prev").addEventListener("click", () => moveSample(-1));
-$("sample-next").addEventListener("click", () => moveSample(1));
 for (const kind of ["original", "processed"])
   $("play-" + kind).addEventListener("click", () => {
     if (playing === kind) {
       stop();
-      $("audio-status").textContent = "停止しました。";
+      $("audio-status").textContent = "";
     } else void play(kind, playing ? currentOffset() : 0);
   });
 $("stop-audio").addEventListener("click", () => {
   stop();
-  $("audio-status").textContent = "停止しました。";
+  $("audio-status").textContent = "";
 });
 $("volume").addEventListener("input", () => {
   if (gain)

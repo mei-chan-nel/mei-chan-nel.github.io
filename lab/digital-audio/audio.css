@@ -132,6 +132,31 @@
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   padding: 5px 7px;
+  appearance: textfield;
+}
+.rate-number input::-webkit-inner-spin-button,
+.rate-number input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.rate-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.rate-stepper button {
+  width: 32px;
+  min-height: 27px;
+  padding: 0;
+  font-size: 1rem;
+}
+.sampling-warning {
+  display: block;
+  min-height: 1.5em;
+  margin-top: 5px;
+  font-size: 0.65rem;
+  color: #8e450c;
+  line-height: 1.5;
 }
 .range-extents {
   display: flex;
@@ -179,15 +204,6 @@
   padding: 0;
   font-size: 1rem;
 }
-.audio-presets {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-.audio-presets button {
-  font-size: 0.7rem;
-  padding: 5px 7px;
-}
 .audio-visuals {
   min-width: 0;
 }
@@ -220,21 +236,6 @@
   cursor: crosshair;
   touch-action: none;
 }
-.position-control {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  font-size: 0.62rem;
-  color: var(--ink-soft);
-}
-.position-control input {
-  min-width: 0;
-  flex: 1;
-}
-.position-control output {
-  min-width: 58px;
-  text-align: right;
-}
 .wave-comparison {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -262,12 +263,23 @@
   font-size: 0.7rem;
   padding: 4px 7px;
 }
+.audio-lab .wave-card button {
+  color: #fff;
+  background: #18374f;
+  border-color: #18374f;
+}
+.audio-lab .wave-card button:hover {
+  background: #244b6e;
+  border-color: #244b6e;
+}
+.audio-lab .wave-card button[data-playing="true"] {
+  background: #244b6e;
+  border-color: #244b6e;
+}
 .wave-card canvas {
   display: block;
   width: 100%;
   height: 160px;
-  touch-action: none;
-  cursor: crosshair;
 }
 .wave-key {
   display: flex;
@@ -308,6 +320,7 @@
   gap: 10px;
   min-height: 34px;
   font-size: 0.7rem;
+  justify-content: flex-end;
 }
 .wave-key .key-levels::before {
   background: #a1aeb5;
@@ -320,6 +333,9 @@
   flex: 1;
   color: var(--ink-soft);
 }
+#audio-status:empty {
+  display: none;
+}
 #playback-position {
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -330,68 +346,52 @@
   font-size: 0.7rem;
   padding: 3px 8px;
 }
-.sample-inspector {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 5px;
-  font-size: 0.68rem;
-  padding: 3px 10px;
-}
-.sample-inspector > span {
-  font-weight: 700;
-  margin-right: 2px;
-}
-.sample-inspector button {
-  padding: 0;
-  min-height: 28px;
-  width: 28px;
-  font-size: 1rem;
-}
-.sample-inspector output {
-  flex: 1;
-  min-width: 150px;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-.alias-notice {
-  margin: 9px 0 3px;
-  font-size: 0.74rem;
-  line-height: 1.5;
-}
-.filter-note {
-  margin: 0;
-  font-size: 0.65rem;
-  color: var(--ink-soft);
-}
 .audio-metrics {
-  grid-column: 1/-1;
+  padding: 14px 16px;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.pcm-summary {
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 6px 14px;
+  justify-content: space-between;
+  gap: 12px;
 }
-.audio-metrics > div {
-  display: grid;
-  gap: 2px;
+.pcm-summary h2 {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+.pcm-summary p {
+  margin: 4px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.7rem;
+}
+#pcm-size {
+  white-space: nowrap;
+  color: #18374f;
+}
+#pcm-size strong {
+  font-size: 2rem;
   line-height: 1.2;
 }
-.audio-metrics span {
-  color: var(--ink-soft);
-  font-size: 0.65rem;
+#pcm-size span {
+  font-size: 0.85rem;
+  margin-left: 2px;
 }
-.audio-metrics output {
-  font-size: 1rem;
+.pcm-calculation {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 0.76rem;
+  color: var(--ink-soft);
+}
+#pcm-bytes {
   font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.audio-metrics small {
-  font-size: 0.65rem;
-  color: var(--ink-soft);
-}
-.pcm-metric {
-  margin-left: auto;
-  text-align: right;
 }
 .audio-model {
   margin-top: 16px;
@@ -425,9 +425,6 @@
   .audio-controls {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-  }
-  .audio-presets {
-    grid-column: 1/-1;
   }
   .audio-panel {
     padding: 9px;
@@ -518,9 +515,6 @@
     width: 30px;
     min-height: 30px;
   }
-  .audio-presets {
-    gap: 4px;
-  }
   .wave-comparison {
     gap: 7px;
     margin-top: 8px;
@@ -566,28 +560,23 @@
   #playback-position {
     font-size: 0.58rem;
   }
-  .sample-inspector output {
-    font-size: 0.61rem;
-  }
   .audio-metrics {
-    gap: 12px;
-    align-items: start;
-    flex-wrap: wrap;
+    padding: 12px;
   }
-  .audio-metrics output {
-    font-size: 0.98rem;
+  #pcm-size strong {
+    font-size: 1.7rem;
   }
-  .pcm-metric {
-    margin-left: 0;
-    text-align: left;
-    flex: 1 0 100%;
-    border-top: 1px solid var(--line);
-    padding-top: 7px;
-    display: grid !important;
-    grid-template-columns: 1fr auto;
+  .pcm-summary h2 {
+    font-size: 0.82rem;
   }
-  .pcm-metric small {
-    grid-column: 1/-1;
+  .pcm-summary p {
     font-size: 0.6rem;
+  }
+  .pcm-calculation {
+    font-size: 0.69rem;
+  }
+  .rate-stepper button {
+    min-height: 30px;
+    width: 30px;
   }
 }
