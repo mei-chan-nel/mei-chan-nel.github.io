@@ -114,7 +114,6 @@ function fit() {
   camera.y = (bounds.top + bounds.bottom - camera.h) / 2;
   updateCamera();
 }
-function stopFollowing() { $("follow").checked = false; }
 function zoom(factor, point = { x: camera.x + camera.w / 2, y: camera.y + camera.h / 2 }) {
   const width = Math.max(240, Math.min(4000, camera.w * factor));
   const ratio = width / camera.w;
@@ -259,8 +258,7 @@ function renderTrace() {
     $("packet-select").value = packetId;
   }
   const packet = selectedPacket();
-  if (!packet) { $("follow").disabled = true; $("follow").checked = false; if (traceHTML) { $("packet-detail").innerHTML = '<p class="muted">送信したパケットの通過経路と、ルータの判断を確認できます。</p>'; traceHTML = ""; } return; }
-  $("follow").disabled = false;
+  if (!packet) { if (traceHTML) { $("packet-detail").innerHTML = '<p class="muted">送信したパケットの通過経路と、ルータの判断を確認できます。</p>'; traceHTML = ""; } return; }
   const html = `<div class="packet-title"><strong>${packet.id} · ${packet.index}/${packet.total}</strong><span class="badge ${packet.status}">${{ active: "通信中", delivered: "到達", lost: "消失" }[packet.status]}</span></div><p class="muted">${esc(sim.name(packet.source))} → ${esc(sim.name(packet.destination))}<br />宛先IP ${esc(packet.destinationAddress)}</p><p class="packet-fragment">「${esc(packet.fragment)}」</p><p class="packet-path">${packet.path.map((id) => esc(sim.name(id))).join(" → ")}${packet.transit ? " → " + esc(sim.name(packet.transit.to)) + "（移動中）" : ""}</p>${packet.reason ? `<p class="loss-explanation">× パケット消失<br />${esc(packet.reason)}</p>` : ""}<ol class="packet-decisions" tabindex="0" aria-label="ルータの判断履歴">${packet.decisions.map((d) => `<li><time datetime="${new Date(d.timestamp).toISOString()}">${clockText(d.timestamp)}</time>：${esc(sim.name(d.router))} → ${esc(d.next ? sim.name(d.next) : "経路なし")} <span class="muted">(v${d.version})</span></li>`).join("")}</ol>`;
   if (html !== traceHTML) { $("packet-detail").innerHTML = html; traceHTML = html; }
 }
@@ -360,10 +358,6 @@ function renderMotion() {
     const from = sim.nodes.get(path[i]), to = sim.nodes.get(id);
     return from && to ? `<line class="route-line ${p ? "" : "forecast"}" x1="${from.x}" y1="${from.y}" x2="${to.x}" y2="${to.y}"/>` : "";
   }).join("");
-  if ($("follow").checked && p?.status === "active") {
-    const pos = packetPosition(p);
-    if (pos) { camera.x = pos.x - camera.w / 2; camera.y = pos.y - camera.h / 2; updateCamera(); }
-  }
   $("connection-preview").innerHTML = wireDrag ? `<line class="connection-preview" x1="${sim.nodes.get(wireDrag.from).x}" y1="${sim.nodes.get(wireDrag.from).y}" x2="${wireDrag.point.x}" y2="${wireDrag.point.y}"/>` : "";
   positionContext();
 }
@@ -415,12 +409,11 @@ for (const kind of ["source", "destination"]) $("pick-" + kind).addEventListener
 $("pc-choice-list").addEventListener("click", (e) => { const id = e.target.closest("[data-choose-pc]")?.dataset.choosePc; if (id) { const kind = mode; setEndpoint(kind, id); $("pick-" + kind).focus({ preventScroll: true }); } });
 $("cancel-pick").addEventListener("click", () => { const kind = mode; setMode("select"); $("pick-" + kind)?.focus({ preventScroll: true }); });
 document.addEventListener("keydown", (e) => { if (e.key !== "Escape") return; if (["source", "destination"].includes(mode)) { const kind = mode; setMode("select"); $("pick-" + kind).focus({ preventScroll: true }); } else if (mode === "connect") { setMode("select"); nodeElements.get(selected.id)?.focus({ preventScroll: true }); status("接続を取り消しました。"); } else if (!$("send-settings").hidden) { showSendSettings(false); $("send-settings-toggle").focus({ preventScroll: true }); } else document.querySelector(".device-palette").open = false; });
-$("zoom-in").addEventListener("click", () => { stopFollowing(); zoom(0.75); });
-$("zoom-out").addEventListener("click", () => { stopFollowing(); zoom(1.33); });
-$("fit").addEventListener("click", () => { stopFollowing(); fit(); });
-$("follow").addEventListener("change", () => { if ($("follow").checked) zoom(Math.min(1, 650 / camera.w)); });
+$("zoom-in").addEventListener("click", () => { zoom(0.75); });
+$("zoom-out").addEventListener("click", () => { zoom(1.33); });
+$("fit").addEventListener("click", () => { fit(); });
 $("reset").addEventListener("click", () => {
-  sim = new RoutingSimulator(); lastFrame = performance.now(); selected = { kind: "node", id: "" }; contextOpen = false; contextSelection = ""; packetId = ""; setMode("select"); stopFollowing();
+  sim = new RoutingSimulator(); lastFrame = performance.now(); selected = { kind: "node", id: "" }; contextOpen = false; contextSelection = ""; packetId = ""; setMode("select");
   latestLoss = null; lastLossCount = 0; lossDismissed = false; wireDrag = null;
   showSendSettings(false); document.querySelector(".device-palette").open = false;
   pickerSignature = packetSignature = null; inspectorHTML = historyHTML = messagesHTML = traceHTML = "";
@@ -476,10 +469,10 @@ $("network").addEventListener("pointerdown", (e) => {
   document.querySelector(".device-palette").open = false;
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   $("network").setPointerCapture(e.pointerId);
-  if (pointers.size === 2) { drag = null; wireDrag = null; pinch = null; dirty = true; stopFollowing(); return; }
+  if (pointers.size === 2) { drag = null; wireDrag = null; pinch = null; dirty = true; return; }
   const handle = e.target.closest("[data-connect]");
   if (handle) {
-    setMode("select"); stopFollowing(); contextOpen = false;
+    setMode("select"); contextOpen = false;
     selected = { kind: "node", id: handle.dataset.connect };
     wireDrag = { from: handle.dataset.connect, pointer: e.pointerId, point: worldPoint(e) };
     status("緑で強調された相手まで引いて離すと、回線を接続できます。");
@@ -517,7 +510,7 @@ $("network").addEventListener("pointermove", (e) => {
   $("network").classList.add("is-dragging");
   const wx = dx / $("network").clientWidth * camera.w, wy = dy / $("network").clientHeight * camera.h;
   if (drag.node) { drag.node.x = drag.originalX + wx; drag.node.y = drag.originalY + wy; renderDiagram(); }
-  else { stopFollowing(); camera.x = drag.cameraX - wx; camera.y = drag.cameraY - wy; updateCamera(); }
+  else { camera.x = drag.cameraX - wx; camera.y = drag.cameraY - wy; updateCamera(); }
 });
 function endPointer(e) {
   pointers.delete(e.pointerId);
@@ -573,17 +566,17 @@ for (const button of document.querySelectorAll('[data-mode="router"], [data-mode
   };
   button.addEventListener("pointerup", end); button.addEventListener("pointercancel", end);
 }
-$("network").addEventListener("wheel", (e) => { e.preventDefault(); stopFollowing(); zoom(e.deltaY > 0 ? 1.1 : 0.9, worldPoint(e)); }, { passive: false });
+$("network").addEventListener("wheel", (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.1 : 0.9, worldPoint(e)); }, { passive: false });
 $("network").addEventListener("keydown", (e) => {
   const nodeId = e.target.closest("[data-node]")?.dataset.node, linkId = e.target.closest("[data-link]")?.dataset.link;
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (nodeId) selectNode(nodeId); else if (linkId) selectLink(linkId); }
   if (e.key === "Enter" && !nodeId && !linkId && ["pc", "lan", "router"].includes(mode)) attempt(() => { const node = sim.addNode(mode, camera.x + camera.w / 2, camera.y + camera.h / 2); setMode("select"); selectNode(node.id, false); status(`${node.label}を図の中央に追加しました。`); });
   if (e.key.toLowerCase() === "c" && nodeId) { e.preventDefault(); setMode("connect"); connectStart = nodeId; selected = { kind: "node", id: nodeId }; status(`${sim.name(nodeId)}から接続する機器を選び、Enterを押してください。`); }
   if (e.key === "Escape") { setMode("select"); contextOpen = false; status("操作を終了しました。機器を選んで実験できます。"); }
-  if (e.key === "+" || e.key === "=") { e.preventDefault(); stopFollowing(); zoom(.8); }
-  if (e.key === "-") { e.preventDefault(); stopFollowing(); zoom(1.25); }
+  if (e.key === "+" || e.key === "=") { e.preventDefault(); zoom(.8); }
+  if (e.key === "-") { e.preventDefault(); zoom(1.25); }
   if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
-    e.preventDefault(); stopFollowing();
+    e.preventDefault();
     const x = e.key === "ArrowLeft" ? -25 : e.key === "ArrowRight" ? 25 : 0, y = e.key === "ArrowUp" ? -25 : e.key === "ArrowDown" ? 25 : 0;
     if (nodeId) { const n = sim.nodes.get(nodeId); n.x += x; n.y += y; dirty = true; }
     else { camera.x += x; camera.y += y; updateCamera(); }
