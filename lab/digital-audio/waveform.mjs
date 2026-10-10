@@ -1,5 +1,7 @@
 import { createSignal, PLAYBACK_RATE, DURATION } from "./pcm.mjs?v=3";
 export const plotInsets = { left: 28, right: 8, top: 12, bottom: 24 };
+export const formatMilliseconds = (seconds) =>
+  String(Number((seconds * 1000).toFixed(3)));
 const blue = "#286788",
   orange = "#a14908",
   originalColor = "#91a5ad",
@@ -167,11 +169,7 @@ export class Waveforms {
     for (let i = 0; i <= 2; i++) {
       const time = this.start + (i * this.span) / 2;
       ctx.textAlign = i === 0 ? "left" : i === 2 ? "right" : "center";
-      ctx.fillText(
-        `${(time * 1000).toFixed(this.span <= 0.002 ? 1 : 0)}`,
-        left + (w * i) / 2,
-        height - 7,
-      );
+      ctx.fillText(formatMilliseconds(time), left + (w * i) / 2, height - 7);
     }
     ctx.textAlign = "right";
     ctx.fillText("ms", left + w, top + 4);
@@ -314,7 +312,7 @@ export class Waveforms {
       .map(([key]) => names[key]);
     this.combined.setAttribute(
       "aria-label",
-      `${visible.length ? visible.join("・") : "座標軸のみ"}。${(this.start * 1000).toFixed(1)}から${((this.start + this.span) * 1000).toFixed(1)}ミリ秒。${this.layers.samples ? (showDots ? "標本点を表示しています。" : "標本点は拡大すると表示されます。") : ""}`,
+      `${visible.length ? visible.join("・") : "座標軸のみ"}。${formatMilliseconds(this.start)}から${formatMilliseconds(this.start + this.span)}ミリ秒。${this.layers.samples ? (showDots ? "標本点を表示しています。" : "標本点は拡大すると表示されます。") : ""}`,
     );
   }
 }

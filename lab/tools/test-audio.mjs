@@ -45,6 +45,7 @@ async function observe(page) {
       "lineTo",
       "clearRect",
       "stroke",
+      "fillText",
     ]) {
       const native = CanvasRenderingContext2D.prototype[method];
       CanvasRenderingContext2D.prototype[method] = function (...args) {
@@ -58,6 +59,7 @@ async function observe(page) {
               color: this.strokeStyle,
               path: this.testPath?.slice(),
             });
+          if (method === "fillText") window.drawChecks.push({ text: args[0] });
         }
         return native.apply(this, args);
       };
@@ -352,6 +354,12 @@ try {
         combined.height > 200,
         "The compact toolbar gives more height to the graph",
       );
+      assert.ok(
+        await page.evaluate(() =>
+          window.drawChecks.some((s) => s.text === "42.5"),
+        ),
+        "The time-axis midpoint keeps its half millisecond",
+      );
     }
     if (width === 1280) {
       const metrics = await page.locator(".audio-metrics").boundingBox();
@@ -461,6 +469,16 @@ try {
     assert.equal(await page.locator("#levels").innerText(), "16");
     assert.equal(await page.locator("#pcm-bytes").innerText(), "24,000 バイト");
     await page.locator("#window-size").selectOption("0.0005");
+    assert.ok(
+      await page.evaluate(
+        (w) =>
+          window.drawChecks.some(
+            (s) => s.text === (w === 1280 ? "42.25" : "40.25"),
+          ),
+        width,
+      ),
+      "Quarter-millisecond ticks are not rounded to tenths",
+    );
     assert.match(
       await page.locator("#combined-wave").getAttribute("aria-label"),
       /標本点を表示/,

@@ -7,7 +7,7 @@ import {
   samplingStatus,
 } from "./pcm.mjs?v=3";
 import { audioWorkerSource } from "./worker-source.mjs?v=3";
-import { Waveforms } from "./waveform.mjs?v=3";
+import { Waveforms, formatMilliseconds } from "./waveform.mjs?v=4";
 import { installCanvasResize } from "../shared/resize.mjs";
 const $ = (id) => document.getElementById(id),
   fmt = (n) => n.toLocaleString("ja-JP");
@@ -54,7 +54,7 @@ function setWindow(start) {
     String(waves.span === DURATION),
   );
   $("window-label").textContent =
-    `${(waves.start * 1000).toFixed(waves.span <= 0.002 ? 1 : 0)}–${((waves.start + waves.span) * 1000).toFixed(waves.span <= 0.002 ? 1 : 0)} ms`;
+    `${formatMilliseconds(waves.start)}–${formatMilliseconds(waves.start + waves.span)} ms`;
   $("overview-wave").setAttribute(
     "aria-valuetext",
     $("window-label").textContent,
