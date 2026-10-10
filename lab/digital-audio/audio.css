@@ -188,6 +188,7 @@
   font-weight: 700;
   min-width: 46px;
   text-align: center;
+  white-space: nowrap;
 }
 .audio-stepper output small {
   font-size: 0.7rem;
@@ -208,22 +209,23 @@
   min-width: 0;
 }
 .wave-navigation {
-  padding: 9px 12px 5px;
+  padding: 8px 12px;
 }
-.wave-navigation-heading {
+.wave-range {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 0.72rem;
+  margin-top: 9px;
 }
-.wave-navigation-heading label {
+.wave-range label {
   font-weight: 700;
 }
-.wave-navigation-heading select {
+.wave-range select {
   padding: 3px 6px;
   font-size: 0.72rem;
 }
-.wave-navigation-heading output {
+.wave-range output {
   margin-left: auto;
   font-size: 0.65rem;
   color: var(--ink-soft);
@@ -232,18 +234,11 @@
   display: block;
   width: 100%;
   height: 32px;
-  margin-top: 4px;
   cursor: crosshair;
   touch-action: none;
 }
-.wave-comparison {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 10px;
-}
 .wave-card {
-  margin: 0;
+  margin: 10px 0 0;
   padding: 10px;
   overflow: hidden;
   font-size: 0.7rem;
@@ -263,6 +258,14 @@
   font-size: 0.7rem;
   padding: 4px 7px;
 }
+.play-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.play-buttons button {
+  white-space: nowrap;
+}
 .audio-lab .wave-card button {
   color: #fff;
   background: #18374f;
@@ -279,40 +282,64 @@
 .wave-card canvas {
   display: block;
   width: 100%;
-  height: 160px;
+  height: 200px;
 }
-.wave-key {
+.wave-layers {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
-  margin: 0;
-  font-size: 0.6rem;
+  gap: 2px 16px;
+  border: 0;
+  padding: 0;
+  margin: 7px 0 2px;
+  font-size: 0.67rem;
   color: var(--ink-soft);
 }
-.wave-key span::before {
+.wave-layers legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+}
+.wave-layers label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 30px;
+  cursor: pointer;
+}
+.wave-layers input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #18374f;
+}
+.wave-layers span::before {
   content: "";
   display: inline-block;
   width: 13px;
   height: 3px;
   margin: 0 4px 3px 0;
-  background: var(--blue-strong);
+  background: #91a5ad;
 }
-.wave-key .key-sample::before {
+.wave-layers .layer-samples span::before {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #20576d;
+  background: #fff;
+  border: 1.2px solid #286788;
   margin-bottom: 1px;
 }
-.wave-key .key-processed::before {
-  background: #9a4e09;
-}
-.wave-key .key-quantized::before {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
+.wave-layers .layer-quantized span::before {
   background: #a14908;
-  margin-bottom: 1px;
+}
+.wave-layers .layer-reconstructed span::before {
+  background: transparent;
+  border-top: 2px dashed #76559b;
+  height: 0;
+}
+.wave-layers small {
+  font-size: 0.56rem;
 }
 .audio-playback {
   display: flex;
@@ -322,11 +349,7 @@
   font-size: 0.7rem;
   justify-content: flex-end;
 }
-.wave-key .key-levels::before {
-  background: #a1aeb5;
-  height: 1px;
-}
-.audio-lab[aria-busy="true"] .wave-comparison {
+.audio-lab[aria-busy="true"] .wave-card {
   opacity: 0.6;
 }
 #audio-status {
@@ -445,7 +468,7 @@
     grid-row: 2;
   }
   .wave-card canvas {
-    height: 160px;
+    height: 190px;
   }
 }
 @media (max-width: 500px) {
@@ -515,18 +538,13 @@
     width: 30px;
     min-height: 30px;
   }
-  .wave-comparison {
-    gap: 7px;
-    margin-top: 8px;
-  }
   .wave-card {
     padding: 7px;
+    margin-top: 8px;
   }
   .wave-card figcaption {
-    display: grid;
-    grid-template-rows: 18px 30px;
-    justify-content: start;
-    gap: 4px;
+    flex-wrap: wrap;
+    gap: 6px;
   }
   .wave-card h2 {
     font-size: 0.78rem;
@@ -537,16 +555,18 @@
     padding: 3px 6px;
   }
   .wave-card canvas {
-    height: 132px;
+    height: 170px;
   }
-  .wave-key {
-    font-size: 0.56rem;
-    gap: 3px;
+  .wave-layers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 6px;
+    font-size: 0.64rem;
   }
-  .wave-navigation-heading output {
+  .wave-range output {
     font-size: 0.58rem;
   }
-  .wave-navigation-heading {
+  .wave-range {
     gap: 5px;
     font-size: 0.67rem;
   }

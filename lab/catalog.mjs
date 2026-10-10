@@ -52,8 +52,8 @@ export const contents = [
   {
     id: "digital-audio",
     group: "digital-representation",
-    styles: ["audio.css?v=2"],
-    scripts: ["audio.mjs?v=2"],
+    styles: ["audio.css?v=3"],
+    scripts: ["audio.mjs?v=3"],
     name: "音のデジタル化",
     description:
       "標本化周波数と量子化ビット数を変えて、音と波形を比較。標本点や折り返しも確かめます。",

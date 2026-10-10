@@ -5,12 +5,12 @@ import {
   pcmSize,
   referenceAudio,
   samplingStatus,
-} from "./pcm.mjs?v=2";
-import { audioWorkerSource } from "./worker-source.mjs?v=2";
-import { Waveforms } from "./waveform.mjs?v=2";
+} from "./pcm.mjs?v=3";
+import { audioWorkerSource } from "./worker-source.mjs?v=3";
+import { Waveforms } from "./waveform.mjs?v=3";
 const $ = (id) => document.getElementById(id),
   fmt = (n) => n.toLocaleString("ja-JP");
-const defaults = { source: "twinkle", tone: 1000, sampleRate: 8000, bits: 8 };
+const defaults = { source: "twinkle", tone: 1000, sampleRate: 48000, bits: 16 };
 let config = { ...defaults },
   data,
   revision = 0,
@@ -19,6 +19,7 @@ let config = { ...defaults },
   worker;
 let audioContext,
   gain,
+  voiceGain,
   node,
   playing = null,
   pendingResume = null,
@@ -28,12 +29,12 @@ let audioContext,
   frame = 0;
 const lab = document.querySelector(".audio-lab");
 const defaultSpan = window.matchMedia("(max-width: 500px)").matches
-  ? 0.002
-  : 0.01;
+  ? 0.001
+  : 0.005;
 const waves = new Waveforms({
   overview: $("overview-wave"),
-  original: $("original-wave"),
-  processed: $("processed-wave"),
+  combined: $("combined-wave"),
+  density: $("sample-density"),
   onWindow: setWindow,
 });
 waves.span = defaultSpan;
@@ -115,21 +116,35 @@ function currentOffset() {
     ? Math.min(DURATION, offset + audioContext.currentTime - began)
     : offset;
 }
+function retireVoice(now = audioContext?.currentTime) {
+  if (!node) return;
+  const old = node,
+    oldGain = voiceGain;
+  node = null;
+  voiceGain = null;
+  const disconnect = () => {
+    old.disconnect();
+    oldGain.disconnect();
+  };
+  if (audioContext.state !== "running") {
+    old.stop();
+    disconnect();
+    return;
+  }
+  if (oldGain.gain.cancelAndHoldAtTime) oldGain.gain.cancelAndHoldAtTime(now);
+  else {
+    const value = oldGain.gain.value;
+    oldGain.gain.cancelScheduledValues(now);
+    oldGain.gain.setValueAtTime(value, now);
+  }
+  oldGain.gain.linearRampToValueAtTime(0, now + 0.006);
+  old.stop(now + 0.006);
+}
 function stop(clearResume = true) {
   const at = currentOffset();
   playToken++;
   cancelAnimationFrame(frame);
-  if (node) {
-    node.onended = null;
-    const old = node;
-    try {
-      old.stop();
-      old.disconnect();
-    } catch {
-      /* Already stopped. */
-    }
-    node = null;
-  }
+  retireVoice();
   playing = null;
   offset = 0;
   waves.playhead = null;
@@ -151,39 +166,48 @@ async function play(kind, from = 0) {
     if (!audioContext) {
       audioContext = new Audio();
       gain = audioContext.createGain();
+      gain.gain.value = Number($("volume").value) / 100;
       gain.connect(audioContext.destination);
     }
     await audioContext.resume();
     if (token !== playToken || lab.getAttribute("aria-busy") === "true") return;
     if (audioContext.state !== "running")
       throw new Error("再生できませんでした。もう一度再生を押してください。");
-    if (node) {
-      node.onended = null;
-      node.stop();
-      node.disconnect();
-    }
+    cancelAnimationFrame(frame);
+    const now = audioContext.currentTime;
+    retireVoice(now);
     const samples = kind === "original" ? data.reference : data.processed;
     const buffer = audioContext.createBuffer(1, samples.length, PLAYBACK_RATE);
     buffer.copyToChannel(samples, 0);
-    node = audioContext.createBufferSource();
-    node.buffer = buffer;
-    node.connect(gain);
+    const source = audioContext.createBufferSource(),
+      envelope = audioContext.createGain();
+    source.buffer = buffer;
+    source.connect(envelope);
+    envelope.connect(gain);
     offset = Math.max(0, Math.min(DURATION - 0.001, from));
-    began = audioContext.currentTime;
-    gain.gain.setValueAtTime(0, began);
-    gain.gain.linearRampToValueAtTime(
-      Number($("volume").value) / 100,
-      began + 0.005,
-    );
+    began = now;
+    const end = began + DURATION - offset;
+    const ramp = Math.min(0.006, (DURATION - offset) / 2);
+    envelope.gain.setValueAtTime(0, began);
+    envelope.gain.linearRampToValueAtTime(1, began + ramp);
+    envelope.gain.setValueAtTime(1, end - ramp);
+    envelope.gain.linearRampToValueAtTime(0, end);
     playing = kind;
     pendingResume = null;
-    node.onended = () => {
-      if (token === playToken) {
+    source.onended = () => {
+      // Retired sources still need cleanup after a newer voice has started.
+      source.disconnect();
+      envelope.disconnect();
+      if (node === source && token === playToken) {
+        node = null;
+        voiceGain = null;
         stop();
         $("audio-status").textContent = "";
       }
     };
-    node.start(0, offset);
+    source.start(began, offset);
+    node = source;
+    voiceGain = envelope;
     $("audio-status").textContent =
       kind === "original" ? "原音を再生中" : "デジタル化後を再生中";
     playbackButtons();
@@ -307,11 +331,14 @@ $("sample-rate").addEventListener("input", () => {
 });
 $("sample-rate").addEventListener("blur", () => {
   const value = Number($("sample-rate").value);
-  config.sampleRate =
+  const next =
     Number.isFinite(value) && value
       ? Math.max(500, Math.min(PLAYBACK_RATE, Math.round(value)))
       : config.sampleRate;
-  update();
+  if (next !== config.sampleRate) {
+    config.sampleRate = next;
+    update();
+  } else $("sample-rate").value = config.sampleRate;
 });
 for (const delta of [-1, 1])
   $(delta > 0 ? "bits-up" : "bits-down").addEventListener("click", () => {
@@ -336,11 +363,22 @@ $("reset-audio").addEventListener("click", () => {
   stop();
   config = { ...defaults };
   $("volume").value = 35;
+  syncVolume();
   waves.span = defaultSpan;
   $("window-size").value = String(defaultSpan);
   setWindow(0.04);
+  for (const input of document.querySelectorAll(".wave-layers input"))
+    input.checked = input.id !== "show-reconstructed";
+  syncLayers();
   update();
 });
+function syncLayers() {
+  for (const layer of ["original", "samples", "quantized", "reconstructed"])
+    waves.layers[layer] = $("show-" + layer).checked;
+  waves.draw();
+}
+for (const input of document.querySelectorAll(".wave-layers input"))
+  input.addEventListener("change", syncLayers);
 $("window-size").addEventListener("change", () => {
   const center = waves.start + waves.span / 2;
   waves.span = Number($("window-size").value);
@@ -357,14 +395,15 @@ $("stop-audio").addEventListener("click", () => {
   stop();
   $("audio-status").textContent = "";
 });
-$("volume").addEventListener("input", () => {
+function syncVolume() {
   if (gain)
     gain.gain.setTargetAtTime(
       Number($("volume").value) / 100,
       audioContext.currentTime,
       0.01,
     );
-});
+}
+$("volume").addEventListener("input", syncVolume);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) stop();
 });

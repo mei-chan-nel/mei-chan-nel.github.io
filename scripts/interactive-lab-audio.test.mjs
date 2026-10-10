@@ -114,6 +114,25 @@ test("PCM理論値は秒数・チャンネル数・ビット数に比例し、�
     packedBytes: 1,
   });
 });
+test("48 kHz・16 bitの両ピアノ音源に丸め誤差を超える雑音を加えない", () => {
+  for (const source of ["twinkle", "ode"]) {
+    const config = { source, sampleRate: 48000, bits: 16 };
+    const reference = referenceAudio(config),
+      { processed } = digitizeAudio(config);
+    let sum = 0;
+    for (let i = 0; i < reference.length; i++) {
+      const error = processed[i] - reference[i];
+      assert.ok(
+        Math.abs(error) <= 1 / 65536 + 3e-8,
+        "Within half a quantization step plus float rounding",
+      );
+      sum += error * error;
+    }
+    assert.ok(Math.sqrt(sum / reference.length) < 0.00001);
+    if (source === "twinkle")
+      assert.ok(processed.slice(250000).every((v) => v === 0));
+  }
+});
 test("ピアノ2音源をブラウザ内で生成し、飽和させず、6秒で演奏を終える", () => {
   const twinkle = referenceAudio({ source: "twinkle" }),
     ode = referenceAudio({ source: "ode" });

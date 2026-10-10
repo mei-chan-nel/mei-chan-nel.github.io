@@ -31,7 +31,37 @@ async function observe(page) {
     return route.abort();
   });
   await page.addInitScript(() => {
-    window.audioChecks = { buffers: [], starts: [], contexts: 0 };
+    window.audioChecks = {
+      buffers: [],
+      starts: [],
+      contexts: 0,
+      sources: [],
+      rawBuffers: [],
+    };
+    window.drawChecks = [];
+    for (const method of [
+      "beginPath",
+      "moveTo",
+      "lineTo",
+      "clearRect",
+      "stroke",
+    ]) {
+      const native = CanvasRenderingContext2D.prototype[method];
+      CanvasRenderingContext2D.prototype[method] = function (...args) {
+        if (this.canvas.id === "combined-wave") {
+          if (method === "clearRect") window.drawChecks = [];
+          if (method === "beginPath") this.testPath = [];
+          if (method === "moveTo" || method === "lineTo")
+            this.testPath?.push([method, ...args]);
+          if (method === "stroke")
+            window.drawChecks.push({
+              color: this.strokeStyle,
+              path: this.testPath?.slice(),
+            });
+        }
+        return native.apply(this, args);
+      };
+    }
     const Native = window.AudioContext;
     window.AudioContext = class extends Native {
       constructor() {
@@ -62,6 +92,7 @@ async function observe(page) {
             energy,
             aliasRms: Math.sqrt(error / 235200),
           });
+          window.audioChecks.rawBuffers.push(Float32Array.from(values));
           copy(values, ...rest);
         };
         return buffer;
@@ -71,10 +102,75 @@ async function observe(page) {
           start = source.start.bind(source);
         source.start = (...args) => {
           window.audioChecks.starts.push(args);
+          source.testStart = args;
           start(...args);
         };
+        const connect = source.connect.bind(source);
+        source.connect = (next, ...args) => {
+          source.testNext = next;
+          return connect(next, ...args);
+        };
+        window.audioChecks.sources.push(source);
         return source;
       }
+      createGain() {
+        const gain = super.createGain(),
+          connect = gain.connect.bind(gain);
+        gain.testAutomation = [];
+        gain.connect = (next, ...args) => {
+          gain.testNext = next;
+          return connect(next, ...args);
+        };
+        for (const method of ["setValueAtTime", "linearRampToValueAtTime"]) {
+          const native = gain.gain[method].bind(gain.gain);
+          gain.gain[method] = (...args) => {
+            gain.testAutomation.push([method, ...args]);
+            return native(...args);
+          };
+        }
+        return gain;
+      }
+    };
+    // Render the actual buffer and captured gain graph through the native Web Audio
+    // engine, both at 48 kHz and at a device rate of 44.1 kHz. No mock audio nodes.
+    window.checkPlaybackGraph = async (outputRate) => {
+      const captured = window.audioChecks.sources.at(-1);
+      const voice = captured.testNext,
+        master = voice.testNext;
+      const render = async (values) => {
+        const offline = new OfflineAudioContext(1, outputRate * 6, outputRate);
+        const source = offline.createBufferSource();
+        source.buffer = offline.createBuffer(1, values.length, 48000);
+        source.buffer.copyToChannel(values, 0);
+        const fade = offline.createGain(),
+          volume = offline.createGain();
+        volume.gain.value = master.gain.value;
+        for (const [method, value, time] of voice.testAutomation)
+          fade.gain[method](value, Math.max(0, time - captured.testStart[0]));
+        source.connect(fade);
+        fade.connect(volume);
+        volume.connect(offline.destination);
+        source.start(0, captured.testStart[1] || 0);
+        return (await offline.startRendering()).getChannelData(0);
+      };
+      const actual = await render(window.audioChecks.rawBuffers.at(-1));
+      const original = await render(window.audioChecks.rawBuffers[0]);
+      let error = 0,
+        peak = 0,
+        tail = 0;
+      for (let i = Math.ceil(outputRate * 0.02); i < outputRate * 5.1; i++) {
+        error += (actual[i] - original[i]) ** 2;
+        peak = Math.max(peak, Math.abs(actual[i]));
+      }
+      for (let i = Math.ceil(outputRate * 5.3); i < actual.length; i++)
+        tail = Math.max(tail, Math.abs(actual[i]));
+      return {
+        rms: Math.sqrt(error / (outputRate * 5.08)),
+        peak,
+        tail,
+        channels: 1,
+        rate: outputRate,
+      };
     };
   });
 }
@@ -135,9 +231,25 @@ try {
         () => document.documentElement.scrollWidth <= innerWidth,
       ),
     );
-    const original = await page.locator("#original-wave").boundingBox(),
-      processed = await page.locator("#processed-wave").boundingBox();
-    assert.ok(Math.abs(original.y - processed.y) < 1, "Waveform axes line up");
+    const combined = await page.locator("#combined-wave").boundingBox();
+    const visual = await page.locator(".audio-visuals").boundingBox();
+    assert.ok(
+      combined.width > visual.width * 0.85,
+      "One wide waveform uses the available width",
+    );
+    const originalPlay = await page.locator("#play-original").boundingBox();
+    const processedPlay = await page.locator("#play-processed").boundingBox();
+    assert.ok(
+      Math.abs(originalPlay.y - processedPlay.y) < 1,
+      "A/B play buttons sit side by side",
+    );
+    assert.equal(
+      await page
+        .locator("#window-size")
+        .evaluate((el) => !!el.closest(".wave-card")),
+      true,
+    );
+    assert.equal(await page.locator("#show-reconstructed").isChecked(), false);
     if (width === 1280) {
       const metrics = await page.locator(".audio-metrics").boundingBox();
       assert.ok(
@@ -146,17 +258,90 @@ try {
       );
     }
     assert.equal(await page.locator("#audio-status").innerText(), "");
-    const colors = await page
-      .locator("#play-original")
-      .evaluate((el) => ({
-        background: getComputedStyle(el).backgroundColor,
-        color: getComputedStyle(el).color,
-      }));
+    const colors = await page.locator("#play-original").evaluate((el) => ({
+      background: getComputedStyle(el).backgroundColor,
+      color: getComputedStyle(el).color,
+    }));
     assert.deepEqual(colors, {
       background: "rgb(24, 55, 79)",
       color: "rgb(255, 255, 255)",
     });
     await axe(page);
+    // A full-quality digitization must not introduce constant hiss in the buffer
+    // or through the real browser audio graph, including device-rate conversion.
+    await page.locator("#play-original").click();
+    await page.waitForFunction(
+      () => document.querySelector("#play-original").dataset.playing === "true",
+    );
+    await page.locator("#stop-audio").click();
+    await page.locator("#play-processed").click();
+    await page.waitForFunction(
+      () =>
+        document.querySelector("#play-processed").dataset.playing === "true",
+    );
+    const quality = await page.evaluate(() => {
+      const [reference, processed] = window.audioChecks.rawBuffers;
+      let error = 0,
+        max = 0,
+        tail = 0;
+      for (let i = 0; i < reference.length; i++) {
+        const delta = processed[i] - reference[i];
+        error += delta * delta;
+        max = Math.max(max, Math.abs(delta));
+        if (i >= 250000) tail = Math.max(tail, Math.abs(processed[i]));
+      }
+      return { rms: Math.sqrt(error / reference.length), max, tail };
+    });
+    assert.ok(
+      quality.rms < 0.00001 && quality.max < 0.0000154,
+      "16-bit error stays within the PCM rounding bound",
+    );
+    assert.equal(quality.tail, 0, "No added sound in the silent tail");
+    if (width === 1280) {
+      for (const outputRate of [48000, 44100]) {
+        const graph = await page.evaluate(
+          (rate) => window.checkPlaybackGraph(rate),
+          outputRate,
+        );
+        assert.ok(
+          graph.rms < 0.000006,
+          "The rendered audio graph does not add extra noise",
+        );
+        assert.ok(graph.peak < 0.25, "Playback stays below clipping");
+        assert.equal(
+          graph.tail,
+          0,
+          "The rendered graph has no noise during silence",
+        );
+        console.log(
+          `Full-quality Web Audio render at ${outputRate} Hz: RMS error ${graph.rms}, silent tail ${graph.tail}`,
+        );
+      }
+    }
+    await page.locator("#stop-audio").click();
+    for (const id of ["original", "samples", "quantized", "reconstructed"]) {
+      const before = await page
+        .locator("#combined-wave")
+        .evaluate((el) => el.toDataURL());
+      await page.locator("#show-" + id).click();
+      const after = await page
+        .locator("#combined-wave")
+        .evaluate((el) => el.toDataURL());
+      assert.notEqual(
+        before,
+        after,
+        `${id} layer changes the actual plotted pixels`,
+      );
+    }
+    await page.locator("#show-reconstructed").click();
+    assert.match(
+      await page.locator("#combined-wave").getAttribute("aria-label"),
+      /座標軸のみ/,
+    );
+    for (const id of ["original", "samples", "quantized"])
+      await page.locator("#show-" + id).click();
+    assert.equal(await page.evaluate(() => window.audioChecks.contexts), 1);
+    await rate(page, 8000);
     await page.locator("#rate-up").click();
     await ready(page);
     assert.equal(await page.locator("#sample-rate").inputValue(), "8500");
@@ -173,10 +358,11 @@ try {
     assert.equal(await page.locator("#pcm-bytes").innerText(), "24,000 バイト");
     await page.locator("#window-size").selectOption("0.0005");
     assert.match(
-      await page.locator("#processed-wave").getAttribute("aria-label"),
+      await page.locator("#combined-wave").getAttribute("aria-label"),
       /標本点を表示/,
     );
     await page.locator("#window-size").selectOption("6");
+    assert.equal(await page.locator("#sample-density").isVisible(), true);
     assert.equal(
       await page.locator("#overview-wave").getAttribute("aria-disabled"),
       "true",
@@ -234,6 +420,26 @@ try {
     }
     await page.locator("#stop-audio").click();
     await aliasSetup(page);
+    const stairs = await page.evaluate(
+      () => window.drawChecks.find((s) => s.color === "#a14908").path,
+    );
+    assert.ok(
+      stairs.length > 20,
+      "The graph contains sampled values over multiple periods",
+    );
+    for (let i = 1; i < stairs.length; i++)
+      assert.ok(
+        Math.abs(stairs[i][1] - stairs[i - 1][1]) < 1e-8 ||
+          Math.abs(stairs[i][2] - stairs[i - 1][2]) < 1e-8,
+        "Quantized values form horizontal holds and vertical transitions",
+      );
+    const layerOrder = await page.evaluate(() =>
+      window.drawChecks.map((s) => s.color),
+    );
+    assert.ok(
+      layerOrder.indexOf("#91a5ad") < layerOrder.indexOf("#a14908"),
+      "The original curve is underneath the staircase",
+    );
     assert.equal(
       await page.locator("#alias-warning").innerText(),
       "※ エイリアシングが発生",
@@ -304,8 +510,11 @@ try {
     await page.locator("#reset-audio").click();
     await ready(page);
     assert.equal(await page.locator("#sound-source").inputValue(), "twinkle");
-    assert.equal(await page.locator("#sample-rate").inputValue(), "8000");
-    assert.match(await page.locator("#bits").innerText(), /^8/);
+    assert.equal(await page.locator("#sample-rate").inputValue(), "48000");
+    assert.match(await page.locator("#bits").innerText(), /^16/);
+    for (const id of ["original", "samples", "quantized"])
+      assert.equal(await page.locator("#show-" + id).isChecked(), true);
+    assert.equal(await page.locator("#show-reconstructed").isChecked(), false);
     assert.equal(await page.locator("#tone-control").isVisible(), false);
     await page.evaluate(() =>
       window.dispatchEvent(

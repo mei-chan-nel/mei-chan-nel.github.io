@@ -1,7 +1,9 @@
-import { createSignal, PLAYBACK_RATE, DURATION } from "./pcm.mjs?v=2";
+import { createSignal, PLAYBACK_RATE, DURATION } from "./pcm.mjs?v=3";
 export const plotInsets = { left: 28, right: 8, top: 12, bottom: 24 };
 const blue = "#286788",
   orange = "#a14908",
+  originalColor = "#91a5ad",
+  reconstructedColor = "#76559b",
   ink = "#58686d";
 function surface(canvas) {
   const width = canvas.clientWidth,
@@ -54,14 +56,19 @@ function envelope(ctx, values, x, width, height, start, span, rate) {
   ctx.stroke();
 }
 export class Waveforms {
-  constructor({ overview, original, processed, onWindow }) {
-    Object.assign(this, { overview, original, processed, onWindow });
+  constructor({ overview, combined, density, onWindow }) {
+    Object.assign(this, { overview, combined, density, onWindow });
     this.start = 0.04;
-    this.span = 0.01;
+    this.span = 0.005;
+    this.layers = {
+      original: true,
+      samples: true,
+      quantized: true,
+      reconstructed: false,
+    };
     this.playhead = null;
     this.observer = new ResizeObserver(() => this.draw());
-    for (const canvas of [overview, original, processed])
-      this.observer.observe(canvas);
+    for (const canvas of [overview, combined]) this.observer.observe(canvas);
     const pointer = (canvas, handler) => {
       canvas.addEventListener("pointerdown", (event) => {
         canvas.setPointerCapture(event.pointerId);
@@ -100,8 +107,7 @@ export class Waveforms {
   draw() {
     if (!this.data) return;
     this.drawOverview();
-    this.drawDetail(this.original, false);
-    this.drawDetail(this.processed, true);
+    this.drawDetail();
   }
   drawOverview() {
     if (!this.data) return;
@@ -148,8 +154,8 @@ export class Waveforms {
       ctx.stroke();
     }
   }
-  drawDetail(canvas, processed) {
-    const { ctx, left, top, w, h, height } = extent(canvas);
+  drawDetail() {
+    const { ctx, left, top, w, h, height } = extent(this.combined);
     const x = (time) => left + ((time - this.start) / this.span) * w,
       y = (value) => top + h / 2 - (value * h) / 2.4;
     const { sampleRate, bits } = this.config;
@@ -176,7 +182,7 @@ export class Waveforms {
     ctx.lineWidth = 1;
     ctx.strokeStyle = "#dde5e8";
     const levels =
-      processed && bits <= 4
+      this.layers.quantized && bits <= 4
         ? Array.from({ length: 2 ** bits }, (_, i) => -1 + (i * 2) / 2 ** bits)
         : [-1, -0.5, 0, 0.5, 1];
     for (const v of levels) {
@@ -191,31 +197,75 @@ export class Waveforms {
       ctx.lineTo(left + (w * i) / 4, top + h);
       ctx.stroke();
     }
-    ctx.lineWidth = 1.6;
-    ctx.strokeStyle = processed ? orange : blue;
-    const values = processed ? this.data.processed : this.data.reference;
-    if (this.span * PLAYBACK_RATE > w * 2)
-      envelope(ctx, values, left, w, y, this.start, this.span, PLAYBACK_RATE);
-    else {
+    const curve = (values, analytic) => {
+      if (this.span * PLAYBACK_RATE > w * 2) {
+        envelope(ctx, values, left, w, y, this.start, this.span, PLAYBACK_RATE);
+        return;
+      }
       ctx.beginPath();
-      for (let i = 0; i <= w; i++) {
-        const time = this.start + (i / w) * this.span;
-        let value;
-        if (!processed) value = this.signal(time);
-        else {
-          const index = time * PLAYBACK_RATE,
-            floor = Math.floor(index),
-            fraction = index - floor;
-          value =
-            (values[floor] || 0) * (1 - fraction) +
+      for (let i = 0; i <= Math.ceil(w); i++) {
+        const px = Math.min(w, i),
+          time = this.start + (px / w) * this.span;
+        const index = time * PLAYBACK_RATE,
+          floor = Math.floor(index),
+          fraction = index - floor;
+        const value = analytic
+          ? this.signal(time)
+          : (values[floor] || 0) * (1 - fraction) +
             (values[floor + 1] || 0) * fraction;
-        }
-        if (!i) ctx.moveTo(left + i, y(value));
-        else ctx.lineTo(left + i, y(value));
+        if (!i) ctx.moveTo(left + px, y(value));
+        else ctx.lineTo(left + px, y(value));
       }
       ctx.stroke();
+    };
+    // Draw the reference underneath every digitized layer.
+    if (this.layers.original) {
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = originalColor;
+      curve(this.data.reference, true);
     }
-    const showDots = w / (sampleRate * this.span) >= 3;
+    if (this.layers.reconstructed) {
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = reconstructedColor;
+      ctx.setLineDash([5, 3]);
+      curve(this.data.processed, false);
+      ctx.setLineDash([]);
+    }
+    if (this.layers.quantized) {
+      ctx.lineWidth = 1.7;
+      ctx.strokeStyle = orange;
+      if (sampleRate * this.span > w * 2) {
+        // At a full-clip scale, preserve the peaks in each display column.
+        envelope(
+          ctx,
+          this.data.quantized,
+          left,
+          w,
+          y,
+          this.start,
+          this.span,
+          sampleRate,
+        );
+      } else {
+        const values = this.data.quantized;
+        const first = Math.max(0, Math.floor(this.start * sampleRate));
+        const last = Math.min(
+          values.length - 1,
+          Math.floor((this.start + this.span) * sampleRate),
+        );
+        ctx.beginPath();
+        ctx.moveTo(left, y(values[first]));
+        for (let n = first; n <= last; n++) {
+          const edge = Math.min(left + w, x((n + 1) / sampleRate));
+          ctx.lineTo(edge, y(values[n]));
+          if (n < last) ctx.lineTo(edge, y(values[n + 1]));
+        }
+        ctx.stroke();
+      }
+    }
+    const spacing = w / (sampleRate * this.span),
+      showDots = spacing >= 3;
+    this.density.hidden = !this.layers.samples || showDots;
     if (showDots) {
       const first = Math.max(0, Math.ceil(this.start * sampleRate)),
         last = Math.min(
@@ -226,7 +276,7 @@ export class Waveforms {
         const px = x(n / sampleRate),
           before = this.data.raw[n],
           after = this.data.quantized[n];
-        if (processed) {
+        if (this.layers.samples && this.layers.quantized) {
           ctx.strokeStyle = "#c39b74";
           ctx.lineWidth = 1;
           ctx.beginPath();
@@ -234,27 +284,37 @@ export class Waveforms {
           ctx.lineTo(px, y(after));
           ctx.stroke();
         }
-        ctx.beginPath();
-        ctx.arc(px, y(processed ? after : before), 2.4, 0, Math.PI * 2);
-        ctx.fillStyle = processed ? orange : "#20576d";
-        ctx.fill();
+        const radius = Math.min(2.7, spacing * 0.34);
+        if (this.layers.samples) {
+          ctx.beginPath();
+          ctx.arc(px, y(before), radius, 0, Math.PI * 2);
+          ctx.fillStyle = "#fff";
+          ctx.fill();
+          ctx.strokeStyle = blue;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+        }
+        if (this.layers.quantized) {
+          ctx.beginPath();
+          ctx.arc(px, y(after), Math.min(1.7, radius * 0.65), 0, Math.PI * 2);
+          ctx.fillStyle = orange;
+          ctx.fill();
+        }
       }
     }
     ctx.restore();
-    canvas.setAttribute(
+    const names = {
+      original: "原音の波形",
+      samples: "標本点",
+      quantized: "量子化後の階段",
+      reconstructed: "再構成波形",
+    };
+    const visible = Object.entries(this.layers)
+      .filter(([, on]) => on)
+      .map(([key]) => names[key]);
+    this.combined.setAttribute(
       "aria-label",
-      `${processed ? "量子化後の標本と再構成した波形" : "元の波形と標本点"}。${(this.start * 1000).toFixed(1)}から${((this.start + this.span) * 1000).toFixed(1)}ミリ秒。${showDots ? "標本点を表示しています。" : "標本点は拡大すると表示されます。"}`,
+      `${visible.length ? visible.join("・") : "座標軸のみ"}。${(this.start * 1000).toFixed(1)}から${((this.start + this.span) * 1000).toFixed(1)}ミリ秒。${this.layers.samples ? (showDots ? "標本点を表示しています。" : "標本点は拡大すると表示されます。") : ""}`,
     );
-    canvas.nextElementSibling.querySelector(
-      processed ? ".key-quantized" : ".key-sample",
-    ).textContent = processed
-      ? showDots
-        ? "量子化後の点"
-        : "量子化後の点（拡大で表示）"
-      : showDots
-        ? "標本点"
-        : "標本点（拡大で表示）";
-    if (processed)
-      canvas.nextElementSibling.querySelector(".key-levels").hidden = bits > 4;
   }
 }

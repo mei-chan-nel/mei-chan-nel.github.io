@@ -42,7 +42,7 @@
           min="500"
           max="48000"
           step="1"
-          value="8000"
+          value="48000"
         /><span>Hz</span>
         <div class="rate-stepper">
           <button
@@ -67,12 +67,12 @@
         min="0"
         max="1000"
         step="1"
-        value="607"
+        value="1000"
         aria-label="標本化周波数のスライダー"
       />
       <div class="range-extents"><span>500</span><span>48,000 Hz</span></div>
       <p class="control-detail">
-        標本の間隔 <output id="sample-interval">0.125 ms</output>
+        標本の間隔 <output id="sample-interval">0.021 ms</output>
       </p>
       <output
         id="alias-warning"
@@ -83,10 +83,10 @@
     <div class="audio-panel bits-panel">
       <div>
         <label for="bits">量子化ビット数</label>
-        <p class="control-detail"><output id="levels">256</output> 段階</p>
+        <p class="control-detail"><output id="levels">65,536</output> 段階</p>
       </div>
       <div class="audio-stepper">
-        <output id="bits" aria-live="off">8 <small>bit</small></output>
+        <output id="bits" aria-live="off">16 <small>bit</small></output>
         <div>
           <button
             type="button"
@@ -107,68 +107,71 @@
   </div>
   <div class="audio-visuals">
     <div class="wave-navigation audio-panel">
-      <div class="wave-navigation-heading">
-        <label for="window-size">波形の範囲</label
-        ><select id="window-size">
-          <option value="0.0005">0.5 ms</option>
-          <option value="0.001">1 ms</option>
-          <option value="0.002">2 ms</option>
-          <option value="0.005">5 ms</option>
-          <option value="0.01" selected>10 ms</option>
-          <option value="0.02">20 ms</option>
-          <option value="0.05">50 ms</option>
-          <option value="0.1">100 ms</option>
-          <option value="0.5">500 ms</option>
-          <option value="6">全体</option></select
-        ><output id="window-label">40–50 ms</output>
-      </div>
       <canvas
         id="overview-wave"
         role="slider"
         tabindex="0"
         aria-label="波形の表示位置"
         aria-valuemin="0"
-        aria-valuemax="5990"
+        aria-valuemax="5995"
         aria-valuenow="40"
       ></canvas>
     </div>
-    <div class="wave-comparison">
-      <figure class="wave-card">
-        <figcaption>
-          <h2>原音</h2>
+    <figure class="wave-card">
+      <figcaption>
+        <h2>音の波形</h2>
+        <div class="play-buttons">
           <button type="button" id="play-original" disabled>
             ▶ 原音を再生
           </button>
-        </figcaption>
-        <canvas
-          id="original-wave"
-          role="img"
-          aria-label="元の波形と、標本化する位置の点"
-        ></canvas>
-        <p class="wave-key">
-          <span class="key-original">元の波形</span
-          ><span class="key-sample">標本点</span>
-        </p>
-      </figure>
-      <figure class="wave-card">
-        <figcaption>
-          <h2>デジタル化後</h2>
           <button type="button" id="play-processed" disabled>
             ▶ 加工後を再生
           </button>
-        </figcaption>
-        <canvas
-          id="processed-wave"
-          role="img"
-          aria-label="量子化後の標本値と、そこから再構成した波形"
-        ></canvas>
-        <p class="wave-key">
-          <span class="key-processed">再構成した波形</span
-          ><span class="key-quantized">量子化後の点</span>
-          <span class="key-levels" hidden>量子化の段階</span>
-        </p>
-      </figure>
-    </div>
+        </div>
+      </figcaption>
+      <div class="wave-range">
+        <label for="window-size">波形の範囲</label
+        ><select id="window-size">
+          <option value="0.0005">0.5 ms</option>
+          <option value="0.001">1 ms</option>
+          <option value="0.002">2 ms</option>
+          <option value="0.005" selected>5 ms</option>
+          <option value="0.01">10 ms</option>
+          <option value="0.02">20 ms</option>
+          <option value="0.05">50 ms</option>
+          <option value="0.1">100 ms</option>
+          <option value="0.5">500 ms</option>
+          <option value="6">全体</option></select
+        ><output id="window-label">40–45 ms</output>
+      </div>
+      <fieldset class="wave-layers">
+        <legend>表示</legend>
+        <label class="layer-original"
+          ><input type="checkbox" id="show-original" checked /><span
+            >原音の波形</span
+          ></label
+        >
+        <label class="layer-samples"
+          ><input type="checkbox" id="show-samples" checked /><span>標本点</span
+          ><small id="sample-density" hidden>拡大で表示</small></label
+        >
+        <label class="layer-quantized"
+          ><input type="checkbox" id="show-quantized" checked /><span
+            >量子化後の値</span
+          ></label
+        >
+        <label class="layer-reconstructed"
+          ><input type="checkbox" id="show-reconstructed" /><span
+            >再構成波形</span
+          ></label
+        >
+      </fieldset>
+      <canvas
+        id="combined-wave"
+        role="img"
+        aria-label="原音の波形に標本点と量子化後の階段を重ねたグラフ"
+      ></canvas>
+    </figure>
     <div class="audio-playback">
       <output id="audio-status" role="status">波形を計算しています…</output
       ><output id="playback-position" aria-live="off">0.00 / 6.00 秒</output
@@ -180,11 +183,11 @@
           <h2>PCMデータ量</h2>
           <p>6秒・モノラル／非圧縮の理論値</p>
         </div>
-        <output id="pcm-size"><strong>48.0</strong> <span>kB</span></output>
+        <output id="pcm-size"><strong>576.0</strong> <span>kB</span></output>
       </div>
       <div class="pcm-calculation">
-        <output id="pcm-formula">8,000 Hz × 6秒 × 8 bit ÷ 8</output
-        ><output id="pcm-bytes">48,000 バイト</output>
+        <output id="pcm-formula">48,000 Hz × 6秒 × 16 bit ÷ 8</output
+        ><output id="pcm-bytes">576,000 バイト</output>
       </div>
     </section>
   </div>
@@ -202,10 +205,11 @@
     <li>
       量子化は符号付きPCMです。振幅−1から1未満を2<sup>b</sup>段階（間隔 2 ÷
       2<sup>b</sup>）に分け、最寄りの値に丸めます。1
-      bitでは表現できる振幅は−1と0です。
+      bitでは表現できる振幅は−1と0です。ビット数を減らすと量子化誤差が大きくなり、雑音として聞こえることがあります。初期設定は48,000
+      Hz・16 bitです。
     </li>
     <li>
-      再生用の波形は、量子化後の標本から有限長のsinc補間で48,000
+      階段は、量子化後の各標本値を次の標本時刻まで保持する表示です。再生する音はこの階段そのものではなく、量子化後の標本から再構成した波形です。「再構成波形」で同じグラフに重ねられます。再生用の波形は、量子化後の標本から有限長のsinc補間で48,000
       Hzに再構成します。理想的な復元の近似なので、特にナイキスト周波数付近では誤差があります。端では範囲外を0として扱います。再生機器の周波数が異なる場合はブラウザがさらに変換します。
     </li>
     <li>
