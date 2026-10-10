@@ -3,7 +3,8 @@
 export const TIMING = Object.freeze({ detect: 2.4, flood: 0.75, spf: 0.4, hop: 0.85, decision: 0.65, fragment: 0.55, repeat: 2.8 });
 
 export class RoutingSimulator {
-  constructor({ initial = true } = {}) {
+  constructor({ initial = true, now = () => Date.now() } = {}) {
+    this.now = now;
     this.time = 0;
     this.nodes = new Map();
     this.names = new Map();
@@ -22,9 +23,11 @@ export class RoutingSimulator {
   }
 
   log(type, text, router = null, detail = null) {
-    this.history.unshift({ id: ++this.serial, time: this.time, type, text, router, detail });
+    const record = { id: ++this.serial, time: this.time, timestamp: this.now(), type, text, router, detail };
+    this.history.unshift(record);
     this.history.length = Math.min(this.history.length, 600);
     this.revision++;
+    return record;
   }
 
   schedule(delay, type, data) {
@@ -338,7 +341,7 @@ export class RoutingSimulator {
       next = route?.next;
       const text = `${this.name(packet.destinationLAN ?? "未接続の宛先")}宛 → ${next ? this.name(next) : "経路なし"}`;
       state.notice = { text, until: this.time + 1.9, type: "data", packet: packet.id };
-      packet.decisions.push({ router: node.id, next: next ?? null, time: this.time, version: state.tableVersion });
+      packet.decisions.push({ router: node.id, next: next ?? null, time: this.time, timestamp: this.now(), version: state.tableVersion });
       this.log("forward", `${node.label}：${packet.id}の宛先を確認。テーブル v${state.tableVersion} から${next ? this.name(next) + "へ転送" : "経路なしと判断"}。`, node.id);
     }
     if (!next) return this.drop(packet, "宛先への経路がない");
@@ -351,6 +354,10 @@ export class RoutingSimulator {
 
   drop(packet, reason) {
     if (packet.status !== "active") return;
+    const from = this.nodes.get(packet.transit?.from ?? packet.current);
+    const to = this.nodes.get(packet.transit?.to);
+    const progress = packet.transit ? Math.max(0, Math.min(1, (this.time - packet.transit.start) / (packet.transit.end - packet.transit.start))) : 0;
+    if (from) packet.lostPosition = { x: from.x + ((to?.x ?? from.x) - from.x) * progress, y: from.y + ((to?.y ?? from.y) - from.y) * progress };
     packet.lostTransit = packet.transit;
     packet.status = "lost";
     this.totals.lost++;
@@ -359,7 +366,7 @@ export class RoutingSimulator {
     packet.transit = null;
     this.prunePackets();
     this.finishMessage(packet.message);
-    this.log("lost", `${packet.id}が${this.name(packet.current)}付近で消失：${reason}。`);
+    packet.lossOrder = this.log("lost", `${packet.id}が${this.name(packet.current)}付近で消失：${reason}。`).id;
   }
 
   deliver(packet) {

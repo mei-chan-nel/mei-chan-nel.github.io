@@ -215,7 +215,8 @@ test("LAN内の転送はTTLを減らさず、一片だけ失われた場合も�
 });
 
 test("ステップ実行と時間経過は同じイベント結果になり、履歴・パケットの保存数を制限する", () => {
-  const a = new RoutingSimulator(), b = new RoutingSimulator();
+  const now = () => 1791600000000;
+  const a = new RoutingSimulator({ now }), b = new RoutingSimulator({ now });
   const m = a.send("pc-1", "pc-8", "イベントテスト"); b.send("pc-1", "pc-8", "イベントテスト");
   a.advance(30);
   while (b.events.length) b.step();
@@ -237,6 +238,42 @@ test("複数の障害・復旧・コスト変更後、20台すべての局所計
     const link = routerLinks[Math.floor(random() * routerLinks.length)]; s.setCost(link.id, 1 + Math.floor(random() * 9));
     s.advance(40); assertConverged(s);
   }
+});
+
+test("履歴とルータの判断には、内部の実験時間と独立した実時刻を保存する", () => {
+  let wallTime = 1791600000000;
+  const s = new RoutingSimulator({ now: () => wallTime });
+  const ready = s.history[0];
+  s.advance(100);
+  wallTime += 35000;
+  const message = s.send("pc-1", "pc-8", "実際の時刻");
+  const sent = s.history.find((h) => h.type === "send");
+  s.advance(30);
+  assert.equal(sent.time, 100);
+  assert.equal(sent.timestamp, wallTime);
+  assert.equal(ready.timestamp, wallTime - 35000);
+  assert.ok(message.packets[0].decisions.length > 1);
+  assert.ok(message.packets[0].decisions.every((d) => d.timestamp === wallTime));
+  wallTime += 10000;
+  s.setNode("router-1", false);
+  assert.equal(s.history[0].timestamp, wallTime);
+  assert.equal(sent.timestamp, wallTime - 10000);
+});
+
+test("転送途中の消失位置を保存し、機器が削除されてもその場所を表示できる", () => {
+  const s = new RoutingSimulator();
+  const packet = s.send("pc-1", "pc-2", "位置").packets[0];
+  s.advance(TIMING.hop / 2);
+  const transit = packet.transit;
+  assert.ok(transit);
+  const from = s.nodes.get(transit.from), to = s.nodes.get(transit.to);
+  const expected = { x: (from.x + to.x) / 2, y: (from.y + to.y) / 2 };
+  s.setLink(transit.link, false);
+  assert.equal(packet.status, "lost");
+  assert.deepEqual(packet.lostPosition, expected);
+  assert.ok(packet.lossOrder > 0);
+  s.removeNode(transit.from);
+  assert.deepEqual(packet.lostPosition, expected);
 });
 
 test("Lab一覧に登録し、未公開設定とローカル資産を維持する", async () => {

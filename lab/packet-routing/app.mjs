@@ -4,12 +4,17 @@ const $ = (id) => document.getElementById(id);
 const esc = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 const svgNS = "http://www.w3.org/2000/svg";
 let sim = new RoutingSimulator();
-let playing = false, speed = 1, mode = "select", connectStart = null;
+let speed = 1, mode = "select", connectStart = null;
 let selected = { kind: "node", id: "router-1" }, packetId = "";
 let dirty = true, lastRevision = -1, lastUI = 0, lastFrame = performance.now();
 const camera = { x: 0, y: 0, w: 1240, h: 650 };
 const nodeElements = new Map(), linkElements = new Map();
 let pickerSignature = null, packetSignature = null, inspectorHTML = "", historyHTML = "", messagesHTML = "", traceHTML = "";
+let lastLossCount = 0, latestLoss = null, lossDismissed = false;
+let wireDrag = null, paletteDrag = null, suppressPaletteClickUntil = 0;
+const narrowLayout = matchMedia("(max-width: 900px)");
+const wallClock = new Intl.DateTimeFormat("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+const clockText = (timestamp) => wallClock.format(new Date(timestamp));
 
 function status(text, error = false) {
   $("status").textContent = text;
@@ -19,16 +24,51 @@ function attempt(action) {
   try { action(); dirty = true; }
   catch (error) { status(error.message, true); }
 }
-function setPlaying(value) {
-  playing = value;
-  $("play").textContent = value ? "Ⅱ 一時停止" : "▶ 再生";
-  $("play").setAttribute("aria-pressed", String(value));
-  lastFrame = performance.now();
+function showInspector(panel = "device", reveal = false) {
+  for (const kind of ["device", "trace"]) {
+    $(kind + "-tab").setAttribute("aria-selected", String(kind === panel));
+    $(kind + "-tab").tabIndex = kind === panel ? 0 : -1;
+    $(kind + "-panel").hidden = kind !== panel;
+  }
+  if (!narrowLayout.matches || reveal) $("inspector-body").hidden = false;
+  $("inspector-toggle").setAttribute("aria-expanded", String(!$("inspector-body").hidden));
+  $("inspector-toggle").textContent = $("inspector-body").hidden ? "開く" : "閉じる";
+  if (reveal && narrowLayout.matches) $("inspector-heading").scrollIntoView({ block: "start", behavior: "instant" });
+}
+function setEndpoint(kind, id) {
+  if (sim.nodes.get(id)?.kind !== "pc") return;
+  $(kind).value = id;
+  if (sim.repeating) sim.stopRepeating();
+  packetId = ""; $("packet-select").value = "";
+  setMode("select"); dirty = true;
+  status(`${sim.name(id)}を${kind === "source" ? "送信元" : "宛先"}にしました。図のPCと上のカードで変更できます。`);
+}
+function renderEndpoints() {
+  for (const kind of ["source", "destination"]) {
+    const pc = sim.nodes.get($(kind).value);
+    $(kind + "-name").textContent = pc?.label ?? "PCを追加してください";
+    $(kind + "-network").textContent = pc ? `${sim.lanForPC(pc.id)?.label ?? "未接続"} · クリックで変更` : "図にドラッグして追加";
+    $("pick-" + kind).disabled = !sim.pcs.length;
+    $("pick-" + kind).setAttribute("aria-pressed", String(mode === kind));
+  }
+  if (["source", "destination"].includes(mode)) {
+    $("pc-choice-heading").textContent = `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ`;
+    const html = sim.pcs.map((pc) => `<button type="button" data-choose-pc="${pc.id}" aria-pressed="${$(mode).value === pc.id}"><span aria-hidden="true">▣</span><strong>${esc(pc.label)}</strong><small>${esc(sim.lanForPC(pc.id)?.label ?? "未接続")}${pc.up ? "" : " · 故障中"}</small></button>`).join("");
+    if ($("pc-choice-list").innerHTML !== html) $("pc-choice-list").innerHTML = html;
+  }
 }
 
 function updateCamera() {
   $("network").setAttribute("viewBox", `${camera.x} ${camera.y} ${camera.w} ${camera.h}`);
   for (const [key, value] of Object.entries({ x: camera.x, y: camera.y, width: camera.w, height: camera.h })) $("background").setAttribute(key, value);
+  updateGrips();
+}
+function updateGrips() {
+  const scale = Math.max(1, camera.w / Math.max(1, $("network").clientWidth));
+  for (const [id, element] of nodeElements) {
+    const node = sim.nodes.get(id);
+    if (node) element.querySelector(".connection-grip")?.setAttribute("transform", `translate(${(node.kind === "router" ? 22 : 28) + 20 * scale} 0) scale(${scale})`);
+  }
 }
 function fit() {
   const nodes = [...sim.nodes.values()];
@@ -62,12 +102,9 @@ function updatePickers() {
   const signature = [...sim.nodes.values()].map((n) => `${n.id}:${n.address ?? ""}`).join("|") + [...sim.links.keys()].join("|");
   if (signature === pickerSignature) return;
   pickerSignature = signature;
-  const pcOptions = sim.pcs.map((pc) => `<option value="${pc.id}">${esc(pc.label)} · ${esc(sim.lanForPC(pc.id)?.label ?? "未接続")}</option>`).join("");
   for (const id of ["source", "destination"]) {
     const previous = $(id).value;
-    $(id).innerHTML = pcOptions;
-    if (sim.nodes.has(previous)) $(id).value = previous;
-    else $(id).value = id === "source" ? sim.pcs[0]?.id ?? "" : sim.pcs.at(-1)?.id ?? "";
+    if (!sim.nodes.has(previous)) $(id).value = id === "source" ? sim.pcs[0]?.id ?? "" : sim.pcs.at(-1)?.id ?? "";
   }
   const nodeOptions = ["router", "lan", "pc"].map((kind) => `<optgroup label="${{ router: "ルータ", lan: "LAN", pc: "PC" }[kind]}">${[...sim.nodes.values()].filter((n) => n.kind === kind).map((n) => `<option value="node:${n.id}">${esc(n.label)}</option>`).join("")}</optgroup>`).join("");
   const linkOptions = [...sim.links.values()].map((l) => `<option value="link:${l.id}">${esc(sim.name(l.a))} ↔ ${esc(sim.name(l.b))}</option>`).join("");
@@ -104,14 +141,18 @@ function renderDiagram() {
       group = document.createElementNS(svgNS, "g");
       group.setAttribute("data-node", node.id); group.setAttribute("tabindex", "0"); group.setAttribute("role", "button");
       const body = node.kind === "router" ? '<circle class="device-body" r="22"/>' : '<rect class="device-body" x="-28" y="-20" width="56" height="40" rx="8"/>';
-      group.innerHTML = `<circle class="selection-ring" r="32" fill="none"/><circle class="endpoint-ring" r="36" fill="none"/>${body}${node.kind === "router" ? `<text text-anchor="middle" y="6">${esc(node.label)}</text>` : node.kind === "lan" ? '<text text-anchor="middle" y="6" style="font-size:14px">LAN</text>' : '<path class="node-icon" d="M-14 -11H14V7H-14ZM0 7V13M-10 13H10"/>'}${node.kind !== "router" ? `<text class="node-label" text-anchor="middle" y="42">${esc(node.label)}</text>` : ""}<text class="fault-mark" x="20" y="-20">×</text>`;
+      group.innerHTML = `<circle class="selection-ring" r="32" fill="none"/><circle class="endpoint-ring" r="36" fill="none"/>${body}${node.kind === "router" ? `<text text-anchor="middle" y="6">${esc(node.label)}</text>` : node.kind === "lan" ? '<text text-anchor="middle" y="6" style="font-size:14px">LAN</text>' : '<path class="node-icon" d="M-14 -11H14V7H-14ZM0 7V13M-10 13H10"/>'}${node.kind !== "router" ? `<text class="node-label" text-anchor="middle" y="42">${esc(node.label)}</text>` : ""}<text class="endpoint-tag" text-anchor="middle" y="-45"></text><text class="fault-mark" x="20" y="-20">×</text><g class="connection-grip"><circle class="connection-port-hit" data-connect="${node.id}" r="16"/><circle class="connection-port" r="10"/><text class="connection-plus" y="5" text-anchor="middle">＋</text></g>`;
       $("devices").append(group); nodeElements.set(node.id, group);
     }
     group.setAttribute("transform", `translate(${node.x} ${node.y})`);
     group.setAttribute("class", `device ${node.kind}${!node.up ? " is-down" : ""}${(selected.kind === "node" && selected.id === node.id) || connectStart === node.id ? " is-selected" : ""}${node.id === $("source").value ? " is-source" : ""}${node.id === $("destination").value ? " is-destination" : ""}`);
     group.setAttribute("aria-label", `${node.label}、${node.up ? "稼働中" : "故障中"}、選択して操作`);
+    group.classList.toggle("is-connect-candidate", !!wireDrag && !sim.connectionError(wireDrag.from, node.id));
+    group.classList.toggle("is-pc-candidate", ["source", "destination"].includes(mode) && node.kind === "pc");
+    group.querySelector(".endpoint-tag").textContent = node.id === $("source").value && node.id === $("destination").value ? "送信元・宛先" : node.id === $("source").value ? "送信元" : node.id === $("destination").value ? "宛先" : "";
     group.querySelector(".fault-mark").style.display = node.up ? "none" : "";
   }
+  updateGrips();
 }
 
 function tableHTML(node) {
@@ -122,7 +163,7 @@ function tableHTML(node) {
   const lastChange = sim.history.find((h) => h.type === "table" && h.router === node.id);
   const recentlyChanged = sim.time - (lastChange?.time ?? -100) < 3 ? new Set(lastChange.detail.map((c) => c.network)) : new Set();
   const destinationLAN = sim.lanForPC($("destination").value)?.id;
-  return `<h4 class="routing-table-title">ルーティングテーブル</h4><p class="table-meta">v${state.tableVersion} · 更新 ${state.updatedAt.toFixed(1)}秒 · ${state.db.size}台のルータ情報${node.up ? "" : " · 停止中"}</p><div class="table-scroll" tabindex="0" role="region" aria-label="${esc(node.label)}のルーティングテーブル"><table class="routing-table"><thead><tr><th scope="col">宛先のLAN</th><th scope="col">次に送る先</th><th scope="col">コスト</th></tr></thead><tbody>${[...networks.values()].map((lan) => {
+  return `<h4 class="routing-table-title">ルーティングテーブル</h4><p class="table-meta">経路情報 v${state.tableVersion} · ${state.db.size}台のルータ情報${node.up ? "" : " · 停止中"}</p><div class="table-scroll" tabindex="0" role="region" aria-label="${esc(node.label)}のルーティングテーブル"><table class="routing-table"><thead><tr><th scope="col">宛先のLAN</th><th scope="col">次に送る先</th><th scope="col">コスト</th></tr></thead><tbody>${[...networks.values()].map((lan) => {
     const route = state.table.get(lan.id);
     return `<tr class="${lan.id === destinationLAN ? "is-target " : ""}${recentlyChanged.has(lan.id) ? "is-changed" : ""}"><td>${esc(lan.label)}<small>${esc(lan.prefix)}</small></td><td class="${route ? "" : "unreachable"}">${route ? esc(sim.name(route.next)) + (route.next === lan.id ? "<small>直接接続</small>" : "") : "経路なし"}</td><td>${route?.cost ?? "—"}</td></tr>`;
   }).join("") || '<tr><td colspan="3">まだLANの情報がありません</td></tr>'}</tbody></table></div><p class="selection-note">宛先PCが属するLANを見て、次の転送先を選びます。コストは回線の重みの合計。黄色の行は直近の更新です。${node.up ? "" : " このルータは故障中のため転送できません。"}</p>`;
@@ -140,9 +181,10 @@ function renderInspector() {
     if (node.kind === "router") html += '<p class="device-meta">宛先に応じて次の送り先を判断する中継役</p>';
     if (node.kind === "lan") html += `<p class="device-meta">ネットワーク ${esc(node.prefix)}</p>`;
     if (node.kind === "pc") html += `<p class="device-meta">IP ${esc(node.address)}<br />所属：${esc(sim.lanForPC(node.id)?.label ?? "未接続")}</p>`;
-    html += `<div class="selection-actions"><button type="button" data-action="toggle-node" class="${node.up ? "danger" : "primary"}">${node.up ? "故障させる" : "復旧する"}</button>${node.kind === "pc" ? '<button type="button" data-action="set-source">送信元にする</button><button type="button" data-action="set-destination">宛先にする</button>' : ""}<button type="button" data-action="remove-node">削除</button></div>`;
+    html += `<div class="selection-actions">${node.kind === "pc" ? '<button type="button" data-action="set-source">送信元にする</button><button type="button" data-action="set-destination">宛先にする</button>' : ""}<button type="button" data-action="toggle-node" class="${node.up ? "danger" : "primary"}">${node.up ? "故障させる" : "復旧する"}</button></div>`;
     if (node.kind === "router") html += tableHTML(node);
     else html += `<p class="selection-note">接続先：${sim.edges(node.id, false).map((l) => esc(sim.name(sim.other(l, node.id))) + (!l.up ? "（切断）" : "")).join("、") || "なし"}</p>`;
+    html += '<details class="advanced-actions"><summary>機器の削除</summary><button type="button" data-action="remove-node" class="danger">この機器を削除</button></details>';
   } else {
     const link = sim.links.get(selected.id);
     if (!link) return;
@@ -150,9 +192,11 @@ function renderInspector() {
   }
   if (html !== inspectorHTML && document.activeElement?.id !== "link-cost") {
     const scroll = $("selection-detail").querySelector(".table-scroll")?.scrollTop ?? 0;
+    const deleteExpanded = $("selection-detail").querySelector(".advanced-actions")?.open;
     const focusedAction = $("selection-detail").contains(document.activeElement) ? document.activeElement?.dataset.action : null;
     const tableFocused = document.activeElement?.classList.contains("table-scroll");
     $("selection-detail").innerHTML = html; inspectorHTML = html;
+    if (deleteExpanded && $("selection-detail").querySelector(".advanced-actions")) $("selection-detail").querySelector(".advanced-actions").open = true;
     if (focusedAction) $("selection-detail").querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
     if (tableFocused) $("selection-detail").querySelector(".table-scroll")?.focus({ preventScroll: true });
     const table = $("selection-detail").querySelector(".table-scroll"); if (table) table.scrollTop = scroll;
@@ -180,13 +224,16 @@ function renderTrace() {
   const packet = selectedPacket();
   if (!packet) { $("follow").disabled = true; $("follow").checked = false; if (traceHTML) { $("packet-detail").innerHTML = '<p class="muted">送信したパケットの通過経路と、ルータの判断を確認できます。</p>'; traceHTML = ""; } return; }
   $("follow").disabled = false;
-  const html = `<div class="packet-title"><strong>${packet.id} · ${packet.index}/${packet.total}</strong><span class="badge ${packet.status}">${{ active: "通信中", delivered: "到達", lost: "消失" }[packet.status]}</span></div><p class="muted">${esc(sim.name(packet.source))} → ${esc(sim.name(packet.destination))}<br />宛先IP ${esc(packet.destinationAddress)}</p><p class="packet-fragment">「${esc(packet.fragment)}」</p><p class="packet-path">${packet.path.map((id) => esc(sim.name(id))).join(" → ")}${packet.transit ? " → " + esc(sim.name(packet.transit.to)) + "（移動中）" : ""}</p>${packet.reason ? `<p class="danger-text muted">${esc(packet.reason)}</p>` : ""}<ol class="packet-decisions">${packet.decisions.map((d) => `<li>${d.time.toFixed(1)}秒：${esc(sim.name(d.router))} → ${esc(d.next ? sim.name(d.next) : "経路なし")} <span class="muted">(v${d.version})</span></li>`).join("")}</ol>`;
+  const html = `<div class="packet-title"><strong>${packet.id} · ${packet.index}/${packet.total}</strong><span class="badge ${packet.status}">${{ active: "通信中", delivered: "到達", lost: "消失" }[packet.status]}</span></div><p class="muted">${esc(sim.name(packet.source))} → ${esc(sim.name(packet.destination))}<br />宛先IP ${esc(packet.destinationAddress)}</p><p class="packet-fragment">「${esc(packet.fragment)}」</p><p class="packet-path">${packet.path.map((id) => esc(sim.name(id))).join(" → ")}${packet.transit ? " → " + esc(sim.name(packet.transit.to)) + "（移動中）" : ""}</p>${packet.reason ? `<p class="loss-explanation">× パケット消失<br />${esc(packet.reason)}</p>` : ""}<ol class="packet-decisions" tabindex="0" aria-label="ルータの判断履歴">${packet.decisions.map((d) => `<li><time datetime="${new Date(d.timestamp).toISOString()}">${clockText(d.timestamp)}</time>：${esc(sim.name(d.router))} → ${esc(d.next ? sim.name(d.next) : "経路なし")} <span class="muted">(v${d.version})</span></li>`).join("")}</ol>`;
   if (html !== traceHTML) { $("packet-detail").innerHTML = html; traceHTML = html; }
 }
 
 function renderMessages() {
   if (!sim.messages.length) return;
-  const html = sim.messages.slice(0, 20).map((message) => `<article class="message-row"><div class="message-heading"><strong>${message.id} · ${esc(sim.name(message.source))} → ${esc(sim.name(message.destination))}</strong><span class="badge ${message.status}">${{ active: "通信中", delivered: "受信完了", lost: "受信失敗" }[message.status]}</span></div><p>${message.status === "delivered" ? "受信：" : "送信："}「${esc(message.text)}」</p><div class="packet-chips">${message.packets.map((p) => `<button type="button" data-packet="${p.id}" class="${p.status}" aria-label="${p.id}、${{ active: "通信中", delivered: "到達", lost: "消失" }[p.status]}、経路を表示">${p.id} ${p.status === "delivered" ? "✓" : p.status === "lost" ? "×" : "…"}</button>`).join("")}</div></article>`).join("");
+  const html = sim.messages.slice(0, 20).map((message) => {
+    const lost = message.packets.filter((p) => p.status === "lost").length;
+    return `<article class="message-row${lost ? " has-loss" : ""}"><div class="message-heading"><strong>${message.id} · ${esc(sim.name(message.source))} → ${esc(sim.name(message.destination))}</strong><span class="badge ${lost ? "lost" : message.status}">${lost ? "パケット消失" : { active: "通信中", delivered: "受信完了", lost: "受信失敗" }[message.status]}</span></div><p>${message.status === "delivered" ? "受信：" : "送信："}「${esc(message.text)}」</p>${lost ? `<p class="loss-explanation">× ${lost}個のパケットが消失。メッセージを組み立てられません。</p>` : ""}<div class="packet-chips">${message.packets.map((p) => `<button type="button" data-packet="${p.id}" class="${p.status}" aria-label="${p.id}、${{ active: "通信中", delivered: "到達", lost: "消失" }[p.status]}、経路を表示">${p.id} ${p.status === "delivered" ? "✓" : p.status === "lost" ? "× 消失" : "…"}</button>`).join("")}</div></article>`;
+  }).join("");
   if (html !== messagesHTML) {
     const scroll = $("messages").scrollTop;
     $("messages").innerHTML = html; $("messages").scrollTop = scroll; messagesHTML = html;
@@ -196,7 +243,7 @@ function renderMessages() {
 function renderHistory() {
   const filter = $("history-filter").value;
   const records = sim.history.filter((h) => filter === "all" || (filter === "selected" && h.router === selected.id) || (filter === "updates" && ["ready", "fault", "edit", "detect", "receive", "table"].includes(h.type)) || (filter === "packets" && ["send", "forward", "delivered", "lost"].includes(h.type))).slice(0, 100);
-  const html = records.map((h) => `<div class="history-row ${h.type}" data-history="${h.id}"><time>${h.time.toFixed(1)}s</time><div>${esc(h.text)}${h.detail ? `<details><summary>変更した経路（${h.detail.length}件）</summary>${h.detail.map((c) => `<div>${esc(c.after?.label ?? c.before?.label ?? c.network)}：${c.before ? esc(sim.name(c.before.next)) + " / " + c.before.cost : "経路なし"} → ${c.after ? esc(sim.name(c.after.next)) + " / " + c.after.cost : "経路なし"}</div>`).join("")}</details>` : ""}</div></div>`).join("") || '<p class="empty-state">この種類の履歴はまだありません。</p>';
+  const html = records.map((h) => `<div class="history-row ${h.type}" data-history="${h.id}"><time datetime="${new Date(h.timestamp).toISOString()}" title="${new Date(h.timestamp).toLocaleString("ja-JP")}">${clockText(h.timestamp)}</time><div>${esc(h.text)}${h.detail ? `<details><summary>変更した経路（${h.detail.length}件）</summary>${h.detail.map((c) => `<div>${esc(c.after?.label ?? c.before?.label ?? c.network)}：${c.before ? esc(sim.name(c.before.next)) + " / " + c.before.cost : "経路なし"} → ${c.after ? esc(sim.name(c.after.next)) + " / " + c.after.cost : "経路なし"}</div>`).join("")}</details>` : ""}</div></div>`).join("") || '<p class="empty-state">この種類の履歴はまだありません。</p>';
   if (html !== historyHTML) {
     const open = [...$("history").querySelectorAll("details[open]")].map((el) => el.closest("[data-history]").dataset.history);
     const scroll = $("history").scrollTop;
@@ -207,7 +254,8 @@ function renderHistory() {
 }
 
 function renderUI() {
-  updatePickers(); renderDiagram(); renderInspector(); renderTrace(); renderMessages(); renderHistory();
+  updatePickers(); renderEndpoints(); renderDiagram(); renderInspector(); renderTrace(); renderMessages(); renderHistory(); renderLossNotice();
+  $("selected-name").textContent = selected.kind === "node" ? sim.name(selected.id) : "回線";
   $("active-count").textContent = sim.activePackets.length;
   $("delivered-count").textContent = sim.totals.delivered;
   $("lost-count").textContent = sim.totals.lost;
@@ -216,6 +264,20 @@ function renderUI() {
   $("repeat").textContent = sim.repeating ? "連続送信を停止" : "連続送信";
   $("repeat").setAttribute("aria-pressed", String(!!sim.repeating));
   dirty = false; lastRevision = sim.revision;
+}
+
+function renderLossNotice() {
+  if (sim.totals.lost !== lastLossCount) {
+    lastLossCount = sim.totals.lost;
+    latestLoss = sim.packets.filter((p) => p.status === "lost").sort((a, b) => b.lossOrder - a.lossOrder)[0] ?? null;
+    lossDismissed = false;
+  }
+  $("loss-notice").hidden = !latestLoss || lossDismissed;
+  if (!latestLoss) return;
+  const heading = `パケット ${latestLoss.id} が消失しました`;
+  if ($("loss-heading").textContent !== heading) $("loss-heading").textContent = heading;
+  if ($("loss-reason").textContent !== latestLoss.reason) $("loss-reason").textContent = latestLoss.reason;
+  $("loss-inspect").disabled = !sim.packets.some((p) => p.id === latestLoss.id);
 }
 
 function renderMotion() {
@@ -239,10 +301,12 @@ function renderMotion() {
     const x = from.x + (to.x - from.x) * t, y = from.y + (to.y - from.y) * t;
     signals.push(`<rect class="signal-update" x="${x - 4}" y="${y - 4}" width="8" height="8" transform="rotate(45 ${x} ${y})"/>`);
   }
-  for (const p of sim.packets) if (p.status === "lost" && sim.time - p.endedAt < 1.4) {
-    const point = sim.nodes.get(p.lostTransit?.from ?? p.current);
-    if (point) signals.push(`<text class="signal-lost" x="${point.x + 10}" y="${point.y - 20}">×</text>`);
+  const lossMarkers = new Map();
+  for (const p of sim.packets) if (p.status === "lost" && p.lostPosition && (sim.time - p.endedAt < 5 || (p.id === packetId))) {
+    const point = p.lostPosition, key = `${Math.round(point.x / 50)}:${Math.round(point.y / 50)}`;
+    lossMarkers.set(key, `<g class="loss-marker"><circle cx="${point.x}" cy="${point.y}" r="16"/><text class="loss-cross" text-anchor="middle" x="${point.x}" y="${point.y + 8}">×</text><text class="loss-label" x="${point.x + 22}" y="${point.y - 7}">${p.id} 消失</text></g>`);
   }
+  signals.push(...[...lossMarkers.values()].slice(-5));
   $("signals").innerHTML = signals.join("");
   const notices = [...sim.routers.entries()].filter(([id, state]) => sim.nodes.get(id)?.up && state.notice?.until > sim.time).sort(([idA, a], [idB, b]) => Number(idB === selected.id) - Number(idA === selected.id) || Number(b.notice.packet === packetId) - Number(a.notice.packet === packetId) || b.notice.until - a.notice.until).slice(0, 4);
   const bubbleBoxes = [];
@@ -264,60 +328,78 @@ function renderMotion() {
     const pos = packetPosition(p);
     if (pos) { camera.x = pos.x - camera.w / 2; camera.y = pos.y - camera.h / 2; updateCamera(); }
   }
-  $("time").textContent = sim.time.toFixed(1);
+  $("connection-preview").innerHTML = wireDrag ? `<line class="connection-preview" x1="${sim.nodes.get(wireDrag.from).x}" y1="${sim.nodes.get(wireDrag.from).y}" x2="${wireDrag.point.x}" y2="${wireDrag.point.y}"/>` : "";
 }
 
 function selectNode(id) {
+  if (["source", "destination"].includes(mode)) {
+    if (sim.nodes.get(id)?.kind === "pc") { const kind = mode; setEndpoint(kind, id); $("pick-" + kind).focus({ preventScroll: true }); }
+    else status("送信元・宛先にはPCを選んでください。青いPCが候補です。", true);
+    return;
+  }
   if (mode === "connect") {
     if (!connectStart) { connectStart = id; status(`${sim.name(id)}を選択。接続するもう1台を選んでください。`); }
     else attempt(() => { const from = connectStart; sim.connect(from, id); connectStart = null; status(`${sim.name(from)}と${sim.name(id)}を接続しました。経路情報の変化を観察できます。`); });
   }
   selected = { kind: "node", id }; $("selection").value = `node:${id}`; $("selection").closest(".inspector").scrollTop = 0; dirty = true;
+  showInspector("device");
 }
-function selectLink(id) { selected = { kind: "link", id }; $("selection").value = `link:${id}`; $("selection").closest(".inspector").scrollTop = 0; dirty = true; }
+function selectLink(id) { if (["source", "destination"].includes(mode)) { status("図のPCを選んでください。", true); return; } selected = { kind: "link", id }; $("selection").value = `link:${id}`; $("selection").closest(".inspector").scrollTop = 0; dirty = true; showInspector("device"); }
 function selectPacket(id) { packetId = id; $("packet-select").value = id; dirty = true; }
 function setMode(value) {
   mode = value; connectStart = null;
   for (const button of document.querySelectorAll("[data-mode]")) button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
   $("network").classList.toggle("is-editing", mode !== "select");
-  $("mode-hint").textContent = mode === "connect" ? "接続する2台の機器を順に選択" : mode === "select" ? "＋で拡大 / 機器・回線を選択 / 余白をドラッグで移動" : "図の余白を選んで追加";
-  if (mode !== "select") status(mode === "connect" ? "接続する2台を選択。PC—LAN、LAN—ルータ、ルータ—ルータを接続できます。" : "図の余白を選ぶと機器を追加できます。IPアドレスは接続時に自動設定します。");
+  $("pc-choices").hidden = !["source", "destination"].includes(mode);
+  $("mode-hint").textContent = mode === "connect" ? "接続する2台の機器を順に選択" : ["source", "destination"].includes(mode) ? `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ` : mode === "select" ? "機器本体をドラッグで移動 / ＋の取っ手から引いて接続" : "図の余白を選んで追加";
+  if (mode !== "select") status(mode === "connect" ? "接続する2台を選択。PC—LAN、LAN—ルータ、ルータ—ルータを接続できます。" : ["source", "destination"].includes(mode) ? "図のPC、または上のPCカードを選んでください。" : "図の余白を選ぶと機器を追加できます。上のパレットからドラッグして置くこともできます。");
   dirty = true;
 }
 
 $("send-form").addEventListener("submit", (e) => {
   e.preventDefault(); attempt(() => {
     const message = sim.send($("source").value, $("destination").value, $("message").value);
-    selectPacket(message.packets[0].id); setPlaying(true);
+    setMode("select"); selectPacket(message.packets[0].id);
     status(`${message.id}を${message.packets.length}個のパケットに分けて送信しました。機器や回線を選んで実験できます。`);
   });
 });
 $("repeat").addEventListener("click", () => attempt(() => {
   if (sim.repeating) { sim.stopRepeating(); status("連続送信を停止しました。通信中のパケットは転送を続けます。"); }
-  else { const m = sim.startRepeating($("source").value, $("destination").value, $("message").value); selectPacket(m.packets[0].id); setPlaying(true); status("2.8実験秒ごとに連続送信中。経路上の回線を切って、前後のパケットを比べてみよう。"); }
+  else { const m = sim.startRepeating($("source").value, $("destination").value, $("message").value); setMode("select"); selectPacket(m.packets[0].id); status("連続送信中。経路上の回線を切って、消失と迂回を観察してみよう。"); }
 }));
-for (const id of ["source", "destination"]) $(id).addEventListener("change", () => { if (sim.repeating) { sim.stopRepeating(); status("送信設定を変更したため、連続送信を停止しました。新しい設定で再開できます。"); } dirty = true; packetId = ""; $("packet-select").value = ""; });
-$("play").addEventListener("click", () => setPlaying(!playing));
-$("step").addEventListener("click", () => { setPlaying(false); sim.step(); dirty = true; status("次のイベントまで進めました。パケット到着・検知・情報受信・テーブル更新を1段階ずつ観察できます。"); });
+for (const kind of ["source", "destination"]) $("pick-" + kind).addEventListener("click", () => { setMode(mode === kind ? "select" : kind); renderEndpoints(); });
+$("pc-choice-list").addEventListener("click", (e) => { const id = e.target.closest("[data-choose-pc]")?.dataset.choosePc; if (id) { const kind = mode; setEndpoint(kind, id); $("pick-" + kind).focus({ preventScroll: true }); } });
+$("cancel-pick").addEventListener("click", () => { const kind = mode; setMode("select"); $("pick-" + kind)?.focus({ preventScroll: true }); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape" && ["source", "destination"].includes(mode)) { const kind = mode; setMode("select"); $("pick-" + kind).focus({ preventScroll: true }); } });
 $("speed").addEventListener("change", () => { speed = Number($("speed").value); });
 $("zoom-in").addEventListener("click", () => { stopFollowing(); zoom(0.75); });
 $("zoom-out").addEventListener("click", () => { stopFollowing(); zoom(1.33); });
 $("fit").addEventListener("click", () => { stopFollowing(); fit(); });
 $("follow").addEventListener("change", () => { if ($("follow").checked) zoom(Math.min(1, 650 / camera.w)); });
 $("reset").addEventListener("click", () => {
-  setPlaying(false); sim = new RoutingSimulator(); selected = { kind: "node", id: "router-1" }; packetId = ""; setMode("select"); stopFollowing();
+  sim = new RoutingSimulator(); lastFrame = performance.now(); selected = { kind: "node", id: "router-1" }; packetId = ""; setMode("select"); stopFollowing();
+  latestLoss = null; lastLossCount = 0; lossDismissed = false; wireDrag = null;
+  showInspector("device");
+  if (narrowLayout.matches) { $("inspector-body").hidden = true; $("inspector-toggle").setAttribute("aria-expanded", "false"); $("inspector-toggle").textContent = "開く"; }
   pickerSignature = packetSignature = null; inspectorHTML = historyHTML = messagesHTML = traceHTML = "";
-  $("source").innerHTML = $("destination").innerHTML = "";
+  $("source").value = $("destination").value = "";
   $("messages").innerHTML = '<p class="empty-state">最初のメッセージを送ってみよう。<br />パケットをすべて受信できたか、ここに表示します。</p>';
   $("packet-detail").innerHTML = '<p class="muted">送信したパケットの通過経路と、ルータの判断を確認できます。</p>';
   for (const el of [...nodeElements.values(), ...linkElements.values()]) el.remove(); nodeElements.clear(); linkElements.clear();
   dirty = true; fit(); status("ネットワークと実験結果を初期状態に戻しました。");
 });
-for (const button of document.querySelectorAll("[data-mode]")) button.addEventListener("click", () => setMode(button.dataset.mode));
+for (const button of document.querySelectorAll("[data-mode]")) button.addEventListener("click", () => { if (Date.now() >= suppressPaletteClickUntil) setMode(button.dataset.mode); });
 $("selection").addEventListener("change", () => { const [kind, id] = $("selection").value.split(":"); if (kind === "node") selectNode(id); else selectLink(id); });
 $("packet-select").addEventListener("change", () => selectPacket($("packet-select").value));
 $("history-filter").addEventListener("change", () => { historyHTML = ""; dirty = true; });
-$("messages").addEventListener("click", (e) => { const button = e.target.closest("[data-packet]"); if (button) { selectPacket(button.dataset.packet); $("inspector-heading").closest(".inspector").scrollTop = 10000; status(`${button.dataset.packet}の経路と判断を表示しています。`); } });
+$("messages").addEventListener("click", (e) => { const button = e.target.closest("[data-packet]"); if (button) { selectPacket(button.dataset.packet); showInspector("trace", true); status(`${button.dataset.packet}の経路と判断を表示しています。`); } });
+$("loss-inspect").addEventListener("click", () => { if (latestLoss) { selectPacket(latestLoss.id); showInspector("trace", true); status(`${latestLoss.id}の消失原因と通過経路を表示しています。`); } });
+$("loss-dismiss").addEventListener("click", () => { lossDismissed = true; dirty = true; });
+$("inspector-toggle").addEventListener("click", () => { const open = $("inspector-body").hidden; $("inspector-body").hidden = !open; $("inspector-toggle").setAttribute("aria-expanded", String(open)); $("inspector-toggle").textContent = open ? "閉じる" : "開く"; });
+for (const kind of ["device", "trace"]) $(kind + "-tab").addEventListener("click", () => showInspector(kind));
+document.querySelector(".inspector-tabs").addEventListener("keydown", (e) => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) { e.preventDefault(); const kind = e.key === "Home" ? "device" : e.key === "End" ? "trace" : document.activeElement.id === "device-tab" ? "trace" : "device"; showInspector(kind); $(kind + "-tab").focus(); } });
+narrowLayout.addEventListener("change", () => { $("inspector-body").hidden = narrowLayout.matches; $("inspector-toggle").setAttribute("aria-expanded", String(!narrowLayout.matches)); $("inspector-toggle").textContent = narrowLayout.matches ? "開く" : "閉じる"; });
+$("inspector-body").hidden = narrowLayout.matches;
 $("selection-detail").addEventListener("click", (e) => {
   const action = e.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
@@ -327,8 +409,8 @@ $("selection-detail").addEventListener("click", (e) => {
     if (action === "toggle-link") { sim.setLink(link.id, !link.up); status(`回線を${link.up ? "復旧" : "切断"}しました。テーブルに変化が伝わるまでのパケットを観察してみよう。`); }
     if (action === "remove-node") { sim.removeNode(node.id); pickerSignature = null; status(`${node.label}を削除しました。`); }
     if (action === "remove-link") { sim.removeLink(link.id); pickerSignature = null; status("回線を削除しました。「回線を接続」でつなぎ直せます。"); }
-    if (action === "set-source") { sim.stopRepeating(); $("source").value = node.id; packetId = ""; status(`${node.label}を送信元にしました。`); }
-    if (action === "set-destination") { sim.stopRepeating(); $("destination").value = node.id; packetId = ""; status(`${node.label}を宛先にしました。`); }
+    if (action === "set-source") setEndpoint("source", node.id);
+    if (action === "set-destination") setEndpoint("destination", node.id);
   });
 });
 $("selection-detail").addEventListener("change", (e) => { if (e.target.id === "link-cost") attempt(() => { sim.setCost(selected.id, Number(e.target.value)); status("回線コストを変更しました。経路の再計算と更新を待って観察できます。"); }); });
@@ -343,11 +425,22 @@ $("break-route").addEventListener("click", () => attempt(() => {
 
 const pointers = new Map();
 let drag = null, pinch = null;
+function connectionTarget(point) {
+  return [...sim.nodes.values()].filter((n) => n.id !== wireDrag?.from && Math.hypot(n.x - point.x, n.y - point.y) < Math.max(40, 20 * camera.w / $("network").clientWidth)).sort((a, b) => Math.hypot(a.x - point.x, a.y - point.y) - Math.hypot(b.x - point.x, b.y - point.y))[0];
+}
 $("network").addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
   $("network").setPointerCapture(e.pointerId);
-  if (pointers.size === 2) { drag = null; pinch = null; stopFollowing(); return; }
+  if (pointers.size === 2) { drag = null; wireDrag = null; pinch = null; dirty = true; stopFollowing(); return; }
+  const handle = e.target.closest("[data-connect]");
+  if (handle) {
+    setMode("select"); stopFollowing();
+    selected = { kind: "node", id: handle.dataset.connect };
+    wireDrag = { from: handle.dataset.connect, pointer: e.pointerId, point: worldPoint(e) };
+    status("緑で強調された相手まで引いて離すと、回線を接続できます。");
+    renderDiagram(); return;
+  }
   const target = e.target.closest("[data-node], [data-link]");
   const node = target?.dataset.node ? sim.nodes.get(target.dataset.node) : null;
   drag = { pointer: e.pointerId, target, node: mode === "select" ? node : null, clientX: e.clientX, clientY: e.clientY, originalX: node?.x, originalY: node?.y, cameraX: camera.x, cameraY: camera.y, moved: false };
@@ -355,6 +448,12 @@ $("network").addEventListener("pointerdown", (e) => {
 $("network").addEventListener("pointermove", (e) => {
   if (!pointers.has(e.pointerId)) return;
   pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (wireDrag?.pointer === e.pointerId && pointers.size === 1) {
+    wireDrag.point = worldPoint(e);
+    const target = connectionTarget(wireDrag.point);
+    if (target && !sim.connectionError(wireDrag.from, target.id)) wireDrag.point = { x: target.x, y: target.y };
+    return;
+  }
   if (pointers.size === 2) {
     const [a, b] = [...pointers.values()], distance = Math.hypot(a.x - b.x, a.y - b.y);
     const center = { clientX: (a.x + b.x) / 2, clientY: (a.y + b.y) / 2 };
@@ -377,6 +476,13 @@ $("network").addEventListener("pointermove", (e) => {
 });
 function endPointer(e) {
   pointers.delete(e.pointerId);
+  if (wireDrag?.pointer === e.pointerId) {
+    const from = wireDrag.from, target = connectionTarget(worldPoint(e));
+    if (e.type !== "pointercancel" && target) attempt(() => { sim.connect(from, target.id); status(`${sim.name(from)}と${target.label}を接続しました。経路情報の更新は自動で進みます。`); });
+    else if (e.type !== "pointercancel") status("接続を取り消しました。＋の取っ手から、緑の候補まで引いてください。");
+    wireDrag = null; dirty = true; renderDiagram();
+    drag = null; pinch = null; return;
+  }
   if (e.type !== "pointercancel" && drag && drag.pointer === e.pointerId && !drag.moved) {
     if (drag.target?.dataset.node) selectNode(drag.target.dataset.node);
     else if (drag.target?.dataset.link) selectLink(drag.target.dataset.link);
@@ -386,6 +492,40 @@ function endPointer(e) {
 }
 $("network").addEventListener("pointerup", endPointer);
 $("network").addEventListener("pointercancel", endPointer);
+
+for (const button of document.querySelectorAll('[data-mode="router"], [data-mode="lan"], [data-mode="pc"]')) {
+  button.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    paletteDrag = { pointer: e.pointerId, kind: button.dataset.mode, x: e.clientX, y: e.clientY, moved: false };
+    button.setPointerCapture(e.pointerId);
+  });
+  button.addEventListener("pointermove", (e) => {
+    if (!paletteDrag || paletteDrag.pointer !== e.pointerId) return;
+    if (Math.hypot(e.clientX - paletteDrag.x, e.clientY - paletteDrag.y) > 7) paletteDrag.moved = true;
+    if (!paletteDrag.moved) return;
+    const box = $("network").getBoundingClientRect(), inside = e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+    $("palette-preview").hidden = false;
+    $("palette-preview").textContent = { router: "ルータ", lan: "LAN", pc: "PC" }[paletteDrag.kind];
+    $("palette-preview").style.left = `${e.clientX}px`; $("palette-preview").style.top = `${e.clientY}px`;
+    $("palette-preview").classList.toggle("outside", !inside);
+    $("network").closest(".canvas-wrap").classList.toggle("is-drop-target", inside);
+  });
+  const end = (e) => {
+    if (!paletteDrag || paletteDrag.pointer !== e.pointerId) return;
+    const kind = paletteDrag.kind, moved = paletteDrag.moved;
+    const box = $("network").getBoundingClientRect();
+    if (moved) {
+      suppressPaletteClickUntil = Date.now() + 400;
+      if (e.type !== "pointercancel" && e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom) attempt(() => {
+        const point = worldPoint(e), node = sim.addNode(kind, point.x, point.y);
+        selected = { kind: "node", id: node.id }; setMode("select");
+        status(`${node.label}を追加しました。＋の取っ手から相手へ引いて接続できます。`);
+      });
+    }
+    paletteDrag = null; $("palette-preview").hidden = true; $("network").closest(".canvas-wrap").classList.remove("is-drop-target");
+  };
+  button.addEventListener("pointerup", end); button.addEventListener("pointercancel", end);
+}
 $("network").addEventListener("wheel", (e) => { e.preventDefault(); stopFollowing(); zoom(e.deltaY > 0 ? 1.1 : 0.9, worldPoint(e)); }, { passive: false });
 $("network").addEventListener("keydown", (e) => {
   const nodeId = e.target.closest("[data-node]")?.dataset.node, linkId = e.target.closest("[data-link]")?.dataset.link;
@@ -407,8 +547,8 @@ new ResizeObserver(() => { const width = $("network").clientWidth; if (Math.abs(
 setMode("select"); renderUI(); fit();
 function frame(now) {
   const elapsed = Math.min(.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
-  if (playing) sim.advance(elapsed * speed);
-  if (now - lastUI > 120 && (dirty || lastRevision !== sim.revision || playing)) { renderUI(); lastUI = now; }
+  sim.advance(elapsed * speed);
+  if (now - lastUI > 120 && (dirty || lastRevision !== sim.revision || now - lastUI > 1000)) { renderUI(); lastUI = now; }
   renderMotion(); requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
