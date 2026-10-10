@@ -1,5 +1,6 @@
 import { createSignal, PLAYBACK_RATE, DURATION } from "./pcm.mjs?v=3";
 export const plotInsets = { left: 28, right: 8, top: 12, bottom: 24 };
+export const minimumSpan = 0.0005;
 export const formatMilliseconds = (seconds) =>
   String(Number((seconds * 1000).toFixed(3)));
 const blue = "#286788",
@@ -97,6 +98,109 @@ export class Waveforms {
       if (!Object.hasOwn(positions, event.key)) return;
       event.preventDefault();
       this.onWindow(positions[event.key]);
+    });
+    this.installNavigation();
+  }
+  installNavigation() {
+    const canvas = this.combined;
+    const fraction = (clientX) => {
+      const box = canvas.getBoundingClientRect();
+      const width = Math.max(1, box.width - plotInsets.left - plotInsets.right);
+      return (clientX - box.left - plotInsets.left) / width;
+    };
+    const clampSpan = (span) => Math.max(minimumSpan, Math.min(DURATION, span));
+    const zoom = (scale, anchor) => {
+      const span = clampSpan(this.span * scale);
+      this.onWindow(this.start + anchor * (this.span - span), span);
+    };
+    const pointers = new Map();
+    let gesture;
+    const position = () => {
+      const [first, second] = pointers.values();
+      return second
+        ? {
+            x: (first.x + second.x) / 2,
+            distance: Math.hypot(first.x - second.x, first.y - second.y),
+          }
+        : { x: first.x, distance: 0 };
+    };
+    const rebase = () => {
+      gesture = pointers.size
+        ? { ...position(), start: this.start, span: this.span }
+        : null;
+      canvas.classList.toggle("is-panning", pointers.size > 0);
+    };
+    canvas.addEventListener(
+      "wheel",
+      (event) => {
+        event.preventDefault();
+        const unit =
+          event.deltaMode === 1
+            ? 16
+            : event.deltaMode === 2
+              ? canvas.clientHeight
+              : 1;
+        const delta = Math.max(-400, Math.min(400, event.deltaY * unit));
+        zoom(
+          Math.exp(delta * 0.0025),
+          Math.max(0, Math.min(1, fraction(event.clientX))),
+        );
+        rebase();
+      },
+      { passive: false },
+    );
+    canvas.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0 || pointers.size >= 2) return;
+      event.preventDefault();
+      canvas.focus({ preventScroll: true });
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      canvas.setPointerCapture(event.pointerId);
+      rebase();
+    });
+    canvas.addEventListener("pointermove", (event) => {
+      if (!pointers.has(event.pointerId)) return;
+      event.preventDefault();
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      const current = position();
+      const span =
+        gesture.distance > 0
+          ? clampSpan(
+              (gesture.span * gesture.distance) / Math.max(1, current.distance),
+            )
+          : gesture.span;
+      const anchorTime = gesture.start + fraction(gesture.x) * gesture.span;
+      this.onWindow(anchorTime - fraction(current.x) * span, span);
+    });
+    const finish = (event) => {
+      if (!pointers.delete(event.pointerId)) return;
+      if (canvas.hasPointerCapture(event.pointerId))
+        canvas.releasePointerCapture(event.pointerId);
+      rebase();
+    };
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
+      canvas.addEventListener(type, finish);
+    window.addEventListener("blur", () => {
+      for (const id of pointers.keys())
+        if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
+      pointers.clear();
+      rebase();
+    });
+    canvas.addEventListener("keydown", (event) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const step = (this.span / 2) * (event.shiftKey ? 10 : 1);
+      const positions = {
+        ArrowLeft: this.start - step,
+        ArrowRight: this.start + step,
+        Home: 0,
+        End: DURATION - this.span,
+      };
+      if (Object.hasOwn(positions, event.key)) {
+        event.preventDefault();
+        this.onWindow(positions[event.key]);
+      } else if (["+", "=", "-"].includes(event.key)) {
+        event.preventDefault();
+        zoom(event.key === "-" ? 2 : 0.5, 0.5);
+      }
     });
   }
   setData(data, config) {

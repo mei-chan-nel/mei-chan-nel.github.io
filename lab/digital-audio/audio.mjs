@@ -7,7 +7,7 @@ import {
   samplingStatus,
 } from "./pcm.mjs?v=3";
 import { audioWorkerSource } from "./worker-source.mjs?v=3";
-import { Waveforms, formatMilliseconds } from "./waveform.mjs?v=4";
+import { Waveforms, formatMilliseconds, minimumSpan } from "./waveform.mjs?v=5";
 import { installCanvasResize } from "../shared/resize.mjs";
 const $ = (id) => document.getElementById(id),
   fmt = (n) => n.toLocaleString("ja-JP");
@@ -42,8 +42,22 @@ const waves = new Waveforms({
 });
 waves.span = defaultSpan;
 $("window-size").value = String(defaultSpan);
-function setWindow(start) {
+function setWindow(start, span = waves.span) {
+  if (!Number.isFinite(start) || !Number.isFinite(span)) return;
+  waves.span = Math.max(minimumSpan, Math.min(DURATION, span));
   waves.start = Math.max(0, Math.min(DURATION - waves.span, start));
+  const select = $("window-size"),
+    custom = $("custom-window-size");
+  const preset = [...select.options].find(
+    (option) =>
+      option !== custom && Math.abs(Number(option.value) - waves.span) < 1e-10,
+  );
+  custom.hidden = !!preset;
+  if (!preset) {
+    custom.value = String(waves.span);
+    custom.textContent = `${formatMilliseconds(waves.span)} ms`;
+  }
+  select.value = preset ? preset.value : custom.value;
   $("overview-wave").setAttribute("aria-valuenow", String(waves.start * 1000));
   $("overview-wave").setAttribute(
     "aria-valuemax",

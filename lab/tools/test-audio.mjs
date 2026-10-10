@@ -297,6 +297,252 @@ async function resizeWave(page, width) {
   );
   await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
 }
+async function navigateWave(page, width) {
+  const graph = page.locator("#combined-wave");
+  const state = () =>
+    page.evaluate(() => ({
+      start:
+        Number(
+          document
+            .querySelector("#overview-wave")
+            .getAttribute("aria-valuenow"),
+        ) / 1000,
+      span: Number(document.querySelector("#window-size").value),
+    }));
+  await page.evaluate(() => {
+    const r = document.querySelector("#combined-wave").getBoundingClientRect();
+    window.scrollTo({
+      top: scrollY + r.y + r.height / 2 - innerHeight / 2,
+      behavior: "instant",
+    });
+  });
+  const r = await graph.boundingBox(),
+    plotWidth = r.width - 28 - 8;
+  const x = Math.round(r.x + 28 + plotWidth * 0.7),
+    y = Math.round(r.y + r.height / 2),
+    anchor = (x - r.x - 28) / plotWidth;
+  const initial = await state(),
+    scroll = await page.evaluate(() => scrollY);
+  await page.mouse.move(x, y);
+  await page.mouse.wheel(0, -120);
+  await page.waitForFunction(
+    (span) => Number(document.querySelector("#window-size").value) < span,
+    initial.span,
+  );
+  const zoomed = await state();
+  assert.ok(
+    Math.abs(
+      initial.start +
+        initial.span * anchor -
+        zoomed.start -
+        zoomed.span * anchor,
+    ) < 1e-9,
+    "Wheel zoom keeps the time beneath the cursor fixed",
+  );
+  assert.equal(
+    await page.evaluate(() => scrollY),
+    scroll,
+    "Graph zoom does not scroll the page",
+  );
+  assert.equal(
+    await page.locator("#custom-window-size").evaluate((el) => el.selected),
+    true,
+    "Range selector follows continuous zoom",
+  );
+  await page.mouse.wheel(0, 120);
+  await page.waitForFunction(
+    (span) =>
+      Math.abs(Number(document.querySelector("#window-size").value) - span) <
+      1e-10,
+    initial.span,
+  );
+  assert.equal(
+    await page.locator("#custom-window-size").evaluate((el) => el.hidden),
+    true,
+    "Returning to a preset restores the preset option",
+  );
+
+  const beforePan = await state();
+  if (width < 500) {
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ x, y, id: 1 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: x - 40, y, id: 1 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+    await cdp.detach();
+  } else {
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x - 40, y, { steps: 5 });
+    assert.equal(
+      await graph.evaluate((el) => getComputedStyle(el).cursor),
+      "grabbing",
+    );
+    await page.mouse.up();
+  }
+  await page.waitForFunction(
+    (start) =>
+      Number(
+        document.querySelector("#overview-wave").getAttribute("aria-valuenow"),
+      ) /
+        1000 >
+      start,
+    beforePan.start,
+  );
+  const panned = await state();
+  assert.ok(
+    Math.abs(
+      panned.start - beforePan.start - (40 / plotWidth) * beforePan.span,
+    ) < 1e-8,
+    "Dragging moves time by the corresponding graph distance",
+  );
+  assert.equal(panned.span, beforePan.span);
+  assert.equal(
+    await graph.evaluate((el) => getComputedStyle(el).cursor),
+    "grab",
+  );
+
+  if (width < 500) {
+    await page.locator("#window-size").selectOption("0.01");
+    const beforePinch = await state();
+    const cx = Math.round(r.x + 28 + plotWidth / 2),
+      pinchAnchor = (cx - r.x - 28) / plotWidth;
+    const cdp = await page.context().newCDPSession(page);
+    const points = (distance) => [
+      { x: cx - distance / 2, y, id: 1 },
+      { x: cx + distance / 2, y, id: 2 },
+    ];
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: points(80),
+    });
+    for (const distance of [96, 112, 128, 144, 160])
+      await cdp.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: points(distance),
+      });
+    await page.waitForFunction(
+      (span) =>
+        Math.abs(
+          Number(document.querySelector("#window-size").value) - span / 2,
+        ) < 1e-8,
+      beforePinch.span,
+    );
+    const pinched = await state();
+    assert.ok(
+      Math.abs(pinched.span - beforePinch.span / 2) < 1e-8,
+      "Two-finger pinch zooms by the touch distance ratio",
+    );
+    assert.ok(
+      Math.abs(
+        pinched.start +
+          pinched.span * pinchAnchor -
+          beforePinch.start -
+          beforePinch.span * pinchAnchor,
+      ) < 1e-8,
+      "Pinch keeps the time beneath the fingers centered",
+    );
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      // A partial touchEnd names the finger being lifted.
+      touchPoints: [{ x: cx + 80, y, id: 2 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: cx - 60, y, id: 1 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+    await cdp.detach();
+    await page.waitForFunction(
+      (start) =>
+        Number(
+          document
+            .querySelector("#overview-wave")
+            .getAttribute("aria-valuenow"),
+        ) /
+          1000 <
+        start,
+      pinched.start,
+    );
+    const afterPinchPan = await state();
+    assert.ok(
+      Math.abs(
+        afterPinchPan.start - pinched.start + (20 / plotWidth) * pinched.span,
+      ) < 1e-8,
+      "Lifting one finger continues as a pan without a jump",
+    );
+    assert.equal(
+      await page.evaluate(() => scrollY),
+      scroll,
+      "Touch gestures stay inside the graph",
+    );
+  }
+  await graph.focus();
+  await page.keyboard.press("Home");
+  assert.equal((await state()).start, 0);
+  await page.keyboard.press("ArrowLeft");
+  assert.equal((await state()).start, 0, "Panning cannot pass the beginning");
+  await page.keyboard.press("End");
+  assert.ok(Math.abs((await state()).start + (await state()).span - 6) < 1e-10);
+  await page.keyboard.press("ArrowRight");
+  assert.ok(
+    Math.abs((await state()).start + (await state()).span - 6) < 1e-10,
+    "Panning cannot pass the end",
+  );
+  for (let i = 0; i < 6; i++) await page.keyboard.press("+");
+  assert.equal((await state()).span, 0.0005, "Zoom has a usable minimum range");
+  for (let i = 0; i < 14; i++) await page.keyboard.press("-");
+  assert.deepEqual(
+    await state(),
+    { start: 0, span: 6 },
+    "Zoom out clamps to the whole recording",
+  );
+  await page.locator("#window-size").selectOption("0.01");
+  assert.equal(
+    (await state()).span,
+    0.01,
+    "Preset range selection still works after gestures",
+  );
+  if (width === 1280) {
+    await page.locator(".audio-model summary").click();
+    assert.equal(
+      await page.locator(".audio-model summary").innerText(),
+      "この実験について",
+    );
+    assert.deepEqual(
+      await page.locator(".audio-explanations h3").allTextContents(),
+      [
+        "標本化とは",
+        "標本点が少ないと何が起きるか",
+        "量子化ビット数とは",
+        "データ量の計算",
+      ],
+    );
+    await axe(page);
+    await page.locator(".audio-model summary").click();
+  }
+  assert.equal(
+    await page.evaluate(() => window.audioChecks.contexts),
+    0,
+    "Graph navigation does not start audio",
+  );
+  await page.locator("#reset-audio").click();
+  await ready(page);
+  assert.equal((await state()).span, initial.span);
+  assert.equal((await state()).start, 0.04);
+  await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+}
 try {
   for (const [width, height] of [
     [1280, 720],
@@ -378,6 +624,7 @@ try {
       color: "rgb(255, 255, 255)",
     });
     await resizeWave(page, width);
+    await navigateWave(page, width);
     await axe(page);
     // A full-quality digitization must not introduce constant hiss in the buffer
     // or through the real browser audio graph, including device-rate conversion.
@@ -676,6 +923,7 @@ try {
   await noAudio.close();
   const offline = await browser.newPage({
     viewport: { width: 390, height: 844 },
+    hasTouch: true,
   });
   await observe(offline);
   await offline.goto("about:blank");
@@ -687,6 +935,7 @@ try {
     ),
   );
   await ready(offline);
+  await navigateWave(offline, 390);
   await aliasSetup(offline);
   await offline.locator("#play-processed").click();
   await offline.waitForFunction(

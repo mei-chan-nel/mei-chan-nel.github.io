@@ -544,11 +544,39 @@
 .audio-model summary {
   cursor: pointer;
 }
-.audio-model ul {
-  padding-left: 22px;
+.audio-explanations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 28px;
+  margin-top: 14px;
 }
-.audio-model li {
-  margin: 8px 0;
+.audio-explanations h3 {
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+.audio-explanations p {
+  margin: 0 0 8px;
+}
+.audio-size-formula {
+  font-weight: 700;
+}
+.audio-model-note {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 12px;
+}
+#combined-wave {
+  cursor: grab;
+  touch-action: none;
+}
+#combined-wave.is-panning {
+  cursor: grabbing;
+}
+@media (max-width: 600px) {
+  .audio-explanations {
+    grid-template-columns: 1fr;
+  }
 }
 .audio-lab :focus-visible,
 .audio-heading :focus-visible,
