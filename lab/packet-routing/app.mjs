@@ -4,8 +4,9 @@ const $ = (id) => document.getElementById(id);
 const esc = (value) => String(value ?? "").replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 const svgNS = "http://www.w3.org/2000/svg";
 let sim = new RoutingSimulator();
-let speed = 1, mode = "select", connectStart = null;
-let selected = { kind: "node", id: "router-1" }, packetId = "";
+let mode = "select", connectStart = null;
+let selected = { kind: "node", id: "" }, packetId = "";
+let contextOpen = false, contextSelection = "";
 let dirty = true, lastRevision = -1, lastUI = 0, lastFrame = performance.now();
 const camera = { x: 0, y: 0, w: 1240, h: 650 };
 const nodeElements = new Map(), linkElements = new Map();
@@ -24,36 +25,29 @@ function attempt(action) {
   try { action(); dirty = true; }
   catch (error) { status(error.message, true); }
 }
-function showInspector(panel = "device", reveal = false) {
-  for (const kind of ["device", "trace"]) {
-    $(kind + "-tab").setAttribute("aria-selected", String(kind === panel));
-    $(kind + "-tab").tabIndex = kind === panel ? 0 : -1;
-    $(kind + "-panel").hidden = kind !== panel;
-  }
-  if (!narrowLayout.matches || reveal) $("inspector-body").hidden = false;
-  $("inspector-toggle").setAttribute("aria-expanded", String(!$("inspector-body").hidden));
-  $("inspector-toggle").textContent = $("inspector-body").hidden ? "開く" : "閉じる";
-  if (reveal && narrowLayout.matches) $("inspector-heading").scrollIntoView({ block: "start", behavior: "instant" });
+function showTrace(reveal = false) {
+  $("trace-panel").open = true;
+  if (reveal && narrowLayout.matches) $("trace-panel").scrollIntoView({ block: "start", behavior: "instant" });
 }
 function setEndpoint(kind, id) {
   if (sim.nodes.get(id)?.kind !== "pc") return;
   $(kind).value = id;
   if (sim.repeating) sim.stopRepeating();
   packetId = ""; $("packet-select").value = "";
-  setMode("select"); dirty = true;
-  status(`${sim.name(id)}を${kind === "source" ? "送信元" : "宛先"}にしました。図のPCと上のカードで変更できます。`);
+  setMode("select"); contextOpen = false; dirty = true;
+  status(`${sim.name(id)}を${kind === "source" ? "送信元" : "宛先"}にしました。図のPCと送信欄のカードで変更できます。`);
 }
 function renderEndpoints() {
   for (const kind of ["source", "destination"]) {
     const pc = sim.nodes.get($(kind).value);
     $(kind + "-name").textContent = pc?.label ?? "PCを追加してください";
-    $(kind + "-network").textContent = pc ? `${sim.lanForPC(pc.id)?.label ?? "未接続"} · クリックで変更` : "図にドラッグして追加";
+    $(kind + "-network").textContent = pc ? sim.lanForPC(pc.id)?.label ?? "未接続" : "図にドラッグして追加";
     $("pick-" + kind).disabled = !sim.pcs.length;
     $("pick-" + kind).setAttribute("aria-pressed", String(mode === kind));
   }
   if (["source", "destination"].includes(mode)) {
     $("pc-choice-heading").textContent = `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ`;
-    const html = sim.pcs.map((pc) => `<button type="button" data-choose-pc="${pc.id}" aria-pressed="${$(mode).value === pc.id}"><span aria-hidden="true">▣</span><strong>${esc(pc.label)}</strong><small>${esc(sim.lanForPC(pc.id)?.label ?? "未接続")}${pc.up ? "" : " · 故障中"}</small></button>`).join("");
+    const html = sim.pcs.map((pc) => `<button type="button" data-choose-pc="${pc.id}" aria-pressed="${$(mode).value === pc.id}"><strong>${esc(pc.label)}</strong><small>${esc(sim.lanForPC(pc.id)?.label ?? "未接続")}${pc.up ? "" : " · 故障中"}</small></button>`).join("");
     if ($("pc-choice-list").innerHTML !== html) $("pc-choice-list").innerHTML = html;
   }
 }
@@ -61,20 +55,55 @@ function renderEndpoints() {
 function updateCamera() {
   $("network").setAttribute("viewBox", `${camera.x} ${camera.y} ${camera.w} ${camera.h}`);
   for (const [key, value] of Object.entries({ x: camera.x, y: camera.y, width: camera.w, height: camera.h })) $("background").setAttribute(key, value);
-  updateGrips();
+  updateRings(); positionContext();
 }
-function updateGrips() {
+function updateRings() {
   const scale = Math.max(1, camera.w / Math.max(1, $("network").clientWidth));
-  for (const [id, element] of nodeElements) {
-    const node = sim.nodes.get(id);
-    if (node) element.querySelector(".connection-grip")?.setAttribute("transform", `translate(${(node.kind === "router" ? 22 : 28) + 20 * scale} 0) scale(${scale})`);
+  for (const element of nodeElements.values()) {
+    const radius = Math.max(40, 24 * scale);
+    element.querySelector(".selection-ring").setAttribute("r", radius);
+    const hit = element.querySelector(".connection-ring");
+    hit.setAttribute("r", radius); hit.setAttribute("stroke-width", 14 * scale);
   }
+}
+function positionContext() {
+  const panel = $("selection-context"), map = $("network");
+  const node = selected.kind === "node" ? sim.nodes.get(selected.id) : null;
+  const link = selected.kind === "link" ? sim.links.get(selected.id) : null;
+  const a = link && sim.nodes.get(link.a), b = link && sim.nodes.get(link.b);
+  const point = node ?? (a && b ? { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } : null);
+  const x = point ? (point.x - camera.x) / camera.w * map.clientWidth : -100;
+  const y = point ? (point.y - camera.y) / camera.h * map.clientHeight : -100;
+  panel.hidden = !contextOpen || !point || !!wireDrag || !!paletteDrag?.moved || !!drag?.moved || x < 0 || y < 0 || x > map.clientWidth || y > map.clientHeight;
+  if (panel.hidden) return;
+  const gap = 10;
+  const palette = document.querySelector(".device-palette");
+  const controls = document.querySelector(".map-controls");
+  panel.style.maxHeight = `${map.clientHeight - palette.offsetTop - palette.offsetHeight - controls.offsetHeight - gap * 4}px`;
+  const width = panel.offsetWidth, height = panel.offsetHeight;
+  const radius = node ? Math.max(40 * map.clientWidth / camera.w, 24) + 12 : 15;
+  const candidates = [
+    { left: x + radius, top: y - height / 2 }, { left: x - radius - width, top: y - height / 2 },
+    { left: x - width / 2, top: y + radius }, { left: x - width / 2, top: y - radius - height },
+  ].map((p, order) => {
+    p.left = Math.max(gap, Math.min(map.clientWidth - width - gap, p.left));
+    p.top = Math.max(gap, Math.min(map.clientHeight - height - gap, p.top));
+    if (p.left < palette.offsetLeft + palette.offsetWidth + gap) p.top = Math.max(p.top, palette.offsetTop + palette.offsetHeight + gap);
+    if (p.left + width > controls.offsetLeft - gap) p.top = Math.min(p.top, controls.offsetTop - height - gap);
+    const covers = (px, py, padding) => px + padding > p.left && px - padding < p.left + width && py + padding > p.top && py - padding < p.top + height;
+    p.score = order + (covers(x, y, radius - 4) ? 10000 : 0);
+    for (const n of sim.nodes.values()) if (n.id !== node?.id && covers((n.x - camera.x) / camera.w * map.clientWidth, (n.y - camera.y) / camera.h * map.clientHeight, 8)) p.score += 100;
+    if (p.left < palette.offsetLeft + palette.offsetWidth + gap && p.top < palette.offsetTop + palette.offsetHeight + gap) p.score += 1000;
+    if (p.left + width > controls.offsetLeft - gap && p.top + height > controls.offsetTop - gap) p.score += 1000;
+    return p;
+  }).sort((a, b) => a.score - b.score);
+  panel.style.left = `${candidates[0].left}px`; panel.style.top = `${candidates[0].top}px`;
 }
 function fit() {
   const nodes = [...sim.nodes.values()];
   const bounds = {
     left: Math.min(0, ...nodes.map((n) => n.x - 65)), right: Math.max(1240, ...nodes.map((n) => n.x + 65)),
-    top: Math.min(-10, ...nodes.map((n) => n.y - 65)), bottom: Math.max(650, ...nodes.map((n) => n.y + 65)),
+    top: Math.min(-90, ...nodes.map((n) => n.y - 65)), bottom: Math.max(700, ...nodes.map((n) => n.y + 65)),
   };
   const aspect = $("network").clientWidth / $("network").clientHeight;
   camera.w = Math.max(bounds.right - bounds.left, (bounds.bottom - bounds.top) * aspect);
@@ -106,11 +135,7 @@ function updatePickers() {
     const previous = $(id).value;
     if (!sim.nodes.has(previous)) $(id).value = id === "source" ? sim.pcs[0]?.id ?? "" : sim.pcs.at(-1)?.id ?? "";
   }
-  const nodeOptions = ["router", "lan", "pc"].map((kind) => `<optgroup label="${{ router: "ルータ", lan: "LAN", pc: "PC" }[kind]}">${[...sim.nodes.values()].filter((n) => n.kind === kind).map((n) => `<option value="node:${n.id}">${esc(n.label)}</option>`).join("")}</optgroup>`).join("");
-  const linkOptions = [...sim.links.values()].map((l) => `<option value="link:${l.id}">${esc(sim.name(l.a))} ↔ ${esc(sim.name(l.b))}</option>`).join("");
-  $("selection").innerHTML = `${nodeOptions}<optgroup label="回線">${linkOptions}</optgroup>`;
-  if (!sim.nodes.has(selected.id) && !sim.links.has(selected.id)) selected = { kind: "node", id: sim.nodes.keys().next().value ?? "" };
-  $("selection").value = `${selected.kind}:${selected.id}`;
+  if (!sim.nodes.has(selected.id) && !sim.links.has(selected.id)) { selected = { kind: "node", id: "" }; contextOpen = false; }
   $("send").disabled = sim.pcs.length < 2;
   $("repeat").disabled = sim.pcs.length < 2 && !sim.repeating;
 }
@@ -141,7 +166,7 @@ function renderDiagram() {
       group = document.createElementNS(svgNS, "g");
       group.setAttribute("data-node", node.id); group.setAttribute("tabindex", "0"); group.setAttribute("role", "button");
       const body = node.kind === "router" ? '<circle class="device-body" r="22"/>' : '<rect class="device-body" x="-28" y="-20" width="56" height="40" rx="8"/>';
-      group.innerHTML = `<circle class="selection-ring" r="32" fill="none"/><circle class="endpoint-ring" r="36" fill="none"/>${body}${node.kind === "router" ? `<text text-anchor="middle" y="6">${esc(node.label)}</text>` : node.kind === "lan" ? '<text text-anchor="middle" y="6" style="font-size:14px">LAN</text>' : '<path class="node-icon" d="M-14 -11H14V7H-14ZM0 7V13M-10 13H10"/>'}${node.kind !== "router" ? `<text class="node-label" text-anchor="middle" y="42">${esc(node.label)}</text>` : ""}<text class="endpoint-tag" text-anchor="middle" y="-45"></text><text class="fault-mark" x="20" y="-20">×</text><g class="connection-grip"><circle class="connection-port-hit" data-connect="${node.id}" r="16"/><circle class="connection-port" r="10"/><text class="connection-plus" y="5" text-anchor="middle">＋</text></g>`;
+      group.innerHTML = `<circle class="selection-ring" r="40"/><circle class="connection-ring" data-connect="${node.id}" r="40" aria-hidden="true"/><circle class="endpoint-ring" r="36" fill="none"/>${body}${node.kind === "router" ? `<text text-anchor="middle" y="6">${esc(node.label)}</text>` : node.kind === "lan" ? '<text text-anchor="middle" y="6" style="font-size:14px">LAN</text>' : '<path class="node-icon" d="M-14 -11H14V7H-14ZM0 7V13M-10 13H10"/>'}${node.kind !== "router" ? `<text class="node-label" text-anchor="middle" y="42">${esc(node.label)}</text>` : ""}<text class="endpoint-tag" text-anchor="middle" y="-45"></text><text class="fault-mark" x="20" y="-20">×</text>`;
       $("devices").append(group); nodeElements.set(node.id, group);
     }
     group.setAttribute("transform", `translate(${node.x} ${node.y})`);
@@ -152,7 +177,13 @@ function renderDiagram() {
     group.querySelector(".endpoint-tag").textContent = node.id === $("source").value && node.id === $("destination").value ? "送信元・宛先" : node.id === $("source").value ? "送信元" : node.id === $("destination").value ? "宛先" : "";
     group.querySelector(".fault-mark").style.display = node.up ? "none" : "";
   }
-  updateGrips();
+  const selectedElement = selected.kind === "node" && nodeElements.get(selected.id);
+  if (selectedElement && $("devices").lastElementChild !== selectedElement) {
+    const focused = document.activeElement === selectedElement;
+    $("devices").append(selectedElement);
+    if (focused) selectedElement.focus({ preventScroll: true });
+  }
+  updateRings();
 }
 
 function tableHTML(node) {
@@ -163,44 +194,46 @@ function tableHTML(node) {
   const lastChange = sim.history.find((h) => h.type === "table" && h.router === node.id);
   const recentlyChanged = sim.time - (lastChange?.time ?? -100) < 3 ? new Set(lastChange.detail.map((c) => c.network)) : new Set();
   const destinationLAN = sim.lanForPC($("destination").value)?.id;
-  return `<h4 class="routing-table-title">ルーティングテーブル</h4><p class="table-meta">経路情報 v${state.tableVersion} · ${state.db.size}台のルータ情報${node.up ? "" : " · 停止中"}</p><div class="table-scroll" tabindex="0" role="region" aria-label="${esc(node.label)}のルーティングテーブル"><table class="routing-table"><thead><tr><th scope="col">宛先のLAN</th><th scope="col">次に送る先</th><th scope="col">コスト</th></tr></thead><tbody>${[...networks.values()].map((lan) => {
+  return `<p class="table-meta">経路情報 v${state.tableVersion} · ${state.db.size}台のルータ情報${node.up ? "" : " · 停止中"}</p><div class="table-scroll" tabindex="0" role="region" aria-label="${esc(node.label)}のルーティングテーブル"><table class="routing-table"><thead><tr><th scope="col">宛先のLAN</th><th scope="col">次に送る先</th><th scope="col">コスト</th></tr></thead><tbody>${[...networks.values()].map((lan) => {
     const route = state.table.get(lan.id);
     return `<tr class="${lan.id === destinationLAN ? "is-target " : ""}${recentlyChanged.has(lan.id) ? "is-changed" : ""}"><td>${esc(lan.label)}<small>${esc(lan.prefix)}</small></td><td class="${route ? "" : "unreachable"}">${route ? esc(sim.name(route.next)) + (route.next === lan.id ? "<small>直接接続</small>" : "") : "経路なし"}</td><td>${route?.cost ?? "—"}</td></tr>`;
   }).join("") || '<tr><td colspan="3">まだLANの情報がありません</td></tr>'}</tbody></table></div><p class="selection-note">宛先PCが属するLANを見て、次の転送先を選びます。コストは回線の重みの合計。黄色の行は直近の更新です。${node.up ? "" : " このルータは故障中のため転送できません。"}</p>`;
 }
 
-function renderInspector() {
-  let html = "";
-  if (!(selected.kind === "node" ? sim.nodes.has(selected.id) : sim.links.has(selected.id))) {
-    $("selection-detail").innerHTML = '<p class="muted">機器を追加すると、ここで選択して操作できます。</p>'; inspectorHTML = ""; return;
-  }
-  if (selected.kind === "node") {
-    const node = sim.nodes.get(selected.id);
-    if (!node) return;
-    html = `<div class="device-title"><h3>${esc(node.label)}</h3><span class="badge ${node.up ? "" : "down"}">${node.up ? "稼働中" : "故障中"}</span></div>`;
-    if (node.kind === "router") html += '<p class="device-meta">宛先に応じて次の送り先を判断する中継役</p>';
-    if (node.kind === "lan") html += `<p class="device-meta">ネットワーク ${esc(node.prefix)}</p>`;
-    if (node.kind === "pc") html += `<p class="device-meta">IP ${esc(node.address)}<br />所属：${esc(sim.lanForPC(node.id)?.label ?? "未接続")}</p>`;
-    html += `<div class="selection-actions">${node.kind === "pc" ? '<button type="button" data-action="set-source">送信元にする</button><button type="button" data-action="set-destination">宛先にする</button>' : ""}<button type="button" data-action="toggle-node" class="${node.up ? "danger" : "primary"}">${node.up ? "故障させる" : "復旧する"}</button></div>`;
-    if (node.kind === "router") html += tableHTML(node);
-    else html += `<p class="selection-note">接続先：${sim.edges(node.id, false).map((l) => esc(sim.name(sim.other(l, node.id))) + (!l.up ? "（切断）" : "")).join("、") || "なし"}</p>`;
-    html += '<details class="advanced-actions"><summary>機器の削除</summary><button type="button" data-action="remove-node" class="danger">この機器を削除</button></details>';
+function renderContext() {
+  const key = `${selected.kind}:${selected.id}`;
+  const changedSelection = key !== contextSelection;
+  const node = selected.kind === "node" ? sim.nodes.get(selected.id) : null;
+  const link = selected.kind === "link" ? sim.links.get(selected.id) : null;
+  if (!node && !link) { $("selection-context").hidden = true; return; }
+  const label = node ? node.label : `${sim.name(link.a)} ↔ ${sim.name(link.b)}`;
+  const up = node ? node.up : sim.linkUsable(link);
+  const state = node ? node.up ? "稼働中" : "故障中" : !link.up ? "切断中" : up ? "接続中" : "機器が故障中";
+  let html = `<div class="context-heading"><h3>${esc(label)} <span class="context-state ${up ? "" : "down"}">${state}</span></h3><button type="button" data-action="close-context" aria-label="機器・回線の操作を閉じる">×</button></div><div class="selection-actions">`;
+  if (node) {
+    if (node.kind === "pc") html += '<button type="button" data-action="set-source">送信元にする</button><button type="button" data-action="set-destination">宛先にする</button>';
+    html += `<button type="button" data-action="toggle-node" class="${node.up ? "danger" : "primary"}">${node.up ? "故障させる" : "復旧する"}</button></div>`;
+    if (node.kind === "router") html += `<details class="context-details" data-section="routes"><summary>ルーティングテーブル</summary>${tableHTML(node)}</details>`;
+    const info = node.kind === "pc" ? `IP ${esc(node.address)} · ${esc(sim.lanForPC(node.id)?.label ?? "未接続")}` : node.kind === "lan" ? `ネットワーク ${esc(node.prefix)}` : "宛先に応じて次の送り先を判断する中継役";
+    html += `<details class="context-details" data-section="settings"><summary>詳細・削除</summary><p class="device-meta">${info}</p><p class="selection-note">接続先：${sim.edges(node.id, false).map((l) => esc(sim.name(sim.other(l, node.id))) + (!l.up ? "（切断）" : "")).join("、") || "なし"}</p><button type="button" data-action="remove-node" class="danger">この機器を削除</button></details>`;
   } else {
-    const link = sim.links.get(selected.id);
-    if (!link) return;
-    html = `<div class="device-title"><h3>${esc(sim.name(link.a))} ↔ ${esc(sim.name(link.b))}</h3></div><p class="device-meta"><span class="badge ${sim.linkUsable(link) ? "" : "down"}">${!link.up ? "切断中" : sim.linkUsable(link) ? "接続中" : "機器が故障中"}</span></p><div class="selection-actions"><button type="button" class="${link.up ? "danger" : "primary"}" data-action="toggle-link">${link.up ? "切断する" : "復旧する"}</button><button type="button" data-action="remove-link">回線を削除</button></div><label class="link-cost">回線コスト<select id="link-cost">${Array.from({ length: 9 }, (_, i) => `<option value="${i + 1}"${link.cost === i + 1 ? " selected" : ""}>${i + 1}</option>`).join("")}</select></label><p class="selection-note">コストを大きくすると、この回線を通る経路が選ばれにくくなります。変更の情報もルータ間に伝わるまで時間がかかります。</p>`;
+    html += `<button type="button" class="${link.up ? "danger" : "primary"}" data-action="toggle-link">${link.up ? "切断する" : "復旧する"}</button></div><details class="context-details" data-section="settings"><summary>詳細・削除</summary><label class="link-cost">回線コスト<select id="link-cost">${Array.from({ length: 9 }, (_, i) => `<option value="${i + 1}"${link.cost === i + 1 ? " selected" : ""}>${i + 1}</option>`).join("")}</select></label><p class="selection-note">コストが大きい回線は選ばれにくくなります。変更は各ルータへ順に伝わります。</p><button type="button" data-action="remove-link" class="danger">回線を削除</button></details>`;
   }
-  if (html !== inspectorHTML && document.activeElement?.id !== "link-cost") {
-    const scroll = $("selection-detail").querySelector(".table-scroll")?.scrollTop ?? 0;
-    const deleteExpanded = $("selection-detail").querySelector(".advanced-actions")?.open;
-    const focusedAction = $("selection-detail").contains(document.activeElement) ? document.activeElement?.dataset.action : null;
-    const tableFocused = document.activeElement?.classList.contains("table-scroll");
-    $("selection-detail").innerHTML = html; inspectorHTML = html;
-    if (deleteExpanded && $("selection-detail").querySelector(".advanced-actions")) $("selection-detail").querySelector(".advanced-actions").open = true;
-    if (focusedAction) $("selection-detail").querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
-    if (tableFocused) $("selection-detail").querySelector(".table-scroll")?.focus({ preventScroll: true });
-    const table = $("selection-detail").querySelector(".table-scroll"); if (table) table.scrollTop = scroll;
+  if (changedSelection || (html !== inspectorHTML && document.activeElement?.id !== "link-cost")) {
+    const detail = $("selection-detail");
+    const scroll = changedSelection ? 0 : detail.querySelector(".table-scroll")?.scrollTop ?? 0;
+    const expanded = changedSelection ? [] : [...detail.querySelectorAll("details[open]")].map((el) => el.dataset.section);
+    const focusedAction = !changedSelection && detail.contains(document.activeElement) ? document.activeElement?.dataset.action : null;
+    const focusedSection = !changedSelection && document.activeElement?.tagName === "SUMMARY" ? document.activeElement.parentElement.dataset.section : null;
+    const tableFocused = !changedSelection && document.activeElement?.classList.contains("table-scroll");
+    detail.innerHTML = html; inspectorHTML = html; contextSelection = key;
+    for (const section of expanded) detail.querySelector(`[data-section="${section}"]`).open = true;
+    if (focusedAction) detail.querySelector(`[data-action="${focusedAction}"]`)?.focus({ preventScroll: true });
+    if (focusedSection) detail.querySelector(`[data-section="${focusedSection}"] summary`)?.focus({ preventScroll: true });
+    if (tableFocused) detail.querySelector(".table-scroll")?.focus({ preventScroll: true });
+    const table = detail.querySelector(".table-scroll"); if (table) table.scrollTop = scroll;
   }
+  positionContext();
 }
 
 function selectedPacket() { return sim.packets.find((p) => p.id === packetId); }
@@ -254,8 +287,7 @@ function renderHistory() {
 }
 
 function renderUI() {
-  updatePickers(); renderEndpoints(); renderDiagram(); renderInspector(); renderTrace(); renderMessages(); renderHistory(); renderLossNotice();
-  $("selected-name").textContent = selected.kind === "node" ? sim.name(selected.id) : "回線";
+  updatePickers(); renderEndpoints(); renderDiagram(); renderContext(); renderTrace(); renderMessages(); renderHistory(); renderLossNotice();
   $("active-count").textContent = sim.activePackets.length;
   $("delivered-count").textContent = sim.totals.delivered;
   $("lost-count").textContent = sim.totals.lost;
@@ -329,9 +361,10 @@ function renderMotion() {
     if (pos) { camera.x = pos.x - camera.w / 2; camera.y = pos.y - camera.h / 2; updateCamera(); }
   }
   $("connection-preview").innerHTML = wireDrag ? `<line class="connection-preview" x1="${sim.nodes.get(wireDrag.from).x}" y1="${sim.nodes.get(wireDrag.from).y}" x2="${wireDrag.point.x}" y2="${wireDrag.point.y}"/>` : "";
+  positionContext();
 }
 
-function selectNode(id) {
+function selectNode(id, reveal = true) {
   if (["source", "destination"].includes(mode)) {
     if (sim.nodes.get(id)?.kind === "pc") { const kind = mode; setEndpoint(kind, id); $("pick-" + kind).focus({ preventScroll: true }); }
     else status("送信元・宛先にはPCを選んでください。青いPCが候補です。", true);
@@ -339,20 +372,20 @@ function selectNode(id) {
   }
   if (mode === "connect") {
     if (!connectStart) { connectStart = id; status(`${sim.name(id)}を選択。接続するもう1台を選んでください。`); }
-    else attempt(() => { const from = connectStart; sim.connect(from, id); connectStart = null; status(`${sim.name(from)}と${sim.name(id)}を接続しました。経路情報の変化を観察できます。`); });
+    else attempt(() => { const from = connectStart; sim.connect(from, id); setMode("select"); status(`${sim.name(from)}と${sim.name(id)}を接続しました。経路情報の変化を観察できます。`); });
   }
-  selected = { kind: "node", id }; $("selection").value = `node:${id}`; $("selection").closest(".inspector").scrollTop = 0; dirty = true;
-  showInspector("device");
+  selected = { kind: "node", id }; contextOpen = reveal; dirty = true;
 }
-function selectLink(id) { if (["source", "destination"].includes(mode)) { status("図のPCを選んでください。", true); return; } selected = { kind: "link", id }; $("selection").value = `link:${id}`; $("selection").closest(".inspector").scrollTop = 0; dirty = true; showInspector("device"); }
+function selectLink(id) { if (["source", "destination"].includes(mode)) { status("図のPCを選んでください。", true); return; } selected = { kind: "link", id }; contextOpen = true; dirty = true; }
 function selectPacket(id) { packetId = id; $("packet-select").value = id; dirty = true; }
 function setMode(value) {
   mode = value; connectStart = null;
+  if (mode !== "select") contextOpen = false;
   for (const button of document.querySelectorAll("[data-mode]")) button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
   $("network").classList.toggle("is-editing", mode !== "select");
   $("pc-choices").hidden = !["source", "destination"].includes(mode);
-  $("mode-hint").textContent = mode === "connect" ? "接続する2台の機器を順に選択" : ["source", "destination"].includes(mode) ? `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ` : mode === "select" ? "機器本体をドラッグで移動 / ＋の取っ手から引いて接続" : "図の余白を選んで追加";
-  if (mode !== "select") status(mode === "connect" ? "接続する2台を選択。PC—LAN、LAN—ルータ、ルータ—ルータを接続できます。" : ["source", "destination"].includes(mode) ? "図のPC、または上のPCカードを選んでください。" : "図の余白を選ぶと機器を追加できます。上のパレットからドラッグして置くこともできます。");
+  $("mode-hint").textContent = mode === "connect" ? "接続先を選んでEnter / Escでキャンセル" : ["source", "destination"].includes(mode) ? `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ` : mode === "select" ? "本体で移動 / 周囲のサークルから引いて接続" : "図の余白を選んで追加";
+  if (mode !== "select") status(mode === "connect" ? "接続する2台を選択。PC—LAN、LAN—ルータ、ルータ—ルータを接続できます。" : ["source", "destination"].includes(mode) ? "図のPC、または送信欄のPCカードを選んでください。" : "図の余白を選ぶと機器を追加できます。図の左上のパレットからドラッグして置くこともできます。");
   dirty = true;
 }
 
@@ -371,16 +404,14 @@ for (const kind of ["source", "destination"]) $("pick-" + kind).addEventListener
 $("pc-choice-list").addEventListener("click", (e) => { const id = e.target.closest("[data-choose-pc]")?.dataset.choosePc; if (id) { const kind = mode; setEndpoint(kind, id); $("pick-" + kind).focus({ preventScroll: true }); } });
 $("cancel-pick").addEventListener("click", () => { const kind = mode; setMode("select"); $("pick-" + kind)?.focus({ preventScroll: true }); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && ["source", "destination"].includes(mode)) { const kind = mode; setMode("select"); $("pick-" + kind).focus({ preventScroll: true }); } });
-$("speed").addEventListener("change", () => { speed = Number($("speed").value); });
 $("zoom-in").addEventListener("click", () => { stopFollowing(); zoom(0.75); });
 $("zoom-out").addEventListener("click", () => { stopFollowing(); zoom(1.33); });
 $("fit").addEventListener("click", () => { stopFollowing(); fit(); });
 $("follow").addEventListener("change", () => { if ($("follow").checked) zoom(Math.min(1, 650 / camera.w)); });
 $("reset").addEventListener("click", () => {
-  sim = new RoutingSimulator(); lastFrame = performance.now(); selected = { kind: "node", id: "router-1" }; packetId = ""; setMode("select"); stopFollowing();
+  sim = new RoutingSimulator(); lastFrame = performance.now(); selected = { kind: "node", id: "" }; contextOpen = false; contextSelection = ""; packetId = ""; setMode("select"); stopFollowing();
   latestLoss = null; lastLossCount = 0; lossDismissed = false; wireDrag = null;
-  showInspector("device");
-  if (narrowLayout.matches) { $("inspector-body").hidden = true; $("inspector-toggle").setAttribute("aria-expanded", "false"); $("inspector-toggle").textContent = "開く"; }
+  $("trace-panel").open = false;
   pickerSignature = packetSignature = null; inspectorHTML = historyHTML = messagesHTML = traceHTML = "";
   $("source").value = $("destination").value = "";
   $("messages").innerHTML = '<p class="empty-state">最初のメッセージを送ってみよう。<br />パケットをすべて受信できたか、ここに表示します。</p>';
@@ -389,26 +420,23 @@ $("reset").addEventListener("click", () => {
   dirty = true; fit(); status("ネットワークと実験結果を初期状態に戻しました。");
 });
 for (const button of document.querySelectorAll("[data-mode]")) button.addEventListener("click", () => { if (Date.now() >= suppressPaletteClickUntil) setMode(button.dataset.mode); });
-$("selection").addEventListener("change", () => { const [kind, id] = $("selection").value.split(":"); if (kind === "node") selectNode(id); else selectLink(id); });
 $("packet-select").addEventListener("change", () => selectPacket($("packet-select").value));
 $("history-filter").addEventListener("change", () => { historyHTML = ""; dirty = true; });
-$("messages").addEventListener("click", (e) => { const button = e.target.closest("[data-packet]"); if (button) { selectPacket(button.dataset.packet); showInspector("trace", true); status(`${button.dataset.packet}の経路と判断を表示しています。`); } });
-$("loss-inspect").addEventListener("click", () => { if (latestLoss) { selectPacket(latestLoss.id); showInspector("trace", true); status(`${latestLoss.id}の消失原因と通過経路を表示しています。`); } });
+$("messages").addEventListener("click", (e) => { const button = e.target.closest("[data-packet]"); if (button) { selectPacket(button.dataset.packet); showTrace(true); status(`${button.dataset.packet}の経路と判断を表示しています。`); } });
+$("loss-inspect").addEventListener("click", () => { if (latestLoss) { selectPacket(latestLoss.id); showTrace(true); status(`${latestLoss.id}の消失原因と通過経路を表示しています。`); } });
 $("loss-dismiss").addEventListener("click", () => { lossDismissed = true; dirty = true; });
-$("inspector-toggle").addEventListener("click", () => { const open = $("inspector-body").hidden; $("inspector-body").hidden = !open; $("inspector-toggle").setAttribute("aria-expanded", String(open)); $("inspector-toggle").textContent = open ? "閉じる" : "開く"; });
-for (const kind of ["device", "trace"]) $(kind + "-tab").addEventListener("click", () => showInspector(kind));
-document.querySelector(".inspector-tabs").addEventListener("keydown", (e) => { if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) { e.preventDefault(); const kind = e.key === "Home" ? "device" : e.key === "End" ? "trace" : document.activeElement.id === "device-tab" ? "trace" : "device"; showInspector(kind); $(kind + "-tab").focus(); } });
-narrowLayout.addEventListener("change", () => { $("inspector-body").hidden = narrowLayout.matches; $("inspector-toggle").setAttribute("aria-expanded", String(!narrowLayout.matches)); $("inspector-toggle").textContent = narrowLayout.matches ? "開く" : "閉じる"; });
-$("inspector-body").hidden = narrowLayout.matches;
+$("selection-detail").addEventListener("toggle", positionContext, true);
+document.querySelector(".device-palette").addEventListener("toggle", positionContext);
 $("selection-detail").addEventListener("click", (e) => {
   const action = e.target.closest("[data-action]")?.dataset.action;
   if (!action) return;
+  if (action === "close-context") { contextOpen = false; positionContext(); nodeElements.get(selected.id)?.focus({ preventScroll: true }); return; }
   attempt(() => {
     const node = sim.nodes.get(selected.id), link = sim.links.get(selected.id);
     if (action === "toggle-node") { sim.setNode(node.id, !node.up); status(`${node.label}を${node.up ? "復旧" : "故障"}しました。周辺のルータが検知してから経路情報を伝えます。`); }
     if (action === "toggle-link") { sim.setLink(link.id, !link.up); status(`回線を${link.up ? "復旧" : "切断"}しました。テーブルに変化が伝わるまでのパケットを観察してみよう。`); }
     if (action === "remove-node") { sim.removeNode(node.id); pickerSignature = null; status(`${node.label}を削除しました。`); }
-    if (action === "remove-link") { sim.removeLink(link.id); pickerSignature = null; status("回線を削除しました。「回線を接続」でつなぎ直せます。"); }
+    if (action === "remove-link") { sim.removeLink(link.id); pickerSignature = null; status("回線を削除しました。周囲のサークルから引いてつなぎ直せます。"); }
     if (action === "set-source") setEndpoint("source", node.id);
     if (action === "set-destination") setEndpoint("destination", node.id);
   });
@@ -435,14 +463,15 @@ $("network").addEventListener("pointerdown", (e) => {
   if (pointers.size === 2) { drag = null; wireDrag = null; pinch = null; dirty = true; stopFollowing(); return; }
   const handle = e.target.closest("[data-connect]");
   if (handle) {
-    setMode("select"); stopFollowing();
+    setMode("select"); stopFollowing(); contextOpen = false;
     selected = { kind: "node", id: handle.dataset.connect };
     wireDrag = { from: handle.dataset.connect, pointer: e.pointerId, point: worldPoint(e) };
     status("緑で強調された相手まで引いて離すと、回線を接続できます。");
-    renderDiagram(); return;
+    renderDiagram(); positionContext(); return;
   }
   const target = e.target.closest("[data-node], [data-link]");
   const node = target?.dataset.node ? sim.nodes.get(target.dataset.node) : null;
+  if (node && mode === "select") { selectNode(node.id); renderDiagram(); renderContext(); }
   drag = { pointer: e.pointerId, target, node: mode === "select" ? node : null, clientX: e.clientX, clientY: e.clientY, originalX: node?.x, originalY: node?.y, cameraX: camera.x, cameraY: camera.y, moved: false };
 });
 $("network").addEventListener("pointermove", (e) => {
@@ -479,14 +508,15 @@ function endPointer(e) {
   if (wireDrag?.pointer === e.pointerId) {
     const from = wireDrag.from, target = connectionTarget(worldPoint(e));
     if (e.type !== "pointercancel" && target) attempt(() => { sim.connect(from, target.id); status(`${sim.name(from)}と${target.label}を接続しました。経路情報の更新は自動で進みます。`); });
-    else if (e.type !== "pointercancel") status("接続を取り消しました。＋の取っ手から、緑の候補まで引いてください。");
+    else if (e.type !== "pointercancel") status("接続を取り消しました。周囲のサークルから、緑の候補まで引いてください。");
     wireDrag = null; dirty = true; renderDiagram();
     drag = null; pinch = null; return;
   }
   if (e.type !== "pointercancel" && drag && drag.pointer === e.pointerId && !drag.moved) {
     if (drag.target?.dataset.node) selectNode(drag.target.dataset.node);
     else if (drag.target?.dataset.link) selectLink(drag.target.dataset.link);
-    else if (["pc", "lan", "router"].includes(mode)) attempt(() => { const point = worldPoint(e), node = sim.addNode(mode, point.x, point.y); selected = { kind: "node", id: node.id }; setMode("select"); status(`${node.label}を追加しました。「回線を接続」でネットワークにつなげてみよう。`); });
+    else if (["pc", "lan", "router"].includes(mode)) attempt(() => { const point = worldPoint(e), node = sim.addNode(mode, point.x, point.y); setMode("select"); selectNode(node.id, false); status(`${node.label}を追加しました。周囲のサークルから引いてネットワークにつなげてみよう。`); });
+    else { selected = { kind: "node", id: "" }; contextOpen = false; dirty = true; }
   }
   drag = null; pinch = null; $("network").classList.remove("is-dragging");
 }
@@ -518,8 +548,8 @@ for (const button of document.querySelectorAll('[data-mode="router"], [data-mode
       suppressPaletteClickUntil = Date.now() + 400;
       if (e.type !== "pointercancel" && e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom) attempt(() => {
         const point = worldPoint(e), node = sim.addNode(kind, point.x, point.y);
-        selected = { kind: "node", id: node.id }; setMode("select");
-        status(`${node.label}を追加しました。＋の取っ手から相手へ引いて接続できます。`);
+        setMode("select"); selectNode(node.id, false);
+        status(`${node.label}を追加しました。周囲のサークルから相手へ引いて接続できます。`);
       });
     }
     paletteDrag = null; $("palette-preview").hidden = true; $("network").closest(".canvas-wrap").classList.remove("is-drop-target");
@@ -530,8 +560,9 @@ $("network").addEventListener("wheel", (e) => { e.preventDefault(); stopFollowin
 $("network").addEventListener("keydown", (e) => {
   const nodeId = e.target.closest("[data-node]")?.dataset.node, linkId = e.target.closest("[data-link]")?.dataset.link;
   if (e.key === "Enter" || e.key === " ") { e.preventDefault(); if (nodeId) selectNode(nodeId); else if (linkId) selectLink(linkId); }
-  if (e.key === "Enter" && !nodeId && !linkId && ["pc", "lan", "router"].includes(mode)) attempt(() => { const node = sim.addNode(mode, camera.x + camera.w / 2, camera.y + camera.h / 2); selected = { kind: "node", id: node.id }; setMode("select"); status(`${node.label}を図の中央に追加しました。`); });
-  if (e.key === "Escape") { setMode("select"); status("選択・移動モードに戻しました。"); }
+  if (e.key === "Enter" && !nodeId && !linkId && ["pc", "lan", "router"].includes(mode)) attempt(() => { const node = sim.addNode(mode, camera.x + camera.w / 2, camera.y + camera.h / 2); setMode("select"); selectNode(node.id, false); status(`${node.label}を図の中央に追加しました。`); });
+  if (e.key.toLowerCase() === "c" && nodeId) { e.preventDefault(); setMode("connect"); connectStart = nodeId; selected = { kind: "node", id: nodeId }; status(`${sim.name(nodeId)}から接続する機器を選び、Enterを押してください。`); }
+  if (e.key === "Escape") { setMode("select"); contextOpen = false; status("操作を終了しました。機器を選んで実験できます。"); }
   if (e.key === "+" || e.key === "=") { e.preventDefault(); stopFollowing(); zoom(.8); }
   if (e.key === "-") { e.preventDefault(); stopFollowing(); zoom(1.25); }
   if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
@@ -547,7 +578,7 @@ new ResizeObserver(() => { const width = $("network").clientWidth; if (Math.abs(
 setMode("select"); renderUI(); fit();
 function frame(now) {
   const elapsed = Math.min(.1, Math.max(0, (now - lastFrame) / 1000)); lastFrame = now;
-  sim.advance(elapsed * speed);
+  sim.advance(elapsed);
   if (now - lastUI > 120 && (dirty || lastRevision !== sim.revision || now - lastUI > 1000)) { renderUI(); lastUI = now; }
   renderMotion(); requestAnimationFrame(frame);
 }
