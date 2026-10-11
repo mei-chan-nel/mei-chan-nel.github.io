@@ -276,12 +276,14 @@ test("転送途中の消失位置を保存し、機器が削除されてもそ�
   assert.deepEqual(packet.lostPosition, expected);
 });
 
-test("Lab一覧に登録し、未公開設定とローカル資産を維持する", async () => {
+test("公開Labの一覧・サイトマップに登録し、ローカルのシミュレーターを使用する", async () => {
   assert.ok(contents.some((c) => c.id === "packet-routing" && c.group === "network"));
   const page = await readFile(new URL("../lab/packet-routing/index.html", import.meta.url), "utf8");
   const index = await readFile(new URL("../lab/index.html", import.meta.url), "utf8");
   assert.match(index, /href="\.\/packet-routing\/"/);
-  assert.match(page, /name="robots" content="noindex, nofollow"/);
+  assert.doesNotMatch(page, /name="robots" content="[^"]*noindex/);
   assert.ok(!page.includes("site-header.js"));
-  assert.ok(!/src="https?:/.test(page));
+  assert.match(page, /src="\.\/app\.mjs/);
+  const sitemap = await readFile(new URL("../sitemap.xml", import.meta.url), "utf8");
+  assert.match(sitemap, /https:\/\/mei-chan-nel\.com\/lab\/packet-routing\//);
 });

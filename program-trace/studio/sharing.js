@@ -1,6 +1,6 @@
 import { LIMITS, StudioError } from './errors.js';
-import { validateDraft } from './documents.js';
-import { readSharePacket, sharePackets } from './share-packet.js';
+import { validateDraft } from './documents.js?v=20261009-function-help3';
+import { readSharePacket, sharePackets } from './share-packet.js?v=20261009-function-help3';
 async function collect(stream, limit) {
     const reader = stream.getReader(), chunks = [];
     let size = 0;

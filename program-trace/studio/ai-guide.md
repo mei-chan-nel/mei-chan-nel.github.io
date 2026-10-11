@@ -16,7 +16,7 @@ Return a UTF-8 `.studio.json` file whose entire contents are one JSON object con
 }
 ```
 
-`title` must be at most 120 characters. `source` is a JSON string, so encode actual program line breaks as `\n` and escape its quotes/backslashes. The app imports source into structured rows. Do **not** generate `builder`: it is private app metadata for unfinished drafts. Supply a complete program with a nonempty executable body for every conditional branch and loop. Comments alone do not make a body executable.
+`title` must be at most 120 characters. `source` is a JSON string, so encode actual program line breaks as `\n` and escape its quotes/backslashes. The app imports source into structured rows, placing each custom function in a separate block below main. Put both main statements and all function definitions in the same source string; the version 1 envelope and settings are unchanged. Older version 1 files remain readable. Files and shared URLs preserve definitions, parameters, returns and settings, but do not include execution state or backward-step history. Do **not** generate `builder`: it is private app metadata for unfinished drafts. Supply a complete program with a nonempty executable body for every conditional branch and loop. Comments alone do not make a body executable.
 
 ## Supported statements
 
@@ -47,9 +47,84 @@ x < 10 の間繰り返す：
 x = 1 # An inline comment
 ```
 
-Indent each nested body by two ASCII spaces. Align `そうでなくもし` and `そうでなければ` with their owning `もし`. No `end`, `endif`, `終了`, braces, or block terminator statements exist. Alternatively, use one `｜` or `⎿` per nesting level; `⎿` denotes the last row at that level. Do not mix leading spaces and markers. Optional fullwidth line numbers `（1）` or `（01）` are accepted, but omit them in generated files. Nesting is at most 32 levels. Custom functions, function definitions, return statements, recursion, `break`, and `continue` are unsupported.
+Indent each nested body by two ASCII spaces. Align `そうでなくもし` and `そうでなければ` with their owning `もし`. No `end`, `endif`, `終了`, braces, or block terminator statements exist. Alternatively, use one `｜` or `⎿` per nesting level; `⎿` denotes the last row at that level. Do not mix leading spaces and markers. Optional fullwidth line numbers `（1）` or `（01）` are accepted, but omit them in generated files. Nesting is at most 32 levels. `break` and `continue` are unsupported.
 
 External input is one assignment to a plain variable on its own line. Define its type and bounds under `settings.inputs` using the same variable name. Input opens a dialog during step execution. Never silently hard-code an external input in place of the user's request.
+
+## Custom functions
+
+Define functions at the outermost level, preferably after the main program:
+
+```text
+result = double(3)
+表示する(result)
+定義する double(n)：
+  返す n * 2
+```
+
+Definitions are available before execution and their bodies run only when called.
+Use unique function names distinct from built-ins, with unique parameter names.
+Calls can appear in expressions or as standalone statements. `返す value` returns a
+value; bare `返す` or falling off the body ends a standalone call, but using that
+call in an expression requires a returned value on every executed path. A return
+ends the current invocation immediately. For functions used as values, ensure
+every branch reaches a value return. Parameters and local variables
+are independent for each invocation; arrays are copied, and main variables are
+not visible inside functions. Pass all required values as arguments. Nested
+function definitions are unsupported. Recursion is supported up to 32 calls.
+Every function body must contain executable code. The number and order of call
+arguments must match the parameter list; use empty parentheses for zero arguments.
+In source, parameter names are comma-separated.
+
+In the editor, each parameter is added and removed in its own field before
+pressing 関数を作成. The definition row is read-only after creation.
+Value-returning functions appear in expression candidates; procedures without a
+value return appear under 関数 → 呼び出す. Inside a function, 関数 → 値を返す
+configures either a value return or 値を返さずに終了する. The upper-right × deletes
+an unreferenced function block; undo restores it.
+
+Functions and returns persist in files and shared URLs. Files keep the version 1
+document envelope, and generated shared URLs keep the existing v2 URL format.
+
+### Recursive Fibonacci example
+
+Use a base case that returns without another recursive call, and move each
+recursive argument toward that base case. This version prints F(0) through F(9):
+0, 1, 1, 2, 3, 5, 8, 13, 21, 34. The 32-call depth limit and 10,000-step limit
+both apply; use small values for an algorithm that branches recursively.
+[Download the importable Fibonacci file](./examples/fibonacci.studio.json).
+
+```json
+{
+  "format": "mei-program-studio",
+  "version": 1,
+  "title": "フィボナッチ数列（再帰）",
+  "source": "項数 = 10\ni を 0 から 項数 - 1 まで 1 ずつ増やしながら繰り返す：\n  値 = フィボナッチ(i)\n  表示する(\"F(\", i, \") = \", 値)\n定義する フィボナッチ(n)：\n  もし n <= 1 ならば：\n    返す n\n  返す フィボナッチ(n - 1) + フィボナッチ(n - 2)",
+  "settings": {
+    "indexBase": 0,
+    "inputs": {}
+  }
+}
+```
+
+### Procedure without a return value
+
+Call this function as its own statement. Bare 返す ends the invocation without a
+value; it cannot supply a right-hand-side value. Reaching the end also finishes
+a standalone call.
+
+```json
+{
+  "format": "mei-program-studio",
+  "version": 1,
+  "title": "戻り値なしの関数",
+  "source": "通知(\"処理を始めます。\")\n定義する 通知(内容)：\n  表示する(内容)\n  返す",
+  "settings": {
+    "indexBase": 0,
+    "inputs": {}
+  }
+}
+```
 
 ## Values and expressions
 
@@ -74,6 +149,14 @@ Only these built-ins are currently supported. Additional built-ins may be regist
 | `乱数()` | none | Real number in [0, 1). |
 | `乱数(min, max, "整数")` | two integer bounds and the literal string `"整数"` | Inclusive integer range [min, max]; min <= max. |
 | `乱数(min, max, "実数")` | two finite numeric bounds and the literal string `"実数"` | Real range [min, max); min < max. |
+
+| `整数(number)` | one number | Floor toward negative infinity. `整数(-1.2)` is -2. |
+| `べき乗(base, exponent)` | two numbers | Finite numeric power, also expressible with `**`. |
+| `配列結合(arrays...)` | one or more arrays | A new array containing the arrays in order, at most 1,000 elements. |
+| `逆順(array)` | one array | A new reversed array. To update `Data`, write `Data = 逆順(Data)`. |
+| `含む(array, value)` | array and value | Boolean membership using equality of values, including array contents. |
+| `ランダム整数(min, max)` | two integers | Inclusive integer range, equivalent to `乱数(min, max, "整数")`. |
+| `ランダム日付()` | none | Month/day string from 365 equally likely days, excluding February 29. |
 
 Resetting an execution replays its random sequence. Preparing a new execution gives a new sequence.
 
@@ -123,6 +206,6 @@ For a binary search input, require an ascending array in your program's comment 
 
 ## Limits and preflight
 
-The file is at most 300,000 UTF-8 bytes; source at most 500 physical lines and 50,000 UTF-8 bytes. Execution stops at 10,000 steps, 128 variables, 1,000 cells per array / 5,000 total array cells, or 1,000 outputs / 200,000 output characters. A string is at most 10,000 characters; aggregate stored strings at most 100,000. Keep teaching examples much smaller. Nonfinite numbers, division by zero, invalid indices, unsupported syntax, and exhausted limits produce a row-specific error.
+The file is at most 300,000 UTF-8 bytes; source at most 500 physical lines and 50,000 UTF-8 bytes. Block nesting and function call depth are each limited to 32. Execution stops at 10,000 steps, 128 variables, 1,000 cells per array / 5,000 total array cells, or 1,000 outputs / 200,000 output characters. A string is at most 10,000 characters; aggregate stored strings at most 100,000. Keep teaching examples much smaller. Nonfinite numbers, division by zero, invalid indices, unsupported syntax, and exhausted limits produce a row-specific error.
 
-Before supplying a file: verify the JSON envelope, complete block bodies, matching branch depths, initialized variables and arrays, array dimensions and indexing base, integer range loops, input specs, and termination within these limits. Do not include user-facing instructions in `source` unless they are appropriate program comments or displayed output. The app will validate the file before replacing the current program; importing never automatically executes it.
+Before supplying a file: verify the JSON envelope, complete block bodies, matching branch depths, initialized variables and arrays, array dimensions and indexing base, integer range loops, input specs, function signatures and arities, return values on every required path, a terminating base case for recursion, and termination within these limits. Do not include user-facing instructions in `source` unless they are appropriate program comments or displayed output. The app will validate the file before replacing the current program; importing never automatically executes it.

@@ -40,6 +40,9 @@ function packNode(node: BuilderNode): Wire[] {
       ...(node.direction === 1 && node.step.kind === 'literal' && node.step.value === 1 ? [] : [[packExpression(node.step), node.direction]])]; break;
     case 'while': row = [7, packExpression(node.condition), node.body.map(packNode)]; break;
     case 'comment': row = [8, node.text]; break;
+    case 'define': row = [9, node.name, node.parameters, node.body.map(packNode)]; break;
+    case 'return': row = [10, ...(node.expression ? [packExpression(node.expression)] : [])]; break;
+    case 'call': row = [11, packExpression(node.expression)]; break;
   }
   if (node.comment) row.push({ c: node.comment });
   return row;
@@ -130,6 +133,9 @@ export function readSharePacket(value: unknown): Draft {
       }
       case 7: if (row.length !== 3) return fail(); return { ...base, kind: 'while', condition: expression(row[1]), body: nodes(row[2], depth + 1) };
       case 8: if (row.length !== 2) return fail(); return { ...base, kind: 'comment', text: text(row[1]) };
+      case 9: if (row.length !== 4) return fail(); return { ...base, kind: 'define', name: name(row[1]), parameters: list(row[2], 0, LIMITS.variables).map(name), body: nodes(row[3], depth + 1) };
+      case 10: if (row.length > 2) return fail(); return { ...base, kind: 'return', ...(row.length === 2 ? { expression: expression(row[1]) } : {}) };
+      case 11: if (row.length !== 2) return fail(); return { ...base, kind: 'call', expression: expression(row[1]) };
       default: return fail();
     }
   }

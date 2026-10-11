@@ -1,0 +1,277 @@
+<header class="image-heading">
+  <h1>画像のデジタル化</h1>
+  <div class="image-actions">
+    <button type="button" id="choose-image" aria-label="画像を変更">
+      <span class="wide-label">画像を変更</span
+      ><span class="short-label" aria-hidden="true">画像</span></button
+    ><button
+      type="button"
+      id="reset-settings"
+      aria-label="リセット（初期設定に戻す）"
+    >
+      リセット
+    </button>
+  </div>
+</header>
+<section
+  class="image-lab"
+  aria-label="画像のデジタル化の実験"
+  data-source-image=""
+>
+  <div class="image-controls">
+    <div class="resolution-control control-panel">
+      <div class="resolution-caption">
+        <label id="resolution-heading" for="resolution">画素数</label
+        ><output aria-live="off" id="resolution-label">64 × 64</output>
+      </div>
+      <input
+        id="resolution"
+        type="range"
+        min="0"
+        max="1000"
+        step="1"
+        value="407"
+        aria-labelledby="resolution-heading"
+      />
+    </div>
+    <div
+      class="color-settings control-panel"
+      role="group"
+      aria-label="色の設定"
+    >
+      <div class="color-settings-row">
+        <fieldset class="mode-control">
+          <legend>表現</legend>
+          <div class="segmented">
+            <label
+              ><input
+                type="radio"
+                name="mode"
+                value="color"
+                checked
+              />カラー</label
+            ><label
+              ><input
+                type="radio"
+                name="mode"
+                value="gray"
+              />グレースケール</label
+            >
+          </div>
+        </fieldset>
+        <fieldset class="bits-control" id="color-bits">
+          <legend>量子化ビット数</legend>
+          <div class="bit-controls">
+            <div class="bit-control channel-r">
+              <span id="r-label" class="channel-name">R</span>
+              <div class="stepper" role="group" aria-labelledby="r-label">
+                <button
+                  type="button"
+                  id="bits-r-down"
+                  data-control="r"
+                  data-step="-1"
+                  aria-label="Rの量子化ビット数を減らす"
+                >
+                  −</button
+                ><output
+                  aria-live="off"
+                  id="bits-r"
+                  aria-label="Rの量子化ビット数"
+                  >8 <small>bit</small></output
+                ><button
+                  type="button"
+                  id="bits-r-up"
+                  data-control="r"
+                  data-step="1"
+                  aria-label="Rの量子化ビット数を増やす"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+            <div class="bit-control channel-g">
+              <span id="g-label" class="channel-name">G</span>
+              <div class="stepper" role="group" aria-labelledby="g-label">
+                <button
+                  type="button"
+                  id="bits-g-down"
+                  data-control="g"
+                  data-step="-1"
+                  aria-label="Gの量子化ビット数を減らす"
+                >
+                  −</button
+                ><output
+                  aria-live="off"
+                  id="bits-g"
+                  aria-label="Gの量子化ビット数"
+                  >8 <small>bit</small></output
+                ><button
+                  type="button"
+                  id="bits-g-up"
+                  data-control="g"
+                  data-step="1"
+                  aria-label="Gの量子化ビット数を増やす"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+            <div class="bit-control channel-b">
+              <span id="b-label" class="channel-name">B</span>
+              <div class="stepper" role="group" aria-labelledby="b-label">
+                <button
+                  type="button"
+                  id="bits-b-down"
+                  data-control="b"
+                  data-step="-1"
+                  aria-label="Bの量子化ビット数を減らす"
+                >
+                  −</button
+                ><output
+                  aria-live="off"
+                  id="bits-b"
+                  aria-label="Bの量子化ビット数"
+                  >8 <small>bit</small></output
+                ><button
+                  type="button"
+                  id="bits-b-up"
+                  data-control="b"
+                  data-step="1"
+                  aria-label="Bの量子化ビット数を増やす"
+                >
+                  ＋
+                </button>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+        <fieldset class="bits-control" id="gray-bits" hidden>
+          <legend>量子化ビット数</legend>
+          <div class="stepper" role="group" aria-label="明るさの量子化ビット数">
+            <button
+              type="button"
+              id="bits-gray-down"
+              data-control="gray"
+              data-step="-1"
+              aria-label="明るさの量子化ビット数を減らす"
+            >
+              −</button
+            ><output
+              aria-live="off"
+              id="bits-gray"
+              aria-label="明るさの量子化ビット数"
+              >8 <small>bit</small></output
+            ><button
+              type="button"
+              id="bits-gray-up"
+              data-control="gray"
+              data-step="1"
+              aria-label="明るさの量子化ビット数を増やす"
+            >
+              ＋
+            </button>
+          </div>
+        </fieldset>
+      </div>
+      <fieldset class="channel-control" id="channel-control">
+        <legend>表示する成分 <small>表示のみ</small></legend>
+        <div class="segmented">
+          <label
+            ><input type="checkbox" name="channel" value="r" checked />R</label
+          >
+          <label
+            ><input type="checkbox" name="channel" value="g" checked />G</label
+          >
+          <label
+            ><input type="checkbox" name="channel" value="b" checked />B</label
+          >
+        </div>
+      </fieldset>
+    </div>
+  </div>
+  <div class="image-comparison">
+    <figure class="image-figure">
+      <figcaption>
+        <h2>元画像</h2>
+        <label class="grid-toggle"
+          ><input type="checkbox" id="show-grid" checked />グリッド</label
+        >
+      </figcaption>
+      <button
+        type="button"
+        class="picture-button source-picture"
+        id="zoom-source"
+        aria-label="元画像を拡大"
+      >
+        <canvas
+          id="source-canvas"
+          width="1024"
+          height="1024"
+          aria-label="デジタル化の元となる画像"
+        ></canvas
+        ><canvas id="source-grid" aria-hidden="true"></canvas>
+      </button>
+      <p class="image-caption" id="source-caption">サンプル画像</p>
+    </figure>
+    <figure class="image-figure">
+      <figcaption>
+        <h2>デジタル化後</h2>
+      </figcaption>
+      <button
+        type="button"
+        class="picture-button output-picture"
+        id="zoom-output"
+        aria-label="デジタル化後の画像を拡大"
+      >
+        <canvas
+          id="output-canvas"
+          width="64"
+          height="64"
+          aria-label="デジタル化後の画像"
+        ></canvas>
+      </button>
+      <p class="image-caption" id="output-caption">64 × 64画素・RGB各8ビット</p>
+    </figure>
+  </div>
+  <dl class="image-metrics">
+    <div>
+      <dt>画素数</dt>
+      <dd id="metric-pixels"></dd>
+    </div>
+    <div>
+      <dt id="levels-title">表現できる色数</dt>
+      <dd id="metric-levels"></dd>
+    </div>
+    <div>
+      <dt>1画素のデータ量</dt>
+      <dd id="metric-bits"></dd>
+    </div>
+    <div>
+      <dt>画像のデータ量（非圧縮）</dt>
+      <dd id="metric-size"></dd>
+    </div>
+  </dl>
+  <input type="file" id="image-file" accept="image/*" hidden />
+  <p
+    id="image-status"
+    class="visually-hidden"
+    role="status"
+    aria-live="polite"
+  ></p>
+  <p id="image-error" role="alert" hidden></p>
+</section>
+<dialog id="image-zoom" aria-labelledby="zoom-title">
+  <div class="zoom-heading">
+    <h2 id="zoom-title">元画像</h2>
+    <button type="button" id="close-zoom" aria-label="拡大表示を閉じる">
+      閉じる
+    </button>
+  </div>
+  <canvas
+    id="zoom-canvas"
+    width="1024"
+    height="1024"
+    role="img"
+    aria-label="画像の拡大表示"
+  ></canvas>
+</dialog>

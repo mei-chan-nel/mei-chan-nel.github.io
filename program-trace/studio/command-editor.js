@@ -1,11 +1,13 @@
-import { element, button, showFormError } from './dom.js';
-import { expressionEditor, field, selection, subExpression } from './expression-editor.js';
-import { targetEditor, targetText } from './target-editor.js';
-import { literal } from './builder-model.js';
-import { settingsEditor } from './input-settings.js';
-import { defaultInput } from './documents.js';
-import { constantValue } from './expressions.js';
-import { StudioError } from './errors.js';
+import { element, button, showFormError } from './dom.js?v=20261009-function-help3';
+import { expressionEditor, field, nameField, selection, subExpression } from './expression-editor.js?v=20261009-function-help3';
+import { targetEditor, targetText } from './target-editor.js?v=20261009-function-help3';
+import { literal } from './builder-model.js?v=20261009-function-help3';
+import { settingsEditor } from './input-settings.js?v=20261009-function-help3';
+import { defaultInput } from './documents.js?v=20261009-function-help3';
+import { constantValue } from './expressions.js?v=20261009-function-help3';
+import { LIMITS, StudioError, validName } from './errors.js';
+import { builtinRegistry, getBuiltin } from './builtins.js';
+import { normalizeSymbols } from './lexer.js?v=20261009-function-help3';
 export function commandEditor(initial, context, specs, fresh = false, valueFunction) {
     const node = element('div', 'command-fields'), draft = structuredClone(initial);
     let readBody = () => draft, inputSpec;
@@ -62,7 +64,8 @@ export function commandEditor(initial, context, specs, fresh = false, valueFunct
                         readSpec = settingsEditor(content, [selected.target.name], { [selected.target.name]: spec }, () => { }, inputKinds);
                     }
                     else {
-                        const functionValue = valueFunction === '乱数' ? { kind: 'call', name: '乱数', args: [], column: 1 } : valueFunction === '要素数' ? { kind: 'call', name: '要素数', args: [rhsContext.arrays.length ? { kind: 'variable', name: rhsContext.arrays[0], column: 1 } : { kind: 'array', items: [], column: 1 }], column: 1 } : undefined;
+                        const custom = context.functions?.find(fn => fn.name === valueFunction);
+                        const functionValue = custom ? { kind: 'call', name: custom.name, args: custom.parameters.map(() => literal(0)), column: 1 } : valueFunction === '乱数' ? { kind: 'call', name: '乱数', args: [], column: 1 } : valueFunction === '要素数' ? { kind: 'call', name: '要素数', args: [rhsContext.arrays.length ? { kind: 'variable', name: rhsContext.arrays[0], column: 1 } : { kind: 'array', items: [], column: 1 }], column: 1 } : undefined;
                         const defaultValue = expected === 'scalar' ? undefined : { kind: 'array', items: expected === 'matrix' ? [{ kind: 'array', items: [literal(0), literal(0)], column: 1 }] : [literal(0), literal(0), literal(0)], column: 1 };
                         if (!value)
                             value = expressionEditor(preservedValue ?? (fresh ? functionValue ?? defaultValue : selected.kind === (context.catalog?.find(item => item.name === assignment.target.name)?.kind ?? 'variable') && !!selected.target.indices.length === !!assignment.target.indices.length ? assignment.expression : defaultValue), '入れる値（右辺）', rhsContext, false, expected);
@@ -155,6 +158,92 @@ export function commandEditor(initial, context, specs, fresh = false, valueFunct
             }
             return draft;
         };
+    }
+    else if (draft.kind === 'define') {
+        const name = nameField('関数名', draft.name), parameters = element('fieldset', 'function-parameters');
+        parameters.append(element('legend', '', '引数'));
+        const controls = element('div', 'array-length-controls'), count = element('span', 'array-count'), items = element('div', 'function-parameter-items');
+        let inputs = [], values = [...draft.parameters];
+        const add = button('引数を追加する', () => { values = inputs.map(input => input.value); values.push(''); renderParameters(); inputs.at(-1)?.focus(); }, 'button array-count-button');
+        function renderParameters() {
+            items.replaceChildren();
+            inputs = [];
+            count.textContent = `${values.length}個の引数`;
+            add.disabled = values.length >= LIMITS.variables;
+            values.forEach((value, index) => {
+                const item = nameField(`引数${index + 1}の名前`, value);
+                item.node.classList.add('function-parameter-item');
+                item.input.placeholder = index === 0 ? '例：n' : '例：data';
+                const remove = button('×', () => { values = inputs.map(input => input.value); values.splice(index, 1); renderParameters(); (inputs[index] ?? inputs.at(-1) ?? add).focus(); }, 'array-remove');
+                remove.setAttribute('aria-label', `引数${index + 1}を削除`);
+                item.node.append(remove);
+                items.append(item.node);
+                inputs.push(item.input);
+            });
+            showFormError(node.closest('form') ?? node, '');
+        }
+        controls.append(count, add);
+        parameters.append(controls, items, element('p', 'dialog-description', '受け取る値の名前を1つずつ追加します。引数がいらないときは0個にします。'));
+        renderParameters();
+        node.append(name.node, parameters, element('p', 'dialog-description', '関数の処理は、メインの下の専用ブロックで作成します。関数名と引数は作成後に変更できません。引数と関数内の変数は、呼び出すたびに別に用意します。'));
+        const checkName = (input, label) => {
+            const value = normalizeSymbols(input.value).trim();
+            input.value = value;
+            if (!validName(value) || builtinRegistry.has(value) || ['and', 'or', 'not', '真', '偽', 'true', 'false'].includes(value)) {
+                input.setAttribute('aria-invalid', 'true');
+                input.focus();
+                throw new StudioError(`${label}を確認してください。文字または _ で始め、空白・記号・予約語は使わないでください。`);
+            }
+            input.removeAttribute('aria-invalid');
+            return value;
+        };
+        readBody = () => {
+            draft.name = checkName(name.input, '関数名');
+            if (context.functions?.some(fn => fn.name === draft.name)) {
+                name.input.setAttribute('aria-invalid', 'true');
+                name.input.focus();
+                throw new StudioError(`「${draft.name}」という関数は作成済みです。別の関数名にしてください。`);
+            }
+            const seen = new Set();
+            draft.parameters = inputs.map((input, index) => {
+                const value = checkName(input, `引数${index + 1}の名前`);
+                if (seen.has(value)) {
+                    input.setAttribute('aria-invalid', 'true');
+                    input.focus();
+                    throw new StudioError(`引数${index + 1}の「${value}」は重複しています。別の名前にしてください。`);
+                }
+                seen.add(value);
+                return value;
+            });
+            return draft;
+        };
+    }
+    else if (draft.kind === 'return') {
+        const mode = selection('返し方', [['value', '値を返す'], ['none', '値を返さずに終了する']], fresh || draft.expression ? 'value' : 'none');
+        // This pending return also makes the current function available for recursion.
+        const returnContext = { ...context, functions: context.functions?.map(fn => fn.name === context.activeFunction ? { ...fn, returnsValue: true } : fn) };
+        const value = expressionEditor(fresh ? undefined : draft.expression, '呼び出し元に返す値', returnContext);
+        const render = () => { value.node.hidden = mode.input.value !== 'value'; };
+        mode.input.addEventListener('change', render);
+        render();
+        node.append(mode.node, value.node, element('p', 'dialog-description', 'ここで関数を終え、呼び出した場所に戻ります。値を返すと、変数・配列の右辺でこの関数を使えます。'));
+        readBody = () => { if (mode.input.value === 'value')
+            draft.expression = value.read();
+        else
+            delete draft.expression; return draft; };
+    }
+    else if (draft.kind === 'call') {
+        const call = draft.expression;
+        if (call.kind !== 'call')
+            throw new StudioError('呼び出す関数を確認してください。');
+        const fn = context.functions?.find(fn => fn.name === call.name);
+        const builtin = !fn && builtinRegistry.has(call.name) ? getBuiltin(call.name, call.args.length) : undefined;
+        if (!fn && !builtin)
+            throw new StudioError('呼び出す関数を先に定義してください。');
+        const parameters = fn?.parameters ?? call.args.map((_, index) => `引数${index + 1}`);
+        const args = parameters.map((parameter, index) => expressionEditor(fresh ? undefined : call.args[index], fn ? `引数${index + 1}：${parameter}` : parameter, context, false, builtin?.argumentKinds?.[index] ?? 'any'));
+        node.append(element('p', 'function-call-name', `呼び出す関数：${call.name}()`), ...args.map(arg => arg.node), element('p', 'dialog-description', args.length ? 'それぞれの引数に渡す値を設定してください。呼び出した関数の処理が終わると、次の行に進みます。' : '引数のない関数です。処理が終わると、次の行に進みます。'));
+        readBody = () => { draft.expression = { kind: 'call', name: call.name, args: args.map(arg => arg.read()), column: 1 }; return draft; };
     }
     else if (draft.kind === 'comment') {
         const text = field('メモ', draft.text);

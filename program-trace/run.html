@@ -25,8 +25,8 @@
     <meta name="theme-color" content="#102f35" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />
-    <link rel="stylesheet" href="./styles.css?v=20261005-desktop" />
-    <script src="./app.js?v=20261005-desktop" type="module"></script>
+    <link rel="stylesheet" href="./styles.css?v=20261009-functions" />
+    <script src="./app.js?v=20261009-flowchart2" type="module"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
     <script src="../assets/manual-ads.js?v=2026080901" defer></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"プログラムトレース","url":"https://mei-chan-nel.com/program-trace/run.html","description":"共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数・配列・出力の変化を確かめる学習ツール。","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
@@ -46,8 +46,9 @@
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
           <a href="../archive/">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="./" aria-current="page">プログラムトレース</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
         </nav>
       </div>
     </header>
@@ -101,6 +102,7 @@
 
         <section class="control-panel" aria-label="実行の操作">
           <div class="action-buttons">
+            <button id="previous-button" class="button" type="button" disabled><span class="button-icon" aria-hidden="true">←</span> 前へ</button>
             <button id="next-button" class="button button-primary" type="button"><span class="button-icon" aria-hidden="true">→</span> 次へ</button>
             <button id="reset-button" class="button" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6a7 7 0 1 1-1 7M4 2v5h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>最初から</button>
             <button id="edit-button" class="button button-edit" type="button"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m12 3 5 5-9 9H3v-5ZM10 5l5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>値を変更する</button>
@@ -117,6 +119,7 @@
                 <p id="speed-error" class="speed-error" role="alert" hidden>0.001秒以上で入力してください。0.1秒以上は0.1秒刻みです。</p>
               </div>
             </div>
+            <button id="flowchart-button" class="button" type="button">フローチャートに変換</button>
             <button id="fullscreen-button" class="button fullscreen-button" type="button" aria-expanded="false" aria-controls="fullscreen-surface"><span aria-hidden="true">⛶</span> 全画面</button>
           </div>
         </section>
@@ -181,6 +184,7 @@
         <section id="fullscreen-surface" class="fullscreen-surface" aria-label="全画面でプログラムを実行" hidden>
           <nav class="fullscreen-sidebar" aria-label="全画面の操作">
             <button class="fullscreen-action fullscreen-exit" type="button" data-fullscreen-exit aria-label="全画面を終了して元の画面へ" title="全画面を終了して元の画面へ">×</button>
+            <button class="fullscreen-action" type="button" data-control="previous" aria-label="前へ" title="前へ">←</button>
             <button class="fullscreen-action fullscreen-next" type="button" data-control="next" aria-label="次へ" title="次へ">→</button>
             <button class="fullscreen-action" type="button" data-control="reset" aria-label="最初から" title="最初から">↻</button>
             <button class="fullscreen-action" type="button" data-control="edit" aria-label="値を変更する" title="値を変更する">✎</button>
@@ -208,10 +212,11 @@
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
           <a href="../archive/">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="./">プログラムトレース</a>
-          <a href="../books/">書籍案内</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
           <a href="../study-guide.html">使い方</a>
+          <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
           <a href="../sitemap.html">サイトマップ</a>
@@ -219,7 +224,7 @@
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026100501"></script>
+    <script src="../assets/site-header.js?v=2026100901"></script>
 
     <dialog id="values-dialog" aria-labelledby="values-title" aria-describedby="values-description">
       <form id="values-form" novalidate>

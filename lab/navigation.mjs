@@ -1,5 +1,4 @@
-// The existing header script also initializes production analytics. Draft Lab
-// pages use the same static navigation/styles without loading that script.
+// Lab pages keep their static navigation and independent canvas layout.
 const header = document.querySelector(".site-header");
 const offset = () =>
   document.documentElement.style.setProperty(

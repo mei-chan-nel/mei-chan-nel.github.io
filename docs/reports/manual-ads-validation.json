@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-10-07",
+  "validated_on": "2026-10-11",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 97,
+  "target_pages": 104,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -378,6 +378,15 @@
     },
     {
       "path": "terms/availability/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/backup/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -968,6 +977,60 @@
       "ad_count": 1,
       "positions_after": [
         "program trace main"
+      ]
+    },
+    {
+      "path": "lab/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/digital-image/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/digital-audio/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/logic-circuit/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/flowchart/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/packet-routing/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
       ]
     }
   ],

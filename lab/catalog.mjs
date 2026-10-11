@@ -39,11 +39,49 @@ export const groups = [
 ];
 
 // Add completed exhibits here; category headings are not content cards.
+// generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
     id: "packet-routing",
     group: "network",
+    generated: false,
     name: "パケット通信とルーティング",
     description: "メッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路の更新を観察しよう。",
+  },
+  {
+    id: "digital-image",
+    group: "digital-representation",
+    styles: ["image.css?v=4"],
+    scripts: ["image.mjs?v=8"],
+    name: "画像のデジタル化",
+    description:
+      "画素数と量子化ビット数を変えて、元画像と見比べる。RGBの各成分も表示できます。",
+  },
+  {
+    id: "digital-audio",
+    group: "digital-representation",
+    styles: ["audio.css?v=5"],
+    scripts: ["audio.mjs?v=5"],
+    name: "音のデジタル化",
+    description:
+      "標本化周波数と量子化ビット数を変えて、音と波形を比較。標本点や折り返しも確かめます。",
+  },
+  {
+    id: "logic-circuit",
+    group: "digital-representation",
+    styles: ["circuit.css?v=8"],
+    scripts: ["editor.mjs?v=9"],
+    name: "論理回路をつくる",
+    description:
+      "AND・OR・NOTと分岐を配置して配線。各ゲートの出力と真理値表を見比べます。",
+  },
+  {
+    id: "flowchart",
+    group: "algorithm",
+    styles: ["../logic-circuit/circuit.css?v=8", "flowchart.css?v=5"],
+    scripts: ["editor.mjs?v=9"],
+    name: "フローチャートをつくる",
+    description:
+      "図記号をつないで手順を作り、1つずつ実行。変数・分岐・繰返しを図で確かめます。",
   },
 ];

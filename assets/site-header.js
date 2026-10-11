@@ -29,12 +29,18 @@
   const siteRoot = new URL("../", sharedScript.src);
   const siteUrl = (path) => new URL(path, siteRoot).href;
   const pagePath = window.location.pathname.toLowerCase();
-  const siteRootPath = siteRoot.pathname.endsWith("/") ? siteRoot.pathname : `${siteRoot.pathname}/`;
-  const homePaths = new Set([siteRootPath.toLowerCase(), `${siteRootPath}index.html`.toLowerCase()]);
+  const siteRootPath = siteRoot.pathname.endsWith("/")
+    ? siteRoot.pathname
+    : `${siteRoot.pathname}/`;
+  const homePaths = new Set([
+    siteRootPath.toLowerCase(),
+    `${siteRootPath}index.html`.toLowerCase(),
+  ]);
   const activeSection =
     pagePath.includes("/info1-quiz-app/app/") || /^\/app\//.test(pagePath)
       ? "app"
-      : pagePath.includes("/info1-quiz-app/questions/") || /^\/questions\//.test(pagePath)
+      : pagePath.includes("/info1-quiz-app/questions/") ||
+          /^\/questions\//.test(pagePath)
         ? "questions"
         : pagePath.includes("/terms/") || /^\/terms\//.test(pagePath)
           ? "terms"
@@ -44,13 +50,21 @@
               ? "lecture"
               : pagePath.includes("/program-trace/")
                 ? "trace"
-                : pagePath.endsWith("/study-guide.html")
-                  ? "study"
-                  : pagePath.endsWith("/about.html")
-                    ? "about"
-                    : homePaths.has(pagePath)
-                      ? "home"
-                      : "";
+                : pagePath.includes("/lab/")
+                  ? "lab"
+                  : pagePath.endsWith("/study-guide.html")
+                    ? "study"
+                    : pagePath.endsWith("/about.html")
+                      ? "about"
+                      : pagePath.includes("/books/")
+                        ? "books"
+                        : pagePath.endsWith("/privacy.html")
+                          ? "privacy"
+                          : pagePath.endsWith("/sitemap.html")
+                            ? "sitemap"
+                            : homePaths.has(pagePath)
+                              ? "home"
+                              : "";
 
   const navItems = [
     ["home", siteUrl(""), "トップページ"],
@@ -58,24 +72,46 @@
     ["questions", siteUrl("info1-quiz-app/questions/"), "問題を探す"],
     ["terms", siteUrl("terms/"), "用語一覧"],
     ["archive", siteUrl("archive/"), "解説動画"],
-    ["lecture", siteUrl("LectureNote/"), "講義ノート"],
     ["trace", siteUrl("program-trace/"), "プログラムトレース"],
+    ["lecture", siteUrl("LectureNote/"), "講義ノート"],
+    ["lab", siteUrl("lab/"), "ラボ"],
   ];
-  const navHtml = navItems.map(([key, href, label]) => {
-    const current = key === activeSection ? ' aria-current="page"' : "";
-    return `<a href="${href}"${current}>${label}</a>`;
-  }).join("");
+  const footerItems = [
+    ...navItems,
+    ["study", siteUrl("study-guide.html"), "使い方"],
+    ["books", siteUrl("books/"), "書籍案内"],
+    ["about", siteUrl("about.html"), "このサイトについて"],
+    ["privacy", siteUrl("privacy.html"), "プライバシーポリシー"],
+    ["sitemap", siteUrl("sitemap.html"), "サイトマップ"],
+  ];
+  const renderLinks = (items) =>
+    items
+      .map(([key, href, label]) => {
+        const current = key === activeSection ? ' aria-current="page"' : "";
+        return `<a href="${href}"${current}>${label}</a>`;
+      })
+      .join("");
+  const navHtml = renderLinks(navItems);
 
-  const ensureTraceLink = (nav) => {
+  // Also update older navigation in the separately built learning app.
+  // Reuse existing elements so menu button listeners and page links survive.
+  const syncNavigation = (nav, items) => {
     if (!nav) return;
-    const href = siteUrl("program-trace/");
-    if (Array.from(nav.querySelectorAll("a")).some((link) => link.href === href)) return;
-    const link = document.createElement("a");
-    link.href = href;
-    link.textContent = "プログラムトレース";
-    const studyLink = Array.from(nav.querySelectorAll("a")).find((item) => item.href === siteUrl("study-guide.html"));
-    const lectureLink = Array.from(nav.querySelectorAll("a")).find((item) => item.href === siteUrl("LectureNote/"));
-    nav.insertBefore(link, lectureLink?.nextElementSibling || studyLink || null);
+    const children = Array.from(nav.children);
+    const ordered = items.map(([key, href, label]) => {
+      const link =
+        children.find((item) => item.tagName === "A" && item.href === href) ||
+        document.createElement("a");
+      link.href = href;
+      link.textContent = label;
+      if (key === activeSection) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+      return link;
+    });
+    nav.replaceChildren(
+      ...ordered,
+      ...children.filter((item) => !ordered.includes(item)),
+    );
   };
 
   let header = document.querySelector(".site-header");
@@ -94,13 +130,7 @@
     if (skipLink) skipLink.after(header);
     else document.body.prepend(header);
   } else {
-    ensureTraceLink(header.querySelector(".global-nav"));
-    const expectedPaths = new Map(navItems.map(([key, href]) => [new URL(href).pathname.toLowerCase(), key]));
-    header.querySelectorAll(".global-nav a").forEach((link) => {
-      const key = expectedPaths.get(new URL(link.href).pathname.toLowerCase());
-      if (key === activeSection) link.setAttribute("aria-current", "page");
-      else link.removeAttribute("aria-current");
-    });
+    syncNavigation(header.querySelector(".global-nav"), navItems);
     const subtitle = header.querySelector(".brand small");
     if (subtitle && subtitle.textContent !== "知識を、ひろげ、つなげる") {
       subtitle.textContent = "知識を、ひろげ、つなげる";
@@ -117,25 +147,17 @@
           <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
         </a>
         <nav aria-label="フッターナビゲーション">
-          <a href="${siteUrl("")}">トップページ</a>
-          <a href="${siteUrl("info1-quiz-app/app/")}">学習アプリ</a>
-          <a href="${siteUrl("info1-quiz-app/questions/")}">問題を探す</a>
-          <a href="${siteUrl("terms/")}">用語一覧</a>
-          <a href="${siteUrl("archive/")}">解説動画</a>
-          <a href="${siteUrl("LectureNote/")}">講義ノート</a>
-          <a href="${siteUrl("program-trace/")}">プログラムトレース</a>
-          <a href="${siteUrl("books/")}">書籍案内</a>
-          <a href="${siteUrl("study-guide.html")}">使い方</a>
-          <a href="${siteUrl("about.html")}">このサイトについて</a>
-          <a href="${siteUrl("privacy.html")}">プライバシーポリシー</a>
-          <a href="${siteUrl("sitemap.html")}">サイトマップ</a>
+          ${renderLinks(footerItems)}
         </nav>
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>`;
     document.body.append(footer);
   }
-  ensureTraceLink(footer.querySelector('nav[aria-label="フッターナビゲーション"]'));
-  ensureTraceLink(document.querySelector(".app-mini-nav__menu"));
+  syncNavigation(
+    footer.querySelector('nav[aria-label="フッターナビゲーション"]'),
+    footerItems,
+  );
+  syncNavigation(document.querySelector(".app-mini-nav__menu"), navItems);
 
   const initHorizontalScrollCue = (scroller, options = {}) => {
     if (!scroller || scroller.closest(".horizontal-scroll-cue")) return;
