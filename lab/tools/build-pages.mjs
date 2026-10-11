@@ -1,6 +1,6 @@
 import "./build-render-worker.mjs";
 import "./build-audio-worker.mjs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 import { groups, contents } from "../catalog.mjs";
 import { renderPage } from "./shell.mjs";
 const root = new URL("../", import.meta.url);
@@ -32,6 +32,10 @@ const pages = new Map([
   ],
 ]);
 for (const content of contents) {
+  if (content.generated === false) {
+    await access(new URL(`${content.id}/index.html`, root));
+    continue;
+  }
   const body = await readFile(
     new URL(`./templates/${content.id}.html`, import.meta.url),
     "utf8",

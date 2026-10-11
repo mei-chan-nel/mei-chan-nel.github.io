@@ -39,7 +39,15 @@ export const groups = [
 ];
 
 // Add completed exhibits here; category headings are not content cards.
+// generated: false preserves an independently authored page during shell builds.
 export const contents = [
+  {
+    id: "packet-routing",
+    group: "network",
+    generated: false,
+    name: "パケット通信とルーティング",
+    description: "メッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路の更新を観察しよう。",
+  },
   {
     id: "digital-image",
     group: "digital-representation",
