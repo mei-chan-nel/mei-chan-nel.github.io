@@ -1723,3 +1723,255 @@ input[type="checkbox"] {
   max-height: none;
   font-size: 0.85rem !important;
 }
+/* Preset controls sit outside labels, beside the exact field or item they change. */
+.field-frame {
+  min-width: 0;
+}
+.field-frame > label {
+  margin-bottom: 0;
+}
+.preset-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 7px 0 4px;
+  font-size: 0.7rem;
+}
+.preset-control > small {
+  color: #526859;
+  font-size: 0.66rem;
+}
+.thinking-shell .preset-button {
+  background: #e5efe6;
+  border: 1px solid #87a891;
+  color: #234f3a;
+  border-radius: 7px;
+  padding: 6px 10px;
+  min-height: 32px;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.thinking-shell .preset-button[aria-pressed="true"] {
+  background: #fff6e5;
+  border-color: #b99154;
+  color: #6a4821;
+}
+.thinking-shell .preset-button:disabled {
+  opacity: 0.6;
+}
+.preset-changed {
+  outline: 3px solid #3e9979;
+  outline-offset: 3px;
+  background-color: #edf8e8 !important;
+  border-radius: 8px;
+}
+.preset-feedback {
+  display: block;
+  flex-basis: 100%;
+  color: #235f46;
+  font-weight: bold;
+  font-size: 0.72rem;
+}
+.preset-pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 10px 0 16px;
+}
+.preset-option {
+  border: 1px dashed #a7bdac;
+  background: #f5f8f0;
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 0.78rem;
+}
+.preset-option > b {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+.blank-preset-card {
+  background: #faf9f0;
+  border-style: dashed;
+  box-shadow: none;
+}
+.blank-preset-card > small {
+  display: block;
+  margin-top: 7px;
+  font-size: 0.7rem;
+  color: #546658;
+}
+.blank-preset-card p {
+  font-size: 0.78rem;
+  margin: 12px 0;
+}
+.preset-card-options {
+  margin-top: 10px;
+}
+.group-heading > .field-frame {
+  flex: 1;
+  min-width: 0;
+}
+.diagram-editor .preset-control {
+  margin-bottom: 14px;
+}
+.diagram-editor .preset-button {
+  font-size: 0.72rem;
+  padding: 6px 9px;
+}
+.matrix .preset-control > small {
+  display: none;
+}
+.matrix .preset-button {
+  font-size: 0.65rem;
+  padding: 5px;
+}
+.table-scroll .preset-changed {
+  outline-offset: -2px;
+}
+.kj-island {
+  cursor: pointer;
+  text-align: left;
+}
+.kj-island span {
+  display: block;
+}
+.review-notice {
+  background: #fff8e9;
+  border: 1px solid #c8a365;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 0.8rem;
+  margin: 14px 0 20px;
+}
+.review-notice ul {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+.review-notice li {
+  padding: 10px 0;
+  border-top: 1px solid #e5d4ad;
+}
+.review-notice li > b,
+.review-notice li > span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.review-notice li > span {
+  margin: 7px 0;
+}
+.review-notice li button {
+  font-size: 0.72rem;
+  padding: 4px 8px;
+}
+.download-status {
+  border: 1px solid #90b69a;
+  background: #eaf4e8;
+  border-radius: 10px;
+  padding: 16px;
+  font-size: 0.83rem;
+  margin-bottom: 18px;
+  overflow-wrap: anywhere;
+}
+.download-status p {
+  margin: 8px 0 0;
+}
+#confirm-dialog {
+  width: min(480px, calc(100% - 32px));
+  padding: 24px;
+  border: 1px solid #89a08f;
+  border-radius: 14px;
+  background: #fffdf7;
+  color: #163b32;
+  box-shadow: 0 15px 60px #163b3240;
+}
+#confirm-dialog::backdrop {
+  background: #102f3560;
+}
+#confirm-dialog h2 {
+  font-size: 1.2rem;
+  margin: 0 0 16px;
+}
+#confirm-dialog p {
+  font-size: 0.9rem;
+  line-height: 1.9;
+}
+#confirm-dialog button {
+  padding: 9px 16px;
+  border: 1px solid #a5b7a8;
+  border-radius: 8px;
+}
+@media (max-width: 700px) {
+  .record-row > .field-frame:first-child {
+    grid-column: 1 / -1;
+  }
+  .preset-control > small {
+    font-size: 0.64rem;
+  }
+  .field-frame .preset-control {
+    margin-top: 5px;
+  }
+}
+
+/* SVG lines are selectable and have a wider pointer target than their ink. */
+.kj-diagram svg g path {
+  stroke: #9f492f;
+  stroke-width: 2;
+  fill: none;
+}
+.kj-diagram svg g path.hierarchy-line {
+  stroke: #6d8375;
+  stroke-dasharray: 5 5;
+}
+.kj-diagram svg g path.relation-hit {
+  stroke: transparent;
+  stroke-width: 20;
+  pointer-events: stroke;
+}
+.kj-diagram svg g {
+  cursor: pointer;
+}
+.kj-diagram svg g:focus {
+  outline: none;
+}
+.kj-diagram svg g:focus path:not(.relation-hit) {
+  stroke: #244a38;
+  stroke-width: 5;
+}
+.relation-row > .field-frame:nth-of-type(3) {
+  grid-column: 1 / 4;
+}
+.relation-row > .preset-control {
+  grid-column: 1 / 4;
+}
+.criterion-row > .preset-control {
+  grid-column: 1 / 3;
+}
+.criterion-row > .icon-button {
+  grid-column: 3;
+  grid-row: 1;
+}
+.diagram-empty {
+  padding: 32px 20px;
+  min-height: 140px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #53695d;
+  background: #f6f9f4;
+  border: 1px dashed #97ac9d;
+  border-radius: 14px;
+}
+
+/* Single cards remain readable inside the narrower, adjacent KJ panel. */
+.card-group[data-drop-group=""] > .card-stack {
+  grid-template-columns: 1fr;
+}
+
+/* Stage navigation stays stable during consecutive taps and iframe scrolling. */
+html:has(.thinking-shell) {
+  scroll-behavior: auto;
+}

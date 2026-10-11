@@ -1,5 +1,5 @@
 // Browser-local, versioned workbook. No server or external service is used.
-export const VERSION = 2;
+export const VERSION = 3;
 export const uid = () => `t-${globalThis.crypto.randomUUID()}`;
 export const kinds = {
   fact: "事実",
@@ -82,6 +82,8 @@ export function emptyWorkbook() {
       conditions: "",
     },
     examples: [],
+    presetWrites: [],
+    reviewNotes: Array.from({ length: 7 }, () => []),
     relations: [],
     synthesis: "",
     groups: [],
@@ -543,8 +545,21 @@ export function fillExample(s, id) {
   return true;
 }
 
-export function markEdited(s, step) {
-  for (let i = step + 1; i < 7; i++) if (s.done[i]) s.review[i] = true;
+export function markEdited(s, step, notes = []) {
+  for (let i = step + 1; i < 7; i++)
+    if (s.done[i]) {
+      s.review[i] = true;
+      for (const note of notes) {
+        const existing = s.reviewNotes[i].find(
+          (n) => n.source === note.source && n.path === note.path,
+        );
+        if (existing) {
+          existing.after = note.after;
+          existing.label = note.label;
+        } else s.reviewNotes[i].push({ ...note });
+      }
+      s.reviewNotes[i] = s.reviewNotes[i].slice(-20);
+    }
 }
 export function descendants(s, id) {
   const ids = new Set([id]);
@@ -672,6 +687,438 @@ export function simulationChanged(s) {
   return simulationTarget(s, s.resultFor)?.strategy !== s.simulation;
 }
 
+const collections = [
+  "cards",
+  "groups",
+  "relations",
+  "factors",
+  "causes",
+  "nodes",
+  "criteria",
+  "checks",
+  "records",
+  "kpt",
+];
+export function binding(s, path) {
+  const parts = path.split(".");
+  let object = s;
+  for (const key of parts.slice(0, -1)) {
+    if (["__proto__", "prototype", "constructor"].includes(key)) return null;
+    object = Array.isArray(object)
+      ? object.find((x) => x.id === key)
+      : object?.[key];
+    if (!object) return null;
+  }
+  return [object, parts.at(-1)];
+}
+export function presetValue(s, path) {
+  const p = presetExample();
+  if (path === "synthesis")
+    return "箱の場所を知っている人はいるが、自分の物と気付かない声もある。受け取り時間や人目が気になる声もあり、案内だけでは行動につながらない可能性がある。記名の有無と担当者の負担も残して調べたい。これは解釈であり、原因の証明ではない。";
+  if (path.includes(".ratings.")) {
+    const parts = path.split("."),
+      node = s.nodes.find((n) => n.id === parts[1]),
+      original = p.nodes.find((n) => n.id === parts[1]);
+    const criterion = s.criteria.find((c) => c.id === parts[3]),
+      sample = p.criteria.find((c) => c.id === parts[3]);
+    if (
+      !node ||
+      !original ||
+      node.text !== original.text ||
+      !criterion ||
+      criterion.title !== sample?.title
+    )
+      return undefined;
+  }
+  if (path === "observation") {
+    const note =
+      strategies[s.nodes.find((n) => n.id === s.selectedIdea)?.strategy]?.note;
+    const c = comparison(s);
+    if (!note || c.after === null) return undefined;
+    const entered = s.records.filter(
+      (r) => r.count !== null && r.total !== null,
+    );
+    return `記入済みの${entered.length}行では、返却は${entered.reduce((sum, r) => sum + r.count, 0)}/${entered.reduce((sum, r) => sum + r.total, 0)}件（${c.after.toFixed(1)}%）。以下はこの案の4週間の架空の観察メモ：${note.replace(/^返却は[0-9]+\/[0-9]+件。/, "")}`;
+  }
+  if (path === "next") {
+    const attempt = s.kpt.find((k) => k.kind === "try" && k.text);
+    return attempt
+      ? `来週、${s.plan.who || "担当者"}が「${attempt.text}」を始める。聞いた内容を新しい調査カードとして記録する。`
+      : undefined;
+  }
+  if (path === "plan.test") {
+    const n = s.nodes.find((n) => n.id === s.selectedIdea);
+    return n ? `「${n.text}」を小さく試す。${p.plan.test}` : undefined;
+  }
+  const pair = binding(p, path);
+  return pair?.[0]?.[pair[1]];
+}
+const presetPattern =
+  /^(field:(?:problem\.[a-z]+|measure\.[a-zA-Z]+|plan\.[a-z]+|(?:causes|nodes|criteria)\.[-a-zA-Z0-9]+\.(?:text|test|title|weight|ratings\.v-[0-2])|observation|next|synthesis)|(?:card|factor|cause|branch|criterion|check):[-a-zA-Z0-9]+|group:(?:recognize|access)|relation:awareness|record:[0-3]|kpt:(?:keep|problem|try))$/;
+export const validPresetId = (id) =>
+  typeof id === "string" && presetPattern.test(id);
+export function removeItem(s, collection, id) {
+  const item = s[collection].find((x) => x.id === id);
+  if (!item) return;
+  if (collection === "nodes")
+    for (const n of s.nodes) if (n.parent === id) n.parent = item.parent;
+  if (collection === "groups")
+    for (const g of s.groups) if (g.parent === id) g.parent = item.parent;
+  if (collection === "factors") {
+    const attached = s.causes.filter((c) => c.factor === id);
+    if (attached.length) {
+      let other = s.factors.find((f) => f.id !== id);
+      if (!other) {
+        other = { id: uid(), title: "残した原因の切り口", group: "" };
+        s.factors.push(other);
+      }
+      attached.forEach((c) => (c.factor = other.id));
+    }
+  }
+  s[collection] = s[collection].filter((x) => x.id !== id);
+  cleanReferences(s);
+}
+export function cleanReferences(s) {
+  const has = (key, id) => s[key].some((x) => x.id === id);
+  for (const c of s.cards) if (c.group && !has("groups", c.group)) c.group = "";
+  for (const f of s.factors)
+    if (f.group && !has("groups", f.group)) f.group = "";
+  for (const c of s.causes)
+    if (c.evidence && !has("cards", c.evidence)) c.evidence = "";
+  for (const n of s.nodes) {
+    if (n.cause && !has("causes", n.cause)) n.cause = "";
+    if (n.parent && !has("nodes", n.parent)) n.parent = "";
+    for (const id of Object.keys(n.ratings))
+      if (!has("criteria", id)) delete n.ratings[id];
+  }
+  for (const g of s.groups)
+    if (g.parent && !has("groups", g.parent)) g.parent = "";
+  if (s.focusCause && !has("causes", s.focusCause)) s.focusCause = "";
+  if (
+    s.selectedIdea &&
+    !s.nodes.some((n) => n.id === s.selectedIdea && n.candidate)
+  )
+    s.selectedIdea = "";
+  const endpoint = (id) => has("groups", id) || has("cards", id);
+  s.relations = s.relations.filter(
+    (r) => endpoint(r.from) && endpoint(r.to) && r.from !== r.to,
+  );
+  for (const write of s.presetWrites) {
+    write.rows = write.rows.filter((r) => has(r.collection, r.id));
+    write.fields = write.fields.filter(
+      (p) =>
+        binding(s, p.path) &&
+        (!p.path.includes(".ratings.") ||
+          has("criteria", p.path.split(".")[3])),
+    );
+  }
+  s.presetWrites = s.presetWrites.filter(
+    (w) => w.rows.length || w.fields.length,
+  );
+  if (!s.records.length && !s.observation) {
+    s.resultFor = "";
+    s.simulation = "";
+  }
+}
+function leaves(s) {
+  const map = new Map();
+  for (const key of ["problem", "measure", "plan"])
+    for (const [field, value] of Object.entries(s[key]))
+      map.set(`${key}.${field}`, value);
+  for (const key of ["synthesis", "observation", "next"]) map.set(key, s[key]);
+  for (const key of collections)
+    for (const row of s[key])
+      for (const [field, value] of Object.entries(row)) {
+        if (field === "id") continue;
+        if (field === "ratings")
+          for (const [criterion, score] of Object.entries(value))
+            map.set(`${key}.${row.id}.ratings.${criterion}`, score);
+        else map.set(`${key}.${row.id}.${field}`, value);
+      }
+  return map;
+}
+export function togglePreset(s, id, options = {}) {
+  if (s.mode !== "preset" || !validPresetId(id)) return { ok: false };
+  const active = s.presetWrites.find((w) => w.id === id);
+  if (active) {
+    for (const patch of active.fields) {
+      const pair = binding(s, patch.path);
+      if (pair) pair[0][pair[1]] = patch.before;
+    }
+    // Remove children before parents, so references from other work stay valid.
+    for (const row of [...active.rows].reverse())
+      removeItem(s, row.collection, row.id);
+    s.presetWrites = s.presetWrites.filter((w) => w.id !== id);
+    cleanReferences(s);
+    return {
+      ok: true,
+      cleared: true,
+      paths: active.fields.map((p) => p.path),
+      rows: active.rows,
+    };
+  }
+  const before = structuredClone(s),
+    p = presetExample();
+  const add = (collection, row) => {
+    if (s[collection].some((x) => x.id === row.id)) return false;
+    s[collection].push(structuredClone(row));
+    return true;
+  };
+  const set = (path, value) => {
+    if (value === undefined) return;
+    const pair = binding(s, path);
+    if (
+      pair &&
+      (pair[0][pair[1]] === "" ||
+        pair[0][pair[1]] === null ||
+        pair[0][pair[1]] === undefined)
+    )
+      pair[0][pair[1]] = value;
+  };
+  const [type, key] = id.split(":");
+  if (type === "field") set(key, presetValue(s, key));
+  if (type === "card") {
+    const c = p.cards.find((c) => c.id === key);
+    if (!c) return { ok: false };
+    add("cards", c);
+  }
+  if (type === "group") {
+    const recognize = key === "recognize",
+      groupId = recognize ? "g-recognize" : "g-access";
+    const ids = recognize
+      ? ["c-known", "c-own", "c-hyp"]
+      : ["c-time", "c-shame", "c-look"];
+    if (!s.cards.some((c) => ids.includes(c.id) && c.text))
+      return { ok: false };
+    add("groups", {
+      id: groupId,
+      title: recognize
+        ? "箱の場所を知っていても、自分の物とは気付かない"
+        : "箱を確認し、受け取る行動に壁がある",
+      parent: "",
+    });
+    for (const c of s.cards)
+      if (ids.includes(c.id) && !c.group) c.group = groupId;
+  }
+  if (type === "relation") {
+    if (
+      !s.groups.some((g) => g.id === "g-recognize") ||
+      !s.groups.some((g) => g.id === "g-access")
+    )
+      return { ok: false };
+    add("relations", {
+      id: "r-awareness",
+      from: "g-recognize",
+      to: "g-access",
+      text: "気付いても、確認・受け取りの壁が残る可能性",
+    });
+  }
+  if (type === "factor") {
+    const f = p.factors.find((f) => f.id === key);
+    if (!f) return { ok: false };
+    add("factors", f);
+  }
+  if (type === "cause") {
+    const c = p.causes.find((c) => c.id === key),
+      factor = s.factors.find((f) => f.id === options.factor);
+    if (!c || !factor) return { ok: false };
+    add("causes", {
+      ...c,
+      factor: factor.id,
+      test: "",
+      evidence: s.cards.some((x) => x.id === c.evidence) ? c.evidence : "",
+    });
+  }
+  if (type === "branch") {
+    const n = p.nodes.find((n) => n.id === key);
+    if (!n) return { ok: false };
+    const parent = n.parent
+      ? s.nodes.find((n) => n.id === options.parent)
+      : null;
+    if (n.parent && !parent) return { ok: false };
+    add("nodes", {
+      ...n,
+      parent: parent?.id || "",
+      cause: n.cause && s.causes.some((c) => c.id === n.cause) ? n.cause : "",
+      ratings: {},
+    });
+  }
+  if (type === "criterion") {
+    const c = p.criteria.find((c) => c.id === key);
+    if (!c) return { ok: false };
+    add("criteria", c);
+  }
+  if (type === "check") {
+    const c = p.checks.find((c) => c.id === key);
+    if (!c) return { ok: false };
+    add("checks", c);
+  }
+  if (type === "record") {
+    if (!canSimulate(s) || (s.resultFor && s.resultFor !== s.selectedIdea))
+      return { ok: false };
+    const strategy = s.nodes.find((n) => n.id === s.selectedIdea).strategy;
+    add("records", {
+      id: `record-${key}`,
+      label: `第${Number(key) + 1}週に集まった物（各4週間追跡）`,
+      count: strategies[strategy].returned[Number(key)],
+      total: 10,
+      value: null,
+      note: "教材の架空データ",
+    });
+    s.resultFor = s.selectedIdea;
+    s.simulation = strategy;
+  }
+  if (type === "kpt") {
+    const result = comparison(s),
+      n = s.nodes.find((n) => n.id === s.resultFor);
+    if (result.after === null || !n) return { ok: false };
+    const text =
+      key === "keep"
+        ? `「${n.text}」で役立った工夫を残す。${s.measure.label}は${result.after.toFixed(1)}${s.measure.kind === "rate" ? "%" : s.measure.unit}。`
+        : key === "problem"
+          ? s.observation || "数値に出ない負担や、届かなかった人を確かめる"
+          : "受け取りに来られない人に話を聞き、届いていない理由を調べ直す";
+    add("kpt", {
+      id: `kp-${key}`,
+      kind: key,
+      text,
+      source: s.simulation ? "教材の架空の実施結果" : "自分で記録した実施結果",
+    });
+  }
+  const old = leaves(before),
+    current = leaves(s),
+    rows = [];
+  for (const collection of collections)
+    for (const row of s[collection])
+      if (!before[collection].some((x) => x.id === row.id))
+        rows.push({ collection, id: row.id });
+  const fields = [];
+  for (const [path, value] of current)
+    if (
+      (old.has(path) || (type === "field" && path === key)) &&
+      old.get(path) !== value
+    )
+      fields.push({ path, before: old.get(path) ?? null, after: value });
+  if (!rows.length && !fields.length) return { ok: false };
+  s.presetWrites.push({ id, fields, rows });
+  return { ok: true, cleared: false, paths: fields.map((p) => p.path), rows };
+}
+export function changeNotes(before, s, source) {
+  const labels = {
+    title: "問題・課題",
+    who: "誰が",
+    what: "起きている問題",
+    when: "時期・期間",
+    where: "場所",
+    why: "困る理由",
+    how: "現在のやり方",
+    current: "現状",
+    ideal: "理想",
+    question: "調査で確かめること",
+    label: "指標",
+    beforeCount: "実施前の成功件数",
+    beforeTotal: "実施前の対象件数",
+    target: "目標値",
+    conditions: "測定条件",
+    test: "確かめ方",
+    text: "内容",
+    evidence: "根拠カード",
+    parent: "親の枝",
+    cause: "対応する原因",
+    group: "まとまり",
+    weight: "重み",
+    candidate: "比較候補",
+    source: "出典",
+    kind: "情報の種類",
+    status: "確かさ",
+    direction: "改善する方向",
+    unit: "単位",
+    count: "成功件数",
+    total: "対象件数",
+    value: "測定値",
+    ratings: "点数",
+  };
+  const names = {
+    cards: "調査カード",
+    groups: "表札",
+    relations: "関係線",
+    factors: "大骨",
+    causes: "原因の候補",
+    nodes: "発想の枝",
+    criteria: "評価軸",
+    checks: "確認項目",
+    records: "実施結果",
+    kpt: "振り返り",
+  };
+  const notes = [],
+    old = leaves(before),
+    current = leaves(s);
+  const display = (v) =>
+    v === null || v === "" || v === undefined
+      ? "空欄"
+      : String(v).slice(0, 180);
+  const name = (key, id) => {
+    const row = [...s[key], ...before[key]].find((x) => x.id === id);
+    return `${names[key]}「${String(row?.title || row?.text || row?.label || "名前なし").slice(0, 45)}」`;
+  };
+  for (const collection of collections) {
+    for (const row of s[collection])
+      if (!before[collection].some((x) => x.id === row.id))
+        notes.push({
+          source,
+          path: `${collection}.${row.id}`,
+          label: name(collection, row.id),
+          before: "なし",
+          after: "追加",
+        });
+    for (const row of before[collection])
+      if (!s[collection].some((x) => x.id === row.id))
+        notes.push({
+          source,
+          path: `${collection}.${row.id}`,
+          label: name(collection, row.id),
+          before: "あり",
+          after: "削除",
+        });
+  }
+  for (const [path, value] of current)
+    if (
+      (old.has(path) || path.includes(".ratings.")) &&
+      old.get(path) !== value
+    ) {
+      const [key, id, field] = path.split(".");
+      const label = collections.includes(key)
+        ? `${name(key, id)}の${field === "ratings" ? `${s.criteria.find((c) => c.id === path.split(".")[3])?.title || "評価軸"}の点数` : key === "groups" && field === "parent" ? "上位のまとまり" : labels[field] || field}`
+        : {
+            synthesis: "整理した情報から説明できること",
+            observation: "数値以外の変化・副作用・比較の限界",
+            next: "次の一歩",
+          }[key] ||
+          labels[id] ||
+          key;
+      notes.push({
+        source,
+        path,
+        label,
+        before: display(old.get(path)),
+        after: display(value),
+      });
+    }
+  for (const key of ["focusCause", "selectedIdea"])
+    if (before[key] !== s[key]) {
+      const list = key === "focusCause" ? "causes" : "nodes";
+      notes.push({
+        source,
+        path: key,
+        label: key === "focusCause" ? "発想に使う原因" : "今回試す案",
+        before:
+          before[list].find((x) => x.id === before[key])?.text || "未選択",
+        after: s[list].find((x) => x.id === s[key])?.text || "未選択",
+      });
+    }
+  return notes.slice(0, 20);
+}
+
 // Strict bounded import; unknown fields are discarded and all relationships checked.
 const textField = (v) => typeof v === "string" && v.length <= 10000;
 const numberField = (v) =>
@@ -706,7 +1153,7 @@ export function parseWorkbook(raw) {
   const input = JSON.parse(raw);
   const s = emptyWorkbook();
   assert(
-    [1, VERSION].includes(input.version) &&
+    [1, 2, VERSION].includes(input.version) &&
       ["free", "preset"].includes(input.mode),
   );
   s.mode = input.mode;
@@ -750,6 +1197,68 @@ export function parseWorkbook(raw) {
       s.examples.length <= 30 &&
       s.examples.every((x) => exampleIds.includes(x)),
   );
+  s.presetWrites = input.presetWrites ?? [];
+  assert(Array.isArray(s.presetWrites) && s.presetWrites.length <= 150);
+  s.presetWrites = s.presetWrites.map((w) => {
+    assert(
+      w &&
+        validPresetId(w.id) &&
+        Array.isArray(w.fields) &&
+        w.fields.length <= 100 &&
+        Array.isArray(w.rows) &&
+        w.rows.length <= 100,
+    );
+    const fields = w.fields.map((p) => {
+      assert(
+        p &&
+          typeof p.path === "string" &&
+          /^(problem|measure|plan|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next)(\.[-a-zA-Z0-9]+){0,3}$/.test(
+            p.path,
+          ),
+      );
+      assert(
+        !p.path
+          .split(".")
+          .some((k) =>
+            ["__proto__", "prototype", "constructor", "id"].includes(k),
+          ),
+      );
+      const primitive = (v) =>
+        v === null ||
+        typeof v === "boolean" ||
+        textField(v) ||
+        (typeof v === "number" && numberField(v));
+      assert(primitive(p.before) && primitive(p.after));
+      return { path: p.path, before: p.before, after: p.after };
+    });
+    const rows = w.rows.map((r) => {
+      assert(
+        r &&
+          collections.includes(r.collection) &&
+          typeof r.id === "string" &&
+          /^[-a-zA-Z0-9]+$/.test(r.id),
+      );
+      return { collection: r.collection, id: r.id };
+    });
+    return { id: w.id, fields, rows };
+  });
+  assert(
+    new Set(s.presetWrites.map((w) => w.id)).size === s.presetWrites.length,
+  );
+  s.reviewNotes = input.reviewNotes ?? Array.from({ length: 7 }, () => []);
+  assert(Array.isArray(s.reviewNotes) && s.reviewNotes.length === 7);
+  s.reviewNotes = s.reviewNotes.map((notes) => {
+    assert(Array.isArray(notes) && notes.length <= 20);
+    return notes.map((n) =>
+      object(n, {
+        source: (v) => Number.isInteger(v) && v >= 0 && v < 7,
+        path: textField,
+        label: textField,
+        before: textField,
+        after: textField,
+      }),
+    );
+  });
   s.synthesis = input.synthesis ?? "";
   assert(textField(s.synthesis));
   s.relations = list(input.relations ?? [], {
@@ -891,6 +1400,170 @@ export function parseWorkbook(raw) {
       s.nodes.some((n) => n.id === s.selectedIdea && n.candidate),
   );
   assert(!s.simulation || Object.hasOwn(strategies, s.simulation));
+  const editable = leaves(s);
+  for (const write of s.presetWrites) {
+    for (const patch of write.fields) {
+      const pair = binding(s, patch.path),
+        current = pair?.[0]?.[pair[1]];
+      const rating = /^nodes\.[-a-zA-Z0-9]+\.ratings\.[-a-zA-Z0-9]+$/.test(
+        patch.path,
+      );
+      assert(
+        pair &&
+          (editable.has(patch.path) ||
+            (rating && s.criteria.some((c) => c.id === pair[1]))),
+      );
+      for (const v of [patch.before, patch.after]) {
+        if (rating)
+          assert(v === null || (Number.isInteger(v) && v >= 1 && v <= 5));
+        else if (current === null || typeof current === "number")
+          assert(numberField(v));
+        else assert(typeof v === typeof current);
+      }
+      if (patch.path.endsWith(".weight"))
+        assert(
+          [patch.before, patch.after].every(
+            (v) => Number.isInteger(v) && v >= 1 && v <= 5,
+          ),
+        );
+    }
+    assert(write.rows.every((r) => s[r.collection].some((x) => x.id === r.id)));
+  }
+  if (input.version < 3 && s.mode === "preset") {
+    const p = presetExample();
+    const field = (path) => {
+      const current = binding(s, path),
+        original = presetValue(s, path);
+      if (
+        current &&
+        original !== undefined &&
+        current[0][current[1]] !== undefined &&
+        current[0][current[1]] !== "" &&
+        current[0][current[1]] !== null &&
+        current[0][current[1]] === original
+      )
+        s.presetWrites.push({
+          id: `field:${path}`,
+          fields: [
+            {
+              path,
+              before: typeof original === "number" ? null : "",
+              after: original,
+            },
+          ],
+          rows: [],
+        });
+    };
+    if (s.examples.includes("context"))
+      for (const key of ["title", "who", "what", "when", "where", "why", "how"])
+        field(`problem.${key}`);
+    if (s.examples.includes("gap")) {
+      for (const key of ["current", "ideal"]) field(`problem.${key}`);
+      for (const key of [
+        "label",
+        "beforeCount",
+        "beforeTotal",
+        "target",
+        "conditions",
+      ])
+        field(`measure.${key}`);
+    }
+    if (s.examples.includes("question")) field("problem.question");
+    for (const [flag, collection, type] of [
+      ["cards", "cards", "card"],
+      ["causes", "factors", "factor"],
+      ["causes", "causes", "cause"],
+      ["branches", "nodes", "branch"],
+      ["criteria", "criteria", "criterion"],
+      ["checks", "checks", "check"],
+    ])
+      if (s.examples.includes(flag))
+        for (const row of s[collection])
+          if (p[collection].some((x) => x.id === row.id))
+            s.presetWrites.push({
+              id: `${type}:${row.id}`,
+              fields: [],
+              rows: [{ collection, id: row.id }],
+            });
+    if (s.examples.includes("tests"))
+      for (const c of s.causes) field(`causes.${c.id}.test`);
+    if (s.examples.includes("scores"))
+      for (const n of s.nodes)
+        for (const c of s.criteria) field(`nodes.${n.id}.ratings.${c.id}`);
+    if (s.examples.includes("plan"))
+      for (const key of Object.keys(s.plan)) field(`plan.${key}`);
+    if (s.examples.includes("groups"))
+      for (const key of ["recognize", "access"]) {
+        const id = `g-${key}`;
+        if (s.groups.some((g) => g.id === id))
+          s.presetWrites.push({
+            id: `group:${key}`,
+            fields: s.cards
+              .filter((c) => c.group === id)
+              .map((c) => ({
+                path: `cards.${c.id}.group`,
+                before: "",
+                after: id,
+              })),
+            rows: [{ collection: "groups", id }],
+          });
+      }
+    if (
+      s.examples.includes("relations") &&
+      s.relations.some((r) => r.id === "r-awareness")
+    )
+      s.presetWrites.push({
+        id: "relation:awareness",
+        fields: [],
+        rows: [{ collection: "relations", id: "r-awareness" }],
+      });
+    if (s.examples.includes("synthesis") && s.synthesis)
+      s.presetWrites.push({
+        id: "field:synthesis",
+        fields: [{ path: "synthesis", before: "", after: s.synthesis }],
+        rows: [],
+      });
+    if (s.examples.includes("results") && s.simulation) {
+      for (let index = 0; index < 4; index++) {
+        const row = s.records.find(
+          (r) =>
+            r.label === `第${index + 1}週に集まった物（各4週間追跡）` &&
+            r.note === "教材の架空データ",
+        );
+        if (
+          !row ||
+          s.records.some((r) => r !== row && r.id === `record-${index}`)
+        )
+          continue;
+        row.id = `record-${index}`;
+        s.presetWrites.push({
+          id: `record:${index}`,
+          fields: [],
+          rows: [{ collection: "records", id: row.id }],
+        });
+      }
+      if (s.observation)
+        s.presetWrites.push({
+          id: "field:observation",
+          fields: [{ path: "observation", before: "", after: s.observation }],
+          rows: [],
+        });
+    }
+    if (s.examples.includes("kpt"))
+      for (const key of ["keep", "problem", "try"])
+        if (s.kpt.some((k) => k.id === `kp-${key}`))
+          s.presetWrites.push({
+            id: `kpt:${key}`,
+            fields: [],
+            rows: [{ collection: "kpt", id: `kp-${key}` }],
+          });
+    if (s.examples.includes("next") && s.next)
+      s.presetWrites.push({
+        id: "field:next",
+        fields: [{ path: "next", before: "", after: s.next }],
+        rows: [],
+      });
+  }
   return s;
 }
 export function report(s) {

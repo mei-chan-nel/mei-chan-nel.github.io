@@ -23,8 +23,90 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     page.on("dialog", (d) => d.accept());
     const click = (action) =>
       page.locator(`[data-action="${action}"]`).first().click();
-    const example = (id) =>
-      page.locator(`[data-action="example"][data-id="${id}"]`).click();
+    const preset = (id) =>
+      page.locator(`[data-action="preset"][data-id="${id}"]`).first().click();
+    const example = async (id) => {
+      const fields = async (paths) => {
+        for (const path of paths) await preset(`field:${path}`);
+      };
+      if (id === "context")
+        await fields(
+          ["title", "who", "what", "when", "where", "why", "how"].map(
+            (k) => `problem.${k}`,
+          ),
+        );
+      if (id === "gap")
+        await fields([
+          "problem.current",
+          "problem.ideal",
+          "measure.label",
+          "measure.beforeCount",
+          "measure.beforeTotal",
+          "measure.target",
+          "measure.conditions",
+        ]);
+      if (id === "question") await fields(["problem.question"]);
+      if (id === "cards")
+        for (const key of [
+          "c-total",
+          "c-name",
+          "c-known",
+          "c-time",
+          "c-shame",
+          "c-look",
+          "c-own",
+          "c-work",
+          "c-hyp",
+        ])
+          await preset(`card:${key}`);
+      if (id === "groups")
+        for (const key of ["recognize", "access"]) await preset(`group:${key}`);
+      if (id === "relations") await preset("relation:awareness");
+      if (id === "synthesis") await fields(["synthesis"]);
+      if (id === "causes")
+        for (const [factor, cause] of [
+          ["f-info", "h-notice"],
+          ["f-time", "h-time"],
+          ["f-feeling", "h-shame"],
+        ]) {
+          await preset(`factor:${factor}`);
+          await preset(`cause:${cause}`);
+        }
+      if (id === "tests")
+        for (const key of ["h-notice", "h-time", "h-shame"]) {
+          await page.locator(`[data-action="cause"][data-id="${key}"]`).click();
+          await fields([`causes.${key}.test`]);
+        }
+      if (id === "branches")
+        for (const [root, children] of [
+          ["n-access", ["n-display"]],
+          ["n-notice", ["n-photos", "n-announce"]],
+          ["n-prevent", ["n-labels"]],
+        ]) {
+          await preset(`branch:${root}`);
+          for (const child of children) await preset(`branch:${child}`);
+        }
+      if (id === "criteria")
+        for (const key of ["v-0", "v-1", "v-2"])
+          await preset(`criterion:${key}`);
+      if (id === "scores")
+        for (const node of ["n-display", "n-photos", "n-announce", "n-labels"])
+          for (const criterion of ["v-0", "v-1", "v-2"])
+            await fields([`nodes.${node}.ratings.${criterion}`]);
+      if (id === "plan")
+        await fields(["plan.who", "plan.when", "plan.test", "plan.risk"]);
+      if (id === "checks")
+        for (const key of ["ck-0", "ck-1", "ck-2"])
+          await preset(`check:${key}`);
+      if (id === "results") {
+        for (const key of [0, 1, 2, 3]) await preset(`record:${key}`);
+        await fields(["observation"]);
+      }
+      if (id === "kpt")
+        for (const key of ["keep", "problem", "try"])
+          await preset(`kpt:${key}`);
+      if (id === "next") await fields(["next"]);
+    };
     const step = (i) => page.locator(`#step-nav [data-id="${i}"]`).click();
     const fill = (path, text) =>
       page.locator(`[data-bind="${path}"]`).fill(String(text));
@@ -49,7 +131,23 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       await page.locator('[data-bind="problem.title"]').inputValue(),
       "",
     );
-    assert.equal(await page.locator(".process-overview li").count(), 7);
+    assert.equal(await page.locator(".process-overview li").count(), 0);
+    await preset("field:problem.title");
+    assert.equal(
+      await page.locator('[data-bind="problem.who"]').inputValue(),
+      "",
+    );
+    assert.equal(
+      await page
+        .locator('[data-preset-target="problem.title"].preset-changed')
+        .count(),
+      1,
+    );
+    await preset("field:problem.title");
+    assert.equal(
+      await page.locator('[data-bind="problem.title"]').inputValue(),
+      "",
+    );
     for (const id of ["context", "gap", "question"]) await example(id);
     await fill(
       "problem.question",
@@ -179,10 +277,14 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       click("export-json"),
     ]);
     await download.saveAs(path.join(artifactRoot, "preset.json"));
-    const preset = JSON.parse(
+    const presetFile = JSON.parse(
       await fs.readFile(path.join(artifactRoot, "preset.json"), "utf8"),
     );
-    assert.equal(preset.simulation, "display");
+    assert.equal(presetFile.simulation, "display");
+    assert.match(
+      await page.locator("#download-status").textContent(),
+      /ダウンロード.*フォルダ/s,
+    );
     await page.locator("#mode-free").click();
     assert.equal(
       await page.locator('[data-bind="problem.title"]').inputValue(),
@@ -301,11 +403,12 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     await page
       .locator("#import-file")
       .setInputFiles(path.join(artifactRoot, "preset.json"));
+    await page.locator("#confirm-accept").click();
     await page.waitForFunction(() =>
       document.querySelector("#notice").textContent.includes("読み込みました"),
     );
     assert.match(await page.locator("#notice").textContent(), /読み込みました/);
-    const invalid = structuredClone(preset);
+    const invalid = structuredClone(presetFile);
     invalid.nodes[0].parent = invalid.nodes[0].id;
     await page.locator("#import-file").setInputFiles({
       name: "invalid.json",
@@ -334,6 +437,13 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     const accessibility = [];
     for (let i = 0; i < 7; i++) {
       await step(i);
+      assert.equal(
+        await page
+          .locator(".preset-option,.blank-preset-card,[data-action=preset]")
+          .count(),
+        0,
+        "free mode has no preset examples or placeholders",
+      );
       assert.equal(
         await page.evaluate(
           () => document.documentElement.scrollWidth > innerWidth,
@@ -413,6 +523,203 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     console.log(
       "PASS: 7 stages in both modes, drag/drop, cause links, map branches, weighted scores, distinct results, backtracking, auto-resume, JSON import/export, print, XSS escaping, mobile widths",
     );
+    await page.evaluate(() => (window.confirm = () => false));
+    await click("reset");
+    assert.equal(await page.locator("#confirm-dialog").isVisible(), true);
+    await page.locator("#confirm-dialog button[value=cancel]").click();
+    assert.equal((await stored()).records.length, 4);
+    await click("reset");
+    await page.locator("#confirm-accept").click();
+    assert.equal(
+      await page.locator('[data-bind="problem.title"]').inputValue(),
+      "",
+    );
+    await page.reload();
+    assert.equal(
+      await page.locator('[data-bind="problem.title"]').inputValue(),
+      "",
+    );
+    await page.locator("#mode-free").click();
+    await step(5);
+    assert.match(await page.locator(".result-callout").textContent(), /達成/);
+    console.log(
+      "PASS: reset works with native confirm blocked, persists, and preserves the other mode",
+    );
+    // Sites embeds the workbook: browser dialogs may be disallowed, HTML dialogs work.
+    const embedded = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    const embeddedErrors = [];
+    embedded.on("pageerror", (e) => embeddedErrors.push(e.message));
+    await embedded.route(base + "/thinking-tools-embed-test", (route) =>
+      route.fulfill({
+        contentType: "text/html",
+        body: `<!doctype html><html lang="ja"><title>埋め込み確認</title><iframe title="教材" style="width:100%;height:100vh;border:0" sandbox="allow-scripts allow-same-origin allow-downloads" src="${base}/lab/thinking-tools/"></iframe></html>`,
+      }),
+    );
+    await embedded.goto(base + "/thinking-tools-embed-test");
+    const frame = embedded.frameLocator("iframe"),
+      epreset = (id) =>
+        frame
+          .locator(`[data-action="preset"][data-id="${id}"]`)
+          .first()
+          .click(),
+      estep = (i) => frame.locator(`#step-nav [data-id="${i}"]`).click();
+    const eclick = (a) => frame.locator(`[data-action="${a}"]`).first().click();
+    await frame.locator("#stage-title").waitFor();
+    const nativeConfirm = await embedded
+      .frames()[1]
+      .evaluate(() => window.confirm("制限された標準ダイアログ"));
+    assert.equal(nativeConfirm, false);
+    await epreset("field:problem.title");
+    await epreset("field:problem.question");
+    assert.equal(
+      await frame.locator('[data-bind="problem.who"]').inputValue(),
+      "",
+    );
+    await embedded.reload();
+    await frame.locator("#stage-title").waitFor();
+    await epreset("field:problem.title");
+    assert.equal(
+      await frame.locator('[data-bind="problem.title"]').inputValue(),
+      "",
+    );
+    await epreset("field:problem.title");
+    await estep(1);
+    for (const id of ["c-known", "c-time", "c-work"])
+      await epreset(`card:${id}`);
+    assert.equal(await frame.locator("[data-card]").count(), 3);
+    await epreset("group:recognize");
+    await epreset("group:access");
+    await epreset("relation:awareness");
+    await frame
+      .locator('[data-bind="groups.g-access.parent"]')
+      .selectOption("g-recognize");
+    await frame
+      .locator('[data-action="kj-parent"][data-id="g-access"]')
+      .press("Delete");
+    assert.equal(
+      await frame.locator('[data-bind="groups.g-access.parent"]').inputValue(),
+      "",
+    );
+    await frame.locator('[data-action="kj-relation"]').press("Delete");
+    assert.equal(await frame.locator('[data-action="kj-relation"]').count(), 0);
+    await frame
+      .locator('[data-action="kj-card"][data-id="c-work"]')
+      .press("Delete");
+    assert.equal(await frame.locator('[data-card="c-work"]').count(), 0);
+    await frame
+      .locator('[data-action="kj-group"][data-id="g-recognize"]')
+      .press("Delete");
+    assert.equal(
+      await frame.locator('[data-drop-group="g-recognize"]').count(),
+      0,
+    );
+    assert.equal(await frame.locator('[data-card="c-known"]').count(), 1);
+    await eclick("next");
+    await epreset("factor:f-info");
+    await epreset("cause:h-notice");
+    await frame
+      .locator('[data-action="cause"][data-id="h-notice"]')
+      .press("Delete");
+    assert.equal(await frame.locator('[data-action="cause"]').count(), 0);
+    await epreset("cause:h-notice");
+    await frame
+      .locator('[data-action="factor"][data-id="f-info"]')
+      .press("Delete");
+    assert.equal(
+      await frame.locator('[data-action="factor"][data-id="f-info"]').count(),
+      0,
+    );
+    await frame.locator('[data-action="fish-root"]').press("Delete");
+    await frame.locator("#confirm-accept").click();
+    await embedded.waitForTimeout(100);
+    assert.equal(
+      await frame
+        .locator(
+          '[data-action="factor"],[data-action="cause"],[data-action="fish-root"]',
+        )
+        .count(),
+      0,
+    );
+    await eclick("next");
+    await epreset("branch:n-notice");
+    await epreset("branch:n-photos");
+    await frame
+      .locator('[data-action="node"][data-id="n-photos"]')
+      .press("Delete");
+    assert.equal(
+      await frame.locator('[data-action="node"][data-id="n-photos"]').count(),
+      0,
+    );
+    await epreset("branch:n-photos");
+    await frame
+      .locator('[data-action="node"][data-id="n-notice"]')
+      .press("Delete");
+    await frame.locator("#confirm-accept").click();
+    await embedded.waitForTimeout(100);
+    assert.equal(
+      await frame.locator('[data-action="node"][data-id="n-notice"]').count(),
+      0,
+    );
+    assert.equal(
+      await frame.locator('[data-action="node"][data-id="n-photos"]').count(),
+      1,
+    );
+    await frame.locator('[data-action="map-root"]').press("Delete");
+    await frame.locator("#confirm-accept").click();
+    await embedded.waitForTimeout(100);
+    assert.equal(
+      await frame
+        .locator('[data-action="node"],[data-action="map-root"]')
+        .count(),
+      0,
+    );
+    await estep(0);
+    await frame
+      .locator('[data-bind="problem.question"]')
+      .fill("昼休みと放課後の受け取りを比較する");
+    await estep(2);
+    assert.match(
+      await frame.locator(".review-notice").textContent(),
+      /調査で確かめること/,
+    );
+    assert.match(
+      await frame.locator(".review-notice").textContent(),
+      /昼休みと放課後の受け取りを比較する/,
+    );
+    const embeddedDownload = embedded.waitForEvent("download");
+    await eclick("export-json");
+    assert.match((await embeddedDownload).suggestedFilename(), /\.json$/);
+    assert.match(
+      await frame.locator("#download-status").textContent(),
+      /ダウンロード.*フォルダ/,
+    );
+    await eclick("reset");
+    await frame.locator("#confirm-accept").click();
+    await embedded.waitForTimeout(100);
+    assert.equal(
+      await frame.locator('[data-bind="problem.title"]').inputValue(),
+      "",
+    );
+    await embedded.reload();
+    await frame.locator("#stage-title").waitFor();
+    assert.equal(
+      await frame.locator('[data-bind="problem.question"]').inputValue(),
+      "",
+    );
+    assert.equal(
+      await embedded.evaluate(
+        () => document.documentElement.scrollWidth > innerWidth,
+      ),
+      false,
+    );
+    assert.deepEqual(embeddedErrors, []);
+    console.log(
+      "PASS: sandboxed iframe without allow-modals supports local presets, persisted undo, Delete for KJ shapes/lines, fishbone shapes, map root/parent/leaves, exact change notice, download and reset",
+    );
+    await embedded.close();
+
     const restricted = await browser.newPage();
     await restricted.addInitScript(() => {
       Storage.prototype.setItem = () => {

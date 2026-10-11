@@ -4,7 +4,12 @@ import {
   steps,
   emptyWorkbook,
   presetWorkbook,
-  fillExample,
+  presetExample,
+  presetValue,
+  togglePreset,
+  removeItem,
+  cleanReferences,
+  changeNotes,
   markEdited,
   descendants,
   causeForNode,
@@ -34,6 +39,7 @@ const key = (mode) => `study-atlas.thinking-tools.v1.${mode}`;
 const cache = new Map();
 const pickedCards = new Set();
 const diagramZoom = { fish: 0, map: 0 };
+let mutationBefore, lastPresetChange;
 let state,
   selectedNode = "",
   selectedCause = "",
@@ -103,7 +109,13 @@ function notify(text) {
   el.hidden = !text;
 }
 function changed(step = state.step) {
-  markEdited(state, step);
+  cleanReferences(state);
+  markEdited(
+    state,
+    step,
+    mutationBefore ? changeNotes(mutationBefore, state, step) : [],
+  );
+  mutationBefore = structuredClone(state);
   scheduleSave();
   renderNav();
 }
@@ -118,14 +130,47 @@ function value(path) {
   const [o, k] = resolve(path);
   return o[k];
 }
+function presetControl(
+  id,
+  label,
+  enabled = true,
+  extra = "",
+  accessibleLabel = label,
+) {
+  if (state.mode !== "preset") return "";
+  const active = state.presetWrites.some((w) => w.id === id),
+    recent = lastPresetChange?.id === id;
+  return `<div class="preset-control" data-preset-control="${esc(id)}">${btn("preset", active ? "空欄に戻す" : "プリセット記入", id, "preset-button", `aria-pressed="${active}" aria-label="${esc(accessibleLabel)}：${active ? "空欄に戻す" : "プリセット記入"}" ${!enabled && !active ? "disabled" : ""} ${extra}`)}<small>${esc(label)}</small>${recent ? `<span class="preset-feedback" role="status">${lastPresetChange.cleared ? "空欄に戻しました" : "ここに記入しました"}</span>` : ""}</div>`;
+}
+function fieldPreset(path, label) {
+  const eligible =
+    /^(problem\.|measure\.(label|beforeCount|beforeTotal|target|conditions)$|plan\.|causes\.[-a-zA-Z0-9]+\.test$|nodes\.[-a-zA-Z0-9]+\.ratings\.|observation$|next$|synthesis$)/.test(
+      path,
+    );
+  if (
+    !eligible ||
+    presetValue(state, path) === undefined ||
+    presetValue(state, path) === ""
+  )
+    return "";
+  return presetControl(
+    `field:${path}`,
+    "この欄だけ",
+    (!path.startsWith("plan.") || !!state.selectedIdea) &&
+      (path !== "synthesis" || state.cards.length > 0) &&
+      (path !== "observation" || canSimulate(state)),
+    "",
+    `${label}の欄だけ`,
+  );
+}
 function input(label, path, placeholder = "", type = "text", extra = "") {
-  return `<label>${esc(label)}<input type="${type}" data-bind="${esc(path)}" value="${esc(value(path))}" placeholder="${esc(placeholder)}" ${type === "text" ? 'maxlength="10000"' : ""} ${extra}></label>`;
+  return `<div class="field-frame" data-preset-target="${esc(path)}"><label>${esc(label)}<input type="${type}" data-bind="${esc(path)}" value="${esc(value(path))}" placeholder="${esc(placeholder)}" ${type === "text" ? 'maxlength="10000"' : ""} ${extra}></label>${fieldPreset(path, label)}</div>`;
 }
 function area(label, path, placeholder = "", extra = "") {
-  return `<label ${extra}>${esc(label)}<textarea rows="2" data-bind="${esc(path)}" placeholder="${esc(placeholder)}" maxlength="10000">${esc(value(path))}</textarea></label>`;
+  return `<div class="field-frame" data-preset-target="${esc(path)}"><label ${extra}>${esc(label)}<textarea rows="2" data-bind="${esc(path)}" placeholder="${esc(placeholder)}" maxlength="10000">${esc(value(path))}</textarea></label>${fieldPreset(path, label)}</div>`;
 }
 function select(label, path, options, extra = "") {
-  return `<label>${esc(label)}<select data-bind="${esc(path)}" ${extra}>${options.map(([v, t]) => `<option value="${esc(v)}" ${value(path) === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></label>`;
+  return `<div class="field-frame" data-preset-target="${esc(path)}"><label>${esc(label)}<select data-bind="${esc(path)}" ${extra}>${options.map(([v, t]) => `<option value="${esc(v)}" ${value(path) === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></label>${fieldPreset(path, label)}</div>`;
 }
 function btn(action, label, id = "", classes = "", extra = "") {
   return `<button type="button" data-action="${action}" ${id ? `data-id="${esc(id)}"` : ""} class="${classes}" ${extra}>${label}</button>`;
@@ -150,9 +195,38 @@ const evidenceOptions = () => [
   ["", "根拠は未接続"],
   ...state.cards.map((c) => [c.id, `${kinds[c.kind]}：${short(c.text)}`]),
 ];
+function reviewNotice() {
+  if (!state.review[state.step]) return "";
+  const notes = state.reviewNotes[state.step];
+  const help = [
+    "",
+    "調査する対象・内容に反映されているか、カードを確認します。",
+    "変更したカードを根拠にした原因と、確かめ方を確認します。",
+    "原因との接続が残っているか、枝の「対応する原因」を確認します。",
+    "比較する案・評価軸・試す案・計画が、変更内容と合っているか確認します。",
+    "今回試す案・指標・実施前の値と、記録した結果の条件を確認します。",
+    "選んだ案・結果・観察メモを読み、KPTの根拠と次の行動を確認します。",
+  ][state.step];
+  const row = (n) =>
+    `<li><b>${esc(steps[n.source][0])} · ${esc(n.label)}</b><span>${esc(n.before)} → ${esc(n.after)}</span>${btn("step", "変更元を確認", String(n.source), "quiet-button")}</li>`;
+  return `<section class="review-notice" aria-label="前の段階の変更内容"><strong>この段階で見直す変更</strong>${notes.length ? `<ul>${notes.slice(-3).map(row).join("")}</ul>${notes.length > 3 ? `<details><summary>ほか${notes.length - 3}件の変更</summary><ul>${notes.slice(0, -3).map(row).join("")}</ul></details>` : ""}` : "<p>以前の保存内容で見直しが付いています。この保存には変更前後の履歴がありません。</p>"}<p>${esc(help)}</p>${btn("reviewed", "この変更を確認した")}</section>`;
+}
+function highlightPreset() {
+  if (!lastPresetChange) return;
+  for (const path of lastPresetChange.paths)
+    $(`[data-preset-target="${CSS.escape(path)}"]`)?.classList.add(
+      "preset-changed",
+    );
+  for (const row of lastPresetChange.rows) {
+    for (const el of document.querySelectorAll(
+      `[data-preset-row="${CSS.escape(row.id)}"], [data-id="${CSS.escape(row.id)}"]`,
+    ))
+      el.classList.add("preset-changed");
+  }
+}
 function header() {
   const step = steps[state.step];
-  return `<header class="stage-header"><p class="eyebrow">STEP ${String(state.step + 1).padStart(2, "0")} / ${esc(step[1])}</p><h2 id="stage-title" tabindex="-1">${esc(step[0])}</h2><p>${esc(step[2])}</p><details data-detail="usage"><summary>現実では、どんなときに使える？</summary><p>${esc(step[3])}</p></details></header>${state.review[state.step] ? `<div class="notice">前の段階が変わりました。今の考えとつながるか確認しましょう。${btn("reviewed", "確認した")}</div>` : ""}`;
+  return `<header class="stage-header"><p class="eyebrow">STEP ${String(state.step + 1).padStart(2, "0")} / ${esc(step[1])}</p><h2 id="stage-title" tabindex="-1">${esc(step[0])}</h2><p>${esc(step[2])}</p><details data-detail="usage"><summary>現実では、どんなときに使える？</summary><p>${esc(step[3])}</p></details></header>${reviewNotice()}`;
 }
 function renderNav() {
   $("#step-nav").innerHTML = steps
@@ -167,7 +241,7 @@ function context() {
     $(`#mode-${m}`).setAttribute("aria-pressed", String(state.mode === m));
   $("#mode-context").innerHTML =
     state.mode === "preset"
-      ? '<span class="fiction-label">架空の題材・データ</span><strong>学校の落とし物が、持ち主に戻らない。</strong><p>空欄からスタート。「例を入れて試す」で少しずつ書き込み、動かし、考え直します。入った内容は自由に編集できます。気になる段階からでもOK。</p>'
+      ? '<span class="fiction-label">架空の題材・データ</span><strong>学校の落とし物が、持ち主に戻らない。</strong><p>空欄からスタート。入力欄のそばの「プリセット記入」で、1欄・1カードずつ試します。もう一度押すと、その場所だけ空欄に戻せます。入った内容は自由に編集できます。気になる段階からでもOK。</p>'
       : "<strong>自分の題材で、ゼロから。</strong><p>例のデータは入りません。必要な情報・枝・評価軸を自分で追加して、考えを育てていきましょう。</p>";
 }
 function render(focus = false) {
@@ -200,6 +274,7 @@ function render(focus = false) {
   $("#stage-actions").innerHTML =
     `${btn("back", "← 前の段階", "", "", state.step === 0 ? "disabled" : "")}${btn("next", state.step === 6 ? "振り返りをまとめて全体を見る" : "この段階をまとめて次へ →", "", "primary-button")}`;
   fitDiagrams();
+  highlightPreset();
   for (const id of openDetails) {
     const detail = $(`[data-detail="${CSS.escape(id)}"]`);
     if (detail) detail.open = true;
@@ -268,7 +343,30 @@ function clarify() {
   ${tip("「なぜ困るか」と「原因」は別の問いです。5W1Hを埋めただけで原因が分かったとは言えません。")}`;
 }
 function lesson(id, title, watch, discover, enabled = true) {
-  const used = state.examples.includes(id);
+  const prefixes = {
+    context: ["field:problem."],
+    gap: ["field:measure.", "field:problem.current", "field:problem.ideal"],
+    question: ["field:problem.question"],
+    cards: ["card:"],
+    groups: ["group:"],
+    relations: ["relation:"],
+    synthesis: ["field:synthesis"],
+    causes: ["cause:"],
+    tests: ["field:causes."],
+    branches: ["branch:"],
+    criteria: ["criterion:"],
+    scores: ["field:nodes."],
+    plan: ["field:plan."],
+    checks: ["check:"],
+    results: ["record:"],
+    kpt: ["kpt:"],
+    next: ["field:next"],
+  };
+  const used =
+    state.mode === "preset" &&
+    state.presetWrites.some((w) =>
+      (prefixes[id] || []).some((prefix) => w.id.startsWith(prefix)),
+    );
   const freeInstructions = {
     context:
       "困っている状況を、誰が・何に・いつ・どこで・なぜ困る・今のやり方に分けて書きます。原因は後から考えます。",
@@ -299,7 +397,7 @@ function lesson(id, title, watch, discover, enabled = true) {
     next: "Tryから具体的な行動を選び、誰が何をいつまでに行うかを書きます。",
   };
   if (state.mode === "free") watch = freeInstructions[id] || watch;
-  return `<div class="lesson"><div><strong>${esc(title)}</strong><p>${esc(watch)}</p>${used ? `<p class="lesson-discovery">例で注目すること：${esc(discover)}</p>` : ""}</div>${state.mode === "preset" ? btn("example", used ? "例を追加済み" : "例を入れて試す", id, "example-button", `aria-label="${esc(title)}：${used ? "例を追加済み" : "例を入れて試す"}" ${used || !enabled ? "disabled" : ""}`) : ""}</div>`;
+  return `<div class="lesson"><div><strong>${esc(title)}</strong><p>${esc(watch)}</p>${used ? `<p class="lesson-discovery">例で注目すること：${esc(discover)}</p>` : ""}</div></div>`;
 }
 function groupDescendants(id) {
   const ids = new Set([id]);
@@ -315,21 +413,57 @@ function groupDescendants(id) {
   return ids;
 }
 function card(c) {
-  return `<article class="note-card" data-card="${c.id}" data-kind="${c.kind}" draggable="true"><div class="card-top"><label class="card-pick"><input type="checkbox" data-select-card="${c.id}" ${pickedCards.has(c.id) ? "checked" : ""}><span class="visually-hidden">${esc(c.text || "情報カード")}をまとめるために選択</span><span class="drag-handle" draggable="true" aria-hidden="true">⠿</span></label><span class="tag">${kinds[c.kind]}</span>${del("delete-card", c.id, "この情報カードを削除")}</div>${area("1枚に1つの情報", `cards.${c.id}.text`, "観察や発言を、具体的に残す")}
+  return `<article class="note-card" data-preset-row="${c.id}" data-card="${c.id}" data-kind="${c.kind}" draggable="true"><div class="card-top"><label class="card-pick"><input type="checkbox" data-select-card="${c.id}" ${pickedCards.has(c.id) ? "checked" : ""}><span class="visually-hidden">${esc(c.text || "情報カード")}をまとめるために選択</span><span class="drag-handle" draggable="true" aria-hidden="true">⠿</span></label><span class="tag">${kinds[c.kind]}</span>${del("delete-card", c.id, "この情報カードを削除")}</div>${presetExample().cards.some((x) => x.id === c.id) ? presetControl(`card:${c.id}`, "このカードだけ") : ""}${area("1枚に1つの情報", `cards.${c.id}.text`, "観察や発言を、具体的に残す")}
   ${select("情報の種類", `cards.${c.id}.kind`, Object.entries(kinds))}${input("出典・観察条件", `cards.${c.id}.source`, "誰の声？いつ・何件を観察？")}
   ${select("このカードを置くまとまり", `cards.${c.id}.group`, [["", "単独で置く"], ...state.groups.map((g) => [g.id, g.title || "（表札がないまとまり）"])])}</article>`;
+}
+function blankPresetCard(c, i) {
+  return `<article class="note-card blank-preset-card" data-preset-row="${c.id}"><b>調査記録 ${i + 1} / 9</b><small>${esc(c.source)}</small><p class="empty-note">情報・種類・出典を、このカードに記入します。</p>${presetControl(`card:${c.id}`, "このカードだけ")}</article>`;
+}
+function groupCards(id) {
+  const cards = state.cards.filter((c) => c.group === id);
+  if (id || state.mode !== "preset")
+    return (
+      cards.map(card).join("") ||
+      empty("内容が近いと感じるカードをここへ。空のまとまりは × で解けます。")
+    );
+  const sample = presetExample().cards;
+  return (
+    sample
+      .map((c, i) => {
+        const found = state.cards.find((x) => x.id === c.id);
+        return found ? (found.group ? "" : card(found)) : blankPresetCard(c, i);
+      })
+      .join("") +
+    cards
+      .filter((c) => !sample.some((x) => x.id === c.id))
+      .map(card)
+      .join("")
+  );
+}
+function missingGroups() {
+  if (state.mode !== "preset") return "";
+  return [
+    ["recognize", "g-recognize", ["c-known", "c-own", "c-hyp"]],
+    ["access", "g-access", ["c-time", "c-shame", "c-look"]],
+  ]
+    .filter(([, id]) => !state.groups.some((g) => g.id === id))
+    .map(
+      ([key, id, cards]) =>
+        `<section class="card-group blank-preset-card"><h3>まとまりの例 ${key === "recognize" ? 1 : 2}</h3><p>読み込んだ情報カードを寄せ、内容を表す表札を記入します。</p>${presetControl(
+          `group:${key}`,
+          "このまとまりだけ",
+          state.cards.some((c) => cards.includes(c.id)),
+        )}</section>`,
+    )
+    .join("");
 }
 function groupPanel(g, depth = 0) {
   const blocked = groupDescendants(g.id);
   return `<section class="card-group ${g.id ? "" : "ungathered"}" data-drop-group="${g.id}" aria-label="${esc(g.title || "単独のカード")}"><div class="group-heading">${g.id ? input("表札 · 中の情報が語ることを一文で", `groups.${g.id}.title`, "例：案内を知っていても、受け取りには壁がある") : "<h3>単独のカード<small>まとまらない情報も、大切に残す</small></h3>"}${g.id ? del("delete-group", g.id, "まとまりを解く（カードは単独へ）") : ""}</div>
   ${g.id ? `<div class="group-controls">${btn("move-group", "←", `${g.id}:left`, "icon-button", 'aria-label="まとまりを左へ並べる"')}${btn("move-group", "→", `${g.id}:right`, "icon-button", 'aria-label="まとまりを右へ並べる"')}${select("上位のまとまり", `groups.${g.id}.parent`, [["", "上位のまとまりを作らない"], ...state.groups.filter((x) => !blocked.has(x.id)).map((x) => [x.id, x.title || "（表札がないまとまり）"])])}</div>` : ""}
-  <div class="card-stack">${
-    state.cards
-      .filter((c) => c.group === g.id)
-      .map(card)
-      .join("") ||
-    empty("内容が近いと感じるカードをここへ。空のまとまりは × で解けます。")
-  }</div>
+  ${g.id === "g-recognize" || g.id === "g-access" ? presetControl(`group:${g.id === "g-recognize" ? "recognize" : "access"}`, "このまとまりだけ") : ""}
+  <div class="card-stack">${groupCards(g.id)}</div>
   ${state.groups
     .filter((x) => x.parent === g.id && g.id)
     .map((x) => groupPanel(x, depth + 1))
@@ -370,7 +504,7 @@ function kjDiagram() {
       const a = positions.get(r.from),
         b = positions.get(r.to);
       if (!a || !b) return "";
-      return `<path d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}" marker-end="url(#kj-arrow)"/><text x="${(a.x + b.x) / 2 + 140}" y="${(a.y + b.y) / 2 + 21}" text-anchor="middle">${esc(short(r.text || "関係を説明する", 18))}</text>`;
+      return `<g tabindex="0" role="button" data-action="kj-relation" data-id="${r.id}" aria-label="${esc(r.text || "関係線")}。Deleteで削除"><path class="relation-hit" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/><path d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}" marker-end="url(#kj-arrow)"/><text x="${(a.x + b.x) / 2 + 140}" y="${(a.y + b.y) / 2 + 21}" text-anchor="middle">${esc(short(r.text || "関係を説明する", 18))}</text></g>`;
     })
     .join("");
   const parents = state.groups
@@ -378,13 +512,13 @@ function kjDiagram() {
     .map((g) => {
       const a = positions.get(g.id),
         b = positions.get(g.parent);
-      return `<path class="hierarchy-line" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/>`;
+      return `<g tabindex="0" role="button" data-action="kj-parent" data-id="${g.id}" aria-label="上位のまとまりとの関係。Deleteで解除"><path class="relation-hit" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/><path class="hierarchy-line" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/></g>`;
     })
     .join("");
-  return `<div class="kj-diagram-scroll" tabindex="0" role="region" aria-label="情報の関係図。まとまりの左右ボタンで並びを変えられます。"><div class="kj-diagram" style="width:${width}px;height:${height}px"><svg width="${width}" height="${height}" aria-hidden="true"><defs><marker id="kj-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#9f492f"/></marker></defs>${parents}${lines}</svg>${endpoints
+  return `<div class="kj-diagram-scroll" tabindex="0" role="region" aria-label="情報の関係図。まとまりの左右ボタンで並びを変えられます。"><div class="kj-diagram" style="width:${width}px;height:${height}px"><svg width="${width}" height="${height}" role="group" aria-label="まとまりとカードをつなぐ線"><defs><marker id="kj-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#9f492f"/></marker></defs>${parents}${lines}</svg>${endpoints
     .map((e) => {
       const p = positions.get(e.id);
-      return `<div class="kj-island ${e.title !== undefined ? "" : "single"}" style="left:${p.x}px;top:${p.y}px"><small>${e.title !== undefined ? "表札" : `単独のカード · ${kinds[e.kind]}`}</small><span>${esc(e.title ?? e.text)}</span></div>`;
+      return `<button type="button" data-action="${e.title !== undefined ? "kj-group" : "kj-card"}" data-id="${e.id}" class="kj-island ${e.title !== undefined ? "" : "single"}" style="left:${p.x}px;top:${p.y}px"><small>${e.title !== undefined ? "表札" : `単独のカード · ${kinds[e.kind]}`}</small><span>${esc(e.title ?? e.text)}</span></button>`;
     })
     .join("")}</div></div>`;
 }
@@ -398,22 +532,22 @@ function organize() {
   <div class="card-board">${groupPanel({ id: "", title: "単独のカード" })}<div class="gathered-groups">${state.groups
     .filter((g) => !g.parent)
     .map((g) => groupPanel(g))
-    .join("")}</div></div>
+    .join("")}${missingGroups()}</div></div>
   <div class="inline-actions local-add">${btn("add-group", "＋ まとまり")}</div>
   ${lesson("relations", "③ まとまり同士の関係を図にする", "表札と単独の情報を見渡し、つながり・食い違いを言葉にします。矢印はあなたの解釈であり、因果関係の証明ではありません。必要なら上位のまとまりも作れます。", "「気付くこと」と「受け取れること」の両方に壁がありそうです。つなぎ方を変えると、全体の説明も変わります。", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
   ${kjDiagram()}<p class="graph-caption">破線は上位のまとまりとの関係。実線の矢印は、下で入力した関係の説明です。</p>
   ${state.relations
     .map(
       (r) =>
-        `<div class="relation-row">${select("つながりの始点", `relations.${r.id}.from`, endpoints)}<span aria-hidden="true">→</span>${select(
+        `<div class="relation-row" data-preset-row="${r.id}">${select("つながりの始点", `relations.${r.id}.from`, endpoints)}<span aria-hidden="true">→</span>${select(
           "つながりの終点",
           `relations.${r.id}.to`,
           endpoints.filter((e) => e[0] !== r.from),
-        )}${input("どんな関係？（解釈）", `relations.${r.id}.text`, "例：同時に起きる／食い違う／次の行動への壁")}${del("delete-relation", r.id, "この関係を削除")}</div>`,
+        )}${input("どんな関係？（解釈）", `relations.${r.id}.text`, "例：同時に起きる／食い違う／次の行動への壁")}${r.id === "r-awareness" ? presetControl("relation:awareness", "この関係線だけ") : ""}${del("delete-relation", r.id, "この関係を削除")}</div>`,
     )
     .join(
       "",
-    )}<div class="inline-actions">${btn("add-relation", "＋ 関係線", "", "", endpoints.length < 2 ? "disabled" : "")}</div>
+    )}${!state.relations.some((r) => r.id === "r-awareness") ? presetControl("relation:awareness", "この関係線だけ", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access")) : ""}<div class="inline-actions">${btn("add-relation", "＋ 関係線", "", "", endpoints.length < 2 ? "disabled" : "")}</div>
   ${lesson("synthesis", "④ 図を読み、全体を文章で説明する", "表札と単独のカードの両方を使い、分かったこと・まだ分からないことを説明します。説明しにくいときはカードの寄せ方に戻りましょう。", "情報の一覧が、次に確かめる原因の候補へつながる説明になります。", state.cards.length > 0)}
   ${area("整理した情報から説明できること", "synthesis", "どの情報がつながる？食い違う？まだ確かめていないことは？")}
   <p class="method-source">この教材はKJ法の基本を知るための簡略な体験です。正式な習得には指導と練習が必要です。参考：<a href="https://kj-kawakita.co.jp/about_kj-method/" target="_blank" rel="noopener">川喜田研究所「KJ法とは」</a>、<a href="https://www.everfield.co.jp/KJ/step.html" target="_blank" rel="noopener">KJ法のステップ</a>。KJ法®は株式会社川喜田研究所の登録商標です。</p>`;
@@ -433,10 +567,17 @@ function fitDiagrams() {
     drawing.style.height = `${height * scale}px`;
     drawing.firstElementChild.style.transform = `scale(${scale})`;
     drawing.dataset.scale = scale;
+    drawing.parentElement.style.height =
+      innerWidth <= 700
+        ? `${Math.min(300, Math.max(160, height * scale + 8))}px`
+        : "";
   }
 }
 window.addEventListener("resize", () => requestAnimationFrame(fitDiagrams));
 function fishbone() {
+  if (!state.factors.length)
+    return `<div class="fishbone-scroll diagram-empty" tabindex="0" role="region" aria-label="空の特性要因図"><p>大骨を1本置き、その骨に原因を追加します。</p></div>`;
+
   const columns = Math.max(1, Math.ceil(state.factors.length / 2));
   const most = Math.max(
     1,
@@ -467,16 +608,24 @@ function fishbone() {
           .join("")}`,
     )
     .join("");
-  return `<div class="fishbone-scroll" role="region" aria-label="特性要因図。大骨や原因をタップして、すぐ隣で編集できます。" tabindex="0"><div class="diagram-drawing" data-zoom-kind="fish" data-width="${width}" data-height="${height}"><div class="fishbone-canvas" style="width:${width}px;height:${height}px"><svg width="${width}" height="${height}" aria-hidden="true"><path d="M20 ${spine} H${width - 160}"/>${lines}</svg><div class="fish-head" style="left:${width - 150}px;top:${spine - 40}px"><small>起きている問題</small>${esc(state.problem.what || state.problem.title || "問題・課題は未入力")}</div>${parts.map(({ f, x, sign, end, causes }) => `${btn("factor", `<small>大骨 · 考える切り口</small><span data-factor-display="${f.id}">${esc(f.title || "新しい切り口")}</span>`, f.id, `bone-label ${selectedFactor === f.id && !selectedCause ? "selected" : ""}`, `style="left:${x + 15}px;top:${end + (sign > 0 ? 8 : -68)}px"`)}${btn("add-cause", "＋ 原因", f.id, "bone-add", `style="left:${x + 245}px;top:${end + (sign > 0 ? 8 : -50)}px" aria-label="${esc(f.title || "この大骨")}に原因を追加"`)}${causes.map((c, j) => btn("cause", `<span data-cause-display="${c.id}">${esc(c.text || "新しい原因の候補")}</span><small>${c.id === state.focusCause ? "次の発想に使う原因" : "仮説・根拠を確認"}</small>`, c.id, `cause-chip ${c.id === selectedCause ? "selected" : ""} ${c.id === state.focusCause ? "is-focus" : ""}`, `style="left:${x + 10}px;top:${spine + sign * (70 + j * 85) - 55}px" aria-pressed="${c.id === selectedCause}"`)).join("")}`).join("")}</div></div></div>`;
+  return `<div class="fishbone-scroll" role="region" aria-label="特性要因図。大骨や原因をタップして、すぐ隣で編集できます。" tabindex="0"><div class="diagram-drawing" data-zoom-kind="fish" data-width="${width}" data-height="${height}"><div class="fishbone-canvas" style="width:${width}px;height:${height}px"><svg width="${width}" height="${height}" aria-hidden="true"><path d="M20 ${spine} H${width - 160}"/>${lines}</svg><button type="button" data-action="fish-root" class="fish-head" style="left:${width - 150}px;top:${spine - 40}px" aria-label="特性要因図の問題。Deleteでこの原因図を空にできます"><small>起きている問題</small>${esc(state.problem.what || state.problem.title || "問題・課題は未入力")}</button>${parts.map(({ f, x, sign, end, causes }) => `${btn("factor", `<small>大骨 · 考える切り口</small><span data-factor-display="${f.id}">${esc(f.title || "新しい切り口")}</span>`, f.id, `bone-label ${selectedFactor === f.id && !selectedCause ? "selected" : ""}`, `style="left:${x + 15}px;top:${end + (sign > 0 ? 8 : -68)}px"`)}${btn("add-cause", "＋ 原因", f.id, "bone-add", `style="left:${x + 245}px;top:${end + (sign > 0 ? 8 : -50)}px" aria-label="${esc(f.title || "この大骨")}に原因を追加"`)}${causes.map((c, j) => btn("cause", `<span data-cause-display="${c.id}">${esc(c.text || "新しい原因の候補")}</span><small>${c.id === state.focusCause ? "次の発想に使う原因" : "仮説・根拠を確認"}</small>`, c.id, `cause-chip ${c.id === selectedCause ? "selected" : ""} ${c.id === state.focusCause ? "is-focus" : ""}`, `style="left:${x + 10}px;top:${spine + sign * (70 + j * 85) - 55}px" aria-pressed="${c.id === selectedCause}"`)).join("")}`).join("")}</div></div></div>`;
 }
 function causeEditor() {
   const c = state.causes.find((c) => c.id === selectedCause),
     f = state.factors.find((f) => f.id === (c?.factor || selectedFactor));
   if (!f)
-    return `<aside class="diagram-editor">${empty("大骨（切り口）を追加し、その骨の「＋ 原因」を押します。図の項目を選ぶと、ここで編集できます。")}</aside>`;
+    return `<aside class="diagram-editor"><h3>大骨を1本ずつ置く</h3>${presetExample()
+      .factors.filter(() => state.mode === "preset")
+      .map(
+        (f) =>
+          `<div class="preset-option"><b>${esc(f.title)}</b>${presetControl(`factor:${f.id}`, "この大骨だけ")}</div>`,
+      )
+      .join(
+        "",
+      )}${empty("自分の切り口なら「＋ 大骨」。大骨を置いたら、原因を1つずつ追加します。")}</aside>`;
   const evidence = state.cards.find((x) => x.id === c?.evidence),
     group = state.groups.find((g) => g.id === f.group);
-  return `<aside class="diagram-editor"><h3>${c ? "選んだ小骨を編集" : "選んだ大骨を編集"}</h3>${group ? handoff("調査で作った表札から", group.title) : ""}${
+  return `<aside class="diagram-editor"><h3>${c ? "選んだ小骨を編集" : "選んだ大骨を編集"}</h3>${c && presetExample().causes.some((x) => x.id === c.id) ? presetControl(`cause:${c.id}`, "この原因だけ", true, `data-target-factor="${f.id}"`) : !c && presetExample().factors.some((x) => x.id === f.id) ? presetControl(`factor:${f.id}`, "この大骨だけ") : ""}${group ? handoff("調査で作った表札から", group.title) : ""}${
     c
       ? `${area("原因の候補（仮説）", `causes.${c.id}.text`, "〜が影響しているのでは？")}${select("調査から引き継いだ根拠", `causes.${c.id}.evidence`, evidenceOptions())}${evidence ? `<div class="evidence-preview"><b>${kinds[evidence.kind]}</b> ${esc(evidence.text)}<small>出典：${esc(evidence.source || "未記録")}</small><small>まとまり：${esc(state.groups.find((g) => g.id === evidence.group)?.title || "単独のカード")}</small></div>` : empty("原因はまだ仮説です。支える情報があれば、上で選びます。")}${select(
           "今の確かさ",
@@ -491,8 +640,27 @@ function causeEditor() {
           `causes.${c.id}.factor`,
           state.factors.map((f) => [f.id, f.title || "新しい切り口"]),
         )}<label class="checkbox-label"><input type="radio" name="focus-cause" data-focus-cause="${c.id}" ${c.id === state.focusCause ? "checked" : ""}>この原因への対策を次で考える</label><div class="inline-actions">${btn("add-cause", "＋ 同じ骨に原因", f.id)}${btn("delete-cause", "選んだ原因を削除", c.id)}</div>`
-      : `${input("大骨 · 考える切り口", `factors.${f.id}.title`, "関連する原因を考える視点")}${btn("add-cause", "＋ この骨に原因を追加", f.id)}${btn("delete-factor", "この大骨を削除", f.id)}`
-  }</aside>`;
+      : `${input("大骨 · 考える切り口", `factors.${f.id}.title`, "関連する原因を考える視点")}${btn("add-cause", "＋ この骨に原因を追加", f.id)}${presetExample()
+          .causes.filter(
+            (x) =>
+              state.mode === "preset" &&
+              !state.causes.some((c) => c.id === x.id),
+          )
+          .map(
+            (c) =>
+              `<div class="preset-option"><b>${esc(c.text)}</b>${presetControl(`cause:${c.id}`, "この原因だけ", true, `data-target-factor="${f.id}"`)}</div>`,
+          )
+          .join("")}${btn("delete-factor", "この大骨を削除", f.id)}`
+  }${presetExample()
+    .factors.filter(
+      (x) =>
+        state.mode === "preset" && !state.factors.some((f) => f.id === x.id),
+    )
+    .map(
+      (f) =>
+        `<div class="preset-option"><b>別の大骨：${esc(f.title)}</b>${presetControl(`factor:${f.id}`, "この大骨だけ")}</div>`,
+    )
+    .join("")}</aside>`;
 }
 function analyze() {
   if (selectedCause && !state.causes.some((c) => c.id === selectedCause))
@@ -551,6 +719,9 @@ function mapLayout() {
   return { positions, height, width, root: { x: rootX, y: height / 2 - 46 } };
 }
 function mindmap() {
+  if (!state.nodes.length)
+    return `<div class="mindmap-scroll diagram-empty" tabindex="0" role="region" aria-label="空のマインドマップ"><p>枝を1本置くと、中心の問題から広がる図になります。</p></div>`;
+
   const { positions, height, width, root } = mapLayout();
   const lines = state.nodes
     .map((n) => {
@@ -562,7 +733,7 @@ function mindmap() {
       return `<path class="branch-${sign > 0 ? "right" : "left"}" d="M${a} ${from.y + 46} C${a + sign * 65} ${from.y + 46} ${b - sign * 65} ${to.y + 46} ${b} ${to.y + 46}"/>`;
     })
     .join("");
-  return `<div class="mindmap-scroll" role="region" aria-label="マインドマップ。枝を選択し、Enterで編集、Insertで子の枝、Deleteで削除できます。" tabindex="0"><div class="diagram-drawing" data-zoom-kind="map" data-width="${width}" data-height="${height}"><div class="mindmap-canvas" style="width:${width}px;height:${height}px"><svg class="map-lines" width="${width}" height="${height}" aria-hidden="true">${lines}</svg><div class="map-node root" style="left:${root.x}px;top:${root.y}px"><span data-root-display>${esc(short(state.problem.title || "解決したい問題", 36))}</span></div>${state.nodes
+  return `<div class="mindmap-scroll" role="region" aria-label="マインドマップ。枝を選択し、Enterで編集、Insertで子の枝、Deleteで削除できます。" tabindex="0"><div class="diagram-drawing" data-zoom-kind="map" data-width="${width}" data-height="${height}"><div class="mindmap-canvas" style="width:${width}px;height:${height}px"><svg class="map-lines" width="${width}" height="${height}" aria-hidden="true">${lines}</svg><button type="button" data-action="map-root" class="map-node root" style="left:${root.x}px;top:${root.y}px" aria-label="マインドマップの中心。Deleteでこのマップを空にできます"><span data-root-display>${esc(short(state.problem.title || "解決したい問題", 36))}</span></button>${state.nodes
     .map((n) => {
       const p = positions.get(n.id);
       return btn(
@@ -576,15 +747,48 @@ function mindmap() {
     .join("")}</div></div></div>`;
 }
 function nodeEditor() {
+  if (selectedNode === "root")
+    return `<aside class="diagram-editor node-editor"><h3>マップの中心</h3>${area("中心の問題・課題", "problem.title", "解決したい問題")}${btn("add-node", "＋ 中心から枝")}${btn("clear-map", "このマップを空にする")}</aside>`;
   const node = state.nodes.find((n) => n.id === selectedNode),
     blocked = node ? descendants(state, node.id) : new Set();
-  return `<aside class="diagram-editor node-editor"><h3>${node ? "選んだ枝を育てる" : "中心から連想を広げる"}</h3>${node ? `${area("枝の内容", `nodes.${node.id}.text`, "短い言葉から、具体的な案へ")}${select("親の枝", `nodes.${node.id}.parent`, [["", "中心の問題"], ...state.nodes.filter((n) => !blocked.has(n.id)).map((n) => [n.id, n.text || "新しい枝"])])}${select("対応する原因", `nodes.${node.id}.cause`, causeOptions())}${causeForNode(state, node) ? handoff("原因図からのつながり（親の枝も参照）", causeForNode(state, node).text) : ""}<label class="checkbox-label"><input type="checkbox" data-bind="nodes.${node.id}.candidate" ${node.candidate ? "checked" : ""}>具体的な案として、比較表へ送る</label><div class="inline-actions">${btn("add-child", "＋ 子の枝", node.id)}${btn("add-sibling", "＋ 同じ階層の枝", node.id)}${btn("delete-node", "この枝を削除", node.id)}</div>` : empty("図の枝をタップすると、ここで編集できます。中心に問題を置き、関連する言葉を左右に広げ、子の枝で具体化しましょう。")}</aside>`;
+  return `<aside class="diagram-editor node-editor"><h3>${node ? "選んだ枝を育てる" : "中心から連想を広げる"}</h3>${node && presetExample().nodes.some((n) => n.id === node.id) ? presetControl(`branch:${node.id}`, "この枝だけ") : ""}${node ? `${area("枝の内容", `nodes.${node.id}.text`, "短い言葉から、具体的な案へ")}${select("親の枝", `nodes.${node.id}.parent`, [["", "中心の問題"], ...state.nodes.filter((n) => !blocked.has(n.id)).map((n) => [n.id, n.text || "新しい枝"])])}${select("対応する原因", `nodes.${node.id}.cause`, causeOptions())}${causeForNode(state, node) ? handoff("原因図からのつながり（親の枝も参照）", causeForNode(state, node).text) : ""}<label class="checkbox-label"><input type="checkbox" data-bind="nodes.${node.id}.candidate" ${node.candidate ? "checked" : ""}>具体的な案として、比較表へ送る</label><div class="inline-actions">${btn("add-child", "＋ 子の枝", node.id)}${btn("add-sibling", "＋ 同じ階層の枝", node.id)}${btn("delete-node", "この枝を削除", node.id)}</div>` : empty("図の枝をタップすると、ここで編集できます。中心に問題を置き、関連する言葉を左右に広げ、子の枝で具体化しましょう。")}${presetExample()
+    .nodes.filter(
+      (n) =>
+        state.mode === "preset" &&
+        !n.parent &&
+        !state.nodes.some((x) => x.id === n.id),
+    )
+    .map(
+      (n) =>
+        `<div class="preset-option"><b>中心から：${esc(n.text)}</b>${presetControl(`branch:${n.id}`, "この枝だけ")}</div>`,
+    )
+    .join("")}${
+    node
+      ? presetExample()
+          .nodes.filter(
+            (n) =>
+              state.mode === "preset" &&
+              n.parent &&
+              (n.parent === node.id || n.parent === node.parent) &&
+              !state.nodes.some((x) => x.id === n.id),
+          )
+          .map(
+            (n) =>
+              `<div class="preset-option"><b>具体化：${esc(n.text)}</b>${presetControl(`branch:${n.id}`, "この子の枝だけ", true, `data-target-parent="${node.candidate ? node.parent : node.id}"`)}</div>`,
+          )
+          .join("")
+      : ""
+  }</aside>`;
 }
 function ideate() {
   const focus = state.causes.find((c) => c.id === state.focusCause);
-  if (!state.nodes.some((n) => n.id === selectedNode)) selectedNode = "";
+  if (
+    selectedNode !== "root" &&
+    !state.nodes.some((n) => n.id === selectedNode)
+  )
+    selectedNode = "";
   return `${handoff("原因図から · 対策を考える原因", focus?.text)}
-  ${lesson("branches", "原因から連想し、枝を広げて具体化する", "中心の問題から、関連する言葉を左右に広げます。一つの方向に絞らず、「時間を変える」「見せ方を変える」などの枝から具体策を増やしましょう。例を入れたら、自分の枝を1本足してみてください。", "親の枝から具体的な案へ広がる構造が見えます。選んだ原因とのつながりを確認し、実際に比べたい案だけを比較候補にします。")}
+  ${lesson("branches", "原因から連想し、枝を広げて具体化する", "中心の問題から、関連する言葉を左右に広げます。一つの方向に絞らず、「時間を変える」「見せ方を変える」などの枝から具体策を増やしましょう。プリセットを記入したら、自分の枝を1本足してみてください。", "親の枝から具体的な案へ広がる構造が見えます。選んだ原因とのつながりを確認し、実際に比べたい案だけを比較候補にします。")}
   <div class="diagram-toolbar">${btn("add-node", "＋ 中心から枝")}${focus ? btn("cause-node", "この原因から枝を作る") : ""}<span>枝を選択 → Enter：編集 / Insert：子の枝 / Shift＋Enter：同じ階層 / Delete：削除</span></div>
   <div class="diagram-workbench map-workbench"><div class="diagram-view">${zoomTools("map")}${mindmap()}</div>${nodeEditor()}</div>
   ${handoff("比較表へ引き継ぐ案", `${state.nodes.filter((n) => n.candidate).length}案。枝の内容・親から引き継いだ原因を次の比較表で確認できます。`)}`;
@@ -601,17 +805,24 @@ function decide() {
   ${lesson("criteria", "① 比べる基準と、その大切さを決める", "効果だけで選ぶと、担当者の負担や個人情報を見落とすかもしれません。評価軸を並べ、何を大事にするかを重みで表します。", "重みは利用者の判断です。「効果」と「続けやすさ」の重みを変えると、順位が変わります。")}<h3>評価軸と重みを編集する</h3>${state.criteria
     .map(
       (c) =>
-        `<div class="criterion-row">${input("評価軸", `criteria.${c.id}.title`, "何を大事にする？")}${select(
+        `<div class="criterion-row" data-preset-row="${c.id}">${input("評価軸", `criteria.${c.id}.title`, "何を大事にする？")}${select(
           "重み",
           `criteria.${c.id}.weight`,
           [1, 2, 3, 4, 5].map((n) => [n, `${n}${n === 5 ? " · 大" : ""}`]),
           'data-number="true"',
-        )}${del("delete-criterion", c.id, "この評価軸を削除")}</div>`,
+        )}${presetExample().criteria.some((x) => x.id === c.id) ? presetControl(`criterion:${c.id}`, "この評価軸だけ") : ""}${del("delete-criterion", c.id, "この評価軸を削除")}</div>`,
     )
     .join("")}
-  <div class="inline-actions">${btn("add-criterion", "＋ 評価軸")}${btn("step", "発想に戻って案を追加", "3")}</div>
+  <div class="preset-pair">${presetExample()
+    .criteria.filter((c) => !state.criteria.some((x) => x.id === c.id))
+    .map((c) =>
+      presetControl(`criterion:${c.id}`, `この評価軸だけ：${c.title}`),
+    )
+    .join(
+      "",
+    )}</div><div class="inline-actions">${btn("add-criterion", "＋ 評価軸")}${btn("step", "発想に戻って案を追加", "3")}</div>
   ${lesson("scores", "② 同じ基準で案を比べる", "1は低く、5は高く満たすという予想の点数です。例の点数を入れ、重みを変えて順位を観察します。これは実測結果ではありません。", "どの案が良いかは、重視する基準で変わります。点数の理由・制約を確認し、試す案は自分で選びます。", ranks.length > 0 && state.criteria.length > 0)}
-  ${ranks.length && state.criteria.length ? `<div class="table-scroll" role="region" aria-label="候補の比較表。横にスクロールできます。" tabindex="0"><table class="matrix"><caption>1＝低い、5＝高い。負担や費用の軸なら「少ないほど高得点」に統一します。</caption><thead><tr><th scope="col">試す案を選ぶ</th>${state.criteria.map((c) => `<th scope="col"><span data-criterion-display="${c.id}">${esc(c.title)}</span><br>重み ${c.weight}</th>`).join("")}<th scope="col">加重平均 / 5</th></tr></thead><tbody>${ranks.map((r) => `<tr class="${r.node.id === state.selectedIdea ? "chosen" : ""}"><th scope="row"><label class="checkbox-label"><input type="radio" name="selected-idea" data-selected-idea="${r.node.id}" ${r.node.id === state.selectedIdea ? "checked" : ""}>${esc(r.node.text || "名前のない案")}</label>${causeForNode(state, r.node) ? `<small>原因：${esc(short(causeForNode(state, r.node).text, 30))}</small>` : ""}</th>${state.criteria.map((c) => `<td><label><span class="visually-hidden">${esc(r.node.text)}の${esc(c.title)}の点数</span><select data-bind="nodes.${r.node.id}.ratings.${c.id}" data-number="true"><option value="" ${r.node.ratings[c.id] == null ? "selected" : ""}>—</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${r.node.ratings[c.id] === n ? "selected" : ""}>${n}</option>`).join("")}</select></label></td>`).join("")}<td><strong>${r.score?.toFixed(2) ?? "未採点"}</strong></td></tr>`).join("")}</tbody></table></div>` : empty("発想の枝を比較候補にして、評価軸を1つ以上追加してください。")}
+  ${ranks.length && state.criteria.length ? `<div class="table-scroll" role="region" aria-label="候補の比較表。横にスクロールできます。" tabindex="0"><table class="matrix"><caption>1＝低い、5＝高い。負担や費用の軸なら「少ないほど高得点」に統一します。</caption><thead><tr><th scope="col">試す案を選ぶ</th>${state.criteria.map((c) => `<th scope="col"><span data-criterion-display="${c.id}">${esc(c.title)}</span><br>重み ${c.weight}</th>`).join("")}<th scope="col">加重平均 / 5</th></tr></thead><tbody>${ranks.map((r) => `<tr class="${r.node.id === state.selectedIdea ? "chosen" : ""}"><th scope="row"><label class="checkbox-label"><input type="radio" name="selected-idea" data-selected-idea="${r.node.id}" ${r.node.id === state.selectedIdea ? "checked" : ""}>${esc(r.node.text || "名前のない案")}</label>${causeForNode(state, r.node) ? `<small>原因：${esc(short(causeForNode(state, r.node).text, 30))}</small>` : ""}</th>${state.criteria.map((c) => `<td data-preset-target="nodes.${r.node.id}.ratings.${c.id}"><label><span class="visually-hidden">${esc(r.node.text)}の${esc(c.title)}の点数</span><select data-bind="nodes.${r.node.id}.ratings.${c.id}" data-number="true"><option value="" ${r.node.ratings[c.id] == null ? "selected" : ""}>—</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${r.node.ratings[c.id] === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>${fieldPreset(`nodes.${r.node.id}.ratings.${c.id}`, c.title)}</td>`).join("")}<td><strong>${r.score?.toFixed(2) ?? "未採点"}</strong></td></tr>`).join("")}</tbody></table></div>` : empty("発想の枝を比較候補にして、評価軸を1つ以上追加してください。")}
   ${top ? `<p class="rank-message">今の重みでは「${esc(ties.map((r) => r.node.text).join("」「"))}」${ties.length > 1 ? "が同点で上位" : "が上位"}。${scored.length < ranks.length ? "未採点の案は順位に入っていません。" : ""}点数だけで決めず、理由や制約も考えて試す案を選ぼう。</p>` : ""}
   ${tip("加重平均＝Σ（点数×重み）÷Σ（重み）。プリセットの点数は予想であり、実測値ではありません。選択は上位案に限りません。")}
   ${lesson("plan", "③ 案を選び、小さく試す計画を書く", "比較表で試す案を選択してから、担当・期間・確かめ方を書きます。順位だけで決めず、実際に続けられるかも考えます。", "選んだ案が、そのまま次の実行・検証に引き継がれます。", !!selected)}<h3>選んだ案を小さく試す計画に</h3>${handoff("今回試す案", selected?.text)}<div class="form-grid">${input("担当・協力する人", "plan.who", "誰が動く？")}${input("いつ・どれくらい試す？", "plan.when", "開始日・試す期間")}${area("確かめる方法・選んだ理由", "plan.test", "何を記録する？この案を選ぶ理由は？")}${area("注意点・副作用への備え", "plan.risk", "負担、費用、個人情報、届かない人など")}</div>`;
@@ -644,14 +855,30 @@ function verify() {
   ${simulationChanged(state) ? '<p class="notice">架空結果は編集前の題材・案・指標のものです。現在の条件には当てはめられません。</p>' : ""}
   ${handoff("担当・期間", `${state.plan.who || "担当未入力"} ／ ${state.plan.when || "期間未入力"}`)}
   ${tip("実施したかどうかと、効果があったかどうかは別に記録します。条件を揃えた比較と、数値に出ない困りごとの両方を残しましょう。")}
-  ${lesson("checks", "① 実施する作業を並べ、実施したらチェックする", "計画を実際の作業に分けます。チェックは効果の証明ではなく、実施したかを残すためのものです。", "実施の記録と効果の記録が分かれます。チェックとメモは、自分で操作して残しましょう。")}<h3>チェックシート · 実施と気付きを記録する</h3>${state.checks.map((c) => `<div class="check-row"><label><span class="visually-hidden">${esc(c.text || "作業")}の実施済み</span><input type="checkbox" data-bind="checks.${c.id}.done" ${c.done ? "checked" : ""}></label><div>${input("確認する作業", `checks.${c.id}.text`, "実施すること")}${input("メモ", "checks." + c.id + ".note", "できたこと・困ったこと")}</div>${del("delete-check", c.id, "この確認項目を削除")}</div>`).join("") || empty("小さく試すための作業を追加してください。")}
-  <div class="inline-actions">${btn("add-check", "＋ 確認項目")}</div>
+  ${lesson("checks", "① 実施する作業を並べ、実施したらチェックする", "計画を実際の作業に分けます。チェックは効果の証明ではなく、実施したかを残すためのものです。", "実施の記録と効果の記録が分かれます。チェックとメモは、自分で操作して残しましょう。")}<h3>チェックシート · 実施と気付きを記録する</h3>${state.checks.map((c) => `<div class="check-row" data-preset-row="${c.id}"><label><span class="visually-hidden">${esc(c.text || "作業")}の実施済み</span><input type="checkbox" data-bind="checks.${c.id}.done" ${c.done ? "checked" : ""}></label><div>${input("確認する作業", `checks.${c.id}.text`, "実施すること")}${presetExample().checks.some((x) => x.id === c.id) ? presetControl(`check:${c.id}`, "この確認項目だけ") : ""}${input("メモ", "checks." + c.id + ".note", "できたこと・困ったこと")}</div>${del("delete-check", c.id, "この確認項目を削除")}</div>`).join("") || empty("小さく試すための作業を追加してください。")}
+  <div class="preset-pair">${presetExample()
+    .checks.filter((c) => !state.checks.some((x) => x.id === c.id))
+    .map((c) => presetControl(`check:${c.id}`, `この確認項目だけ：${c.text}`))
+    .join(
+      "",
+    )}</div><div class="inline-actions">${btn("add-check", "＋ 確認項目")}</div>
   <h3>結果を記録して、比較する</h3>
-  ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では、選んだ案を4週間試し、毎週集まった10件ずつを各4週間追跡したとします。ボタンでその案の架空の記録を入れ、返却率と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の副作用や負担に注目します。", eligible && !state.records.length && !state.observation)}
+  ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では、選んだ案を4週間試し、毎週集まった10件ずつを各4週間追跡したとします。第1週から1週分ずつ「プリセット記入」で架空の記録を入れ、返却率の推移と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の副作用や負担に注目します。", eligible && !state.records.length && !state.observation)}
   ${state.mode === "preset" && !eligible ? '<p class="notice">教材の結果を試すには、問題設定の例を入れ、比較表で教材の案を選びます。自分の案・指標に変えた場合は、実際の結果を入力してください。</p>' : ""}
   ${state.records.length ? `<div class="inline-actions">${btn("clear-results", "結果の記録を空にする")}</div>` : ""}
   ${state.simulation ? `<p><span class="fiction-label">架空の実施結果</span>${esc(strategies[state.simulation].name)}の試行。編集しても架空データが元です。</p>` : ""}
-  ${state.records.map((r) => `<div class="record-row ${state.measure.kind === "value" ? "value-row" : ""}">${input("日付・対象・測定の名前", `records.${r.id}.label`, "何を、いつ数えた？")}${state.measure.kind === "rate" ? input("成功件数", `records.${r.id}.count`, "", "number", 'min="0" max="1000000000" step="any"') + input("対象件数", `records.${r.id}.total`, "", "number", 'min="0" max="1000000000" step="any"') : input(`値（${state.measure.unit || "単位未設定"}）`, `records.${r.id}.value`, "", "number", 'min="-1000000000" max="1000000000" step="any"')}${del("delete-record", r.id, "この結果の行を削除")}<div class="record-note">${input("測定条件・補足", `records.${r.id}.note`, "期間・対象の違いなど")}</div></div>`).join("") || empty("自由作成では、実際に試した結果を自分で入力します。未記録は0として扱いません。")}
+  ${state.records.map((r) => `<div data-preset-row="${r.id}" class="record-row ${state.measure.kind === "value" ? "value-row" : ""}">${input("日付・対象・測定の名前", `records.${r.id}.label`, "何を、いつ数えた？")}${state.measure.kind === "rate" ? input("成功件数", `records.${r.id}.count`, "", "number", 'min="0" max="1000000000" step="any"') + input("対象件数", `records.${r.id}.total`, "", "number", 'min="0" max="1000000000" step="any"') : input(`値（${state.measure.unit || "単位未設定"}）`, `records.${r.id}.value`, "", "number", 'min="-1000000000" max="1000000000" step="any"')}${del("delete-record", r.id, "この結果の行を削除")}<div class="record-note">${/^record-[0-3]$/.test(r.id) ? presetControl(`record:${r.id.slice(-1)}`, "この週の記録だけ", eligible) : ""}${input("測定条件・補足", `records.${r.id}.note`, "期間・対象の違いなど")}</div></div>`).join("") || empty("自由作成では、実際に試した結果を自分で入力します。未記録は0として扱いません。")}
+  <div class="preset-pair">${[0, 1, 2, 3]
+    .filter(
+      (i) =>
+        state.mode === "preset" &&
+        !state.records.some((r) => r.id === `record-${i}`),
+    )
+    .map(
+      (i) =>
+        `<div class="preset-option blank-preset-card"><b>第${i + 1}週の記録</b><p>成功件数・対象件数・測定条件を1行に記入します。</p>${presetControl(`record:${i}`, `第${i + 1}週の記録だけ`, eligible)}</div>`,
+    )
+    .join("")}</div>
   <div class="inline-actions">${btn("add-record", "＋ 結果の行")}${btn("step", "指標・実施前の値を編集", "0")}</div>${graph()}
   ${area("数値以外の変化・副作用・比較の限界", "observation", "負担は増えた？別の要因が結果に影響していない？")}${tip("前後の差だけでは対策が原因とは断定できません。対象の違い・偶然・行事なども確認し、必要ならもう一度小さく試します。")}`;
 }
@@ -677,7 +904,7 @@ function reflect() {
             .filter((n) => n.kind === k)
             .map(
               (n) =>
-                `<article class="kpt-card"><div class="card-top">${del("delete-kpt", n.id, "振り返りのカードを削除")}</div>${area("内容", `kpt.${n.id}.text`, desc)}${input("根拠・つながる記録", `kpt.${n.id}.source`, "どの事実・結果から考えた？")}${select(
+                `<article class="kpt-card" data-preset-row="${n.id}">${/^kp-(keep|problem|try)$/.test(n.id) ? presetControl(`kpt:${n.id.slice(3)}`, "この振り返りカードだけ", c.after !== null && !!state.resultFor) : ""}<div class="card-top">${del("delete-kpt", n.id, "振り返りのカードを削除")}</div>${area("内容", `kpt.${n.id}.text`, desc)}${input("根拠・つながる記録", `kpt.${n.id}.source`, "どの事実・結果から考えた？")}${select(
                   "列を移動する",
                   `kpt.${n.id}.kind`,
                   [
@@ -688,7 +915,7 @@ function reflect() {
                 )}</article>`,
             )
             .join("") || empty("自分の言葉で1枚追加。")
-        }${btn("add-kpt", "＋ カード", k)}</section>`,
+        }${!state.kpt.some((n) => n.id === `kp-${k}`) ? presetControl(`kpt:${k}`, `この${title}カードだけ`, c.after !== null && !!state.resultFor) : ""}${btn("add-kpt", "＋ カード", k)}</section>`,
     )
     .join("")}</div>
   ${lesson(
@@ -717,7 +944,7 @@ function newNode(parent = "", text = "", cause = "") {
   return n;
 }
 function remove(collection, id) {
-  state[collection] = state[collection].filter((x) => x.id !== id);
+  removeItem(state, collection, id);
 }
 function jump(step) {
   state.step = Math.max(0, Math.min(6, Number(step)));
@@ -725,9 +952,7 @@ function jump(step) {
   render(true);
   $("#workbook").scrollIntoView({
     block: "start",
-    behavior: matchMedia("(prefers-reduced-motion:reduce)").matches
-      ? "instant"
-      : "smooth",
+    behavior: "instant",
   });
 }
 function summary() {
@@ -751,13 +976,36 @@ function download(text, ext, type) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `思考ツール-${state.mode === "preset" ? "体験" : "自由作成"}.${ext}`;
+  a.download = `思考ツール-${state.mode === "preset" ? "プリセット" : "自由作成"}-${new Date().toISOString().slice(0, 10)}.${ext}`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const message = $("#download-status");
+  message.hidden = false;
+  message.innerHTML = `<strong>↓ ${esc(a.download)} のダウンロードを開始しました</strong><p>通常は「ダウンロード」フォルダに保存されます。ブラウザのダウンロード一覧で確認してください。保存先を選ぶ設定の場合は、選んだフォルダに保存されます。</p>`;
+  return a.download;
 }
-function action(el) {
+$("#confirm-dialog").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-confirm-value]");
+  if (button) $("#confirm-dialog").close(button.dataset.confirmValue);
+});
+async function confirmInApp(message, actionLabel = "実行する") {
+  const dialog = $("#confirm-dialog");
+  $("#confirm-message").textContent = message;
+  $("#confirm-accept").textContent = actionLabel;
+  dialog.returnValue = "";
+  dialog.showModal();
+  return new Promise((resolve) =>
+    dialog.addEventListener(
+      "close",
+      () => resolve(dialog.returnValue === "confirm"),
+      { once: true },
+    ),
+  );
+}
+async function action(el) {
   const a = el.dataset.action,
     id = el.dataset.id;
+  mutationBefore = structuredClone(state);
   let focusPath = "";
   if (a === "zoom") {
     const [kind, choice] = id.split(":");
@@ -776,26 +1024,93 @@ function action(el) {
     fitDiagrams();
     return;
   }
-  if (a === "example") {
-    if (!fillExample(state, id)) {
+  if (a === "map-root") {
+    selectedNode = "root";
+    render();
+    return;
+  }
+  if (a === "fish-root") {
+    jump(0);
+    return;
+  }
+  if (a === "clear-map" || a === "clear-fish") {
+    if (
+      !(await confirmInApp(
+        a === "clear-map"
+          ? "このマップの枝をすべて消して、図を空にします。問題設定と記録した結果は保持します。"
+          : "この原因図の大骨・小骨をすべて消します。調査カードと発想の枝は保持します。",
+        "図を空にする",
+      ))
+    )
+      return;
+    if (a === "clear-map") {
+      state.nodes = [];
+      state.selectedIdea = "";
+      selectedNode = "";
+    } else {
+      state.factors = [];
+      state.causes = [];
+      state.focusCause = "";
+      selectedFactor = "";
+      selectedCause = "";
+    }
+    cleanReferences(state);
+    changed();
+    save();
+    render();
+    return;
+  }
+  if (a === "preset") {
+    const result = togglePreset(state, id, {
+      factor: el.dataset.targetFactor,
+      parent: el.dataset.targetParent,
+    });
+    if (!result.ok) {
       notify(
-        "前の段階の内容や、今の案・記録を確認してください。入力した内容は保持しています。",
+        "この場所には既に入力があるか、必要な前の内容がありません。このボタンは表示した1欄・1項目だけに作用します。",
       );
       return;
     }
-    if (id === "causes") selectedCause = state.causes[0]?.id || "";
-    if (id === "branches")
-      selectedNode =
-        state.nodes.find((n) => causeForNode(state, n)?.id === state.focusCause)
-          ?.id ||
-        state.nodes[0]?.id ||
-        "";
+    lastPresetChange = { id, ...result };
+    const added = result.rows[0];
+    if (!result.cleared && added?.collection === "causes") {
+      selectedCause = added.id;
+      selectedFactor = state.causes.find((c) => c.id === added.id).factor;
+    }
+    if (!result.cleared && added?.collection === "factors") {
+      selectedFactor = added.id;
+      selectedCause = "";
+    }
+    if (!result.cleared && added?.collection === "nodes")
+      selectedNode = added.id;
+    const notes = changeNotes(mutationBefore, state, state.step);
     changed();
     save();
     render();
     notify(
-      "空欄に教材の例を追加しました。入っていた内容は保持しています。注目する点を確認し、内容を動かしたり書き換えたりしてみましょう。",
+      `${result.cleared ? "空欄に戻した場所" : "プリセットを記入した場所"}：${notes
+        .map((n) => n.label)
+        .slice(0, 4)
+        .join("、")}。色の付いた場所だけが変わりました。`,
     );
+    return;
+  }
+  if (
+    a === "kj-group" ||
+    a === "kj-card" ||
+    a === "kj-relation" ||
+    a === "kj-parent"
+  ) {
+    const path =
+      a === "kj-group" || a === "kj-parent"
+        ? `groups.${id}.title`
+        : a === "kj-relation"
+          ? `relations.${id}.text`
+          : `cards.${id}.text`;
+    $(`[data-bind="${CSS.escape(path)}"]`)?.scrollIntoView({
+      block: "center",
+      behavior: "instant",
+    });
     return;
   }
   if (a === "gather-picked") {
@@ -824,11 +1139,15 @@ function action(el) {
     focusPath = `relations.${r.id}.text`;
   }
   if (a === "delete-relation") remove("relations", id);
+  if (a === "unlink-parent") {
+    const g = state.groups.find((g) => g.id === id);
+    if (g) g.parent = "";
+  }
   if (a === "clear-results") {
     if (
-      !confirm(
+      !(await confirmInApp(
         "結果の行と観察メモを空にします。必要なら先に保存ファイルを書き出してください。",
-      )
+      ))
     )
       return;
     state.records = [];
@@ -855,6 +1174,7 @@ function action(el) {
   if (a === "next") {
     state.done[state.step] = true;
     state.review[state.step] = false;
+    state.reviewNotes[state.step] = [];
     save();
     if (state.step === 6) {
       render();
@@ -864,6 +1184,7 @@ function action(el) {
   }
   if (a === "reviewed") {
     state.review[state.step] = false;
+    state.reviewNotes[state.step] = [];
     save();
     render();
     return;
@@ -872,6 +1193,8 @@ function action(el) {
     save();
     state = load(el.dataset.mode);
     selectedNode = "";
+    lastPresetChange = null;
+    mutationBefore = null;
     selectedCause = "";
     selectedFactor = "";
     pickedCards.clear();
@@ -882,28 +1205,34 @@ function action(el) {
   }
   if (a === "reset") {
     if (
-      !confirm(
+      !(await confirmInApp(
         "このモードの作業を最初からやり直します。必要なら先に保存ファイルを書き出してください。",
-      )
+      ))
     )
       return;
     state = state.mode === "preset" ? presetWorkbook() : emptyWorkbook();
     cache.set(state.mode, state);
     unreadableModes.delete(state.mode);
     selectedNode = "";
+    lastPresetChange = null;
+    mutationBefore = null;
     selectedCause = "";
     selectedFactor = "";
     pickedCards.clear();
     save();
     render();
-    notify("このモードを最初から開始しました。");
+    startNotice = "";
+    jump(0);
+    notify(
+      "このモードの作業を空欄に戻し、第1段階から開始しました。もう一方のモードは保持しています。",
+    );
     return;
   }
   if (a === "export-json") {
     save();
     download(JSON.stringify(state, null, 2), "json", "application/json");
     notify(
-      "作業をJSONファイルに書き出しました。「ファイルを開く」から再開できます。",
+      "JSONファイルのダウンロードを開始しました。保存先は通常「ダウンロード」フォルダです。保存したファイルを「ファイルを開く」から選ぶと再開できます。",
     );
     return;
   }
@@ -1030,13 +1359,16 @@ function action(el) {
     const node = state.nodes.find((n) => n.id === id);
     if (
       children.length &&
-      !confirm("この枝を削除し、子の枝を一つ上につなぎ直します。続けますか？")
+      !(await confirmInApp(
+        "この枝を削除し、子の枝を一つ上につなぎ直します。続けますか？",
+      ))
     )
       return;
     for (const n of children) n.parent = node.parent;
+    if (selectedNode === id)
+      selectedNode = node.parent || children[0]?.id || "";
     remove("nodes", id);
     if (state.selectedIdea === id) state.selectedIdea = "";
-    selectedNode = "";
   }
   if (a === "add-criterion") {
     const item = { id: uid(), title: "", weight: 3 };
@@ -1141,6 +1473,10 @@ function update(event) {
   else if (el.type === "number" || el.dataset.number === "true")
     v = el.value === "" ? null : Number(el.value);
   else v = el.value;
+  // The blur-time change event repeats the input value. Keep navigation buttons
+  // mounted while that blur occurs, so a tap on the next stage is not cancelled.
+  if (obj[k] === v) return;
+  mutationBefore = structuredClone(state);
   obj[k] = v;
   if (
     path.startsWith("nodes.") &&
@@ -1224,12 +1560,14 @@ $("#stage").addEventListener("change", (event) => {
     return;
   }
   if (el.dataset.focusCause) {
+    mutationBefore = structuredClone(state);
     state.focusCause = el.dataset.focusCause;
     changed();
     render();
     return;
   }
   if (el.dataset.selectedIdea) {
+    mutationBefore = structuredClone(state);
     state.selectedIdea = el.dataset.selectedIdea;
     changed();
     render();
@@ -1249,32 +1587,65 @@ $("#stage").addEventListener("change", (event) => {
       render();
   }
 });
-$("#stage").addEventListener("keydown", (event) => {
+$("#stage").addEventListener("keydown", async (event) => {
   if (
     event.isComposing ||
     /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)
   )
     return;
-  const branch = event.target.closest('[data-action="node"]');
-  if (!branch) return;
-  const id = branch.dataset.id;
+  const shape = event.target.closest(
+    '[data-action="node"],[data-action="cause"],[data-action="factor"],[data-action="kj-group"],[data-action="kj-card"],[data-action="kj-relation"],[data-action="kj-parent"],[data-action="map-root"],[data-action="fish-root"]',
+  );
+  if (!shape) return;
+  const id = shape.dataset.id,
+    kind = shape.dataset.action;
   if (event.key === "Delete" || event.key === "Backspace") {
     event.preventDefault();
-    action({ dataset: { action: "delete-node", id } });
-    $(".mindmap-scroll")?.focus();
+    const actions = {
+      node: "delete-node",
+      cause: "delete-cause",
+      factor: "delete-factor",
+      "kj-group": "delete-group",
+      "kj-card": "delete-card",
+      "kj-relation": "delete-relation",
+      "kj-parent": "unlink-parent",
+      "map-root": "clear-map",
+      "fish-root": "clear-fish",
+    };
+    await action({ dataset: { action: actions[kind], id } });
+    $(".mindmap-scroll,.fishbone-scroll,.kj-diagram-scroll")?.focus();
   } else if (
-    event.key === "Insert" ||
-    (event.key === "Enter" && event.shiftKey)
+    kind === "node" &&
+    (event.key === "Insert" || (event.key === "Enter" && event.shiftKey))
   ) {
     event.preventDefault();
-    action({
+    await action({
       dataset: { action: event.shiftKey ? "add-sibling" : "add-child", id },
     });
   } else if (event.key === "Enter" || event.key === "F2") {
     event.preventDefault();
-    selectedNode = id;
-    render();
-    $(`[data-bind="nodes.${id}.text"]`)?.focus();
+    if (kind === "node") {
+      selectedNode = id;
+      render();
+      $(`[data-bind="nodes.${id}.text"]`)?.focus();
+    } else {
+      await action(shape);
+      const path =
+        kind === "cause"
+          ? `causes.${id}.text`
+          : kind === "factor"
+            ? `factors.${id}.title`
+            : kind === "kj-group"
+              ? `groups.${id}.title`
+              : kind === "kj-relation"
+                ? `relations.${id}.text`
+                : kind === "kj-parent"
+                  ? `groups.${id}.title`
+                  : kind === "map-root" || kind === "fish-root"
+                    ? "problem.title"
+                    : `cards.${id}.text`;
+      $(`[data-bind="${path}"]`)?.focus();
+    }
   }
 });
 let dragged = "";
@@ -1300,6 +1671,7 @@ $("#stage").addEventListener("drop", (event) => {
   const card = state.cards.find((c) => c.id === dragged);
   if (!group || !card) return;
   event.preventDefault();
+  mutationBefore = structuredClone(state);
   card.group = group.dataset.dropGroup;
   dragged = "";
   changed();
@@ -1323,9 +1695,9 @@ $("#import-file").addEventListener("change", async (event) => {
       throw Error("ファイルが大きすぎます（上限2MB）。");
     const imported = parseWorkbook(await file.text());
     if (
-      !confirm(
+      !(await confirmInApp(
         `${imported.mode === "preset" ? "プリセット" : "自由作成"}の保存内容を、このファイルの内容で置き換えます。続けますか？`,
-      )
+      ))
     )
       return;
     save();
@@ -1333,6 +1705,8 @@ $("#import-file").addEventListener("change", async (event) => {
     cache.set(state.mode, state);
     unreadableModes.delete(state.mode);
     selectedNode = "";
+    lastPresetChange = null;
+    mutationBefore = null;
     selectedCause = "";
     selectedFactor = "";
     pickedCards.clear();

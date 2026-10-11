@@ -32,7 +32,7 @@
     <meta name="theme-color" content="#102f35" />
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-    <link rel="stylesheet" href="./thinking-tools.css?v=2" />
+    <link rel="stylesheet" href="./thinking-tools.css?v=3" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -103,65 +103,6 @@
           ><span>対策</span><small>何度でも、考え直せる。</small>
         </div>
       </header>
-      <section class="process-overview" aria-labelledby="overview-title">
-        <div class="overview-intro">
-          <p class="eyebrow">体験の全体像</p>
-          <h2 id="overview-title">困りごとから、次の一歩まで。</h2>
-          <p>
-            各段階で考えた内容が、次の道具へつながります。<br />空欄に例を入れ、動かし、書き換えながら体験しましょう。
-          </p>
-        </div>
-        <ol>
-          <li>
-            <button type="button" data-action="step" data-id="0">
-              <span>01</span><b>問題を明確に</b
-              ><small>5W1H・ギャップ分析</small>
-              <p>困っている状況と、目指す状態</p>
-            </button>
-          </li>
-          <li>
-            <button type="button" data-action="step" data-id="1">
-              <span>02</span><b>情報を調べて整理</b><small>KJ法</small>
-              <p>情報のまとまりと、全体の説明</p>
-            </button>
-          </li>
-          <li>
-            <button type="button" data-action="step" data-id="2">
-              <span>03</span><b>原因を考える</b><small>特性要因図</small>
-              <p>根拠につながる仮説と確かめ方</p>
-            </button>
-          </li>
-          <li>
-            <button type="button" data-action="step" data-id="3">
-              <span>04</span><b>対策を広げる</b><small>マインドマップ</small>
-              <p>原因に対応する、複数の具体策</p>
-            </button>
-          </li>
-          <li>
-            <button type="button" data-action="step" data-id="4">
-              <span>05</span><b>案を選び計画</b
-              ><small>意思決定マトリクス</small>
-              <p>判断の基準と、小さく試す計画</p>
-            </button>
-          </li>
-          <li>
-            <button type="button" data-action="step" data-id="5">
-              <span>06</span><b>試して確かめる</b
-              ><small>チェックシート・比較グラフ</small>
-              <p>実施の記録と、効果・副作用</p>
-            </button>
-          </li>
-          <li>
-            <button type="button" data-action="step" data-id="6">
-              <span>07</span><b>振り返って改善</b><small>KPT法</small>
-              <p>続けること・課題・次の一歩</p>
-            </button>
-          </li>
-        </ol>
-        <p class="overview-return">
-          ↶ 新しい情報や結果が出たら、前の段階へ。途中から始めることもできます。
-        </p>
-      </section>
       <section class="workbook-toolbar" aria-label="体験と保存の操作">
         <div class="mode-switch" aria-label="利用方法">
           <button
@@ -195,6 +136,12 @@
         </div>
         <p id="save-status" class="save-status" role="status"></p>
       </section>
+      <section
+        id="download-status"
+        class="download-status"
+        role="status"
+        hidden
+      ></section>
       <div id="mode-context" class="mode-context"></div>
       <p id="notice" class="notice" role="status" hidden></p>
       <noscript
@@ -277,7 +224,35 @@
       </div>
       <div id="summary-content"></div>
     </dialog>
+    <dialog
+      id="confirm-dialog"
+      aria-labelledby="confirm-title"
+      aria-describedby="confirm-message"
+    >
+      <div class="confirm-content">
+        <h2 id="confirm-title">作業内容の変更</h2>
+        <p id="confirm-message"></p>
+        <div class="inline-actions">
+          <button
+            type="button"
+            value="cancel"
+            data-confirm-value="cancel"
+            autofocus
+          >
+            キャンセル</button
+          ><button
+            type="button"
+            value="confirm"
+            data-confirm-value="confirm"
+            id="confirm-accept"
+            class="primary-button"
+          >
+            実行する
+          </button>
+        </div>
+      </div>
+    </dialog>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=1"></script>
+    <script type="module" src="./app.mjs?v=3"></script>
   </body>
 </html>

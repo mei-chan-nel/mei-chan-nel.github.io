@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  togglePreset,
+  removeItem,
+  changeNotes,
   emptyWorkbook,
   presetWorkbook,
   presetExample,
@@ -284,7 +287,7 @@ test("old files migrate without replacing work; KJ hierarchy and relation refere
   old.factors.forEach((f) => delete f.group);
   old.problem.title = "以前の作業";
   const migrated = parseWorkbook(JSON.stringify(old));
-  assert.equal(migrated.version, 2);
+  assert.equal(migrated.version, 3);
   assert.equal(migrated.problem.title, "以前の作業");
   assert.deepEqual(migrated.relations, []);
   const s = presetWorkbook();
@@ -297,4 +300,189 @@ test("old files migrate without replacing work; KJ hierarchy and relation refere
   s.groups.forEach((g) => (g.parent = ""));
   s.relations[0].to = "missing";
   assert.throws(() => parseWorkbook(JSON.stringify(s)));
+});
+
+test("preset writes one field or card, can be cleared after reload, and preserves other edits", () => {
+  let s = presetWorkbook();
+  assert.equal(togglePreset(s, "field:problem.title").ok, true);
+  assert.equal(s.problem.who, "");
+  assert.deepEqual(s.cards, []);
+  s.problem.who = "自分で考えた対象";
+  s = parseWorkbook(JSON.stringify(s));
+  assert.equal(togglePreset(s, "field:problem.title").cleared, true);
+  assert.equal(s.problem.title, "");
+  assert.equal(s.problem.who, "自分で考えた対象");
+  assert.equal(togglePreset(s, "field:problem.who").ok, false);
+  togglePreset(s, "card:c-known");
+  assert.equal(s.cards.length, 1);
+  togglePreset(s, "card:c-time");
+  assert.equal(s.cards.length, 2);
+  togglePreset(s, "card:c-known");
+  assert.deepEqual(
+    s.cards.map((c) => c.id),
+    ["c-time"],
+  );
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("group preset only gathers its own loaded cards; clearing preserves cards and another grouping", () => {
+  const s = presetWorkbook();
+  for (const id of ["c-known", "c-own", "c-time", "c-shame"])
+    togglePreset(s, `card:${id}`);
+  togglePreset(s, "group:recognize");
+  assert.equal(s.groups.length, 1);
+  assert.equal(s.cards.find((c) => c.id === "c-time").group, "");
+  togglePreset(s, "group:access");
+  togglePreset(s, "relation:awareness");
+  assert.equal(s.relations.length, 1);
+  togglePreset(s, "group:recognize");
+  assert.equal(s.cards.length, 4);
+  assert.equal(s.cards.find((c) => c.id === "c-known").group, "");
+  assert.equal(s.cards.find((c) => c.id === "c-time").group, "g-access");
+  assert.deepEqual(
+    s.groups.map((g) => g.id),
+    ["g-access"],
+  );
+  assert.equal(s.relations.length, 0);
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("diagram presets add one shape with explicit parent; clearing cleans references and keeps descendants", () => {
+  const s = presetWorkbook();
+  togglePreset(s, "factor:f-info");
+  assert.equal(s.causes.length, 0);
+  togglePreset(s, "cause:h-notice", { factor: "f-info" });
+  assert.equal(s.causes[0].test, "");
+  togglePreset(s, "branch:n-notice");
+  assert.equal(s.nodes.length, 1);
+  togglePreset(s, "branch:n-photos", { parent: "n-notice" });
+  assert.equal(s.nodes[1].parent, "n-notice");
+  assert.deepEqual(s.nodes[1].ratings, {});
+  togglePreset(s, "cause:h-notice", { factor: "f-info" });
+  assert.equal(s.nodes[0].cause, "");
+  togglePreset(s, "branch:n-notice");
+  assert.equal(s.nodes.length, 1);
+  assert.equal(s.nodes[0].parent, "");
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("score and weekly-result presets are independent, reversible, and retain provenance", () => {
+  const s = presetWorkbook();
+  for (const id of ["context", "gap", "branches"]) fillExample(s, id);
+  s.nodes.forEach((n) => (n.ratings = {}));
+  togglePreset(s, "criterion:v-0");
+  togglePreset(s, "criterion:v-1");
+  const path = "nodes.n-display.ratings.v-0";
+  const before = structuredClone(s);
+  togglePreset(s, `field:${path}`);
+  assert.deepEqual(s.nodes.find((n) => n.id === "n-display").ratings, {
+    "v-0": 5,
+  });
+  assert.equal(changeNotes(before, s, 4)[0].path, path);
+  const loaded = parseWorkbook(JSON.stringify(s));
+  togglePreset(loaded, `field:${path}`);
+  assert.equal(
+    loaded.nodes.find((n) => n.id === "n-display").ratings["v-0"],
+    null,
+  );
+  s.selectedIdea = "n-display";
+  togglePreset(s, "record:0");
+  assert.equal(s.records.length, 1);
+  togglePreset(s, "record:1");
+  assert.equal(s.records.length, 2);
+  assert.equal(s.observation, "");
+  togglePreset(s, "record:0");
+  assert.equal(s.records.length, 1);
+  assert.equal(s.records[0].id, "record-1");
+  assert.equal(s.simulation, "display");
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("upstream review identifies the exact changed field and merges successive edits", () => {
+  const s = presetWorkbook();
+  s.done.fill(true);
+  const before = structuredClone(s);
+  s.problem.question = "受け取り可能な時間を調べる";
+  markEdited(s, 0, changeNotes(before, s, 0));
+  const note = s.reviewNotes[2][0];
+  assert.equal(note.path, "problem.question");
+  assert.equal(note.before, "空欄");
+  assert.equal(note.after, s.problem.question);
+  assert.equal(note.label, "調査で確かめること");
+  const earlier = structuredClone(s);
+  s.problem.question = "昼休みと放課後を比較する";
+  markEdited(s, 0, changeNotes(earlier, s, 0));
+  assert.equal(s.reviewNotes[2].length, 1);
+  assert.equal(s.reviewNotes[2][0].before, "空欄");
+  assert.equal(s.reviewNotes[2][0].after, s.problem.question);
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("v2 files keep manual work and regain field toggles; malformed restoration targets are rejected", () => {
+  const old = presetWorkbook();
+  fillExample(old, "context");
+  old.problem.who = "手動編集を保存";
+  old.version = 2;
+  delete old.presetWrites;
+  delete old.reviewNotes;
+  const s = parseWorkbook(JSON.stringify(old));
+  assert.equal(s.version, 3);
+  assert.equal(togglePreset(s, "field:problem.title").cleared, true);
+  assert.equal(s.problem.who, "手動編集を保存");
+  assert.equal(togglePreset(s, "field:problem.who").ok, false);
+  const valid = presetWorkbook();
+  togglePreset(valid, "field:problem.title");
+  for (const path of ["cards", "problem.__proto__", "nodes.x.ratings.v-0"]) {
+    const invalid = structuredClone(valid);
+    invalid.presetWrites[0].fields[0].path = path;
+    assert.throws(() => parseWorkbook(JSON.stringify(invalid)));
+  }
+  const invalid = structuredClone(valid);
+  invalid.presetWrites[0].fields[0].before = 3;
+  assert.throws(() => parseWorkbook(JSON.stringify(invalid)));
+});
+
+test("deleting a criterion drops its preset score history and remains resumable", () => {
+  const s = presetWorkbook();
+  togglePreset(s, "branch:n-access");
+  togglePreset(s, "branch:n-display", { parent: "n-access" });
+  togglePreset(s, "criterion:v-0");
+  togglePreset(s, "field:nodes.n-display.ratings.v-0");
+  removeItem(s, "criteria", "v-0");
+  assert.equal(
+    s.presetWrites.some((w) => w.id === "field:nodes.n-display.ratings.v-0"),
+    false,
+  );
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("previous complete v2 workbook migrates local toggles for grouping, results and KPT", () => {
+  const old = presetWorkbook();
+  for (const id of [
+    "context",
+    "gap",
+    "question",
+    "cards",
+    "groups",
+    "relations",
+    "synthesis",
+    "causes",
+    "tests",
+    "branches",
+    "criteria",
+    "scores",
+  ])
+    fillExample(old, id);
+  old.selectedIdea = "n-display";
+  for (const id of ["plan", "checks", "results", "kpt", "next"])
+    fillExample(old, id);
+  old.version = 2;
+  delete old.presetWrites;
+  delete old.reviewNotes;
+  const s = parseWorkbook(JSON.stringify(old));
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+  assert.equal(s.records.length, 4);
+  assert.equal(s.records[0].id, "record-0");
+  togglePreset(s, "record:0");
+  assert.equal(s.records.length, 3);
+  togglePreset(s, "kpt:try");
+  assert.equal(s.kpt.length, 2);
+  togglePreset(s, "group:recognize");
+  assert.equal(s.groups.length, 1);
+  assert.equal(s.cards.length, 9);
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
 });
