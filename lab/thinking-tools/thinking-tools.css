@@ -1738,10 +1738,6 @@ input[type="checkbox"] {
   margin: 7px 0 4px;
   font-size: 0.7rem;
 }
-.preset-control > small {
-  color: #526859;
-  font-size: 0.66rem;
-}
 .thinking-shell .preset-button {
   background: #e5efe6;
   border: 1px solid #87a891;
@@ -1761,17 +1757,10 @@ input[type="checkbox"] {
   opacity: 0.6;
 }
 .preset-changed {
-  outline: 3px solid #3e9979;
+  outline: 3px solid #37846b;
   outline-offset: 3px;
-  background-color: #edf8e8 !important;
+  background-color: transparent !important;
   border-radius: 8px;
-}
-.preset-feedback {
-  display: block;
-  flex-basis: 100%;
-  color: #235f46;
-  font-weight: bold;
-  font-size: 0.72rem;
 }
 .preset-pair {
   display: flex;
@@ -1820,9 +1809,6 @@ input[type="checkbox"] {
 .diagram-editor .preset-button {
   font-size: 0.72rem;
   padding: 6px 9px;
-}
-.matrix .preset-control > small {
-  display: none;
 }
 .matrix .preset-button {
   font-size: 0.65rem;
@@ -1974,4 +1960,215 @@ input[type="checkbox"] {
 /* Stage navigation stays stable during consecutive taps and iframe scrolling. */
 html:has(.thinking-shell) {
   scroll-behavior: auto;
+}
+
+/* A preset is a single item action; editing and navigation stay neutral. */
+.item-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 28px 0 18px;
+}
+.item-heading h3 {
+  margin: 0;
+}
+.item-heading .preset-control {
+  margin: 0;
+}
+.preset-control {
+  min-height: 40px;
+  margin: 10px 0;
+}
+.thinking-shell .preset-button {
+  min-height: 40px;
+  font-size: 0.78rem;
+  padding: 8px 14px;
+}
+.thinking-shell button:hover:not(.preset-button):not(.primary-button),
+.diagram-editor button:hover {
+  background: #eef1f8;
+  border-color: #73859a;
+}
+.thinking-shell :focus-visible,
+dialog :focus-visible {
+  outline-color: #506b91;
+}
+.thinking-shell .mindmap-canvas .map-node:not(.root) {
+  background: #fffdf8;
+  border-color: #93a3b5;
+}
+.thinking-shell .mindmap-canvas .map-node.candidate {
+  background: #eef1f8;
+}
+.thinking-shell .mindmap-canvas .map-node.selected {
+  background: #e3eaf6;
+  border-color: #4c668d;
+}
+.thinking-shell .diagram-editor .inline-actions button {
+  background: #fffdf8;
+  border-color: #a8b1bd;
+  color: #243e53;
+}
+.thinking-shell .diagram-editor .inline-actions button:hover {
+  background: #eef1f8;
+  border-color: #73859a;
+}
+.branch-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+}
+.branch-preset {
+  padding: 16px;
+  border: 1px solid #d1d7dd;
+  border-radius: 10px;
+  background: #fffdf8;
+  font-size: 0.82rem;
+}
+.branch-preset .preset-control {
+  margin-bottom: 0;
+}
+.lesson details {
+  font-size: 0.76rem;
+  margin-top: 8px;
+}
+.lesson details summary {
+  color: #3e6553;
+  cursor: pointer;
+}
+.thinking-shell .stage {
+  overflow-anchor: none;
+}
+/* Read cards first, then give groups their own full-width space. */
+.card-board {
+  display: block;
+  margin: 20px 0 36px;
+}
+.card-board > .ungathered {
+  width: 100%;
+}
+.card-group {
+  padding: 22px;
+}
+.card-group > .card-stack,
+.card-group[data-drop-group=""] > .card-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  max-height: none;
+  overflow: visible;
+  padding: 6px;
+}
+.card-stack .note-card {
+  margin: 0;
+  padding: 20px;
+}
+.card-stack textarea {
+  min-height: 100px;
+}
+.card-stack label {
+  font-size: 0.79rem;
+}
+.card-stack input,
+.card-stack select,
+.card-stack textarea {
+  font-size: 0.86rem;
+}
+.card-source {
+  color: #536259;
+  font-size: 0.76rem;
+  line-height: 1.7;
+  margin: 14px 0;
+}
+.card-details {
+  font-size: 0.76rem;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #d8ddd5;
+}
+.card-details summary {
+  cursor: pointer;
+  color: #445d4e;
+}
+.card-details[open] > .field-frame {
+  margin-top: 14px;
+}
+.gathered-groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  max-height: none;
+  overflow: visible;
+  padding: 6px;
+  margin: 22px 0;
+}
+.gathered-groups .card-stack {
+  grid-template-columns: 1fr;
+  max-height: none;
+}
+.gathered-groups .group-heading {
+  align-items: start;
+}
+.group-controls {
+  margin: 18px 0;
+}
+.kind-example {
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+.kind-example summary {
+  font-size: 0.85rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+.kind-example p {
+  margin-top: 16px;
+}
+.card-group .card-group {
+  margin: 24px 0;
+}
+.kj-diagram svg g.preset-changed path:not(.relation-hit) {
+  stroke: #37846b;
+  stroke-width: 4;
+}
+@media (max-width: 900px) {
+  .gathered-groups {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 700px) {
+  .card-group {
+    padding: 14px;
+  }
+  .card-group > .card-stack,
+  .card-group[data-drop-group=""] > .card-stack {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .card-stack .note-card {
+    padding: 18px;
+  }
+  .branch-presets {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .branch-preset {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .branch-preset .preset-control {
+    margin: 0;
+  }
+  .item-heading {
+    align-items: start;
+  }
+}
+html:has(.thinking-shell) {
+  overflow-anchor: none;
 }

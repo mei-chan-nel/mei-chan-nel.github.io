@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  presetActive,
   togglePreset,
   removeItem,
   changeNotes,
@@ -485,4 +486,146 @@ test("previous complete v2 workbook migrates local toggles for grouping, results
   assert.equal(s.groups.length, 1);
   assert.equal(s.cards.length, 9);
   assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+
+test("one context or gap preset fills its item, highlights every change, and preserves manual input", () => {
+  const s = presetWorkbook();
+  s.problem.who = "自分で記入した対象";
+  const r = togglePreset(s, "block:context");
+  assert.equal(r.ok, true);
+  assert.equal(r.paths.length, 6);
+  assert.equal(s.problem.who, "自分で記入した対象");
+  assert.equal(s.problem.current, "");
+  assert.equal(s.cards.length, 0);
+  assert.equal(presetActive(s, "block:context"), true);
+  let loaded = parseWorkbook(JSON.stringify(s));
+  togglePreset(loaded, "block:context");
+  assert.equal(loaded.problem.title, "");
+  assert.equal(loaded.problem.who, "自分で記入した対象");
+  const gap = togglePreset(s, "block:gap");
+  assert.equal(comparison(s).before, 30);
+  assert.equal(gap.derived.gap, true);
+  assert.equal(gap.paths.length, 7);
+  assert.equal(s.causes.length, 0);
+  assert.equal(s.problem.question, "");
+});
+test("grouped cards and cause presets include all fields and references in the change outline", () => {
+  const s = presetWorkbook();
+  const cards = togglePreset(s, "block:cards");
+  assert.equal(s.cards.length, 9);
+  assert.equal(cards.rows.length, 9);
+  assert.ok(cards.paths.includes("cards.c-total.text"));
+  assert.ok(cards.paths.includes("cards.c-total.kind"));
+  assert.ok(cards.paths.includes("cards.c-total.source"));
+  const grouped = togglePreset(s, "block:groups");
+  assert.equal(s.groups.length, 2);
+  assert.ok(grouped.paths.includes("cards.c-known.group"));
+  assert.ok(grouped.paths.includes("groups.g-recognize.title"));
+  const cause = togglePreset(s, "block:causes");
+  assert.equal(s.factors.length, 3);
+  assert.equal(s.causes.length, 3);
+  assert.ok(cause.paths.includes("causes.h-notice.evidence"));
+  assert.ok(cause.paths.includes("causes.h-notice.status"));
+  assert.ok(s.causes.every((c) => !c.test));
+  togglePreset(s, "block:tests");
+  assert.ok(s.causes.every((c) => c.test));
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+  const undo = togglePreset(s, "block:groups");
+  assert.equal(s.groups.length, 0);
+  assert.equal(s.cards.length, 9);
+  assert.ok(undo.paths.includes("cards.c-known.group"));
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("a mind-map branch preset includes only one root family and undo retains manually added branches", () => {
+  const s = presetWorkbook();
+  const r = togglePreset(s, "branchset:n-notice");
+  assert.deepEqual(
+    s.nodes.map((n) => n.id),
+    ["n-notice", "n-photos", "n-announce"],
+  );
+  assert.ok(r.paths.includes("nodes.n-photos.candidate"));
+  assert.ok(r.paths.includes("nodes.n-photos.text"));
+  s.nodes.push({
+    id: "manual",
+    parent: "n-notice",
+    text: "自分の案",
+    cause: "",
+    candidate: false,
+    strategy: "",
+    ratings: {},
+  });
+  togglePreset(s, "branchset:n-notice");
+  assert.deepEqual(
+    s.nodes.map((n) => n.id),
+    ["manual"],
+  );
+  assert.equal(s.nodes[0].parent, "");
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("the scoring and result item controls reduce clicks without filling another stage", () => {
+  const s = presetWorkbook();
+  for (const id of [
+    "block:context",
+    "block:gap",
+    "branchset:n-access",
+    "branchset:n-notice",
+    "branchset:n-prevent",
+    "block:criteria",
+  ])
+    togglePreset(s, id);
+  const scores = togglePreset(s, "block:scores");
+  assert.equal(scores.paths.length, 12);
+  assert.equal(scores.derived.matrix, true);
+  assert.equal(s.plan.who, "");
+  s.selectedIdea = "n-display";
+  const results = togglePreset(s, "block:results");
+  assert.equal(s.records.length, 4);
+  assert.equal(comparison(s).after, 55);
+  assert.ok(s.observation.includes("22/40"));
+  assert.equal(results.derived.graph, true);
+  assert.equal(s.kpt.length, 0);
+  assert.ok(results.paths.includes("records.record-0.note"));
+  assert.ok(results.paths.includes("observation"));
+  const saved = parseWorkbook(JSON.stringify(s));
+  togglePreset(saved, "block:results");
+  assert.equal(saved.records.length, 0);
+  assert.equal(saved.observation, "");
+  assert.equal(saved.simulation, "");
+  togglePreset(s, "block:kpt");
+  assert.equal(s.kpt.length, 3);
+  assert.equal(s.next, "");
+  assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+});
+test("previous individual writes can be undone by their new item control after resume", () => {
+  const s = presetWorkbook();
+  togglePreset(s, "field:problem.title");
+  togglePreset(s, "field:problem.who");
+  s.problem.where = "手動の場所";
+  const saved = parseWorkbook(JSON.stringify(s));
+  assert.equal(presetActive(saved, "block:context"), true);
+  const undo = togglePreset(saved, "block:context");
+  assert.equal(undo.cleared, true);
+  assert.equal(saved.problem.title, "");
+  assert.equal(saved.problem.who, "");
+  assert.equal(saved.problem.where, "手動の場所");
+  assert.deepEqual(parseWorkbook(JSON.stringify(saved)), saved);
+});
+test("a grouped result cannot append another strategy's notes to previous records", () => {
+  const s = presetWorkbook();
+  for (const id of [
+    "block:context",
+    "block:gap",
+    "branchset:n-access",
+    "branchset:n-notice",
+  ])
+    togglePreset(s, id);
+  s.selectedIdea = "n-display";
+  togglePreset(s, "block:results");
+  // Existing results may be imported without a reversible preset receipt.
+  s.presetWrites = [];
+  s.observation = "";
+  s.selectedIdea = "n-photos";
+  const before = structuredClone(s);
+  assert.equal(togglePreset(s, "block:results").ok, false);
+  assert.deepEqual(s, before);
 });

@@ -756,7 +756,12 @@ export function presetValue(s, path) {
 const presetPattern =
   /^(field:(?:problem\.[a-z]+|measure\.[a-zA-Z]+|plan\.[a-z]+|(?:causes|nodes|criteria)\.[-a-zA-Z0-9]+\.(?:text|test|title|weight|ratings\.v-[0-2])|observation|next|synthesis)|(?:card|factor|cause|branch|criterion|check):[-a-zA-Z0-9]+|group:(?:recognize|access)|relation:awareness|record:[0-3]|kpt:(?:keep|problem|try))$/;
 export const validPresetId = (id) =>
-  typeof id === "string" && presetPattern.test(id);
+  typeof id === "string" &&
+  (presetPattern.test(id) ||
+    /^block:(context|gap|cards|groups|causes|tests|criteria|scores|plan|checks|results|kpt)$/.test(
+      id,
+    ) ||
+    /^branchset:n-(access|notice|prevent)$/.test(id));
 export function removeItem(s, collection, id) {
   const item = s[collection].find((x) => x.id === id);
   if (!item) return;
@@ -837,7 +842,7 @@ function leaves(s) {
       }
   return map;
 }
-export function togglePreset(s, id, options = {}) {
+function toggleSinglePreset(s, id, options = {}) {
   if (s.mode !== "preset" || !validPresetId(id)) return { ok: false };
   const active = s.presetWrites.find((w) => w.id === id);
   if (active) {
@@ -1002,6 +1007,170 @@ export function togglePreset(s, id, options = {}) {
   if (!rows.length && !fields.length) return { ok: false };
   s.presetWrites.push({ id, fields, rows });
   return { ok: true, cleared: false, paths: fields.map((p) => p.path), rows };
+}
+// Group only a coherent piece of work; later stages are never filled implicitly.
+function presetRequests(s, id) {
+  const p = presetExample(),
+    fields = (paths) => paths.map((path) => ({ id: `field:${path}` })),
+    rows = (type, list) => list.map((row) => ({ id: `${type}:${row.id}` }));
+  const key = id.split(":")[1];
+  if (id.startsWith("branchset:")) {
+    const root = p.nodes.find((n) => n.id === key && !n.parent);
+    return root
+      ? [
+          { id: `branch:${root.id}` },
+          ...p.nodes
+            .filter((n) => n.parent === root.id)
+            .map((n) => ({ id: `branch:${n.id}`, parent: root.id })),
+        ]
+      : [];
+  }
+  if (!id.startsWith("block:")) return [];
+  if (key === "context")
+    return fields(
+      ["title", "who", "what", "when", "where", "why", "how"].map(
+        (k) => `problem.${k}`,
+      ),
+    );
+  if (key === "gap")
+    return fields([
+      "problem.current",
+      "problem.ideal",
+      "measure.label",
+      "measure.beforeCount",
+      "measure.beforeTotal",
+      "measure.target",
+      "measure.conditions",
+    ]);
+  if (key === "cards") return rows("card", p.cards);
+  if (key === "groups")
+    return [{ id: "group:recognize" }, { id: "group:access" }];
+  if (key === "causes")
+    return p.factors.flatMap((f) => [
+      { id: `factor:${f.id}` },
+      ...p.causes
+        .filter((c) => c.factor === f.id)
+        .map((c) => ({ id: `cause:${c.id}`, factor: f.id })),
+    ]);
+  if (key === "tests")
+    return fields(s.causes.map((c) => `causes.${c.id}.test`));
+  if (key === "criteria") return rows("criterion", p.criteria);
+  if (key === "scores")
+    return fields(
+      s.nodes
+        .filter((n) => n.candidate)
+        .flatMap((n) => s.criteria.map((c) => `nodes.${n.id}.ratings.${c.id}`)),
+    );
+  if (key === "plan")
+    return fields(Object.keys(s.plan).map((k) => `plan.${k}`));
+  if (key === "checks") return rows("check", p.checks);
+  if (key === "results")
+    return [
+      ...[0, 1, 2, 3].map((i) => ({ id: `record:${i}` })),
+      { id: "field:observation" },
+    ];
+  if (key === "kpt")
+    return ["keep", "problem", "try"].map((k) => ({ id: `kpt:${k}` }));
+  return [];
+}
+export function presetActive(s, id) {
+  const targets = new Set([id, ...presetRequests(s, id).map((r) => r.id)]);
+  return s.presetWrites.some((w) => targets.has(w.id));
+}
+export function presetChanges(before, s) {
+  const old = leaves(before),
+    current = leaves(s),
+    paths = [];
+  for (const path of new Set([...old.keys(), ...current.keys()])) {
+    if (old.get(path) === current.get(path)) continue;
+    if (!old.has(path) && ["", null, false].includes(current.get(path)))
+      continue;
+    paths.push(path);
+  }
+  for (const key of ["focusCause", "selectedIdea", "resultFor", "simulation"])
+    if (before[key] !== s[key]) paths.push(key);
+  const rows = [];
+  for (const collection of collections)
+    for (const id of new Set([
+      ...before[collection].map((r) => r.id),
+      ...s[collection].map((r) => r.id),
+    ]))
+      if (
+        before[collection].some((r) => r.id === id) !==
+        s[collection].some((r) => r.id === id)
+      )
+        rows.push({ collection, id });
+  const gap = (x) => [
+    comparison(x).before,
+    x.measure.target,
+    x.measure.kind,
+    x.measure.unit,
+  ];
+  const graph = (x) => [
+    comparison(x),
+    x.measure.target,
+    x.measure.label,
+    x.measure.kind,
+    x.measure.unit,
+  ];
+  const matrix = (x) => ranking(x).map((r) => [r.node.id, r.score]);
+  return {
+    paths,
+    rows,
+    derived: {
+      gap: JSON.stringify(gap(before)) !== JSON.stringify(gap(s)),
+      graph: JSON.stringify(graph(before)) !== JSON.stringify(graph(s)),
+      matrix: JSON.stringify(matrix(before)) !== JSON.stringify(matrix(s)),
+    },
+  };
+}
+export function togglePreset(s, id, options = {}) {
+  if (s.mode !== "preset" || !validPresetId(id)) return { ok: false };
+  const requests = presetRequests(s, id),
+    before = structuredClone(s);
+  if (!requests.length) {
+    const result = toggleSinglePreset(s, id, options);
+    return result.ok ? { ...result, ...presetChanges(before, s) } : result;
+  }
+  // Existing individual receipts remain reversible through the new grouped control.
+  const targets = new Set(requests.map((r) => r.id)),
+    prior = s.presetWrites.filter((w) => w.id === id || targets.has(w.id));
+  if (prior.length) {
+    const fields = [],
+      rows = [];
+    for (const write of prior) {
+      for (const patch of write.fields)
+        if (!fields.some((p) => p.path === patch.path)) fields.push(patch);
+      for (const row of write.rows)
+        if (
+          !rows.some((r) => r.collection === row.collection && r.id === row.id)
+        )
+          rows.push(row);
+    }
+    s.presetWrites = s.presetWrites.filter(
+      (w) => w.id !== id && !targets.has(w.id),
+    );
+    s.presetWrites.push({ id, fields, rows });
+    const result = toggleSinglePreset(s, id, options);
+    return { ...result, ...presetChanges(before, s) };
+  }
+  if (
+    id === "block:results" &&
+    (!canSimulate(s) || (s.resultFor && s.resultFor !== s.selectedIdea))
+  )
+    return { ok: false };
+  const receipts = [];
+  for (const request of requests) {
+    const result = toggleSinglePreset(s, request.id, request);
+    if (result.ok)
+      receipts.push(s.presetWrites.find((w) => w.id === request.id));
+  }
+  if (!receipts.length) return { ok: false };
+  const fields = receipts.flatMap((w) => w.fields),
+    rows = receipts.flatMap((w) => w.rows);
+  s.presetWrites = s.presetWrites.filter((w) => !targets.has(w.id));
+  s.presetWrites.push({ id, fields, rows });
+  return { ok: true, cleared: false, ...presetChanges(before, s) };
 }
 export function changeNotes(before, s, source) {
   const labels = {

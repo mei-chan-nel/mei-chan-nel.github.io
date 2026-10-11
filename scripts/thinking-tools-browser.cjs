@@ -23,89 +23,71 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     page.on("dialog", (d) => d.accept());
     const click = (action) =>
       page.locator(`[data-action="${action}"]`).first().click();
-    const preset = (id) =>
-      page.locator(`[data-action="preset"][data-id="${id}"]`).first().click();
+    const preset = async (id) => {
+      const button = page
+        .locator(`[data-action="preset"][data-id="${id}"]`)
+        .first();
+      await button.scrollIntoViewIfNeeded();
+      const before = await button.boundingBox();
+      const values = () =>
+        page
+          .locator("[data-bind]")
+          .evaluateAll((elements) =>
+            Object.fromEntries(
+              elements.map((el) => [
+                el.dataset.bind,
+                el.type === "checkbox" ? el.checked : el.value,
+              ]),
+            ),
+          );
+      const old = await values();
+      await button.click();
+      const after = await button.boundingBox();
+      assert.ok(
+        Math.abs(before.y - after.y) < 4,
+        `preset keeps its button stable: ${id}, ${before.y}→${after.y}`,
+      );
+      const current = await values();
+      for (const [path, v] of Object.entries(current))
+        if (
+          old[path] !== v &&
+          !(["", false].includes(v) && old[path] === undefined)
+        ) {
+          const fields = page.locator(`[data-bind="${path}"]`);
+          assert.ok(
+            await fields.evaluateAll((els) =>
+              els.every((el) => !!el.closest(".preset-changed")),
+            ),
+            `changed field is outlined: ${path}`,
+          );
+        }
+      assert.equal(
+        await page.locator(".preset-feedback,.preset-control small").count(),
+        0,
+      );
+      const actions = await page
+        .locator("button.preset-changed")
+        .evaluateAll((els) => els.map((el) => el.dataset.action));
+      assert.ok(
+        actions.every((a) =>
+          ["node", "cause", "factor", "kj-group", "kj-card"].includes(a),
+        ),
+        `only diagram shapes are outlined: ${actions}`,
+      );
+    };
     const example = async (id) => {
-      const fields = async (paths) => {
-        for (const path of paths) await preset(`field:${path}`);
-      };
-      if (id === "context")
-        await fields(
-          ["title", "who", "what", "when", "where", "why", "how"].map(
-            (k) => `problem.${k}`,
-          ),
-        );
-      if (id === "gap")
-        await fields([
-          "problem.current",
-          "problem.ideal",
-          "measure.label",
-          "measure.beforeCount",
-          "measure.beforeTotal",
-          "measure.target",
-          "measure.conditions",
-        ]);
-      if (id === "question") await fields(["problem.question"]);
-      if (id === "cards")
-        for (const key of [
-          "c-total",
-          "c-name",
-          "c-known",
-          "c-time",
-          "c-shame",
-          "c-look",
-          "c-own",
-          "c-work",
-          "c-hyp",
-        ])
-          await preset(`card:${key}`);
-      if (id === "groups")
-        for (const key of ["recognize", "access"]) await preset(`group:${key}`);
-      if (id === "relations") await preset("relation:awareness");
-      if (id === "synthesis") await fields(["synthesis"]);
-      if (id === "causes")
-        for (const [factor, cause] of [
-          ["f-info", "h-notice"],
-          ["f-time", "h-time"],
-          ["f-feeling", "h-shame"],
-        ]) {
-          await preset(`factor:${factor}`);
-          await preset(`cause:${cause}`);
-        }
-      if (id === "tests")
-        for (const key of ["h-notice", "h-time", "h-shame"]) {
-          await page.locator(`[data-action="cause"][data-id="${key}"]`).click();
-          await fields([`causes.${key}.test`]);
-        }
-      if (id === "branches")
-        for (const [root, children] of [
-          ["n-access", ["n-display"]],
-          ["n-notice", ["n-photos", "n-announce"]],
-          ["n-prevent", ["n-labels"]],
-        ]) {
-          await preset(`branch:${root}`);
-          for (const child of children) await preset(`branch:${child}`);
-        }
-      if (id === "criteria")
-        for (const key of ["v-0", "v-1", "v-2"])
-          await preset(`criterion:${key}`);
-      if (id === "scores")
-        for (const node of ["n-display", "n-photos", "n-announce", "n-labels"])
-          for (const criterion of ["v-0", "v-1", "v-2"])
-            await fields([`nodes.${node}.ratings.${criterion}`]);
-      if (id === "plan")
-        await fields(["plan.who", "plan.when", "plan.test", "plan.risk"]);
-      if (id === "checks")
-        for (const key of ["ck-0", "ck-1", "ck-2"])
-          await preset(`check:${key}`);
-      if (id === "results") {
-        for (const key of [0, 1, 2, 3]) await preset(`record:${key}`);
-        await fields(["observation"]);
+      if (id === "branches") {
+        for (const root of ["n-access", "n-notice", "n-prevent"])
+          await preset(`branchset:${root}`);
+        return;
       }
-      if (id === "kpt")
-        for (const key of ["keep", "problem", "try"])
-          await preset(`kpt:${key}`);
-      if (id === "next") await fields(["next"]);
+      const single = {
+        question: "field:problem.question",
+        relations: "relation:awareness",
+        synthesis: "field:synthesis",
+        next: "field:next",
+      };
+      await preset(single[id] || `block:${id}`);
     };
     const step = (i) => page.locator(`#step-nav [data-id="${i}"]`).click();
     const fill = (path, text) =>
@@ -132,9 +114,9 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       "",
     );
     assert.equal(await page.locator(".process-overview li").count(), 0);
-    await preset("field:problem.title");
+    await preset("block:context");
     assert.equal(
-      await page.locator('[data-bind="problem.who"]').inputValue(),
+      await page.locator('[data-bind="problem.current"]').inputValue(),
       "",
     );
     assert.equal(
@@ -143,7 +125,7 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
         .count(),
       1,
     );
-    await preset("field:problem.title");
+    await preset("block:context");
     assert.equal(
       await page.locator('[data-bind="problem.title"]').inputValue(),
       "",
@@ -317,6 +299,7 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       .locator('[data-bind^="cards."][data-bind$=".group"]')
       .selectOption(freeGroup);
 
+    await page.locator(".card-details summary").first().click();
     await page
       .locator('[data-bind^="cards."][data-bind$=".source"]')
       .fill("自分で計測・3日間");
@@ -520,6 +503,35 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     }
     console.log("PASS: preset accessibility and mobile diagram zoom");
     assert.deepEqual(errors, []);
+    const mobilePreset = await browser.newPage({
+      viewport: { width: 390, height: 844 },
+    });
+    await mobilePreset.goto(base + "/lab/thinking-tools/");
+    for (const [stage, id] of [
+      [0, "block:context"],
+      [0, "block:gap"],
+      [1, "block:cards"],
+      [1, "block:groups"],
+      [2, "block:causes"],
+      [3, "branchset:n-notice"],
+    ]) {
+      await mobilePreset.locator(`#step-nav [data-id="${stage}"]`).click();
+      const button = mobilePreset.locator(
+        `[data-action="preset"][data-id="${id}"]`,
+      );
+      await button.scrollIntoViewIfNeeded();
+      const before = await button.boundingBox();
+      await button.click();
+      const after = await button.boundingBox();
+      assert.ok(
+        Math.abs(before.y - after.y) < 4,
+        `mobile preset keeps its button stable: ${id}, ${before.y}→${after.y}`,
+      );
+    }
+    await mobilePreset.close();
+    console.log(
+      "PASS: grouped presets keep their controls stable at mobile width",
+    );
     console.log(
       "PASS: 7 stages in both modes, drag/drop, cause links, map branches, weighted scores, distinct results, backtracking, auto-resume, JSON import/export, print, XSS escaping, mobile widths",
     );
@@ -571,26 +583,24 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       .frames()[1]
       .evaluate(() => window.confirm("制限された標準ダイアログ"));
     assert.equal(nativeConfirm, false);
-    await epreset("field:problem.title");
+    await epreset("block:context");
     await epreset("field:problem.question");
     assert.equal(
-      await frame.locator('[data-bind="problem.who"]').inputValue(),
+      await frame.locator('[data-bind="problem.current"]').inputValue(),
       "",
     );
     await embedded.reload();
     await frame.locator("#stage-title").waitFor();
-    await epreset("field:problem.title");
+    await epreset("block:context");
     assert.equal(
       await frame.locator('[data-bind="problem.title"]').inputValue(),
       "",
     );
-    await epreset("field:problem.title");
+    await epreset("block:context");
     await estep(1);
-    for (const id of ["c-known", "c-time", "c-work"])
-      await epreset(`card:${id}`);
-    assert.equal(await frame.locator("[data-card]").count(), 3);
-    await epreset("group:recognize");
-    await epreset("group:access");
+    await epreset("block:cards");
+    assert.equal(await frame.locator("[data-card]").count(), 9);
+    await epreset("block:groups");
     await epreset("relation:awareness");
     await frame
       .locator('[data-bind="groups.g-access.parent"]')
@@ -617,13 +627,14 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     );
     assert.equal(await frame.locator('[data-card="c-known"]').count(), 1);
     await eclick("next");
-    await epreset("factor:f-info");
-    await epreset("cause:h-notice");
+    await epreset("block:causes");
     await frame
       .locator('[data-action="cause"][data-id="h-notice"]')
       .press("Delete");
-    assert.equal(await frame.locator('[data-action="cause"]').count(), 0);
-    await epreset("cause:h-notice");
+    assert.equal(
+      await frame.locator('[data-action="cause"][data-id="h-notice"]').count(),
+      0,
+    );
     await frame
       .locator('[data-action="factor"][data-id="f-info"]')
       .press("Delete");
@@ -643,8 +654,7 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       0,
     );
     await eclick("next");
-    await epreset("branch:n-notice");
-    await epreset("branch:n-photos");
+    await epreset("branchset:n-notice");
     await frame
       .locator('[data-action="node"][data-id="n-photos"]')
       .press("Delete");
@@ -652,7 +662,9 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       await frame.locator('[data-action="node"][data-id="n-photos"]').count(),
       0,
     );
-    await epreset("branch:n-photos");
+    await frame.locator('[data-action="node"][data-id="n-notice"]').click();
+    await frame.locator('.node-editor [data-action="add-child"]').click();
+    await frame.locator(".node-editor textarea").fill("追加した具体案");
     await frame
       .locator('[data-action="node"][data-id="n-notice"]')
       .press("Delete");
@@ -662,10 +674,7 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       await frame.locator('[data-action="node"][data-id="n-notice"]').count(),
       0,
     );
-    assert.equal(
-      await frame.locator('[data-action="node"][data-id="n-photos"]').count(),
-      1,
-    );
+    assert.equal(await frame.locator('[data-action="node"]').count(), 2);
     await frame.locator('[data-action="map-root"]').press("Delete");
     await frame.locator("#confirm-accept").click();
     await embedded.waitForTimeout(100);
