@@ -21,7 +21,7 @@ import {
   parseWorkbook,
   report,
   strategies,
-} from "./model.mjs?v=4";
+} from "./model.mjs?v=5";
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) =>
@@ -137,14 +137,17 @@ function presetControl(id, label, enabled = true, extra = "") {
   return `<div class="preset-control" data-preset-control="${esc(id)}">${btn("preset", active ? "空欄に戻す" : "プリセット記入", id, "preset-button", `aria-pressed="${active}" aria-label="${esc(label)}：${active ? "空欄に戻す" : "プリセット記入"}" ${!enabled && !active ? "disabled" : ""} ${extra}`)}</div>`;
 }
 function fieldPreset(path, label) {
-  if (!["problem.question", "synthesis", "next"].includes(path)) return "";
+  if (!["problem.question", "synthesis", "observation", "next"].includes(path))
+    return "";
   const example = presetValue(state, path);
   return presetControl(
     `field:${path}`,
     label,
     example !== undefined &&
       example !== "" &&
-      (path !== "synthesis" || state.cards.length > 0),
+      (path !== "synthesis" || state.cards.length > 0) &&
+      (path !== "observation" ||
+        (canSimulate(state) && state.resultFor === state.selectedIdea)),
   );
 }
 function itemHeading(title, id, label = title, enabled = true) {
@@ -201,9 +204,12 @@ function reviewNotice() {
 function highlightPreset() {
   if (!lastPresetChange) return;
   const mark = (selector) =>
-    document
-      .querySelectorAll(selector)
-      .forEach((el) => el.classList.add("preset-changed"));
+    document.querySelectorAll(selector).forEach((el) => {
+      const item = el.closest(
+        "[data-preset-item], [data-preset-collection][data-preset-row]",
+      );
+      (item || el).classList.add("preset-changed");
+    });
   const shapeActions = {
     cards: "kj-card",
     groups: "kj-group",
@@ -227,10 +233,23 @@ function highlightPreset() {
     mark(
       `[data-preset-collection="${row.collection}"][data-preset-row="${CSS.escape(row.id)}"]`,
     );
-  if (lastPresetChange.derived?.gap) mark(".gap-result");
-  if (lastPresetChange.derived?.graph) mark(".graph-box");
-  if (lastPresetChange.derived?.matrix)
-    mark("[data-score-display],.rank-message");
+  if (lastPresetChange.id === "block:gap" && !lastPresetChange.cleared)
+    for (const path of ["measure.kind", "measure.direction"])
+      if (value(path) === presetValue(state, path))
+        mark(`[data-preset-target="${path}"]`);
+  if (lastPresetChange.paths.includes("selectedIdea"))
+    mark('[data-preset-item="matrix"]');
+  if (lastPresetChange.paths.includes("kjDiagramReady"))
+    mark('[data-preset-item="kj-diagram"]');
+  document
+    .querySelectorAll(".preset-changed .preset-changed")
+    .forEach((el) => el.classList.remove("preset-changed"));
+}
+function clearPresetHighlight() {
+  lastPresetChange = null;
+  document
+    .querySelectorAll(".preset-changed")
+    .forEach((el) => el.classList.remove("preset-changed"));
 }
 function viewportAnchor(el) {
   const control = el.closest("[data-preset-control]");
@@ -407,7 +426,7 @@ function lesson(id, title, watch, discover, enabled = true) {
     next: "Tryから具体的な行動を選び、誰が何をいつまでに行うかを書きます。",
   };
   if (state.mode === "free") watch = freeInstructions[id] || watch;
-  return `<div class="lesson"><div><strong>${esc(title)}</strong><p>${esc(watch)}</p>${state.mode === "preset" ? `<details data-detail="hint-${id}"><summary>操作のヒント</summary><p>${esc(discover)}</p></details>` : ""}</div></div>`;
+  return `<div class="lesson"><div><strong>${esc(title)}</strong><p>${esc(watch)}</p></div></div>`;
 }
 function groupDescendants(id) {
   const ids = new Set([id]);
@@ -423,11 +442,11 @@ function groupDescendants(id) {
   return ids;
 }
 function card(c) {
-  return `<article class="note-card" data-preset-collection="cards" data-preset-row="${c.id}" data-card="${c.id}" data-kind="${c.kind}" draggable="true"><div class="card-top"><label class="card-pick"><input type="checkbox" data-select-card="${c.id}" ${pickedCards.has(c.id) ? "checked" : ""}><span class="visually-hidden">${esc(c.text || "情報カード")}をまとめるために選択</span><span class="drag-handle" draggable="true" aria-hidden="true">⠿</span></label><span class="tag" data-card-kind="${c.id}" data-preset-target="cards.${c.id}.kind">${kinds[c.kind]}</span>${del("delete-card", c.id, "この情報カードを削除")}</div>
+  return `<article class="note-card" data-preset-collection="cards" data-preset-row="${c.id}" data-card="${c.id}" data-kind="${c.kind}" draggable="true"><div class="card-top"><label class="card-pick"><input type="checkbox" data-select-card="${c.id}" ${pickedCards.has(c.id) ? "checked" : ""}><span class="visually-hidden">${esc(c.text || "情報カード")}をまとめるために選択</span><span class="drag-handle" draggable="true" aria-hidden="true">⠿</span></label>${del("delete-card", c.id, "この情報カードを削除")}</div>
   ${area("1枚に1つの情報", `cards.${c.id}.text`, "観察や発言を、具体的に残す")}
-  <p class="card-source" data-card-source="${c.id}" data-preset-target="cards.${c.id}.source">出典：${esc(c.source || "未記録")}</p>
-  ${select("まとまり", `cards.${c.id}.group`, [["", "単独で置く"], ...state.groups.map((g) => [g.id, g.title || "（表札なし）"])])}
-  <details class="card-details" data-detail="card-${c.id}"><summary>種類・出典を編集</summary>${select("情報の種類", `cards.${c.id}.kind`, Object.entries(kinds))}${input("出典・観察条件", `cards.${c.id}.source`, "誰の声？いつ・何件を観察？")}</details></article>`;
+  ${select("情報の種類", `cards.${c.id}.kind`, Object.entries(kinds))}
+  ${input("出典・観察条件", `cards.${c.id}.source`, "誰の声？いつ・何件を観察？")}
+  ${select("まとまり", `cards.${c.id}.group`, [["", "単独で置く"], ...state.groups.map((g) => [g.id, g.title || "（表札なし）"])])}</article>`;
 }
 function blankPresetCard(c, i) {
   return `<article class="note-card blank-preset-card" data-preset-collection="cards" data-preset-row="${c.id}"><b>調査記録 ${i + 1} / 9</b><small>${esc(c.source)}</small><p>情報カードは「プリセット記入」で読み込めます。</p></article>`;
@@ -492,8 +511,8 @@ function kjDiagram() {
         state.relations.some((r) => r.from === c.id || r.to === c.id),
     ),
   ];
-  if (!endpoints.length)
-    return empty("カードとまとまりを作ると、ここに関係図が現れます。");
+  if (!endpoints.length || (state.mode === "preset" && !state.kjDiagramReady))
+    return `<div class="kj-diagram-placeholder" data-preset-item="kj-diagram"><p>${state.mode === "preset" ? "上で整理したカードと表札を、ここの「プリセット記入」で図に並べます。" : "カードとまとまりを作ると、ここに関係図が現れます。"}</p></div>`;
   const cols = 2,
     width = 670,
     height = Math.max(150, Math.ceil(endpoints.length / cols) * 155);
@@ -519,7 +538,7 @@ function kjDiagram() {
       return `<g tabindex="0" role="button" data-action="kj-parent" data-id="${g.id}" aria-label="上位のまとまりとの関係。Deleteで解除"><path class="relation-hit" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/><path class="hierarchy-line" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/></g>`;
     })
     .join("");
-  return `<div class="kj-diagram-scroll" tabindex="0" role="region" aria-label="情報の関係図。まとまりの左右ボタンで並びを変えられます。"><div class="kj-diagram" style="width:${width}px;height:${height}px"><svg width="${width}" height="${height}" role="group" aria-label="まとまりとカードをつなぐ線"><defs><marker id="kj-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#9f492f"/></marker></defs>${parents}${lines}</svg>${endpoints
+  return `<div class="kj-diagram-scroll" data-preset-item="kj-diagram" tabindex="0" role="region" aria-label="情報の関係図。まとまりの左右ボタンで並びを変えられます。"><div class="kj-diagram" style="width:${width}px;height:${height}px"><svg width="${width}" height="${height}" role="group" aria-label="まとまりとカードをつなぐ線"><defs><marker id="kj-arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#9f492f"/></marker></defs>${parents}${lines}</svg>${endpoints
     .map((e) => {
       const p = positions.get(e.id);
       return `<button type="button" data-action="${e.title !== undefined ? "kj-group" : "kj-card"}" data-id="${e.id}" class="kj-island ${e.title !== undefined ? "" : "single"}" style="left:${p.x}px;top:${p.y}px"><small>${e.title !== undefined ? "表札" : `単独のカード · ${kinds[e.kind]}`}</small><span>${esc(e.title ?? e.text)}</span></button>`;
@@ -535,14 +554,16 @@ function organize() {
   <div class="card-board">${groupPanel({ id: "", title: "単独のカード" })}</div>
   ${lesson("groups", "② 内容を読み合わせて、まとまりと表札を作る", "先に箱の名前を決めず、近いと感じるカードを2〜3枚から寄せます。合わないカードは単独のままでOK。例は一つの読み方なので、動かして別の表札も試せます。", "同じ「意見」でも、気付く問題・時間の問題・負担の問題があります。多数の声だけでなく、単独の情報も残します。", state.cards.length > 0)}
   ${itemHeading("カードを寄せて、まとまりを作る", "block:groups", "まとまりと表札", state.cards.length > 0)}
-  <div class="gather-toolbar"><span>カードの □ を選んで寄せる</span>${btn("gather-picked", `選んだ${pickedCards.size}枚でまとまりを作る`, "", "primary-button", pickedCards.size ? "" : "disabled")}${btn("add-group", "＋ 空のまとまり")}<small>PCではドラッグ。スマートフォンでは「このカードを置くまとまり」でも動かせます。</small></div>
+  <div class="group-workspace"><div class="gather-toolbar"><span>カードの □ を選んで寄せる</span>${btn("gather-picked", `選んだ${pickedCards.size}枚でまとまりを作る`, "", "primary-button", pickedCards.size ? "" : "disabled")}${btn("add-group", "＋ 空のまとまり")}<small>PCではドラッグ。スマートフォンでは「このカードを置くまとまり」でも動かせます。</small></div>
   <div class="gathered-groups">${state.groups
     .filter((g) => !g.parent)
     .map((g) => groupPanel(g))
     .join("")}${missingGroups()}</div>
-  <div class="inline-actions local-add">${btn("add-group", "＋ まとまり")}</div>
+  <div class="inline-actions local-add">${btn("add-group", "＋ まとまり")}</div></div>
   ${lesson("relations", "③ まとまり同士の関係を図にする", "表札と単独の情報を見渡し、つながり・食い違いを言葉にします。矢印はあなたの解釈であり、因果関係の証明ではありません。必要なら上位のまとまりも作れます。", "「気付くこと」と「受け取れること」の両方に壁がありそうです。つなぎ方を変えると、全体の説明も変わります。", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
+  ${itemHeading("表札と単独のカードを図に並べる", "block:diagram", "KJ法の関係図", state.cards.length > 0 || state.groups.length > 0)}
   ${kjDiagram()}<p class="graph-caption">破線は上位のまとまりとの関係。実線の矢印は、下で入力した関係の説明です。</p>
+  ${itemHeading("関係線と、その説明", "relation:awareness", "関係線と説明", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
   ${state.relations
     .map(
       (r) =>
@@ -550,11 +571,11 @@ function organize() {
           "つながりの終点",
           `relations.${r.id}.to`,
           endpoints.filter((e) => e[0] !== r.from),
-        )}${input("どんな関係？（解釈）", `relations.${r.id}.text`, "例：同時に起きる／食い違う／次の行動への壁")}${r.id === "r-awareness" ? presetControl("relation:awareness", "この関係線だけ") : ""}${del("delete-relation", r.id, "この関係を削除")}</div>`,
+        )}${input("どんな関係？（解釈）", `relations.${r.id}.text`, "例：同時に起きる／食い違う／次の行動への壁")}${del("delete-relation", r.id, "この関係を削除")}</div>`,
     )
     .join(
       "",
-    )}${!state.relations.some((r) => r.id === "r-awareness") ? presetControl("relation:awareness", "この関係線だけ", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access")) : ""}<div class="inline-actions">${btn("add-relation", "＋ 関係線", "", "", endpoints.length < 2 ? "disabled" : "")}</div>
+    )}<div class="inline-actions">${btn("add-relation", "＋ 関係線", "", "", endpoints.length < 2 ? "disabled" : "")}</div>
   ${lesson("synthesis", "④ 図を読み、全体を文章で説明する", "表札と単独のカードの両方を使い、分かったこと・まだ分からないことを説明します。説明しにくいときはカードの寄せ方に戻りましょう。", "情報の一覧が、次に確かめる原因の候補へつながる説明になります。", state.cards.length > 0)}
   ${area("整理した情報から説明できること", "synthesis", "どの情報がつながる？食い違う？まだ確かめていないことは？")}
 `;
@@ -779,10 +800,10 @@ function decide() {
     )
     .join("")}
   <div class="inline-actions">${btn("add-criterion", "＋ 評価軸")}${btn("step", "発想に戻って案を追加", "3")}</div>
-  ${lesson("scores", "② 同じ基準で案を比べる", "1は低く、5は高く満たすという予想の点数です。例の点数を入れ、重みを変えて順位を観察します。これは実測結果ではありません。", "どの案が良いかは、重視する基準で変わります。点数の理由・制約を確認し、試す案は自分で選びます。", ranks.length > 0 && state.criteria.length > 0)}
-  ${itemHeading("比較表の点数を入れる", "block:scores", "比較表の採点", ranks.length > 0 && state.criteria.length > 0)}
-  ${ranks.length && state.criteria.length ? `<div class="table-scroll" role="region" aria-label="候補の比較表。横にスクロールできます。" tabindex="0"><table class="matrix"><caption>1＝低い、5＝高い。負担や費用の軸なら「少ないほど高得点」に統一します。</caption><thead><tr><th scope="col">試す案を選ぶ</th>${state.criteria.map((c) => `<th scope="col"><span data-criterion-display="${c.id}">${esc(c.title)}</span><br>重み ${c.weight}</th>`).join("")}<th scope="col">加重平均 / 5</th></tr></thead><tbody>${ranks.map((r) => `<tr class="${r.node.id === state.selectedIdea ? "chosen" : ""}"><th scope="row"><label class="checkbox-label"><input type="radio" name="selected-idea" data-selected-idea="${r.node.id}" ${r.node.id === state.selectedIdea ? "checked" : ""}>${esc(r.node.text || "名前のない案")}</label>${causeForNode(state, r.node) ? `<small>原因：${esc(short(causeForNode(state, r.node).text, 30))}</small>` : ""}</th>${state.criteria.map((c) => `<td data-preset-target="nodes.${r.node.id}.ratings.${c.id}"><label><span class="visually-hidden">${esc(r.node.text)}の${esc(c.title)}の点数</span><select data-bind="nodes.${r.node.id}.ratings.${c.id}" data-number="true"><option value="" ${r.node.ratings[c.id] == null ? "selected" : ""}>—</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${r.node.ratings[c.id] === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>${fieldPreset(`nodes.${r.node.id}.ratings.${c.id}`, c.title)}</td>`).join("")}<td data-score-display="${r.node.id}"><strong>${r.score?.toFixed(2) ?? "未採点"}</strong></td></tr>`).join("")}</tbody></table></div>` : empty("発想の枝を比較候補にして、評価軸を1つ以上追加してください。")}
-  ${top ? `<p class="rank-message">今の重みでは「${esc(ties.map((r) => r.node.text).join("」「"))}」${ties.length > 1 ? "が同点で上位" : "が上位"}。${scored.length < ranks.length ? "未採点の案は順位に入っていません。" : ""}点数だけで決めず、理由や制約も考えて試す案を選ぼう。</p>` : ""}
+  ${lesson("scores", "② 同じ基準で案を比べる", "1は低く、5は高く満たすという予想の点数です。プリセットでは点数と、試す案の例を入れます。選ぶ案や重みは自由に変えられます。点数は実測結果ではありません。", "どの案が良いかは、重視する基準で変わります。点数の理由・制約を確認し、試す案は自分で選びます。", ranks.length > 0 && state.criteria.length > 0)}
+  ${itemHeading("比較表の点数と試す案", "block:scores", "比較表の採点と試す案の選択", ranks.length > 0 && state.criteria.length > 0)}
+  ${ranks.length && state.criteria.length ? `<div class="table-scroll" data-preset-item="matrix" role="region" aria-label="候補の比較表。横にスクロールできます。" tabindex="0"><table class="matrix"><caption>1＝低い、5＝高い。負担や費用の軸なら「少ないほど高得点」に統一します。</caption><thead><tr><th scope="col">試す案を選ぶ</th>${state.criteria.map((c) => `<th scope="col"><span data-criterion-display="${c.id}">${esc(c.title)}</span><br>重み ${c.weight}</th>`).join("")}<th scope="col">加重平均 / 5</th></tr></thead><tbody>${ranks.map((r) => `<tr class="${r.node.id === state.selectedIdea ? "chosen" : ""}"><th scope="row"><label class="checkbox-label"><input type="radio" name="selected-idea" data-selected-idea="${r.node.id}" ${r.node.id === state.selectedIdea ? "checked" : ""}>${esc(r.node.text || "名前のない案")}</label>${causeForNode(state, r.node) ? `<small>原因：${esc(short(causeForNode(state, r.node).text, 30))}</small>` : ""}</th>${state.criteria.map((c) => `<td data-preset-target="nodes.${r.node.id}.ratings.${c.id}"><label><span class="visually-hidden">${esc(r.node.text)}の${esc(c.title)}の点数</span><select data-bind="nodes.${r.node.id}.ratings.${c.id}" data-number="true"><option value="" ${r.node.ratings[c.id] == null ? "selected" : ""}>—</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${r.node.ratings[c.id] === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>${fieldPreset(`nodes.${r.node.id}.ratings.${c.id}`, c.title)}</td>`).join("")}<td data-score-display="${r.node.id}"><strong>${r.score?.toFixed(2) ?? "未採点"}</strong></td></tr>`).join("")}</tbody></table></div>` : empty("発想の枝を比較候補にして、評価軸を1つ以上追加してください。")}
+  <p class="rank-message" aria-live="polite">${top ? `今の重みでは「${esc(ties.map((r) => r.node.text).join("」「"))}」${ties.length > 1 ? "が同点で上位" : "が上位"}。${scored.length < ranks.length ? "未採点の案は順位に入っていません。" : ""}` : "採点すると、重みに応じた比較結果をここに表示します。"}点数だけで決めず、理由や制約も考えて試す案を選ぼう。</p>
   ${tip("加重平均＝Σ（点数×重み）÷Σ（重み）。プリセットの点数は予想であり、実測値ではありません。選択は上位案に限りません。")}
   ${lesson("plan", "③ 案を選び、小さく試す計画を書く", "比較表で試す案を選択してから、担当・期間・確かめ方を書きます。順位だけで決めず、実際に続けられるかも考えます。", "選んだ案が、そのまま次の実行・検証に引き継がれます。", !!selected)}${itemHeading("選んだ案を小さく試す計画に", "block:plan", "実行計画", !!selected)}${handoff("今回試す案", selected?.text)}<div class="form-grid">${input("担当・協力する人", "plan.who", "誰が動く？")}${input("いつ・どれくらい試す？", "plan.when", "開始日・試す期間")}${area("確かめる方法・選んだ理由", "plan.test", "何を記録する？この案を選ぶ理由は？")}${area("注意点・副作用への備え", "plan.risk", "負担、費用、個人情報、届かない人など")}</div>`;
 }
@@ -817,11 +838,11 @@ function verify() {
   ${lesson("checks", "① 実施する作業を並べ、実施したらチェックする", "計画を実際の作業に分けます。チェックは効果の証明ではなく、実施したかを残すためのものです。", "実施の記録と効果の記録が分かれます。チェックとメモは、自分で操作して残しましょう。")}${itemHeading("チェックシート · 実施と気付きを記録する", "block:checks")}${state.checks.map((c) => `<div class="check-row" data-preset-collection="checks" data-preset-row="${c.id}"><label><span class="visually-hidden">${esc(c.text || "作業")}の実施済み</span><input type="checkbox" data-bind="checks.${c.id}.done" ${c.done ? "checked" : ""}></label><div>${input("確認する作業", `checks.${c.id}.text`, "実施すること")}${input("メモ", "checks." + c.id + ".note", "できたこと・困ったこと")}</div>${del("delete-check", c.id, "この確認項目を削除")}</div>`).join("") || empty("小さく試すための作業を追加してください。")}
   <div class="inline-actions">${btn("add-check", "＋ 確認項目")}</div>
   <h3>結果を記録して、比較する</h3>
-  ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では、選んだ案を4週間試し、毎週集まった10件ずつを各4週間追跡したとします。「プリセット記入」で4週分の架空の記録と観察メモを入れ、返却率と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の副作用や負担に注目します。", eligible && !state.records.length && !state.observation)}
+  ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では、選んだ案を4週間試し、毎週集まった10件ずつを各4週間追跡したとします。「プリセット記入」で4週分の架空の記録を入れます。数値以外の観察メモは、下の入力欄で別に記入して、返却率と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の副作用や負担に注目します。", eligible && !state.records.length && !state.observation)}
   ${state.mode === "preset" && !eligible ? '<p class="notice">教材の結果を試すには、問題設定の例を入れ、比較表で教材の案を選びます。自分の案・指標に変えた場合は、実際の結果を入力してください。</p>' : ""}
-  ${itemHeading("4週間の結果と観察メモ", "block:results", "実施結果と観察メモ", eligible)}
+  ${itemHeading("4週間の実施結果", "block:results", "4週間の実施結果", eligible)}
   ${state.records.length ? `<div class="inline-actions">${btn("clear-results", "結果の記録を空にする")}</div>` : ""}
-  ${state.simulation ? `<p data-preset-target="simulation"><span class="fiction-label">架空の実施結果</span>${esc(strategies[state.simulation].name)}の試行。編集しても架空データが元です。</p>` : ""}
+  ${state.simulation ? `<p><span class="fiction-label">架空の実施結果</span>${esc(strategies[state.simulation].name)}の試行。編集しても架空データが元です。</p>` : ""}
   ${state.records.map((r) => `<div data-preset-collection="records" data-preset-row="${r.id}" class="record-row ${state.measure.kind === "value" ? "value-row" : ""}">${input("日付・対象・測定の名前", `records.${r.id}.label`, "何を、いつ数えた？")}${state.measure.kind === "rate" ? input("成功件数", `records.${r.id}.count`, "", "number", 'min="0" max="1000000000" step="any"') + input("対象件数", `records.${r.id}.total`, "", "number", 'min="0" max="1000000000" step="any"') : input(`値（${state.measure.unit || "単位未設定"}）`, `records.${r.id}.value`, "", "number", 'min="-1000000000" max="1000000000" step="any"')}${del("delete-record", r.id, "この結果の行を削除")}<div class="record-note">${input("測定条件・補足", `records.${r.id}.note`, "期間・対象の違いなど")}</div></div>`).join("") || empty("自由作成では、実際に試した結果を自分で入力します。未記録は0として扱いません。")}
   <div class="inline-actions">${btn("add-record", "＋ 結果の行")}${btn("step", "指標・実施前の値を編集", "0")}</div>${graph()}
   ${area("数値以外の変化・副作用・比較の限界", "observation", "負担は増えた？別の要因が結果に影響していない？")}${tip("前後の差だけでは対策が原因とは断定できません。対象の違い・偶然・行事なども確認し、必要ならもう一度小さく試します。")}`;
@@ -1403,6 +1424,7 @@ async function action(el) {
 
 document.addEventListener("click", (event) => {
   const el = event.target.closest("[data-action]");
+  clearPresetHighlight();
   if (el && !el.disabled) action(el);
 });
 function update(event) {
@@ -1422,10 +1444,7 @@ function update(event) {
   // The blur-time change event repeats the input value. Keep navigation buttons
   // mounted while that blur occurs, so a tap on the next stage is not cancelled.
   if (obj[k] === v) return;
-  lastPresetChange = null;
-  document
-    .querySelectorAll(".preset-changed")
-    .forEach((el) => el.classList.remove("preset-changed"));
+  clearPresetHighlight();
   mutationBefore = structuredClone(state);
   obj[k] = v;
   if (
@@ -1484,10 +1503,8 @@ function update(event) {
     if (display) display.textContent = c.text || "新しい原因の候補";
   }
   for (const c of state.cards) {
-    const source = $(`[data-card-source="${c.id}"]`),
-      tag = $(`[data-card-kind="${c.id}"]`);
-    if (source) source.textContent = `出典：${c.source || "未記録"}`;
-    if (tag) tag.textContent = kinds[c.kind];
+    const card = $(`[data-card="${c.id}"]`);
+    if (card) card.dataset.kind = c.kind;
   }
   if ($(".kj-diagram-scroll") && /^(groups|cards|relations)\./.test(path))
     $(".kj-diagram-scroll").outerHTML = kjDiagram();

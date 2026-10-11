@@ -574,21 +574,28 @@ test("the scoring and result item controls reduce clicks without filling another
   ])
     togglePreset(s, id);
   const scores = togglePreset(s, "block:scores");
-  assert.equal(scores.paths.length, 12);
+  assert.equal(scores.paths.filter((p) => p.includes(".ratings.")).length, 12);
+  assert.equal(s.selectedIdea, "n-display");
+  assert.ok(scores.paths.includes("selectedIdea"));
   assert.equal(scores.derived.matrix, true);
   assert.equal(s.plan.who, "");
   s.selectedIdea = "n-display";
   const results = togglePreset(s, "block:results");
   assert.equal(s.records.length, 4);
   assert.equal(comparison(s).after, 55);
+  assert.equal(s.observation, "");
+  assert.ok(!results.paths.includes("observation"));
+  togglePreset(s, "field:observation");
   assert.ok(s.observation.includes("22/40"));
   assert.equal(results.derived.graph, true);
   assert.equal(s.kpt.length, 0);
   assert.ok(results.paths.includes("records.record-0.note"));
-  assert.ok(results.paths.includes("observation"));
+
   const saved = parseWorkbook(JSON.stringify(s));
   togglePreset(saved, "block:results");
   assert.equal(saved.records.length, 0);
+  assert.ok(saved.observation.includes("22/40"));
+  togglePreset(saved, "field:observation");
   assert.equal(saved.observation, "");
   assert.equal(saved.simulation, "");
   togglePreset(s, "block:kpt");
@@ -628,4 +635,71 @@ test("a grouped result cannot append another strategy's notes to previous record
   const before = structuredClone(s);
   assert.equal(togglePreset(s, "block:results").ok, false);
   assert.deepEqual(s, before);
+});
+
+test("KJ diagram display is independently reversible and survives resume without changing grouping", () => {
+  const s = presetWorkbook();
+  assert.equal(togglePreset(s, "block:diagram").ok, false);
+  togglePreset(s, "block:cards");
+  togglePreset(s, "block:groups");
+  assert.equal(s.kjDiagramReady, false);
+  const groups = structuredClone(s.groups),
+    cards = structuredClone(s.cards);
+  assert.equal(togglePreset(s, "block:diagram").ok, true);
+  assert.equal(s.kjDiagramReady, true);
+  const saved = parseWorkbook(JSON.stringify(s));
+  assert.equal(presetActive(saved, "block:diagram"), true);
+  togglePreset(saved, "block:diagram");
+  assert.equal(saved.kjDiagramReady, false);
+  assert.deepEqual(saved.groups, groups);
+  assert.deepEqual(saved.cards, cards);
+});
+test("previous grouped results migrate to independent observation and diagram controls", () => {
+  const s = presetWorkbook();
+  for (const id of [
+    "block:context",
+    "block:gap",
+    "block:cards",
+    "block:groups",
+    "branchset:n-access",
+    "block:criteria",
+    "block:scores",
+    "block:results",
+    "field:observation",
+  ])
+    togglePreset(s, id);
+  const legacy = structuredClone(s);
+  delete legacy.kjDiagramReady;
+  const note = legacy.presetWrites.find((w) => w.id === "field:observation");
+  legacy.presetWrites
+    .find((w) => w.id === "block:results")
+    .fields.push(...note.fields);
+  legacy.presetWrites = legacy.presetWrites.filter(
+    (w) => w.id !== "field:observation",
+  );
+  const loaded = parseWorkbook(JSON.stringify(legacy));
+  assert.equal(loaded.kjDiagramReady, true);
+  assert.equal(presetActive(loaded, "block:diagram"), true);
+  assert.equal(presetActive(loaded, "field:observation"), true);
+  togglePreset(loaded, "block:results");
+  assert.equal(loaded.records.length, 0);
+  assert.equal(loaded.observation, s.observation);
+  togglePreset(loaded, "field:observation");
+  assert.equal(loaded.observation, "");
+  assert.equal(loaded.simulation, "");
+  assert.deepEqual(parseWorkbook(JSON.stringify(loaded)), loaded);
+  assert.throws(() =>
+    parseWorkbook(JSON.stringify({ ...s, kjDiagramReady: "true" })),
+  );
+});
+test("a manually selected trial remains selected through preset scoring and undo", () => {
+  const s = presetWorkbook();
+  togglePreset(s, "branchset:n-access");
+  togglePreset(s, "branchset:n-notice");
+  togglePreset(s, "block:criteria");
+  s.selectedIdea = "n-photos";
+  togglePreset(s, "block:scores");
+  assert.equal(s.selectedIdea, "n-photos");
+  togglePreset(s, "block:scores");
+  assert.equal(s.selectedIdea, "n-photos");
 });

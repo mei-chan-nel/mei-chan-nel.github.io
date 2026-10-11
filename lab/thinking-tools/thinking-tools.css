@@ -2172,3 +2172,50 @@ dialog :focus-visible {
 html:has(.thinking-shell) {
   overflow-anchor: none;
 }
+
+/* One temporary outline per work item, with persistent adjacent controls. */
+.note-card > .field-frame {
+  margin-top: 16px;
+}
+.note-card .card-top {
+  justify-content: space-between;
+}
+.kj-diagram-placeholder {
+  min-height: 180px;
+  display: grid;
+  align-items: center;
+  padding: 28px;
+  border: 1px dashed #b4c2b9;
+  border-radius: 12px;
+  background: #f7f8f3;
+  color: #52645d;
+  font-size: 0.85rem;
+}
+.relation-row {
+  padding: 16px;
+  border: 1px solid #d1d7dd;
+  border-radius: 10px;
+}
+.relation-row > .icon-button {
+  grid-column: 4;
+  grid-row: 1;
+  align-self: start;
+}
+.rank-message {
+  min-height: 5em;
+}
+.record-row {
+  margin: 20px 0;
+}
+@media (max-width: 700px) {
+  .relation-row {
+    grid-template-columns: 1fr 15px 1fr 35px;
+    padding: 12px;
+  }
+  .relation-row > .field-frame {
+    grid-column: 1 / 4;
+  }
+  .relation-row > span {
+    display: none;
+  }
+}

@@ -65,6 +65,33 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
         await page.locator(".preset-feedback,.preset-control small").count(),
         0,
       );
+      assert.equal(
+        await page.locator(".preset-changed .preset-changed").count(),
+        0,
+      );
+      assert.equal(
+        await page
+          .locator(
+            ".gap-result.preset-changed,.graph-box.preset-changed,.rank-message.preset-changed",
+          )
+          .count(),
+        0,
+      );
+      assert.equal(
+        await page.getByText("操作のヒント", { exact: true }).count(),
+        0,
+      );
+      if (
+        id === "block:gap" &&
+        (await button.getAttribute("aria-pressed")) === "true"
+      )
+        for (const path of ["measure.kind", "measure.direction"])
+          assert.equal(
+            await page
+              .locator(`[data-preset-target="${path}"].preset-changed`)
+              .count(),
+            1,
+          );
       const actions = await page
         .locator("button.preset-changed")
         .evaluateAll((els) => els.map((el) => el.dataset.action));
@@ -86,6 +113,7 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
         relations: "relation:awareness",
         synthesis: "field:synthesis",
         next: "field:next",
+        observation: "field:observation",
       };
       await preset(single[id] || `block:${id}`);
     };
@@ -124,6 +152,12 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
         .locator('[data-preset-target="problem.title"].preset-changed')
         .count(),
       1,
+    );
+    await page.locator("#stage-title").click();
+    assert.equal(await page.locator(".preset-changed").count(), 0);
+    assert.match(
+      await page.locator('[data-bind="problem.title"]').inputValue(),
+      /落とし物/,
     );
     await preset("block:context");
     assert.equal(
@@ -191,6 +225,8 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       1,
     );
     await example("groups");
+    assert.equal(await page.locator(".kj-island").count(), 0);
+    await example("diagram");
     await example("relations");
     await example("synthesis");
     await click("next");
@@ -222,7 +258,17 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     );
     await click("next");
     await example("criteria");
+    assert.match(
+      await page.locator(".rank-message").textContent(),
+      /採点すると/,
+    );
     await example("scores");
+    assert.equal(
+      await page.locator('[data-selected-idea="n-display"]').isChecked(),
+      true,
+    );
+    assert.equal(await page.locator(".table-scroll.preset-changed").count(), 1);
+    assert.equal(await page.locator(".matrix .preset-changed").count(), 0);
     await sel("criteria.v-0.weight", "5");
     await sel("criteria.v-1.weight", "1");
     await sel("criteria.v-2.weight", "1");
@@ -233,6 +279,11 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     await example("checks");
     await page.locator('[data-bind="checks.ck-0.done"]').check();
     await example("results");
+    assert.equal(
+      await page.locator('[data-bind="observation"]').inputValue(),
+      "",
+    );
+    await example("observation");
     assert.match(await page.locator(".result-callout").textContent(), /25/); // 55% - 30% = 25 points
     assert.match(await page.locator(".result-callout").textContent(), /未達成/);
     await click("next");
@@ -299,7 +350,6 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       .locator('[data-bind^="cards."][data-bind$=".group"]')
       .selectOption(freeGroup);
 
-    await page.locator(".card-details summary").first().click();
     await page
       .locator('[data-bind^="cards."][data-bind$=".source"]')
       .fill("自分で計測・3日間");
@@ -601,6 +651,7 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     await epreset("block:cards");
     assert.equal(await frame.locator("[data-card]").count(), 9);
     await epreset("block:groups");
+    await epreset("block:diagram");
     await epreset("relation:awareness");
     await frame
       .locator('[data-bind="groups.g-access.parent"]')

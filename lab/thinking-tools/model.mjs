@@ -85,6 +85,7 @@ export function emptyWorkbook() {
     presetWrites: [],
     reviewNotes: Array.from({ length: 7 }, () => []),
     relations: [],
+    kjDiagramReady: false,
     synthesis: "",
     groups: [],
     cards: [],
@@ -713,6 +714,12 @@ export function binding(s, path) {
 }
 export function presetValue(s, path) {
   const p = presetExample();
+  if (path === "selectedIdea")
+    return p.nodes.find((original) =>
+      s.nodes.some(
+        (n) => n.id === original.id && n.candidate && n.text === original.text,
+      ),
+    )?.id;
   if (path === "synthesis")
     return "箱の場所を知っている人はいるが、自分の物と気付かない声もある。受け取り時間や人目が気になる声もあり、案内だけでは行動につながらない可能性がある。記名の有無と担当者の負担も残して調べたい。これは解釈であり、原因の証明ではない。";
   if (path.includes(".ratings.")) {
@@ -731,6 +738,12 @@ export function presetValue(s, path) {
       return undefined;
   }
   if (path === "observation") {
+    if (
+      !canSimulate(s) ||
+      s.resultFor !== s.selectedIdea ||
+      simulationChanged(s)
+    )
+      return undefined;
     const note =
       strategies[s.nodes.find((n) => n.id === s.selectedIdea)?.strategy]?.note;
     const c = comparison(s);
@@ -754,11 +767,11 @@ export function presetValue(s, path) {
   return pair?.[0]?.[pair[1]];
 }
 const presetPattern =
-  /^(field:(?:problem\.[a-z]+|measure\.[a-zA-Z]+|plan\.[a-z]+|(?:causes|nodes|criteria)\.[-a-zA-Z0-9]+\.(?:text|test|title|weight|ratings\.v-[0-2])|observation|next|synthesis)|(?:card|factor|cause|branch|criterion|check):[-a-zA-Z0-9]+|group:(?:recognize|access)|relation:awareness|record:[0-3]|kpt:(?:keep|problem|try))$/;
+  /^(field:(?:problem\.[a-z]+|measure\.[a-zA-Z]+|plan\.[a-z]+|(?:causes|nodes|criteria)\.[-a-zA-Z0-9]+\.(?:text|test|title|weight|ratings\.v-[0-2])|observation|next|synthesis|selectedIdea)|(?:card|factor|cause|branch|criterion|check):[-a-zA-Z0-9]+|group:(?:recognize|access)|relation:awareness|record:[0-3]|kpt:(?:keep|problem|try))$/;
 export const validPresetId = (id) =>
   typeof id === "string" &&
   (presetPattern.test(id) ||
-    /^block:(context|gap|cards|groups|causes|tests|criteria|scores|plan|checks|results|kpt)$/.test(
+    /^block:(context|gap|cards|groups|diagram|causes|tests|criteria|scores|plan|checks|results|kpt)$/.test(
       id,
     ) ||
     /^branchset:n-(access|notice|prevent)$/.test(id));
@@ -830,7 +843,14 @@ function leaves(s) {
   for (const key of ["problem", "measure", "plan"])
     for (const [field, value] of Object.entries(s[key]))
       map.set(`${key}.${field}`, value);
-  for (const key of ["synthesis", "observation", "next"]) map.set(key, s[key]);
+  for (const key of [
+    "synthesis",
+    "observation",
+    "next",
+    "selectedIdea",
+    "kjDiagramReady",
+  ])
+    map.set(key, s[key]);
   for (const key of collections)
     for (const row of s[key])
       for (const [field, value] of Object.entries(row)) {
@@ -882,6 +902,8 @@ function toggleSinglePreset(s, id, options = {}) {
   };
   const [type, key] = id.split(":");
   if (type === "field") set(key, presetValue(s, key));
+  if (id === "block:diagram" && (s.cards.length || s.groups.length))
+    s.kjDiagramReady = true;
   if (type === "card") {
     const c = p.cards.find((c) => c.id === key);
     if (!c) return { ok: false };
@@ -1056,19 +1078,21 @@ function presetRequests(s, id) {
     return fields(s.causes.map((c) => `causes.${c.id}.test`));
   if (key === "criteria") return rows("criterion", p.criteria);
   if (key === "scores")
-    return fields(
-      s.nodes
-        .filter((n) => n.candidate)
-        .flatMap((n) => s.criteria.map((c) => `nodes.${n.id}.ratings.${c.id}`)),
-    );
+    return [
+      ...fields(
+        s.nodes
+          .filter((n) => n.candidate)
+          .flatMap((n) =>
+            s.criteria.map((c) => `nodes.${n.id}.ratings.${c.id}`),
+          ),
+      ),
+      { id: "field:selectedIdea" },
+    ];
   if (key === "plan")
     return fields(Object.keys(s.plan).map((k) => `plan.${k}`));
   if (key === "checks") return rows("check", p.checks);
   if (key === "results")
-    return [
-      ...[0, 1, 2, 3].map((i) => ({ id: `record:${i}` })),
-      { id: "field:observation" },
-    ];
+    return [0, 1, 2, 3].map((i) => ({ id: `record:${i}` }));
   if (key === "kpt")
     return ["keep", "problem", "try"].map((k) => ({ id: `kpt:${k}` }));
   return [];
@@ -1088,7 +1112,7 @@ export function presetChanges(before, s) {
     paths.push(path);
   }
   for (const key of ["focusCause", "selectedIdea", "resultFor", "simulation"])
-    if (before[key] !== s[key]) paths.push(key);
+    if (before[key] !== s[key] && !paths.includes(key)) paths.push(key);
   const rows = [];
   for (const collection of collections)
     for (const id of new Set([
@@ -1252,6 +1276,7 @@ export function changeNotes(before, s, source) {
   }
   for (const [path, value] of current)
     if (
+      !["selectedIdea", "kjDiagramReady"].includes(path) &&
       (old.has(path) || path.includes(".ratings.")) &&
       old.get(path) !== value
     ) {
@@ -1326,6 +1351,11 @@ export function parseWorkbook(raw) {
       ["free", "preset"].includes(input.mode),
   );
   s.mode = input.mode;
+  s.kjDiagramReady =
+    input.kjDiagramReady === undefined
+      ? Boolean(input.cards?.length || input.groups?.length)
+      : input.kjDiagramReady;
+  assert(typeof s.kjDiagramReady === "boolean");
   assert(Number.isInteger(input.step) && input.step >= 0 && input.step < 7);
   s.step = input.step;
   for (const k of ["done", "review"]) {
@@ -1381,7 +1411,7 @@ export function parseWorkbook(raw) {
       assert(
         p &&
           typeof p.path === "string" &&
-          /^(problem|measure|plan|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next)(\.[-a-zA-Z0-9]+){0,3}$/.test(
+          /^(problem|measure|plan|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next|selectedIdea|kjDiagramReady)(\.[-a-zA-Z0-9]+){0,3}$/.test(
             p.path,
           ),
       );
@@ -1411,9 +1441,34 @@ export function parseWorkbook(raw) {
     });
     return { id: w.id, fields, rows };
   });
+  if (
+    input.kjDiagramReady === undefined &&
+    s.mode === "preset" &&
+    s.kjDiagramReady &&
+    !s.presetWrites.some((w) => w.id === "block:diagram")
+  )
+    s.presetWrites.push({
+      id: "block:diagram",
+      fields: [{ path: "kjDiagramReady", before: false, after: true }],
+      rows: [],
+    });
   assert(
     new Set(s.presetWrites.map((w) => w.id)).size === s.presetWrites.length,
   );
+  const previousResults = s.presetWrites.find((w) => w.id === "block:results");
+  const previousObservation =
+    previousResults?.fields.filter((p) => p.path === "observation") ?? [];
+  if (previousObservation.length) {
+    previousResults.fields = previousResults.fields.filter(
+      (p) => p.path !== "observation",
+    );
+    if (!s.presetWrites.some((w) => w.id === "field:observation"))
+      s.presetWrites.push({
+        id: "field:observation",
+        fields: previousObservation,
+        rows: [],
+      });
+  }
   s.reviewNotes = input.reviewNotes ?? Array.from({ length: 7 }, () => []);
   assert(Array.isArray(s.reviewNotes) && s.reviewNotes.length === 7);
   s.reviewNotes = s.reviewNotes.map((notes) => {
