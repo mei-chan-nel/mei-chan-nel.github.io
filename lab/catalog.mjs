@@ -1,4 +1,4 @@
-// Match the learning app's six subject areas. No individual exhibits yet.
+// Match the learning app's six subject areas.
 export const groups = [
   {
     id: "society-security",
@@ -39,4 +39,11 @@ export const groups = [
 ];
 
 // Add completed exhibits here; category headings are not content cards.
-export const contents = [];
+export const contents = [
+  {
+    id: "radix-conversion",
+    group: "digital-representation",
+    name: "進数変換ラボ",
+    description: "2・10・16進数を、途中計算で理解する。整数・小数・循環小数と4ビットの対応を試してみよう。",
+  },
+];
