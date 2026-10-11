@@ -53,6 +53,7 @@
 .experiment-tip p { margin: 6px 0; }
 .experiment-tip button { font-size: .72rem; margin-bottom: 12px; }
 .status { font-size: .75rem; min-height: 30px; padding: 6px 16px; color: var(--ink-soft); overflow-wrap: anywhere; }
+.status:empty { min-height: 0; padding: 0; }
 .status.is-error { color: var(--coral-strong); }
 .network-panel, .results-panel, .trace-panel, .history-panel { border: 1px solid var(--line); border-radius: 13px; background: var(--white); min-width: 0; overflow: hidden; }
 .panel-heading { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); }
@@ -93,6 +94,7 @@
 .map-controls button:hover { background: rgb(255 254 249 / 95%); border-color: var(--mint-strong); }
 .map-controls button:first-child, .map-controls button:nth-child(2) { width: 30px; padding: 3px; font-size: .95rem; }
 .canvas-hint { position: absolute; left: 12px; bottom: 13px; max-width: calc(100% - 200px); padding: 5px 8px; border-radius: 6px; color: var(--ink-soft); background: rgb(255 254 249 / 92%); font-size: .65rem; pointer-events: none; }
+.canvas-hint:empty { display: none; }
 .network-link { stroke: #a9b5b2; stroke-width: 2.5; }
 .network-link.is-down { stroke: var(--coral-strong); stroke-dasharray: 7 6; }
 .network-link.is-selected { stroke-width: 5; stroke: var(--violet-strong); }

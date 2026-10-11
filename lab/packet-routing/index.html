@@ -49,10 +49,10 @@
         <div class="canvas-wrap"><svg id="network" aria-label="ネットワーク図。機器本体をドラッグして移動、選択中の機器を囲むサークルから引いて回線を接続。" tabindex="0" role="group"><defs><pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#d7d8d1" /></pattern></defs><rect id="background" fill="url(#dots)" /><g id="links"></g><g id="route"></g><g id="connection-preview" aria-hidden="true"></g><g id="devices"></g><g id="signals" aria-hidden="true"></g><g id="bubbles" aria-hidden="true"></g></svg>
           <div id="selection-context" class="selection-context" role="region" aria-label="選択した機器・回線の操作" hidden><div id="selection-detail"></div></div>
           <div class="map-controls" role="group" aria-label="ネットワーク図の表示"><button id="zoom-in" type="button" aria-label="拡大">＋</button><button id="zoom-out" type="button" aria-label="縮小">−</button><button id="fit" type="button">全体表示</button></div>
-          <span id="mode-hint" class="canvas-hint">本体をドラッグで移動 / 周囲のサークルから引いて接続</span>
+          <span id="mode-hint" class="canvas-hint"></span>
         </div>
         <div class="metrics"><span><b id="active-count">0</b> 通信中</span><span class="success-text"><b id="delivered-count">0</b> 到達</span><span class="danger-text"><b id="lost-count">0</b> 消失</span><span id="update-state">経路情報は安定</span></div>
-        <div id="status" class="status" role="status" aria-live="polite">準備完了。送信すると実験が始まります。</div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
     </section>
     <div class="results-grid">
       <section class="results-panel" aria-labelledby="results-heading"><div class="panel-heading"><h2 id="results-heading">通信の結果</h2><span class="muted">直近の20メッセージ</span></div><div id="messages" class="result-scroll" tabindex="0" role="region" aria-labelledby="results-heading"><p class="empty-state">最初のメッセージを送ってみよう。<br />パケットをすべて受信できたか、ここに表示します。</p></div></section>

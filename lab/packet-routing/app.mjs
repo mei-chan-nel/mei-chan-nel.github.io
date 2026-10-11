@@ -387,7 +387,7 @@ function setMode(value) {
   for (const button of document.querySelectorAll("[data-mode]")) button.setAttribute("aria-pressed", String(button.dataset.mode === mode));
   $("network").classList.toggle("is-editing", mode !== "select");
   $("pc-choices").hidden = !["source", "destination"].includes(mode);
-  $("mode-hint").textContent = mode === "connect" ? "緑の接続先を選択 / 余白でキャンセル" : ["source", "destination"].includes(mode) ? `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ` : mode === "select" ? "本体で移動 / 周囲のサークルから引いて接続" : "図の余白を選んで追加";
+  $("mode-hint").textContent = mode === "connect" ? "緑の接続先を選択 / 余白でキャンセル" : ["source", "destination"].includes(mode) ? `${mode === "source" ? "送信元" : "宛先"}のPCを選ぶ` : mode === "select" ? "" : "図の余白を選んで追加";
   if (mode !== "select") status(mode === "connect" ? "接続する2台を選択。PC—LAN、LAN—ルータ、ルータ—ルータを接続できます。" : ["source", "destination"].includes(mode) ? "図のPC、または送信設定のPCカードを選んでください。" : "図の余白を選ぶと機器を追加できます。ヘッダーの「機器を追加」からドラッグして置くこともできます。");
   dirty = true;
 }
