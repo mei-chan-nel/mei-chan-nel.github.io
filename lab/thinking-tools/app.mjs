@@ -7,6 +7,8 @@ import {
   presetExample,
   presetValue,
   presetActive,
+  brainstormToCards,
+  stageSummary,
   togglePreset,
   removeItem,
   cleanReferences,
@@ -21,7 +23,7 @@ import {
   parseWorkbook,
   report,
   strategies,
-} from "./model.mjs?v=5";
+} from "./model.mjs?v=6";
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) =>
@@ -153,14 +155,17 @@ function fieldPreset(path, label) {
 function itemHeading(title, id, label = title, enabled = true) {
   return `<div class="item-heading"><h3>${esc(title)}</h3>${presetControl(id, label, enabled)}</div>`;
 }
+function fieldHeading(label, path, extra = "") {
+  return `<div class="field-heading"><label for="input-${esc(path)}" ${extra}>${esc(label)}</label>${fieldPreset(path, label)}</div>`;
+}
 function input(label, path, placeholder = "", type = "text", extra = "") {
-  return `<div class="field-frame" data-preset-target="${esc(path)}"><label>${esc(label)}<input type="${type}" data-bind="${esc(path)}" value="${esc(value(path))}" placeholder="${esc(placeholder)}" ${type === "text" ? 'maxlength="10000"' : ""} ${extra}></label>${fieldPreset(path, label)}</div>`;
+  return `<div class="field-frame" data-preset-target="${esc(path)}">${fieldHeading(label, path)}<input id="input-${esc(path)}" type="${type}" data-bind="${esc(path)}" value="${esc(value(path))}" placeholder="${esc(placeholder)}" ${type === "text" ? 'maxlength="10000"' : ""} ${extra}></div>`;
 }
 function area(label, path, placeholder = "", extra = "") {
-  return `<div class="field-frame" data-preset-target="${esc(path)}"><label ${extra}>${esc(label)}<textarea rows="2" data-bind="${esc(path)}" placeholder="${esc(placeholder)}" maxlength="10000">${esc(value(path))}</textarea></label>${fieldPreset(path, label)}</div>`;
+  return `<div class="field-frame" data-preset-target="${esc(path)}">${fieldHeading(label, path, extra)}<textarea id="input-${esc(path)}" rows="2" data-bind="${esc(path)}" placeholder="${esc(placeholder)}" maxlength="10000">${esc(value(path))}</textarea></div>`;
 }
 function select(label, path, options, extra = "") {
-  return `<div class="field-frame" data-preset-target="${esc(path)}"><label>${esc(label)}<select data-bind="${esc(path)}" ${extra}>${options.map(([v, t]) => `<option value="${esc(v)}" ${value(path) === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></label>${fieldPreset(path, label)}</div>`;
+  return `<div class="field-frame" data-preset-target="${esc(path)}">${fieldHeading(label, path)}<select id="input-${esc(path)}" data-bind="${esc(path)}" ${extra}>${options.map(([v, t]) => `<option value="${esc(v)}" ${value(path) === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select></div>`;
 }
 function btn(action, label, id = "", classes = "", extra = "") {
   return `<button type="button" data-action="${action}" ${id ? `data-id="${esc(id)}"` : ""} class="${classes}" ${extra}>${label}</button>`;
@@ -276,9 +281,91 @@ function restoreViewport(anchor) {
     behavior: "instant",
   });
 }
+const toolGuides = [
+  [
+    [
+      "5W1H",
+      "誰が・何に・いつ・どこで・なぜ困る・現在のやり方を、それぞれ書きます。",
+      "問題が起きている状況と、まだ分からないこと。",
+    ],
+    [
+      "ギャップ分析",
+      "現状と理想を、同じ指標・数え方で並べます。",
+      "目指す改善と、現状からの差。",
+    ],
+  ],
+  [
+    [
+      "ブレーンストーミング",
+      "批判を控え、自由な発言を多く出し、ほかの発言を結び付けて発展させます。",
+      "問題を見る視点・可能性・思い付き。まだ正解や対策を決めません。",
+    ],
+    [
+      "KJ法",
+      "1枚1情報で記録し、内容を読み合わせて寄せ、表札・関係図・全体の説明を作ります。",
+      "集めた情報のまとまり・つながり・食い違い。分類名を先に決めません。",
+    ],
+  ],
+  [
+    [
+      "特性要因図",
+      "大骨に原因を考える切り口、小骨に原因の候補を書き、根拠と確かめ方を結びます。",
+      "一つの問題に関わる原因の候補。図に書いても、原因が証明されたわけではありません。",
+    ],
+  ],
+  [
+    [
+      "マインドマップ",
+      "中心から関連する言葉を枝に広げ、子の枝で具体化します。比較したい案を候補にします。",
+      "対策の選択肢と、それぞれが対応する原因。",
+    ],
+  ],
+  [
+    [
+      "意思決定マトリクス",
+      "共通の評価軸・重み・点数で案を比べ、試す案を選びます。",
+      "案ごとの強み・弱みと、重視する条件による違い。",
+    ],
+  ],
+  [
+    [
+      "チェックシート",
+      "作業を並べ、行った作業の「実施済み」にチェックし、メモを残します。",
+      "実施したこと・まだ行っていないこと・実行中の気付き。効果は別に検証します。",
+    ],
+    [
+      "比較グラフ",
+      "実施前と実施後の記録を、同じ指標・条件で比べます。グラフは記録から自動計算されます。",
+      "変化と目標との差。数値以外の変化や、比較の限界も併記します。",
+    ],
+  ],
+  [
+    [
+      "KPT法",
+      "Keep・Problem・Tryに、続けること・残った課題・次に試すことを分けて書きます。",
+      "結果を踏まえた振り返りと、次の改善で取る行動。",
+    ],
+  ],
+];
+function toolGuide() {
+  return `<section class="tool-guide" aria-label="この段階で使う思考ツール"><p class="tool-guide-label">この段階で使うツール</p><div class="tool-guide-grid">${toolGuides[state.step].map(([name, use, result]) => `<article><h3>${name}</h3><dl><dt>使い方</dt><dd>${use}</dd><dt>整理できるもの</dt><dd>${result}</dd></dl></article>`).join("")}</div></section>`;
+}
+function summaryRows(rows) {
+  return `<dl class="summary-rows">${rows.map((r) => `<div><dt>${esc(r.label)}</dt><dd>${esc(r.value)}</dd></div>`).join("")}</dl>`;
+}
+function stageTransfer() {
+  if (!state.step) return "";
+  const previous = state.step - 1,
+    data = stageSummary(state, previous);
+  return `<section class="stage-transfer" aria-label="前の段階からの引き継ぎ"><div class="transfer-heading"><h3>前の段階「${esc(steps[previous][0])}」から</h3>${btn("step", "前の内容を確認", String(previous), "quiet-button")}</div><p class="transfer-status">${state.done[previous] ? "前の段階はまとめ済みです。" : "前の段階はまだまとめていません。記入済みの内容から続けられます。"}</p><div class="transfer-grid"><div><h4>前の段階で${state.done[previous] ? "まとまった" : "記入した"}内容</h4>${summaryRows(data.completed)}</div><div><h4>この段階へ引き継いだ内容</h4>${summaryRows(data.passed)}</div></div>${data.pending.length ? `<p class="transfer-pending">${data.pending.map(esc).join(" ")}</p>` : ""}</section>`;
+}
+function stageOutcome() {
+  const data = stageSummary(state);
+  return `<section class="stage-outcome" aria-label="この段階のまとめと次へ渡す内容"><h3>この段階のまとめ</h3><div class="transfer-grid"><div><h4>ここで整理したもの</h4>${summaryRows(data.completed)}</div><div><h4>${state.step === 6 ? "次の改善へ持っていく内容" : "次の段階へ渡す内容"}</h4>${summaryRows(data.passed)}</div></div>${data.pending.length ? `<p class="transfer-pending">${data.pending.map(esc).join(" ")} 未記入のまま進んでも、後から戻って編集できます。</p>` : ""}</section>`;
+}
 function header() {
   const step = steps[state.step];
-  return `<header class="stage-header"><p class="eyebrow">STEP ${String(state.step + 1).padStart(2, "0")} / ${esc(step[1])}</p><h2 id="stage-title" tabindex="-1">${esc(step[0])}</h2><p>${esc(step[2])}</p><details data-detail="usage"><summary>現実では、どんなときに使える？</summary><p>${esc(step[3])}</p></details></header>${reviewNotice()}`;
+  return `<header class="stage-header"><p class="eyebrow">STEP ${String(state.step + 1).padStart(2, "0")} / ${esc(step[1])}</p><h2 id="stage-title" tabindex="-1">${esc(step[0])}</h2><p>${esc(step[2])}</p><details data-detail="usage"><summary>現実では、どんなときに使える？</summary><p>${esc(step[3])}</p></details></header>${toolGuide()}${reviewNotice()}${stageTransfer()}`;
 }
 function renderNav() {
   $("#step-nav").innerHTML = steps
@@ -322,7 +409,10 @@ function render(focus = false) {
   renderNav();
   $("#stage").innerHTML =
     header() +
-    [clarify, organize, analyze, ideate, decide, verify, reflect][state.step]();
+    [clarify, organize, analyze, ideate, decide, verify, reflect][
+      state.step
+    ]() +
+    stageOutcome();
   $("#stage-actions").innerHTML =
     `${btn("back", "← 前の段階", "", "", state.step === 0 ? "disabled" : "")}${btn("next", state.step === 6 ? "振り返りをまとめて全体を見る" : "この段階をまとめて次へ →", "", "primary-button")}`;
   fitDiagrams();
@@ -401,6 +491,8 @@ function lesson(id, title, watch, discover, enabled = true) {
       "困っている状況を、誰が・何に・いつ・どこで・なぜ困る・今のやり方に分けて書きます。原因は後から考えます。",
     gap: "現在の状態と目指す状態を並べ、同じ指標と数え方で比べます。まだ分からない値は空欄で残せます。",
     question: "まだ分からないこと、調査して確かめたいことを具体的に書きます。",
+    brainstorm:
+      "自由な発言を1件ずつ書き、ほかの発言を発展させます。批判を控え、自由奔放に、量を重視し、結合・改善します。",
     cards:
       "観察したこと・聞いた声を、1枚に1つ具体的に記録します。種類と出典も残します。",
     groups:
@@ -419,7 +511,8 @@ function lesson(id, title, watch, discover, enabled = true) {
     scores:
       "基準ごとに1〜5で採点します。根拠がない点数は空欄のままで構いません。",
     plan: "比較表から試す案を選び、担当・期間・確かめ方・注意点を決めます。",
-    checks: "実施する作業を追加し、実施したらチェックとメモを残します。",
+    checks:
+      "作業を追加し、実際に行ったら「実施済み」にチェックしてメモを残します。これは作業の実施記録で、効果の証明ではありません。",
     results:
       "同じ期間・対象・数え方で、実際に試した結果を記録します。未入力は0として扱いません。",
     kpt: "記録を根拠に、続けたい工夫・残った課題・次に試すことをカードにします。",
@@ -545,14 +638,42 @@ function kjDiagram() {
     })
     .join("")}</div></div>`;
 }
+function brainstorming() {
+  const remaining = state.brainstorm.filter(
+    (n) => n.text.trim() && !n.card,
+  ).length;
+  return `<section class="brainstorming-workspace" aria-label="ブレーンストーミングの発言ボード">
+  ${lesson("brainstorm", "① ブレーンストーミングで、考える材料を広げる", "問題に関する気付き・調べる視点・思い付いた案を、1件ずつ出します。一人でも練習できます。グループなら順に発言して記録し、この時点で良し悪しを決めません。")}
+  <ul class="brainstorm-rules"><li><b>批判を控える</b> 否定・評価は後で</li><li><b>自由奔放</b> 意外な発言も歓迎</li><li><b>量を重視</b> まず多く出す</li><li><b>結合・改善</b> 発言をつなげて発展</li></ul>
+  ${itemHeading("発言を出す・ほかの発言から広げる", "block:brainstorm", "ブレーンストーミングの発言")}
+  <div class="brainstorm-board">${
+    state.brainstorm
+      .map(
+        (n) =>
+          `<article class="brainstorm-note" data-preset-collection="brainstorm" data-preset-row="${n.id}"><div class="card-top"><span>${n.parent ? "発言を発展" : "自由な発言"}</span>${del("delete-brainstorm", n.id, "この発言を削除")}</div>${n.parent ? `<p class="brainstorm-parent">発展元：${esc(state.brainstorm.find((p) => p.id === n.parent)?.text || "まだ名前のない発言")}</p>` : ""}${area("発言・アイデア", `brainstorm.${n.id}.text`, "どんな可能性がある？思い付くままに書こう")}${select(
+            "今の位置付け",
+            `brainstorm.${n.id}.kind`,
+            [
+              ["hypothesis", "仮説・まだ確かめていない"],
+              ["opinion", "意見・思い付きの案"],
+            ],
+          )}<div class="inline-actions">${btn("extend-brainstorm", "＋ この発言を発展", n.id)}${btn("transfer-brainstorm", n.card ? "KJのカードに渡しました" : "この発言をKJへ", n.id, "", n.card || !n.text.trim() ? "disabled" : "")}</div></article>`,
+      )
+      .join("") ||
+    empty(
+      "発言ボードは空です。「＋ 発言」から自由に書くか、プリセットで4件の発言と発展の例を試します。",
+    )
+  }</div>
+  <div class="inline-actions">${btn("add-brainstorm", "＋ 発言")}${btn("transfer-brainstorm", `未整理の${remaining}件をKJのカードへ渡す`, "all", "", remaining ? "" : "disabled")}</div><p class="brainstorm-caption">発言は意見・仮説のまま渡します。調査で確認した事実とは区別し、KJ法で読み合わせます。</p></section>`;
+}
 function organize() {
   const endpoints = relationOptions();
-  return `${handoff("問題設定から · 調査で確かめること", state.problem.question)}
-  ${lesson("cards", "① 調査の記録を、1枚に1つ書く", "台帳・観察・生徒の声を並べて読みます。どの情報が、最初の思い込みと違いますか？", "「箱の場所を知っている」と「箱を見る」は別の情報です。声や推測は、観察した数値と区別して残せます。")}
+  return `${brainstorming()}
+  ${lesson("cards", "② KJ法 · 情報を1枚に1つ書く", "台帳・観察・生徒の声を並べて読みます。どの情報が、最初の思い込みと違いますか？", "「箱の場所を知っている」と「箱を見る」は別の情報です。声や推測は、観察した数値と区別して残せます。")}
   <details class="kind-example"><summary>種類と、まとまりは別のもの</summary><p><b>種類</b>は1枚ごとの情報の性質（事実・意見・仮説・検証結果）。<b>まとまり</b>は、カードの内容を読み合わせて見えてくる共通の意味です。違う種類のカードが同じまとまりに入ることもあります。</p><p>例：「受け取りが部活と重なる」（意見）と「放課後に箱を見る人が少ない」（事実）を寄せて、「受け取りたい人が確認できる機会は限られる」と表札を考えます。「時間」のような分類名で終わらせず、中の情報が何を語るかを表します。</p></details>
   ${itemHeading("調査カード", "block:cards")}
   <div class="card-board">${groupPanel({ id: "", title: "単独のカード" })}</div>
-  ${lesson("groups", "② 内容を読み合わせて、まとまりと表札を作る", "先に箱の名前を決めず、近いと感じるカードを2〜3枚から寄せます。合わないカードは単独のままでOK。例は一つの読み方なので、動かして別の表札も試せます。", "同じ「意見」でも、気付く問題・時間の問題・負担の問題があります。多数の声だけでなく、単独の情報も残します。", state.cards.length > 0)}
+  ${lesson("groups", "③ KJ法 · 読み合わせて、まとまりと表札を作る", "先に箱の名前を決めず、近いと感じるカードを2〜3枚から寄せます。合わないカードは単独のままでOK。例は一つの読み方なので、動かして別の表札も試せます。", "同じ「意見」でも、気付く問題・時間の問題・負担の問題があります。多数の声だけでなく、単独の情報も残します。", state.cards.length > 0)}
   ${itemHeading("カードを寄せて、まとまりを作る", "block:groups", "まとまりと表札", state.cards.length > 0)}
   <div class="group-workspace"><div class="gather-toolbar"><span>カードの □ を選んで寄せる</span>${btn("gather-picked", `選んだ${pickedCards.size}枚でまとまりを作る`, "", "primary-button", pickedCards.size ? "" : "disabled")}${btn("add-group", "＋ 空のまとまり")}<small>PCではドラッグ。スマートフォンでは「このカードを置くまとまり」でも動かせます。</small></div>
   <div class="gathered-groups">${state.groups
@@ -560,7 +681,7 @@ function organize() {
     .map((g) => groupPanel(g))
     .join("")}${missingGroups()}</div>
   <div class="inline-actions local-add">${btn("add-group", "＋ まとまり")}</div></div>
-  ${lesson("relations", "③ まとまり同士の関係を図にする", "表札と単独の情報を見渡し、つながり・食い違いを言葉にします。矢印はあなたの解釈であり、因果関係の証明ではありません。必要なら上位のまとまりも作れます。", "「気付くこと」と「受け取れること」の両方に壁がありそうです。つなぎ方を変えると、全体の説明も変わります。", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
+  ${lesson("relations", "④ KJ法 · まとまり同士の関係を図にする", "表札と単独の情報を見渡し、つながり・食い違いを言葉にします。矢印はあなたの解釈であり、因果関係の証明ではありません。必要なら上位のまとまりも作れます。", "「気付くこと」と「受け取れること」の両方に壁がありそうです。つなぎ方を変えると、全体の説明も変わります。", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
   ${itemHeading("表札と単独のカードを図に並べる", "block:diagram", "KJ法の関係図", state.cards.length > 0 || state.groups.length > 0)}
   ${kjDiagram()}<p class="graph-caption">破線は上位のまとまりとの関係。実線の矢印は、下で入力した関係の説明です。</p>
   ${itemHeading("関係線と、その説明", "relation:awareness", "関係線と説明", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
@@ -576,7 +697,7 @@ function organize() {
     .join(
       "",
     )}<div class="inline-actions">${btn("add-relation", "＋ 関係線", "", "", endpoints.length < 2 ? "disabled" : "")}</div>
-  ${lesson("synthesis", "④ 図を読み、全体を文章で説明する", "表札と単独のカードの両方を使い、分かったこと・まだ分からないことを説明します。説明しにくいときはカードの寄せ方に戻りましょう。", "情報の一覧が、次に確かめる原因の候補へつながる説明になります。", state.cards.length > 0)}
+  ${lesson("synthesis", "⑤ KJ法 · 図を読み、全体を文章で説明する", "表札と単独のカードの両方を使い、分かったこと・まだ分からないことを説明します。説明しにくいときはカードの寄せ方に戻りましょう。", "情報の一覧が、次に確かめる原因の候補へつながる説明になります。", state.cards.length > 0)}
   ${area("整理した情報から説明できること", "synthesis", "どの情報がつながる？食い違う？まだ確かめていないことは？")}
 `;
 }
@@ -669,12 +790,13 @@ function analyze() {
   if (!state.factors.some((f) => f.id === selectedFactor))
     selectedFactor = state.factors[0]?.id || "";
   const focus = state.causes.find((c) => c.id === state.focusCause);
-  return `${handoff("調査・整理から · 全体の説明", state.synthesis)}<div class="source-strip"><strong>使える根拠：${state.cards.length}枚</strong>${state.groups.map((g) => `<span>${esc(g.title || "表札なし")}</span>`).join("")}${btn("step", "元のカードを確認する", "1")}</div>
+  return `<div class="source-strip"><strong>調査から使える根拠：${state.cards.length}枚</strong>${btn("step", "元のカードを確認する", "1")}</div>
   ${lesson("causes", "① 情報から、原因の候補を図に置く", "大骨は原因を考える切り口、小骨は具体的な原因の候補です。整理した情報を根拠として接続します。情報をそのまま原因と決め付けず、どう影響するかを考えます。", "自分で作った表札を大骨の切り口に使えます。例の原因は、実際にある調査カードにだけ根拠を結びます。")}
-  <div class="diagram-toolbar">${presetControl("block:causes", "原因図の大骨と原因の候補")}${btn("add-factor", "＋ 大骨（切り口）")}${btn("groups-factors", "自分の表札を大骨にする")}<span>図の大骨・小骨を選ぶ → 隣で編集 → 次に使う原因を選ぶ</span></div>
+  ${itemHeading("特性要因図に原因の候補を置く", "block:causes", "原因図の大骨と原因の候補")}
+  <div class="diagram-toolbar">${btn("add-factor", "＋ 大骨（切り口）")}${btn("groups-factors", "自分の表札を大骨にする")}<span>図の大骨・小骨を選ぶ → 隣で編集 → 次に使う原因を選ぶ</span></div>
+  ${lesson("tests", "② 仮説の確かめ方を考える", "原因の説明と、確かめる方法をセットにします。小骨を選び、どんな記録・比較で確かめられるかを書きます。")}
+  ${itemHeading("仮説を確かめる方法も記入する", "block:tests", "原因の確かめ方", state.causes.length > 0)}
   <div class="diagram-workbench fish-workbench"><div class="diagram-view">${zoomTools("fish")}${fishbone()}</div>${causeEditor()}</div>
-  ${lesson("tests", "② 仮説の確かめ方を考える", "原因の説明と、確かめる方法をセットにします。小骨を選び、どんな記録・比較で確かめられるかを書きます。", "声があることと、その声が問題の原因であることは別です。試して結果が違えば、原因図に戻れます。", state.causes.length > 0)}
-  ${presetControl("block:tests", "原因の確かめ方", state.causes.length > 0)}
   ${handoff("発想へ引き継ぐ原因", focus?.text || "図の原因を選び、「この原因への対策を次で考える」を押してください。")}`;
 }
 function mapLayout() {
@@ -762,8 +884,7 @@ function ideate() {
     !state.nodes.some((n) => n.id === selectedNode)
   )
     selectedNode = "";
-  return `${handoff("原因図から · 対策を考える原因", focus?.text)}
-  ${lesson("branches", "原因から連想し、枝を広げて具体化する", "中心の問題から、関連する言葉を左右に広げます。一つの方向に絞らず、「時間を変える」「見せ方を変える」などの枝から具体策を増やしましょう。プリセットを記入したら、自分の枝を1本足してみてください。", "親の枝から具体的な案へ広がる構造が見えます。選んだ原因とのつながりを確認し、実際に比べたい案だけを比較候補にします。")}
+  return `  ${lesson("branches", "原因から連想し、枝を広げて具体化する", "中心の問題から、関連する言葉を左右に広げます。一つの方向に絞らず、「時間を変える」「見せ方を変える」などの枝から具体策を増やしましょう。プリセットを記入したら、自分の枝を1本足してみてください。", "親の枝から具体的な案へ広がる構造が見えます。選んだ原因とのつながりを確認し、実際に比べたい案だけを比較候補にします。")}
   <div class="branch-presets">${[
     ["n-access", "受け取りの機会を変える"],
     ["n-notice", "見せ方を変える"],
@@ -787,7 +908,7 @@ function decide() {
     ? scored.filter((r) => Math.abs(r.score - top.score) < 1e-9)
     : [];
   const selected = state.nodes.find((n) => n.id === state.selectedIdea);
-  return `${handoff("発想から · 比較する候補", ranks.map((r) => r.node.text).join(" ／ "))}${tip("重みは「何を大事にするか」、点数は「どれくらい満たすか」。プリセットなら「効果」と「続けやすさ」の重みを変えて、順位の変化を見てみよう。")}
+  return `${tip("重みは「何を大事にするか」、点数は「どれくらい満たすか」。プリセットなら「効果」と「続けやすさ」の重みを変えて、順位の変化を見てみよう。")}
   ${lesson("criteria", "① 比べる基準と、その大切さを決める", "効果だけで選ぶと、担当者の負担や個人情報を見落とすかもしれません。評価軸を並べ、何を大事にするかを重みで表します。", "重みは利用者の判断です。「効果」と「続けやすさ」の重みを変えると、順位が変わります。")}${itemHeading("評価軸と重みを編集する", "block:criteria")}${state.criteria
     .map(
       (c) =>
@@ -831,11 +952,10 @@ function graph() {
 function verify() {
   const selected = state.nodes.find((n) => n.id === state.selectedIdea);
   const eligible = canSimulate(state);
-  return `${handoff("計画から · 今回試す案", selected?.text)}${state.resultFor && state.resultFor !== state.selectedIdea ? '<p class="notice">下の結果は、以前選んだ案の記録です。今の案とは異なるため、結果を入れ替えるか、以前の記録として保存してください。</p>' : ""}
+  return `${state.resultFor && state.resultFor !== state.selectedIdea ? '<p class="notice">下の結果は、以前選んだ案の記録です。今の案とは異なるため、結果を入れ替えるか、以前の記録として保存してください。</p>' : ""}
   ${simulationChanged(state) ? '<p class="notice">架空結果は編集前の題材・案・指標のものです。現在の条件には当てはめられません。</p>' : ""}
-  ${handoff("担当・期間", `${state.plan.who || "担当未入力"} ／ ${state.plan.when || "期間未入力"}`)}
   ${tip("実施したかどうかと、効果があったかどうかは別に記録します。条件を揃えた比較と、数値に出ない困りごとの両方を残しましょう。")}
-  ${lesson("checks", "① 実施する作業を並べ、実施したらチェックする", "計画を実際の作業に分けます。チェックは効果の証明ではなく、実施したかを残すためのものです。", "実施の記録と効果の記録が分かれます。チェックとメモは、自分で操作して残しましょう。")}${itemHeading("チェックシート · 実施と気付きを記録する", "block:checks")}${state.checks.map((c) => `<div class="check-row" data-preset-collection="checks" data-preset-row="${c.id}"><label><span class="visually-hidden">${esc(c.text || "作業")}の実施済み</span><input type="checkbox" data-bind="checks.${c.id}.done" ${c.done ? "checked" : ""}></label><div>${input("確認する作業", `checks.${c.id}.text`, "実施すること")}${input("メモ", "checks." + c.id + ".note", "できたこと・困ったこと")}</div>${del("delete-check", c.id, "この確認項目を削除")}</div>`).join("") || empty("小さく試すための作業を追加してください。")}
+  ${lesson("checks", "① 実施する作業を並べ、実施したらチェックする", "「実施済み」のチェックは作業を行った記録です。プリセットでは、実施したつもりでチェックして体験できます。効果は下の結果で別に検証します。", "実施の記録と効果の記録が分かれます。チェックとメモは、自分で操作して残しましょう。")}${itemHeading("チェックシート · 実施と気付きを記録する", "block:checks")}${state.checks.map((c) => `<div class="check-row" data-preset-collection="checks" data-preset-row="${c.id}"><label class="check-complete"><input type="checkbox" data-bind="checks.${c.id}.done" ${c.done ? "checked" : ""}><span>実施済み</span><span class="visually-hidden"> · ${esc(c.text || "作業")}</span></label><div>${input("確認する作業", `checks.${c.id}.text`, "実施すること")}${input("メモ", "checks." + c.id + ".note", "できたこと・困ったこと")}</div>${del("delete-check", c.id, "この確認項目を削除")}</div>`).join("") || empty("小さく試すための作業を追加してください。")}
   <div class="inline-actions">${btn("add-check", "＋ 確認項目")}</div>
   <h3>結果を記録して、比較する</h3>
   ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では、選んだ案を4週間試し、毎週集まった10件ずつを各4週間追跡したとします。「プリセット記入」で4週分の架空の記録を入れます。数値以外の観察メモは、下の入力欄で別に記入して、返却率と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の副作用や負担に注目します。", eligible && !state.records.length && !state.observation)}
@@ -854,7 +974,7 @@ function reflect() {
   return `${handoff("ここまでのつながり", `${state.problem.title || "題材未入力"} → ${idea?.text || "対策未選択"} → ${fmt(c.before)}${c.before === null ? "" : unit} から ${fmt(c.after)}${c.after === null ? "" : unit}`)}
   ${state.resultFor && state.resultFor !== state.selectedIdea ? '<p class="notice">結果は以前の対策の記録です。振り返る前に、対策と結果の対応を確認しましょう。</p>' : ""}
   ${simulationChanged(state) ? '<p class="notice">架空結果は編集前の条件のものです。検証の段階に戻って対応を確認しましょう。</p>' : ""}
-  ${handoff("検証から · 観察・課題", state.observation)}${tip("Keepには続けたい工夫、Problemには残った課題、Tryには次に確かめる行動を。カードは別の列へ動かせます。根拠も一言残そう。")}
+  ${tip("Keepには続けたい工夫、Problemには残った課題、Tryには次に確かめる行動を。カードは別の列へ動かせます。根拠も一言残そう。")}
   ${lesson("kpt", "① 結果をもとに、振り返りを3つに分ける", "返却率と、選んだ案の観察メモを読みます。Keepに続けたいこと、Problemに残った課題、Tryに次の行動を書きます。", "同じ返却率でも、負担や届かなかった人に着目すると、次の改善は変わります。", c.after !== null && !!state.resultFor)}
 ${itemHeading("結果からKeep・Problem・Tryを考える", "block:kpt", "KPTの3枚のカード", c.after !== null && !!state.resultFor)}<div class="kpt-board">${Object.entries(
     {
@@ -1128,6 +1248,43 @@ async function action(el) {
     selectedFactor =
       a === "factor" ? id : state.causes.find((c) => c.id === id)?.factor || "";
     render();
+    return;
+  }
+  if (
+    [
+      "add-brainstorm",
+      "extend-brainstorm",
+      "delete-brainstorm",
+      "transfer-brainstorm",
+    ].includes(a)
+  ) {
+    if (a === "delete-brainstorm") removeItem(state, "brainstorm", id);
+    else if (a === "transfer-brainstorm") {
+      brainstormToCards(state, id === "all" ? undefined : [id]);
+    } else {
+      if (state.brainstorm.length >= 300) {
+        notify(
+          "発言は300件まで記録できます。不要な発言を整理してから追加してください。",
+        );
+        return;
+      }
+      const note = {
+        id: uid(),
+        text: "",
+        kind: "hypothesis",
+        parent: a === "extend-brainstorm" ? id : "",
+        card: "",
+      };
+      state.brainstorm.push(note);
+      focusPath = `brainstorm.${note.id}.text`;
+    }
+    changed();
+    save();
+    render();
+    if (focusPath)
+      $(`[data-bind="${CSS.escape(focusPath)}"]`)?.focus({
+        preventScroll: true,
+      });
     return;
   }
   if (a === "step") {
@@ -1473,6 +1630,28 @@ function update(event) {
           ? Math.abs(m.target - c.before)
           : null;
       gap.innerHTML = `実施前 <strong>${fmt(c.before)}${m.kind === "rate" && c.before !== null ? "%" : ""}</strong> → 目標 <strong>${fmt(m.target)}${m.kind === "rate" && m.target !== null ? "%" : ""}</strong>${difference !== null ? `<p>差は ${fmt(difference)} ${m.kind === "rate" ? "ポイント" : esc(m.unit)}。この差を埋めるには、何を確かめたい？</p>` : ""}`;
+    }
+  }
+  if ($(".stage-outcome")) $(".stage-outcome").outerHTML = stageOutcome();
+  if (path.startsWith("brainstorm.")) {
+    for (const note of state.brainstorm) {
+      const transfer = $(
+        `[data-action="transfer-brainstorm"][data-id="${note.id}"]`,
+      );
+      if (transfer) transfer.disabled = Boolean(note.card || !note.text.trim());
+      const parent = $(
+        `.brainstorm-note[data-preset-row="${note.id}"] .brainstorm-parent`,
+      );
+      if (parent)
+        parent.textContent = `発展元：${state.brainstorm.find((n) => n.id === note.parent)?.text || "まだ名前のない発言"}`;
+    }
+    const remaining = state.brainstorm.filter(
+      (n) => n.text.trim() && !n.card,
+    ).length;
+    const transferAll = $('[data-action="transfer-brainstorm"][data-id="all"]');
+    if (transferAll) {
+      transferAll.textContent = `未整理の${remaining}件をKJのカードへ渡す`;
+      transferAll.disabled = !remaining;
     }
   }
   // Text inputs stay mounted for IME, caret and touch keyboard stability.

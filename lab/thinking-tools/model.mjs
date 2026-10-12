@@ -16,8 +16,8 @@ export const steps = [
   ],
   [
     "現状の調査・整理",
-    "KJ法",
-    "情報を読み合わせ、まとまり・関係・全体の説明を作る。",
+    "ブレーンストーミング・KJ法",
+    "発言を広げ、情報を読み合わせ、まとまり・関係・全体の説明を作る。",
     "アンケートやインタビューの声が散らばっているとき。",
   ],
   [
@@ -84,6 +84,7 @@ export function emptyWorkbook() {
     examples: [],
     presetWrites: [],
     reviewNotes: Array.from({ length: 7 }, () => []),
+    brainstorm: [],
     relations: [],
     kjDiagramReady: false,
     synthesis: "",
@@ -546,6 +547,242 @@ export function fillExample(s, id) {
   return true;
 }
 
+export function brainstormingExample() {
+  return [
+    {
+      id: "bs-notice",
+      text: "なくした物が箱にあると思っていないのでは？",
+      kind: "hypothesis",
+      parent: "",
+      card: "",
+    },
+    {
+      id: "bs-time",
+      text: "箱を見たい時間に見られないのでは？",
+      kind: "hypothesis",
+      parent: "",
+      card: "",
+    },
+    {
+      id: "bs-chance",
+      text: "見る時間を変えたり、別の場所でも確認できたりしたらどうだろう",
+      kind: "opinion",
+      parent: "bs-time",
+      card: "",
+    },
+    {
+      id: "bs-shame",
+      text: "人前で箱を探すのを避ける人もいるのでは？",
+      kind: "hypothesis",
+      parent: "",
+      card: "",
+    },
+  ];
+}
+export function brainstormToCards(s, ids = s.brainstorm.map((n) => n.id)) {
+  const selected = new Set(ids),
+    added = [];
+  for (const note of s.brainstorm) {
+    if (
+      !selected.has(note.id) ||
+      !note.text.trim() ||
+      note.card ||
+      s.cards.length >= 300
+    )
+      continue;
+    const card = {
+      id: uid(),
+      text: note.text,
+      kind: note.kind,
+      group: "",
+      source: "ブレーンストーミングの発言・未調査／未検証",
+    };
+    s.cards.push(card);
+    note.card = card.id;
+    added.push(card.id);
+  }
+  return added;
+}
+// Show concrete outputs and the actual data available to the following stage.
+export function stageSummary(s, step = s.step) {
+  const row = (label, value) => ({ label, value: String(value || "未入力") });
+  const count = (list, field = "text") =>
+    list.filter((n) => n[field]?.trim()).length;
+  const done = [],
+    passed = [],
+    pending = [];
+  const metric = () => {
+    const c = comparison(s),
+      unit = s.measure.kind === "rate" ? "%" : s.measure.unit;
+    return `${s.measure.label || "指標未入力"}：実施前 ${c.before ?? "未記録"}${c.before === null ? "" : unit} → 目標 ${s.measure.target ?? "未入力"}${s.measure.target === null ? "" : unit}`;
+  };
+  const focus = s.causes.find((c) => c.id === s.focusCause);
+  const chosen = s.nodes.find((n) => n.id === s.selectedIdea);
+  if (step === 0) {
+    done.push(
+      row("問題・課題", s.problem.title),
+      row(
+        "5W1H",
+        `${["who", "what", "when", "where", "why", "how"].filter((k) => s.problem[k].trim()).length}/6項目を記入`,
+      ),
+      row("現状と目標", metric()),
+    );
+    passed.push(
+      row("問題・課題", s.problem.title),
+      row("調査で確かめること", s.problem.question),
+      row("比較する指標", metric()),
+    );
+    if (!s.problem.question.trim())
+      pending.push("調査で何を確かめるかは、まだ記入されていません。");
+  } else if (step === 1) {
+    done.push(
+      row(
+        "ブレーンストーミング",
+        `${count(s.brainstorm)}件の発言、${s.brainstorm.filter((n) => n.card).length}件をKJ法へ`,
+      ),
+      row(
+        "KJ法",
+        `${s.cards.length}枚の情報、${s.groups.length}個のまとまり、${s.relations.length}本の関係線`,
+      ),
+      row("全体の説明", s.synthesis),
+    );
+    passed.push(
+      row(
+        "原因を考える材料",
+        `${s.cards.length}枚（事実 ${s.cards.filter((c) => c.kind === "fact").length}・意見 ${s.cards.filter((c) => c.kind === "opinion").length}・仮説 ${s.cards.filter((c) => c.kind === "hypothesis").length}・検証結果 ${s.cards.filter((c) => c.kind === "result").length}）。種類と出典を保って使います。`,
+      ),
+      row(
+        "まとまりの表札",
+        s.groups
+          .map((g) => g.title)
+          .filter(Boolean)
+          .join(" ／ "),
+      ),
+      row("整理した情報からの説明", s.synthesis),
+    );
+    if (!s.synthesis.trim())
+      pending.push("情報全体から説明できることは、まだ文章にしていません。");
+    if (s.brainstorm.some((n) => n.text.trim() && !n.card))
+      pending.push(
+        "KJ法へ渡していない発言が残っています。発言ボードで続けられます。",
+      );
+  } else if (step === 2) {
+    done.push(
+      row(
+        "特性要因図",
+        `${s.factors.length}本の大骨、${s.causes.length}個の原因の候補`,
+      ),
+      row(
+        "仮説の確かめ方",
+        `${count(s.causes, "test")}/${s.causes.length}件を記入`,
+      ),
+    );
+    passed.push(
+      row("次に対策を考える原因", focus?.text || "未選択"),
+      row(
+        "結び付けた根拠",
+        s.cards.find((c) => c.id === focus?.evidence)?.text || "未接続",
+      ),
+      row("確かめる方法", focus?.test),
+    );
+    if (!focus)
+      pending.push(
+        "次に使う原因は、まだ選んでいません。原因の編集欄で選べます。",
+      );
+  } else if (step === 3) {
+    const candidates = s.nodes.filter((n) => n.candidate);
+    done.push(
+      row(
+        "マインドマップ",
+        `${s.nodes.length}本の枝、${candidates.length}件の比較候補`,
+      ),
+      row(
+        "比較する案",
+        candidates
+          .map((n) => n.text)
+          .filter(Boolean)
+          .join(" ／ "),
+      ),
+    );
+    passed.push(
+      row(
+        "比較表に入る案",
+        candidates
+          .map((n) => n.text)
+          .filter(Boolean)
+          .join(" ／ "),
+      ),
+      row(
+        "原因とのつながり",
+        candidates
+          .map(
+            (n) =>
+              `${n.text || "名前未入力"} → ${causeForNode(s, n)?.text || "原因未接続"}`,
+          )
+          .join(" ／ "),
+      ),
+    );
+    if (!candidates.length)
+      pending.push(
+        "比較したい具体案には、枝の編集欄で「比較表へ送る」を付けます。",
+      );
+  } else if (step === 4) {
+    done.push(
+      row(
+        "意思決定マトリクス",
+        `${s.criteria.length}個の評価軸、${ranking(s).filter((r) => r.score !== null).length}件を採点`,
+      ),
+      row("試す案", chosen?.text || "未選択"),
+    );
+    passed.push(
+      row("今回試す案", chosen?.text || "未選択"),
+      row(
+        "担当・期間",
+        `${s.plan.who || "担当未入力"} ／ ${s.plan.when || "期間未入力"}`,
+      ),
+      row(
+        "確かめ方・注意点",
+        [s.plan.test, s.plan.risk].filter(Boolean).join(" ／ "),
+      ),
+      row("比べる指標", metric()),
+    );
+    if (!chosen) pending.push("試す案は、比較表の選択欄で選べます。");
+  } else if (step === 5) {
+    const c = comparison(s),
+      unit = s.measure.kind === "rate" ? "%" : s.measure.unit;
+    done.push(
+      row(
+        "実施の記録",
+        `${s.checks.filter((n) => n.done).length}/${s.checks.length}件の作業が実施済み`,
+      ),
+      row(
+        "検証の記録",
+        `${s.records.length}行。実施前 ${c.before ?? "未記録"}${c.before === null ? "" : unit} → 実施後 ${c.after ?? "未記録"}${c.after === null ? "" : unit}`,
+      ),
+    );
+    passed.push(
+      row(
+        "試した案と結果",
+        `${s.nodes.find((n) => n.id === s.resultFor)?.text || chosen?.text || "案未選択"}：${c.after ?? "未記録"}${c.after === null ? "" : unit}${s.simulation ? "（架空の結果）" : ""}`,
+      ),
+      row("数値以外の変化・比較の限界", s.observation),
+      row("測定条件", s.measure.conditions),
+    );
+    if (c.after === null)
+      pending.push("比較できる実施結果は、まだ記録されていません。");
+  } else {
+    done.push(
+      row(
+        "KPT",
+        `Keep ${s.kpt.filter((n) => n.kind === "keep").length}件・Problem ${s.kpt.filter((n) => n.kind === "problem").length}件・Try ${s.kpt.filter((n) => n.kind === "try").length}件`,
+      ),
+    );
+    passed.push(row("次の改善で試すこと", s.next));
+    if (!s.next.trim())
+      pending.push("次の具体的な行動は、まだ記入されていません。");
+  }
+  return { completed: done, passed, pending };
+}
 export function markEdited(s, step, notes = []) {
   for (let i = step + 1; i < 7; i++)
     if (s.done[i]) {
@@ -689,6 +926,7 @@ export function simulationChanged(s) {
 }
 
 const collections = [
+  "brainstorm",
   "cards",
   "groups",
   "relations",
@@ -771,7 +1009,7 @@ const presetPattern =
 export const validPresetId = (id) =>
   typeof id === "string" &&
   (presetPattern.test(id) ||
-    /^block:(context|gap|cards|groups|diagram|causes|tests|criteria|scores|plan|checks|results|kpt)$/.test(
+    /^block:(context|gap|brainstorm|cards|groups|diagram|causes|tests|criteria|scores|plan|checks|results|kpt)$/.test(
       id,
     ) ||
     /^branchset:n-(access|notice|prevent)$/.test(id));
@@ -798,6 +1036,10 @@ export function removeItem(s, collection, id) {
 }
 export function cleanReferences(s) {
   const has = (key, id) => s[key].some((x) => x.id === id);
+  for (const n of s.brainstorm) {
+    if (n.parent && !has("brainstorm", n.parent)) n.parent = "";
+    if (n.card && !has("cards", n.card)) n.card = "";
+  }
   for (const c of s.cards) if (c.group && !has("groups", c.group)) c.group = "";
   for (const f of s.factors)
     if (f.group && !has("groups", f.group)) f.group = "";
@@ -885,7 +1127,11 @@ function toggleSinglePreset(s, id, options = {}) {
   const before = structuredClone(s),
     p = presetExample();
   const add = (collection, row) => {
-    if (s[collection].some((x) => x.id === row.id)) return false;
+    if (
+      s[collection].length >= 300 ||
+      s[collection].some((x) => x.id === row.id)
+    )
+      return false;
     s[collection].push(structuredClone(row));
     return true;
   };
@@ -902,6 +1148,8 @@ function toggleSinglePreset(s, id, options = {}) {
   };
   const [type, key] = id.split(":");
   if (type === "field") set(key, presetValue(s, key));
+  if (id === "block:brainstorm")
+    for (const note of brainstormingExample()) add("brainstorm", note);
   if (id === "block:diagram" && (s.cards.length || s.groups.length))
     s.kjDiagramReady = true;
   if (type === "card") {
@@ -1232,6 +1480,7 @@ export function changeNotes(before, s, source) {
     ratings: "点数",
   };
   const names = {
+    brainstorm: "ブレーンストーミングの発言",
     cards: "調査カード",
     groups: "表札",
     relations: "関係線",
@@ -1293,9 +1542,22 @@ export function changeNotes(before, s, source) {
       notes.push({
         source,
         path,
-        label,
-        before: display(old.get(path)),
-        after: display(value),
+        label:
+          key === "brainstorm" && ["parent", "card"].includes(field)
+            ? `${name(key, id)}の${field === "parent" ? "発展元の発言" : "KJ法へ渡したカード"}`
+            : label,
+        before:
+          key === "brainstorm" && ["parent", "card"].includes(field)
+            ? before[field === "parent" ? "brainstorm" : "cards"].find(
+                (n) => n.id === old.get(path),
+              )?.text || "なし"
+            : display(old.get(path)),
+        after:
+          key === "brainstorm" && ["parent", "card"].includes(field)
+            ? s[field === "parent" ? "brainstorm" : "cards"].find(
+                (n) => n.id === value,
+              )?.text || "なし"
+            : display(value),
       });
     }
   for (const key of ["focusCause", "selectedIdea"])
@@ -1411,7 +1673,7 @@ export function parseWorkbook(raw) {
       assert(
         p &&
           typeof p.path === "string" &&
-          /^(problem|measure|plan|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next|selectedIdea|kjDiagramReady)(\.[-a-zA-Z0-9]+){0,3}$/.test(
+          /^(problem|measure|plan|brainstorm|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next|selectedIdea|kjDiagramReady)(\.[-a-zA-Z0-9]+){0,3}$/.test(
             p.path,
           ),
       );
@@ -1490,6 +1752,13 @@ export function parseWorkbook(raw) {
     from: textField,
     to: textField,
     text: textField,
+  });
+  s.brainstorm = list(input.brainstorm ?? [], {
+    ...base,
+    text: textField,
+    kind: (v) => ["opinion", "hypothesis"].includes(v),
+    parent: textField,
+    card: textField,
   });
   s.cards = list(input.cards, {
     ...base,
@@ -1578,6 +1847,22 @@ export function parseWorkbook(raw) {
     s[k] = input[k];
   }
   const has = (array, id) => array.some((x) => x.id === id);
+  assert(
+    s.brainstorm.every(
+      (n) =>
+        (!n.parent || has(s.brainstorm, n.parent)) &&
+        (!n.card || has(s.cards, n.card)),
+    ),
+  );
+  for (const n of s.brainstorm) {
+    const seen = new Set([n.id]);
+    let parent = n.parent;
+    while (parent) {
+      assert(!seen.has(parent));
+      seen.add(parent);
+      parent = s.brainstorm.find((p) => p.id === parent).parent;
+    }
+  }
   assert(s.cards.every((c) => !c.group || has(s.groups, c.group)));
   assert(s.groups.every((g) => !g.parent || has(s.groups, g.parent)));
   for (const g of s.groups) {
@@ -1831,6 +2116,16 @@ export function report(s) {
   );
   add("測定条件", s.measure.conditions);
   lines.push("\n## 2. 現状の調査・整理");
+  if (s.brainstorm.length) {
+    lines.push("\n### ブレーンストーミングの発言（未検証）");
+    for (const n of s.brainstorm) {
+      add(kinds[n.kind], n.text);
+      if (n.parent)
+        add("発展元の発言", s.brainstorm.find((p) => p.id === n.parent)?.text);
+      if (n.card)
+        add("KJ法へ渡したカード", s.cards.find((c) => c.id === n.card)?.text);
+    }
+  }
   for (const g of [{ id: "", title: "未分類" }, ...s.groups]) {
     lines.push(`\n### ${g.title}`);
     for (const c of s.cards.filter((c) => c.group === g.id))

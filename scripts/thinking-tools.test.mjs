@@ -19,6 +19,8 @@ import {
   causeForNode,
   descendants,
   report,
+  brainstormToCards,
+  stageSummary,
 } from "../lab/thinking-tools/model.mjs";
 
 test("free mode starts completely empty and both modes round-trip through files", () => {
@@ -702,4 +704,116 @@ test("a manually selected trial remains selected through preset scoring and undo
   assert.equal(s.selectedIdea, "n-photos");
   togglePreset(s, "block:scores");
   assert.equal(s.selectedIdea, "n-photos");
+});
+
+test("brainstorming can start empty, develop a statement, and transfer opinions without inventing facts", () => {
+  const s = emptyWorkbook();
+  assert.deepEqual(s.brainstorm, []);
+  s.brainstorm.push(
+    {
+      id: "first",
+      text: "見たい時間に確認できないのでは",
+      kind: "hypothesis",
+      parent: "",
+      card: "",
+    },
+    {
+      id: "second",
+      text: "朝にも見られたらどうだろう",
+      kind: "opinion",
+      parent: "first",
+      card: "",
+    },
+  );
+  assert.equal(brainstormToCards(s).length, 2);
+  assert.deepEqual(
+    s.cards.map((c) => c.kind),
+    ["hypothesis", "opinion"],
+  );
+  assert.ok(s.cards.every((c) => c.source.includes("未検証")));
+  assert.ok(s.brainstorm.every((n) => s.cards.some((c) => c.id === n.card)));
+  s.cards[0].text = "KJ法で編集した内容";
+  assert.deepEqual(brainstormToCards(s), []);
+  assert.equal(s.cards[0].text, "KJ法で編集した内容");
+  const resumed = parseWorkbook(JSON.stringify(s));
+  removeItem(resumed, "brainstorm", "first");
+  assert.equal(resumed.brainstorm[0].parent, "");
+  assert.equal(resumed.cards.length, 2);
+  removeItem(resumed, "cards", resumed.brainstorm[0].card);
+  assert.equal(resumed.brainstorm[0].card, "");
+  assert.equal(brainstormToCards(resumed).length, 1);
+  assert.deepEqual(parseWorkbook(JSON.stringify(resumed)), resumed);
+  assert.match(report(s), /ブレーンストーミングの発言（未検証）/);
+});
+test("brainstorming presets are reversible after resume while transferred KJ work is retained", () => {
+  const s = presetWorkbook();
+  assert.equal(togglePreset(s, "block:brainstorm").ok, true);
+  assert.equal(s.brainstorm.length, 4);
+  assert.ok(s.brainstorm.some((n) => n.parent));
+  assert.equal(s.cards.length, 0);
+  assert.equal(brainstormToCards(s).length, 4);
+  const loaded = parseWorkbook(JSON.stringify(s));
+  togglePreset(loaded, "block:brainstorm");
+  assert.equal(loaded.brainstorm.length, 0);
+  assert.equal(loaded.cards.length, 4);
+  assert.ok(loaded.cards.every((c) => c.kind !== "fact"));
+  assert.deepEqual(parseWorkbook(JSON.stringify(loaded)), loaded);
+  assert.equal(togglePreset(emptyWorkbook(), "block:brainstorm").ok, false);
+});
+test("brainstorm imports migrate previous workbooks and reject cycles, dangling references, and fabricated fact types", () => {
+  const prior = presetExample();
+  delete prior.brainstorm;
+  const migrated = parseWorkbook(JSON.stringify(prior));
+  assert.deepEqual(migrated.brainstorm, []);
+  assert.deepEqual(migrated.cards, prior.cards);
+  const s = presetWorkbook();
+  togglePreset(s, "block:brainstorm");
+  for (const mutate of [
+    (s) => (s.brainstorm[0].parent = "missing"),
+    (s) => (s.brainstorm[0].card = "missing"),
+    (s) => (s.brainstorm[0].kind = "fact"),
+    (s) => {
+      s.brainstorm[0].parent = s.brainstorm[1].id;
+      s.brainstorm[1].parent = s.brainstorm[0].id;
+    },
+  ]) {
+    const bad = structuredClone(s);
+    mutate(bad);
+    assert.throws(() => parseWorkbook(JSON.stringify(bad)));
+  }
+});
+test("stage summaries show concrete outgoing work and distinguish unfinished and fictional results", () => {
+  const empty = emptyWorkbook();
+  assert.ok(stageSummary(empty, 0).pending.some((s) => s.includes("まだ")));
+  const s = presetExample();
+  const first = stageSummary(s, 0);
+  assert.ok(first.passed.some((r) => r.value === s.problem.question));
+  assert.ok(
+    first.passed.some(
+      (r) => r.value.includes("30%") && r.value.includes("60%"),
+    ),
+  );
+  assert.ok(stageSummary(s, 2).pending.some((n) => n.includes("まだ選んで")));
+  s.focusCause = "h-notice";
+  const causes = stageSummary(s, 2);
+  assert.ok(
+    causes.passed.some(
+      (r) => r.value === s.causes.find((c) => c.id === s.focusCause).text,
+    ),
+  );
+  s.selectedIdea = "n-display";
+  simulate(s);
+  const results = stageSummary(s, 5);
+  assert.ok(
+    results.passed.some(
+      (r) => r.value.includes("55%") && r.value.includes("架空"),
+    ),
+  );
+  assert.ok(results.passed.some((r) => r.value === s.observation));
+  const before = structuredClone(s);
+  for (let i = 0; i < 7; i++) {
+    const summary = stageSummary(s, i);
+    assert.ok(summary.completed.length && summary.passed.length);
+  }
+  assert.deepEqual(s, before);
 });
