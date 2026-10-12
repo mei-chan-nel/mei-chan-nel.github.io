@@ -12,12 +12,12 @@ export const steps = [
     "問題の明確化",
     "5W1H・ギャップ分析",
     "「何に困る？」を、確かめられる問題に。",
-    "目標の認識がずれているとき、プロジェクトを始めるとき。",
+    "目標のイメージが人によって違うとき、プロジェクトを始めるとき。",
   ],
   [
     "現状の調査・整理",
     "ブレーンストーミング・KJ法",
-    "発言を広げ、情報を読み合わせ、まとまり・関係・全体の説明を作る。",
+    "思い付きを出し、集めた情報のつながりを見つける。",
     "アンケートやインタビューの声が散らばっているとき。",
   ],
   [
@@ -42,13 +42,13 @@ export const steps = [
     "実行・検証",
     "チェックシート・比較グラフ",
     "実施の記録と変化を並べ、目標と比べる。",
-    "小さく試した対策の効果や副作用を確かめるとき。",
+    "小さく試した対策の効果や、困ったことを確かめるとき。",
   ],
   [
     "評価・改善",
     "KPT法",
     "続けること・課題・次の試みを整理する。",
-    "活動や試行を振り返り、次の改善につなげるとき。",
+    "活動や試したことを振り返り、次の改善につなげるとき。",
   ],
 ];
 export function emptyWorkbook() {
@@ -111,25 +111,85 @@ export const strategies = {
     name: "昼休みに見られる展示コーナー",
     values: [5, 3, 4],
     returned: [6, 5, 6, 5],
-    note: "返却は22/40件。場所を知る人は増えたが、部活動で昼休みに来られない生徒には届きにくい。担当の準備は週35分。前の期間と別の落とし物を数えたため、品物の違いも影響しうる。",
+    scoreReasons: [
+      "昼休みに見られるので、受け取りの機会が増えそう",
+      "並べ直しや当番が必要",
+      "名前や中身を隠して並べられるが、人目への配慮は必要",
+    ],
+    planReason:
+      "放課後に来られない人にも見てもらうため、昼休みに見られる場所へ並べる。毎日写真を更新するより始めやすそうなので、この案を試す。",
+    planRisk:
+      "名前や中身は見せず、返す前に持ち主か確かめる。昼休みにも来られない人がいないか聞く。",
+    note: "返却は22/40件。聞き取りでは箱の場所を知ったという声が増えたが、昼休みも部活動がある生徒からは来づらいという声があった。担当の準備は週35分。",
+    reflection: {
+      keep: "昼休みに見られるようにした工夫は続けたい。箱の場所を知ったという声も増えた。",
+      problem:
+        "昼休みも部活動がある人は来づらい。準備に週35分かかるので、当番の負担も考えたい。",
+      try: "昼休みに来られない人に都合のよい時間を聞き、朝にも見られる日を試す。利用人数と準備時間を記録する。",
+    },
   },
   photos: {
     name: "個人情報を隠した写真一覧",
     values: [4, 2, 2],
     returned: [7, 6, 7, 7],
-    note: "返却は27/40件。ただし写真の更新に週65分かかり、特徴を隠しすぎた品物は本人も判断しづらかった。写真を見られる環境の差も課題。返却率だけなら良いが、継続可能か？",
+    scoreReasons: [
+      "箱へ行かなくても、自分の物か確認できそう",
+      "写真を撮り、隠す部分を確認し、更新する手間がある",
+      "名前や持ち物から本人が分からないよう、毎回確認が必要",
+    ],
+    planReason:
+      "箱へ行かなくても自分の物か確認できるよう、名前などを隠した写真を校内で見られるようにする。返却の変化だけでなく、写真の更新にかかる時間も確かめたい。",
+    planRisk:
+      "名前や中身、背景に写る人は公開しない。持ち主か確かめてから返す。写真を見られない人には別の案内も用意する。",
+    note: "返却は27/40件。ただし写真の更新に週65分かかり、特徴を隠しすぎた品物は本人も判断しづらかった。写真を見られない生徒もいた。この手間で続けられるだろうか。",
+    reflection: {
+      keep: "箱へ行かずに写真で確認できる工夫は続けたい。ただし、返却率が上がった理由はもう少し確かめたい。",
+      problem:
+        "写真の更新に週65分かかった。隠しすぎると本人も分からず、写真を見られない人もいる。",
+      try: "写真の更新を週2回にし、名前は隠しつつ色や形は分かるようにする。更新時間と返却率を比べ、紙でも案内する。",
+    },
   },
   announce: {
     name: "学級で特徴だけを定期案内",
     values: [3, 4, 5],
     returned: [5, 5, 5, 6],
-    note: "返却は21/40件。準備は週15分、個人情報の公開は少ない。一方、言葉だけで似た水筒を区別できず、誤った申し出が4件あった。品物の種類別にも調べたい。",
+    scoreReasons: [
+      "多くの人に届くが、言葉だけでは見分けにくい物もある",
+      "短い案内なら担当者の手間を抑えられそう",
+      "名前や写真を出さず、必要な特徴だけを伝えられる",
+    ],
+    planReason:
+      "クラスで色や形などを定期的に知らせる。写真の更新より手間を抑えられそうなので、この案を試す。似た品物を取り違えないかも記録する。",
+    planRisk:
+      "名前や中身などは案内しない。似た物を取り違えないよう、持ち主しか知らない特徴を聞いてから返す。",
+    note: "返却は21/40件。準備は週15分。名前や写真を出さずに案内できた。一方、言葉だけでは似た水筒を見分けられず、自分の物だと思ったが違ったという申し出が4件あった。返す前に確認したので、取り違えはなかった。",
+    reflection: {
+      keep: "クラスで短く知らせる方法は続けたい。準備は週15分で、名前や写真を出さずに案内できた。",
+      problem:
+        "似た水筒を言葉だけでは見分けられず、違う品物への申し出が4件あった。",
+      try: "案内に色や形の違いを加える。返す前の本人確認は続け、違う品物への申し出が減るか記録する。",
+    },
   },
   labels: {
     name: "記名しやすいラベルを配布",
     values: [2, 5, 5],
     returned: [4, 5, 4, 5],
-    note: "返却は18/40件。新しく記名された物は返しやすくなったが、既に集まっている無記名の物には効果が小さい。紛失そのものの予防は、この返却率だけでは評価できない。",
+    scoreReasons: [
+      "名前があれば返しやすいが、すでに名前のない落とし物には届かない",
+      "配った後は、持ち主が名前を書ける",
+      "名前は品物につけ、一覧や写真として公開しない",
+    ],
+    planReason:
+      "調査では名前のある物の方が多く戻っていたので、名前を書きやすいラベルを配る。ただし、品物の違いもあるので、名前が理由だとはまだ決められない。新しく預かる物の返却を記録する。",
+    planRisk:
+      "名前は人目につきにくい所へ書いてもらう。すでに箱にある名前のない物には、別の案内も必要。",
+    note: "返却は18/40件。新しく名前が書かれた物は返しやすくなったが、すでに箱にある名前のない物には役立ちにくかった。物をなくす回数が減ったかどうかは、この返却率だけでは分からない。",
+    reflection: {
+      keep: "名前を書きやすくする工夫は続けたい。新しく名前が書かれた物は返しやすかった。",
+      problem:
+        "すでに箱にある名前のない物には役立ちにくい。物をなくす回数が減ったかは、まだ分からない。",
+      try: "次の期間は名前の有無ごとに返却を記録し、落とし物の件数も数える。箱に残っている物には、特徴を知らせる案内も試す。",
+    },
   },
 };
 export function presetExample() {
@@ -138,12 +198,12 @@ export function presetExample() {
   s.problem = {
     title: "学校の落とし物が持ち主に戻らない",
     who: "物をなくした生徒・保管を担当する委員",
-    what: "落とし物の7割が4週間たっても戻らない",
-    when: "直近4週間。受け取りは放課後の15分間",
+    what: "預かってから4週間たっても、落とし物の7割が戻らない",
+    when: "実施前に調べた40件（4週間に預かり、各4週間確認）。受け取りは放課後の15分間",
     where: "職員室の前の保管箱",
     why: "持ち主は困り、保管スペースもいっぱいになる",
-    how: "拾った物を箱へ。月末に学級へ案内",
-    current: "40件中12件だけが返却された（30%）",
+    how: "拾った物を箱へ。月末にクラスで知らせる",
+    current: "預かった40件中、4週間以内に戻ったのは12件（30%）",
     ideal: "4週間以内の返却率を60%以上に。担当者の負担も抑える",
     question: "気付く・確認する・受け取る、どこでつまずいている？",
   };
@@ -157,11 +217,16 @@ export function presetExample() {
     beforeValue: null,
     target: 60,
     conditions:
-      "同じ4週間で集まった物の返却を追う。品物の種類・記名の有無・行事の違いも確認する。",
+      "実施前も実施後も、4週間に預かった物が、それぞれ預かった日から4週間以内に戻ったか数える。品物の種類・名前の有無・行事の違いも確認する。",
   };
   s.groups = [];
   const data = [
-    ["c-total", "40件中12件が4週間以内に返却された", "fact", "保管台帳・4週間"],
+    [
+      "c-total",
+      "40件中12件が4週間以内に返却された",
+      "fact",
+      "保管台帳・実施前の40件を、預かった日から4週間確認",
+    ],
     [
       "c-name",
       "記名あり16件中9件、無記名24件中3件が返却された",
@@ -216,7 +281,7 @@ export function presetExample() {
   s.factors = [
     { id: "f-info", title: "情報の届き方" },
     { id: "f-time", title: "時間・場所" },
-    { id: "f-feeling", title: "気持ち・運用" },
+    { id: "f-feeling", title: "人目・受け取り方" },
   ];
   s.causes = [
     {
@@ -225,7 +290,7 @@ export function presetExample() {
       text: "箱を知っていても自分の物だと気付かない",
       evidence: "c-own",
       status: "hypothesis",
-      test: "写真や特徴を見せる前後で、自分の物を認識できた人数を比べる",
+      test: "物をなくした人に、箱の場所を知っていたか聞く。次に写真や特徴を見せ、自分の物に気付く人がいるか確かめる。",
     },
     {
       id: "h-time",
@@ -233,7 +298,7 @@ export function presetExample() {
       text: "受け取り時間が合わない",
       evidence: "c-time",
       status: "hypothesis",
-      test: "時間を広げた場合の利用人数を記録する",
+      test: "昼休みにも見られる日を設け、来た人数を数える。来られなかった人には、都合のよい時間を聞く。",
     },
     {
       id: "h-shame",
@@ -241,7 +306,7 @@ export function presetExample() {
       text: "人目が気になり箱を確認しづらい",
       evidence: "c-shame",
       status: "hypothesis",
-      test: "匿名の意識調査と、見やすい置き方の試行を行う",
+      test: "人目が気になるか、名前を聞かずにアンケートする。箱の置き方を変えてからも同じ質問をし、見に来た人数と合わせて比べる。",
     },
   ];
   s.nodes = [
@@ -294,10 +359,10 @@ export function presetExample() {
     { id: "v-2", title: "個人情報への配慮", weight: 3 },
   ];
   s.plan = {
-    who: "図書・生活委員の2人",
-    when: "4週間試行し、各週の品物を4週間追跡（最終確認は開始7週間後）",
-    test: "4週間以内の返却率と準備時間、困ったことを記録する",
-    risk: "本人確認を行う。名前や中身を不用意に公開しない",
+    who: "生活委員2人と担当の先生",
+    when: "4週間試す。各品物は預かった日から4週間確認（最終確認は開始から約8週間後）",
+    test: "4週間以内に戻った件数と、準備にかかった時間、困ったことを記録する。",
+    risk: "持ち主か確かめてから返す。名前や中身をむやみに公開しない。",
   };
   s.checks = [
     { id: "ck-0", text: "小さく試す場所・期間を決める", done: false, note: "" },
@@ -416,7 +481,7 @@ export function fillExample(s, id) {
     if (!s.cards.length) return false;
     if (!s.synthesis)
       s.synthesis =
-        "箱の場所を知っている人はいるが、自分の物だと気付かない声もある。一方、受け取り時間や人目が気になる声があり、案内を増やすだけでは行動につながらない可能性がある。記名の有無による差と、担当者の負担も残して調べたい。これはこの整理からの解釈であり、まだ原因の証明ではない。";
+        "箱の場所を知っている人はいるが、自分の物だと気付かない声もある。一方、受け取り時間や人目が気になる声があり、案内を増やすだけでは行動につながらない可能性がある。記名の有無による差と、担当者の負担も残して調べたい。ここで考えた原因は、まだ確かめていない。ほかの生徒にも同じことが言えるか調べたい。";
   }
   if (id === "causes") {
     // Preserve the learner's grouping. A group becomes a perspective, not a proven cause.
@@ -499,7 +564,8 @@ export function fillExample(s, id) {
     if (!idea) return false;
     fill(s.plan, {
       ...p.plan,
-      test: `「${idea.text}」を小さく試す。${p.plan.test}`,
+      test: presetValue(s, "plan.test"),
+      risk: presetValue(s, "plan.risk"),
     });
   }
   if (id === "checks") append("checks", p.checks);
@@ -508,40 +574,14 @@ export function fillExample(s, id) {
     simulate(s);
   }
   if (id === "kpt") {
-    const c = comparison(s),
-      idea = s.nodes.find((n) => n.id === s.resultFor);
-    if (c.after === null || !idea) return false;
-    const source = s.simulation
-      ? "教材の架空の実施結果"
-      : "自分で記録した実施結果";
-    append("kpt", [
-      {
-        id: "kp-keep",
-        kind: "keep",
-        text: `「${idea.text}」で役立った工夫を残す。${s.measure.label || "指標"}は${c.after.toFixed(1)}${s.measure.kind === "rate" ? "%" : s.measure.unit}。`,
-        source,
-      },
-      {
-        id: "kp-problem",
-        kind: "problem",
-        text:
-          s.observation ||
-          "数値に出ない負担や、取り残された人がいないか確認する",
-        source,
-      },
-      {
-        id: "kp-try",
-        kind: "try",
-        text: "受け取りに来られない人に話を聞き、届いていない理由を調べ直す",
-        source: "結果だけで原因は断定できないため、次の調査で確かめる",
-      },
-    ]);
+    const rows = reflectionExample(s);
+    if (!rows) return false;
+    append("kpt", rows);
   }
   if (id === "next") {
     const attempt = s.kpt.find((k) => k.kind === "try" && k.text);
     if (!attempt) return false;
-    if (!s.next)
-      s.next = `来週、${s.plan.who || "担当者"}が「${attempt.text}」を始める。調査の段階に戻り、聞いた内容を新しいカードとして記録する。`;
+    if (!s.next) s.next = presetValue(s, "next");
   }
   s.examples.push(id);
   return true;
@@ -904,14 +944,7 @@ export function simulate(s) {
   const n = simulationTarget(s);
   if (!n) return false;
   const v = strategies[n.strategy];
-  s.records = v.returned.map((count, i) => ({
-    id: uid(),
-    label: `第${i + 1}週に集まった物（各4週間追跡）`,
-    count,
-    total: 10,
-    value: null,
-    note: "教材の架空データ",
-  }));
+  s.records = v.returned.map((count, i) => resultExample(n.strategy, i, uid()));
   s.observation = v.note;
   s.resultFor = n.id;
   s.simulation = n.strategy;
@@ -923,6 +956,55 @@ export function canSimulate(s) {
 export function simulationChanged(s) {
   if (!s.simulation) return false;
   return simulationTarget(s, s.resultFor)?.strategy !== s.simulation;
+}
+
+function resultExample(strategy, index, id = `record-${index}`) {
+  return {
+    id,
+    label: `第${index + 1}週に預かった10件`,
+    count: strategies[strategy].returned[index],
+    total: 10,
+    value: null,
+    note: "預かった日から4週間以内に戻った数。教材の架空データ。",
+  };
+}
+
+// A reflection interprets the observations the learner has actually entered.
+// Changed counts, an empty observation, or a custom result must not acquire
+// the prepared scenario's findings implicitly.
+function reflectionExample(s) {
+  const result = comparison(s),
+    idea = s.nodes.find((n) => n.id === s.resultFor);
+  if (result.after === null || !idea) return null;
+  const strategy = strategies[s.simulation];
+  const sampleMatches =
+    strategy &&
+    !simulationChanged(s) &&
+    s.records.length === 4 &&
+    strategy.returned.every(
+      (count, i) => s.records[i].count === count && s.records[i].total === 10,
+    ) &&
+    (s.observation === strategy.note ||
+      s.observation === presetValue(s, "observation"));
+  const metric = `${s.measure.label || "指標"}は${result.after.toFixed(1)}${s.measure.kind === "rate" ? "%" : s.measure.unit}。`;
+  const reflection = sampleMatches
+    ? strategy.reflection
+    : {
+        keep: "どの工夫を続けるかは、実施中の記録も見て考える。",
+        problem:
+          s.observation ||
+          "数値だけでは、かかった手間や困ったことは分からない。",
+        try: "担当者や利用した人に、助かったこと・困ったことを聞き、次に変えることを決める。",
+      };
+  const source = s.simulation
+    ? "教材の架空の実施結果・観察メモ"
+    : "自分で記録した実施結果・観察メモ";
+  return ["keep", "problem", "try"].map((kind) => ({
+    id: `kp-${kind}`,
+    kind,
+    text: (kind === "keep" ? metric : "") + reflection[kind],
+    source: kind === "try" ? "残った課題から考えた案（これから試す）" : source,
+  }));
 }
 
 const collections = [
@@ -963,7 +1045,7 @@ export function presetValue(s, path) {
       ),
     )?.id;
   if (path === "synthesis")
-    return "箱の場所を知っている人はいるが、自分の物と気付かない声もある。受け取り時間や人目が気になる声もあり、案内だけでは行動につながらない可能性がある。記名の有無と担当者の負担も残して調べたい。これは解釈であり、原因の証明ではない。";
+    return "箱の場所を知っている人はいるが、自分の物と気付かない声もある。受け取り時間や人目が気になる声もあり、案内だけでは行動につながらない可能性がある。記名の有無と担当者の負担も残して調べたい。ここで考えた原因は、まだ確かめていない。ほかの生徒にも同じことが言えるか調べたい。";
   if (path.includes(".ratings.")) {
     const parts = path.split("."),
       node = s.nodes.find((n) => n.id === parts[1]),
@@ -993,17 +1075,22 @@ export function presetValue(s, path) {
     const entered = s.records.filter(
       (r) => r.count !== null && r.total !== null,
     );
-    return `記入済みの${entered.length}行では、返却は${entered.reduce((sum, r) => sum + r.count, 0)}/${entered.reduce((sum, r) => sum + r.total, 0)}件（${c.after.toFixed(1)}%）。以下はこの案の4週間の架空の観察メモ：${note.replace(/^返却は[0-9]+\/[0-9]+件。/, "")}`;
+    return `記録した${entered.length}行では、返却は${entered.reduce((sum, r) => sum + r.count, 0)}/${entered.reduce((sum, r) => sum + r.total, 0)}件（${c.after.toFixed(1)}%）。この案を4週間試したときの架空の観察メモ：${note.replace(/^返却は[0-9]+\/[0-9]+件。/, "")}実施前とは別の品物を数えたので、品物や行事の違い、偶然の影響も考える。`;
   }
   if (path === "next") {
     const attempt = s.kpt.find((k) => k.kind === "try" && k.text);
     return attempt
-      ? `来週、${s.plan.who || "担当者"}が「${attempt.text}」を始める。聞いた内容を新しい調査カードとして記録する。`
+      ? `来週から、${s.plan.who || "担当者"}が次の行動を始める。\n${attempt.text}\n1週間後に進み具合を確認する。聞いたことや試した結果を新しい情報カードにして、次の改善を考える。`
       : undefined;
   }
-  if (path === "plan.test") {
+  if (path === "plan.test" || path === "plan.risk") {
     const n = s.nodes.find((n) => n.id === s.selectedIdea);
-    return n ? `「${n.text}」を小さく試す。${p.plan.test}` : undefined;
+    if (!n) return undefined;
+    const strategy = strategies[n.strategy];
+    const sample = strategy && n.text === strategy.name ? strategy : null;
+    return path === "plan.risk"
+      ? sample?.planRisk || p.plan.risk
+      : `「${n.text}」を小さく試す。${sample?.planReason || ""}${p.plan.test}`;
   }
   const pair = binding(p, path);
   return pair?.[0]?.[pair[1]];
@@ -1238,33 +1325,14 @@ function toggleSinglePreset(s, id, options = {}) {
     if (!canSimulate(s) || (s.resultFor && s.resultFor !== s.selectedIdea))
       return { ok: false };
     const strategy = s.nodes.find((n) => n.id === s.selectedIdea).strategy;
-    add("records", {
-      id: `record-${key}`,
-      label: `第${Number(key) + 1}週に集まった物（各4週間追跡）`,
-      count: strategies[strategy].returned[Number(key)],
-      total: 10,
-      value: null,
-      note: "教材の架空データ",
-    });
+    add("records", resultExample(strategy, Number(key)));
     s.resultFor = s.selectedIdea;
     s.simulation = strategy;
   }
   if (type === "kpt") {
-    const result = comparison(s),
-      n = s.nodes.find((n) => n.id === s.resultFor);
-    if (result.after === null || !n) return { ok: false };
-    const text =
-      key === "keep"
-        ? `「${n.text}」で役立った工夫を残す。${s.measure.label}は${result.after.toFixed(1)}${s.measure.kind === "rate" ? "%" : s.measure.unit}。`
-        : key === "problem"
-          ? s.observation || "数値に出ない負担や、届かなかった人を確かめる"
-          : "受け取りに来られない人に話を聞き、届いていない理由を調べ直す";
-    add("kpt", {
-      id: `kp-${key}`,
-      kind: key,
-      text,
-      source: s.simulation ? "教材の架空の実施結果" : "自分で記録した実施結果",
-    });
+    const row = reflectionExample(s)?.find((n) => n.kind === key);
+    if (!row) return { ok: false };
+    add("kpt", row);
   }
   const old = leaves(before),
     current = leaves(s),
@@ -1544,7 +1612,7 @@ export function changeNotes(before, s, source) {
         ? `${name(key, id)}の${field === "ratings" ? `${s.criteria.find((c) => c.id === path.split(".")[3])?.title || "評価軸"}の点数` : key === "groups" && field === "parent" ? "上位のまとまり" : labels[field] || field}`
         : {
             synthesis: "整理した情報から説明できること",
-            observation: "数値以外の変化・副作用・比較の限界",
+            observation: "数値に出ない変化・困ったこと・比べるときの注意",
             next: "次の一歩",
           }[key] ||
           labels[id] ||
@@ -2046,8 +2114,10 @@ export function parseWorkbook(raw) {
       for (let index = 0; index < 4; index++) {
         const row = s.records.find(
           (r) =>
-            r.label === `第${index + 1}週に集まった物（各4週間追跡）` &&
-            r.note === "教材の架空データ",
+            (r.label === `第${index + 1}週に集まった物（各4週間追跡）` &&
+              r.note === "教材の架空データ") ||
+            (r.label === resultExample(s.simulation, index).label &&
+              r.note === resultExample(s.simulation, index).note),
         );
         if (
           !row ||
@@ -2203,7 +2273,7 @@ export function report(s) {
     who: "担当",
     when: "期間",
     test: "検証の方法",
-    risk: "注意点・副作用",
+    risk: "気を付けること・困りそうなこと",
   }))
     add(label, s.plan[k]);
   lines.push("\n## 6. 実行・検証");

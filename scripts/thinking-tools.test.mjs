@@ -8,6 +8,7 @@ import {
   emptyWorkbook,
   presetWorkbook,
   presetExample,
+  presetValue,
   fillExample,
   parseWorkbook,
   ranking,
@@ -22,6 +23,99 @@ import {
   brainstormToCards,
   stageSummary,
 } from "../lab/thinking-tools/model.mjs";
+
+test("all four trials lead to matching plans, grounded KPTs and a specific next action", () => {
+  const trials = [
+    ["display", 55, /昼休み/, /週35分/, /朝にも/],
+    ["photos", 67.5, /写真/, /週65分/, /週2回/],
+    ["announce", 52.5, /クラス/, /4件/, /色や形/],
+    ["labels", 45, /名前/, /まだ分からない/, /落とし物の件数/],
+  ];
+  const nextActions = new Set();
+  for (const [strategy, rate, plan, problem, next] of trials) {
+    const s = presetExample();
+    s.selectedIdea = `n-${strategy}`;
+    s.plan = { who: "", when: "", test: "", risk: "" };
+    assert.equal(togglePreset(s, "block:plan").ok, true);
+    assert.match(s.plan.test, plan);
+    assert.match(s.plan.when, /開始から約8週間後/);
+    assert.ok(s.plan.risk.length > 20);
+    assert.equal(togglePreset(s, "block:results").ok, true);
+    assert.equal(comparison(s).after, rate);
+    assert.ok(s.records.every((r) => /預かった日から4週間以内/.test(r.note)));
+    assert.equal(s.observation, "");
+    togglePreset(s, "field:observation");
+    assert.match(s.observation, /架空/);
+    assert.match(s.observation, /品物や行事の違い、偶然/);
+    assert.equal(togglePreset(s, "block:kpt").ok, true);
+    const keep = s.kpt.find((k) => k.kind === "keep");
+    const issue = s.kpt.find((k) => k.kind === "problem");
+    const attempt = s.kpt.find((k) => k.kind === "try");
+    assert.ok(keep.text.includes(`${rate.toFixed(1)}%`));
+    assert.match(issue.text, problem);
+    assert.match(attempt.text, next);
+    assert.match(attempt.source, /これから試す/);
+    nextActions.add(attempt.text);
+    assert.equal(togglePreset(s, "field:next").ok, true);
+    assert.ok(s.next.includes(attempt.text));
+    assert.match(s.next, /聞いたことや試した結果/);
+    assert.deepEqual(parseWorkbook(JSON.stringify(s)), s);
+    // The older complete-example entry point uses the same content.
+    const legacy = presetExample();
+    legacy.selectedIdea = s.selectedIdea;
+    fillExample(legacy, "results");
+    fillExample(legacy, "kpt");
+    assert.deepEqual(legacy.kpt, s.kpt);
+    fillExample(legacy, "next");
+    assert.equal(legacy.next, s.next);
+  }
+  assert.equal(nextActions.size, 4);
+});
+
+test("KPT does not invent unentered observations or reuse scenario claims after edits", () => {
+  for (const modify of [
+    (s) => (s.observation = ""),
+    (s) => (s.observation = "自分で調べたところ、更新には週10分かかった"),
+    (s) => (s.records[0].count = 0),
+    (s) => (s.problem.title = "自分の問題"),
+  ]) {
+    const s = presetExample();
+    s.selectedIdea = "n-photos";
+    simulate(s);
+    modify(s);
+    togglePreset(s, "block:kpt");
+    assert.doesNotMatch(
+      s.kpt
+        .filter((k) => k.kind !== "problem")
+        .map((k) => k.text)
+        .join("\n"),
+      /週65分|週2回/,
+    );
+    assert.ok(s.kpt[0].text.includes(`${comparison(s).after.toFixed(1)}%`));
+    if (s.observation) assert.equal(s.kpt[1].text, s.observation);
+  }
+  const custom = presetExample();
+  custom.selectedIdea = "n-photos";
+  custom.nodes.find((n) => n.id === custom.selectedIdea).text = "自分の別案";
+  assert.doesNotMatch(presetValue(custom, "plan.test"), /写真を校内で/);
+});
+
+test("saved older wording is preserved and old result labels still regain reversible presets", () => {
+  const s = presetExample();
+  s.version = 2;
+  s.selectedIdea = "n-display";
+  fillExample(s, "results");
+  s.plan.when = "4週間試行し、各週の品物を4週間追跡（最終確認は開始7週間後）";
+  s.records.forEach((r, i) => {
+    r.label = `第${i + 1}週に集まった物（各4週間追跡）`;
+    r.note = "教材の架空データ";
+  });
+  const old = parseWorkbook(JSON.stringify(s));
+  assert.equal(old.plan.when, s.plan.when);
+  assert.equal(old.records[0].label, s.records[0].label);
+  assert.equal(togglePreset(old, "block:results").ok, true);
+  assert.equal(old.records.length, 0);
+});
 
 test("free mode starts completely empty and both modes round-trip through files", () => {
   const s = emptyWorkbook();

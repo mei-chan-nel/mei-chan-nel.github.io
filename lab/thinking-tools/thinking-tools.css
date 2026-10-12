@@ -652,6 +652,25 @@ input[type="checkbox"] {
 .matrix .chosen {
   background: #edf3ec;
 }
+.score-reasons {
+  margin-top: 9px;
+  font-weight: 400;
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+.score-reasons summary {
+  cursor: pointer;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.score-reasons ul {
+  padding-left: 18px;
+  margin: 8px 0;
+}
+.score-reasons p {
+  margin: 6px 0;
+}
 .matrix .checkbox-label {
   font-size: 0.73rem !important;
   color: var(--ink);

@@ -23,7 +23,7 @@ import {
   parseWorkbook,
   report,
   strategies,
-} from "./model.mjs?v=7";
+} from "./model.mjs?v=8";
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) =>
@@ -302,7 +302,7 @@ const toolGuides = [
     ],
     [
       "KJ法",
-      "1枚1情報で記録し、内容を読み合わせて寄せ、表札・関係図・全体の説明を作ります。",
+      "1枚に1つの情報を書き、内容の近いカードを寄せます。まとまりに見出し（表札）を付け、つながりを図と言葉で説明します。",
       "集めた情報のまとまり・つながり・食い違い。分類名を先に決めません。",
     ],
   ],
@@ -335,8 +335,8 @@ const toolGuides = [
     ],
     [
       "比較グラフ",
-      "実施前と実施後の記録を、同じ指標・条件で比べます。グラフは記録から自動計算されます。",
-      "変化と目標との差。数値以外の変化や、比較の限界も併記します。",
+      "実施前と実施後の記録を、同じ指標・数え方で比べます。グラフは記録から自動計算されます。",
+      "変化と目標との差。数値に出ない変化や、比べるときの注意点も残します。",
     ],
   ],
   [
@@ -579,13 +579,13 @@ function missingGroups() {
     .filter((id) => !state.groups.some((g) => g.id === id))
     .map(
       (id, index) =>
-        `<section class="card-group blank-preset-card" data-preset-collection="groups" data-preset-row="${id}"><h3>まとまりの例 ${index + 1}</h3><p>カードを寄せ、中の情報が語ることを表札に書きます。</p></section>`,
+        `<section class="card-group blank-preset-card" data-preset-collection="groups" data-preset-row="${id}"><h3>まとまりの例 ${index + 1}</h3><p>カードを寄せ、まとまりから言えそうなことを表札に書きます。</p></section>`,
     )
     .join("");
 }
 function groupPanel(g, depth = 0) {
   const blocked = groupDescendants(g.id);
-  return `<section class="card-group ${g.id ? "" : "ungathered"}" data-preset-collection="groups" data-preset-row="${g.id}" data-drop-group="${g.id}" aria-label="${esc(g.title || "単独のカード")}"><div class="group-heading">${g.id ? input("表札 · 中の情報が語ることを一文で", `groups.${g.id}.title`, "例：案内を知っていても、受け取りには壁がある") : "<h3>単独のカード<small>まとまらない情報も、大切に残す</small></h3>"}${g.id ? del("delete-group", g.id, "まとまりを解く（カードは単独へ）") : ""}</div>
+  return `<section class="card-group ${g.id ? "" : "ungathered"}" data-preset-collection="groups" data-preset-row="${g.id}" data-drop-group="${g.id}" aria-label="${esc(g.title || "単独のカード")}"><div class="group-heading">${g.id ? input("表札（まとまりの見出し）· カードから言えそうなこと", `groups.${g.id}.title`, "例：案内を知っていても、受け取りには壁がある") : "<h3>単独のカード<small>まとまらない情報も、大切に残す</small></h3>"}${g.id ? del("delete-group", g.id, "まとまりを解く（カードは単独へ）") : ""}</div>
   ${g.id ? `<div class="group-controls">${btn("move-group", "←", `${g.id}:left`, "icon-button", 'aria-label="まとまりを左へ並べる"')}${btn("move-group", "→", `${g.id}:right`, "icon-button", 'aria-label="まとまりを右へ並べる"')}${select("上位のまとまり", `groups.${g.id}.parent`, [["", "上位のまとまりを作らない"], ...state.groups.filter((x) => !blocked.has(x.id)).map((x) => [x.id, x.title || "（表札がないまとまり）"])])}</div>` : ""}
   <div class="card-stack">${groupCards(g.id)}</div>
   ${state.groups
@@ -694,9 +694,9 @@ function organize() {
   ).length;
   return `${brainstorming()}
   ${lesson("cards", "② KJ法 · 情報を1枚に1つ書く", "上で出した発言をカードにして、台帳・観察・生徒の声と読み合わせます。発言由来の意見・仮説と、調査で確認した事実を区別しましょう。", "「箱の場所を知っている」と「箱を見る」は別の情報です。声や推測は、観察した数値と区別して残せます。")}
-  <details class="kind-example"><summary>種類と、まとまりは別のもの</summary><p><b>種類</b>は1枚ごとの情報の性質（事実・意見・仮説・検証結果）。<b>まとまり</b>は、カードの内容を読み合わせて見えてくる共通の意味です。違う種類のカードが同じまとまりに入ることもあります。</p><p>例：「受け取りが部活と重なる」（意見）と「放課後に箱を見る人が少ない」（事実）を寄せて、「受け取りたい人が確認できる機会は限られる」と表札を考えます。「時間」のような分類名で終わらせず、中の情報が何を語るかを表します。</p></details>
+  <details class="kind-example"><summary>種類と、まとまりは別のもの</summary><p><b>種類</b>は1枚ごとの情報の性質（事実・意見・仮説・検証結果）。<b>まとまり</b>は、カードの内容を読み合わせて見えてくる共通の意味です。違う種類のカードが同じまとまりに入ることもあります。</p><p>例：「受け取りが部活と重なる」（意見）と「放課後に箱を見る人が少ない」（事実）を寄せて、「受け取りたい人が確認できる機会は限られる」と表札を考えます。「時間」のような分類名で終わらせず、集めたカードから何が言えそうかを表します。</p></details>
   ${itemHeading("ブレーンストーミングの発言と調査記録をカードに", "block:cards", "発言の引き継ぎと調査カード")}
-  <p class="kj-card-connection"><strong>ブレーンストーミングから ${fromBrainstorm}枚 ／ 調査・観察などの記録 ${state.cards.length - fromBrainstorm}枚</strong><br>${state.mode === "preset" ? "このプリセットで、上の未転記の発言と9件の調査記録をカードにします。" : "上の発言ボードの「KJのカードへ渡す」で、発言をここに引き継げます。"}${pendingBrainstorm ? ` まだカードにしていない発言は${pendingBrainstorm}件です。` : ""}</p>
+  <p class="kj-card-connection"><strong>ブレーンストーミングから ${fromBrainstorm}枚 ／ 調査・観察などの記録 ${state.cards.length - fromBrainstorm}枚</strong><br>${state.mode === "preset" ? "このプリセットで、上のまだカードにしていない発言と9件の調査記録をカードにします。" : "上の発言ボードの「KJのカードへ渡す」で、発言をここに引き継げます。"}${pendingBrainstorm ? ` まだカードにしていない発言は${pendingBrainstorm}件です。` : ""}</p>
   <div class="card-board">${groupPanel({ id: "", title: "単独のカード" })}</div>
   ${lesson("groups", "③ KJ法 · 読み合わせて、まとまりと表札を作る", "先に箱の名前を決めず、近いと感じるカードを2〜3枚から寄せます。合わないカードは単独のままでOK。例は一つの読み方なので、動かして別の表札も試せます。", "同じ「意見」でも、気付く問題・時間の問題・負担の問題があります。多数の声だけでなく、単独の情報も残します。", state.cards.length > 0)}
   ${itemHeading("カードを寄せて、まとまりを作る", "block:groups", "まとまりと表札", state.cards.length > 0)}
@@ -818,7 +818,7 @@ function analyze() {
     selectedFactor = state.factors[0]?.id || "";
   const focus = state.causes.find((c) => c.id === state.focusCause);
   return `<div class="source-strip"><strong>調査から使える根拠：${state.cards.length}枚</strong>${btn("step", "元のカードを確認する", "1")}</div>
-  ${lesson("causes", "① 情報から、原因の候補を図に置く", "大骨は原因を考える切り口、小骨は具体的な原因の候補です。整理した情報を根拠として接続します。情報をそのまま原因と決め付けず、どう影響するかを考えます。", "自分で作った表札を大骨の切り口に使えます。例の原因は、実際にある調査カードにだけ根拠を結びます。")}
+  ${lesson("causes", "① 情報から、原因の候補を図に置く", "大骨は原因を考える切り口、小骨は具体的な原因の候補です。整理した情報を、原因を考える手がかりとして結び付けます。情報をそのまま原因と決め付けず、どう影響するかを考えます。", "自分で作った表札を大骨の切り口に使えます。例の原因は、実際にある調査カードにだけ根拠を結びます。")}
   ${itemHeading("原因の候補と、次で考える原因を記入する", "block:causes", "原因図と次に使う原因の選択")}
   <div class="diagram-toolbar">${btn("add-factor", "＋ 大骨（切り口）")}${btn("groups-factors", "自分の表札を大骨にする")}<span>図の大骨・小骨を選ぶ → 隣で編集 → 次に使う原因を選ぶ</span></div>
   ${lesson("tests", "② 仮説の確かめ方を考える", "原因の説明と、確かめる方法をセットにします。小骨を選び、どんな記録・比較で確かめられるかを書きます。")}
@@ -911,7 +911,7 @@ function ideate() {
     !state.nodes.some((n) => n.id === selectedNode)
   )
     selectedNode = "";
-  return `  ${lesson("branches", "原因から連想し、枝を広げて具体化する", "中心の問題から、関連する言葉を左右に広げます。一つの方向に絞らず、「時間を変える」「見せ方を変える」などの枝から具体策を増やしましょう。プリセットを記入したら、自分の枝を1本足してみてください。", "親の枝から具体的な案へ広がる構造が見えます。選んだ原因とのつながりを確認し、実際に比べたい案だけを比較候補にします。")}
+  return `  ${lesson("branches", "原因から連想し、枝を広げて具体化する", "中心の問題から、関連する言葉を左右に広げます。選んだ原因を出発点に、「時間を変える」「見せ方を変える」など別の原因からも枝を広げます。名前の有無による返却の違いも、別の案を考える手がかりになります。プリセットを記入したら、自分の枝を1本足してみてください。", "親の枝から具体的な案へ広がる構造が見えます。選んだ原因とのつながりを確認し、実際に比べたい案だけを比較候補にします。")}
   <div class="branch-presets">${[
     ["n-access", "受け取りの機会を変える"],
     ["n-notice", "見せ方を変える"],
@@ -926,6 +926,23 @@ function ideate() {
   <div class="diagram-toolbar">${btn("add-node", "＋ 中心から枝")}${focus ? btn("cause-node", "この原因から枝を作る") : ""}<span>枝を選択 → Enter：編集 / Insert：子の枝 / Shift＋Enter：同じ階層 / Delete：削除</span></div>
   <div class="diagram-workbench map-workbench"><div class="diagram-view">${zoomTools("map")}${mindmap()}</div>${nodeEditor()}</div>
   ${handoff("比較表へ引き継ぐ案", `${state.nodes.filter((n) => n.candidate).length}案。枝の内容・親から引き継いだ原因を次の比較表で確認できます。`)}`;
+}
+function scoreExplanation(node) {
+  const sample = strategies[node.strategy];
+  if (state.mode !== "preset" || !sample || node.text !== sample.name)
+    return "";
+  const criteria = presetExample().criteria;
+  const reasons = state.criteria.flatMap((c) => {
+    const index = criteria.findIndex(
+      (p) => p.id === c.id && p.title === c.title,
+    );
+    return index < 0
+      ? []
+      : [`<li>${esc(c.title)}：${esc(sample.scoreReasons[index])}</li>`];
+  });
+  return reasons.length
+    ? `<details class="score-reasons"><summary>予想の点数の理由</summary><ul>${reasons.join("")}</ul><p>教材での予想です。実際に試した結果とは分けて考えます。</p></details>`
+    : "";
 }
 function decide() {
   const ranks = ranking(state);
@@ -948,12 +965,12 @@ function decide() {
     )
     .join("")}
   <div class="inline-actions">${btn("add-criterion", "＋ 評価軸")}${btn("step", "発想に戻って案を追加", "3")}</div>
-  ${lesson("scores", "② 同じ基準で案を比べる", "1は低く、5は高く満たすという予想の点数です。プリセットでは点数と、試す案の例を入れます。選ぶ案や重みは自由に変えられます。点数は実測結果ではありません。", "どの案が良いかは、重視する基準で変わります。点数の理由・制約を確認し、試す案は自分で選びます。", ranks.length > 0 && state.criteria.length > 0)}
+  ${lesson("scores", "② 同じ基準で案を比べる", "1はあまり満たさない、5はよく満たすという予想の点数です。理由の例も読んで、自分ならどう評価するか考えましょう。プリセットでは点数と、試す案の例を入れます。選ぶ案や重みは自由に変えられます。点数は実測結果ではありません。", "どの案が良いかは、重視する基準で変わります。点数の理由・制約を確認し、試す案は自分で選びます。", ranks.length > 0 && state.criteria.length > 0)}
   ${itemHeading("比較表の点数と試す案", "block:scores", "比較表の採点と試す案の選択", ranks.length > 0 && state.criteria.length > 0)}
-  ${ranks.length && state.criteria.length ? `<div class="table-scroll" data-preset-item="matrix" role="region" aria-label="候補の比較表。横にスクロールできます。" tabindex="0"><table class="matrix"><caption>1＝低い、5＝高い。負担や費用の軸なら「少ないほど高得点」に統一します。</caption><thead><tr><th scope="col">試す案を選ぶ</th>${state.criteria.map((c) => `<th scope="col"><span data-criterion-display="${c.id}">${esc(c.title)}</span><br>重み ${c.weight}</th>`).join("")}<th scope="col">加重平均 / 5</th></tr></thead><tbody>${ranks.map((r) => `<tr class="${r.node.id === state.selectedIdea ? "chosen" : ""}"><th scope="row"><label class="checkbox-label"><input type="radio" name="selected-idea" data-selected-idea="${r.node.id}" ${r.node.id === state.selectedIdea ? "checked" : ""}>${esc(r.node.text || "名前のない案")}</label>${causeForNode(state, r.node) ? `<small>原因：${esc(short(causeForNode(state, r.node).text, 30))}</small>` : ""}</th>${state.criteria.map((c) => `<td data-preset-target="nodes.${r.node.id}.ratings.${c.id}"><label><span class="visually-hidden">${esc(r.node.text)}の${esc(c.title)}の点数</span><select data-bind="nodes.${r.node.id}.ratings.${c.id}" data-number="true"><option value="" ${r.node.ratings[c.id] == null ? "selected" : ""}>—</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${r.node.ratings[c.id] === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>${fieldPreset(`nodes.${r.node.id}.ratings.${c.id}`, c.title)}</td>`).join("")}<td data-score-display="${r.node.id}"><strong>${r.score?.toFixed(2) ?? "未採点"}</strong></td></tr>`).join("")}</tbody></table></div>` : empty("発想の枝を比較候補にして、評価軸を1つ以上追加してください。")}
+  ${ranks.length && state.criteria.length ? `<div class="table-scroll" data-preset-item="matrix" role="region" aria-label="候補の比較表。横にスクロールできます。" tabindex="0"><table class="matrix"><caption>1＝低い、5＝高い。負担や費用の軸なら「少ないほど高得点」に統一します。</caption><thead><tr><th scope="col">試す案を選ぶ</th>${state.criteria.map((c) => `<th scope="col"><span data-criterion-display="${c.id}">${esc(c.title)}</span><br>重み ${c.weight}</th>`).join("")}<th scope="col">加重平均 / 5</th></tr></thead><tbody>${ranks.map((r) => `<tr class="${r.node.id === state.selectedIdea ? "chosen" : ""}"><th scope="row"><label class="checkbox-label"><input type="radio" name="selected-idea" data-selected-idea="${r.node.id}" ${r.node.id === state.selectedIdea ? "checked" : ""}>${esc(r.node.text || "名前のない案")}</label>${causeForNode(state, r.node) ? `<small>原因：${esc(short(causeForNode(state, r.node).text, 30))}</small>` : ""}${scoreExplanation(r.node)}</th>${state.criteria.map((c) => `<td data-preset-target="nodes.${r.node.id}.ratings.${c.id}"><label><span class="visually-hidden">${esc(r.node.text)}の${esc(c.title)}の点数</span><select data-bind="nodes.${r.node.id}.ratings.${c.id}" data-number="true"><option value="" ${r.node.ratings[c.id] == null ? "selected" : ""}>—</option>${[1, 2, 3, 4, 5].map((n) => `<option value="${n}" ${r.node.ratings[c.id] === n ? "selected" : ""}>${n}</option>`).join("")}</select></label>${fieldPreset(`nodes.${r.node.id}.ratings.${c.id}`, c.title)}</td>`).join("")}<td data-score-display="${r.node.id}"><strong>${r.score?.toFixed(2) ?? "未採点"}</strong></td></tr>`).join("")}</tbody></table></div>` : empty("発想の枝を比較候補にして、評価軸を1つ以上追加してください。")}
   <p class="rank-message" aria-live="polite">${top ? `今の重みでは「${esc(ties.map((r) => r.node.text).join("」「"))}」${ties.length > 1 ? "が同点で上位" : "が上位"}。${scored.length < ranks.length ? "未採点の案は順位に入っていません。" : ""}` : "採点すると、重みに応じた比較結果をここに表示します。"}点数だけで決めず、理由や制約も考えて試す案を選ぼう。</p>
   ${tip("加重平均＝Σ（点数×重み）÷Σ（重み）。プリセットの点数は予想であり、実測値ではありません。選択は上位案に限りません。")}
-  ${lesson("plan", "③ 案を選び、小さく試す計画を書く", "比較表で試す案を選択してから、担当・期間・確かめ方を書きます。順位だけで決めず、実際に続けられるかも考えます。", "選んだ案が、そのまま次の実行・検証に引き継がれます。", !!selected)}${itemHeading("選んだ案を小さく試す計画に", "block:plan", "実行計画", !!selected)}${handoff("今回試す案", selected?.text)}<div class="form-grid">${input("担当・協力する人", "plan.who", "誰が動く？")}${input("いつ・どれくらい試す？", "plan.when", "開始日・試す期間")}${area("確かめる方法・選んだ理由", "plan.test", "何を記録する？この案を選ぶ理由は？")}${area("注意点・副作用への備え", "plan.risk", "負担、費用、個人情報、届かない人など")}</div>`;
+  ${lesson("plan", "③ 案を選び、小さく試す計画を書く", "比較表で試す案を選択してから、担当・期間・確かめ方を書きます。順位だけで決めず、実際に続けられるかも考えます。", "選んだ案が、そのまま次の実行・検証に引き継がれます。", !!selected)}${itemHeading("選んだ案を小さく試す計画に", "block:plan", "実行計画", !!selected)}${handoff("今回試す案", selected?.text)}<div class="form-grid">${input("担当・協力する人", "plan.who", "誰が動く？")}${input("いつ・どれくらい試す？", "plan.when", "開始日・試す期間")}${area("確かめる方法・選んだ理由", "plan.test", "何を記録する？この案を選ぶ理由は？")}${area("気を付けること・困りそうなことへの備え", "plan.risk", "負担、費用、個人情報、届かない人など")}</div>`;
 }
 function graph() {
   const c = comparison(state),
@@ -985,14 +1002,14 @@ function verify() {
   ${lesson("checks", "① 実施する作業を並べ、実施したらチェックする", "「実施済み」のチェックは作業を行った記録です。プリセットでは、実施したつもりでチェックして体験できます。効果は下の結果で別に検証します。", "実施の記録と効果の記録が分かれます。チェックとメモは、自分で操作して残しましょう。")}${itemHeading("チェックシート · 実施と気付きを記録する", "block:checks")}${state.checks.map((c) => `<div class="check-row" data-preset-collection="checks" data-preset-row="${c.id}"><label class="check-complete"><input type="checkbox" data-bind="checks.${c.id}.done" ${c.done ? "checked" : ""}><span>実施済み</span><span class="visually-hidden"> · ${esc(c.text || "作業")}</span></label><div>${input("確認する作業", `checks.${c.id}.text`, "実施すること")}${input("メモ", "checks." + c.id + ".note", "できたこと・困ったこと")}</div>${del("delete-check", c.id, "この確認項目を削除")}</div>`).join("") || empty("小さく試すための作業を追加してください。")}
   <div class="inline-actions">${btn("add-check", "＋ 確認項目")}</div>
   <h3>結果を記録して、比較する</h3>
-  ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では、選んだ案を4週間試し、毎週集まった10件ずつを各4週間追跡したとします。「プリセット記入」で4週分の架空の記録を入れます。数値以外の観察メモは、下の入力欄で別に記入して、返却率と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の副作用や負担に注目します。", eligible && !state.records.length && !state.observation)}
+  ${lesson("results", "② 試した結果を記録し、前後を比べる", "この例では案を4週間試し、毎週預かった10件ずつが、預かった日から4週間以内に戻ったか数えます。最後の品物を確認し終えるのは、開始から約8週間後です。「プリセット記入」で4週分の架空の記録を入れます。数値以外の観察メモは、下の入力欄で別に記入して、返却率と負担を見比べましょう。", "実施前と実施後の変化、目標との差が見えます。同じ案でも、返却率以外の変化や負担に注目します。", eligible && !state.records.length && !state.observation)}
   ${state.mode === "preset" && !eligible ? '<p class="notice">教材の結果を試すには、問題設定の例を入れ、比較表で教材の案を選びます。自分の案・指標に変えた場合は、実際の結果を入力してください。</p>' : ""}
   ${itemHeading("4週間の実施結果", "block:results", "4週間の実施結果", eligible)}
   ${state.records.length ? `<div class="inline-actions">${btn("clear-results", "結果の記録を空にする")}</div>` : ""}
-  ${state.simulation ? `<p><span class="fiction-label">架空の実施結果</span>${esc(strategies[state.simulation].name)}の試行。編集しても架空データが元です。</p>` : ""}
+  ${state.simulation ? `<p><span class="fiction-label">架空の実施結果</span>${esc(strategies[state.simulation].name)}を試した例です。編集しても架空データが元です。</p>` : ""}
   ${state.records.map((r) => `<div data-preset-collection="records" data-preset-row="${r.id}" class="record-row ${state.measure.kind === "value" ? "value-row" : ""}">${input("日付・対象・測定の名前", `records.${r.id}.label`, "何を、いつ数えた？")}${state.measure.kind === "rate" ? input("成功件数", `records.${r.id}.count`, "", "number", 'min="0" max="1000000000" step="any"') + input("対象件数", `records.${r.id}.total`, "", "number", 'min="0" max="1000000000" step="any"') : input(`値（${state.measure.unit || "単位未設定"}）`, `records.${r.id}.value`, "", "number", 'min="-1000000000" max="1000000000" step="any"')}${del("delete-record", r.id, "この結果の行を削除")}<div class="record-note">${input("測定条件・補足", `records.${r.id}.note`, "期間・対象の違いなど")}</div></div>`).join("") || empty("自由作成では、実際に試した結果を自分で入力します。未記録は0として扱いません。")}
   <div class="inline-actions">${btn("add-record", "＋ 結果の行")}${btn("step", "指標・実施前の値を編集", "0")}</div>${graph()}
-  ${area("数値以外の変化・副作用・比較の限界", "observation", "負担は増えた？別の要因が結果に影響していない？")}${tip("前後の差だけでは対策が原因とは断定できません。対象の違い・偶然・行事なども確認し、必要ならもう一度小さく試します。")}`;
+  ${area("数値に出ない変化・困ったこと・比べるときの注意", "observation", "負担は増えた？別の要因が結果に影響していない？")}${tip("前後の差だけでは、この対策のおかげとは言い切れません。対象の違い・偶然・行事なども確認し、必要ならもう一度小さく試します。")}`;
 }
 function reflect() {
   const c = comparison(state);
@@ -1039,7 +1056,7 @@ ${itemHeading("結果からKeep・Problem・Tryを考える", "block:kpt", "KPT�
     state.kpt.some((k) => k.kind === "try" && k.text),
   )}<h3>次の一歩を決める</h3>${area("次に、誰が・何を・いつまでに？", "next", "例：受け取りに来られない人に聞き取り、時間帯の仮説を調べ直す")}
   <div class="inline-actions">${btn("step", "調査に戻る", "1")}${btn("step", "対策を考え直す", "3")}${btn("try-idea", "Tryを発想の枝へつなぐ")}${btn("result-card", "検証の要約を情報カードにする")}</div>
-  ${tip("「Try」は次の仮説です。今回の結果を根拠に、問題設定や原因に戻って考え直せます。完成した図より、考えが変わった理由を持ち帰ろう。")}`;
+  ${tip("「Try」はこれから試すことです。うまくいくかは、まだ分かりません。今回の結果を根拠に、問題設定や原因に戻って考え直せます。完成した図より、考えが変わった理由を持ち帰ろう。")}`;
 }
 
 function newNode(parent = "", text = "", cause = "") {
