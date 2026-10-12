@@ -42,6 +42,13 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "radix-conversion",
+    group: "digital-representation",
+    generated: false,
+    name: "進数の変換",
+    description: "2・10・16進数を、途中計算で理解する。整数・小数・循環小数と4ビットの対応を試してみよう。",
+  },
+  {
     id: "packet-routing",
     group: "network",
     generated: false,
