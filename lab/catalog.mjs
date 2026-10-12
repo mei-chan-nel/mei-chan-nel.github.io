@@ -42,18 +42,28 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "thinking-tools",
+    group: "society-security",
+    generated: false,
+    name: "思考ツールで問題解決を体験する",
+    description:
+      "付箋、原因の枝、アイデア、比較表。7つの段階を行き来しながら、考えをつなぐ。プリセット体験・自由作成に対応。",
+  },
+  {
     id: "radix-conversion",
     group: "digital-representation",
     generated: false,
     name: "進数の変換",
-    description: "2・10・16進数を、途中計算で理解する。整数・小数・循環小数と4ビットの対応を試してみよう。",
+    description:
+      "2・10・16進数を、途中計算で理解する。整数・小数・循環小数と4ビットの対応を試してみよう。",
   },
   {
     id: "packet-routing",
     group: "network",
     generated: false,
     name: "パケット通信とルーティング",
-    description: "メッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路の更新を観察しよう。",
+    description:
+      "メッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路の更新を観察しよう。",
   },
   {
     id: "digital-image",
