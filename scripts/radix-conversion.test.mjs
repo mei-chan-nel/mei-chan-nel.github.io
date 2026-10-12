@@ -149,3 +149,22 @@ test("学習用の例題は多段階の整数・小数変換とA〜Cの読み替
   assert.equal(grouped.groups.fractional.at(-1).padding, 2);
   assert.ok(grouped.groups.integer.some(group => group.decimal === 11 && group.hex === "B"));
 });
+
+test("表示桁数は終端・周期に合わせて自動で決まり、長い変換は64桁で止まる", () => {
+  const finite = convert("0.625", 10, 2);
+  assert.equal(finite.limit, 64);
+  assert.equal(finite.result.text, "0.101");
+  assert.equal(finite.result.steps.length, 3);
+  const cycle = convert("0.1", 10, 2);
+  assert.equal(cycle.result.text, "0.0(0011)");
+  assert.equal(cycle.result.steps.length, 5);
+  const longCycle = convert("0.0001", 10, 2);
+  assert.equal(longCycle.result.steps.length, 64);
+  assert.equal(longCycle.result.digits.length, 64);
+  assert.equal(longCycle.result.truncated, true);
+  assert.equal(longCycle.result.repeating, true);
+  const longFinite = convert(`0.${"0".repeat(62)}1`, 16, 10);
+  assert.equal(longFinite.result.steps.length, 64);
+  assert.equal(longFinite.result.truncated, true);
+  assert.equal(longFinite.result.repeating, false);
+});

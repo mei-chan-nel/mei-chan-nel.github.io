@@ -1,4 +1,4 @@
-import { convert, decimalText, DIGITS, MAX_INPUT_DIGITS } from "./conversion.mjs";
+import { convert, decimalText, DIGITS } from "./conversion.mjs";
 import { CONVERSION_EXAMPLES } from "./examples.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -6,7 +6,6 @@ const form = $("conversion-form");
 const input = $("number-input");
 const source = $("source-base");
 const target = $("target-base");
-const precision = $("precision");
 const esc = (value) => String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 const baseLabel = (base) => `<sub>(${base})</sub>`;
 // Japanese textbook notation: dots over the first and last recurring digits.
@@ -27,22 +26,26 @@ function pickedValue(digit) {
   return `<span class="picked-value"><span class="picked-digit">${digit}</span>${decimal >= 10 ? `<small>${decimal} → ${digit}</small>` : ""}</span>`;
 }
 
+function calculationColumns(part) {
+  return `<colgroup><col class="step-column" /><col class="work-column" /><col class="digit-column" /><col class="arrow-column" /><col class="${part === "integer" ? "fill-column" : "residual-column"}" /></colgroup>`;
+}
+
 function divisionAndMultiplication(model) {
   const { parsed, divisions, result, targetBase } = model;
   const magnitude = parsed.numerator < 0n ? -parsed.numerator : parsed.numerator;
   const integer = magnitude / parsed.denominator;
   const remainder = magnitude % parsed.denominator;
-  const rows = divisions.map((row, i) => `<tr><td>${i + 1}</td><td class="arithmetic">${row.dividend} ÷ ${targetBase} = ${row.quotient}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(divisions.length, "up", "余りを下から上へ読む") : ""}</tr>`).join("");
-  const integerBody = `<div class="scroll-table" tabindex="0" role="region" aria-label="整数部分の割り算"><table><thead><tr><th scope="col">手順</th><th scope="col">割り算と商</th><th scope="col" class="digit-heading">余り</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th></tr></thead><tbody>${rows}</tbody></table><p class="read-caption">余りを下から上へ読む</p></div><p class="part-answer">整数部分は <b>${result.integer}</b>${baseLabel(targetBase)}</p>`;
-  const fractionalRows = result.steps.map((row, i) => `<tr ${result.repeatStart !== null && i >= result.repeatStart ? ' class="cycle-row"' : ""}><td>${i + 1}</td><td class="arithmetic">${decimalText(row.before, row.denominator)} × ${targetBase}<br />= ${decimalText(row.product, row.denominator)}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(result.steps.length, "down", "整数部分を上から下へ読む") : ""}<td class="arithmetic">${decimalText(row.remainder, row.denominator)}</td></tr>`).join("");
+  const rows = divisions.map((row, i) => `<tr><td>${i + 1}</td><td class="arithmetic">${row.dividend} ÷ ${targetBase} = ${row.quotient}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(divisions.length, "up", "余りを下から上へ読む") : ""}<td class="rule-fill" aria-hidden="true"></td></tr>`).join("");
+  const integerBody = `<div class="scroll-table" role="region" aria-label="整数部分の割り算"><table>${calculationColumns("integer")}<thead><tr><th scope="col">手順</th><th scope="col">割り算と商</th><th scope="col" class="digit-heading">余り</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th><th aria-hidden="true"></th></tr></thead><tbody>${rows}</tbody></table><p class="read-caption">余りを下から上へ読む</p></div><p class="part-answer">整数部分は <b>${result.integer}</b>${baseLabel(targetBase)}</p>`;
+  const fractionalRows = result.steps.map((row, i) => `<tr ${result.repeatStart !== null && i >= result.repeatStart ? ' class="cycle-row"' : ""}><td>${i + 1}</td><td class="arithmetic">${decimalText(row.before, row.denominator)} × ${targetBase}<br />= ${decimalText(row.product, row.denominator)}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(result.steps.length, "down", "整数部分を上から下へ読む") : ""}<td class="arithmetic residual-cell">${decimalText(row.remainder, row.denominator)}</td></tr>`).join("");
   let note = "";
   if (result.repeatStart !== null) {
     note = `<p class="part-note cycle-note">↻ 残った小数が <strong>${decimalText(result.remainder, parsed.denominator)}</strong> に戻りました。手順${result.repeatStart + 1}の計算前と同じなので、ここから <strong>${result.repeat}</strong> を繰り返します（緑の行）。</p>`;
   } else if (result.truncated) {
-    note = `<p class="part-note cycle-note">表示上限の${model.limit}桁に達しました。残った小数は ${decimalText(result.remainder, parsed.denominator)} で、計算は続きます。${result.repeating ? "この数は循環小数ですが、周期の全体はまだ見つかっていません。" : "表示上限を増やすと続きを確認できます。"}</p>`;
+    note = `<p class="part-note cycle-note">表示上限の${model.limit}桁に達しました。残った小数は ${decimalText(result.remainder, parsed.denominator)} で、計算は続きます。${result.repeating ? "この数は循環小数ですが、周期の全体はまだ見つかっていません。" : "ここから先の桁は省略しています。"}</p>`;
   } else if (remainder !== 0n) note = `<p class="part-note">残った小数が0になったら、終了です。</p>`;
   const fractionalResult = outputHTML({ ...result, sign: "", integer: "0" });
-  const fractionalBody = remainder === 0n ? '<p class="empty-part">小数部分は0なので、掛け算は不要です。</p>' : `<div class="scroll-table" tabindex="0" role="region" aria-label="小数部分の掛け算"><table><thead><tr><th scope="col">手順</th><th scope="col">掛け算</th><th scope="col" class="digit-heading">整数部分</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th><th scope="col">残った小数</th></tr></thead><tbody>${fractionalRows}</tbody></table><p class="read-caption">整数部分を上から下へ読む</p></div><p class="part-note">取り出した整数部分を除き、残った小数で次の掛け算をします。</p><p class="part-answer">小数部分は <b>${fractionalResult}</b>${baseLabel(targetBase)}</p>${note}`;
+  const fractionalBody = remainder === 0n ? '<p class="empty-part">小数部分は0なので、掛け算は不要です。</p>' : `<div class="scroll-table" role="region" aria-label="小数部分の掛け算"><table>${calculationColumns("fractional")}<thead><tr><th scope="col">手順</th><th scope="col">掛け算</th><th scope="col" class="digit-heading">整数部分</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th><th scope="col" class="residual-heading">残った小数</th></tr></thead><tbody>${fractionalRows}</tbody></table><p class="read-caption">整数部分を上から下へ読む</p></div><p class="part-note">取り出した整数部分を除き、残った小数で次の掛け算をします。</p><p class="part-answer">小数部分は <b>${fractionalResult}</b>${baseLabel(targetBase)}</p>${note}`;
   $("calculation-panels").innerHTML = `<div class="calculation-grid">${card("integer", integer, `${targetBase}で割り、余りを記録`, "商が0になるまで続けます。先に出る余りは下位の桁です。", integerBody)}${card("fractional", decimalText(remainder, parsed.denominator), `${targetBase}を掛け、整数部分を記録`, "最初に出る整数部分が、小数点のすぐ右の桁になります。", fractionalBody)}</div>`;
 }
 
@@ -107,8 +110,8 @@ function nibbles(model) {
 
 function renderResult(model) {
   const { parsed, result, sourceBase, targetBase } = model;
-  const note = result.truncated ? `小数点以下${model.limit}桁までの表示です。「…」は続きの省略で、丸めはしていません。${result.repeating ? "この数は循環しますが、周期全体はまだ表示しきれていません。" : "表示上限を増やすと続きを確認できます。"}` : result.repeat ? `ドットを付けた最初から最後の桁（${result.repeat}）を繰り返します。${result.repeat.length === 1 ? "1桁の循環では、その桁にドットを1つ付けます。" : ""}` : "";
-  $("assembly").innerHTML = `<div class="result-top"><h3 id="result-heading">計算結果</h3><span id="result-kind" class="result-kind">${result.repeating ? "循環小数" : result.digits ? "有限小数" : "整数"}${result.truncated ? " · 途中まで" : ""}</span></div><div class="result-equation"><div class="equation-side"><small>変換前</small><span id="result-source">${esc(parsed.normalized)}${baseLabel(sourceBase)}</span></div><span class="equals-sign">${result.truncated ? "≈" : "＝"}</span><div class="equation-side"><small>変換後</small><div><output id="result-number" for="source-base number-input target-base precision">${outputHTML(result)}</output>${baseLabel(targetBase)}</div></div></div>${note ? `<p id="result-note" class="result-note">${note}</p>` : ""}${parsed.negative ? '<p class="sign-note">絶対値を変換し、最後に元の符号「−」を付けます。</p>' : ""}`;
+  const note = result.truncated ? `小数点以下${model.limit}桁までの表示です。「…」は続きの省略で、丸めはしていません。${result.repeating ? "この数は循環しますが、周期全体はまだ表示しきれていません。" : "この数は有限小数ですが、続く桁を省略しています。"}` : result.repeat ? `ドットを付けた最初から最後の桁（${result.repeat}）を繰り返します。${result.repeat.length === 1 ? "1桁の循環では、その桁にドットを1つ付けます。" : ""}` : "";
+  $("assembly").innerHTML = `<div class="result-top"><h3 id="result-heading">計算結果</h3><span id="result-kind" class="result-kind">${result.repeating ? "循環小数" : result.digits ? "有限小数" : "整数"}${result.truncated ? " · 途中まで" : ""}</span></div><div class="result-equation"><div class="equation-side"><small>変換前</small><span id="result-source">${esc(parsed.normalized)}${baseLabel(sourceBase)}</span></div><span class="equals-sign">${result.truncated ? "≈" : "＝"}</span><div class="equation-side"><small>変換後</small><div><output id="result-number" for="source-base number-input target-base">${outputHTML(result)}</output>${baseLabel(targetBase)}</div></div></div>${note ? `<p id="result-note" class="result-note">${note}</p>` : ""}${parsed.negative ? '<p class="sign-note">絶対値を変換し、最後に元の符号「−」を付けます。</p>' : ""}`;
   const readable = `${result.sign}${result.integer}${result.digits ? `.${result.nonRepeat}${result.repeat ? `、${result.repeat}が循環` : ""}${result.truncated ? "、以下省略" : ""}` : ""}`;
   $("result-number").setAttribute("aria-label", `${readable}、${targetBase}進数`);
 }
@@ -135,7 +138,7 @@ function render(model) {
 
 function runConversion() {
   try {
-    const model = convert(input.value, Number(source.value), Number(target.value), Number(precision.value));
+    const model = convert(input.value, Number(source.value), Number(target.value));
     $("input-error").hidden = true;
     input.removeAttribute("aria-invalid");
     render(model);
@@ -148,20 +151,18 @@ function runConversion() {
   }
 }
 
-function updateInputHelp() {
+function updateInputMode() {
   const base = Number(source.value);
-  $("input-help").textContent = `${base === 2 ? "0・1" : base === 16 ? "0〜9・A〜F（小文字も可）" : "0〜9"}を使用。小数点は「.」、負の数は先頭に「-」。数値は合計${MAX_INPUT_DIGITS}桁まで。`;
   input.inputMode = base === 16 ? "text" : "decimal";
 }
 
 form.addEventListener("submit", (event) => { event.preventDefault(); runConversion(); });
-form.addEventListener("input", (event) => {
-  if (event.target !== precision) $("example-focus").hidden = true;
-  updateInputHelp();
+form.addEventListener("input", () => {
+  $("example-focus").hidden = true;
+  updateInputMode();
   $("working-section").hidden = true;
   $("conversion-status").textContent = "入力を変更しました。変換ボタンを押してください。";
 });
-precision.addEventListener("change", runConversion);
 $("example-buttons").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-example]");
   if (!button) return;
@@ -171,8 +172,8 @@ $("example-buttons").addEventListener("click", (event) => {
   source.value = String(from);
   input.value = value;
   target.value = String(to);
-  updateInputHelp();
+  updateInputMode();
   runConversion();
 });
-updateInputHelp();
+updateInputMode();
 runConversion();
