@@ -25,7 +25,6 @@
 .examples > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .examples button { padding: 8px 12px; min-height: 40px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: var(--paper); font-size: .74rem; }
 .examples button:hover { border-color: var(--blue-strong); color: var(--blue-strong); }
-.example-focus { margin: 14px 0 0; color: var(--ink-soft); font-size: .78rem; }
 .result-panel { position: relative; margin: 24px 0 0; padding: 26px 32px 28px; border-radius: 22px; color: var(--white); background: var(--ink); }
 .result-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .result-top h3 { margin: 0; font-size: .85rem; font-weight: 600; color: #d1e2e4; }
@@ -84,7 +83,8 @@
 .scroll-table { width: 100%; max-width: 100%; }
 .scroll-table table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: .84rem; }
 .step-column { width: 2.5rem; }
-.integer-part .work-column { width: clamp(7.5rem, 12vw, 9rem); }
+.integer-part .work-column { width: clamp(5.25rem, 9vw, 6.25rem); }
+.quotient-column { width: clamp(2.75rem, 4vw, 3.5rem); }
 .fractional-part .work-column { width: clamp(6rem, 12vw, 9rem); }
 .digit-column { width: 3.375rem; }
 .arrow-column { width: 1.125rem; }
@@ -92,10 +92,11 @@
 .scroll-table td { padding: 12px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
 .scroll-table td:first-child { padding-left: 0; color: var(--ink-soft); font-size: .7rem; }
 .scroll-table :is(.digit-heading, .digit-cell) { width: 54px; padding-inline: 4px; text-align: center; }
+.scroll-table :is(.quotient-heading, .quotient-cell) { text-align: center; }
 .scroll-table .arrow-heading { width: 18px; padding: 0; }
 .scroll-table :is(.residual-heading, .residual-cell) { padding-left: clamp(10px, 4vw, 28px); }
 .scroll-table .rule-fill { padding: 0; }
-.integer-part .read-caption { width: calc(7rem + clamp(7.5rem, 12vw, 9rem)); max-width: 100%; }
+.integer-part .read-caption { width: calc(7rem + clamp(5.25rem, 9vw, 6.25rem) + clamp(2.75rem, 4vw, 3.5rem)); max-width: 100%; }
 .fractional-part .read-caption { width: calc(7rem + clamp(6rem, 12vw, 9rem)); max-width: 100%; }
 .picked-value { display: inline-grid; gap: 4px; justify-items: center; }
 .picked-value small { font-size: .67rem; white-space: nowrap; color: var(--part-color); }

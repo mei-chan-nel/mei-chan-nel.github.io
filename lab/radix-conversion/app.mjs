@@ -27,7 +27,7 @@ function pickedValue(digit) {
 }
 
 function calculationColumns(part) {
-  return `<colgroup><col class="step-column" /><col class="work-column" /><col class="digit-column" /><col class="arrow-column" /><col class="${part === "integer" ? "fill-column" : "residual-column"}" /></colgroup>`;
+  return `<colgroup><col class="step-column" /><col class="work-column" />${part === "integer" ? '<col class="quotient-column" />' : ""}<col class="digit-column" /><col class="arrow-column" /><col class="${part === "integer" ? "fill-column" : "residual-column"}" /></colgroup>`;
 }
 
 function divisionAndMultiplication(model) {
@@ -35,8 +35,8 @@ function divisionAndMultiplication(model) {
   const magnitude = parsed.numerator < 0n ? -parsed.numerator : parsed.numerator;
   const integer = magnitude / parsed.denominator;
   const remainder = magnitude % parsed.denominator;
-  const rows = divisions.map((row, i) => `<tr><td>${i + 1}</td><td class="arithmetic">${row.dividend} ÷ ${targetBase} = ${row.quotient}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(divisions.length, "up", "余りを下から上へ読む") : ""}<td class="rule-fill" aria-hidden="true"></td></tr>`).join("");
-  const integerBody = `<div class="scroll-table" role="region" aria-label="整数部分の割り算"><table>${calculationColumns("integer")}<thead><tr><th scope="col">手順</th><th scope="col">割り算と商</th><th scope="col" class="digit-heading">余り</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th><th aria-hidden="true"></th></tr></thead><tbody>${rows}</tbody></table><p class="read-caption">余りを下から上へ読む</p></div><p class="part-answer">整数部分は <b>${result.integer}</b>${baseLabel(targetBase)}</p>`;
+  const rows = divisions.map((row, i) => `<tr><td>${i + 1}</td><td class="arithmetic division-cell">${row.dividend} ÷ ${targetBase}</td><td class="arithmetic quotient-cell">${row.quotient}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(divisions.length, "up", "余りを下から上へ読む") : ""}<td class="rule-fill" aria-hidden="true"></td></tr>`).join("");
+  const integerBody = `<div class="scroll-table" role="region" aria-label="整数部分の割り算"><table>${calculationColumns("integer")}<thead><tr><th scope="col">手順</th><th scope="col">割り算</th><th scope="col" class="quotient-heading">商</th><th scope="col" class="digit-heading">余り</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th><th aria-hidden="true"></th></tr></thead><tbody>${rows}</tbody></table><p class="read-caption">余りを下から上へ読む</p></div><p class="part-answer">整数部分は <b>${result.integer}</b>${baseLabel(targetBase)}</p>`;
   const fractionalRows = result.steps.map((row, i) => `<tr ${result.repeatStart !== null && i >= result.repeatStart ? ' class="cycle-row"' : ""}><td>${i + 1}</td><td class="arithmetic">${decimalText(row.before, row.denominator)} × ${targetBase}<br />= ${decimalText(row.product, row.denominator)}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(result.steps.length, "down", "整数部分を上から下へ読む") : ""}<td class="arithmetic residual-cell">${decimalText(row.remainder, row.denominator)}</td></tr>`).join("");
   let note = "";
   if (result.repeatStart !== null) {
@@ -158,7 +158,6 @@ function updateInputMode() {
 
 form.addEventListener("submit", (event) => { event.preventDefault(); runConversion(); });
 form.addEventListener("input", () => {
-  $("example-focus").hidden = true;
   updateInputMode();
   $("working-section").hidden = true;
   $("conversion-status").textContent = "入力を変更しました。変換ボタンを押してください。";
@@ -166,9 +165,7 @@ form.addEventListener("input", () => {
 $("example-buttons").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-example]");
   if (!button) return;
-  const { source: from, value, target: to, focus } = CONVERSION_EXAMPLES[button.dataset.example];
-  $("example-focus").textContent = focus;
-  $("example-focus").hidden = false;
+  const { source: from, value, target: to } = CONVERSION_EXAMPLES[button.dataset.example];
   source.value = String(from);
   input.value = value;
   target.value = String(to);
