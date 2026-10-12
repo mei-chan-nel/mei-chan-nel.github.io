@@ -43,7 +43,7 @@ export const contents = [
   {
     id: "radix-conversion",
     group: "digital-representation",
-    name: "進数変換ラボ",
+    name: "進数の変換",
     description: "2・10・16進数を、途中計算で理解する。整数・小数・循環小数と4ビットの対応を試してみよう。",
   },
 ];

@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>進数変換ラボ｜Interactive Lab｜情報Ⅰ Study Atlas</title>
+  <title>進数の変換｜Interactive Lab｜情報Ⅰ Study Atlas</title>
   <meta name="description" content="2進数・10進数・16進数の変換を、整数の割り算、小数の掛け算、桁の重み、4ビットの対応から学ぶインタラクティブラボ。循環小数にも対応。" />
   <meta name="robots" content="noindex, nofollow" />
   <meta name="theme-color" content="#102f35" />
   <meta property="og:type" content="website" />
   <meta property="og:locale" content="ja_JP" />
   <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
-  <meta property="og:title" content="進数変換ラボ｜Interactive Lab" />
+  <meta property="og:title" content="進数の変換｜Interactive Lab" />
   <meta property="og:description" content="同じ数を、違う進数で。整数・小数の変換を途中計算から理解しよう。" />
   <meta property="og:url" content="https://mei-chan-nel.com/lab/radix-conversion/" />
   <link rel="canonical" href="https://mei-chan-nel.com/lab/radix-conversion/" />
   <link rel="icon" href="../icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-  <link rel="stylesheet" href="./styles.css?v=1" />
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"進数変換ラボ","item":"https://mei-chan-nel.com/lab/radix-conversion/"}]}</script>
+  <link rel="stylesheet" href="./styles.css?v=2" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"進数の変換","item":"https://mei-chan-nel.com/lab/radix-conversion/"}]}</script>
 </head>
 <body>
   <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -28,15 +28,10 @@
   <main id="main-content" class="radix-shell">
     <nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span aria-current="page">進数変換</span></nav>
     <header class="radix-hero">
-      <div><p class="eyebrow">INTERACTIVE LAB · デジタル表現</p><h1>進数変換ラボ<span class="hero-dot">.</span></h1><p class="radix-lead">同じ数を、違う進数で。<br />桁の重みと計算の流れを、ひとつずつ見てみよう。</p></div>
-      <div class="hero-equivalence" aria-label="13.625は、2進数で1101.101、16進数でD.A。同じ値の3つの表し方です。">
-        <span><small>10進数</small><b>13.625</b></span><i aria-hidden="true">＝</i><span><small>2進数</small><b>1101.101</b></span><i aria-hidden="true">＝</i><span><small>16進数</small><b>D.A</b></span>
-        <p>表し方が変わっても、値は同じ。</p>
-      </div>
+      <div><p class="eyebrow">INTERACTIVE LAB · デジタル表現</p><h1>進数の変換</h1><p class="radix-lead">桁の重みと計算の流れを、ひとつずつ見てみよう。</p></div>
     </header>
 
-    <section class="input-panel" aria-labelledby="input-heading">
-      <div class="panel-heading"><h2 id="input-heading"><span class="section-number" aria-hidden="true">01</span>数を変えて、試す</h2><span class="small-label">整数・小数・負の数に対応</span></div>
+    <section class="input-panel" aria-label="変換する数値">
       <form id="conversion-form" novalidate>
         <div class="input-sentence">
           <label class="base-field"><span>入力の進数</span><select id="source-base" name="source"><option value="2">2進数</option><option value="10" selected>10進数</option><option value="16">16進数</option></select></label>
@@ -48,38 +43,22 @@
         <div class="input-options"><p id="input-help">0〜9を使用。小数点は「.」、負の数は先頭に「-」。数値は合計64桁まで。</p><label class="precision-field">小数の表示上限<select id="precision" name="precision"><option value="16">16桁</option><option value="32">32桁</option><option value="64" selected>64桁</option><option value="128">128桁</option><option value="256">256桁</option></select></label></div>
         <p id="input-error" class="input-error" role="alert" hidden></p>
       </form>
-      <div class="examples"><span>例で試す</span><div id="example-buttons"><button type="button" data-example="integer">整数の割り算</button><button type="button" data-example="fraction">小数の掛け算</button><button type="button" data-example="cycle">0.1の循環</button><button type="button" data-example="position">桁の重み</button><button type="button" data-example="binary-hex">2 → 16</button><button type="button" data-example="hex-binary">16 → 2</button></div></div>
+      <div class="examples"><span>変換の例</span><div id="example-buttons"><button type="button" data-example="integer">10進数 → 2進数</button><button type="button" data-example="decimal-hex">10進数 → 16進数</button><button type="button" data-example="position">2進数 → 10進数</button><button type="button" data-example="hex-decimal">16進数 → 10進数</button><button type="button" data-example="binary-hex">2進数 → 16進数</button><button type="button" data-example="hex-binary">16進数 → 2進数</button><button type="button" data-example="cycle">10進数 → 2進数（循環）</button></div></div>
     </section>
 
-    <section id="result-section" class="result-panel" aria-labelledby="result-heading" hidden>
-      <div class="result-top"><h2 id="result-heading">変換結果</h2><span id="result-kind" class="result-kind">有限小数</span></div>
-      <p id="result-source" class="result-source"></p>
-      <div class="result-display"><span class="equals-sign" aria-hidden="true">＝</span><output id="result-number" for="source-base number-input target-base precision"></output><span id="result-base" class="base-tag"></span></div>
-      <p id="result-note" class="result-note"></p>
-      <p id="sign-note" class="sign-note" hidden></p>
-    </section>
     <p id="conversion-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
 
     <section id="working-section" class="working-section" aria-labelledby="working-heading" hidden>
-      <div class="working-heading"><div><p class="eyebrow">FOLLOW THE PROCESS</p><h2 id="working-heading"><span class="section-number" aria-hidden="true">02</span>変換のしくみ</h2><p id="method-description"></p></div><div class="step-controls" role="group" aria-label="途中計算の表示"><div class="step-buttons"><button id="restart-steps" type="button">1行ずつ見る</button><button id="next-step" type="button">次のステップ <span aria-hidden="true">→</span></button><button id="all-steps" type="button">すべて見る</button></div><p id="step-status" role="status" aria-live="polite"></p></div></div>
+      <div class="working-heading"><div><h2 id="working-heading">途中計算</h2><p id="method-description"></p></div><div class="step-controls" role="group" aria-label="途中計算の表示"><div class="step-buttons"><button id="restart-steps" type="button">1行ずつ見る</button><button id="next-step" type="button">次のステップ <span aria-hidden="true">→</span></button><button id="all-steps" type="button">すべて見る</button></div><p id="step-status" role="status" aria-live="polite"></p></div></div>
       <div id="calculation-panels"></div>
-      <div id="assembly" class="assembly"></div>
+      <section id="assembly" class="result-panel" aria-labelledby="result-heading"></section>
     </section>
 
-    <section class="learning-notes" aria-labelledby="notes-heading">
-      <div class="panel-heading"><h2 id="notes-heading"><span class="section-number" aria-hidden="true">03</span>ここに注目</h2></div>
-      <div class="note-grid">
-        <article><span class="note-icon" aria-hidden="true">2<sup>−1</sup></span><h3>小数点の右も「桁の重み」</h3><p>2進数では、小数点の右が順に 1/2、1/4、1/8…。<strong>0.101<sub>(2)</sub> = 0.5 + 0.125 = 0.625<sub>(10)</sub></strong> になります。</p></article>
-        <article><span class="note-icon" aria-hidden="true">↻</span><h3>終わるかどうかは、進数次第</h3><p>10進数の0.1は、2進数では <strong>0.0<span class="repeat-digits">0011</span>…</strong>。小数部分の計算で同じ余りに戻ると、その先の桁も繰り返します。</p></article>
-        <article><span class="note-icon" aria-hidden="true">4 bit</span><h3>16進数の1桁は、2進数の4桁</h3><p>2<sup>4</sup> = 16だから、0000〜1111の16通りが0〜Fに対応。<strong>A<sub>(16)</sub> = 10<sub>(10)</sub> = 1010<sub>(2)</sub></strong> です。</p></article>
-      </div>
-      <details class="digit-reference"><summary>0〜Fと4ビットの対応表を見る</summary><div id="digit-reference-grid" class="digit-reference-grid"></div></details>
-    </section>
     <a class="lab-back" href="../#digital-representation">← Interactive Lab の一覧へ</a>
     <noscript><p class="input-error">このラボの変換と途中計算にはJavaScriptが必要です。ブラウザでJavaScriptを有効にしてください。</p></noscript>
   </main>
   <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../LectureNote/">講義ノート</a><a href="../../program-trace/">プログラムトレース</a><a href="../../books/">書籍案内</a><a href="../../study-guide.html">使い方</a><a href="../../about.html">このサイトについて</a><a href="../../privacy.html">プライバシーポリシー</a><a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
   <script type="module" src="../navigation.mjs?v=1"></script>
-  <script type="module" src="./app.mjs?v=1"></script>
+  <script type="module" src="./app.mjs?v=2"></script>
 </body>
 </html>
