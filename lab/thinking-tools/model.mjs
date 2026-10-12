@@ -952,6 +952,10 @@ export function binding(s, path) {
 }
 export function presetValue(s, path) {
   const p = presetExample();
+  if (path === "focusCause")
+    return p.causes.find((original) =>
+      s.causes.some((c) => c.id === original.id && c.text === original.text),
+    )?.id;
   if (path === "selectedIdea")
     return p.nodes.find((original) =>
       s.nodes.some(
@@ -1005,7 +1009,7 @@ export function presetValue(s, path) {
   return pair?.[0]?.[pair[1]];
 }
 const presetPattern =
-  /^(field:(?:problem\.[a-z]+|measure\.[a-zA-Z]+|plan\.[a-z]+|(?:causes|nodes|criteria)\.[-a-zA-Z0-9]+\.(?:text|test|title|weight|ratings\.v-[0-2])|observation|next|synthesis|selectedIdea)|(?:card|factor|cause|branch|criterion|check):[-a-zA-Z0-9]+|group:(?:recognize|access)|relation:awareness|record:[0-3]|kpt:(?:keep|problem|try))$/;
+  /^(field:(?:problem\.[a-z]+|measure\.[a-zA-Z]+|plan\.[a-z]+|(?:causes|nodes|criteria)\.[-a-zA-Z0-9]+\.(?:text|test|title|weight|ratings\.v-[0-2])|observation|next|synthesis|selectedIdea|focusCause)|(?:card|factor|cause|branch|criterion|check):[-a-zA-Z0-9]+|group:(?:recognize|access)|relation:awareness|link:brainstorm|record:[0-3]|kpt:(?:keep|problem|try))$/;
 export const validPresetId = (id) =>
   typeof id === "string" &&
   (presetPattern.test(id) ||
@@ -1090,6 +1094,7 @@ function leaves(s) {
     "observation",
     "next",
     "selectedIdea",
+    "focusCause",
     "kjDiagramReady",
   ])
     map.set(key, s[key]);
@@ -1148,6 +1153,7 @@ function toggleSinglePreset(s, id, options = {}) {
   };
   const [type, key] = id.split(":");
   if (type === "field") set(key, presetValue(s, key));
+  if (id === "link:brainstorm") brainstormToCards(s);
   if (id === "block:brainstorm")
     for (const note of brainstormingExample()) add("brainstorm", note);
   if (id === "block:diagram" && (s.cards.length || s.groups.length))
@@ -1312,16 +1318,20 @@ function presetRequests(s, id) {
       "measure.target",
       "measure.conditions",
     ]);
-  if (key === "cards") return rows("card", p.cards);
+  if (key === "cards")
+    return [...rows("card", p.cards), { id: "link:brainstorm" }];
   if (key === "groups")
     return [{ id: "group:recognize" }, { id: "group:access" }];
   if (key === "causes")
-    return p.factors.flatMap((f) => [
-      { id: `factor:${f.id}` },
-      ...p.causes
-        .filter((c) => c.factor === f.id)
-        .map((c) => ({ id: `cause:${c.id}`, factor: f.id })),
-    ]);
+    return [
+      ...p.factors.flatMap((f) => [
+        { id: `factor:${f.id}` },
+        ...p.causes
+          .filter((c) => c.factor === f.id)
+          .map((c) => ({ id: `cause:${c.id}`, factor: f.id })),
+      ]),
+      { id: "field:focusCause" },
+    ];
   if (key === "tests")
     return fields(s.causes.map((c) => `causes.${c.id}.test`));
   if (key === "criteria") return rows("criterion", p.criteria);
@@ -1525,7 +1535,7 @@ export function changeNotes(before, s, source) {
   }
   for (const [path, value] of current)
     if (
-      !["selectedIdea", "kjDiagramReady"].includes(path) &&
+      !["selectedIdea", "focusCause", "kjDiagramReady"].includes(path) &&
       (old.has(path) || path.includes(".ratings.")) &&
       old.get(path) !== value
     ) {
@@ -1665,15 +1675,15 @@ export function parseWorkbook(raw) {
       w &&
         validPresetId(w.id) &&
         Array.isArray(w.fields) &&
-        w.fields.length <= 100 &&
+        w.fields.length <= 300 &&
         Array.isArray(w.rows) &&
-        w.rows.length <= 100,
+        w.rows.length <= 300,
     );
     const fields = w.fields.map((p) => {
       assert(
         p &&
           typeof p.path === "string" &&
-          /^(problem|measure|plan|brainstorm|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next|selectedIdea|kjDiagramReady)(\.[-a-zA-Z0-9]+){0,3}$/.test(
+          /^(problem|measure|plan|brainstorm|cards|groups|relations|factors|causes|nodes|criteria|checks|records|kpt|synthesis|observation|next|selectedIdea|focusCause|kjDiagramReady)(\.[-a-zA-Z0-9]+){0,3}$/.test(
             p.path,
           ),
       );

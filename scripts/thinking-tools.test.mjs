@@ -817,3 +817,52 @@ test("stage summaries show concrete outgoing work and distinguish unfinished and
   }
   assert.deepEqual(s, before);
 });
+
+test("KJ card presets carry current brainstorming notes alongside research with independently resumable undo", () => {
+  const s = presetWorkbook();
+  togglePreset(s, "block:brainstorm");
+  s.brainstorm[0].text = "自分で編集した発言";
+  const result = togglePreset(s, "block:cards");
+  assert.equal(s.cards.length, 13);
+  assert.equal(s.brainstorm.filter((n) => n.card).length, 4);
+  assert.equal(
+    s.cards.find((c) => c.id === s.brainstorm[0].card).text,
+    "自分で編集した発言",
+  );
+  assert.equal(
+    s.cards.find((c) => c.id === s.brainstorm[0].card).kind,
+    "hypothesis",
+  );
+  assert.ok(result.paths.includes("brainstorm.bs-notice.card"));
+  const loaded = parseWorkbook(JSON.stringify(s));
+  togglePreset(loaded, "block:cards");
+  assert.equal(loaded.cards.length, 0);
+  assert.ok(loaded.brainstorm.every((n) => n.card === ""));
+  assert.equal(loaded.brainstorm[0].text, "自分で編集した発言");
+  assert.deepEqual(parseWorkbook(JSON.stringify(loaded)), loaded);
+  // A card already transferred and edited manually is retained by preset undo.
+  const before = brainstormToCards(loaded, [loaded.brainstorm[0].id])[0];
+  loaded.cards[0].text = "KJ法で編集した内容";
+  togglePreset(loaded, "block:cards");
+  togglePreset(loaded, "block:cards");
+  assert.equal(loaded.cards.length, 1);
+  assert.equal(loaded.cards[0].id, before);
+  assert.equal(loaded.cards[0].text, "KJ法で編集した内容");
+});
+test("cause presets choose a focus for the following mind map and undo it without replacing an existing choice", () => {
+  const s = presetWorkbook();
+  const result = togglePreset(s, "block:causes");
+  assert.equal(s.focusCause, "h-notice");
+  assert.ok(result.paths.includes("focusCause"));
+  assert.ok(
+    stageSummary(s, 2).passed.some((r) => r.value === s.causes[0].text),
+  );
+  const loaded = parseWorkbook(JSON.stringify(s));
+  togglePreset(loaded, "block:causes");
+  assert.equal(loaded.focusCause, "");
+  assert.equal(loaded.causes.length, 0);
+  const manual = presetExample();
+  manual.focusCause = "h-time";
+  togglePreset(manual, "block:causes");
+  assert.equal(manual.focusCause, "h-time");
+});

@@ -65,20 +65,56 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
       })),
       [],
     );
-    await page
-      .locator('[data-action="transfer-brainstorm"][data-id="all"]')
-      .click();
-    assert.equal(await page.locator("[data-card]").count(), 4);
-    assert.equal(await page.locator('[data-kind="fact"]').count(), 0);
+    await preset("block:cards");
+    assert.equal(await page.locator("[data-card]").count(), 13);
+    assert.match(
+      await page.locator(".kj-card-connection").textContent(),
+      /ブレーンストーミングから 4枚/,
+    );
+    assert.equal(
+      await page.getByText("1枚に1つの情報", { exact: true }).count(),
+      0,
+    );
+    const appearance = await page
+      .locator(".card-content textarea")
+      .first()
+      .evaluate((el) => {
+        const style = getComputedStyle(el);
+        return {
+          background: style.backgroundColor,
+          border: style.borderTopStyle,
+          height: el.getBoundingClientRect().height,
+        };
+      });
+    assert.equal(appearance.background, "rgb(255, 255, 255)");
+    assert.equal(appearance.border, "solid");
+    assert.ok(appearance.height < 100);
     assert.match(
       await page.locator(".stage-outcome").textContent(),
       /4件をKJ法へ/,
     );
     await page.locator('[data-action="next"]').click();
-    assert.match(await page.locator(".stage-transfer").textContent(), /4枚/);
+    assert.match(await page.locator(".stage-transfer").textContent(), /13枚/);
     assert.match(
       await page.locator(".stage-transfer").textContent(),
-      /意見 1・仮説 3/,
+      /意見 5・仮説 4/,
+    );
+    assert.equal(
+      await page
+        .getByRole("button", { name: "前の内容を確認", exact: true })
+        .count(),
+      0,
+    );
+    await preset("block:causes");
+    assert.equal(
+      await page.locator('[data-focus-cause="h-notice"]').isChecked(),
+      true,
+    );
+    assert.equal(
+      await page
+        .locator('[data-preset-target="focusCause"].preset-changed')
+        .count(),
+      1,
     );
     // The instructions for testing precede the actual cause editor.
     assert.equal(
@@ -98,7 +134,24 @@ const base = process.env.THINKING_TOOLS_URL || "http://127.0.0.1:8773";
     assert.equal(await page.locator(".brainstorm-note").count(), 4);
     await preset("block:brainstorm");
     assert.equal(await page.locator(".brainstorm-note").count(), 0);
-    assert.equal(await page.locator("[data-card]").count(), 4);
+    assert.equal(await page.locator("[data-card]").count(), 13);
+    assert.match(
+      await page.locator(".kj-card-connection").textContent(),
+      /ブレーンストーミングから 4枚/,
+    );
+    await preset("block:groups");
+    await preset("block:diagram");
+    assert.match(
+      await page.locator(".kj-reading").textContent(),
+      /まだ関係線はありません/,
+    );
+    await preset("relation:awareness");
+    assert.equal(await page.locator('[data-action="kj-relation"]').count(), 1);
+    assert.match(await page.locator(".kj-reading").textContent(), /気付いても/);
+    await page
+      .locator('[data-bind="relations.r-awareness.text"]')
+      .fill("場所を知ることと受け取る行動には別の壁がある");
+    assert.match(await page.locator(".kj-reading").textContent(), /別の壁/);
     // Free mode starts with empty notes and activates transfer immediately on typing.
     await page.locator("#mode-free").click();
     await step(1);

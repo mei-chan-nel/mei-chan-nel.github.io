@@ -23,7 +23,7 @@ import {
   parseWorkbook,
   report,
   strategies,
-} from "./model.mjs?v=6";
+} from "./model.mjs?v=7";
 
 const $ = (selector) => document.querySelector(selector);
 const esc = (value) =>
@@ -357,7 +357,7 @@ function stageTransfer() {
   if (!state.step) return "";
   const previous = state.step - 1,
     data = stageSummary(state, previous);
-  return `<section class="stage-transfer" aria-label="前の段階からの引き継ぎ"><div class="transfer-heading"><h3>前の段階「${esc(steps[previous][0])}」から</h3>${btn("step", "前の内容を確認", String(previous), "quiet-button")}</div><p class="transfer-status">${state.done[previous] ? "前の段階はまとめ済みです。" : "前の段階はまだまとめていません。記入済みの内容から続けられます。"}</p><div class="transfer-grid"><div><h4>前の段階で${state.done[previous] ? "まとまった" : "記入した"}内容</h4>${summaryRows(data.completed)}</div><div><h4>この段階へ引き継いだ内容</h4>${summaryRows(data.passed)}</div></div>${data.pending.length ? `<p class="transfer-pending">${data.pending.map(esc).join(" ")}</p>` : ""}</section>`;
+  return `<section class="stage-transfer" aria-label="前の段階からの引き継ぎ"><div class="transfer-heading"><h3>前の段階「${esc(steps[previous][0])}」から</h3></div><p class="transfer-status">${state.done[previous] ? "前の段階はまとめ済みです。" : "前の段階はまだまとめていません。記入済みの内容から続けられます。"}</p><div class="transfer-grid"><div><h4>前の段階で${state.done[previous] ? "まとまった" : "記入した"}内容</h4>${summaryRows(data.completed)}</div><div><h4>この段階へ引き継いだ内容</h4>${summaryRows(data.passed)}</div></div>${data.pending.length ? `<p class="transfer-pending">${data.pending.map(esc).join(" ")}</p>` : ""}</section>`;
 }
 function stageOutcome() {
   const data = stageSummary(state);
@@ -534,9 +534,17 @@ function groupDescendants(id) {
   }
   return ids;
 }
+function isBrainstormCard(c) {
+  return (
+    state.brainstorm.some((n) => n.card === c.id) ||
+    c.source.startsWith("ブレーンストーミング")
+  );
+}
 function card(c) {
+  const origin = isBrainstormCard(c);
   return `<article class="note-card" data-preset-collection="cards" data-preset-row="${c.id}" data-card="${c.id}" data-kind="${c.kind}" draggable="true"><div class="card-top"><label class="card-pick"><input type="checkbox" data-select-card="${c.id}" ${pickedCards.has(c.id) ? "checked" : ""}><span class="visually-hidden">${esc(c.text || "情報カード")}をまとめるために選択</span><span class="drag-handle" draggable="true" aria-hidden="true">⠿</span></label>${del("delete-card", c.id, "この情報カードを削除")}</div>
-  ${area("1枚に1つの情報", `cards.${c.id}.text`, "観察や発言を、具体的に残す")}
+  <span class="card-origin">${origin ? "ブレーンストーミングの発言から" : "調査・観察の記録"}</span>
+  <div class="field-frame card-content" data-preset-target="cards.${c.id}.text"><label class="visually-hidden" for="input-cards.${c.id}.text">情報カードの内容</label><textarea id="input-cards.${c.id}.text" rows="2" data-bind="cards.${c.id}.text" placeholder="情報や発言を、具体的に記入" maxlength="10000">${esc(c.text)}</textarea></div>
   ${select("情報の種類", `cards.${c.id}.kind`, Object.entries(kinds))}
   ${input("出典・観察条件", `cards.${c.id}.source`, "誰の声？いつ・何件を観察？")}
   ${select("まとまり", `cards.${c.id}.group`, [["", "単独で置く"], ...state.groups.map((g) => [g.id, g.title || "（表札なし）"])])}</article>`;
@@ -620,7 +628,12 @@ function kjDiagram() {
       const a = positions.get(r.from),
         b = positions.get(r.to);
       if (!a || !b) return "";
-      return `<g tabindex="0" role="button" data-action="kj-relation" data-id="${r.id}" aria-label="${esc(r.text || "関係線")}。Deleteで削除"><path class="relation-hit" d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}"/><path d="M${a.x + 140} ${a.y + 36} L${b.x + 140} ${b.y + 36}" marker-end="url(#kj-arrow)"/><text x="${(a.x + b.x) / 2 + 140}" y="${(a.y + b.y) / 2 + 21}" text-anchor="middle">${esc(short(r.text || "関係を説明する", 18))}</text></g>`;
+      // Route same-row links below the cards so the arrow and its label remain visible.
+      const sameRow = a.y === b.y;
+      const path = sameRow
+        ? `M${a.x + 140} ${a.y + 92} V${a.y + 120} H${b.x + 140} V${b.y + 92}`
+        : `M${a.x + 280} ${a.y + 45} C${a.x + 305} ${a.y + 45},${b.x + 305} ${b.y + 45},${b.x + 280} ${b.y + 45}`;
+      return `<g tabindex="0" role="button" data-action="kj-relation" data-id="${r.id}" aria-label="${esc(r.text || "関係線")}。Deleteで削除"><path class="relation-hit" d="${path}"/><path d="${path}" marker-end="url(#kj-arrow)"/><text x="${(a.x + b.x) / 2 + 140}" y="${sameRow ? a.y + 142 : (a.y + b.y) / 2 + 36}" text-anchor="middle">${esc(short(r.text || "関係を説明する", 24))}</text></g>`;
     })
     .join("");
   const parents = state.groups
@@ -637,6 +650,13 @@ function kjDiagram() {
       return `<button type="button" data-action="${e.title !== undefined ? "kj-group" : "kj-card"}" data-id="${e.id}" class="kj-island ${e.title !== undefined ? "" : "single"}" style="left:${p.x}px;top:${p.y}px"><small>${e.title !== undefined ? "表札" : `単独のカード · ${kinds[e.kind]}`}</small><span>${esc(e.title ?? e.text)}</span></button>`;
     })
     .join("")}</div></div>`;
+}
+function kjReading() {
+  const text = (id) =>
+    state.groups.find((g) => g.id === id)?.title ||
+    state.cards.find((c) => c.id === id)?.text ||
+    "名前未入力";
+  return `<div class="kj-reading"><strong>図から説明できること</strong>${state.relations.length ? `<ul>${state.relations.map((r) => `<li>${esc(text(r.from))} → ${esc(text(r.to))}<br><b>${esc(r.text || "どんな関係か、下の編集欄に記入してください。")}</b></li>`).join("")}</ul>` : "<p>まだ関係線はありません。「線でつなぐ・関係を説明する」のプリセットか、下の「＋ 関係線」で、始点・終点とその関係を記入します。</p>"}</div>`;
 }
 function brainstorming() {
   const remaining = state.brainstorm.filter(
@@ -668,10 +688,15 @@ function brainstorming() {
 }
 function organize() {
   const endpoints = relationOptions();
+  const fromBrainstorm = state.cards.filter(isBrainstormCard).length;
+  const pendingBrainstorm = state.brainstorm.filter(
+    (n) => n.text.trim() && !n.card,
+  ).length;
   return `${brainstorming()}
-  ${lesson("cards", "② KJ法 · 情報を1枚に1つ書く", "台帳・観察・生徒の声を並べて読みます。どの情報が、最初の思い込みと違いますか？", "「箱の場所を知っている」と「箱を見る」は別の情報です。声や推測は、観察した数値と区別して残せます。")}
+  ${lesson("cards", "② KJ法 · 情報を1枚に1つ書く", "上で出した発言をカードにして、台帳・観察・生徒の声と読み合わせます。発言由来の意見・仮説と、調査で確認した事実を区別しましょう。", "「箱の場所を知っている」と「箱を見る」は別の情報です。声や推測は、観察した数値と区別して残せます。")}
   <details class="kind-example"><summary>種類と、まとまりは別のもの</summary><p><b>種類</b>は1枚ごとの情報の性質（事実・意見・仮説・検証結果）。<b>まとまり</b>は、カードの内容を読み合わせて見えてくる共通の意味です。違う種類のカードが同じまとまりに入ることもあります。</p><p>例：「受け取りが部活と重なる」（意見）と「放課後に箱を見る人が少ない」（事実）を寄せて、「受け取りたい人が確認できる機会は限られる」と表札を考えます。「時間」のような分類名で終わらせず、中の情報が何を語るかを表します。</p></details>
-  ${itemHeading("調査カード", "block:cards")}
+  ${itemHeading("ブレーンストーミングの発言と調査記録をカードに", "block:cards", "発言の引き継ぎと調査カード")}
+  <p class="kj-card-connection"><strong>ブレーンストーミングから ${fromBrainstorm}枚 ／ 調査・観察などの記録 ${state.cards.length - fromBrainstorm}枚</strong><br>${state.mode === "preset" ? "このプリセットで、上の未転記の発言と9件の調査記録をカードにします。" : "上の発言ボードの「KJのカードへ渡す」で、発言をここに引き継げます。"}${pendingBrainstorm ? ` まだカードにしていない発言は${pendingBrainstorm}件です。` : ""}</p>
   <div class="card-board">${groupPanel({ id: "", title: "単独のカード" })}</div>
   ${lesson("groups", "③ KJ法 · 読み合わせて、まとまりと表札を作る", "先に箱の名前を決めず、近いと感じるカードを2〜3枚から寄せます。合わないカードは単独のままでOK。例は一つの読み方なので、動かして別の表札も試せます。", "同じ「意見」でも、気付く問題・時間の問題・負担の問題があります。多数の声だけでなく、単独の情報も残します。", state.cards.length > 0)}
   ${itemHeading("カードを寄せて、まとまりを作る", "block:groups", "まとまりと表札", state.cards.length > 0)}
@@ -682,9 +707,11 @@ function organize() {
     .join("")}${missingGroups()}</div>
   <div class="inline-actions local-add">${btn("add-group", "＋ まとまり")}</div></div>
   ${lesson("relations", "④ KJ法 · まとまり同士の関係を図にする", "表札と単独の情報を見渡し、つながり・食い違いを言葉にします。矢印はあなたの解釈であり、因果関係の証明ではありません。必要なら上位のまとまりも作れます。", "「気付くこと」と「受け取れること」の両方に壁がありそうです。つなぎ方を変えると、全体の説明も変わります。", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
-  ${itemHeading("表札と単独のカードを図に並べる", "block:diagram", "KJ法の関係図", state.cards.length > 0 || state.groups.length > 0)}
-  ${kjDiagram()}<p class="graph-caption">破線は上位のまとまりとの関係。実線の矢印は、下で入力した関係の説明です。</p>
-  ${itemHeading("関係線と、その説明", "relation:awareness", "関係線と説明", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
+  <p class="kj-diagram-purpose">この図では、表札や単独の情報を線でつなぎ、関連・食い違い・次に確かめることを見渡します。つながりを言葉にし、最後の「全体の説明」へまとめます。</p>
+  ${itemHeading("情報同士のつながりを見渡す", "block:diagram", "KJ法の関係図", state.cards.length > 0 || state.groups.length > 0)}
+  ${itemHeading("線でつなぐ・関係を説明する", "relation:awareness", "関係線と説明", state.groups.some((g) => g.id === "g-recognize") && state.groups.some((g) => g.id === "g-access"))}
+  ${kjDiagram()}${kjReading()}<p class="graph-caption">破線は上位のまとまりとの関係。実線の矢印は、入力した関係の説明です。図の表札・カードを選ぶと、元の入力欄を編集できます。</p>
+  <h3>関係線の編集</h3>
   ${state.relations
     .map(
       (r) =>
@@ -780,7 +807,7 @@ function causeEditor() {
           "この原因を置く大骨",
           `causes.${c.id}.factor`,
           state.factors.map((f) => [f.id, f.title || "新しい切り口"]),
-        )}<label class="checkbox-label"><input type="radio" name="focus-cause" data-focus-cause="${c.id}" ${c.id === state.focusCause ? "checked" : ""}>この原因への対策を次で考える</label><div class="inline-actions">${btn("add-cause", "＋ 同じ骨に原因", f.id)}${btn("delete-cause", "選んだ原因を削除", c.id)}</div>`
+        )}<label class="checkbox-label" data-preset-target="focusCause"><input type="radio" name="focus-cause" data-focus-cause="${c.id}" ${c.id === state.focusCause ? "checked" : ""}>この原因への対策を次で考える</label><div class="inline-actions">${btn("add-cause", "＋ 同じ骨に原因", f.id)}${btn("delete-cause", "選んだ原因を削除", c.id)}</div>`
       : `${input("大骨 · 考える切り口", `factors.${f.id}.title`, "関連する原因を考える視点")}${btn("add-cause", "＋ この骨に原因を追加", f.id)}${btn("delete-factor", "この大骨を削除", f.id)}`
   }</aside>`;
 }
@@ -792,7 +819,7 @@ function analyze() {
   const focus = state.causes.find((c) => c.id === state.focusCause);
   return `<div class="source-strip"><strong>調査から使える根拠：${state.cards.length}枚</strong>${btn("step", "元のカードを確認する", "1")}</div>
   ${lesson("causes", "① 情報から、原因の候補を図に置く", "大骨は原因を考える切り口、小骨は具体的な原因の候補です。整理した情報を根拠として接続します。情報をそのまま原因と決め付けず、どう影響するかを考えます。", "自分で作った表札を大骨の切り口に使えます。例の原因は、実際にある調査カードにだけ根拠を結びます。")}
-  ${itemHeading("特性要因図に原因の候補を置く", "block:causes", "原因図の大骨と原因の候補")}
+  ${itemHeading("原因の候補と、次で考える原因を記入する", "block:causes", "原因図と次に使う原因の選択")}
   <div class="diagram-toolbar">${btn("add-factor", "＋ 大骨（切り口）")}${btn("groups-factors", "自分の表札を大骨にする")}<span>図の大骨・小骨を選ぶ → 隣で編集 → 次に使う原因を選ぶ</span></div>
   ${lesson("tests", "② 仮説の確かめ方を考える", "原因の説明と、確かめる方法をセットにします。小骨を選び、どんな記録・比較で確かめられるかを書きます。")}
   ${itemHeading("仮説を確かめる方法も記入する", "block:tests", "原因の確かめ方", state.causes.length > 0)}
@@ -1175,6 +1202,12 @@ async function action(el) {
     }
     if (!result.cleared && added?.collection === "nodes")
       selectedNode = added.id;
+    if (id === "block:causes" && state.focusCause) {
+      selectedCause = state.focusCause;
+      selectedFactor = state.causes.find(
+        (c) => c.id === state.focusCause,
+      ).factor;
+    }
     changed();
     save();
     notify("");
@@ -1687,6 +1720,8 @@ function update(event) {
   }
   if ($(".kj-diagram-scroll") && /^(groups|cards|relations)\./.test(path))
     $(".kj-diagram-scroll").outerHTML = kjDiagram();
+  if ($(".kj-reading") && /^(groups|cards|relations)\./.test(path))
+    $(".kj-reading").outerHTML = kjReading();
   for (const f of state.factors) {
     const display = $(`[data-factor-display="${f.id}"]`);
     if (display) display.textContent = short(f.title, 14);
