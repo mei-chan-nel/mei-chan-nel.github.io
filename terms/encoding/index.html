@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>符号化とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="符号化の意味と、必要なビット数、音声・画像・文字のデジタル化、固定長・可変長符号、データ圧縮を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="符号化" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="符号化とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="符号化の意味と、必要なビット数、音声・画像・文字のデジタル化、固定長・可変長符号、データ圧縮を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/encoding/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/encoding/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">符号化</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">符号化</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「符号化」とは</h2>
+          <p><strong>符号化（エンコード）とは、文字・数値・音声・画像などの情報を、決められた規則に従って、別の記号や数値の並びに変換すること</strong>です。</p>
+          <p>コンピュータでは、情報を最終的に0と1の組合せで表すため、情報をビット列に変換する符号化が広く利用されています。</p>
+          <p>例えば、次のように曜日を3ビットの2進数で表すことができます。</p>
+          <table>
+            <thead>
+              <tr><th>曜日</th><th>符号</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>月曜日</td><td><code>000</code></td></tr>
+              <tr><td>火曜日</td><td><code>001</code></td></tr>
+              <tr><td>水曜日</td><td><code>010</code></td></tr>
+              <tr><td>木曜日</td><td><code>011</code></td></tr>
+              <tr><td>金曜日</td><td><code>100</code></td></tr>
+              <tr><td>土曜日</td><td><code>101</code></td></tr>
+              <tr><td>日曜日</td><td><code>110</code></td></tr>
+            </tbody>
+          </table>
+          <p>ここでは、曜日と3ビットの符号を対応させる規則を決めています。この規則を共有していれば、符号から元の曜日を読み取ることもできます。</p>
+          <p>符号化したデータを、規則に従って元の情報に戻す処理を<strong>復号（デコード）</strong>といいます。</p>
+          <p>符号化は単に2進数へ変換することだけではありません。文字コードによる文字の表現、音声や画像のデジタル化、データ圧縮など、さまざまな場面で利用されています。</p>
+        </section>
+
+        <section>
+          <h2>符号化に必要なビット数</h2>
+          <p>コンピュータが扱う情報の最小単位は<strong>ビット（bit）</strong>であり、1ビットでは0と1の2通りを表すことができます。</p>
+          <p>2ビットでは00、01、10、11の4通り、3ビットでは8通りを表せます。</p>
+          <p>一般に、nビットで表せる異なるパターンの数は、</p>
+          <p class="term-formula"><strong>2<sup>n</sup> 通り</strong></p>
+          <p>です。</p>
+          <table>
+            <thead>
+              <tr><th>ビット数</th><th>表せるパターン数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1ビット</td><td>2通り</td></tr>
+              <tr><td>2ビット</td><td>4通り</td></tr>
+              <tr><td>3ビット</td><td>8通り</td></tr>
+              <tr><td>4ビット</td><td>16通り</td></tr>
+              <tr><td>5ビット</td><td>32通り</td></tr>
+              <tr><td>8ビット</td><td>256通り</td></tr>
+              <tr><td>10ビット</td><td>1024通り</td></tr>
+            </tbody>
+          </table>
+          <p>したがって、N種類の情報を、すべて同じ長さのビット列で区別して表すためには、</p>
+          <p class="term-formula"><strong>2<sup>n</sup> ≧ N</strong></p>
+          <p>を満たす最小の整数nを求めればよいです。</p>
+          <p>例えば、0から15までの整数は、0も数えるため全部で16種類あります。</p>
+          <ul>
+            <li>3ビットでは2<sup>3</sup>＝8通りなので不足します。</li>
+            <li>4ビットでは2<sup>4</sup>＝16通りなので、ちょうど表せます。</li>
+          </ul>
+          <p>実際に4ビットを使うと、0は<code>0000</code>、15は<code>1111</code>となり、0から15までの整数をすべて表せます。</p>
+          <p>ここで重要なのは、<strong>最大の数値ではなく、区別する必要がある情報の種類の数を考えること</strong>です。</p>
+          <p>例えば、0から100までの整数を区別する場合、必要なのは101種類です。2<sup>6</sup>＝64では不足し、2<sup>7</sup>＝128なら足りるので、最小7ビットとなります。</p>
+          <p>なお、このようにすべての情報を同じビット数で表す方法を<strong>固定長符号</strong>といいます。</p>
+        </section>
+
+        <section>
+          <h2>組合せを2進数で符号化する</h2>
+          <p>符号化では、一つの値だけでなく、複数の項目の組合せも表現できます。</p>
+          <p>例えば、四つのトッピングA、B、C、Dについて、それぞれを選ぶか選ばないかを考えます。</p>
+          <p>各トッピングには2通りの状態があるため、全体の組合せは、</p>
+          <p class="term-formula"><strong>2<sup>4</sup>＝16通り</strong></p>
+          <p>となります。</p>
+          <p>ここで、Aに1、Bに2、Cに4、Dに8を割り当てます。</p>
+          <table>
+            <thead>
+              <tr><th>トッピング</th><th>割り当てる値</th><th>2進数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td>1</td><td><code>0001</code></td></tr>
+              <tr><td>B</td><td>2</td><td><code>0010</code></td></tr>
+              <tr><td>C</td><td>4</td><td><code>0100</code></td></tr>
+              <tr><td>D</td><td>8</td><td><code>1000</code></td></tr>
+            </tbody>
+          </table>
+          <p>この割当てでは、選んだトッピングの数値を足し合わせるだけで、組合せを一意に表せます。</p>
+          <p>例えば、</p>
+          <ul>
+            <li>AとCを選ぶ：1＋4＝5 → <code>0101</code></li>
+            <li>BとDを選ぶ：2＋8＝10 → <code>1010</code></li>
+            <li>すべて選ぶ：1＋2＋4＋8＝15 → <code>1111</code></li>
+            <li>何も選ばない：0 → <code>0000</code></li>
+          </ul>
+          <p>となります。</p>
+          <p>それぞれのビットが、トッピングを選んだかどうかに対応しています。</p>
+          <p>この方法で組合せを区別できるのは、割り当てた数値が<strong>1、2、4、8という2の累乗</strong>になっているからです。2進数の各桁が独立しており、異なる組合せが同じ合計になることがありません。</p>
+          <p>一方、1、2、3、4という数値を割り当てると、AとDを選んだ場合の合計1＋4＝5と、BとCを選んだ場合の合計2＋3＝5が同じになります。これでは合計値だけから元の組合せを特定できません。</p>
+          <p>このような符号化は、複数の設定のオン・オフを一つの整数にまとめる場合などにも利用されます。</p>
+        </section>
+
+        <section>
+          <h2>音声や画像のデジタル化と符号化</h2>
+          <p>現実世界の音声や光などは、連続的に変化するアナログ信号として扱われることが多いです。</p>
+          <p>コンピュータでこれらの情報を扱うためには、連続的な信号をデジタルデータに変換する必要があります。</p>
+          <p>基本的な処理の順序は、次のとおりです。</p>
+          <p class="term-formula"><strong>標本化 → 量子化 → 符号化</strong></p>
+          <p>それぞれの工程には、異なる役割があります。</p>
+
+          <h3>① 標本化（サンプリング）</h3>
+          <p>アナログ信号から、一定の間隔で値を取り出す処理です。</p>
+          <p>音声の場合、連続的に変化する音の波形を、一定の時間間隔で測定します。</p>
+          <p>例えば、1秒間に8000回測定する場合、標本化周波数は8000Hz（8kHz）となります。</p>
+          <p>標本化によって、時間的に連続した音声信号から、各時点の振幅の値が得られます。</p>
+
+          <h3>② 量子化</h3>
+          <p>標本化によって取り出した値を、あらかじめ決められた有限個の段階に対応させる処理です。</p>
+          <p>例えば、測定された振幅が3.7であっても、整数の段階しか使用しない場合には、4などの近い値に置き換えます。</p>
+          <p>量子化では元の値を近似するため、一般に誤差が発生します。これを<strong>量子化誤差</strong>といいます。</p>
+          <p>段階数を増やすと、元の信号をより細かく表現できますが、各段階を区別するために必要なビット数も増えます。</p>
+          <p>例えば、8ビットで各段階を表すなら、</p>
+          <p class="term-formula"><strong>2<sup>8</sup>＝256段階</strong></p>
+          <p>を区別できます。</p>
+
+          <h3>③ 符号化</h3>
+          <p>量子化された値を、0と1のビット列に対応させる処理です。</p>
+          <p>例えば、0から7までの8段階に量子化した値なら、3ビットの2進数<code>000</code>から<code>111</code>に対応させられます。</p>
+          <p>これによって、音声の情報をコンピュータで保存・処理・通信できるようになります。</p>
+          <p>このように、<strong>標本化は値を取り出す処理、量子化は値を有限段階にする処理、符号化は値をビット列に変換する処理</strong>です。</p>
+          <p>三つの工程を合わせたものがデジタル化であり、符号化はその一段階に当たります。</p>
+
+          <h3>音声のPCM方式</h3>
+          <p>音声をデジタル化する代表的な方式に、PCM（Pulse Code Modulation、パルス符号変調）があります。</p>
+          <p>PCM方式では、標本化、量子化、符号化の三つの工程によって、音声をビット列として表します。</p>
+          <p>非圧縮PCM音声の基本的なデータ量は、</p>
+          <p class="term-formula"><strong>データ量（ビット）＝標本化周波数×量子化ビット数×チャンネル数×時間（秒）</strong></p>
+          <p>で求められます。</p>
+          <p>例えば、標本化周波数8000Hz、量子化8ビット、モノラル（1チャンネル）の音声を5秒間記録すると、</p>
+          <p class="term-formula"><strong>8000×8×1×5＝320000ビット</strong></p>
+          <p>すなわち、40,000バイト（約40kB）の音声データになります。これは音声の標本データだけの量であり、ファイルの管理情報などは含みません。</p>
+
+          <h3>画像のデジタル化</h3>
+          <p>画像でも、標本化、量子化、符号化という考え方が使われます。</p>
+          <p>ただし、音声と画像では標本化する対象が異なります。</p>
+          <table>
+            <thead>
+              <tr><th>工程</th><th>音声の場合</th><th>画像の場合</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>標本化</td><td>一定時間ごとに振幅を取り出す</td><td>格子状の位置ごとに色や明るさを取り出す</td></tr>
+              <tr><td>量子化</td><td>振幅を有限個の段階にする</td><td>明るさや色の値を有限個の段階にする</td></tr>
+              <tr><td>符号化</td><td>段階値をビット列にする</td><td>各画素の値をビット列にする</td></tr>
+            </tbody>
+          </table>
+          <p>画像では、標本化によって画素（ピクセル）ごとの情報を取り出します。</p>
+          <p>例えば、RGBの各色成分を8ビットで表す場合、各成分で256段階を区別できます。3成分で合計24ビットを使い、約1677万通りの色を表現できます。</p>
+          <p>一般に、画素数や階調数が増えるほど細かい画像表現ができますが、圧縮しない場合のデータ量も大きくなります。</p>
+        </section>
+
+        <section>
+          <h2>文字の符号化と文字コード</h2>
+          <p>コンピュータで文章を扱う場合も、文字を数値やビット列に変換する必要があります。</p>
+          <p><strong>文字コード</strong>とは、文字と数値やバイト列との対応を定めるための仕組みです。</p>
+          <p>例えば、ASCIIでは、英大文字の<code>A</code>には10進数の65に相当する符号が割り当てられています。この値は2進数では<code>01000001</code>と表せます。</p>
+          <p>文字コードに関係する代表的な仕組みに、UnicodeとUTF-8があります。</p>
+
+          <h3>UnicodeとUTF-8</h3>
+          <p>Unicodeは、世界中のさまざまな文字を統一的に扱うための規格であり、各文字などにコードポイントと呼ばれる番号を割り当てています。</p>
+          <p>UTF-8は、そのUnicodeのコードポイントをバイト列で表す符号化方式の一つです。</p>
+          <p>UTF-8では、1文字のコードポイントを1～4バイトで表します。</p>
+          <ul>
+            <li>ASCIIに含まれる英数字など：1バイト</li>
+            <li>多くの日本語の文字：3バイト</li>
+            <li>一部の絵文字など：4バイト</li>
+          </ul>
+          <p>例えば、文字<code>A</code>はUTF-8では1バイト、日本語の<code>あ</code>は3バイトで表されます。</p>
+          <p>UTF-8は<strong>可変長符号</strong>であり、すべての文字を同じバイト数で表すわけではありません。</p>
+          <p>そのため、同じ文字数の文章であっても、含まれる文字の種類によってデータ量が異なります。</p>
+          <p>なお、UTF-8ではASCIIに含まれる文字はASCIIと同じ1バイトの値で表されるため、ASCIIとの互換性があります。</p>
+
+          <h3>文字化けが発生する理由</h3>
+          <p>文字を正しく復号するためには、送信側と受信側で、符号化方式について共通の理解が必要です。</p>
+          <p>例えば、送信側がある文字コードで文章をバイト列に変換したのに、受信側が別の文字コードとして解釈すると、元の文字とは異なる文字が表示される場合があります。</p>
+          <p>これが<strong>文字化け</strong>です。</p>
+          <p>文字コードによっては、文字とバイト列の対応だけでなく、文字を区切る方法も異なります。</p>
+          <p>したがって、単に文字数やバイト列だけが分かっていても、使用された符号化方式が不明であれば、元の文章を正しく復元できるとは限りません。</p>
+        </section>
+
+        <section>
+          <h2>固定長符号と可変長符号</h2>
+          <p>符号化には、すべての情報を同じ長さで表す固定長符号のほかに、情報によって異なる長さの符号を割り当てる<strong>可変長符号</strong>があります。</p>
+          <p>例えば、A、B、Cという三つの記号を固定長符号で表す場合、2ビットずつ割り当てればよいです。</p>
+          <table>
+            <thead>
+              <tr><th>記号</th><th>固定長符号</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td><code>00</code></td></tr>
+              <tr><td>B</td><td><code>01</code></td></tr>
+              <tr><td>C</td><td><code>10</code></td></tr>
+            </tbody>
+          </table>
+          <p>しかし、Aが非常によく出現し、Cがほとんど出現しないなら、すべての記号に2ビットを使うことが効率的とは限りません。</p>
+          <p>そこで、出現しやすい記号に短い符号を割り当てます。</p>
+          <table>
+            <thead>
+              <tr><th>記号</th><th>出現確率</th><th>可変長符号</th><th>符号長</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>A</td><td>0.6</td><td><code>0</code></td><td>1ビット</td></tr>
+              <tr><td>B</td><td>0.3</td><td><code>10</code></td><td>2ビット</td></tr>
+              <tr><td>C</td><td>0.1</td><td><code>11</code></td><td>2ビット</td></tr>
+            </tbody>
+          </table>
+          <p>この場合、Aを1ビットで表せるので、平均的なデータ量を小さくできます。</p>
+
+          <h3>平均符号長</h3>
+          <p>可変長符号の効率を考えるときには、<strong>平均符号長</strong>を利用します。</p>
+          <p>平均符号長とは、各記号の出現確率に符号長を掛けたものの合計です。</p>
+          <p class="term-formula"><strong>平均符号長＝Σ（出現確率×符号長）</strong></p>
+          <p>先ほどの例では、</p>
+          <p class="term-formula"><strong>L＝0.6×1＋0.3×2＋0.1×2<br />＝0.6＋0.6＋0.2<br />＝1.4ビット</strong></p>
+          <p>となります。</p>
+          <p>固定長符号では1記号当たり2ビット必要だったのに対し、可変長符号では平均1.4ビットで表せます。</p>
+          <p>このように、記号の出現確率に応じて符号の長さを変えることで、データを効率よく表現できます。</p>
+
+          <h3>接頭語自由符号</h3>
+          <p>可変長符号では、符号の長さが異なるため、連結したビット列をどこで区切るかが問題になります。</p>
+          <p>例えば、Aを<code>0</code>、Bを<code>01</code>とすると、最初の<code>0</code>を読んだ時点では、Aが確定したのか、Bの途中なのかを判断できません。</p>
+          <p>そこで、区切り記号を使わず、左から順に符号を確定できるようにする方法があります。</p>
+          <p>その代表的なものが<strong>接頭語自由符号（プレフィックス符号）</strong>です。</p>
+          <p>接頭語とは、符号の先頭部分のことです。</p>
+          <p>接頭語自由符号では、どの符号語も、ほかの符号語の接頭語にならないようにします。</p>
+          <p>例えば、次の符号語を考えます。</p>
+          <p class="term-formula"><strong><code>0</code>、<code>10</code>、<code>110</code>、<code>111</code></strong></p>
+          <p>これらは、どの符号語もほかの符号語の先頭部分と一致しません。</p>
+          <p>例えば、<code>010110111</code>というビット列は、</p>
+          <p class="term-formula"><strong><code>0 | 10 | 110 | 111</code></strong></p>
+          <p>と、左から順に区切って復号できます。</p>
+          <p>出現確率の高い記号に短い符号を割り当てるハフマン符号も、接頭語自由符号を利用する代表的な符号化方法です。</p>
+        </section>
+
+        <section>
+          <h2>符号化とデータ圧縮</h2>
+          <p>データ圧縮とは、情報の表し方を工夫して、保存や通信に必要なデータ量を削減することです。</p>
+          <p>圧縮でも符号化の技術が利用されます。</p>
+          <p>圧縮には、大きく分けて可逆圧縮と非可逆圧縮があります。</p>
+
+          <h3>可逆圧縮</h3>
+          <p>圧縮したデータから、元のデータを完全に復元できる方式です。</p>
+          <p>代表的な方法の一つが、<strong>ランレングス法（連長圧縮）</strong>です。</p>
+          <p>例えば、次のように同じ記号が連続するデータを考えます。</p>
+          <p class="term-formula"><strong><code>AAAAAABBBBCCC</code></strong></p>
+          <p>これを、記号と連続回数の組で、</p>
+          <p class="term-formula"><strong><code>(A,6) (B,4) (C,3)</code></strong></p>
+          <p>と表します。</p>
+          <p>このように、同じ値が長く続くデータでは、連続する値をまとめて記録することで、データ量を削減できる場合があります。</p>
+          <p>一方、値が毎回変化するデータでは、まとめられる部分が少なくなり、圧縮効果は小さくなります。</p>
+          <p>例えば、PCM方式で記録した音声について、すべての標本が同じ値となる無音区間なら、長い繰返しをまとめて表せるため、ランレングス法との相性がよいです。</p>
+          <p>これに対して、不規則に値が変化するホワイトノイズや、標本値が頻繁に変わる音声では、同じ値が連続しにくいため、ランレングス法による圧縮は効きにくくなります。</p>
+          <p>なお、実際の圧縮後のデータ量は、連続回数を記録する方法などにも左右されます。圧縮方法とデータの特徴が合わなければ、圧縮後のほうが大きくなる場合もあります。</p>
+
+          <h3>非可逆圧縮</h3>
+          <p>非可逆圧縮とは、一部の情報を削減することでデータ量を小さくする方式です。</p>
+          <p>元のデータを完全には復元できませんが、人間が知覚しにくい情報などを削減することで、比較的少ないデータ量でも実用的な品質を保てます。</p>
+          <p>JPEG画像や、多くの動画圧縮方式などで利用されています。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>符号化 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>整数0から15までの16種類を、全て同じ長さの2進数で符号化する。必要な最小ビット数を次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>3ビット</p></li>
+            <li><span>1</span><p>4ビット</p></li>
+            <li><span>2</span><p>8ビット</p></li>
+            <li><span>3</span><p>15ビット</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．4ビット</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>N種類を固定長で表すには2<sup>n</sup>≧Nとなる最小のnビットが必要です。0を含む16種類は<code>0000</code>～<code>1111</code>の4ビットでちょうど表せます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ビット／2進数／符号化</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">符号化の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="符号化"
+          data-limit="5"
+          data-exclude-stem="整数0から15までの16種類を、全て同じ長さの2進数で符号化する。必要な最小ビット数を次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=符号化">符号化の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"符号化とは","description":"符号化の意味と、必要なビット数、音声・画像・文字のデジタル化、固定長・可変長符号、データ圧縮を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/encoding/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"符号化","item":"https://mei-chan-nel.com/terms/encoding/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026100901"></script>
+  </body>
+</html>

@@ -174,6 +174,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "画像": {
     "url": "/terms/image/"
   },
+  "符号化": {
+    "url": "/terms/encoding/"
+  },
   "著作権": {
     "url": "/terms/copyright/"
   },
