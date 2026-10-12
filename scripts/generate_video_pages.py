@@ -116,6 +116,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../assets/site-analytics.js?v=2026101201" defer></script>
     <title>{e(title)}</title>
     <meta name="description" content="{e(description)}" />
     <meta name="theme-color" content="#102f35" />
@@ -190,7 +191,7 @@ def footer() -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026100901"></script>
+    <script src="../assets/site-header.js?v=2026101201"></script>
   </body>
 </html>
 """

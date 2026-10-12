@@ -20,6 +20,7 @@ archive/                   動画一覧・21ジャンル・最短コース
 LectureNote/               講義ノート5分野
 books/                     書籍案内
 assets/site.css            共通デザイン
+assets/site-analytics.js   全ページ共通のGA4初期化（ヘッダーに依存しない）
 assets/term-page.css       用語一覧・用語解説のデザイン
 assets/term-guides.js      用語タグと解説URLの生成レジストリ
 assets/video-embeds.js     クリック時の動画埋め込み
@@ -39,6 +40,14 @@ scripts/update_sitemap.py
 scripts/validate_portal.py
 scripts/preview_site.py    ポータルと隣接アプリを同じURL構成で確認するローカルサーバー
 ```
+
+## アクセス計測
+
+GA4（`G-JEG0V1ZZF2`）は `assets/site-analytics.js` に集約しています。各ページのheadで相対パスを使って `defer` 付きで読み込み、ページ生成元にも同じタグを含めます。Interactive Labの入口・各教材、隣接する学習アプリ・問題一覧もこのファイルを利用します。移動専用ページ、Google所有権確認ファイル、ダウンロード用HTMLは計測対象外です。
+
+初期化ガードにより、同じページで複数回読み込まれても初期化・自動ページビューは1回です。`site-header.js` は計測処理を持ちません。Studioでは従来どおりページURLとリファラーから共有コードを含むフラグメントを除外します。学習アプリの独自イベントは共通の `window.gtag` を使います。
+
+ヘッダーからの分離時に `site-header.js` の読み込みURLを `v=2026101201` に更新しています。旧ヘッダーのキャッシュを使うとGA4が重複するため、ページと生成元を同時に更新してください。
 
 ## プログラムトレース
 

@@ -110,6 +110,7 @@ node lab/tools/test-audio.mjs
 - `logic-circuit/documents.mjs` / `sharing.mjs` / `document-ui.mjs`: 保存形式・検証、ブラウザ内保存、共有URL、保存・読込・共有の画面。
 - `tools/build-render-worker.mjs` / `digital-image/render-source.mjs`: 同じ計算モデルから生成するWeb Worker。画像処理を操作とは別のスレッドで行い、最新の設定を優先します。Workerが使えない環境では通常処理に切り替えます。ダウンロードHTMLにも内包します。
 - `navigation.mjs`: ナビゲーションの表示補助。解析・広告スクリプトは読み込みません。
+- GA4は公開HTMLから共通の `assets/site-analytics.js` を直接読み込みます。ダウンロード用HTMLには計測タグを含めません。
 
 ```sh
 node lab/tools/build-pages.mjs

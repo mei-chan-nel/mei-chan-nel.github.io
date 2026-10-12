@@ -22,7 +22,7 @@ test('Studio shares are noindex before scripts, editor/guide are indexable, with
     assert.doesNotMatch(page, /%%[A-Z]+%%/u);
   }
   const sitemap = await readFile(new URL('sitemap.xml', portal), 'utf8'); assert.ok(sitemap.includes('https://mei-chan-nel.com/program-trace/studio/')); assert.ok(!sitemap.includes('/studio/share.html'));
-  const header = await readFile(new URL('assets/site-header.js', portal), 'utf8'); assert.match(header, /page_location: window\.location\.href\.split\("#"\)\[0\]/u);
+  const analytics = await readFile(new URL('assets/site-analytics.js', portal), 'utf8'); assert.match(analytics, /page_location: window\.location\.href\.split\("#"\)\[0\]/u);
 });
 test('Studio runtime has no eval, Function construction, network save API or original example-data dependency', async () => {
   const directory = new URL('program-trace/studio/', portal);

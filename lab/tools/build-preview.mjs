@@ -17,9 +17,9 @@ const pages = [
 for (const { id, name } of pages) {
   const source = new URL(`lab/${id ? id + "/" : ""}index.html`, repository);
   let html = await readFile(source, "utf8");
-  // Downloadable experiments run offline without requesting ad services.
+  // Downloadable experiments run offline without ad or analytics requests.
   html = html.replace(
-    /<script\b[^>]*src="[^"]*\/(?:adsbygoogle|manual-ads)\.js\?[^"]*"[^>]*><\/script>\n?/g,
+    /<script\b[^>]*src="[^"]*\/(?:adsbygoogle|manual-ads|site-analytics)\.js\?[^"]*"[^>]*><\/script>\n?/g,
     "",
   );
   html = html.replace(

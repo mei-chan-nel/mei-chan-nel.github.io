@@ -55,6 +55,7 @@ export function renderPage({
 <html lang="ja"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<script src="${prefix}assets/site-analytics.js?v=2026101201" defer></script>
 <title>${title}</title>
 <meta name="description" content="${description}" />
 <meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
@@ -69,6 +70,15 @@ export function renderPage({
 <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: crumbs })}</script>
 ${styles.map((path) => `<link rel="stylesheet" href="./${path}" />`).join("\n")}
 ${scripts.map((path) => `<script type="module" src="./${path}"></script>`).join("\n")}
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
 </head><body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="${prefix}"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション">${links(nav, prefix)}</nav></div></header>

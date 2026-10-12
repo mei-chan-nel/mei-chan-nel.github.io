@@ -497,6 +497,7 @@ def render_page(article: dict, body, question: dict) -> str:
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
     <title>{term}とは｜情報Ⅰ 用語解説｜Study Atlas</title>
     <meta name="description" content="{escape(article["description"])}" />
     <meta name="study-atlas-term-tag" content="{tag}" />
@@ -624,7 +625,7 @@ def render_page(article: dict, body, question: dict) -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../../assets/site-header.js?v=2026100901"></script>
+    <script src="../../assets/site-header.js?v=2026101201"></script>
   </body>
 </html>
 '''
