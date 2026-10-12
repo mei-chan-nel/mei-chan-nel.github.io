@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>パケット通信とルーティング｜Interactive Lab｜情報Ⅰ Study Atlas</title>
+  <meta name="description" content="PCからメッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路情報の更新を観察する体験型シミュレーター。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ja_JP" />
+  <meta property="og:title" content="パケット通信とルーティング｜Interactive Lab" />
+  <meta property="og:description" content="送信・障害・復旧・編集を通して、ルータの判断と経路の更新を観察するシミュレーター。" />
+  <meta property="og:url" content="https://mei-chan-nel.com/lab/packet-routing/" />
+  <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+  <meta name="theme-color" content="#102f35" />
+  <link rel="canonical" href="https://mei-chan-nel.com/lab/packet-routing/" />
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+  <link rel="stylesheet" href="./packet-routing.css?v=1" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"パケット通信とルーティング","item":"https://mei-chan-nel.com/lab/packet-routing/"}]}</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+<script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">本文へ移動</a>
+  <header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a></nav></div></header>
+  <main id="main-content" class="routing-lab">
+    <nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>ネットワーク</span></nav>
+    <header class="routing-title"><div><p class="eyebrow">INTERACTIVE LAB / NETWORK</p><h1>パケット通信とルーティング</h1><p>道が途切れたとき、メッセージはどう届く？</p></div><details class="help"><summary>使い方・しくみ</summary><div class="help-content"><h2>まず、送ってみよう</h2><ol><li>ヘッダーの「送信設定」で送信元・宛先カードを押し、図のPCかPCカードを選んで「送信」。青い点がパケットです。</li><li>「連続送信」を始め、経路上の回線を選んで「切断」。ルータも選んで故障させられます。</li><li>オレンジの経路情報が伝わり、テーブルが変化すると、後のパケットが別の道を通ります。</li></ol><h2>自由に実験する</h2><p>ヘッダーの「機器を追加」からルータ・LAN・PCをドラッグして追加。本体のドラッグは選択・移動、選択中の機器を囲むサークルからのドラッグは回線接続です。サークルにマウスを重ねると＋のカーソルになります。緑の候補まで引いて離してください。機器の「他の機器と接続」を押し、緑の候補を選ぶ方法でも配線できます。余白を押すと取り消せます。機器や回線を選ぶと、近くに故障・切断・復旧などの操作が表示されます。図の余白は表示の移動、ピンチは拡大・縮小です。キーボードでは追加ボタン→図でEnterを押して配置できます。機器にフォーカスしてCを押し、接続先の機器でEnterを押すと配線できます。</p><h2>このモデルの約束</h2><p>OSPFを参考にした、1つのエリアのリンクステート方式です。ルータがそれぞれ持つ経路情報から、回線コストの合計が最小の経路を計算します。検知は約2.4秒、隣への情報伝達は約0.75秒、再計算は約0.4秒。時間は観察しやすく調整しています。</p><p>LANには1台のルータを接続し、PCのIPアドレスは自動設定します。パケットの自動再送・TCP・OSPFのエリア分割や実際の制御パケット形式は扱いません。全パケットが届いたときにメッセージを組み立てます。</p></div></details></header>
+    <noscript><p class="notice">この教材を動かすにはJavaScriptを有効にしてください。</p></noscript>
+    <section class="network-panel" aria-labelledby="network-heading">
+      <div class="panel-heading network-heading">
+        <div class="network-heading-main"><h2 id="network-heading">ネットワーク</h2><details class="device-palette"><summary>機器を追加</summary><div class="palette-content"><p>図へドラッグして追加</p><div class="palette-buttons" role="group" aria-label="図へドラッグして機器を追加"><button type="button" data-mode="router" aria-pressed="false" title="図へドラッグ、またはクリックして配置">ルータ</button><button type="button" data-mode="lan" aria-pressed="false" title="図へドラッグ、またはクリックして配置">LAN</button><button type="button" data-mode="pc" aria-pressed="false" title="図へドラッグ、またはクリックして配置">PC</button></div></div></details></div>
+        <div class="header-send"><button id="send-settings-toggle" type="button" aria-expanded="false" aria-controls="send-settings">送信設定 <small id="endpoint-summary">PC-A → PC-H</small><span class="settings-chevron" aria-hidden="true">▾</span></button><button class="primary" id="send" type="submit" form="send-form">送信 <span aria-hidden="true">↗</span></button></div>
+        <div class="network-heading-tools"><div class="legend"><span><i class="legend-dot data"></i>パケット</span><span><i class="legend-dot update"></i>経路情報</span><span><i class="legend-line"></i>切断・故障</span></div><button id="reset" class="quiet" type="button">初期状態に戻す</button></div>
+      </div>
+      <section id="send-settings" class="send-settings" aria-label="送信の設定" hidden>
+    <form id="send-form" class="composer" aria-label="メッセージ送信">
+      <input id="source" type="hidden" />
+      <button id="pick-source" class="endpoint-picker source-picker" type="button" aria-pressed="false" aria-controls="pc-choices"><span class="endpoint-role">送信元</span><strong id="source-name">PCを選ぶ</strong><small id="source-network">図から選ぶ</small></button>
+      <span class="send-arrow" aria-hidden="true">→</span>
+      <input id="destination" type="hidden" />
+      <button id="pick-destination" class="endpoint-picker destination-picker" type="button" aria-pressed="false" aria-controls="pc-choices"><span class="endpoint-role">宛先</span><strong id="destination-name">PCを選ぶ</strong><small id="destination-network">図から選ぶ</small></button>
+      <label class="message-input">メッセージ<input id="message" maxlength="120" value="こんにちは！ネットワークの向こうへ。" required /></label>
+      <button id="repeat" type="button" aria-pressed="false">連続送信</button>
+    </form>
+    <section id="pc-choices" class="pc-choices" aria-labelledby="pc-choice-heading" hidden><div class="pc-choice-heading"><div><h2 id="pc-choice-heading">送信元のPCを選ぶ</h2><p>図のPCをクリックするか、カードを選んでください。</p></div><button id="cancel-pick" type="button">閉じる</button></div><div id="pc-choice-list" class="pc-choice-list"></div></section>
+        <details class="experiment-tip"><summary>障害を試す</summary><p>連続送信中に回線を切って、消失と迂回を観察しよう。</p><button id="break-route" type="button">経路上の回線を切断</button></details>
+      </section>
+        <div id="loss-notice" class="loss-notice" role="status" aria-live="polite" hidden><span class="loss-icon" aria-hidden="true">×</span><div><strong id="loss-heading"></strong><p id="loss-reason"></p></div><button id="loss-inspect" type="button">原因を確認</button><button id="loss-dismiss" type="button" aria-label="消失の通知を閉じる">×</button></div>
+        <div class="canvas-wrap"><svg id="network" aria-label="ネットワーク図。機器本体をドラッグして移動、選択中の機器を囲むサークルから引いて回線を接続。" tabindex="0" role="group"><defs><pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#d7d8d1" /></pattern></defs><rect id="background" fill="url(#dots)" /><g id="links"></g><g id="route"></g><g id="connection-preview" aria-hidden="true"></g><g id="devices"></g><g id="signals" aria-hidden="true"></g><g id="bubbles" aria-hidden="true"></g></svg>
+          <div id="selection-context" class="selection-context" role="region" aria-label="選択した機器・回線の操作" hidden><div id="selection-detail"></div></div>
+          <div class="map-controls" role="group" aria-label="ネットワーク図の表示"><button id="zoom-in" type="button" aria-label="拡大">＋</button><button id="zoom-out" type="button" aria-label="縮小">−</button><button id="fit" type="button">全体表示</button></div>
+          <span id="mode-hint" class="canvas-hint"></span>
+        </div>
+        <div class="metrics"><span><b id="active-count">0</b> 通信中</span><span class="success-text"><b id="delivered-count">0</b> 到達</span><span class="danger-text"><b id="lost-count">0</b> 消失</span><span id="update-state">経路情報は安定</span></div>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+    </section>
+    <div class="results-grid">
+      <section class="results-panel" aria-labelledby="results-heading"><div class="panel-heading"><h2 id="results-heading">通信の結果</h2><span class="muted">直近の20メッセージ</span></div><div id="messages" class="result-scroll" tabindex="0" role="region" aria-labelledby="results-heading"><p class="empty-state">最初のメッセージを送ってみよう。<br />パケットをすべて受信できたか、ここに表示します。</p></div></section>
+      <section id="trace-panel" class="trace-panel" aria-labelledby="trace-heading"><div class="panel-heading"><h2 id="trace-heading">パケット追跡</h2></div><div class="trace-body"><label class="visually-hidden" for="packet-select">追跡するパケット</label><select id="packet-select"><option value="">パケットを選択</option></select><div id="packet-detail"><p class="muted">送信したパケットの通過経路と、ルータの判断を確認できます。</p></div></div></section>
+      <section class="history-panel" aria-labelledby="history-heading"><div class="panel-heading"><h2 id="history-heading">経路情報・通信の履歴</h2><label class="history-filter"><span class="visually-hidden">履歴の種類</span><select id="history-filter"><option value="updates">経路の更新</option><option value="all">すべて</option><option value="packets">通信・消失</option><option value="selected">選択中のルータ</option></select></label></div><div id="history" class="result-scroll" tabindex="0" role="region" aria-labelledby="history-heading"></div></section>
+    </div>
+    <p class="model-note">経路情報はルータごとに更新されます。更新が行き渡るまで、古い経路を使ったパケットが失われたり、ルータ間を循環したりすることがあります。</p>
+  </main>
+  <div id="palette-preview" class="palette-preview" aria-hidden="true" hidden></div>
+  <div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+  <div class="lab-footer"><a href="../">← Interactive Labの一覧</a></div>
+  <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a>
+<a href="../../study-guide.html">使い方</a>
+<a href="../../books/">書籍案内</a>
+<a href="../../about.html">このサイトについて</a>
+<a href="../../privacy.html">プライバシーポリシー</a>
+<a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+  <script type="module" src="../navigation.mjs?v=1"></script>
+  <script type="module" src="./app.mjs?v=1"></script>
+</body>
+</html>

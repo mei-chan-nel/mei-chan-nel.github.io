@@ -115,7 +115,7 @@ for (const [source, line, match] of [
   ['x = 0\n# 配列の形が不正\nA = [[1], [2, 3]]', 3, /列数/],
   ['x = 9007199254740991\nx = x + 1', 2, /正確/], ['x = 2 ** 1024', 1, /数値/],
   ['もし 真 ならば：\n表示する(1)', 1, /字下げ/], ['そうでなければ：\n  x = 1', 1, /対応/],
-  ['x = alert(1)', 1, /使えません/], ['x = 表示する(1)', 1, /式/], ['定義する f(n)\n  返す n', 1, /独自/],
+  ['x = alert(1)', 1, /使えません/], ['x = 表示する(1)', 1, /式/], ['返す 1', 1, /関数/],
   ['i を 1 から 5 まで 0 ずつ増やしながら繰り返す：\n  x = 1', 1, /1以上/], ['constructor = 1', 1, /値|変数/],
 ]) test(`diagnostic: ${source.split('\n')[0]}`, () => { assert.throws(() => execute(source), error => error.line === line && match.test(error.message)); });
 test('infinite loops, too much output, oversized source stop with bounded errors', () => {
@@ -161,4 +161,18 @@ test('local draft, named copies and overwrite remain isolated from other site da
 test('unavailable or full local storage reports file fallback', () => {
   const storage = new ProgramStorage({ getItem() { throw Error('denied'); }, setItem() { throw Error('quota'); } });
   assert.throws(() => storage.draft(), /ファイル/); assert.throws(() => storage.saveDraft(draft('x = 1')), /ファイル/);
+});
+
+test('serializing a negative base preserves exponent precedence', async () => {
+  const {parseExpression,expressionText,valueExpression} = await import('../../../program-trace/studio/expressions.js');
+  const parsed = parseExpression('(-1) ** 2');
+  assert.equal(execute(`x = ${expressionText(parsed)}`).state.variables.x, 1);
+  const built = {kind:'binary',operator:'**',left:valueExpression(-2),right:valueExpression(2),column:1};
+  assert.equal(execute(`x = ${expressionText(built)}`).state.variables.x, 4);
+});
+test('compatibility helpers have exact numeric and array semantics', () => {
+  const {state}=execute('x = 整数(-1.2)\ny = べき乗(2, 3)\nA = [1, 2]\nB = 配列結合(A, [3], [4])\nC = 逆順(B)\nB[0] = 9\np = 含む(C, 3)\nq = 含む(C, 9)');
+  assert.deepEqual({...state.variables},{x:-2,y:8,A:[1,2],B:[9,2,3,4],C:[4,3,2,1],p:true,q:false});
+  assert.throws(()=>execute('x = ランダム整数(3, 2)'));
+  assert.throws(()=>execute('x = 配列結合([1], 2)'));
 });

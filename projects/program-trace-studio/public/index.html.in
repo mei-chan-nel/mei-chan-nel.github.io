@@ -13,7 +13,11 @@
        Emit a UTF-8 JSON object: {"format":"mei-program-studio","version":1,
        "title":"...","source":"...","settings":{"indexBase":0,"inputs":{}}}.
        source is Information I pseudocode, not JavaScript. Use two-space indentation
-       or correct ｜ / ⎿ markers; no end keywords. No custom functions or recursion.
+       or correct ｜ / ⎿ markers; no end keywords. Put custom definitions in the same
+       source, at the outermost level: 定義する name(args)： with an indented body.
+       返す value returns a value; bare 返す ends a standalone call without a value.
+       Pass local values as arguments. Recursion requires a terminating condition;
+       at most 32 calls deep and 10000 execution steps. Keep document version 1.
        Supported built-ins: 表示する(...), 要素数(array), 乱数(), 乱数(min,max,"整数"|"実数").
        Initialize 1D/rectangular 2D arrays before writing elements. Set every external
        input's bounds and type in settings.inputs. Generate complete source only;
@@ -29,17 +33,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="../icon.svg">
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
-  <link rel="stylesheet" href="./trace-base.css?v=20261005-desktop">
-  <link rel="stylesheet" href="./studio.css?v=20261005-desktop">
+  <link rel="stylesheet" href="./trace-base.css?v=20261009-function-help3">
+  <link rel="stylesheet" href="./studio.css?v=20261009-function-help3">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
   <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
-  <script type="module" src="./app.js?v=20261005-desktop"></script>
+  <script type="module" src="./app.js?v=20261009-flowchart2"></script>
   <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"プログラムトレース Studio","url":"%%CANONICAL%%","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"情報Ⅰ Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"プログラムトレース","item":"https://mei-chan-nel.com/program-trace/"},{"@type":"ListItem","position":3,"name":"Studio","item":"%%CANONICAL%%"}]}]</script>
 </head>
 <body class="studio-page" data-studio-entry="%%ENTRY%%">
 <a class="skip-link" href="#main-content">本文へスキップ</a>
 <!--site-header-->
-<script src="../../assets/site-header.js?v=2026100501" defer></script>
+<script src="../../assets/site-header.js?v=2026100901" defer></script>
 <main id="main-content" class="trace-shell">
   <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><span>Studio</span></nav>
   <div class="studio-heading">
@@ -53,7 +57,7 @@
     <div class="editor-main panel">
       <div class="editor-title-field"><label for="program-name">プログラム名</label><input id="program-name" type="text" maxlength="120" autocomplete="off" value=""></div>
       <div class="panel-heading builder-program-heading"><h2>プログラム</h2><span id="source-size" class="subtle-label"></span><button id="builder-first-plus" class="builder-plus" type="button" aria-label="1行目の上に行を追加">＋</button></div>
-      <ol id="builder-rows" class="program-lines builder-rows" aria-label="プログラムの処理"></ol>
+      <div id="builder-programs"><ol id="builder-rows" class="program-lines builder-rows" aria-label="メインプログラムの処理"></ol><div id="builder-function-blocks"></div></div>
       <p id="drag-status" class="drag-status" role="status"></p>
       <pre id="builder-source" hidden></pre>
       <p id="editor-error" class="error-message" role="alert" hidden></p>
@@ -63,6 +67,7 @@
         <div id="editor-document-tools">
           <div id="document-tools" class="document-toolbar" aria-label="プログラムの保存と共有">
             <div class="document-actions"><button id="new-program" class="button" type="button">新規作成</button><button id="share-button" class="button button-auto" type="button">URLで共有 <span aria-hidden="true">↗</span></button><button id="load-button" class="button" type="button">ブラウザ内から読込</button><button id="save-button" class="button" type="button">ブラウザ内に保存</button><button id="import-button" class="button" type="button">ファイルから読込</button><button id="export-button" class="button" type="button">ファイルに書出</button></div>
+            <button id="flowchart-button" class="button" type="button">フローチャートに変換</button>
             <span id="draft-status" class="subtle-label" role="status"></span>
             <input id="file-input" type="file" accept=".json,application/json" hidden>
           </div>
@@ -79,6 +84,7 @@
   <section id="runner-view" aria-label="プログラムを実行する" hidden>
     <div id="runner-document-tools"></div>
     <div class="control-panel"><div class="action-buttons">
+      <button id="previous-button" class="button" type="button" disabled><span class="button-icon" aria-hidden="true">←</span>前へ</button>
       <button id="next-button" class="button button-primary" type="button"><span class="button-icon" aria-hidden="true">→</span>次へ</button>
       <button id="reset-button" class="button" type="button"><span aria-hidden="true">↺</span>最初から</button>
       <button id="edit-values-button" class="button button-edit" type="button"><span aria-hidden="true">◇</span>値を変更する</button>
@@ -91,13 +97,14 @@
       <section class="program-panel panel" aria-labelledby="program-heading"><div class="panel-heading"><h2 id="program-heading">プログラム</h2></div><ol id="program-lines" class="program-lines" aria-label="行番号付きプログラム"></ol></section>
       <div class="result-column">
         <section class="explanation-panel panel" aria-labelledby="explanation-heading"><div class="panel-heading"><h2 id="explanation-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="explanation-body" disabled>解説<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><button id="explanation-full" class="text-button" type="button" hidden>全文を見る</button></div><div id="explanation-body" class="panel-body"><div id="step-detail" class="step-detail"><p id="detail-label" class="detail-label">実行前</p><h3 id="detail-title">「次へ」で1行目から実行</h3><p id="detail-explanation">実行中の行と、変数の変化を確かめましょう。</p><div id="condition-result" class="condition-result" hidden></div></div></div></section>
-        <section class="variables-panel panel" aria-labelledby="variables-heading"><div class="panel-heading"><h2 id="variables-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="variables-body" disabled>変数の値<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><button id="variables-full" class="text-button" type="button">すべて見る</button></div><div id="variables-body" class="panel-body"><div id="variable-table" class="variable-table" role="table" aria-label="現在の変数と変更前後の値"><div id="variable-rows" class="variable-rows studio-variable-rows" role="rowgroup"></div></div></div></section>
+        <section class="variables-panel panel" aria-labelledby="variables-heading"><div class="panel-heading"><h2 id="variables-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="variables-body" disabled>変数の値<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><button id="variables-full" class="text-button" type="button">すべて見る</button></div><p id="function-scope" class="function-scope" hidden></p><div id="variables-body" class="panel-body"><div id="variable-table" class="variable-table" role="table" aria-label="現在の変数と変更前後の値"><div id="variable-rows" class="variable-rows studio-variable-rows" role="rowgroup"></div></div></div></section>
         <section class="output-panel panel" aria-labelledby="output-heading"><div class="panel-heading"><h2 id="output-heading"><button class="panel-toggle" type="button" aria-expanded="true" aria-controls="output-body" disabled>出力<span class="panel-chevron" aria-hidden="true">▾</span></button></h2><div class="output-heading-actions"><span id="output-count" class="output-count">0件</span><button id="output-full" class="text-button" type="button" disabled>すべて見る</button></div></div><div id="output-body" class="panel-body"><p id="output-placeholder" class="output-placeholder">表示する()を実行すると、ここに表示されます。</p><ol id="output-lines" class="output-lines" role="log" aria-label="プログラムの出力"></ol></div></section>
       </div>
     </div>
     <section id="fullscreen-surface" class="fullscreen-surface" aria-label="全画面でプログラムを実行" hidden>
       <nav class="fullscreen-sidebar" aria-label="全画面の操作">
         <button class="fullscreen-action fullscreen-exit" type="button" data-fullscreen-exit aria-label="全画面を終了して元の画面へ" title="全画面を終了して元の画面へ">×</button>
+        <button class="fullscreen-action" type="button" data-control="previous" aria-label="前へ" title="前へ">←</button>
         <button class="fullscreen-action fullscreen-next" type="button" data-control="next" aria-label="次へ" title="次へ">→</button>
         <button class="fullscreen-action" type="button" data-control="reset" aria-label="最初から" title="最初から">↻</button>
         <button class="fullscreen-action" type="button" data-control="edit" aria-label="値を変更する" title="値を変更する">✎</button>
