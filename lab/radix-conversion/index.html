@@ -16,7 +16,7 @@
   <link rel="canonical" href="https://mei-chan-nel.com/lab/radix-conversion/" />
   <link rel="icon" href="../icon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-  <link rel="stylesheet" href="./styles.css?v=2" />
+  <link rel="stylesheet" href="./styles.css?v=3" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"進数の変換","item":"https://mei-chan-nel.com/lab/radix-conversion/"}]}</script>
 </head>
 <body>
@@ -35,7 +35,7 @@
       <form id="conversion-form" novalidate>
         <div class="input-sentence">
           <label class="base-field"><span>入力の進数</span><select id="source-base" name="source"><option value="2">2進数</option><option value="10" selected>10進数</option><option value="16">16進数</option></select></label>
-          <label class="number-field"><span>数値</span><input id="number-input" name="number" type="text" value="13.625" maxlength="67" inputmode="decimal" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="input-help input-error" /></label>
+          <label class="number-field"><span>数値</span><input id="number-input" name="number" type="text" value="45.6875" maxlength="67" inputmode="decimal" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="input-help input-error" /></label>
           <span class="sentence-particle">を</span>
           <label class="base-field"><span>変換先の進数</span><select id="target-base" name="target"><option value="2" selected>2進数</option><option value="10">10進数</option><option value="16">16進数</option></select></label>
           <span class="sentence-particle">に</span><button class="convert-button" type="submit">変換 <span aria-hidden="true">→</span></button>
@@ -43,13 +43,14 @@
         <div class="input-options"><p id="input-help">0〜9を使用。小数点は「.」、負の数は先頭に「-」。数値は合計64桁まで。</p><label class="precision-field">小数の表示上限<select id="precision" name="precision"><option value="16">16桁</option><option value="32">32桁</option><option value="64" selected>64桁</option><option value="128">128桁</option><option value="256">256桁</option></select></label></div>
         <p id="input-error" class="input-error" role="alert" hidden></p>
       </form>
-      <div class="examples"><span>変換の例</span><div id="example-buttons"><button type="button" data-example="integer">10進数 → 2進数</button><button type="button" data-example="decimal-hex">10進数 → 16進数</button><button type="button" data-example="position">2進数 → 10進数</button><button type="button" data-example="hex-decimal">16進数 → 10進数</button><button type="button" data-example="binary-hex">2進数 → 16進数</button><button type="button" data-example="hex-binary">16進数 → 2進数</button><button type="button" data-example="cycle">10進数 → 2進数（循環）</button></div></div>
+      <div class="examples"><span>変換の例</span><div id="example-buttons"><button type="button" data-example="decimal-binary">10進数 → 2進数</button><button type="button" data-example="decimal-hex">10進数 → 16進数</button><button type="button" data-example="position">2進数 → 10進数</button><button type="button" data-example="hex-decimal">16進数 → 10進数</button><button type="button" data-example="binary-hex">2進数 → 16進数</button><button type="button" data-example="hex-binary">16進数 → 2進数</button><button type="button" data-example="cycle">10進数 → 2進数（循環）</button></div></div>
+      <p id="example-focus" class="example-focus">整数は6回の割り算、小数は4回の掛け算。桁を読む向きの違いを確認します。</p>
     </section>
 
     <p id="conversion-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
 
     <section id="working-section" class="working-section" aria-labelledby="working-heading" hidden>
-      <div class="working-heading"><div><h2 id="working-heading">途中計算</h2><p id="method-description"></p></div><div class="step-controls" role="group" aria-label="途中計算の表示"><div class="step-buttons"><button id="restart-steps" type="button">1行ずつ見る</button><button id="next-step" type="button">次のステップ <span aria-hidden="true">→</span></button><button id="all-steps" type="button">すべて見る</button></div><p id="step-status" role="status" aria-live="polite"></p></div></div>
+      <div class="working-heading"><h2 id="working-heading">途中計算</h2><p id="method-description"></p></div>
       <div id="calculation-panels"></div>
       <section id="assembly" class="result-panel" aria-labelledby="result-heading"></section>
     </section>
@@ -59,6 +60,6 @@
   </main>
   <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../LectureNote/">講義ノート</a><a href="../../program-trace/">プログラムトレース</a><a href="../../books/">書籍案内</a><a href="../../study-guide.html">使い方</a><a href="../../about.html">このサイトについて</a><a href="../../privacy.html">プライバシーポリシー</a><a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
   <script type="module" src="../navigation.mjs?v=1"></script>
-  <script type="module" src="./app.mjs?v=2"></script>
+  <script type="module" src="./app.mjs?v=3"></script>
 </body>
 </html>

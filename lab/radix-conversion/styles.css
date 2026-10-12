@@ -29,23 +29,24 @@
 .examples > div { display: flex; flex-wrap: wrap; gap: 8px; }
 .examples button { padding: 8px 12px; min-height: 40px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: var(--paper); font-size: .74rem; }
 .examples button:hover { border-color: var(--blue-strong); color: var(--blue-strong); }
+.example-focus { margin: 14px 0 0; color: var(--ink-soft); font-size: .78rem; }
 .result-panel { position: relative; margin: 24px 0 0; padding: 26px 32px 28px; border-radius: 22px; color: var(--white); background: var(--ink); }
 .result-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .result-top h3 { margin: 0; font-size: .85rem; font-weight: 600; color: #d1e2e4; }
-.result-kind { padding: 3px 12px; border: 1px solid #709899; border-radius: 99px; color: #d8f7ea; font-size: .73rem; }
-.equals-sign { color: #a8c3c6; font-size: 1.8rem; flex: 0 0 auto; }
+.result-kind { white-space: nowrap; padding: 3px 12px; border: 1px solid #709899; border-radius: 99px; color: #d8f7ea; font-size: .73rem; }
+.equals-sign { color: #a8c3c6; font: 600 clamp(1.7rem, 3vw, 2.6rem)/1.8 ui-monospace, "SFMono-Regular", Consolas, monospace; flex: 0 0 auto; }
 #result-number { min-width: 0; font: 600 clamp(1.7rem, 3vw, 2.6rem)/1.8 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .025em; overflow-wrap: anywhere; }
 .repeat-digits { color: inherit; }
 .repeat-digit { position: relative; display: inline-block; }
 .cycle-dot::before { content: ""; position: absolute; top: .06em; left: 50%; width: .13em; height: .13em; border-radius: 50%; background: currentColor; transform: translateX(-50%); }
-.result-equation { display: flex; align-items: center; gap: 24px; margin: 20px 0 8px; }
-.equation-side { flex: 1; min-width: 0; }
+.result-equation { display: flex; align-items: flex-end; gap: 20px; margin: 20px 0 8px; }
+.equation-side { flex: 0 1 auto; min-width: 0; }
 .equation-side > small { display: block; margin-bottom: 2px; color: #d1e2e4; font-size: .74rem; }
-.equation-side > span, .equation-side > div { font: 600 clamp(1.7rem, 3vw, 2.6rem)/1.8 ui-monospace, "SFMono-Regular", Consolas, monospace; overflow-wrap: anywhere; }
+.equation-side > span, .equation-side > div { display: block; font: 600 clamp(1.7rem, 3vw, 2.6rem)/1.8 ui-monospace, "SFMono-Regular", Consolas, monospace; overflow-wrap: anywhere; }
 .result-equation sub { margin-left: 5px; font-size: .45em; color: #d1e2e4; }
 .result-equation .integer-color, .result-equation .fractional-color { color: inherit; }
 .result-equation .repeat-digits { color: #a4f0d5; }
-.arrow-cell { position: relative; width: 24px; min-width: 24px; padding: 0 !important; color: var(--part-color); }
+.arrow-cell { position: relative; width: 18px; min-width: 18px; padding: 0 !important; color: var(--part-color); }
 .column-arrow { position: absolute; top: 16px; bottom: 16px; left: 50%; width: 3px; transform: translateX(-50%); border-radius: 2px; background: currentColor; }
 .column-arrow::before { content: ""; position: absolute; left: -4px; width: 11px; height: 11px; border-top: 3px solid currentColor; border-right: 3px solid currentColor; }
 .column-arrow.up::before { top: 0; transform: rotate(-45deg); }
@@ -72,15 +73,9 @@
 .result-note, .sign-note { margin: 8px 0 0; font-size: .8rem; color: #d1e2e4; overflow-wrap: anywhere; }
 .result-note strong { color: #a4f0d5; }
 .working-section { margin: 32px 0 12px; scroll-margin-top: 120px; }
-.working-heading { display: flex; align-items: end; justify-content: space-between; gap: 28px; margin-bottom: 22px; }
+.working-heading { margin-bottom: 22px; }
 .working-heading h2 { margin: 0; font-size: 1.45rem; }
 #method-description { max-width: 640px; margin: 10px 0 0; font-size: .85rem; color: var(--ink-soft); }
-.step-controls { flex: 0 0 auto; }
-.step-buttons { display: flex; flex-wrap: wrap; gap: 6px; }
-.step-buttons button { min-height: 42px; padding: 8px 12px; border: 1px solid #b2bcb8; border-radius: 8px; color: var(--ink); background: var(--white); font-size: .75rem; font-weight: 700; }
-.step-buttons button:hover:not(:disabled) { border-color: var(--blue-strong); color: var(--blue-strong); }
-.step-buttons button:disabled { opacity: .5; cursor: default; }
-#step-status { margin: 8px 0 0; font-size: .73rem; color: var(--ink-soft); text-align: right; }
 .calculation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: stretch; }
 .calculation-card { --part-color: var(--blue-strong); --part-paper: #eaf0f6; min-width: 0; border: 1px solid #c4d2de; border-radius: 18px; background: var(--white); overflow: hidden; display: flex; flex-direction: column; }
 .calculation-card.fractional-part { --part-color: var(--mint-strong); --part-paper: #e6f2ed; border-color: #c1d7cb; }
@@ -95,10 +90,13 @@
 .scroll-table th { padding: 0 8px 10px; text-align: left; color: var(--ink-soft); font-size: .7rem; font-weight: 600; white-space: nowrap; }
 .scroll-table td { padding: 12px 8px; border-top: 1px solid var(--line); vertical-align: middle; }
 .scroll-table td:first-child { padding-left: 0; color: var(--ink-soft); font-size: .7rem; }
+.scroll-table :is(.digit-heading, .digit-cell) { width: 54px; padding-inline: 4px; text-align: center; }
+.scroll-table .arrow-heading { width: 18px; padding: 0; }
+.picked-value { display: inline-grid; gap: 4px; justify-items: center; }
+.picked-value small { font-size: .67rem; white-space: nowrap; color: var(--part-color); }
 .arithmetic { font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; overflow-wrap: anywhere; }
 .picked-digit { display: inline-grid; place-items: center; min-width: 32px; height: 32px; padding: 2px 8px; border: 1px solid #bdced2; border-radius: 6px; color: var(--part-color); background: var(--part-paper); font: 700 1rem ui-monospace, "SFMono-Regular", Consolas, monospace; }
 .cycle-row td { background: #edf7ee; }
-.current-step { outline: 2px solid var(--part-color); outline-offset: -2px; background: var(--part-paper); }
 .part-answer { margin: 14px 0 0; font-size: .85rem; overflow-wrap: anywhere; }
 .part-answer b { font: 700 1.3rem ui-monospace, "SFMono-Regular", Consolas, monospace; color: var(--part-color); }
 .part-note { margin: 12px 0 0; font-size: .8rem; color: var(--ink-soft); overflow-wrap: anywhere; }
@@ -127,8 +125,6 @@
   .base-field { flex-basis: 125px; }
   .input-sentence { gap: 10px; }
   .convert-button { gap: 12px; padding: 10px 16px; }
-  .working-heading { align-items: start; flex-direction: column; gap: 16px; }
-  #step-status { text-align: left; }
 }
 @media (max-width: 760px) {
   .result-equation { gap: 12px; }
@@ -148,7 +144,7 @@
   .calculation-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
-  .equation-side > span, .equation-side > div, #result-number { font-size: 1.35rem; }
+  .equation-side > span, .equation-side > div, #result-number, .equals-sign { font-size: 1.25rem; }
   .result-equation { gap: 10px; }
   .grouping-visual { padding: 18px 14px; }
   .bit-group { padding: 8px 5px; }
@@ -165,8 +161,6 @@
   .examples { flex-direction: column; align-items: start; gap: 10px; }
   .examples button { padding-inline: 10px; }
   .result-panel { padding: 22px 20px; }
-  #result-number { font-size: 1.85rem; }
-  .equals-sign { font-size: 1.3rem; }
   .calculation-card > header { padding: 18px; }
   .calculation-body { padding: 18px 14px; }
   .scroll-table table { font-size: .78rem; }

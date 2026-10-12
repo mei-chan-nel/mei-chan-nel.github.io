@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { convert, parseNumber, fraction, expandFraction, MAX_INPUT_DIGITS } from "../lab/radix-conversion/conversion.mjs";
+import { CONVERSION_EXAMPLES } from "../lab/radix-conversion/examples.mjs";
 
 test("6方向で整数・小数を正確に変換する", () => {
   const cases = [
@@ -120,4 +121,31 @@ test("不正な桁、式、循環記法、過大入力を明確に拒否する",
   assert.throws(() => convert("1", 8, 2));
   assert.throws(() => convert("1", 10, 8));
   assert.throws(() => convert("1", 10, 2, 0));
+});
+
+test("学習用の例題は多段階の整数・小数変換とA〜Cの読み替えを含む", () => {
+  const expected = {
+    "decimal-binary": "101101.1011", "decimal-hex": "1AB.BC",
+    position: "45.6875", "hex-decimal": "427.734375",
+    "binary-hex": "1AB.BC", "hex-binary": "110101011.101111", cycle: "0.0(0011)",
+  };
+  for (const [id, example] of Object.entries(CONVERSION_EXAMPLES)) {
+    const model = convert(example.value, example.source, example.target);
+    assert.equal(model.result.text, expected[id], id);
+    if (model.method === "divide-multiply" && id !== "cycle") {
+      assert.ok(model.divisions.length >= 3, `${id}: integer requires repeated division`);
+      assert.ok(model.result.steps.length >= 2, `${id}: fraction requires repeated multiplication`);
+    }
+  }
+  const example = CONVERSION_EXAMPLES["decimal-hex"];
+  const hex = convert(example.value, example.source, example.target);
+  assert.deepEqual(hex.divisions.map(row => [row.remainder, row.digit]), [[11n, "B"], [10n, "A"], [1n, "1"]]);
+  assert.deepEqual(hex.result.steps.map(row => row.digit), ["B", "C"]);
+  const binary = CONVERSION_EXAMPLES["binary-hex"];
+  const grouped = convert(binary.value, binary.source, binary.target);
+  assert.equal(grouped.groups.integer.length, 3);
+  assert.equal(grouped.groups.fractional.length, 2);
+  assert.equal(grouped.groups.integer[0].padding, 3);
+  assert.equal(grouped.groups.fractional.at(-1).padding, 2);
+  assert.ok(grouped.groups.integer.some(group => group.decimal === 11 && group.hex === "B"));
 });

@@ -1,4 +1,5 @@
 import { convert, decimalText, DIGITS, MAX_INPUT_DIGITS } from "./conversion.mjs";
+import { CONVERSION_EXAMPLES } from "./examples.mjs";
 
 const $ = (id) => document.getElementById(id);
 const form = $("conversion-form");
@@ -12,10 +13,6 @@ const baseLabel = (base) => `<sub>(${base})</sub>`;
 // A one-digit period receives one dot, rather than two overlapping markers.
 const repeatHTML = (digits) => `<span class="repeat-digits">${[...digits].map((digit, i) => `<span class="repeat-digit${i === 0 || i === digits.length - 1 ? " cycle-dot" : ""}">${digit}</span>`).join("")}</span>`;
 const outputHTML = (result) => `${result.sign}<span class="integer-color">${result.integer}</span>${result.digits ? `<span class="fractional-color">.${result.nonRepeat}${result.repeat ? repeatHTML(result.repeat) : ""}${result.truncated ? "…" : ""}</span>` : ""}`;
-let totalSteps = 0;
-let shownSteps = 0;
-const step = () => `data-step="${++totalSteps}"`;
-const after = (count = totalSteps) => `data-after="${count}"`;
 
 function card(part, value, heading, description, body) {
   return `<article class="calculation-card ${part}-part"><header><p class="part-label">${part === "integer" ? "整数部分" : "小数部分"}<span>${esc(value)}</span></p><h3>${heading}</h3><p>${description}</p></header><div class="calculation-body">${body}</div></article>`;
@@ -25,22 +22,27 @@ function arrowCell(count, direction, label) {
   return `<td class="arrow-cell" rowspan="${count}" data-reading-arrow><span class="column-arrow ${direction}" aria-hidden="true"></span><span class="visually-hidden">${label}</span></td>`;
 }
 
+function pickedValue(digit) {
+  const decimal = DIGITS.indexOf(digit);
+  return `<span class="picked-value"><span class="picked-digit">${digit}</span>${decimal >= 10 ? `<small>${decimal} → ${digit}</small>` : ""}</span>`;
+}
+
 function divisionAndMultiplication(model) {
   const { parsed, divisions, result, targetBase } = model;
   const magnitude = parsed.numerator < 0n ? -parsed.numerator : parsed.numerator;
   const integer = magnitude / parsed.denominator;
   const remainder = magnitude % parsed.denominator;
-  const rows = divisions.map((row, i) => `<tr ${step()}><td>${i + 1}</td><td class="arithmetic">${row.dividend} ÷ ${targetBase} = ${row.quotient}</td><td><span class="picked-digit">${row.digit}</span>${row.remainder >= 10n ? `<small>（${row.remainder}）</small>` : ""}</td>${i === 0 ? arrowCell(divisions.length, "up", "余りを下から上へ読む") : ""}</tr>`).join("");
-  const integerBody = `<div class="scroll-table" tabindex="0" role="region" aria-label="整数部分の割り算"><table><thead><tr><th scope="col">手順</th><th scope="col">割り算と商</th><th scope="col">余り</th><th scope="col"><span class="visually-hidden">読む向き</span></th></tr></thead><tbody>${rows}</tbody></table></div><p class="read-caption">余りを下から上へ読む</p><p ${after()} class="part-answer">整数部分は <b>${result.integer}</b>${baseLabel(targetBase)}</p>`;
-  const fractionalRows = result.steps.map((row, i) => `<tr ${step()}${result.repeatStart !== null && i >= result.repeatStart ? ' class="cycle-row"' : ""}><td>${i + 1}</td><td class="arithmetic">${decimalText(row.before, row.denominator)} × ${targetBase}<br />= ${decimalText(row.product, row.denominator)}</td><td><span class="picked-digit">${row.digit}</span>${DIGITS.indexOf(row.digit) >= 10 ? `<small>（${DIGITS.indexOf(row.digit)}）</small>` : ""}</td>${i === 0 ? arrowCell(result.steps.length, "down", "整数部分を上から下へ読む") : ""}<td class="arithmetic">${decimalText(row.remainder, row.denominator)}</td></tr>`).join("");
+  const rows = divisions.map((row, i) => `<tr><td>${i + 1}</td><td class="arithmetic">${row.dividend} ÷ ${targetBase} = ${row.quotient}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(divisions.length, "up", "余りを下から上へ読む") : ""}</tr>`).join("");
+  const integerBody = `<div class="scroll-table" tabindex="0" role="region" aria-label="整数部分の割り算"><table><thead><tr><th scope="col">手順</th><th scope="col">割り算と商</th><th scope="col" class="digit-heading">余り</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th></tr></thead><tbody>${rows}</tbody></table></div><p class="read-caption">余りを下から上へ読む</p><p class="part-answer">整数部分は <b>${result.integer}</b>${baseLabel(targetBase)}</p>`;
+  const fractionalRows = result.steps.map((row, i) => `<tr ${result.repeatStart !== null && i >= result.repeatStart ? ' class="cycle-row"' : ""}><td>${i + 1}</td><td class="arithmetic">${decimalText(row.before, row.denominator)} × ${targetBase}<br />= ${decimalText(row.product, row.denominator)}</td><td class="digit-cell">${pickedValue(row.digit)}</td>${i === 0 ? arrowCell(result.steps.length, "down", "整数部分を上から下へ読む") : ""}<td class="arithmetic">${decimalText(row.remainder, row.denominator)}</td></tr>`).join("");
   let note = "";
   if (result.repeatStart !== null) {
-    note = `<p ${after()} class="part-note cycle-note">↻ 残った小数が <strong>${decimalText(result.remainder, parsed.denominator)}</strong> に戻りました。手順${result.repeatStart + 1}の計算前と同じなので、ここから <strong>${result.repeat}</strong> を繰り返します（緑の行）。</p>`;
+    note = `<p class="part-note cycle-note">↻ 残った小数が <strong>${decimalText(result.remainder, parsed.denominator)}</strong> に戻りました。手順${result.repeatStart + 1}の計算前と同じなので、ここから <strong>${result.repeat}</strong> を繰り返します（緑の行）。</p>`;
   } else if (result.truncated) {
-    note = `<p ${after()} class="part-note cycle-note">表示上限の${model.limit}桁に達しました。残った小数は ${decimalText(result.remainder, parsed.denominator)} で、計算は続きます。${result.repeating ? "この数は循環小数ですが、周期の全体はまだ見つかっていません。" : "表示上限を増やすと続きを確認できます。"}</p>`;
-  } else if (remainder !== 0n) note = `<p ${after()} class="part-note">残った小数が0になったら、終了です。</p>`;
+    note = `<p class="part-note cycle-note">表示上限の${model.limit}桁に達しました。残った小数は ${decimalText(result.remainder, parsed.denominator)} で、計算は続きます。${result.repeating ? "この数は循環小数ですが、周期の全体はまだ見つかっていません。" : "表示上限を増やすと続きを確認できます。"}</p>`;
+  } else if (remainder !== 0n) note = `<p class="part-note">残った小数が0になったら、終了です。</p>`;
   const fractionalResult = outputHTML({ ...result, sign: "", integer: "0" });
-  const fractionalBody = remainder === 0n ? '<p class="empty-part">小数部分は0なので、掛け算は不要です。</p>' : `<div class="scroll-table" tabindex="0" role="region" aria-label="小数部分の掛け算"><table><thead><tr><th scope="col">手順</th><th scope="col">掛け算</th><th scope="col">整数部分</th><th scope="col"><span class="visually-hidden">読む向き</span></th><th scope="col">残った小数</th></tr></thead><tbody>${fractionalRows}</tbody></table></div><p class="read-caption">整数部分を上から下へ読む</p><p class="part-note">取り出した整数部分を除き、残った小数で次の掛け算をします。</p><p ${after()} class="part-answer">小数部分は <b>${fractionalResult}</b>${baseLabel(targetBase)}</p>${note}`;
+  const fractionalBody = remainder === 0n ? '<p class="empty-part">小数部分は0なので、掛け算は不要です。</p>' : `<div class="scroll-table" tabindex="0" role="region" aria-label="小数部分の掛け算"><table><thead><tr><th scope="col">手順</th><th scope="col">掛け算</th><th scope="col" class="digit-heading">整数部分</th><th scope="col" class="arrow-heading"><span class="visually-hidden">読む向き</span></th><th scope="col">残った小数</th></tr></thead><tbody>${fractionalRows}</tbody></table></div><p class="read-caption">整数部分を上から下へ読む</p><p class="part-note">取り出した整数部分を除き、残った小数で次の掛け算をします。</p><p class="part-answer">小数部分は <b>${fractionalResult}</b>${baseLabel(targetBase)}</p>${note}`;
   $("calculation-panels").innerHTML = `<div class="calculation-grid">${card("integer", integer, `${targetBase}で割り、余りを記録`, "商が0になるまで続けます。先に出る余りは下位の桁です。", integerBody)}${card("fractional", decimalText(remainder, parsed.denominator), `${targetBase}を掛け、整数部分を記録`, "最初に出る整数部分が、小数点のすぐ右の桁になります。", fractionalBody)}</div>`;
 }
 
@@ -52,13 +54,13 @@ function termSum(terms) {
 function positional(model) {
   const { parsed, terms, sourceBase } = model;
   const renderPart = (part, list) => {
-    const body = list.length ? `<div class="position-list">${list.map((term) => `<div ${step()} class="position-term"><span class="picked-digit">${term.digit}</span><span>× ${sourceBase}<sup>${term.exponent < 0 ? "−" + -term.exponent : term.exponent}</sup></span><span>=</span><strong>${decimalText(term.numerator, term.denominator)}</strong>${term.exponent < 0 ? `<small>${sourceBase}<sup>−${-term.exponent}</sup> = 1 / ${BigInt(sourceBase) ** BigInt(-term.exponent)}${term.decimalDigit >= 10n ? ` ／ ${term.digit}は10進数で${term.decimalDigit}` : ""}</small>` : term.decimalDigit >= 10n ? `<small>${term.digit}は10進数で${term.decimalDigit}</small>` : ""}</div>`).join("")}</div><div ${after()} class="expanded-sum"><p>各桁の値を足す（0の項は省略）</p><p class="arithmetic">${termSum(list)}</p></div>` : '<p class="empty-part">小数部分の桁はありません。</p>';
+    const body = list.length ? `<div class="position-list">${list.map((term) => `<div class="position-term"><span class="picked-digit">${term.digit}</span><span>× ${sourceBase}<sup>${term.exponent < 0 ? "−" + -term.exponent : term.exponent}</sup></span><span>=</span><strong>${decimalText(term.numerator, term.denominator)}</strong>${term.exponent < 0 ? `<small>${sourceBase}<sup>−${-term.exponent}</sup> = 1 / ${BigInt(sourceBase) ** BigInt(-term.exponent)}${term.decimalDigit >= 10n ? ` ／ ${term.digit}は10進数で${term.decimalDigit}` : ""}</small>` : term.decimalDigit >= 10n ? `<small>${term.digit}は10進数で${term.decimalDigit}</small>` : ""}</div>`).join("")}</div><div class="expanded-sum"><p>各桁の値を足す（0の項は省略）</p><p class="arithmetic">${termSum(list)}</p></div>` : '<p class="empty-part">小数部分の桁はありません。</p>';
     return card(part, part === "integer" ? parsed.integer : `0.${parsed.fractional || "0"}`, "各桁 × 桁の重み", part === "integer" ? `右端から ${sourceBase}⁰、${sourceBase}¹、${sourceBase}²…。` : `小数点の右から ${sourceBase}⁻¹、${sourceBase}⁻²、${sourceBase}⁻³…。`, body);
   };
   $("calculation-panels").innerHTML = `<div class="calculation-grid">${renderPart("integer", terms.integer)}${renderPart("fractional", terms.fractional)}</div>`;
   const all = [...terms.integer, ...terms.fractional];
   const expansion = all.map((term) => `${term.digit === String(term.decimalDigit) ? term.digit : `${term.decimalDigit}（${term.digit}）`} × ${sourceBase}<sup>${term.exponent < 0 ? "−" + -term.exponent : term.exponent}</sup>`).join(" + ");
-  $("calculation-panels").insertAdjacentHTML("beforeend", `<div ${after()} class="sum-calculation"><h3>すべての桁の値を足す</h3><p class="arithmetic">${expansion}</p><p class="arithmetic">= ${termSum(all)}</p></div>`);
+  $("calculation-panels").insertAdjacentHTML("beforeend", `<div class="sum-calculation"><h3>すべての桁の値を足す</h3><p class="arithmetic">${expansion}</p><p class="arithmetic">= ${termSum(all)}</p></div>`);
 }
 
 function binaryHTML(group) {
@@ -83,8 +85,8 @@ function nibbles(model) {
         const binary = `<div><small>2進数・4桁</small><b class="bit-quad">${binaryHTML(group)}</b></div>`;
         const decimal = `<div><small>10進数</small><b>${group.decimal}</b></div>`;
         const hex = `<div><small>16進数・1桁</small><b>${group.hex}</b></div>`;
-        return `<div ${step()} class="nibble"><span class="group-index">${i + 1}組目</span>${sourceBase === 2 ? binary : hex}<i aria-hidden="true">→</i>${decimal}<i aria-hidden="true">→</i>${sourceBase === 2 ? hex : binary}</div>`;
-      }).join("")}</div><div ${after()} class="joined-groups">${list.map((group) => `<span>${targetBase === 16 ? group.hex : group.binary}</span>`).join("")}<small>を順につなぐ</small></div>`;
+        return `<div class="nibble"><span class="group-index">${i + 1}組目</span>${sourceBase === 2 ? binary : hex}<i aria-hidden="true">→</i>${decimal}<i aria-hidden="true">→</i>${sourceBase === 2 ? hex : binary}</div>`;
+      }).join("")}</div><div class="joined-groups">${list.map((group) => `<span>${targetBase === 16 ? group.hex : group.binary}</span>`).join("")}<small>を順につなぐ</small></div>`;
     }
     return card(part, part === "integer" ? parsed.integer : `0.${parsed.fractional || "0"}`, sourceBase === 2 ? "4桁のまとまり → 16進数の1桁" : "16進数の1桁 → 2進数の4桁", sourceBase === 2 ? "4ビットの値を、0〜Fの1文字で表します。" : "各桁の値を0〜15に読み替えてから、4ビットにします。", body);
   };
@@ -99,25 +101,7 @@ function renderResult(model) {
   $("result-number").setAttribute("aria-label", `${readable}、${targetBase}進数`);
 }
 
-function showSteps(count) {
-  shownSteps = Math.min(count, totalSteps);
-  document.querySelectorAll("[data-step]").forEach((element) => {
-    const number = Number(element.dataset.step);
-    element.hidden = number > shownSteps;
-    element.classList.toggle("current-step", shownSteps < totalSteps && number === shownSteps);
-  });
-  document.querySelectorAll("[data-after]").forEach((element) => { element.hidden = Number(element.dataset.after) > shownSteps; });
-  document.querySelectorAll("[data-reading-arrow]").forEach((cell) => {
-    cell.rowSpan = Math.max(1, [...cell.closest("tbody").rows].filter(row => !row.hidden).length);
-  });
-  $("assembly").hidden = shownSteps < totalSteps;
-  $("next-step").disabled = shownSteps >= totalSteps;
-  $("all-steps").disabled = shownSteps >= totalSteps;
-  $("step-status").textContent = totalSteps ? `${shownSteps} / ${totalSteps} ステップを表示${shownSteps >= totalSteps ? " · すべて表示中" : ""}` : "";
-}
-
 function render(model) {
-  totalSteps = 0;
   const { sourceBase, targetBase, method } = model;
   $("working-section").hidden = false;
   if (method === "divide-multiply") {
@@ -134,8 +118,6 @@ function render(model) {
     $("calculation-panels").innerHTML = '<div class="identity-note"><p>進数が同じなので、変換は不要です。不要な先頭・末尾の0は省略して表示しています。</p></div>';
   }
   renderResult(model);
-  $("restart-steps").closest(".step-controls").hidden = totalSteps === 0;
-  showSteps(totalSteps);
   $("conversion-status").textContent = "途中計算と計算結果を更新しました。";
 }
 
@@ -161,29 +143,24 @@ function updateInputHelp() {
 }
 
 form.addEventListener("submit", (event) => { event.preventDefault(); runConversion(); });
-form.addEventListener("input", () => {
+form.addEventListener("input", (event) => {
+  if (event.target !== precision) $("example-focus").hidden = true;
   updateInputHelp();
   $("working-section").hidden = true;
   $("conversion-status").textContent = "入力を変更しました。変換ボタンを押してください。";
 });
 precision.addEventListener("change", runConversion);
-const examples = {
-  integer: [10, "25", 2], "decimal-hex": [10, "13.625", 16], cycle: [10, "0.1", 2],
-  position: [2, "1001.101", 10], "hex-decimal": [16, "AF.08", 10],
-  "binary-hex": [2, "110101.101", 16], "hex-binary": [16, "2F.A", 2],
-};
 $("example-buttons").addEventListener("click", (event) => {
   const button = event.target.closest("button[data-example]");
   if (!button) return;
-  const [from, value, to] = examples[button.dataset.example];
+  const { source: from, value, target: to, focus } = CONVERSION_EXAMPLES[button.dataset.example];
+  $("example-focus").textContent = focus;
+  $("example-focus").hidden = false;
   source.value = String(from);
   input.value = value;
   target.value = String(to);
   updateInputHelp();
   runConversion();
 });
-$("restart-steps").addEventListener("click", () => showSteps(1));
-$("next-step").addEventListener("click", () => showSteps(shownSteps + 1));
-$("all-steps").addEventListener("click", () => showSteps(totalSteps));
 updateInputHelp();
 runConversion();
