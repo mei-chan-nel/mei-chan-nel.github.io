@@ -12,7 +12,7 @@ const outputDirectory = resolve(
 await mkdir(outputDirectory, { recursive: true });
 const pages = [
   { id: "", name: "Interactive-Lab-shell.html" },
-  ...contents.map((c) => ({ id: c.id, name: `Interactive-Lab-${c.id}.html` })),
+  ...contents.filter((c) => c.standalone !== false).map((c) => ({ id: c.id, name: `Interactive-Lab-${c.id}.html` })),
 ];
 for (const { id, name } of pages) {
   const source = new URL(`lab/${id ? id + "/" : ""}index.html`, repository);

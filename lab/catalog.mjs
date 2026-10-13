@@ -42,6 +42,16 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "question-map",
+    group: "information-design",
+    standalone: false,
+    styles: ["question-map.css?v=1"],
+    scripts: ["question-map.mjs?v=1"],
+    name: "問題マップ",
+    description:
+      "問題の海を地図のように探索。拡大するとタグから単語・問題・解説へ、学習履歴は色の地形へ。",
+  },
+  {
     id: "thinking-tools",
     group: "society-security",
     generated: false,

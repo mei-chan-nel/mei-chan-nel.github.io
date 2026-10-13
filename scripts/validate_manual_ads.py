@@ -218,6 +218,7 @@ def main() -> int:
         ("lab/logic-circuit/index.html", "after-interactive-lab-main"),
         ("lab/flowchart/index.html", "after-interactive-lab-main"),
         ("lab/packet-routing/index.html", "after-interactive-lab-main"),
+        ("lab/question-map/index.html", "after-interactive-lab-main"),
     ):
         trace_path = ROOT / relative
         trace_text = trace_path.read_text(encoding="utf-8")

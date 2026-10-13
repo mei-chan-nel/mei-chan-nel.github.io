@@ -1,0 +1,112 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
+  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor } from "../lab/question-map/map-model.mjs";
+
+const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
+function fixture() {
+  const questions = [question("a", ["左地域"]), question("b", ["左地域"]), question("c", ["右地域"]), question("d", ["右地域"])];
+  const common = { schema_version: 1, source_sha256: "fixture" };
+  return prepareMap(questions, { ...common, points: { a: [-20, 0], b: [-19, 1], c: [20, 0], d: [21, 1] } },
+    { ...common, terms: { "左の特徴": ["a", "b"], "右の特徴": ["c", "d"] } }, { ...common, count: 4 });
+}
+test("実データの全ID・座標・用語索引・メタデータが対応する", async () => {
+  const app = new URL("../../info1-quiz-app/data/questions/", import.meta.url);
+  const data = await Promise.all(["completed_questions.json", "map_points.json", "map_terms.json", "map_metadata.json"].map(async name => JSON.parse(await readFile(new URL(name, app), "utf8"))));
+  const model = prepareMap(...data);
+  const source = await readFile(new URL("completed_questions.json", app), "utf8");
+  assert.equal(await verifySourceText(source, data[3].source_sha256), true);
+  assert.equal(await verifySourceText(source.replace(/\r?\n/g, "\r\n"), data[3].source_sha256), true);
+  assert.equal(await verifySourceText(source.replace(data[0][0].stem, "Changed source"), data[3].source_sha256), false);
+  assert.equal(model.points.length, data[3].count);
+  assert.ok(model.terms.size > 500);
+  assert.strictEqual(model.points[0].question, data[0][0]);
+  for (const width of [320, 390, 1280]) {
+    const camera = fitCamera(model.bounds, width, 500);
+    assert.equal(model.index.query(viewBounds(camera, width, 500)).length, model.points.length);
+  }
+});
+test("破損した座標・古い索引・異なる世代のデータを拒否する", () => {
+  const questions = [question("a", ["タグ"])], common = { schema_version: 1, source_sha256: "fixture" };
+  const points = { ...common, points: { a: [0, 0] } }, terms = { ...common, terms: {} }, metadata = { ...common, count: 1 };
+  assert.throws(() => prepareMap(questions, { ...points, source_sha256: "other" }, terms, metadata));
+  assert.throws(() => prepareMap(questions, { ...points, points: { a: [NaN, 0] } }, terms, metadata));
+  assert.throws(() => prepareMap(questions, points, { ...terms, terms: { "不明": ["missing"] } }, metadata));
+  assert.throws(() => prepareMap(questions, { ...points, points: { a: [0, 0], b: [1, 1] } }, terms, metadata));
+});
+test("空間索引は境界・負座標・狭い表示範囲で全走査と一致する", () => {
+  const points = Array.from({ length: 500 }, (_, i) => ({ x: Math.sin(i * 7) * 80, y: Math.cos(i * 3) * 40, id: i }));
+  const index = new SpatialIndex(points);
+  for (let i = 0; i < 20; i++) {
+    const bounds = { minX: -50 + i * 3, maxX: -45 + i * 3, minY: -20 + i, maxY: -12 + i };
+    const expected = points.filter(p => p.x >= bounds.minX && p.x <= bounds.maxX && p.y >= bounds.minY && p.y <= bounds.maxY);
+    assert.deepEqual(index.query(bounds).map(p => p.id).sort(), expected.map(p => p.id).sort());
+  }
+});
+test("拡大・縮小してもカーソル下の座標が動かず、上限下限も守る", () => {
+  const camera = { x: 7, y: -3, scale: 4 }, anchor = { x: 145, y: 270 };
+  const original = unproject(anchor, camera, 800, 500);
+  for (const factor of [.01, .5, 2, 1000]) {
+    const result = zoomAbout(camera, factor, anchor, 800, 500, 2, 96);
+    const after = unproject(anchor, result, 800, 500);
+    assert.ok(Math.abs(original.x - after.x) < 1e-9 && Math.abs(original.y - after.y) < 1e-9);
+    assert.ok(result.scale >= 2 && result.scale <= 96);
+    assert.deepEqual(project(original, result, 800, 500), anchor);
+  }
+});
+test("情報量の境界付近で表示が交互に切り替わらない", () => {
+  let stage = 0;
+  for (const zoom of [2.21, 2.17, 2.25, 2.3]) { stage = stageAt(zoom, stage); assert.equal(stage, 0); }
+  assert.equal(stageAt(3, stage), 1);
+  for (const zoom of [2.21, 2.1, 2.25]) assert.equal(stageAt(zoom, 1), 1);
+  assert.equal(stageAt(1, 4), 0);
+  assert.equal(stageAt(36, 0), 4);
+});
+test("移動先の問題から言葉を選び、小さな移動では地理的アンカーを維持する", () => {
+  const model = fixture(), camera = { x: -20, y: 0, scale: 10 };
+  const visible = model.index.query(viewBounds(camera, 200, 200));
+  const labels = labelCandidates(visible, model, camera, 200, 200, 1);
+  assert.ok(labels.some(l => l.text === "左地域"));
+  assert.ok(labels.some(l => l.text === "左の特徴"));
+  assert.ok(labels.every(l => !l.text.includes("右")));
+  const previous = new Map(labels.map(l => [l.key, l]));
+  const moved = labelCandidates(visible, model, { ...camera, x: -19.8 }, 200, 200, 1, previous);
+  for (const label of moved) assert.equal(label.anchor.id, previous.get(label.key).anchor.id);
+  const rightCamera = { ...camera, x: 20 };
+  const right = labelCandidates(model.index.query(viewBounds(rightCamera, 200, 200)), model, rightCamera, 200, 200, 1, previous);
+  assert.ok(right.every(l => !l.text.includes("左")));
+});
+test("文字幅と操作ボタン・カードの予約領域から重なりを避ける", () => {
+  const reserved = [{ x: 0, y: 0, w: 100, h: 100 }];
+  const candidates = Array.from({ length: 30 }, (_, i) => ({ key: String(i), text: "長い地名", size: 20, x: 40 + i * 13, y: 50 + i * 9 }));
+  const placed = placeLabels(candidates, 400, 300, () => 80, reserved);
+  assert.ok(placed.length > 0 && placed.length < candidates.length);
+  for (let i = 0; i < placed.length; i++) {
+    assert.ok(!overlaps(placed[i].box, reserved[0]));
+    for (let j = i + 1; j < placed.length; j++) assert.ok(!overlaps(placed[i].box, placed[j].box));
+  }
+});
+test("学習履歴の現在形式・旧形式・消去・破損を読み取り専用で扱う", () => {
+  const raw = { v: 1, q: { a: [10, 8, 1, 0, "111", 0], b: [2, 8], c: [-1, 2], d: "bad" } };
+  const before = JSON.stringify(raw);
+  const records = historyRecords(raw, { old: { attempts: 20, correct: 10 } });
+  assert.equal(records.get("a").rate, .8); assert.equal(records.get("b").rate, 1); assert.equal(records.size, 2);
+  assert.equal(JSON.stringify(raw), before);
+  assert.equal(historyRecords({ v: 1, q: {} }, { old: { attempts: 20, correct: 10 } }).size, 0);
+  assert.equal(historyRecords(null, { old: { attempts: 20, correct: 10 } }).get("old").rate, .5);
+  assert.equal(historyRecords(null, null).size, 0);
+});
+test("地形は回答数で重み付けし、未挑戦を中立色に保つ", () => {
+  const model = fixture();
+  model.points[1].x = model.points[0].x; model.points[1].y = model.points[0].y;
+  const neutral = heatField(model, new Map());
+  const colored = heatField(model, new Map([["a", { attempts: 1, correct: 0 }], ["b", { attempts: 9, correct: 9 }]]));
+  const point = model.points[0];
+  const x = Math.round((point.x - colored.bounds.minX) / (colored.bounds.maxX - colored.bounds.minX) * colored.width);
+  const y = Math.round((point.y - colored.bounds.minY) / (colored.bounds.maxY - colored.bounds.minY) * colored.height);
+  const pixel = (y * colored.width + x) * 4;
+  assert.deepEqual([...colored.pixels.slice(pixel, pixel + 3)], rateColor(.9));
+  assert.deepEqual([...neutral.pixels.slice(pixel, pixel + 3)], rateColor(null));
+  assert.ok(colored.pixels[pixel + 3] > neutral.pixels[pixel + 3]);
+});

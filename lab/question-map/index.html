@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+<title>問題マップ｜Interactive Lab</title>
+<meta name="description" content="問題の海を地図のように探索。拡大するとタグから単語・問題・解説へ、学習履歴は色の地形へ。" />
+<meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
+<meta property="og:title" content="問題マップ｜Interactive Lab" /><meta property="og:description" content="問題の海を地図のように探索。拡大するとタグから単語・問題・解説へ、学習履歴は色の地形へ。" />
+<meta property="og:url" content="https://mei-chan-nel.com/lab/question-map/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+<link rel="canonical" href="https://mei-chan-nel.com/lab/question-map/" /><meta name="theme-color" content="#102f35" />
+<link rel="icon" href="../icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="../lab.css?v=3" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+<script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"問題マップ","item":"https://mei-chan-nel.com/lab/question-map/"}]}</script>
+<link rel="stylesheet" href="./question-map.css?v=1" />
+<script type="module" src="./question-map.mjs?v=1"></script>
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+</head><body>
+<a class="skip-link" href="#main-content">本文へ移動</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a></nav></div></header>
+<main id="main-content" class="lab-shell lab-content-page">
+<nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>問題マップ</span></nav>
+<header class="map-hero">
+<p class="eyebrow">INTERACTIVE LAB / 情報デザイン</p>
+<h1>問題の海を、<em>歩こう。</em></h1>
+<p>近づくと、言葉が問題に。もっと近づくと、その理由まで。<br class="desktop-break" />知識のつながりと、自分の学びの地形を探す「問題マップ」。</p>
+</header>
+<section aria-label="問題マップの探索" class="map-exhibit">
+<div class="map-toolbar">
+<form id="map-search" role="search">
+<label class="visually-hidden" for="search-query">タグ・単語・問題文を検索</label>
+<input id="search-query" type="search" placeholder="気になる言葉を探す" autocomplete="off" maxlength="100" />
+<button type="submit">探す <span aria-hidden="true">↗</span></button>
+</form>
+<label class="heat-switch"><input id="heat-toggle" type="checkbox" checked /> 正答率の地形</label>
+</div>
+<div id="search-results" class="search-results" hidden aria-label="検索結果"></div>
+<nav class="zoom-stages" aria-label="拡大して見える情報">
+<span class="stage-caption">遠くから、近くへ</span>
+<button type="button" data-stage="0" aria-current="step">タグ</button><span aria-hidden="true">›</span>
+<button type="button" data-stage="1">単語</button><span aria-hidden="true">›</span>
+<button type="button" data-stage="2">問題文</button><span aria-hidden="true">›</span>
+<button type="button" data-stage="3">選択肢</button><span aria-hidden="true">›</span>
+<button type="button" data-stage="4">解説</button>
+</nav>
+<div id="map-viewport" class="map-viewport" tabindex="0" role="region" aria-label="問題の地図" aria-describedby="map-instructions">
+<canvas id="map-canvas" aria-hidden="true"></canvas>
+<div id="map-labels" class="map-labels"></div>
+<div id="map-cards" class="map-cards"></div>
+<div class="map-corner"><span class="map-name">QUESTION MAP</span><span id="zoom-readout">×1.0 · タグ</span></div>
+<div class="map-controls" aria-label="地図操作">
+<button id="zoom-in" type="button" aria-label="拡大">＋</button>
+<button id="zoom-out" type="button" aria-label="縮小">−</button>
+<button id="map-home" type="button" aria-label="地図全体を表示" title="全体へ">⌂</button>
+</div>
+<div id="map-status" class="map-loading" role="status">問題の地図を読み込んでいます…</div>
+<p class="map-gesture-hint" aria-hidden="true">ドラッグで移動 · ホイール / ピンチで拡大</p>
+</div>
+<div class="map-bottom">
+<p id="visible-summary" role="status" aria-live="polite"></p>
+<div class="heat-legend" aria-label="正答率の凡例"><span class="neutral-dot"></span><span>未挑戦</span><span class="heat-gradient" aria-hidden="true"></span><span>0% → 100%</span></div>
+</div>
+<p id="history-summary" class="history-summary"></p>
+</section>
+<dialog id="nearby-dialog" class="nearby-dialog" aria-labelledby="nearby-title">
+<div class="nearby-heading"><h2 id="nearby-title">この近くの問題</h2><button id="nearby-close" type="button" aria-label="近くの問題を閉じる">閉じる</button></div>
+<p>同じ場所に集まった問題も、1問ずつ選んで探索できます。</p>
+<div id="nearby-list" class="nearby-list"></div>
+</dialog>
+<section class="map-guide" aria-labelledby="guide-title">
+<div><p class="eyebrow">HOW TO EXPLORE</p><h2 id="guide-title">見える量を、<br />自分で変える。</h2></div>
+<div class="guide-details">
+<p id="map-instructions">PCではドラッグで移動、ホイールで拡大・縮小。スマートフォンでは1本指で移動、2本指でピンチ。点を押すと、その問題に近づきます。上の「タグ → 解説」や＋・−でも操作できます。地図にフォーカスすると矢印キーで移動、＋・−で拡大・縮小、Homeで全体に戻れます。</p>
+<p>背景は、このブラウザの学習アプリの解答履歴から描く正答率です。赤・黄は復習の手がかり、緑・青は正答の多い場所。未挑戦の場所は中立色で表示します。履歴がなければ、<a href="../../info1-quiz-app/app/">学習アプリ</a>で解いてから戻ってみましょう。</p>
+<details><summary>この地図から分かること</summary><p>似た内容の問題が近くなるよう、t-SNEで配置しています。座標軸に単位はなく、離れた島同士の距離や島の広さは、難しさや学習量を表しません。言葉は今見えている問題から選ぶので、移動すると地域の見出しも変わります。拡大して情報量を変える「セマンティックズーム」を体験してみてください。</p><p>地形の色は近隣の回答をなだらかに混ぜた目安です。問題ごとの正答率は点を選んで確認できます。履歴はこのブラウザ内で参照し、外部には送信しません。</p></details>
+</div>
+</section>
+
+</main>
+<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a>
+<a href="../../study-guide.html">使い方</a>
+<a href="../../books/">書籍案内</a>
+<a href="../../about.html">このサイトについて</a>
+<a href="../../privacy.html">プライバシーポリシー</a>
+<a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<script type="module" src="../navigation.mjs?v=1"></script>
+</body></html>
