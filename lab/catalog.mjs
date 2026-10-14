@@ -45,11 +45,11 @@ export const contents = [
     id: "question-map",
     group: "information-design",
     standalone: false,
-    styles: ["question-map.css?v=2"],
-    scripts: ["question-map.mjs?v=2"],
+    styles: ["question-map.css?v=3"],
+    scripts: ["question-map.mjs?v=3"],
     name: "問題マップ",
     description:
-      "問題の海を地図のように探索。拡大するとタグから単語・問題・解説へ、学習履歴は色の地形へ。",
+      "問題の海を地図のように探索。近づくと言葉から問題へ、気になる問題を開くと選択肢・解説へ。学習履歴は色の地形に。",
   },
   {
     id: "thinking-tools",

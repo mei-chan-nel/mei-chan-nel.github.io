@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
-  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor, coastContours, labelPresentation, surroundingQuestions } from "../lab/question-map/map-model.mjs";
+  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, surroundingQuestions, placeQuestionCards } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
@@ -62,7 +62,7 @@ test("情報量の境界付近で表示が交互に切り替わらない", () =>
   assert.equal(stageAt(2.1, stage), 0);
   for (const zoom of [1.5, 1.42, 1.6]) assert.equal(stageAt(zoom, 0), 0);
   assert.equal(stageAt(1, 4), -1);
-  assert.equal(stageAt(36, 0), 4);
+  assert.equal(stageAt(36, 0), 2);
 });
 
 test("海岸線は閉じた密度輪郭で、成績を切り替えても位置が変わらない", () => {
@@ -153,4 +153,34 @@ test("地形は回答数で重み付けし、未挑戦を中立色に保つ", ()
   assert.deepEqual([...colored.pixels.slice(pixel, pixel + 3)], rateColor(.9));
   assert.deepEqual([...neutral.pixels.slice(pixel, pixel + 3)], rateColor(null));
   assert.ok(colored.pixels[pixel + 3] > neutral.pixels[pixel + 3]);
+});
+
+test("全体の地域差を強調しても正答率は変更せず、未挑戦も着色しない", () => {
+  const range = regionalColorRange([.65, .66, .68, .7, .72, .74, .75]);
+  assert.ok(range[1] - range[0] >= .1599 && range[1] - range[0] < .3);
+  assert.ok(colorRate(.75, range) - colorRate(.65, range) > .5);
+  assert.equal(colorRate(null, range), null);
+  assert.ok(regionalColorRange(Array(50).fill(.7))[1] - regionalColorRange(Array(50).fill(.7))[0] >= .1599);
+  const model = fixture(), records = new Map([["a", { attempts: 100, correct: 65 }], ["d", { attempts: 100, correct: 75 }]]);
+  const before = JSON.stringify([...records]);
+  const field = heatField(model, records, 240, { contrast: true });
+  assert.equal(JSON.stringify([...records]), before);
+  assert.ok(field.colorRange[1] - field.colorRange[0] < .3);
+  assert.deepEqual(heatField(model, new Map(), 240, { contrast: true }).colorRange, [0, 1]);
+});
+
+test("密集した問題は位置を譲り、操作領域を避けながら複数表示する", () => {
+  const candidates = Array.from({length: 8}, (_, i) => ({id: String(i), x: 400 + i * 4, y: 300 + i * 2, w: 220, h: 110}));
+  const reserved = [{x: 0, y: 0, w: 165, h: 65}, {x: 730, y: 0, w: 70, h: 160}];
+  const placed = placeQuestionCards(candidates, 800, 600, reserved);
+  assert.ok(placed.length >= 3);
+  for (const item of placed) {
+    assert.ok(item.box.x >= 10 && item.box.x + item.w <= 790 && item.box.y >= 10 && item.box.y + item.h <= 565);
+    for (const box of reserved) assert.ok(!overlaps(item.box, box, 0));
+  }
+  const previous = new Map(placed.map(p => [p.id, p]));
+  const moved = placeQuestionCards(candidates.map(c => ({...c, x:c.x+1})), 800, 600, reserved, previous);
+  assert.deepEqual(moved.map(p => p.id), placed.map(p => p.id));
+  assert.ok(moved.every(p => Math.abs(p.dx - previous.get(p.id).dx) < 2));
+  assert.ok(placeQuestionCards([{id:"edge", x:2,y:100,w:224,h:150}], 278, 390, [{x:208,y:0,w:70,h:158}]).length);
 });

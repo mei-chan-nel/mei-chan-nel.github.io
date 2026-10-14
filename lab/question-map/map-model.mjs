@@ -1,8 +1,8 @@
 // Only coordinates, term membership and references to the source questions live
 // in this model. Question content is never generated or copied into map data.
-export const STAGES = ["タグ", "単語", "問題文", "選択肢", "解説"];
-export const STAGE_ZOOMS = [2.1, 4.5, 9, 20, 42];
-const CUTS = [1.5, 3.1, 6, 14, 30];
+export const STAGES = ["タグ", "単語", "問題文"];
+export const STAGE_ZOOMS = [2.1, 4.5, 9];
+const CUTS = [1.5, 3.1, 6];
 export const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
 export async function verifySourceText(text, expectedHash) {
@@ -16,8 +16,8 @@ export async function verifySourceText(text, expectedHash) {
 }
 
 export function stageAt(zoom, previous = -1) {
-  let stage = previous;
-  while (stage < 4 && zoom >= CUTS[stage + 1] * 1.08) stage++;
+  let stage = Math.min(previous, CUTS.length - 1);
+  while (stage < CUTS.length - 1 && zoom >= CUTS[stage + 1] * 1.08) stage++;
   while (stage >= 0 && zoom < CUTS[stage] * .92) stage--;
   return stage;
 }
@@ -163,6 +163,7 @@ export function labelCandidates(visible, model, camera, width, height, stage, pr
 }
 
 export function placeLabels(candidates, width, height, measure, reserved = [], limit = 36) {
+  if (limit <= 0) return [];
   const placed = [], boxes = [...reserved];
   for (const label of candidates) {
     const w = measure(label.text, label.size, label.kind) + 6, h = label.size * 1.4 + 4;
@@ -200,7 +201,23 @@ export function rateColor(rate) {
   return colors[i].map((v, j) => Math.round(v + (colors[i + 1][j] - v) * fraction));
 }
 
-export function heatField(model, records, resolution = 240) {
+export function colorRate(rate, range = [0, 1]) {
+  return rate == null ? null : clamp((rate - range[0]) / (range[1] - range[0]), 0, 1);
+}
+
+// Stretch the observed regional range, not the source scores. A minimum
+// 16-point span keeps tiny differences from looking like opposite extremes.
+export function regionalColorRange(rates) {
+  if (!rates.length) return [0, 1];
+  const sorted = [...rates].sort((a, b) => a - b);
+  const low = sorted[Math.floor((sorted.length - 1) * .05)];
+  const high = sorted[Math.ceil((sorted.length - 1) * .95)];
+  const center = (low + high) / 2, span = Math.max(.16, (high - low) * 1.1);
+  const min = clamp(center - span / 2, 0, Math.max(0, 1 - span));
+  return [min, Math.min(1, min + span)];
+}
+
+export function heatField(model, records, resolution = 240, { contrast = false, spread = .018 } = {}) {
   const spanX = Math.max(1, model.bounds.maxX - model.bounds.minX), spanY = Math.max(1, model.bounds.maxY - model.bounds.minY);
   const padding = Math.max(spanX, spanY) * .055;
   const bounds = { minX: model.bounds.minX - padding, maxX: model.bounds.maxX + padding,
@@ -208,7 +225,7 @@ export function heatField(model, records, resolution = 240) {
   const width = resolution, height = Math.round(resolution * (spanY + 2 * padding) / (spanX + 2 * padding));
   const density = new Float32Array(width * height), attempts = new Float32Array(width * height), correct = new Float32Array(width * height);
   const sx = width / (bounds.maxX - bounds.minX), sy = height / (bounds.maxY - bounds.minY);
-  const sigma = Math.max(spanX, spanY) * .018 * sx, radius = Math.ceil(sigma * 3);
+  const sigma = Math.max(spanX, spanY) * spread * sx, radius = Math.ceil(sigma * 3);
   for (const point of model.points) {
     const px = (point.x - bounds.minX) * sx, py = (point.y - bounds.minY) * sy;
     const record = records.get(point.id);
@@ -220,14 +237,20 @@ export function heatField(model, records, resolution = 240) {
       }
     }
   }
+  const rates = new Float32Array(density.length).fill(-1), samples = [];
+  for (let i = 0; i < density.length; i++) {
+    if (attempts[i] > .035) rates[i] = correct[i] / attempts[i];
+    if (density[i] >= .8 && attempts[i] >= 1) samples.push(rates[i]);
+  }
+  const colorRange = contrast ? regionalColorRange(samples) : [0, 1];
   const pixels = new Uint8ClampedArray(width * height * 4);
   for (let i = 0; i < density.length; i++) {
-    const rate = attempts[i] > .035 ? correct[i] / attempts[i] : null;
-    const rgb = rateColor(rate);
+    const rate = rates[i] >= 0 ? rates[i] : null;
+    const rgb = rateColor(colorRate(rate, colorRange));
     pixels.set(rgb, i * 4);
-    pixels[i * 4 + 3] = (1 - Math.exp(-density[i] * .35)) * (rate == null ? 50 : 122);
+    pixels[i * 4 + 3] = (1 - Math.exp(-density[i] * .35)) * (rate == null ? 50 : contrast ? 178 : 140);
   }
-  return { width, height, bounds, pixels, density };
+  return { width, height, bounds, pixels, density, colorRange };
 }
 
 export function labelPresentation(baseSize, birthScale, scale, zoom, kind) {
@@ -243,6 +266,33 @@ export function surroundingQuestions(model, center, radius = 5, limit = 10) {
   return points.filter(p => Math.hypot(p.x - center.x, p.y - center.y) <= radius)
     .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y) || a.id.localeCompare(b.id))
     .slice(0, limit);
+}
+
+export function placeQuestionCards(candidates, width, height, reserved = [], previous = new Map(), limit = 9) {
+  const placed = [], area = b => b.w * b.h;
+  const intersection = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
+    Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+  for (const candidate of candidates) {
+    const { x, y, w, h, id } = candidate, prior = previous.get(id);
+    const offsets = [[-w / 2, 12], [-w / 2, -h - 12], [12, -h / 2], [-w - 12, -h / 2]];
+    for (const dx of [-w - 12, -w / 2, 12]) for (const dy of [-2 * h - 24, -h - 12, 12, h + 24]) offsets.push([dx, dy]);
+    for (const dx of [-w / 2, -w * .15, -w * .85]) for (const dy of [12, -h - 12, -h / 2]) offsets.push([dx, dy]);
+    if (prior) offsets.unshift([prior.dx, prior.dy]);
+    let best = null;
+    for (const [dx, dy] of offsets) {
+      const box = { x: clamp(x + dx, 10, width - w - 10), y: clamp(y + dy, 10, height - h - 35), w, h };
+      if (reserved.some(b => intersection(box, b) > 0)) continue;
+      const fractions = placed.map(p => intersection(box, p.box) / Math.min(area(box), area(p.box)));
+      if (fractions.some(f => f > .18) || fractions.reduce((s, f) => s + f, 0) > .24) continue;
+      const distance = Math.hypot(box.x + w / 2 - x, box.y + h / 2 - y);
+      const drift = prior ? Math.hypot(box.x - x - prior.dx, box.y - y - prior.dy) : 0;
+      const score = distance + drift * .9 + fractions.reduce((s, f) => s + f, 0) * 500;
+      if (!best || score < best.score) best = { ...candidate, box, dx: box.x - x, dy: box.y - y, score };
+    }
+    if (best) placed.push(best);
+    if (placed.length >= limit) break;
+  }
+  return placed;
 }
 
 // Marching squares on the coordinate density, independent of answer records.
