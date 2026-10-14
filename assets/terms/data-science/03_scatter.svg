@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="720pt" height="446.4pt" viewBox="0 0 720 446.4" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-10-14T22:56:30.791048</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.10.8, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 446.4 
+L 720 446.4 
+L 720 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 93.6 343.728 
+L 662.4 343.728 
+L 662.4 124.992 
+L 93.6 124.992 
+z
+" style="fill: #ffffff"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1"/>
+     <g id="text_1">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="93.6" y="361.881281" transform="rotate(-0 93.6 361.881281)">5</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_2"/>
+     <g id="text_2">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="185.341935" y="361.881281" transform="rotate(-0 185.341935 361.881281)">10</text>
+     </g>
+    </g>
+    <g id="xtick_3">
+     <g id="line2d_3"/>
+     <g id="text_3">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="277.083871" y="361.881281" transform="rotate(-0 277.083871 361.881281)">15</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_4"/>
+     <g id="text_4">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="368.825806" y="361.881281" transform="rotate(-0 368.825806 361.881281)">20</text>
+     </g>
+    </g>
+    <g id="xtick_5">
+     <g id="line2d_5"/>
+     <g id="text_5">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="460.567742" y="361.881281" transform="rotate(-0 460.567742 361.881281)">25</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_6"/>
+     <g id="text_6">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="552.309677" y="361.881281" transform="rotate(-0 552.309677 361.881281)">30</text>
+     </g>
+    </g>
+    <g id="xtick_7">
+     <g id="line2d_7"/>
+     <g id="text_7">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #475569" x="644.051613" y="361.881281" transform="rotate(-0 644.051613 361.881281)">35</text>
+     </g>
+    </g>
+    <g id="text_8">
+     <text style="font-size: 12.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #334155" x="378" y="384.464719" transform="rotate(-0 378 384.464719)">最高気温（℃）</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_8">
+      <path d="M 93.6 343.728 
+L 662.4 343.728 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_9"/>
+     <g id="text_9">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="348.304641" transform="rotate(-0 84.6 348.304641)">0</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_10">
+      <path d="M 93.6 308.257297 
+L 662.4 308.257297 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_11"/>
+     <g id="text_10">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="312.833938" transform="rotate(-0 84.6 312.833938)">30</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_12">
+      <path d="M 93.6 272.786595 
+L 662.4 272.786595 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_13"/>
+     <g id="text_11">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="277.363235" transform="rotate(-0 84.6 277.363235)">60</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_14">
+      <path d="M 93.6 237.315892 
+L 662.4 237.315892 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_15"/>
+     <g id="text_12">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="241.892533" transform="rotate(-0 84.6 241.892533)">90</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_16">
+      <path d="M 93.6 201.845189 
+L 662.4 201.845189 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17"/>
+     <g id="text_13">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="206.42183" transform="rotate(-0 84.6 206.42183)">120</text>
+     </g>
+    </g>
+    <g id="ytick_6">
+     <g id="line2d_18">
+      <path d="M 93.6 166.374486 
+L 662.4 166.374486 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19"/>
+     <g id="text_14">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="170.951127" transform="rotate(-0 84.6 170.951127)">150</text>
+     </g>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_20">
+      <path d="M 93.6 130.903784 
+L 662.4 130.903784 
+" clip-path="url(#pfd93649089)" style="fill: none; stroke: #e6edf4; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_21"/>
+     <g id="text_15">
+      <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #475569" x="84.6" y="135.480424" transform="rotate(-0 84.6 135.480424)">180</text>
+     </g>
+    </g>
+    <g id="text_16">
+     <text style="font-size: 12.5px; font-family: 'Noto Sans CJK JP'; text-anchor: middle; fill: #334155" x="50.589219" y="234.36" transform="rotate(-90 50.589219 234.36)">飲料の販売数（本）</text>
+    </g>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="me80dc2ad8f" d="M 0 4.330127 
+C 1.148363 4.330127 2.249847 3.873878 3.061862 3.061862 
+C 3.873878 2.249847 4.330127 1.148363 4.330127 0 
+C 4.330127 -1.148363 3.873878 -2.249847 3.061862 -3.061862 
+C 2.249847 -3.873878 1.148363 -4.330127 0 -4.330127 
+C -1.148363 -4.330127 -2.249847 -3.873878 -3.061862 -3.061862 
+C -3.873878 -2.249847 -4.330127 -1.148363 -4.330127 0 
+C -4.330127 1.148363 -3.873878 2.249847 -3.061862 3.061862 
+C -2.249847 3.873878 -1.148363 4.330127 0 4.330127 
+z
+" style="stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+    </defs>
+    <g clip-path="url(#pfd93649089)">
+     <use xlink:href="#me80dc2ad8f" x="166.993548" y="290.521946" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="203.690323" y="302.345514" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="222.03871" y="311.804368" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="240.387097" y="270.421881" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="258.735484" y="259.78067" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="277.083871" y="260.963027" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="295.432258" y="309.439654" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="313.780645" y="285.792519" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="332.129032" y="242.045319" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="332.129032" y="226.674681" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="350.477419" y="272.786595" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="368.825806" y="223.127611" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="368.825806" y="220.762897" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="387.174194" y="234.951178" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="405.522581" y="252.68653" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="405.522581" y="240.862962" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="423.870968" y="229.039395" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="442.219355" y="205.392259" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="442.219355" y="201.845189" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="460.567742" y="229.039395" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="478.916129" y="207.756973" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="497.264516" y="200.662832" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="497.264516" y="203.027546" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="515.612903" y="177.015697" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="533.96129" y="192.386335" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="552.309677" y="182.927481" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="552.309677" y="207.756973" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="570.658065" y="173.468627" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="589.006452" y="186.474551" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+     <use xlink:href="#me80dc2ad8f" x="607.354839" y="136.815568" style="fill: #2875ca; fill-opacity: 0.83; stroke: #ffffff; stroke-opacity: 0.83; stroke-width: 1.2"/>
+    </g>
+   </g>
+   <g id="patch_3">
+    <path d="M 93.6 343.728 
+L 93.6 124.992 
+" style="fill: none; stroke: #cbd5e1; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="patch_4">
+    <path d="M 93.6 343.728 
+L 662.4 343.728 
+" style="fill: none; stroke: #cbd5e1; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+  </g>
+  <g id="line2d_22">
+   <path d="M 54 386.136 
+L 666 386.136 
+" style="fill: none; stroke: #e6edf4; stroke-width: 1.4; stroke-linecap: square"/>
+  </g>
+  <g id="text_17">
+   <text style="font-weight: 700; font-size: 12.5px; font-family: 'Noto Sans CJK JP'; text-anchor: start; fill: #2875ca" x="54" y="34.080209" transform="rotate(-0 54 34.080209)">03  散布図</text>
+  </g>
+  <g id="text_18">
+   <text style="font-weight: 700; font-size: 22px; font-family: 'Noto Sans CJK JP'; text-anchor: start; fill: #10253e" x="54" y="70.230513" transform="rotate(-0 54 70.230513)">気温と飲料の販売数</text>
+  </g>
+  <g id="text_19">
+   <text style="font-size: 11.5px; font-family: 'Noto Sans CJK JP'; text-anchor: start; fill: #64748b" x="54" y="96.201281" transform="rotate(-0 54 96.201281)">ある店舗の30日間のデータ（1点＝1日）</text>
+  </g>
+  <g id="text_20">
+   <text style="font-size: 10px; font-family: 'Noto Sans CJK JP'; text-anchor: end; fill: #64748b" x="664.56" y="32.064975" transform="rotate(-0 664.56 32.064975)">架空のデータ</text>
+  </g>
+  <g id="text_21">
+   <text style="font-size: 12.5px; font-family: 'Noto Sans CJK JP'; text-anchor: start; fill: #334155" x="54" y="415.726819" transform="rotate(-0 54 415.726819)">読み取り：気温が高い日ほど、飲料の販売数が多い傾向が見られる。</text>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pfd93649089">
+   <rect x="93.6" y="124.992" width="568.8" height="218.736"/>
+  </clipPath>
+ </defs>
+</svg>
