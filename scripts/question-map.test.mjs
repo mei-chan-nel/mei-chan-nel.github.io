@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
-  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, surroundingQuestions, placeQuestionCards } from "../lab/question-map/map-model.mjs";
+  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, surroundingQuestions, placeQuestionCards } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
@@ -79,6 +79,20 @@ test("文字は拡大につれて大きく薄くなり、引くと戻る", () =>
   assert.ok(nearer.size > near.size && nearer.opacity < near.opacity);
   assert.equal(labelPresentation(18, 2, 2, 1, "tag").opacity, 0);
   assert.equal(labelPresentation(18, 2, 8, 8, "tag").opacity, 0);
+});
+test("明示したレイヤーは引いても読める大きさで表示され、拡大で適度に育つ", () => {
+  for (const kind of ["tag", "term"]) {
+    const far = labelPresentation(18, 4.5, 1, 1, kind, "on");
+    const near = labelPresentation(18, 4.5, 96, 96, kind, "on");
+    assert.equal(far.opacity, 1); assert.equal(near.opacity, 1);
+    assert.ok(far.size >= 12 && near.size > far.size && near.size <= 28);
+    assert.equal(labelPresentation(18, 4.5, 1, 1, kind, "off").opacity, 0);
+  }
+  const far = questionPresentation(1, "on"), near = questionPresentation(20, "on");
+  assert.equal(far.opacity, 1); assert.ok(far.fontSize >= 12 && far.width < near.width && far.lines < near.lines);
+  assert.ok(near.fontSize > far.fontSize);
+  assert.equal(questionPresentation(1).opacity, 0);
+  assert.equal(questionPresentation(20, "off").opacity, 0);
 });
 test("周辺問題は距離順で、学習アプリの最大10問に収まる", () => {
   const model = fixture();

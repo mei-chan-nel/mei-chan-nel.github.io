@@ -237,11 +237,17 @@ export function heatField(model, records, resolution = 240, { contrast = false, 
       }
     }
   }
-  const rates = new Float32Array(density.length).fill(-1), samples = [];
+  const rates = new Float32Array(density.length).fill(-1), sampleBands = [[], [], []];
   for (let i = 0; i < density.length; i++) {
     if (attempts[i] > .035) rates[i] = correct[i] / attempts[i];
-    if (density[i] >= .8 && attempts[i] >= 1) samples.push(rates[i]);
+    if (density[i] >= .8) {
+      for (const [band, minimum] of [4, 2, 1].entries()) if (attempts[i] >= minimum) sampleBands[band].push(rates[i]);
+    }
   }
+  // First-pass records contain only 0/1 results. Prefer regions with several
+  // overlapping answers for the color domain, falling back for sparse data.
+  // The heat rates themselves, and question details, remain unchanged.
+  const samples = sampleBands.find(b => b.length >= 32) || sampleBands[2];
   const colorRange = contrast ? regionalColorRange(samples) : [0, 1];
   const pixels = new Uint8ClampedArray(width * height * 4);
   for (let i = 0; i < density.length; i++) {
@@ -253,12 +259,28 @@ export function heatField(model, records, resolution = 240, { contrast = false, 
   return { width, height, bounds, pixels, density, colorRange };
 }
 
-export function labelPresentation(baseSize, birthScale, scale, zoom, kind) {
+export function labelPresentation(baseSize, birthScale, scale, zoom, kind, mode = "auto") {
+  if (mode === "on" || mode === "off") {
+    // Forced layers remain readable at overview, and grow gently instead of
+    // becoming enormous when they are kept on at high magnification.
+    const size = clamp(baseSize * .82 * Math.max(1, zoom) ** .15, kind === "tag" ? 14 : 12, kind === "tag" ? 28 : 22);
+    return { growth: size / baseSize, size, opacity: mode === "on" ? 1 : 0 };
+  }
   const growth = clamp(scale / birthScale, .6, 5);
   const enter = clamp((zoom - (kind === "tag" ? 1.4 : 3)) / .65, 0, 1);
   const pass = clamp((3.1 - growth) / 1.7, 0, 1);
   const depth = clamp(((kind === "tag" ? 10 : 24) - zoom) / (kind === "tag" ? 4 : 9), 0, 1);
   return { growth, size: baseSize * growth, opacity: enter * pass * depth };
+}
+
+export function questionPresentation(zoom, mode = "auto", mobile = false) {
+  if (mode === "on") return {
+    fontSize: Math.round(clamp(12.5 + Math.log2(Math.max(1, zoom) / 2) * 1.4, 12.5, 18) * 10) / 10,
+    width: Math.min(mobile ? 224 : 264, 192 + Math.log2(Math.max(1, zoom)) * 20),
+    lines: zoom < 3 ? 4 : 7, opacity: 1,
+  };
+  return { fontSize: Math.round(clamp(14 + Math.log2(zoom / 9) * 1.2, 14, 18) * 10) / 10,
+    width: mobile ? 224 : 264, lines: 7, opacity: mode === "off" ? 0 : clamp((zoom - 6) / 1.5, 0, 1) };
 }
 
 export function surroundingQuestions(model, center, radius = 5, limit = 10) {

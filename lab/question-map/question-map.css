@@ -1,7 +1,7 @@
 .map-hero { padding: 38px 0 28px; }
 .map-hero .eyebrow { color: var(--pink-strong); margin-bottom: 16px; }
 .map-hero h1 { margin: 0; font: 500 clamp(2rem, 4.7vw, 3.8rem)/1.4 Georgia, "Yu Mincho", serif; letter-spacing: -.04em; }
-.map-hero h1 em { color: var(--pink-strong); font-style: normal; }
+.map-hero h1 em { display: inline-block; color: var(--pink-strong); font-style: normal; }
 .map-hero > p:last-child { color: var(--ink-soft); font-size: .9rem; margin: 14px 0 0; }
 .map-exhibit { border: 1px solid var(--line); border-radius: 22px; background: var(--white); overflow: hidden; }
 .map-exhibit button { cursor: pointer; color: var(--ink); font: inherit; }
@@ -10,6 +10,14 @@
 .zoom-stages button { padding: 7px 11px; min-height: 40px; background: transparent; border: 0; border-radius: 7px; white-space: nowrap; }
 .zoom-stages button[aria-current] { color: var(--white); background: var(--ink); }
 .zoom-stages > span:not(.stage-caption) { color: var(--line); }
+.map-settings { padding: 0 20px; border-top: 1px solid var(--line); font-size: .76rem; }
+.map-settings > summary { padding: 12px 0; cursor: pointer; font-weight: 600; }
+.map-settings > summary span { margin-left: 8px; font-size: .7rem; color: var(--ink-soft); font-weight: 400; }
+.layer-settings { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 2px 0 8px; }
+.layer-settings label { display: flex; align-items: center; gap: 8px; }
+.layer-settings select, .layer-settings button { min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: var(--white); color: var(--ink); font: inherit; padding: 7px 10px; }
+.layer-settings button { margin-left: auto; }
+.map-settings > p { margin: 0 0 12px; color: var(--ink-soft); font-size: .7rem; }
 .map-viewport { position: relative; height: clamp(440px, 66vh, 680px); overflow: hidden; isolation: isolate; background: #e8efed; touch-action: none; cursor: grab; }
 .map-viewport.is-dragging { cursor: grabbing; }
 #map-canvas, .map-labels, .map-cards { position: absolute; inset: 0; width: 100%; height: 100%; }
@@ -37,7 +45,7 @@
 .heat-min { margin-left: 10px; }
 .heat-gradient { width: 100px; height: 8px; margin-left: 0; border-radius: 10px; background: linear-gradient(90deg, #d45543, #e8ba4b, #51a180, #408bc0); }
 .history-summary { margin: 0; padding: 0 20px 13px; font-size: .73rem; color: var(--ink-soft); }
-.map-exhibit .map-card { position: absolute; top: 0; left: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 7; overflow: hidden; padding: 12px; border: 1px solid #ccd4ce; background: #fff; border-radius: 6px; box-shadow: 0 3px 12px rgb(16 47 53 / 9%); color: #17201c; font-weight: 500; line-height: 1.6; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: auto; touch-action: none; cursor: grab; transform-origin: 0 0; transition: opacity .65s linear; will-change: transform, opacity; }
+.map-exhibit .map-card { position: absolute; top: 0; left: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--card-lines, 7); overflow: hidden; padding: 12px; border: 1px solid #ccd4ce; background: #fff; border-radius: 6px; box-shadow: 0 3px 12px rgb(16 47 53 / 9%); color: #17201c; font-weight: 500; line-height: 1.6; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: auto; touch-action: none; cursor: grab; transform-origin: 0 0; transition: opacity .65s linear; will-change: transform, opacity; }
 .map-exhibit .map-card.is-selected { border-color: var(--mint-strong); }
 .map-exhibit .map-card:hover, .map-exhibit .map-card:focus-visible { z-index: 4 !important; box-shadow: 0 5px 18px rgb(16 47 53 / 18%); }
 .is-dragging .map-card { cursor: grabbing; }
@@ -71,9 +79,10 @@ html.question-detail-open { overflow: hidden; }
 .card-source { color: var(--ink-soft); font-size: .68rem; margin: 12px 0; }
 .card-tags { font-size: .7rem; color: var(--pink-strong); margin: 10px 0 0; }
 .card-practice { display: inline-block; padding: 10px 0; margin-top: 10px; font-size: .84rem; font-weight: 700; color: var(--mint-strong); text-underline-offset: 4px; }
-.score-source { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 0 20px 10px; font-size: .75rem; }
-.score-source button { padding: 7px 12px; min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: transparent; }
-.score-source button[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.score-source, .heat-range { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 0 20px 10px; font-size: .75rem; }
+.score-source button, .heat-range button { padding: 7px 12px; min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: transparent; }
+.score-source button[aria-pressed="true"], .heat-range button[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
+.heat-range > span { color: var(--ink-soft); margin-right: 3px; }
 #score-status { color: var(--ink-soft); }
 #score-retry[hidden] { display: none; }
 .map-guide { display: grid; grid-template-columns: 1fr 2fr; gap: 50px; margin: 52px 0 0; padding-top: 32px; border-top: 1px solid var(--line); }
@@ -93,12 +102,17 @@ html.question-detail-open { overflow: hidden; }
   .zoom-stages { padding: 5px 6px; gap: 0; justify-content: space-between; }
   .stage-caption { display: none; }
   .zoom-stages button { padding: 7px 7px; font-size: .7rem; }
+  .map-settings { padding: 0 12px; }
+  .layer-settings { gap: 10px; }
+  .layer-settings label { flex: 1 1 calc(50% - 10px); justify-content: space-between; }
+  .layer-settings select { flex: 1; max-width: 100px; }
+  .layer-settings button { font-size: .7rem; }
   .map-viewport { height: clamp(390px, 64svh, 580px); }
   .map-corner { left: 12px; top: 12px; }
   .map-controls { right: 10px; top: 10px; }
   .map-bottom { padding: 10px 12px; flex-wrap: wrap; font-size: .68rem; }
   .heat-gradient { width: 70px; }
-  .score-source { padding: 0 12px 10px; gap: 6px; }
+  .score-source, .heat-range { padding: 0 12px 10px; gap: 6px; }
   .history-summary { padding: 0 12px 10px; font-size: .68rem; }
   .map-gesture-hint { left: 10px; bottom: 7px; font-size: .6rem; }
   .map-guide { grid-template-columns: 1fr; gap: 20px; margin-top: 35px; }

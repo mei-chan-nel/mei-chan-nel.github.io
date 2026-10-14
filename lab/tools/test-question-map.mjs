@@ -38,6 +38,7 @@ try{
    CanvasRenderingContext2D.prototype.stroke=function(...args){if(this.canvas.id==='map-canvas'&&args[0] instanceof Path2D)window.coastStrokes++;return stroke.apply(this,args);};
   });
   await page.goto(base+'/lab/question-map/');await ready(page);
+  assert.equal(await page.locator('.map-hero h1').textContent(),'情報の可視化、問題マップ');
   assert.equal(await page.locator('#map-search,#heat-toggle,.map-toolbar').count(),0);
   assert.equal(await page.locator('.map-label').count(),0);
   assert.ok(await page.locator('#map-viewport').evaluate(n=>n.classList.contains('is-overview')));
@@ -133,16 +134,51 @@ try{
    assert.ok(boxes.every(b=>b.x>=0&&b.y>=0&&b.x+b.w<=b.vw+1&&b.y+b.h<=b.vh+1),'Cards should fit inside map');
   }
   await stage(page,-1);assert.equal(await page.locator('.map-label').count(),0);
+  await page.locator('#map-settings > summary').click();
+  await page.locator('#layer-tag').selectOption('on');await page.waitForTimeout(350);
+  assert.ok(await page.locator('.map-label:not(.is-term):not(.is-leaving)').count());
+  assert.equal(await page.locator('.map-label.is-term:not(.is-leaving)').count(),0);
+  assert.ok(!(await page.locator('#map-viewport').evaluate(n=>n.classList.contains('is-overview'))));
+  await page.locator('#layer-tag').selectOption('off');await page.waitForTimeout(750);
+  assert.equal(await page.locator('.map-label:not(.is-leaving)').count(),0);
+  await page.locator('#layer-term').selectOption('on');await page.waitForTimeout(350);
+  const forcedTerms=page.locator('.map-label.is-term:not(.is-leaving)');assert.ok(await forcedTerms.count());
+  const smallTerms=await forcedTerms.evaluateAll(nodes=>nodes.map(n=>parseFloat(getComputedStyle(n).fontSize)*new DOMMatrix(getComputedStyle(n).transform).a));
+  assert.ok(smallTerms.every(size=>size>=11.99&&size<=22.01));
+  await page.locator('#layer-term').selectOption('off');await page.locator('#layer-question').selectOption('on');await page.waitForTimeout(750);
+  assert.ok(await activeCards().count(),'Forced question cards should appear at overview');
+  const farFont=await activeCards().first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize));
+  assert.ok(farFont>=12&&farFont<=14);
+  await stage(page,2);assert.ok(await activeCards().first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize))>farFont);
+  await page.locator('#layer-question').selectOption('off');await page.waitForTimeout(750);assert.equal(await activeCards().count(),0);
+  assert.equal(await page.locator('.map-label:not(.is-leaving)').count(),0);
+  await page.locator('#layers-auto').click();await page.waitForTimeout(750);assert.ok(await activeCards().count());
+  assert.deepEqual(await page.locator('[data-layer]').evaluateAll(nodes=>nodes.map(n=>n.value)),['auto','auto','auto']);
+  await page.locator('#map-settings > summary').click();await stage(page,-1);
   const localRecord=await page.evaluate(()=>localStorage.getItem('info1LearningRecord:v1'));
   const personal=await canvasColors(page);
+  await page.locator('#heat-distribution').click();await page.waitForTimeout(300);
+  const personalRange=await page.locator('.heat-legend').textContent();
+  assert.equal(await page.locator('#heat-distribution').getAttribute('aria-pressed'),'true');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('info1LearningRecord:v1')),localRecord);
   await page.locator('#score-global').click();await page.waitForFunction(()=>document.querySelector('#score-global').getAttribute('aria-pressed')==='true'&&/延べ/.test(document.querySelector('#history-summary').textContent));
   assert.ok(await page.locator('#heat-note').isVisible());
   const range=await page.locator('.heat-legend').textContent();assert.ok(!range.includes('0%100%'));
   assert.ok((await page.locator('#history-summary').textContent()).startsWith('全体成績'));
   assert.equal(await page.evaluate(()=>localStorage.getItem('info1LearningRecord:v1')),localRecord);
   assert.notDeepEqual(await canvasColors(page),personal);
+  const globalDistribution=await canvasColors(page);
+  await page.locator('#heat-absolute').click();await page.waitForTimeout(300);
+  assert.equal(await page.locator('.heat-min').textContent(),'0%');assert.equal(await page.locator('.heat-max').textContent(),'100%');
+  assert.equal(await page.locator('#heat-note').isVisible(),false);
+  assert.notDeepEqual(await canvasColors(page),globalDistribution);
   await page.locator('#score-personal').click();await page.waitForTimeout(300);
+  assert.equal(await page.locator('#heat-distribution').getAttribute('aria-pressed'),'true');
+  assert.equal(await page.locator('.heat-legend').textContent(),personalRange);
+  await page.locator('#heat-absolute').click();await page.waitForTimeout(300);
   const restored=await canvasColors(page);assert.ok(restored.every((v,i)=>Math.abs(v-personal[i])<.02));
+  await page.locator('#score-global').click();assert.equal(await page.locator('#heat-absolute').getAttribute('aria-pressed'),'true');
+  await page.locator('#heat-distribution').click();await page.locator('#score-personal').click();await page.waitForTimeout(300);
   await noOverflow(page);
   if(width<600){
    await page.locator('#map-viewport').scrollIntoViewIfNeeded();const box=await page.locator('#map-viewport').boundingBox();
@@ -154,7 +190,7 @@ try{
   const axePath=require.resolve(process.env.LAB_AXE_MODULE||'axe-core/axe.min.js');await page.addScriptTag({path:axePath});
   const axe=await page.evaluate(()=>window.axe.run(document,{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));
   assert.deepEqual(axe.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>n.target)})),[]);
-  console.log(`PASS ${width}px: map-only overview/coast, growing halo labels, stem-only cards/detail/challenge, unified card wheel/drag/pinch, placement continuity, personal/global read-only switch, zoom, WCAG`);
+  console.log(`PASS ${width}px: auto/on/off layers and adaptive forced text/cards, independent personal/global heat ranges, growing labels, card gestures/detail/placement, zoom, WCAG`);
   await context.close();
  }
  const context=await browser.newContext();

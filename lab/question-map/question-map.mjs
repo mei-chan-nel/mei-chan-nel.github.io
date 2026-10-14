@@ -1,5 +1,5 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=3";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=4";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -9,6 +9,7 @@ const labelLayer = $("#map-labels"), cardLayer = $("#map-cards"), status = $("#m
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const dataRoot = new URL("../../info1-quiz-app/data/questions/", location.href);
 const state = { model: null, records: new Map(), width: 0, height: 0, fitScale: 1,
+  layerModes: { tag: "auto", term: "auto", question: "auto" }, heatModes: { personal: "absolute", global: "distribution" },
   camera: null, target: null, stage: -1, selected: null, heat: null, terrain: null, scoreSource: "personal", personalRecords: new Map(), globalRecords: null, globalRequest: null, globalError: "", personalUnavailable: false,
   labels: new Map(), labelMemory: new Map(), labelNodes: new Map(), cardNodes: new Map(), cardMeasurements: new Map(), frame: 0,
   lastLayout: 0, summaryTimer: 0, pointers: new Map(), gesture: null, inertia: null };
@@ -120,8 +121,20 @@ function draw(now) {
       context.strokeStyle = "#267765"; context.lineWidth = 2; context.stroke();
     }
   }
-  viewport.classList.toggle("is-overview", stage < 0);
+  viewport.classList.toggle("is-overview", stage < 0 && !Object.values(state.layerModes).includes("on"));
   updateNodePositions();
+  // At overview, forced cards can sit well away from their dense anchors.
+  // A quiet leader keeps the relationship to the original point visible.
+  if (state.layerModes.question === "on" && zoom < 3) {
+    for (const entry of state.cardNodes.values()) {
+      if (entry.retiring) continue;
+      const p = project(entry.point, camera, width, height), x = p.x + entry.displayDx, y = p.y + entry.displayDy;
+      const edge = { x: clamp(p.x, x, x + entry.w), y: clamp(p.y, y, y + entry.h) };
+      if (Math.hypot(p.x - edge.x, p.y - edge.y) < 12) continue;
+      context.beginPath(); context.moveTo(p.x, p.y); context.lineTo(edge.x, edge.y);
+      context.strokeStyle = "rgba(82,116,100,.5)"; context.lineWidth = .8; context.stroke();
+    }
+  }
   if (changed || !state.lastLayout || now - state.lastLayout > 100) {
     layoutContent(visible); state.lastLayout = now;
     $("#zoom-readout").textContent = `×${zoom.toFixed(1)} · ${stage < 0 ? "地図" : STAGES[stage]}`;
@@ -170,10 +183,17 @@ function reservedBoxes() {
   return [{ x: 0, y: 0, w: 165, h: 65 }, { x: state.width - 70, y: 0, w: 70, h: 158 },
     { x: 0, y: state.height - 35, w: Math.min(300, state.width), h: 35 }];
 }
+function layerAvailable(kind) {
+  const mode = state.layerModes[kind];
+  return mode === "on" || mode === "auto" && state.stage >= ({ tag: 0, term: 1, question: 2 })[kind];
+}
+function textView(label) {
+  return labelPresentation(label.baseSize, label.birthScale, state.camera.scale, state.camera.scale / state.fitScale, label.kind, state.layerModes[label.kind]);
+}
 function cardMetrics(point) {
-  const fontSize = Math.round(clamp(14 + Math.log2(state.camera.scale / state.fitScale / 9) * 1.2, 14, 18) * 10) / 10;
-  const w = Math.min(state.width < 600 ? 224 : 264, state.width - 30), maxLines = 7;
-  const key = `${point.id}:${fontSize}:${w}`;
+  const view = questionPresentation(state.camera.scale / state.fitScale, state.layerModes.question, state.width < 600);
+  const { fontSize, lines: maxLines } = view, w = Math.min(view.width, state.width - 30);
+  const key = `${point.id}:${fontSize}:${w.toFixed(1)}:${maxLines}`;
   if (state.cardMeasurements.has(key)) return state.cardMeasurements.get(key);
   context.font = `500 ${fontSize}px "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif`;
   let lines = 1, lineWidth = 0;
@@ -182,7 +202,7 @@ function cardMetrics(point) {
     if (char === "\n" || lineWidth + charWidth > w - 26) { lines++; lineWidth = char === "\n" ? 0 : charWidth; }
     else lineWidth += charWidth;
   }
-  const metrics = { w, h: Math.ceil(Math.min(lines, maxLines) * fontSize * 1.6 + 26), fontSize };
+  const metrics = { w, h: Math.ceil(Math.min(lines, maxLines) * fontSize * 1.6 + 26), fontSize, maxLines };
   state.cardMeasurements.set(key, metrics);
   if (state.cardMeasurements.size > 1200) state.cardMeasurements.delete(state.cardMeasurements.keys().next().value);
   return metrics;
@@ -190,7 +210,7 @@ function cardMetrics(point) {
 function layoutContent(visible) {
   const { model, camera, width, height, stage } = state;
   const occupied = reservedBoxes(), wantedCards = new Map();
-  if (stage >= 2) {
+  if (layerAvailable("question")) {
     const priority = p => (p.id === state.selected ? -10000 : 0) +
       (state.cardNodes.has(p.id) && !state.cardNodes.get(p.id).retiring ? -90 : 0) +
       Math.hypot(p.x - camera.x, p.y - camera.y) * camera.scale;
@@ -204,19 +224,19 @@ function layoutContent(visible) {
   reconcileCards(wantedCards);
   // Once a word is on the map, keep its anchor through zoom and let its
   // presentation fade it out. Growing boxes must not evict it abruptly.
-  const retained = stage < 0 ? [] : [...state.labels.values()].filter(label => {
+  const retained = [...state.labels.values()].filter(label => {
     const p = project(label.anchor, camera, width, height);
-    return p.x > -100 && p.x < width + 100 && p.y > -100 && p.y < height + 100 &&
-      labelPresentation(label.baseSize, label.birthScale, camera.scale, camera.scale / state.fitScale, label.kind).opacity > .015;
+    return layerAvailable(label.kind) && p.x > -100 && p.x < width + 100 && p.y > -100 && p.y < height + 100 &&
+      textView(label).opacity > .015;
   }).map(label => {
     const p = project(label.anchor, camera, width, height);
-    const view = labelPresentation(label.baseSize, label.birthScale, camera.scale, camera.scale / state.fitScale, label.kind);
+    const view = textView(label);
     const w = (label.box.w - 6) * view.growth / label.growth + 6, h = view.size * 1.4 + 4;
     return { ...label, ...view, ...p, box: { x: p.x - w / 2, y: p.y - h / 2, w, h } };
   });
   const retainedKeys = new Set(retained.map(l => l.key));
-  const candidates = stage < 0 ? [] : labelCandidates(visible, model, camera, width, height, Math.min(stage, 1), state.labels)
-    .filter(label => !retainedKeys.has(label.key))
+  const candidates = !layerAvailable("tag") && !layerAvailable("term") ? [] : labelCandidates(visible, model, camera, width, height, layerAvailable("term") ? 1 : 0, state.labels)
+    .filter(label => layerAvailable(label.kind) && !retainedKeys.has(label.key))
     .map(label => {
       const key = `${label.key}@${label.anchor.id}`;
       let memory = state.labelMemory.get(key);
@@ -224,7 +244,7 @@ function layoutContent(visible) {
         memory = { baseSize: label.size, birthScale: state.fitScale * STAGE_ZOOMS[label.kind === "tag" ? 0 : 1] }; state.labelMemory.set(key, memory);
         if (state.labelMemory.size > 1200) state.labelMemory.delete(state.labelMemory.keys().next().value);
       }
-      return { ...label, ...memory, ...labelPresentation(memory.baseSize, memory.birthScale, camera.scale, camera.scale / state.fitScale, label.kind) };
+      return { ...label, ...memory, ...textView({ ...label, ...memory }) };
     }).filter(label => label.opacity > .04);
   const labels = placeLabels(candidates, width, height, (text, size, kind) => {
     context.font = `${kind === "tag" ? 700 : 500} ${size}px "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif`;
@@ -266,6 +286,7 @@ function reconcileLabels(labels) {
     }
     revive(entry); entry.label = label;
     entry.node.style.fontSize = `${label.baseSize}px`;
+    entry.node.dataset.mode = state.layerModes[label.kind];
     entry.node.style.opacity = String(label.opacity);
     entry.node.setAttribute("aria-label", `${label.text} の問題に近づく`);
     positionLabel(entry);
@@ -288,7 +309,9 @@ function reconcileCards(wanted) {
     entry.node.classList.toggle("is-selected", id === state.selected);
     entry.node.style.width = `${item.w}px`;
     entry.node.style.fontSize = `${item.fontSize}px`;
-    entry.node.style.opacity = String(clamp((state.camera.scale / state.fitScale - 6) / 1.5, 0, 1));
+    entry.node.style.setProperty("--card-lines", item.maxLines);
+    entry.node.dataset.mode = state.layerModes.question;
+    entry.node.style.opacity = String(questionPresentation(state.camera.scale / state.fitScale, state.layerModes.question).opacity);
     positionCard(entry);
   }
 }
@@ -346,7 +369,7 @@ function positionCard(entry) {
 }
 function positionLabel(entry) {
   const { label, node } = entry, p = project(label.anchor, state.camera, state.width, state.height);
-  const view = labelPresentation(label.baseSize, label.birthScale, state.camera.scale, state.camera.scale / state.fitScale, label.kind);
+  const view = textView(label);
   const w = (label.box.w - 6) * view.growth / label.growth + 6, h = view.size * 1.4 + 4;
   node.style.transform = `translate(${p.x - w / 2 + 3}px,${p.y - h / 2 + 2}px) scale(${view.growth})`;
   node.style.webkitTextStrokeWidth = `${1.4 / view.growth}px`;
@@ -372,17 +395,17 @@ function updateHistory() {
 }
 function updateScore() {
   const records = state.scoreSource === "personal" ? state.personalRecords : state.globalRecords || new Map();
-  const signature = state.scoreSource + JSON.stringify([...records]);
+  const mode = state.heatModes[state.scoreSource], signature = state.scoreSource + mode + JSON.stringify([...records]);
   if (signature !== state.historySignature) {
     state.historySignature = signature; state.records = records;
-    const field = heatField(state.model, records, 320, { contrast: state.scoreSource === "global", spread: .014 });
+    const field = heatField(state.model, records, 320, { contrast: mode === "distribution", spread: .014 });
     const heatCanvas = document.createElement("canvas"); heatCanvas.width = field.width; heatCanvas.height = field.height;
     heatCanvas.getContext("2d").putImageData(new ImageData(field.pixels, field.width, field.height), 0, 0);
     state.heat = { ...field, canvas: heatCanvas };
     const [min, max] = field.colorRange;
     $(".heat-min").textContent = `${Math.round(min * 100)}%`;
     $(".heat-max").textContent = `${Math.round(max * 100)}%`;
-    $("#heat-note").hidden = state.scoreSource !== "global" || !records.size;
+    $("#heat-note").hidden = mode !== "distribution" || !records.size;
     requestDraw(true);
   }
   const attempts = [...records.values()].reduce((s, r) => s + r.attempts, 0);
@@ -393,6 +416,7 @@ function updateScore() {
     attempts ? `${title}：${records.size.toLocaleString()}問に回答 · 延べ${attempts.toLocaleString()}回 · 正答率${Math.round(correct / attempts * 100)}%` :
     `${title}：まだ解答履歴がありません。`;
   for (const source of ["personal", "global"]) $("#score-" + source).setAttribute("aria-pressed", String(state.scoreSource === source));
+  for (const range of ["absolute", "distribution"]) $("#heat-" + range).setAttribute("aria-pressed", String(range === mode));
   $("#score-status").textContent = state.scoreSource === "global" ? state.globalError : "";
   $("#score-retry").hidden = state.scoreSource !== "global" || !state.globalError;
 }
@@ -422,6 +446,17 @@ for (const source of ["personal", "global"]) $("#score-" + source).addEventListe
   if (source === "global" && !state.globalRecords) loadGlobal();
 });
 $("#score-retry").addEventListener("click", loadGlobal);
+for (const mode of ["absolute", "distribution"]) $("#heat-" + mode).addEventListener("click", () => {
+  state.heatModes[state.scoreSource] = mode;
+  if (state.model) updateScore();
+});
+for (const select of document.querySelectorAll("[data-layer]")) select.addEventListener("change", () => {
+  state.layerModes[select.dataset.layer] = select.value; requestDraw(true);
+});
+$("#layers-auto").addEventListener("click", () => {
+  for (const select of document.querySelectorAll("[data-layer]")) { select.value = "auto"; state.layerModes[select.dataset.layer] = "auto"; }
+  requestDraw(true);
+});
 window.addEventListener("storage", event => { if (!event.key || ["info1LearningRecord:v1", "info1QuizStats:v4"].includes(event.key)) updateHistory(); });
 window.addEventListener("pageshow", updateHistory);
 window.addEventListener("focus", updateHistory);
