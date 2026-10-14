@@ -1,5 +1,5 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=6";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, PRACTICE_CENTER } from "./map-model.mjs?v=7";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -136,6 +136,7 @@ function draw(now) {
   }
   if (changed || !state.lastLayout || now - state.lastLayout > 100) {
     layoutContent(visible); state.lastLayout = now;
+    $("#region-practice").disabled = !visible.length;
     $("#zoom-readout").textContent = `×${zoom.toFixed(1)} · ${stage < 0 ? "地図" : STAGES[stage]}`;
     updateLayerControls();
     clearTimeout(state.summaryTimer);
@@ -345,10 +346,64 @@ function practiceLink(point) {
   const practice = element("a", "card-practice", "この周りの問題を解く ↗");
   const peers = surroundingQuestions(state.model, point, clamp(120 / state.camera.scale, 4, 10), 10);
   const ids = [point.id, ...peers.filter(p => p.id !== point.id).map(p => p.id)].slice(0, 10);
-  const url = new URL("../../info1-quiz-app/app/", location.href);
-  url.searchParams.set("challenge", ids.join(",")); practice.href = url.href;
+  practice.href = practiceUrl(ids);
   return practice;
 }
+function practiceUrl(ids) {
+  const url = new URL("../../info1-quiz-app/app/", location.href);
+  url.searchParams.set("challenge", ids.join(","));
+  return url.href;
+}
+function showMapDialog(dialog, returnFocus = viewport) {
+  state.detailScroll = { x: scrollX, y: scrollY, returnFocus };
+  document.documentElement.classList.add("question-detail-open");
+  dialog.showModal();
+  scrollTo({ left: state.detailScroll.x, top: state.detailScroll.y, behavior: "instant" });
+}
+function updatePracticeScope(central) {
+  const session = state.practiceSession, points = central ? session.center : session.viewport;
+  if (!points.length) return;
+  const selected = samplePractice(points), count = selected.length;
+  $("#region-viewport").setAttribute("aria-pressed", String(!central));
+  $("#region-center").setAttribute("aria-pressed", String(central));
+  $("#region-summary").textContent = points.length > count ?
+    `範囲内の${points.length.toLocaleString()}問からランダムに${count}問を出題します。` : `範囲内の${count}問を出題します。`;
+  const link = $("#region-start");
+  link.textContent = `${count}問を解く ↗`; link.href = practiceUrl(selected.map(p => p.id));
+  const preview = $("#region-preview"), ctx = preview.getContext("2d"), image = session.image;
+  preview.setAttribute("aria-label", `${central ? "中央付近" : "表示範囲全体"}の${points.length.toLocaleString()}問が出題候補。枠内が対象範囲です。`);
+  const scale = Math.min((preview.width - 32) / image.width, (preview.height - 24) / image.height);
+  const w = image.width * scale, h = image.height * scale, x = (preview.width - w) / 2, y = (preview.height - h) / 2;
+  ctx.clearRect(0, 0, preview.width, preview.height); ctx.drawImage(image, x, y, w, h);
+  const fraction = central ? PRACTICE_CENTER : 1;
+  const box = { x: x + w * (1 - fraction) / 2, y: y + h * (1 - fraction) / 2, w: w * fraction, h: h * fraction };
+  if (central) {
+    ctx.beginPath(); ctx.rect(x, y, w, h); ctx.rect(box.x, box.y, box.w, box.h);
+    ctx.fillStyle = "rgb(255 255 255 / 65%)"; ctx.fill("evenodd");
+  }
+  ctx.strokeStyle = "#267765"; ctx.lineWidth = 3; ctx.strokeRect(box.x, box.y, box.w, box.h);
+}
+$("#region-practice").addEventListener("click", () => {
+  if (!state.model) return;
+  const all = practiceCandidates(state.model, state.camera, state.width, state.height);
+  if (!all.length) { $("#region-practice").disabled = true; return; }
+  state.inertia = null; state.target = { ...state.camera }; requestDraw();
+  const center = practiceCandidates(state.model, state.camera, state.width, state.height, true);
+  const image = document.createElement("canvas"); image.width = canvas.width; image.height = canvas.height;
+  image.getContext("2d").drawImage(canvas, 0, 0);
+  state.practiceSession = { viewport: all, center, image };
+  $("#region-viewport-count").textContent = `${all.length.toLocaleString()}問`;
+  $("#region-center-count").textContent = `${center.length.toLocaleString()}問`;
+  $("#region-center").disabled = !center.length;
+  updatePracticeScope(false);
+  showMapDialog($("#region-dialog"), $("#region-practice"));
+});
+$("#region-viewport").addEventListener("click", () => updatePracticeScope(false));
+$("#region-center").addEventListener("click", () => updatePracticeScope(true));
+$("#region-close").addEventListener("click", () => { $("#region-dialog").close(); restoreDetailScroll(); });
+$("#region-dialog").addEventListener("close", () => {
+  if (!$("#region-dialog").open) { state.practiceSession = null; restoreDetailScroll(); }
+});
 function showQuestion(point) {
   state.selected = point.id; state.inertia = null; state.target = { ...state.camera }; requestDraw(true);
   const dialog = $("#question-dialog"), content = $("#question-detail"), question = point.question;
@@ -372,15 +427,13 @@ function showQuestion(point) {
   content.replaceChildren(stats, stem, choices, explanation, practiceLink(point),
     element("p", "card-tags", question.tags.join(" · ")),
     element("p", "card-source", `${question.source_display || ""}${question["改題"] ? "（改題）" : ""}`));
-  state.detailScroll = { x: scrollX, y: scrollY };
-  document.documentElement.classList.add("question-detail-open");
-  dialog.showModal(); content.scrollTop = 0;
-  scrollTo({ left: state.detailScroll.x, top: state.detailScroll.y, behavior: "instant" });
+  showMapDialog(dialog); content.scrollTop = 0;
 }
 function restoreDetailScroll() {
+  if (document.querySelector("#question-dialog[open], #region-dialog[open]")) return;
   if (!document.documentElement.classList.contains("question-detail-open")) return;
   document.documentElement.classList.remove("question-detail-open");
-  viewport.focus({ preventScroll: true });
+  (state.detailScroll?.returnFocus || viewport).focus({ preventScroll: true });
   if (state.detailScroll) scrollTo({ left: state.detailScroll.x, top: state.detailScroll.y, behavior: "instant" });
 }
 $("#question-close").addEventListener("click", () => { $("#question-dialog").close(); restoreDetailScroll(); });

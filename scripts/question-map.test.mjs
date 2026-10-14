@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
-  stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards } from "../lab/question-map/map-model.mjs";
+  stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
@@ -12,6 +12,20 @@ function fixture() {
   return prepareMap(questions, { ...common, points: { a: [-20, 0], b: [-19, 1], c: [20, 0], d: [21, 1] } },
     { ...common, terms: { "左の特徴": ["a", "b"], "右の特徴": ["c", "d"] } }, { ...common, count: 4 });
 }
+test("地域の出題候補は全座標から選び、中央への絞り込み・空範囲・アプリの10問制限を守る", () => {
+  const model = fixture(), camera = { x: 0, y: 0, scale: 1 };
+  assert.equal(practiceCandidates(model, camera, 44, 20).length, 4);
+  assert.equal(practiceCandidates(model, camera, 44, 20, true).length, 0);
+  const left = practiceCandidates(model, { ...camera, x: -19 }, 10, 20, true);
+  assert.deepEqual(new Set(left.map(p => p.id)), new Set(["a", "b"]));
+  assert.deepEqual(samplePractice([]), []);
+  assert.deepEqual(new Set(samplePractice(left)), new Set(left));
+  const pool = Array.from({ length: 80 }, (_, id) => ({ id })), original = [...pool];
+  const selected = samplePractice(pool, () => .9999);
+  assert.equal(selected.length, 10); assert.equal(new Set(selected).size, 10);
+  assert.ok(selected.every(p => pool.includes(p))); assert.ok(selected.includes(pool.at(-1)));
+  assert.deepEqual(pool, original);
+});
 test("実データの全ID・座標・用語索引・メタデータが対応する", async () => {
   const app = new URL("../../info1-quiz-app/data/questions/", import.meta.url);
   const data = await Promise.all(["completed_questions.json", "map_points.json", "map_terms.json", "map_metadata.json"].map(async name => JSON.parse(await readFile(new URL(name, app), "utf8"))));

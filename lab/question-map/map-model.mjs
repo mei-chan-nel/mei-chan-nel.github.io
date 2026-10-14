@@ -112,6 +112,22 @@ export function viewBounds(camera, width, height, margin = 0) {
   return { minX: camera.x - (width / 2 + margin) / camera.scale, maxX: camera.x + (width / 2 + margin) / camera.scale,
     minY: camera.y - (height / 2 + margin) / camera.scale, maxY: camera.y + (height / 2 + margin) / camera.scale };
 }
+// Both regions use all points in their bounds, including questions whose
+// cards are currently hidden to avoid overlap. Keep the app's shared limit.
+export const PRACTICE_LIMIT = 10;
+export const PRACTICE_CENTER = .6;
+export function practiceCandidates(model, camera, width, height, central = false) {
+  const fraction = central ? PRACTICE_CENTER : 1;
+  return model.index.query(viewBounds(camera, width * fraction, height * fraction));
+}
+export function samplePractice(points, random = Math.random) {
+  const pool = [...points], count = Math.min(PRACTICE_LIMIT, pool.length);
+  for (let i = 0; i < count; i++) {
+    const j = i + Math.floor(random() * (pool.length - i));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
 export function zoomAbout(camera, factor, anchor, width, height, minScale, maxScale) {
   const world = unproject(anchor, camera, width, height);
   const scale = clamp(camera.scale * factor, minScale, maxScale);
