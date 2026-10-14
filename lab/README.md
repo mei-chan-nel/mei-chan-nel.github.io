@@ -10,6 +10,10 @@
 
 プリセット体験と自由作成はいずれも空欄から開始します。項目ごとのプリセット記入・取り消し、段階間の引き継ぎ、図の直接編集、ブラウザ内の自動保存、JSON保存・読み込み、Markdown・印刷出力に対応します。詳細と検証方法は [thinking-tools/README.md](thinking-tools/README.md)。個別HTMLを管理し、catalogの `generated: false` により共通ページ生成で上書きしません。
 
+### リレーショナルデータベース
+
+`/lab/relational-database/`：自分で表・列・行を定義し、テーブルオカレンスの関係図を使って結合 → 射影 → 選択を体験します。セルの直接編集、任意の主キー・複合主キー、基準の表を残す左外部結合、射影での列のドラッグ、選択での行の整列、非表示列での検索、任意の重複除去に対応。「学生・部員・部活」をプリセットにします。詳細と検証手順は [relational-database/README.md](relational-database/README.md)。
+
 ### 進数の変換
 
 `/lab/radix-conversion/`：進数の変換。Lab一覧の「デジタル表現」にカードを置きます。
