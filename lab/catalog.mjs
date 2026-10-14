@@ -45,8 +45,8 @@ export const contents = [
     id: "question-map",
     group: "information-design",
     standalone: false,
-    styles: ["question-map.css?v=4"],
-    scripts: ["question-map.mjs?v=4"],
+    styles: ["question-map.css?v=5"],
+    scripts: ["question-map.mjs?v=5"],
     name: "問題マップ",
     description:
       "知識の地形を地図のように探索。近づくと言葉から問題へ、気になる問題を開くと選択肢・解説へ。学習履歴は色の地形に。",

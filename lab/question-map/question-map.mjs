@@ -1,5 +1,5 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=4";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=5";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -9,7 +9,7 @@ const labelLayer = $("#map-labels"), cardLayer = $("#map-cards"), status = $("#m
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const dataRoot = new URL("../../info1-quiz-app/data/questions/", location.href);
 const state = { model: null, records: new Map(), width: 0, height: 0, fitScale: 1,
-  layerModes: { tag: "auto", term: "auto", question: "auto" }, heatModes: { personal: "absolute", global: "distribution" },
+  automatic: true, layerModes: { tag: "auto", term: "auto", question: "auto" }, heatModes: { personal: "absolute", global: "distribution" },
   camera: null, target: null, stage: -1, selected: null, heat: null, terrain: null, scoreSource: "personal", personalRecords: new Map(), globalRecords: null, globalRequest: null, globalError: "", personalUnavailable: false,
   labels: new Map(), labelMemory: new Map(), labelNodes: new Map(), cardNodes: new Map(), cardMeasurements: new Map(), frame: 0,
   lastLayout: 0, summaryTimer: 0, pointers: new Map(), gesture: null, inertia: null };
@@ -138,10 +138,7 @@ function draw(now) {
   if (changed || !state.lastLayout || now - state.lastLayout > 100) {
     layoutContent(visible); state.lastLayout = now;
     $("#zoom-readout").textContent = `×${zoom.toFixed(1)} · ${stage < 0 ? "地図" : STAGES[stage]}`;
-    for (const button of document.querySelectorAll("[data-stage]")) {
-      if (Number(button.dataset.stage) === stage) button.setAttribute("aria-current", "step");
-      else button.removeAttribute("aria-current");
-    }
+    updateLayerControls();
     clearTimeout(state.summaryTimer);
     state.summaryTimer = setTimeout(() => {
       $("#visible-summary").textContent = `表示範囲 ${visible.length.toLocaleString()} / ${model.points.length.toLocaleString()}問`;
@@ -186,6 +183,17 @@ function reservedBoxes() {
 function layerAvailable(kind) {
   const mode = state.layerModes[kind];
   return mode === "on" || mode === "auto" && state.stage >= ({ tag: 0, term: 1, question: 2 })[kind];
+}
+function automaticLayer() { return ["tag", "term", "question"][Math.max(0, state.stage)]; }
+function updateLayerControls() {
+  for (const button of document.querySelectorAll("[data-layer]")) {
+    const selected = state.automatic ? button.dataset.layer === automaticLayer() : state.layerModes[button.dataset.layer] === "on";
+    button.setAttribute("aria-pressed", String(selected));
+  }
+  const mode = $("#layers-mode");
+  mode.textContent = state.automatic ? "自動" : "手動";
+  mode.setAttribute("aria-pressed", String(state.automatic));
+  mode.setAttribute("aria-label", state.automatic ? "自動" : "手動、自動表示に戻す");
 }
 function textView(label) {
   return labelPresentation(label.baseSize, label.birthScale, state.camera.scale, state.camera.scale / state.fitScale, label.kind, state.layerModes[label.kind]);
@@ -405,7 +413,6 @@ function updateScore() {
     const [min, max] = field.colorRange;
     $(".heat-min").textContent = `${Math.round(min * 100)}%`;
     $(".heat-max").textContent = `${Math.round(max * 100)}%`;
-    $("#heat-note").hidden = mode !== "distribution" || !records.size;
     requestDraw(true);
   }
   const attempts = [...records.values()].reduce((s, r) => s + r.attempts, 0);
@@ -450,12 +457,20 @@ for (const mode of ["absolute", "distribution"]) $("#heat-" + mode).addEventList
   state.heatModes[state.scoreSource] = mode;
   if (state.model) updateScore();
 });
-for (const select of document.querySelectorAll("[data-layer]")) select.addEventListener("change", () => {
-  state.layerModes[select.dataset.layer] = select.value; requestDraw(true);
+for (const button of document.querySelectorAll("[data-layer]")) button.addEventListener("click", () => {
+  if (state.automatic) {
+    const active = automaticLayer();
+    for (const kind of Object.keys(state.layerModes)) state.layerModes[kind] = kind === active ? "on" : "off";
+    state.automatic = false;
+  }
+  const kind = button.dataset.layer;
+  state.layerModes[kind] = state.layerModes[kind] === "on" ? "off" : "on";
+  updateLayerControls(); requestDraw(true);
 });
-$("#layers-auto").addEventListener("click", () => {
-  for (const select of document.querySelectorAll("[data-layer]")) { select.value = "auto"; state.layerModes[select.dataset.layer] = "auto"; }
-  requestDraw(true);
+$("#layers-mode").addEventListener("click", () => {
+  state.automatic = true;
+  for (const kind of Object.keys(state.layerModes)) state.layerModes[kind] = "auto";
+  updateLayerControls(); requestDraw(true);
 });
 window.addEventListener("storage", event => { if (!event.key || ["info1LearningRecord:v1", "info1QuizStats:v4"].includes(event.key)) updateHistory(); });
 window.addEventListener("pageshow", updateHistory);
@@ -478,13 +493,6 @@ function home() {
 $("#zoom-in").addEventListener("click", () => zoom(1.6));
 $("#zoom-out").addEventListener("click", () => zoom(1 / 1.6));
 $("#map-home").addEventListener("click", home);
-for (const button of document.querySelectorAll("[data-stage]")) button.addEventListener("click", () => {
-  if (!state.model) return;
-  const stage = Number(button.dataset.stage);
-  if (stage === -1) { home(); return; }
-  const point = state.model.byId.get(state.selected) || nearest({ x: state.width / 2, y: state.height / 2 }, Infinity);
-  if (point) focusPoint(point, STAGE_ZOOMS[stage]);
-});
 function localPoint(event) {
   const rect = viewport.getBoundingClientRect(); return { x: event.clientX - rect.left, y: event.clientY - rect.top };
 }
