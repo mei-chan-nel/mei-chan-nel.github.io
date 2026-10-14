@@ -23,7 +23,7 @@
 .map-corner { position: absolute; top: 18px; left: 20px; display: flex; flex-direction: column; gap: 3px; pointer-events: none; font-size: .73rem; }
 .map-name { font: 700 .65rem Arial, sans-serif; letter-spacing: .16em; }
 #zoom-readout { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-.map-controls { position: absolute; right: 16px; top: 16px; display: grid; gap: 1px; box-shadow: 0 4px 20px rgb(16 47 53 / 12%); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.map-controls { position: absolute; right: 16px; top: 16px; z-index: 600; display: grid; gap: 1px; box-shadow: 0 4px 20px rgb(16 47 53 / 12%); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
 .map-controls button { width: 44px; height: 44px; border: 0; background: var(--white); font-size: 1.3rem; }
 .map-controls button:hover { background: var(--paper-deep); }
 .map-gesture-hint { position: absolute; bottom: 12px; left: 20px; margin: 0; color: var(--ink-soft); font-size: .68rem; pointer-events: none; background: rgb(255 254 249 / 80%); border-radius: 5px; padding: 3px 8px; }
@@ -43,9 +43,9 @@
 .heat-range button + button { border-left: 1px solid var(--line); }
 .heat-range button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
 .history-summary { margin: 0; padding: 0 20px 13px; font-size: .73rem; color: var(--ink-soft); }
-.map-exhibit .map-card { position: absolute; top: 0; left: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--card-lines, 7); overflow: hidden; padding: 12px; border: 1px solid #ccd4ce; background: #fff; border-radius: 6px; box-shadow: 0 3px 12px rgb(16 47 53 / 9%); color: #17201c; font-weight: 500; line-height: 1.6; text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: auto; touch-action: none; cursor: grab; transform-origin: 0 0; transition: opacity .65s linear; will-change: transform, opacity; }
+.map-exhibit .map-card { position: absolute; top: 0; left: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--card-lines, 7); overflow: hidden; padding: var(--card-padding, 12px); border: 1px solid rgb(145 165 152 / 65%); background: rgb(255 255 255 / var(--card-alpha, .84)); border-radius: 6px; box-shadow: 0 3px 12px rgb(16 47 53 / 8%); color: #17201c; font-weight: 500; line-height: var(--card-leading, 1.6); text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: auto; touch-action: none; cursor: grab; transform-origin: 0 0; transition: opacity .22s linear; will-change: transform, opacity; }
 .map-exhibit .map-card.is-selected { border-color: var(--mint-strong); }
-.map-exhibit .map-card:hover, .map-exhibit .map-card:focus-visible { z-index: 4 !important; box-shadow: 0 5px 18px rgb(16 47 53 / 18%); }
+.map-exhibit .map-card:hover, .map-exhibit .map-card:focus-visible { z-index: 500 !important; background: rgb(255 255 255 / 92%); box-shadow: 0 5px 18px rgb(16 47 53 / 18%); }
 .is-dragging .map-card { cursor: grabbing; }
 html.question-detail-open { overflow: hidden; }
 .question-dialog { width: min(680px, calc(100% - 24px)); max-height: 84svh; padding: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 14px; background: #fff; color: var(--ink); }

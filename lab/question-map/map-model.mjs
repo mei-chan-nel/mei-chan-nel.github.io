@@ -175,6 +175,38 @@ export function placeLabels(candidates, width, height, measure, reserved = [], l
   return placed;
 }
 
+// Take a turn from every occupied screen region before returning to a dense
+// region. Existing nodes can receive a small score bonus, never a whole quota.
+export function spatialOrder(candidates, width, height, cellWidth = 180, cellHeight = 130, spread = false) {
+  const columns = Math.max(2, Math.ceil(width / cellWidth)), rows = Math.max(2, Math.ceil(height / cellHeight));
+  const buckets = new Map();
+  for (const candidate of candidates) {
+    const key = `${clamp(Math.floor(candidate.x / width * columns), 0, columns - 1)},${clamp(Math.floor(candidate.y / height * rows), 0, rows - 1)}`;
+    if (!buckets.has(key)) buckets.set(key, []);
+    buckets.get(key).push(candidate);
+  }
+  const compare = (a, b) => (b.score || 0) - (a.score || 0) || String(a.id || a.key).localeCompare(String(b.id || b.key));
+  let groups = [...buckets.values()].map(group => group.sort(compare)).sort((a, b) => compare(a[0], b[0]));
+  if (spread && groups.length) {
+    const remaining = groups.slice(1), ordered = [groups[0]];
+    while (remaining.length) {
+      let best = 0, distance = -1;
+      for (let i = 0; i < remaining.length; i++) {
+        const point = remaining[i][0];
+        const nearest = Math.min(...ordered.map(group => Math.hypot((point.x - group[0].x) / width, (point.y - group[0].y) / height)));
+        if (nearest > distance) { distance = nearest; best = i; }
+      }
+      ordered.push(remaining.splice(best, 1)[0]);
+    }
+    groups = ordered;
+  }
+  const result = [];
+  for (let round = 0; groups.some(group => round < group.length); round++) {
+    for (const group of groups) if (group[round]) result.push(group[round]);
+  }
+  return result;
+}
+
 const count = n => Number.isInteger(n) && n > 0 ? n : 0;
 export function historyRecords(current, legacy) {
   const records = new Map();
@@ -273,14 +305,26 @@ export function labelPresentation(baseSize, birthScale, scale, zoom, kind, mode 
   return { growth, size: baseSize * growth, opacity: enter * pass * depth };
 }
 
-export function questionPresentation(zoom, mode = "auto", mobile = false) {
-  if (mode === "on") return {
+export function cardFocus(x, y, width, height) {
+  const distance = Math.hypot((x - width / 2) / (width / 2), (y - height / 2) / (height / 2));
+  const t = clamp((distance - .18) / .9, 0, 1);
+  return 1 - t * t * (3 - 2 * t);
+}
+
+export function questionPresentation(zoom, mode = "auto", mobile = false, focus = 1) {
+  const center = mode === "on" ? {
     fontSize: Math.round(clamp(12.5 + Math.log2(Math.max(1, zoom) / 2) * 1.4, 12.5, 18) * 10) / 10,
     width: Math.min(mobile ? 224 : 264, 192 + Math.log2(Math.max(1, zoom)) * 20),
     lines: zoom < 3 ? 4 : 7, opacity: 1,
-  };
-  return { fontSize: Math.round(clamp(14 + Math.log2(zoom / 9) * 1.2, 14, 18) * 10) / 10,
+  } : { fontSize: Math.round(clamp(14 + Math.log2(zoom / 9) * 1.2, 14, 18) * 10) / 10,
     width: mobile ? 224 : 264, lines: 7, opacity: mode === "off" ? 0 : clamp((zoom - 6) / 1.5, 0, 1) };
+  focus = clamp(focus, 0, 1);
+  return { ...center, focus,
+    fontSize: Math.round(((mobile ? 11 : 11.5) + (center.fontSize - (mobile ? 11 : 11.5)) * focus) * 4) / 4,
+    width: Math.round(((mobile ? 116 : 136) + (center.width - (mobile ? 116 : 136)) * focus) / 2) * 2,
+    lines: Math.round(3 + (center.lines - 3) * focus), padding: Math.round(7 + 5 * focus),
+    leading: 1.45 + .15 * focus, backgroundAlpha: .78 + .1 * focus,
+  };
 }
 
 export function surroundingQuestions(model, center, radius = 5, limit = 10) {
@@ -290,7 +334,7 @@ export function surroundingQuestions(model, center, radius = 5, limit = 10) {
     .slice(0, limit);
 }
 
-export function placeQuestionCards(candidates, width, height, reserved = [], previous = new Map(), limit = 9) {
+export function placeQuestionCards(candidates, width, height, reserved = [], previous = new Map(), limit = 36) {
   const placed = [], area = b => b.w * b.h;
   const intersection = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) *
     Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
@@ -308,7 +352,7 @@ export function placeQuestionCards(candidates, width, height, reserved = [], pre
       if (fractions.some(f => f > .18) || fractions.reduce((s, f) => s + f, 0) > .24) continue;
       const distance = Math.hypot(box.x + w / 2 - x, box.y + h / 2 - y);
       const drift = prior ? Math.hypot(box.x - x - prior.dx, box.y - y - prior.dy) : 0;
-      const score = distance + drift * .9 + fractions.reduce((s, f) => s + f, 0) * 500;
+      const score = distance + drift * .35 + fractions.reduce((s, f) => s + f, 0) * 500;
       if (!best || score < best.score) best = { ...candidate, box, dx: box.x - x, dy: box.y - y, score };
     }
     if (best) placed.push(best);

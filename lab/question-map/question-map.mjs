@@ -1,5 +1,5 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=5";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards } from "./map-model.mjs?v=6";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -11,7 +11,7 @@ const dataRoot = new URL("../../info1-quiz-app/data/questions/", location.href);
 const state = { model: null, records: new Map(), width: 0, height: 0, fitScale: 1,
   automatic: true, layerModes: { tag: "auto", term: "auto", question: "auto" }, heatModes: { personal: "absolute", global: "distribution" },
   camera: null, target: null, stage: -1, selected: null, heat: null, terrain: null, scoreSource: "personal", personalRecords: new Map(), globalRecords: null, globalRequest: null, globalError: "", personalUnavailable: false,
-  labels: new Map(), labelMemory: new Map(), labelNodes: new Map(), cardNodes: new Map(), cardMeasurements: new Map(), frame: 0,
+  labels: new Map(), labelMemory: new Map(), labelNodes: new Map(), cardNodes: new Map(), cardMeasurements: new Map(), charWidths: new Map(), layoutScale: 0, frame: 0,
   lastLayout: 0, summaryTimer: 0, pointers: new Map(), gesture: null, inertia: null };
 
 function element(tag, className, text) {
@@ -123,16 +123,15 @@ function draw(now) {
   }
   viewport.classList.toggle("is-overview", stage < 0 && !Object.values(state.layerModes).includes("on"));
   updateNodePositions();
-  // At overview, forced cards can sit well away from their dense anchors.
-  // A quiet leader keeps the relationship to the original point visible.
-  if (state.layerModes.question === "on" && zoom < 3) {
+  // A quiet leader keeps displaced cards connected to their original points.
+  if (layerAvailable("question")) {
     for (const entry of state.cardNodes.values()) {
       if (entry.retiring) continue;
       const p = project(entry.point, camera, width, height), x = p.x + entry.displayDx, y = p.y + entry.displayDy;
       const edge = { x: clamp(p.x, x, x + entry.w), y: clamp(p.y, y, y + entry.h) };
       if (Math.hypot(p.x - edge.x, p.y - edge.y) < 12) continue;
       context.beginPath(); context.moveTo(p.x, p.y); context.lineTo(edge.x, edge.y);
-      context.strokeStyle = "rgba(82,116,100,.5)"; context.lineWidth = .8; context.stroke();
+      context.strokeStyle = `rgba(82,116,100,${.22 + entry.focus * .16})`; context.lineWidth = .8; context.stroke();
     }
   }
   if (changed || !state.lastLayout || now - state.lastLayout > 100) {
@@ -144,7 +143,8 @@ function draw(now) {
       $("#visible-summary").textContent = `表示範囲 ${visible.length.toLocaleString()} / ${model.points.length.toLocaleString()}問`;
     }, moving ? 180 : 0);
   }
-  if (moving || state.inertia || [...state.labelNodes.values(), ...state.cardNodes.values()].some(e => e.retiring)) requestDraw();
+  const arranging = [...state.cardNodes.values()].some(e => !e.retiring && Math.hypot(e.dx - e.displayDx, e.dy - e.displayDy) > .2);
+  if (moving || state.inertia || arranging || [...state.labelNodes.values(), ...state.cardNodes.values()].some(e => e.retiring)) requestDraw();
 }
 
 function buildTerrain() {
@@ -198,41 +198,53 @@ function updateLayerControls() {
 function textView(label) {
   return labelPresentation(label.baseSize, label.birthScale, state.camera.scale, state.camera.scale / state.fitScale, label.kind, state.layerModes[label.kind]);
 }
-function cardMetrics(point) {
-  const view = questionPresentation(state.camera.scale / state.fitScale, state.layerModes.question, state.width < 600);
-  const { fontSize, lines: maxLines } = view, w = Math.min(view.width, state.width - 30);
-  const key = `${point.id}:${fontSize}:${w.toFixed(1)}:${maxLines}`;
-  if (state.cardMeasurements.has(key)) return state.cardMeasurements.get(key);
+function cardMetrics(point, screen) {
+  const focus = cardFocus(screen.x, screen.y, state.width, state.height);
+  const view = questionPresentation(state.camera.scale / state.fitScale, state.layerModes.question, state.width < 600, focus);
+  const { fontSize, lines: maxLines, padding } = view, leading = Math.round(view.leading * 100) / 100;
+  const w = Math.min(view.width, state.width - 30), key = `${point.id}:${fontSize}:${w}:${maxLines}:${padding}:${leading}`;
+  const cached = state.cardMeasurements.get(key);
+  if (cached) return { ...cached, focus, backgroundAlpha: view.backgroundAlpha };
   context.font = `500 ${fontSize}px "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif`;
   let lines = 1, lineWidth = 0;
   for (const char of point.question.stem) {
-    const charWidth = context.measureText(char).width;
-    if (char === "\n" || lineWidth + charWidth > w - 26) { lines++; lineWidth = char === "\n" ? 0 : charWidth; }
+    const charKey = `${fontSize}:${char}`;
+    if (!state.charWidths.has(charKey)) state.charWidths.set(charKey, context.measureText(char).width);
+    const charWidth = state.charWidths.get(charKey);
+    if (char === "\n" || lineWidth + charWidth > w - 2 * padding - 2) { lines++; lineWidth = char === "\n" ? 0 : charWidth; }
     else lineWidth += charWidth;
   }
-  const metrics = { w, h: Math.ceil(Math.min(lines, maxLines) * fontSize * 1.6 + 26), fontSize, maxLines };
+  const metrics = { w, h: Math.ceil(Math.min(lines, maxLines) * fontSize * leading + 2 * padding + 2), fontSize, maxLines, padding, leading };
   state.cardMeasurements.set(key, metrics);
-  if (state.cardMeasurements.size > 1200) state.cardMeasurements.delete(state.cardMeasurements.keys().next().value);
-  return metrics;
+  if (state.cardMeasurements.size > 6000) state.cardMeasurements.delete(state.cardMeasurements.keys().next().value);
+  if (state.charWidths.size > 50000) {
+    for (let n = 0; n < 5000; n++) state.charWidths.delete(state.charWidths.keys().next().value);
+  }
+  return { ...metrics, focus, backgroundAlpha: view.backgroundAlpha };
 }
 function layoutContent(visible) {
   const { model, camera, width, height, stage } = state;
+  const reframing = state.layoutScale && camera.scale < state.layoutScale * .96;
+  state.layoutScale = camera.scale;
   const occupied = reservedBoxes(), wantedCards = new Map();
   if (layerAvailable("question")) {
-    const priority = p => (p.id === state.selected ? -10000 : 0) +
-      (state.cardNodes.has(p.id) && !state.cardNodes.get(p.id).retiring ? -90 : 0) +
-      Math.hypot(p.x - camera.x, p.y - camera.y) * camera.scale;
-    const sorted = [...visible].sort((a, b) => priority(a) - priority(b)).slice(0, 100);
-    const candidates = sorted.map(point => ({ id: point.id, point, ...project(point, camera, width, height), ...cardMetrics(point) }));
-    const previous = new Map([...state.cardNodes].filter(([, e]) => !e.retiring).map(([id, e]) => [id, e]));
-    for (const item of placeQuestionCards(candidates, width, height, occupied, previous, width < 600 ? 3 : 9)) {
+    const locations = visible.map(point => {
+      const screen = project(point, camera, width, height), focus = cardFocus(screen.x, screen.y, width, height);
+      return { id: point.id, point, ...screen, score: (point.id === state.selected ? 100 : 0) + focus * 3 +
+        (!reframing && state.cardNodes.has(point.id) && !state.cardNodes.get(point.id).retiring ? .12 : 0) };
+    });
+    const candidates = spatialOrder(locations, width, height, width < 600 ? 80 : 150, 100, true)
+      .slice(0, width < 600 ? 120 : 210).map(item => ({ ...item, ...cardMetrics(item.point, item) }));
+    const previous = reframing ? new Map() : new Map([...state.cardNodes].filter(([, e]) => !e.retiring).map(([id, e]) => [id, e]));
+    const limit = Math.min(width < 600 ? 14 : 44, Math.max(6, Math.round(width * height / (width < 600 ? 7500 : 11500))));
+    for (const item of placeQuestionCards(candidates, width, height, occupied, previous, limit)) {
       wantedCards.set(item.id, item); occupied.push(item.box);
     }
   }
   reconcileCards(wantedCards);
   // Once a word is on the map, keep its anchor through zoom and let its
   // presentation fade it out. Growing boxes must not evict it abruptly.
-  const retained = [...state.labels.values()].filter(label => {
+  const retained = !state.automatic ? [] : [...state.labels.values()].filter(label => {
     const p = project(label.anchor, camera, width, height);
     return layerAvailable(label.kind) && p.x > -100 && p.x < width + 100 && p.y > -100 && p.y < height + 100 &&
       textView(label).opacity > .015;
@@ -243,7 +255,7 @@ function layoutContent(visible) {
     return { ...label, ...view, ...p, box: { x: p.x - w / 2, y: p.y - h / 2, w, h } };
   });
   const retainedKeys = new Set(retained.map(l => l.key));
-  const candidates = !layerAvailable("tag") && !layerAvailable("term") ? [] : labelCandidates(visible, model, camera, width, height, layerAvailable("term") ? 1 : 0, state.labels)
+  const candidates = !layerAvailable("tag") && !layerAvailable("term") ? [] : labelCandidates(visible, model, camera, width, height, layerAvailable("term") ? 1 : 0, reframing && !state.automatic ? new Map() : state.labels)
     .filter(label => layerAvailable(label.kind) && !retainedKeys.has(label.key))
     .map(label => {
       const key = `${label.key}@${label.anchor.id}`;
@@ -254,7 +266,7 @@ function layoutContent(visible) {
       }
       return { ...label, ...memory, ...textView({ ...label, ...memory }) };
     }).filter(label => label.opacity > .04);
-  const labels = placeLabels(candidates, width, height, (text, size, kind) => {
+  const labels = placeLabels(state.automatic ? candidates : spatialOrder(candidates, width, height, width < 600 ? 100 : 170, 115), width, height, (text, size, kind) => {
     context.font = `${kind === "tag" ? 700 : 500} ${size}px "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif`;
     return context.measureText(text).width;
   }, [...occupied, ...retained.filter(l => l.opacity > .25).map(l => l.box)], Math.max(0, (width < 600 ? 16 : 36) - retained.length));
@@ -270,7 +282,7 @@ function retire(entry, entries, key) {
   entry.node.inert = true;
   entry.timer = setTimeout(() => {
     entry.node.remove(); entries.delete(key); requestDraw(true);
-  }, reducedMotion.matches ? 0 : 650);
+  }, reducedMotion.matches ? 0 : entry.label ? 650 : 220);
 }
 function revive(entry) {
   clearTimeout(entry.timer); entry.retiring = false;
@@ -295,6 +307,7 @@ function reconcileLabels(labels) {
     revive(entry); entry.label = label;
     entry.node.style.fontSize = `${label.baseSize}px`;
     entry.node.dataset.mode = state.layerModes[label.kind];
+    entry.node.dataset.anchorId = label.anchor.id;
     entry.node.style.opacity = String(label.opacity);
     entry.node.setAttribute("aria-label", `${label.text} の問題に近づく`);
     positionLabel(entry);
@@ -316,8 +329,13 @@ function reconcileCards(wanted) {
     entry.layoutScale = state.camera.scale;
     entry.node.classList.toggle("is-selected", id === state.selected);
     entry.node.style.width = `${item.w}px`;
+    entry.node.style.height = `${item.h}px`;
     entry.node.style.fontSize = `${item.fontSize}px`;
     entry.node.style.setProperty("--card-lines", item.maxLines);
+    entry.node.style.setProperty("--card-padding", `${item.padding}px`);
+    entry.node.style.setProperty("--card-leading", item.leading);
+    entry.node.style.setProperty("--card-alpha", item.backgroundAlpha);
+    entry.node.dataset.focus = item.focus.toFixed(3);
     entry.node.dataset.mode = state.layerModes.question;
     entry.node.style.opacity = String(questionPresentation(state.camera.scale / state.fitScale, state.layerModes.question).opacity);
     positionCard(entry);
@@ -369,11 +387,14 @@ $("#question-close").addEventListener("click", () => { $("#question-dialog").clo
 $("#question-dialog").addEventListener("close", () => { if (!$("#question-dialog").open) restoreDetailScroll(); });
 function positionCard(entry) {
   const p = project(entry.point, state.camera, state.width, state.height);
-  entry.displayDx += (entry.dx - entry.displayDx) * .3;
-  entry.displayDy += (entry.dy - entry.displayDy) * .3;
+  const t = reducedMotion.matches ? 1 : .3;
+  entry.displayDx += (entry.dx - entry.displayDx) * t;
+  entry.displayDy += (entry.dy - entry.displayDy) * t;
   const growth = state.camera.scale / entry.layoutScale;
-  entry.node.style.transform = `translate(${p.x + entry.displayDx}px,${p.y + entry.displayDy}px) scale(${growth})`;
-  entry.node.style.zIndex = entry.point.id === state.selected ? "3" : "1";
+  const x = clamp(p.x + entry.displayDx, 10, state.width - entry.w * growth - 10);
+  const y = clamp(p.y + entry.displayDy, 10, state.height - entry.h * growth - 35);
+  entry.node.style.transform = `translate(${x}px,${y}px) scale(${growth})`;
+  entry.node.style.zIndex = String(Math.round(entry.focus * 100) + (entry.point.id === state.selected ? 200 : 1));
 }
 function positionLabel(entry) {
   const { label, node } = entry, p = project(label.anchor, state.camera, state.width, state.height);

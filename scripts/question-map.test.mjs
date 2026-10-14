@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
-  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, surroundingQuestions, placeQuestionCards } from "../lab/question-map/map-model.mjs";
+  stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
@@ -197,4 +197,29 @@ test("密集した問題は位置を譲り、操作領域を避けながら複�
   assert.deepEqual(moved.map(p => p.id), placed.map(p => p.id));
   assert.ok(moved.every(p => Math.abs(p.dx - previous.get(p.id).dx) < 2));
   assert.ok(placeQuestionCards([{id:"edge", x:2,y:100,w:224,h:150}], 278, 390, [{x:208,y:0,w:70,h:158}]).length);
+});
+
+test("中央は読める大きさを保ち、周辺の問題は小さな窓になる", () => {
+  const centerFocus=cardFocus(500,300,1000,600),edgeFocus=cardFocus(30,40,1000,600);
+  assert.equal(centerFocus,1);assert.ok(edgeFocus<.1);
+  for(const mobile of [false,true]){
+    const center=questionPresentation(9,"on",mobile,centerFocus),edge=questionPresentation(9,"on",mobile,edgeFocus);
+    assert.ok(center.fontSize>=15&&edge.fontSize>=11&&edge.fontSize<center.fontSize);
+    assert.ok(edge.width<center.width*.7&&edge.lines<center.lines&&edge.padding<center.padding);
+    assert.ok(edge.backgroundAlpha>.7&&center.backgroundAlpha<1);
+  }
+});
+
+test("一地域の高得点候補より先に、別の表示地域へ枠を配る", () => {
+  const dense=Array.from({length:80},(_,i)=>({id:"dense"+i,x:60+i%5,y:60+i%4,score:100-i*.1}));
+  const sparse=[{id:"right",x:600,y:80,score:1},{id:"bottom",x:600,y:450,score:1}];
+  const order=spatialOrder([...dense,...sparse],800,600);
+  assert.deepEqual(new Set(order.slice(0,3).map(p=>p.id)),new Set(["dense0","right","bottom"]));
+  const candidates=Array.from({length:48},(_,i)=>{
+    const x=60+(i%8)*125,y=90+Math.floor(i/8)*100,focus=cardFocus(x,y,1060,690),view=questionPresentation(9,"on",false,focus);
+    return {id:String(i),x,y,w:view.width,h:view.fontSize*view.leading*view.lines+view.padding*2+2,score:focus*3};
+  });
+  const placed=placeQuestionCards(spatialOrder(candidates,1060,690),1060,690,[],new Map(),44);
+  assert.ok(placed.length>=20,`Expected many readable windows, got ${placed.length}`);
+  assert.ok(new Set(placed.map(p=>Math.floor(p.x/265))).size>=4);
 });

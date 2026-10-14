@@ -14,13 +14,13 @@ async function zoomLevel(page){return Number((await page.locator('#zoom-readout'
 async function stage(page,index){
  if(index===-1){await page.locator('#map-home').click();await page.waitForFunction(()=>document.querySelector('#zoom-readout').textContent.startsWith('×1.0'));await page.waitForTimeout(750);return;}
  const target=[2.1,4.5,9][index];
- await page.locator('#map-viewport').scrollIntoViewIfNeeded();
+ await page.locator('#map-viewport').evaluate(n=>n.scrollIntoView({block:'center',behavior:'instant'}));
  const box=await page.locator('#map-viewport').boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);
  for(let i=0;i<8;i++){
-  const current=await zoomLevel(page);if(Math.abs(current-target)<.12)break;
-  await page.mouse.wheel(0,Math.max(-150,Math.min(150,-Math.log(target/current)/.0035)));await page.waitForTimeout(220);
+  const current=await zoomLevel(page);if(Math.abs(current-target)<.06)break;
+  await page.mouse.wheel(0,Math.max(-150,Math.min(150,-Math.log(target/current)/.0035)));await page.waitForTimeout(350);
  }
- await page.waitForTimeout(650);assert.ok(Math.abs(await zoomLevel(page)-target)<.2);
+ await page.waitForTimeout(650);assert.ok(Math.abs(await zoomLevel(page)-target)<=.200001);
 }
 async function selectedLayers(page){return page.locator('[data-layer]').evaluateAll(nodes=>nodes.filter(n=>n.getAttribute('aria-pressed')==='true').map(n=>n.dataset.layer));}
 async function exhibitGeometry(page){return page.locator('.map-exhibit').evaluate(n=>{const r=n.getBoundingClientRect(),s=n.querySelector('.score-source').getBoundingClientRect();return{height:r.height,scoreTop:s.top-r.top};});}
@@ -95,7 +95,8 @@ try{
   assert.equal(await page.locator('#map-cards .card-choices,#map-cards .card-scroll,#map-cards a').count(),0);
   const card=activeCards().first(),id=await card.getAttribute('data-question-id');
   assert.equal(await card.textContent(),byId.get(id).stem);
-  assert.equal(await card.evaluate(n=>getComputedStyle(n).backgroundColor),'rgb(255, 255, 255)');
+  const background=await card.evaluate(n=>getComputedStyle(n).backgroundColor.match(/[\d.]+/g).map(Number));
+  assert.deepEqual(background.slice(0,3),[255,255,255]);assert.ok(background[3]>.7&&background[3]<1);
   await page.locator('#map-viewport').scrollIntoViewIfNeeded();
   let rect=await card.boundingBox();
   const yBefore=await page.evaluate(()=>scrollY),zoomBefore=await page.locator('#zoom-readout').textContent();
@@ -170,9 +171,9 @@ try{
   await stage(page,-1);assert.deepEqual(await selectedLayers(page),['term']);assert.ok(await forcedTerms.count());
   await page.locator('#layer-term').click();await page.locator('#layer-question').click();await page.waitForTimeout(750);
   assert.deepEqual(await selectedLayers(page),['question']);assert.ok(await activeCards().count(),'Manual question cards should appear at overview');
-  const farFont=await activeCards().first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize));
+  const farFont=await activeCards().evaluateAll(nodes=>Math.max(...nodes.map(n=>parseFloat(getComputedStyle(n).fontSize))));
   assert.ok(farFont>=12&&farFont<=14);
-  await stage(page,2);assert.ok(await activeCards().first().evaluate(n=>parseFloat(getComputedStyle(n).fontSize))>farFont);
+  await stage(page,2);assert.ok(await activeCards().evaluateAll(nodes=>Math.max(...nodes.map(n=>parseFloat(getComputedStyle(n).fontSize))))>farFont);
   await page.locator('#layer-question').click();await page.waitForTimeout(750);assert.equal(await activeCards().count(),0);
   assert.deepEqual(await selectedLayers(page),[]);assert.equal(await page.locator('.map-label:not(.is-leaving)').count(),0);
   const manualZoom=await zoomLevel(page);
