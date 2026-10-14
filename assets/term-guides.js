@@ -33,6 +33,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "OS": {
     "url": "/terms/os/"
   },
+  "RGB": {
+    "url": "/terms/rgb/"
+  },
   "SNS": {
     "url": "/terms/sns/"
   },
