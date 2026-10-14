@@ -1,5 +1,7 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, overlaps, historyRecords, rateColor, heatField } from "./map-model.mjs";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, overlaps, historyRecords, rateColor, heatField, coastContours, labelPresentation, surroundingQuestions } from "./map-model.mjs?v=2";
+
+import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
 const $ = selector => document.querySelector(selector);
 const viewport = $("#map-viewport"), canvas = $("#map-canvas"), context = canvas.getContext("2d");
@@ -7,8 +9,8 @@ const labelLayer = $("#map-labels"), cardLayer = $("#map-cards"), status = $("#m
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const dataRoot = new URL("../../info1-quiz-app/data/questions/", location.href);
 const state = { model: null, records: new Map(), width: 0, height: 0, fitScale: 1,
-  camera: null, target: null, stage: 0, selected: null, heat: null, heatEnabled: true,
-  labels: new Map(), labelNodes: new Map(), cardNodes: new Map(), frame: 0,
+  camera: null, target: null, stage: -1, selected: null, heat: null, terrain: null, scoreSource: "personal", personalRecords: new Map(), globalRecords: null, globalRequest: null, globalError: "", personalUnavailable: false,
+  labels: new Map(), labelMemory: new Map(), labelNodes: new Map(), cardNodes: new Map(), frame: 0,
   lastLayout: 0, summaryTimer: 0, pointers: new Map(), gesture: null, inertia: null };
 
 function element(tag, className, text) {
@@ -37,6 +39,7 @@ async function load() {
       throw new Error("問題の本文が地図生成時から更新されています。地図データの更新後に再読み込みしてください。");
     }
     state.model = model;
+    buildTerrain();
     resize(true);
     updateHistory();
     status.hidden = true;
@@ -57,7 +60,7 @@ function resize(reset = false) {
   canvas.width = Math.round(state.width * dpr); canvas.height = Math.round(state.height * dpr);
   context.setTransform(dpr, 0, 0, dpr, 0, 0);
   if (!state.model || !state.width || !state.height) return;
-  const fit = fitCamera(state.model.bounds, state.width, state.height);
+  const fit = fitCamera(state.terrain.bounds, state.width, state.height);
   const oldFit = state.fitScale; state.fitScale = fit.scale;
   if (reset || !state.camera) state.camera = { ...fit };
   else if (oldWidth !== state.width) state.camera.scale *= state.fitScale / oldFit;
@@ -68,7 +71,7 @@ new ResizeObserver(() => resize()).observe(viewport);
 
 function constrain(camera) {
   const bounds = state.model.bounds;
-  camera.scale = clamp(camera.scale, state.fitScale * .75, state.fitScale * 96);
+  camera.scale = clamp(camera.scale, state.fitScale, state.fitScale * 96);
   camera.x = clamp(camera.x, bounds.minX - state.width / camera.scale * .3, bounds.maxX + state.width / camera.scale * .3);
   camera.y = clamp(camera.y, bounds.minY - state.height / camera.scale * .3, bounds.maxY + state.height / camera.scale * .3);
   return camera;
@@ -102,27 +105,23 @@ function draw(now) {
   const stage = stageAt(zoom, state.stage);
   const changed = stage !== state.stage; state.stage = stage;
   context.clearRect(0, 0, width, height);
-  drawGrid();
-  if (state.heatEnabled && state.heat) {
-    const heat = state.heat, top = project({ x: heat.bounds.minX, y: heat.bounds.minY }, camera, width, height);
-    context.drawImage(heat.canvas, top.x, top.y,
-      (heat.bounds.maxX - heat.bounds.minX) * camera.scale, (heat.bounds.maxY - heat.bounds.minY) * camera.scale);
-  }
+  drawTerrain();
   const visible = model.index.query(viewBounds(camera, width, height));
   const radius = clamp(1.6 + Math.log2(Math.max(1, zoom)) * .3, 1.6, 4.2);
   for (const point of visible) {
     const p = project(point, camera, width, height), record = state.records.get(point.id);
     context.beginPath(); context.arc(p.x, p.y, radius, 0, Math.PI * 2);
-    context.fillStyle = `rgba(${rateColor(state.heatEnabled ? record?.rate : null).join(",")},${record && state.heatEnabled ? .95 : .65})`; context.fill();
+    context.fillStyle = `rgba(${rateColor(record?.rate).join(",")},${record ? .95 : .6})`; context.fill();
     if (point.id === state.selected) {
       context.beginPath(); context.arc(p.x, p.y, radius + 5, 0, Math.PI * 2);
       context.strokeStyle = "#267765"; context.lineWidth = 2; context.stroke();
     }
   }
+  viewport.classList.toggle("is-overview", stage < 0);
   updateNodePositions();
   if (changed || !state.lastLayout || now - state.lastLayout > 100) {
     layoutContent(visible); state.lastLayout = now;
-    $("#zoom-readout").textContent = `×${zoom.toFixed(1)} · ${STAGES[stage]}`;
+    $("#zoom-readout").textContent = `×${zoom.toFixed(1)} · ${stage < 0 ? "地図" : STAGES[stage]}`;
     for (const button of document.querySelectorAll("[data-stage]")) {
       if (Number(button.dataset.stage) === stage) button.setAttribute("aria-current", "step");
       else button.removeAttribute("aria-current");
@@ -135,18 +134,33 @@ function draw(now) {
   if (moving || state.inertia) requestDraw();
 }
 
-function drawGrid() {
-  const { camera, width, height } = state;
-  const size = 2 ** Math.ceil(Math.log2(65 / camera.scale));
-  const bounds = viewBounds(camera, width, height);
-  context.beginPath();
-  for (let x = Math.ceil(bounds.minX / size) * size; x <= bounds.maxX; x += size) {
-    const p = project({ x, y: camera.y }, camera, width, height); context.moveTo(p.x, 0); context.lineTo(p.x, height);
+function buildTerrain() {
+  const field = heatField(state.model, new Map(), 320), path = new Path2D();
+  const contours = coastContours(field);
+  for (const contour of contours) {
+    const points = contour.slice(0, -1), first = points[0], last = points.at(-1);
+    path.moveTo((first.x + last.x) / 2, (first.y + last.y) / 2);
+    for (let i = 0; i < points.length; i++) {
+      const current = points[i], next = points[(i + 1) % points.length];
+      path.quadraticCurveTo(current.x, current.y, (current.x + next.x) / 2, (current.y + next.y) / 2);
+    }
+    path.closePath();
   }
-  for (let y = Math.ceil(bounds.minY / size) * size; y <= bounds.maxY; y += size) {
-    const p = project({ x: camera.x, y }, camera, width, height); context.moveTo(0, p.y); context.lineTo(width, p.y);
+  state.terrain = { bounds: field.bounds, path };
+}
+function drawTerrain() {
+  const { camera, width, height, terrain, heat } = state;
+  context.save();
+  context.translate(width / 2 - camera.x * camera.scale, height / 2 - camera.y * camera.scale);
+  context.scale(camera.scale, camera.scale);
+  context.fillStyle = "#e5e8dd"; context.fill(terrain.path, "evenodd");
+  if (heat) {
+    context.save(); context.clip(terrain.path, "evenodd");
+    context.drawImage(heat.canvas, heat.bounds.minX, heat.bounds.minY, heat.bounds.maxX - heat.bounds.minX, heat.bounds.maxY - heat.bounds.minY);
+    context.restore();
   }
-  context.strokeStyle = "rgba(16,47,53,.045)"; context.lineWidth = 1; context.stroke();
+  context.strokeStyle = "#758e86"; context.lineWidth = 1.2 / camera.scale; context.stroke(terrain.path);
+  context.restore();
 }
 
 function reservedBoxes() {
@@ -157,7 +171,7 @@ function cardBox(point, index = 0) {
   const { width, height, stage, camera } = state;
   const p = project(point, camera, width, height);
   const w = Math.min(310, width - 30);
-  const h = Math.min(stage === 2 ? 170 : stage === 3 ? 340 : 440, height - 105);
+  const h = Math.min(stage === 2 ? 240 : stage === 3 ? 350 : 440, height - 105);
   return { x: clamp(p.x - w / 2, 12, width - w - 12), y: clamp(p.y + 12, 70, height - h - 30), w, h, index };
 }
 function layoutContent(visible) {
@@ -175,7 +189,16 @@ function layoutContent(visible) {
     }
   }
   reconcileCards(wantedCards);
-  const candidates = labelCandidates(visible, model, camera, width, height, Math.min(stage, 1), state.labels);
+  const candidates = stage < 0 ? [] : labelCandidates(visible, model, camera, width, height, Math.min(stage, 1), state.labels)
+    .map(label => {
+      const key = `${label.key}@${label.anchor.id}`;
+      let memory = state.labelMemory.get(key);
+      if (!memory) {
+        memory = { baseSize: label.size, birthScale: camera.scale }; state.labelMemory.set(key, memory);
+        if (state.labelMemory.size > 1200) state.labelMemory.delete(state.labelMemory.keys().next().value);
+      }
+      return { ...label, ...memory, ...labelPresentation(memory.baseSize, memory.birthScale, camera.scale, camera.scale / state.fitScale, label.kind) };
+    }).filter(label => label.opacity > .04);
   const labels = placeLabels(candidates, width, height, (text, size, kind) => {
     context.font = `${kind === "tag" ? 700 : 500} ${size}px "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif`;
     return context.measureText(text).width;
@@ -187,6 +210,7 @@ function layoutContent(visible) {
 function retire(entry, entries, key) {
   if (entry.retiring) return;
   entry.retiring = true; entry.node.classList.add("is-leaving");
+  entry.node.style.opacity = "0";
   entry.node.inert = true;
   entry.timer = setTimeout(() => {
     entry.node.remove(); entries.delete(key); requestDraw(true);
@@ -195,6 +219,7 @@ function retire(entry, entries, key) {
 function revive(entry) {
   clearTimeout(entry.timer); entry.retiring = false;
   entry.node.inert = false; entry.node.classList.remove("is-leaving");
+  entry.node.style.opacity = "";
 }
 function reconcileLabels(labels) {
   const wanted = new Set(labels.map(label => label.key));
@@ -210,12 +235,12 @@ function reconcileLabels(labels) {
       node.addEventListener("click", event => {
         if (event.detail === 0) focusPoint(entry.label.anchor, Math.max(3, state.camera.scale / state.fitScale * 1.8));
       });
-      requestAnimationFrame(() => { node.style.opacity = ""; });
     }
     revive(entry); entry.label = label;
-    entry.node.style.fontSize = `${label.size}px`;
+    entry.node.style.fontSize = `${label.baseSize}px`;
+    entry.node.style.opacity = String(label.opacity);
     entry.node.setAttribute("aria-label", `${label.text} の問題に近づく`);
-    entry.node.style.transform = `translate(${label.box.x}px,${label.box.y}px)`;
+    positionLabel(entry);
   }
 }
 function reconcileCards(wanted) {
@@ -239,18 +264,17 @@ function buildCard(entry) {
   node.className = `map-card${selected ? " is-selected" : ""}`;
   node.setAttribute("aria-label", `問題：${question.tags.join("・")}`);
   const header = element("div", "card-header");
-  header.append(element("span", "", record ? `${record.attempts}回回答 · 正答率${Math.round(record.rate * 100)}%` : "未挑戦"));
-  const zoom = element("button", "", state.stage < 4 ? "もっと近くへ ↗" : selected ? "選択を解除" : "この問題へ");
-  zoom.type = "button";
-  zoom.addEventListener("click", () => {
-    if (state.stage === 4 && selected) { state.selected = null; requestDraw(true); }
-    else focusPoint(point, state.stage < 4 ? STAGE_ZOOMS[state.stage + 1] : state.camera.scale / state.fitScale);
-  });
-  header.append(zoom);
+  header.append(element("span", "", record ? `${record.attempts}回回答 · 正答率${Math.round(record.rate * 100)}%` : state.scoreSource === "global" && !state.globalRecords ? "全体成績は未取得" : "未挑戦"));
+  const practice = element("a", "card-practice", "この周りの問題を解く ↗");
+  const peers = surroundingQuestions(state.model, point, clamp(120 / state.camera.scale, 4, 10), 10);
+  const ids = [point.id, ...peers.filter(p => p.id !== point.id).map(p => p.id)].slice(0, 10);
+  const url = new URL("../../info1-quiz-app/app/", location.href);
+  url.searchParams.set("challenge", ids.join(",")); practice.href = url.href;
+  header.append(practice);
   const scroll = element("div", "card-scroll");
   scroll.tabIndex = 0; scroll.setAttribute("aria-label", "問題の内容（上下にスクロールできます）");
   scroll.append(element("p", "card-stem", question.stem));
-  if (state.stage >= 3) {
+  {
     const choices = element("ol", "card-choices");
     for (const choice of question.choices) {
       const correct = choice.choice_id === question.answer_choice_id || choice.is_correct;
@@ -274,9 +298,6 @@ function buildCard(entry) {
     choose.type = "button"; choose.addEventListener("click", () => showNearby(neighbors)); scroll.append(choose);
   }
   scroll.append(element("p", "card-source", `${question.source_display || ""}${question["改題"] ? "（改題）" : ""}`));
-  const link = element("a", "card-practice", "学習アプリでこの問題を解く ↗");
-  const url = new URL("../../info1-quiz-app/app/", location.href);
-  url.searchParams.set("challenge", point.id); link.href = url.href; scroll.append(link);
   node.replaceChildren(header, scroll);
 }
 function positionCard(entry) {
@@ -285,12 +306,17 @@ function positionCard(entry) {
   entry.node.style.width = `${box.w}px`;
   entry.node.querySelector(".card-scroll").style.maxHeight = `${Math.max(60, box.h - entry.node.querySelector(".card-header").offsetHeight - 42)}px`;
 }
+function positionLabel(entry) {
+  const { label, node } = entry, p = project(label.anchor, state.camera, state.width, state.height);
+  const view = labelPresentation(label.baseSize, label.birthScale, state.camera.scale, state.camera.scale / state.fitScale, label.kind);
+  const w = (label.box.w - 6) * view.growth / label.growth + 6, h = view.size * 1.4 + 4;
+  node.style.transform = `translate(${p.x - w / 2 + 3}px,${p.y - h / 2 + 2}px) scale(${view.growth})`;
+  node.style.webkitTextStrokeWidth = `${1.4 / view.growth}px`;
+  if (!entry.retiring) node.style.opacity = String(view.opacity);
+  node.inert = entry.retiring || view.opacity < .06;
+}
 function updateNodePositions() {
-  for (const entry of state.labelNodes.values()) {
-    const p = project(entry.label.anchor, state.camera, state.width, state.height);
-    const box = entry.label.box;
-    entry.node.style.transform = `translate(${p.x - box.w / 2}px,${p.y - box.h / 2}px)`;
-  }
+  for (const entry of state.labelNodes.values()) positionLabel(entry);
   for (const entry of state.cardNodes.values()) positionCard(entry);
 }
 
@@ -301,7 +327,11 @@ function updateHistory() {
   try { legacy = JSON.parse(localStorage.getItem("info1QuizStats:v4") || "null"); } catch { unavailable = true; }
   const records = historyRecords(current, legacy);
   for (const id of records.keys()) if (!state.model.byId.has(id)) records.delete(id);
-  const signature = JSON.stringify([...records]);
+  state.personalRecords = records; state.personalUnavailable = unavailable; updateScore();
+}
+function updateScore() {
+  const records = state.scoreSource === "personal" ? state.personalRecords : state.globalRecords || new Map();
+  const signature = state.scoreSource + JSON.stringify([...records]);
   if (signature !== state.historySignature) {
     state.historySignature = signature; state.records = records;
     const field = heatField(state.model, records);
@@ -313,19 +343,49 @@ function updateHistory() {
   }
   const attempts = [...records.values()].reduce((s, r) => s + r.attempts, 0);
   const correct = [...records.values()].reduce((s, r) => s + r.correct, 0);
-  $("#history-summary").textContent = unavailable ? "学習履歴を読み込めませんでした。利用できる履歴がない場所は未挑戦として表示します。" :
-    attempts ? `このブラウザの履歴：${records.size.toLocaleString()}問に挑戦 · 延べ${attempts.toLocaleString()}回回答 · 正答率${Math.round(correct / attempts * 100)}%` :
-      "まだ解答履歴がありません。未挑戦の地形を表示中です。学習アプリで解くと、この地図にも色がつきます。";
+  const title = state.scoreSource === "personal" ? "個人成績（このブラウザ）" : "全体成績";
+  $("#history-summary").textContent = state.scoreSource === "global" && !state.globalRecords ? "全体成績はまだ取得できていません。" :
+    state.scoreSource === "personal" && state.personalUnavailable ? "このブラウザの学習履歴を読み込めませんでした。" :
+    attempts ? `${title}：${records.size.toLocaleString()}問に回答 · 延べ${attempts.toLocaleString()}回 · 正答率${Math.round(correct / attempts * 100)}%` :
+    `${title}：まだ解答履歴がありません。`;
+  for (const source of ["personal", "global"]) $("#score-" + source).setAttribute("aria-pressed", String(state.scoreSource === source));
+  $("#score-status").textContent = state.scoreSource === "global" ? state.globalError : "";
+  $("#score-retry").hidden = state.scoreSource !== "global" || !state.globalError;
 }
+async function loadGlobal() {
+  if (!state.model || state.globalRequest) return;
+  const controller = new AbortController(); state.globalRequest = controller; state.globalError = "";
+  const timer = setTimeout(() => controller.abort(), 25000);
+  $("#score-global").setAttribute("aria-busy", "true"); $("#score-retry").hidden = true;
+  $("#score-status").textContent = "全体成績を取得中…";
+  try {
+    const records = await loadQuestionStats(state.model.points.map(p => p.id), new URL("../../info1-quiz-app/app/startup.js", location.href), {
+      signal: controller.signal, onProgress: (done, total) => {
+        if (state.scoreSource === "global") $("#score-status").textContent = `全体成績を取得中… ${done}/${total}`;
+      },
+    });
+    state.globalRecords = records;
+  } catch (error) {
+    controller.abort();
+    state.globalError = error.name === "AbortError" ? "取得がタイムアウトしました。再取得できます。" : "全体成績を取得できませんでした。再取得できます。";
+  } finally {
+    clearTimeout(timer); state.globalRequest = null; $("#score-global").removeAttribute("aria-busy"); updateScore();
+  }
+}
+for (const source of ["personal", "global"]) $("#score-" + source).addEventListener("click", () => {
+  if (!state.model) return;
+  state.scoreSource = source; updateScore();
+  if (source === "global" && !state.globalRecords) loadGlobal();
+});
+$("#score-retry").addEventListener("click", loadGlobal);
 window.addEventListener("storage", event => { if (!event.key || ["info1LearningRecord:v1", "info1QuizStats:v4"].includes(event.key)) updateHistory(); });
 window.addEventListener("pageshow", updateHistory);
 window.addEventListener("focus", updateHistory);
-$("#heat-toggle").addEventListener("change", event => { state.heatEnabled = event.target.checked; requestDraw(); });
 
 function zoom(factor, anchor = { x: state.width / 2, y: state.height / 2 }) {
   if (!state.model) return;
   state.inertia = null;
-  setTarget(zoomAbout(state.target, factor, anchor, state.width, state.height, state.fitScale * .75, state.fitScale * 96));
+  setTarget(zoomAbout(state.target, factor, anchor, state.width, state.height, state.fitScale, state.fitScale * 96));
 }
 function focusPoint(point, zoomLevel = 7) {
   state.selected = point.id; state.inertia = null;
@@ -334,7 +394,7 @@ function focusPoint(point, zoomLevel = 7) {
 function home() {
   if (!state.model) return;
   state.selected = null; state.inertia = null;
-  setTarget(fitCamera(state.model.bounds, state.width, state.height));
+  setTarget(fitCamera(state.terrain.bounds, state.width, state.height));
 }
 $("#zoom-in").addEventListener("click", () => zoom(1.6));
 $("#zoom-out").addEventListener("click", () => zoom(1 / 1.6));
@@ -342,7 +402,7 @@ $("#map-home").addEventListener("click", home);
 for (const button of document.querySelectorAll("[data-stage]")) button.addEventListener("click", () => {
   if (!state.model) return;
   const stage = Number(button.dataset.stage);
-  if (stage === 0) { home(); return; }
+  if (stage === -1) { home(); return; }
   const point = state.model.byId.get(state.selected) || nearest({ x: state.width / 2, y: state.height / 2 }, Infinity);
   if (point) focusPoint(point, STAGE_ZOOMS[stage]);
 });
@@ -413,7 +473,7 @@ viewport.addEventListener("pointermove", event => {
   state.pointers.set(event.pointerId, localPoint(event));
   const snapshot = gestureSnapshot(), gesture = state.gesture;
   const factor = gesture.distance > 0 ? snapshot.distance / gesture.distance : 1;
-  const camera = zoomAbout(gesture.camera, factor, gesture.center, state.width, state.height, state.fitScale * .75, state.fitScale * 96);
+  const camera = zoomAbout(gesture.camera, factor, gesture.center, state.width, state.height, state.fitScale, state.fitScale * 96);
   camera.x -= (snapshot.center.x - gesture.center.x) / camera.scale;
   camera.y -= (snapshot.center.y - gesture.center.y) / camera.scale;
   const dt = Math.max(8, performance.now() - gesture.lastTime);
@@ -459,23 +519,4 @@ viewport.addEventListener("keydown", event => {
   event.preventDefault();
 });
 
-$("#map-search").addEventListener("submit", event => {
-  event.preventDefault(); if (!state.model) return;
-  const query = $("#search-query").value.trim().normalize("NFKC").toLocaleLowerCase("ja");
-  const results = $("#search-results"); results.replaceChildren();
-  if (!query) { results.hidden = true; return; }
-  const normalize = s => s.normalize("NFKC").toLocaleLowerCase("ja");
-  const matches = state.model.points.map(point => ({ point, score:
-    point.tags.some(tag => normalize(tag) === query) ? 4 :
-    point.tags.some(tag => normalize(tag).includes(query)) ? 3 :
-    point.terms.some(term => normalize(term).includes(query)) ? 2 : normalize(point.question.stem).includes(query) ? 1 : 0 }))
-    .filter(item => item.score).sort((a, b) => b.score - a.score);
-  results.hidden = false;
-  results.append(element("p", "", matches.length ? `${matches.length}問が見つかりました。${matches.length > 12 ? "先頭12問を表示します。" : ""}` : "見つかりませんでした。別の言葉で探してみましょう。"));
-  for (const { point } of matches.slice(0, 12)) {
-    const button = element("button", "", `${point.tags.slice(0, 2).join(" / ")} — ${point.question.stem.slice(0, 70)}${point.question.stem.length > 70 ? "…" : ""}`);
-    button.type = "button"; button.addEventListener("click", () => { results.hidden = true; focusPoint(point, 7); viewport.focus({ preventScroll: true }); }); results.append(button);
-  }
-});
-$("#search-query").addEventListener("input", event => { if (!event.target.value) $("#search-results").hidden = true; });
 load();

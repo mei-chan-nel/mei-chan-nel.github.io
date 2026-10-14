@@ -1,8 +1,8 @@
 // Only coordinates, term membership and references to the source questions live
 // in this model. Question content is never generated or copied into map data.
 export const STAGES = ["タグ", "単語", "問題文", "選択肢", "解説"];
-export const STAGE_ZOOMS = [1, 3, 7, 17, 36];
-const CUTS = [2.2, 5, 12, 26];
+export const STAGE_ZOOMS = [2.1, 4.5, 9, 20, 42];
+const CUTS = [1.5, 3.1, 6, 14, 30];
 export const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
 
 export async function verifySourceText(text, expectedHash) {
@@ -15,10 +15,10 @@ export async function verifySourceText(text, expectedHash) {
   return await digest(lf) === expectedHash || await digest(lf.replace(/\n/g, "\r\n")) === expectedHash;
 }
 
-export function stageAt(zoom, previous = 0) {
+export function stageAt(zoom, previous = -1) {
   let stage = previous;
-  while (stage < 4 && zoom >= CUTS[stage] * 1.08) stage++;
-  while (stage > 0 && zoom < CUTS[stage - 1] * .92) stage--;
+  while (stage < 4 && zoom >= CUTS[stage + 1] * 1.08) stage++;
+  while (stage >= 0 && zoom < CUTS[stage] * .92) stage--;
   return stage;
 }
 
@@ -97,7 +97,7 @@ export class SpatialIndex {
 
 export function fitCamera(bounds, width, height) {
   const dx = Math.max(1, bounds.maxX - bounds.minX), dy = Math.max(1, bounds.maxY - bounds.minY);
-  const scale = Math.min(Math.max(40, width - 110) / dx, Math.max(40, height - 120) / dy);
+  const scale = Math.min(Math.max(40, width - (width < 600 ? 48 : 100)) / dx, Math.max(40, height - 100) / dy);
   return { x: (bounds.minX + bounds.maxX) / 2, y: (bounds.minY + bounds.maxY) / 2, scale };
 }
 export const project = (p, camera, width, height) => ({
@@ -165,7 +165,7 @@ export function labelCandidates(visible, model, camera, width, height, stage, pr
 export function placeLabels(candidates, width, height, measure, reserved = [], limit = 36) {
   const placed = [], boxes = [...reserved];
   for (const label of candidates) {
-    const w = measure(label.text, label.size, label.kind) + 14, h = label.size * 1.4 + 6;
+    const w = measure(label.text, label.size, label.kind) + 6, h = label.size * 1.4 + 4;
     const box = { x: label.x - w / 2, y: label.y - h / 2, w, h };
     if (box.x < 8 || box.y < 8 || box.x + w > width - 8 || box.y + h > height - 28 || boxes.some(b => overlaps(box, b))) continue;
     placed.push({ ...label, box }); boxes.push(box);
@@ -227,5 +227,66 @@ export function heatField(model, records, resolution = 240) {
     pixels.set(rgb, i * 4);
     pixels[i * 4 + 3] = (1 - Math.exp(-density[i] * .35)) * (rate == null ? 50 : 122);
   }
-  return { width, height, bounds, pixels };
+  return { width, height, bounds, pixels, density };
+}
+
+export function labelPresentation(baseSize, birthScale, scale, zoom, kind) {
+  const growth = clamp(scale / birthScale, .6, 5);
+  const enter = clamp((zoom - (kind === "tag" ? 1.4 : 3)) / .65, 0, 1);
+  const pass = clamp((3.1 - growth) / 1.7, 0, 1);
+  const depth = clamp(((kind === "tag" ? 10 : 24) - zoom) / (kind === "tag" ? 4 : 9), 0, 1);
+  return { growth, size: baseSize * growth, opacity: enter * pass * depth };
+}
+
+export function surroundingQuestions(model, center, radius = 5, limit = 10) {
+  const points = model.index.query({ minX: center.x - radius, maxX: center.x + radius, minY: center.y - radius, maxY: center.y + radius });
+  return points.filter(p => Math.hypot(p.x - center.x, p.y - center.y) <= radius)
+    .sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y) || a.id.localeCompare(b.id))
+    .slice(0, limit);
+}
+
+// Marching squares on the coordinate density, independent of answer records.
+// The coast therefore stays in place when the score source changes.
+export function coastContours(field, level = .65) {
+  const { width, height, density, bounds } = field, segments = [], links = new Map();
+  const key = p => `${Math.round(p.x * 1e5)},${Math.round(p.y * 1e5)}`;
+  const add = (a, b) => {
+    const i = segments.length; segments.push([a, b]);
+    for (const p of [a, b]) { const k = key(p); if (!links.has(k)) links.set(k, []); links.get(k).push(i); }
+  };
+  for (let y = 0; y < height - 1; y++) for (let x = 0; x < width - 1; x++) {
+    const values = [density[y * width + x], density[y * width + x + 1], density[(y + 1) * width + x + 1], density[(y + 1) * width + x]];
+    const code = values.reduce((s, v, i) => s | (v >= level ? 1 << i : 0), 0);
+    if (code === 0 || code === 15) continue;
+    const corners = [{ x, y }, { x: x + 1, y }, { x: x + 1, y: y + 1 }, { x, y: y + 1 }];
+    const edge = i => {
+      const j = (i + 1) % 4, t = clamp((level - values[i]) / (values[j] - values[i]), 0, 1);
+      return { x: corners[i].x + (corners[j].x - corners[i].x) * t, y: corners[i].y + (corners[j].y - corners[i].y) * t };
+    };
+    const crossings = [];
+    for (let i = 0; i < 4; i++) if ((values[i] >= level) !== (values[(i + 1) % 4] >= level)) crossings.push(i);
+    if (crossings.length === 2) add(edge(crossings[0]), edge(crossings[1]));
+    else if (crossings.length === 4) {
+      const center = values.reduce((a, b) => a + b, 0) / 4;
+      const pairs = (code === 5) === (center >= level) ? [[0, 1], [2, 3]] : [[0, 3], [1, 2]];
+      for (const [a, b] of pairs) add(edge(a), edge(b));
+    }
+  }
+  const used = new Set(), contours = [];
+  for (let i = 0; i < segments.length; i++) {
+    if (used.has(i)) continue;
+    used.add(i); const path = [...segments[i]];
+    for (let n = 0; n < segments.length; n++) {
+      const end = path.at(-1), next = (links.get(key(end)) || []).find(j => !used.has(j));
+      if (next == null) break;
+      used.add(next); const segment = segments[next];
+      path.push(key(segment[0]) === key(end) ? segment[1] : segment[0]);
+      if (key(path[0]) === key(path.at(-1))) break;
+    }
+    if (path.length > 3 && key(path[0]) === key(path.at(-1))) contours.push(path.map(p => ({
+      x: bounds.minX + p.x / width * (bounds.maxX - bounds.minX),
+      y: bounds.minY + p.y / height * (bounds.maxY - bounds.minY),
+    })));
+  }
+  return contours;
 }

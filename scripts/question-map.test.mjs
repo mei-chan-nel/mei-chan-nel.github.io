@@ -2,7 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
-  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor } from "../lab/question-map/map-model.mjs";
+  stageAt, labelCandidates, placeLabels, overlaps, historyRecords, heatField, rateColor, coastContours, labelPresentation, surroundingQuestions } from "../lab/question-map/map-model.mjs";
+import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
 function fixture() {
@@ -56,12 +57,55 @@ test("拡大・縮小してもカーソル下の座標が動かず、上限下�
   }
 });
 test("情報量の境界付近で表示が交互に切り替わらない", () => {
-  let stage = 0;
-  for (const zoom of [2.21, 2.17, 2.25, 2.3]) { stage = stageAt(zoom, stage); assert.equal(stage, 0); }
-  assert.equal(stageAt(3, stage), 1);
-  for (const zoom of [2.21, 2.1, 2.25]) assert.equal(stageAt(zoom, 1), 1);
-  assert.equal(stageAt(1, 4), 0);
+  let stage = -1;
+  for (const zoom of [1.49, 1.55, 1.59]) { stage = stageAt(zoom, stage); assert.equal(stage, -1); }
+  assert.equal(stageAt(2.1, stage), 0);
+  for (const zoom of [1.5, 1.42, 1.6]) assert.equal(stageAt(zoom, 0), 0);
+  assert.equal(stageAt(1, 4), -1);
   assert.equal(stageAt(36, 0), 4);
+});
+
+test("海岸線は閉じた密度輪郭で、成績を切り替えても位置が変わらない", () => {
+  const model = fixture();
+  const neutral = heatField(model, new Map(), 240);
+  const answered = heatField(model, new Map([["a", {attempts:10,correct:2}]]), 240);
+  const coast = coastContours(neutral);
+  assert.ok(coast.length > 0);
+  assert.deepEqual(coast, coastContours(answered));
+  for (const contour of coast) assert.deepEqual(contour[0], contour.at(-1));
+});
+test("文字は拡大につれて大きく薄くなり、引くと戻る", () => {
+  const near = labelPresentation(18, 2, 4, 4, "tag"), nearer = labelPresentation(18, 2, 6, 6, "tag");
+  assert.ok(nearer.size > near.size && nearer.opacity < near.opacity);
+  assert.equal(labelPresentation(18, 2, 2, 1, "tag").opacity, 0);
+  assert.equal(labelPresentation(18, 2, 8, 8, "tag").opacity, 0);
+});
+test("周辺問題は距離順で、学習アプリの最大10問に収まる", () => {
+  const model = fixture();
+  const local = surroundingQuestions(model, model.byId.get("a"), 4, 10);
+  assert.deepEqual(local.map(p=>p.id), ["a","b"]);
+  assert.equal(surroundingQuestions(model, model.byId.get("a"), 100, 2).length, 2);
+});
+test("全体成績は取得した集計だけを正規化し、不正な応答を拒否する", async () => {
+  const source = await readFile(new URL("../../info1-quiz-app/app/startup.js", import.meta.url), "utf8");
+  assert.ok(parseStatsConfig(source).url.endsWith("get_question_stats"));
+  const records = normalizeStats({questions:{a:{attempts:20,correct:15},b:{attempts:0,correct:0},unknown:{attempts:99,correct:99}}},["a","b","missing"]);
+  assert.equal(records.get("a").rate,.75);assert.equal(records.size,1);
+  assert.throws(()=>normalizeStats({questions:[]},["a"]));
+  assert.throws(()=>normalizeStats({questions:{a:{attempts:2,correct:3}}},["a"]));
+});
+test("全体成績は200問ずつ読み取り専用で取得し、バッチ失敗を隠さない", async () => {
+  const ids=Array.from({length:451},(_,i)=>"q"+i),calls=[];
+  const source='const supabaseProbeUrl = "https://example.invalid/rest/v1/rpc/get_question_stats"; const supabasePublishableKey = "public-test";';
+  const fetchImpl=async (url,init)=>{
+    if(url==="config")return new Response(source);
+    calls.push(init);const batch=JSON.parse(init.body).p_ids;
+    return new Response(JSON.stringify({questions:Object.fromEntries(batch.map(id=>[id,{attempts:10,correct:8}]))}));
+  };
+  const records=await loadQuestionStats(ids,"config",{fetchImpl});assert.equal(records.size,451);
+  assert.deepEqual(calls.map(c=>JSON.parse(c.body).p_ids.length),[200,200,51]);
+  for(const c of calls){assert.equal(c.method,"POST");assert.deepEqual(Object.keys(JSON.parse(c.body)),["p_ids"]);}
+  await assert.rejects(loadQuestionStats(ids,"config",{fetchImpl:async url=>url==="config"?new Response(source):new Response("offline",{status:503})}));
 });
 test("移動先の問題から言葉を選び、小さな移動では地理的アンカーを維持する", () => {
   const model = fixture(), camera = { x: -20, y: 0, scale: 10 };
