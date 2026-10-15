@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<script src="../../../assets/site-analytics.js?v=2026101201" defer></script>
+<title>クロス集計とデータの関係｜Interactive Lab</title>
+<meta name="description" content="割合の分母が変わると、結論も変わる。" />
+<meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
+<meta property="og:title" content="クロス集計とデータの関係｜Interactive Lab" /><meta property="og:description" content="割合の分母が変わると、結論も変わる。" />
+<meta property="og:url" content="https://mei-chan-nel.com/lab/statistics/crosstab/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+<link rel="canonical" href="https://mei-chan-nel.com/lab/statistics/crosstab/" /><meta name="theme-color" content="#102f35" />
+<link rel="icon" href="../../icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../../../assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="../../lab.css?v=3" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+<script src="../../../assets/manual-ads.js?v=2026080901" defer></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"クロス集計とデータの関係","item":"https://mei-chan-nel.com/lab/statistics/crosstab/"}]}</script>
+<link rel="stylesheet" href="./../statistics.css" />
+<script type="module" src="./../app.mjs"></script>
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+</head><body data-stat-lab="crosstab">
+<a class="skip-link" href="#main-content">本文へ移動</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../../">トップページ</a>
+<a href="../../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../../terms/">用語一覧</a>
+<a href="../../../archive/">解説動画</a>
+<a href="../../../program-trace/">プログラムトレース</a>
+<a href="../../../LectureNote/">講義ノート</a>
+<a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
+<main id="main-content" class="lab-shell lab-content-page stat-page">
+<nav class="breadcrumb" aria-label="パンくず"><a href="../../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../../">Interactive Lab</a><span aria-hidden="true">/</span><a href="../">統計・データ分析</a><span aria-hidden="true">/</span><span>クロス集計とデータの関係</span></nav>
+<header class="stat-hero"><div><p class="eyebrow">INTERACTIVE LAB / STATISTICS 05</p><h1>クロス集計とデータの関係</h1><p>割合の分母が変わると、結論も変わる。</p></div><span class="stat-badge">動かして、理由を考える。</span></header><nav class="stat-nav" aria-label="統計ラボ"><a href="../correlation/" >01 散布図と相関・回帰</a><a href="../histogram/" >02 データの分布とヒストグラム</a><a href="../summary/" >03 代表値とばらつき</a><a href="../sampling/" >04 標本調査と推定</a><a href="../crosstab/" aria-current="page">05 クロス集計とデータの関係</a><a href="../time-series/" >06 時系列データの分析</a><a href="../probability/" >07 確率と確率分布</a><a href="../hypothesis-test/" >08 統計的な判断と仮説検定</a><a href="../lorenz/" >09 格差とローレンツ曲線</a><a href="../projects/">横断分析課題 →</a></nav><div class="stat-toolbar"><div class="actions"><button id="reset" type="button">初期化</button><button id="capture" type="button">比較に残す</button><button id="clear-compare" type="button">比較を消す</button></div><div class="actions"><button id="record" type="button">分析課題に記録</button><button id="export" type="button">JSON保存</button><label class="button" for="import">JSON読込</label><input id="import" type="file" accept=".json,application/json" hidden></div></div><p id="stat-status" class="stat-status" role="status" aria-live="polite"></p><p id="lab-lead" class="hint"></p><div id="experiment" aria-label="統計実験"></div><section id="comparison" class="stat-compare" hidden></section><details class="stat-missions" open><summary>発見のミッション <small>自由に選んで、予想を試そう</small></summary><div id="mission-list" class="mission-grid"></div></details><details class="stat-explanation"><summary>しくみ・計算・読み取り方を詳しく</summary><div id="explanation-body"></div><p class="hint">参考教材：<a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">放送大学「身近な統計」</a>。文章・図・データは独自に作成しています。</p></details><div class="stat-related"><a class="button" href="../">← 統計ラボの一覧</a><a class="button" href="../projects/">横断分析課題 →</a><a class="button" href="../../../LectureNote/statistics.html">講義ノートで学ぶ ↗</a></div>
+</main>
+<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>
+<a href="../../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../../terms/">用語一覧</a>
+<a href="../../../archive/">解説動画</a>
+<a href="../../../program-trace/">プログラムトレース</a>
+<a href="../../../LectureNote/">講義ノート</a>
+<a href="../../../lab/" aria-current="page">ラボ</a>
+<a href="../../../study-guide.html">使い方</a>
+<a href="../../../books/">書籍案内</a>
+<a href="../../../about.html">このサイトについて</a>
+<a href="../../../privacy.html">プライバシーポリシー</a>
+<a href="../../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<script type="module" src="../../navigation.mjs?v=1"></script>
+</body></html>

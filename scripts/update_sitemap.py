@@ -53,6 +53,7 @@ def read_portal_urls() -> list[str]:
         "lab/logic-circuit/index.html",
         "lab/flowchart/index.html", "lab/packet-routing/index.html", "lab/relational-database/index.html",
     ]
+    paths.extend(path.relative_to(ROOT).as_posix() for path in sorted((ROOT / "lab" / "statistics").glob("**/index.html")))
     report_path = ROOT / "docs" / "video-library-build.json"
     if not report_path.is_file():
         raise ValueError(f"Video-library build report not found: {report_path}")

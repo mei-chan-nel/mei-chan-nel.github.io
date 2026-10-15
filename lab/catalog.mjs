@@ -41,6 +41,7 @@ export const groups = [
 // Add completed exhibits here; category headings are not content cards.
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
+  {id:"statistics",group:"data-database",generated:false,name:"統計・データ分析",description:"点を動かす、標本を抽出する、偶然を実験する。9つのラボと横断分析課題で、データから判断する力を育てよう。"},
   {
     id: "thinking-tools",
     group: "society-security",
