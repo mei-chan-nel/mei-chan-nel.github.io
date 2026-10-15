@@ -2,20 +2,16 @@ import { esc, table } from "./shared/ui.mjs";
 import { parseDelimited, serializeCSV } from "./shared/csv.mjs";
 import { currentData, dataKinds, applyData } from "./shared/data-model.mjs";
 import { experiences } from "./experience.mjs";
-export function openDataEditor({
-  id,
-  state,
-  apply,
-  allowGroup = false,
-  dataOverride = null,
-}) {
+export function mountDataEditor(
+  container,
+  { id, state, apply, allowGroup = false, dataOverride = null },
+) {
   const data = dataOverride || currentData(id, state),
     kind = dataKinds[id];
-  if (kind === "model") return;
-  const dialog = document.createElement("dialog");
-  dialog.className = "data-dialog";
-  dialog.innerHTML = `<form method="dialog" class="dialog-heading"><h2>使うデータを変更</h2><button aria-label="閉じる" value="cancel">閉じる</button></form><p class="dialog-purpose">${esc(experiences[id].input)} → ${esc(experiences[id].result)}</p><div class="data-editor-grid"><section><div class="actions"><button type="button" id="csv-file-button" class="primary">CSV・TSVファイルを選ぶ</button><input type="file" id="csv-file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" hidden><button type="button" id="csv-download">現在のデータをCSV保存</button></div><label class="control" for="csv-text"><span>または、表計算ソフトのセルをここへ貼り付ける</span><textarea id="csv-text" rows="8" spellcheck="false">${esc(serializeCSV(data.headers, data.rows))}</textarea></label><label class="check-line"><input id="csv-header" type="checkbox" checked> 1行目は項目名</label><div id="csv-preview" class="csv-preview"></div></section><aside><label class="control" for="csv-name"><span>データの名前</span><input id="csv-name" type="text" maxlength="120" value="${esc(data.name)}"></label><div id="csv-columns"></div><p class="data-format">${kind === "series" ? "月別の値を48か月分。最初の36か月で予測し、最後の12か月を検証に使います。" : kind === "counts" ? "「集団,方式,成功数,不成功数」の4列。2集団×2方式を1行ずつ、合計4行。" : kind === "ab" ? "「群,対象数,成功数」の3列・2行。対象数は各10〜1,000人。" : kind === "population" ? "読み込んだ全行を、この実験の母集団として扱います。データの外の集団を推定するものではありません。2〜300行。" : kind === "incomes" ? "2〜300人分。所得は0以上。読込後に総額を保って再分配できます。" : "2〜300行。空欄・文字列・読み込めない行は省略せず、エラーとしてお知らせします。"}</p><p class="muted">データはブラウザ内で処理します。</p><p id="csv-status" role="status"></p><button id="csv-apply" class="primary" type="button">このデータで分析する</button></aside></div>`;
-  document.body.append(dialog);
+  const dialog = document.createElement("section");
+  dialog.className = "data-editor";
+  dialog.innerHTML = `<h3>CSVの内容と使う列を確認</h3><p class="dialog-purpose">${esc(experiences[id].input)} → ${esc(experiences[id].result)}</p><div class="data-editor-grid"><section><div class="actions"><button type="button" id="csv-file-button" class="primary">CSV・TSVファイルを選ぶ</button><input type="file" id="csv-file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" hidden><button type="button" id="csv-download">現在のデータをCSV保存</button></div><label class="control" for="csv-text"><span>または、表計算ソフトのセルをここへ貼り付ける</span><textarea id="csv-text" rows="8" spellcheck="false">${esc(serializeCSV(data.headers, data.rows))}</textarea></label><label class="check-line"><input id="csv-header" type="checkbox" checked> 1行目は項目名</label><div id="csv-preview" class="csv-preview"></div></section><aside><label class="control" for="csv-name"><span>データの名前</span><input id="csv-name" type="text" maxlength="120" value="${esc(data.name)}"></label><div id="csv-columns"></div><p class="data-format">${kind === "probability" ? (state.mode === "coin" ? "1列に表=1・裏=0を試行順で指定。理論の確率pと読み込んだ結果を比較します。" : state.mode === "binomial" ? `1列に1セットの成功回数（0〜${state.n}の整数）。理論の二項分布と比較します。` : "1列に測定値。正規分布モデルと、実際に区間へ入った割合を比較します。正規分布への適合を保証するものではありません。") : kind === "series" ? "月別の値を48か月分。最初の36か月で予測し、最後の12か月を検証に使います。" : kind === "counts" ? "「集団,方式,成功数,不成功数」の4列。2集団×2方式を1行ずつ、合計4行。" : kind === "ab" ? "「群,対象数,成功数」の3列・2行。対象数は各10〜1,000人。" : kind === "population" ? "読み込んだ全行を、この実験の母集団として扱います。データの外の集団を推定するものではありません。2〜300行。" : kind === "incomes" ? "2〜300人分。所得は0以上。読込後に総額を保って再分配できます。" : "2〜300行。空欄・文字列・読み込めない行は省略せず、エラーとしてお知らせします。"}</p><p class="muted">データはブラウザ内で処理します。</p><p id="csv-status" role="status"></p><button id="csv-apply" class="primary" type="button">このデータで分析する</button></aside></div>`;
+  container.replaceChildren(dialog);
   let headers = [],
     rows = [],
     filename = "",
@@ -34,8 +30,12 @@ export function openDataEditor({
         throw Error(
           "列数がそろっていません。空欄や余分な区切りを確認してください。",
         );
-      if (!rows.length || rows.length > 300)
-        throw Error("データは1〜300行で指定してください。");
+      if (!rows.length || rows.length > (id === "probability" ? 10000 : 300))
+        throw Error(
+          id === "probability"
+            ? "データは1〜10,000行で指定してください。"
+            : "データは1〜300行で指定してください。",
+        );
       if (reset || !Object.keys(selection).length) {
         const numeric = headers
           .map((_, i) =>
@@ -45,7 +45,12 @@ export function openDataEditor({
           )
           .filter((i) => i >= 0);
         selection = {
-          x: (kind==='series'?numeric.find(i=>!/月|date|month/i.test(headers[i])):numeric[0]) ?? numeric[0] ?? 0,
+          x:
+            (kind === "series"
+              ? numeric.find((i) => !/月|date|month/i.test(headers[i]))
+              : numeric[0]) ??
+            numeric[0] ??
+            0,
           y: numeric[1] ?? Math.min(1, length - 1),
           group:
             allowGroup || kind === "population" || kind === "groups"
@@ -53,7 +58,9 @@ export function openDataEditor({
               : -1,
           date:
             kind === "series"
-              ? (headers.findIndex((_, i) => !numeric.includes(i))>=0?headers.findIndex((_, i) => !numeric.includes(i)):headers.findIndex(h=>/月|date|month/i.test(h)))
+              ? headers.findIndex((_, i) => !numeric.includes(i)) >= 0
+                ? headers.findIndex((_, i) => !numeric.includes(i))
+                : headers.findIndex((h) => /月|date|month/i.test(h))
               : -1,
         };
       }
@@ -65,9 +72,14 @@ export function openDataEditor({
           ? opt("横軸 x に使う列", "x") +
             opt("縦軸 y に使う列", "y") +
             (allowGroup ? opt("集団を分ける列（任意）", "group", true) : "")
-          : ["values", "incomes", "groups", "population", "series"].includes(
-                kind,
-              )
+          : [
+                "values",
+                "incomes",
+                "groups",
+                "population",
+                "series",
+                "probability",
+              ].includes(kind)
             ? opt(
                 kind === "series" ? "月ごとの値に使う列" : "分析する数値の列",
                 "x",
@@ -123,6 +135,7 @@ export function openDataEditor({
       dialog.querySelector("#csv-text").value = text;
       inferHeader();
       parse(true);
+      dialog.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
       dialog.querySelector("#csv-status").textContent = error.message;
     }
@@ -139,23 +152,13 @@ export function openDataEditor({
         ...selection,
       });
       apply(next);
-      dialog.close();
+      container.hidden = true;
     } catch (e) {
       dialog.querySelector("#csv-status").textContent = e.message;
     }
   };
-  const previous = document.activeElement;
-  dialog.addEventListener(
-    "close",
-    () => {
-      dialog.remove();
-      previous?.focus?.({ preventScroll: true });
-    },
-    { once: true },
-  );
   parse(true);
-  dialog.showModal();
-  dialog.querySelector("#csv-file-button").focus();
+  return dialog;
 }
 export function downloadCSV(name, headers, rows) {
   const url = URL.createObjectURL(

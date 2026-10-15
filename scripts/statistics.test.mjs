@@ -1,6 +1,7 @@
 // Keep the statistics suites in the repository's standard scripts/*.test.mjs checks.
 import "../lab/statistics/shared/test.mjs";
 import "../lab/statistics/shared/data-model.test.mjs";
+import "../lab/statistics/shared/samples.test.mjs";
 import "../lab/statistics/correlation/test.mjs";
 import "../lab/statistics/histogram/test.mjs";
 import "../lab/statistics/summary/test.mjs";
@@ -15,25 +16,31 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { labs } from "../lab/statistics/catalog.mjs";
 import { renderPage } from "../lab/tools/shell.mjs";
-test("all nine independent labs have real modules, three inquiry missions and valid nested shell assets", async () => {
+test("all nine independent labs have real modules, data views and valid nested shell assets", async () => {
   for (const [id] of labs) {
     const config = (await import(`../lab/statistics/${id}/lab.mjs`)).default;
     assert.equal(config.id, id);
     assert.equal(typeof config.render, "function");
-    assert.equal(config.missions.length, 3);
     assert.ok(config.explanation.length > 500);
     const html = await readFile(
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs?v=20261015-ui3"'));
+    assert.ok(html.includes('src="./../app.mjs?v=20261016-data"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
-    assert.ok(html.includes('href="../projects/?start=records"'));
-    assert.ok(html.includes('id="open-data"'));
+    assert.ok(html.includes('id="experiment-insight"'));
     assert.ok(html.includes('id="analysis-flow"'));
     assert.ok(html.includes('id="view-tabs"'));
-    assert.ok(html.includes('id="missions"'));
+    for (const removed of [
+      "missions",
+      "capture",
+      "show-comparison",
+      "show-tools",
+      "open-data",
+      "data-name",
+    ])
+      assert.ok(!html.includes(`id="${removed}"`));
     assert.ok(html.includes('id="academic"'));
     assert.ok(html.includes('class="workspace-intro"'));
     assert.ok(!html.includes('id="learning-dialog"'));

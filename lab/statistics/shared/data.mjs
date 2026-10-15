@@ -1,15 +1,22 @@
-export const studyData = () =>
-  Array.from({ length: 24 }, (_, i) => ({
-    id: i + 1,
-    x: [1, 2, 3, 4, 5, 6, 2, 3, 4, 5, 6, 7, 1, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7, 8][
-      i
-    ],
-    y: [
-      42, 48, 56, 60, 72, 75, 50, 57, 61, 70, 78, 85, 52, 63, 62, 74, 70, 82,
-      62, 73, 68, 86, 80, 92,
-    ][i],
-    group: i < 12 ? "A組" : "B組",
-  }));
+import { rng, normal, clamp } from "./math.mjs";
+export const studyData = (
+  seed = globalThis.crypto.getRandomValues(new Uint32Array(1))[0],
+) => {
+  const random = rng(seed);
+  return Array.from({ length: 24 }, (_, i) => {
+    const x = Math.round((1 + random() * 7) * 10) / 10;
+    return {
+      id: i + 1,
+      x,
+      y: clamp(
+        Math.round(35 + x * 6 + normal(random) * 9 + (i < 12 ? 0 : 4)),
+        0,
+        100,
+      ),
+      group: i < 12 ? "A組" : "B組",
+    };
+  });
+};
 export const defaultDataset = () => ({
   name: "学習時間と確認テスト（架空の24人）",
   origin: "sample",
@@ -52,13 +59,16 @@ export function validateDataset(d) {
 }
 export function readDataset() {
   try {
-    return (
-      validateDataset(
-        JSON.parse(localStorage.getItem("study-atlas-statistics-dataset-v1")),
-      ) || defaultDataset()
+    return validateDataset(
+      JSON.parse(localStorage.getItem("study-atlas-statistics-dataset-v1")),
     );
   } catch {
-    return defaultDataset();
+    const data = defaultDataset();
+    try {
+      return saveDataset(data);
+    } catch {
+      return data;
+    }
   }
 }
 export function saveDataset(d) {

@@ -100,7 +100,7 @@ function domain(s, id) {
     );
     need(
       Array.isArray(d.baseline) &&
-        d.baseline.length <= 300 &&
+        d.baseline.length <= (id === "probability" ? 10000 : 300) &&
         d.baseline.every((r) => Array.isArray(r) && r.length <= 20),
       "元データの形式を確認してください。",
     );
@@ -122,6 +122,27 @@ function domain(s, id) {
         s.monthLabels.every((v) => typeof v === "string" && v.length <= 40),
       "月のラベルを確認してください。",
     );
+  if (id === "probability" && s.observed) {
+    const o = s.observed;
+    need(
+      ["coin", "binomial", "normal"].includes(o.mode) &&
+        rows(o.values, 1, 10000) &&
+        typeof o.label === "string" &&
+        o.label.length <= 100,
+      "確率の読込データを確認してください。",
+    );
+    need(
+      o.values.every(
+        (v) =>
+          Number.isFinite(v) &&
+          Math.abs(v) <= 1e6 &&
+          (o.mode !== "coin" || v === 0 || v === 1) &&
+          (o.mode !== "binomial" ||
+            (Number.isInteger(v) && v >= 0 && v <= s.n)),
+      ),
+      "試行結果の値を確認してください。",
+    );
+  }
   if (id === "correlation" || id === "summary") {
     need(rows(s.points, 2), "データは2〜300点にしてください。");
     need(

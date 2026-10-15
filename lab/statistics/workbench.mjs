@@ -139,6 +139,7 @@ export function composeWorkbench(root, id, ui, onChange) {
       ],
       "直線と残差の表示",
       "regression",
+      true,
     );
   }
   if (id === "summary") {
@@ -166,6 +167,7 @@ export function composeWorkbench(root, id, ui, onChange) {
       ["trend", "seasonal", "noise", "resample"],
       "サンプルの生成条件",
       "series-generator",
+      !side.querySelector("#trend:disabled"),
     );
   }
   if (id === "crosstab") {

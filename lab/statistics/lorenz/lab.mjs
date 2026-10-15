@@ -160,7 +160,7 @@ function render(root, ctx) {
   <div class="legend"><span style="color:#168b87">● 現在の分配</span>${ref ? '　<span style="color:#de7c35">● 比較用の分配</span>' : ""}</div>
   ${total === 0 ? '<p class="annotation" role="status">所得総額が0なので所得比率、ローレンツ曲線、ジニ係数は定義できません。1人以上の所得を増やしてください。総額固定中は先に固定を解除してください。</p>' : `<p class="annotation">${person(selected.id)}までの ${selected.rank}/${n}人（${fmt(selected.population * 100, 1)}%）が持つ所得は ${fmt(selected.cumulative)} / ${fmt(total)}${unit}（${fmt(selected.share * 100, 1)}%）です。</p>`}
   ${referenceMetrics}
-  <div class="actions"><button type="button" data-action="remember">現在の分配を比較用に記録</button><button type="button" data-action="same-gini">同じ平均・同じジニの2分布</button>${ref ? '<button type="button" data-action="clear-reference">比較を解除</button>' : ""}</div>
+  <div class="actions"><button type="button" data-action="same-gini">同じ平均・同じジニの2分布</button>${ref ? '<button type="button" data-action="clear-reference">曲線を1本に戻す</button>' : ""}</div>
   <p class="hint">「同じ平均・同じジニ」は4人の別々の分布を重ねます。曲線の交わりと最低所得・最高所得を確認してください。</p>
   </section>
   <section class="panel controls"><h2>所得を直接動かす</h2><label><input id="lock-total" type="checkbox" ${s.locked ? "checked" : ""}> 所得総額を固定する</label><p class="hint">固定中は1人を増減すると、残りの人の所得比を保って調整します。残りがすべて0の場合は等分します。丸い取っ手は横にドラッグできます。数値欄でも操作できます。</p>
@@ -266,11 +266,6 @@ function render(root, ctx) {
           ? `${n}人で1人だけが所得を持つ場合、ジニ係数は (${n}−1)/${n} です。`
           : "総額が0なので、所得を移すこともジニ係数を計算することもできません。",
     });
-  root.querySelector('[data-action="remember"]').onclick = () =>
-    ctx.update({
-      reference: [...values],
-      message: "現在の分配を橙の比較線として記録しました。",
-    });
   root
     .querySelector('[data-action="clear-reference"]')
     ?.addEventListener("click", () => ctx.update({ reference: null }));
@@ -301,38 +296,6 @@ export default {
   lead: "同じ総額をどのように分けるか。所得を動かし、格差を1つの数値にまとめる意味と限界を考えましょう。",
   initial,
   render,
-  missions: [
-    {
-      title: "平均を変えずに、分配を変える",
-      body: "所得総額を固定し、現在の分配を比較用に記録してください。最高所得者から最低所得者へ少しずつ移すと、平均・中央値・ジニ係数はどう変わりますか。「平均だけで暮らしぶりを語れるか」を考えましょう。",
-      preset: {
-        incomes: [...ORIGINAL],
-        locked: true,
-        selected: 0,
-        from: 9,
-        to: 0,
-        amount: 10,
-        reference: [...ORIGINAL],
-      },
-    },
-    {
-      title: "同じジニなら同じ格差？",
-      body: "「同じ平均・同じジニの2分布」を押し、4人の所得と2本の曲線を比べてください。最低所得、最高所得、所得0の人の有無は同じでしょうか。支援の対象を考えるとき、係数以外に必要な情報を挙げてください。",
-    },
-    {
-      title: "再分配の方向を確かめる",
-      body: "総額固定で、所得の低い人から高い人へ移す場合と、その逆を比べてください。逆転するほど大量に移した場合も、必ず格差は小さくなるでしょうか。移す前後の順位と曲線を根拠に説明してください。",
-      preset: {
-        incomes: [10, 20, 30, 40],
-        locked: true,
-        selected: 0,
-        from: 3,
-        to: 0,
-        amount: 5,
-        reference: [10, 20, 30, 40],
-      },
-    },
-  ],
   explanation: `<h3>ローレンツ曲線は何を累積するか</h3><p>まず所得を低い順に並べ、横軸に累積人数比率、縦軸に累積所得比率をとります。たとえば右からではなく左から半分の人で、総所得の何割を受け取っているかを読みます。全員が同じ所得なら、曲線は原点と(1,1)を結ぶ完全平等線に一致します。各人を同じ重みで扱う、このラボの非負所得のモデルでは、曲線は完全平等線の下側になります。</p><h3>ジニ係数の計算と範囲</h3><p>ジニ係数は、完全平等線とローレンツ曲線の間の面積を、完全平等線の下の三角形の面積0.5で割った値です。したがって「1 − 2 × 曲線の下の面積」として、表の台形面積から計算できます。全員等額で0。有限のn人で1人に集中すると最大値は(n−1)/nになり、このラボは有限人数の補正をかけない定義を使います。別の資料と比較するときは補正の有無と対象集団を確かめましょう。</p><h3>再分配と係数の限界</h3><p>総額を保って高所得者から低所得者へ、所得順位が逆転しない範囲で移すと格差は小さくなります。大量に移して新たな集中を作れば、かえって格差が大きくなることもあります。また全員の所得を同じ正の倍率で増やしても、所得比率とジニ係数は変わりません。曲線が交差する2つの分配では、ある層にとって望ましい分配が別の層にとっても望ましいとは限りません。同じジニ係数でも異なる曲線や分布があり、平均・中央値・最低所得・支援目的を合わせて判断する必要があります。</p><h3>モデルの条件</h3><p>このラボは所得を0以上に限定し、所得総額0のときは比率とジニ係数を定義しません。負の所得を含む場合や、世帯規模を調整した等価所得、人口の重みを含む場合は、同じ計算と解釈をそのまま使えません。架空の小集団の実験から、特定の国や社会の実際の格差を判断することもできません。</p>`,
   related: ["summary", "histogram", "crosstab"],
 };

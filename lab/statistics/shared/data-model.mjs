@@ -1,6 +1,7 @@
-import { mean, fmt } from "./math.mjs";
+import { mean, sd, fmt } from "./math.mjs";
 import { population } from "../sampling/model.mjs";
 import { createMonthlySeries } from "../time-series/lab.mjs";
+import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 export const dataKinds = {
   correlation: "pairs",
@@ -11,7 +12,7 @@ export const dataKinds = {
   "time-series": "series",
   "hypothesis-test": "ab",
   lorenz: "incomes",
-  probability: "model",
+  probability: "probability",
 };
 export function currentData(id, s) {
   let headers,
@@ -30,10 +31,10 @@ export function currentData(id, s) {
   if (id === "histogram") {
     headers = [s.label || "値", s.groupLabel || "集団"];
     rows = s.rows.map((r) => [
-      r.value,
+      r.value + (r.group === "B" ? Number(s.shiftB || 0) : 0),
       s.groupNames?.[r.group === "B" ? 1 : 0] || r.group,
     ]);
-    operation = `${s.shiftB ? `集団Bを${fmt(s.shiftB, 1)}移動 → ` : ""}幅 ${fmt(s.width, 1)}・基準 ${fmt(s.start, 1)} で階級集計`;
+    operation = `${s.shiftB ? `${s.groupNames?.[1] || "集団B"}を${fmt(s.shiftB, 1)}移動 → ` : ""}幅 ${fmt(s.width, 1)}・基準 ${fmt(s.start, 1)} で階級集計`;
   }
   if (id === "summary") {
     headers = [s.label || "値"];
@@ -47,11 +48,11 @@ export function currentData(id, s) {
     ];
     const p = s.customPopulation || population();
     rows = p.map((r) => [
-      r.value,
+      r.value + (r.group === "B" ? Number(s.shiftB || 0) : 0),
       s.groupNames?.[r.frequent ? 1 : 0] || (r.frequent ? "B" : "A"),
     ]);
     name = name || "生徒120人の読書時間";
-    operation = `${p.length}件から${s.n}件を${s.method === "biased" ? "Bを選びやすい方法" : "無作為"}で抽出 → ${s.trials}回の標本平均`;
+    operation = `${p.length}件から${s.n}件を${s.method === "biased" ? `${s.groupNames?.[1] || "B"}を選びやすい方法` : "無作為"}で抽出 → ${s.trials}回の標本平均`;
   }
   if (id === "lorenz") {
     headers = [s.incomeLabel || "所得（万円）"];
@@ -60,7 +61,10 @@ export function currentData(id, s) {
     operation = `${s.locked ? "総額を固定して再配分 → " : ""}所得順に累積 → 曲線とジニ係数を計算`;
   }
   if (id === "time-series") {
-    headers = ["月", s.customLabel || "注文数（件）"];
+    headers = [
+      s.dataInfo?.columns?.[0] || "月",
+      s.customLabel || "注文数（件）",
+    ];
     const values = s.customValues || createMonthlySeries(s);
     rows = values.map((v, i) => [
       s.monthLabels?.[i] ||
@@ -75,8 +79,8 @@ export function currentData(id, s) {
   if (id === "crosstab") {
     const l = s.dataInfo?.labels;
     headers = [
-      "集団",
-      "方式",
+      l?.fields?.[0] || "集団",
+      l?.fields?.[1] || "方式",
       l?.outcomes?.[0] || "到達",
       l?.outcomes?.[1] || "未到達",
     ];
@@ -91,7 +95,7 @@ export function currentData(id, s) {
     operation = `人数を${{ count: "そのまま", row: "行ごとの人数を分母に", column: "列ごとの人数を分母に", cell: "全体人数を分母に" }[s.mode]}表示 → 集団別と合計を比較`;
   }
   if (id === "hypothesis-test") {
-    headers = ["群", "対象数", "成功数"];
+    headers = s.dataInfo?.columns || ["群", "対象数", "成功数"];
     rows = [
       [s.groupLabels?.[0] || "A", s.nA, s.successA],
       [s.groupLabels?.[1] || "B", s.nB, s.successB],
@@ -100,16 +104,24 @@ export function currentData(id, s) {
     operation = `A ${s.successA}/${s.nA}・B ${s.successB}/${s.nB} → 差なしを${s.repetitions}回生成 → 両側p値`;
   }
   if (id === "probability") {
-    headers = ["条件", "値"];
-    rows = Object.entries(s)
-      .filter(([k, v]) => typeof v === "number")
-      .map(([k, v]) => [k, v]);
+    headers = [
+      s.observed?.mode === s.mode
+        ? s.observed.label
+        : s.mode === "normal"
+          ? "測定値"
+          : s.mode === "binomial"
+            ? "1セットの成功回数"
+            : "結果（表=1・裏=0）",
+    ];
+    rows = observationValues(s).map((v) => [v]);
     name =
-      s.mode === "normal"
-        ? "正規分布"
-        : s.mode === "binomial"
-          ? "二項分布の反復実験"
-          : "コイン試行";
+      s.observed?.mode === s.mode
+        ? s.dataInfo?.name || "読込データ"
+        : s.mode === "normal"
+          ? "正規分布モデルから生成した200件"
+          : s.mode === "binomial"
+            ? "二項分布の反復実験"
+            : "コイン試行";
     operation =
       s.mode === "normal"
         ? `平均 ${s.mu}・標準偏差 ${s.sigma} → ${s.low}〜${s.high}の区間確率`
@@ -117,7 +129,8 @@ export function currentData(id, s) {
           ? `成功確率 ${s.p}・1セット${s.n}試行 → ${s.repetitions}セットの分布`
           : `表の確率 ${s.p} → コイン${s.tossCount}回の相対度数`;
   }
-  const info = s.dataInfo;
+  const info =
+    id === "probability" && s.observed?.mode !== s.mode ? null : s.dataInfo;
   let edits = 0;
   if (info?.baseline) {
     const before = info.baseline;
@@ -154,11 +167,38 @@ export function applyData(
     headers.some((h) => typeof h !== "string" || h.length > 100)
   )
     throw Error("項目名は100文字以内にしてください。");
-  if (!Array.isArray(rows) || rows.length < 1 || rows.length > 300)
-    throw Error("1〜300行のデータを指定してください。");
-  const s = { ...base };
+  if (
+    !Array.isArray(rows) ||
+    rows.length < 1 ||
+    rows.length > (id === "probability" ? 10000 : 300)
+  )
+    throw Error(
+      id === "probability"
+        ? "1〜10,000行で指定してください。"
+        : "1〜300行のデータを指定してください。",
+    );
+  const s = { ...base, dataInfo: null };
   let applied;
-  if (kind === "pairs") {
+  if (kind === "probability") {
+    const values = rows.map((r, i) => number(r, x, i));
+    if (base.mode === "coin" && values.some((v) => v !== 0 && v !== 1))
+      throw Error("コインの結果は表=1・裏=0で指定してください。");
+    if (
+      base.mode === "binomial" &&
+      values.some((v) => !Number.isInteger(v) || v < 0 || v > base.n)
+    )
+      throw Error(`成功回数は0〜${base.n}の整数にしてください。`);
+    s.observed = { mode: base.mode, values, label: headers[x] };
+    if (base.mode === "normal") {
+      s.mu = mean(values);
+      s.sigma = sd(values) || 1;
+      s.low = s.mu - s.sigma;
+      s.high = s.mu + s.sigma;
+    }
+    s.dataInfo = null;
+    if (base.mode === "coin") s.tossCount = values.length;
+    if (base.mode === "binomial") s.repetitions = values.length;
+  } else if (kind === "pairs") {
     if (rows.length < 2 || x === y)
       throw Error("異なる2列を選び、2行以上のデータを指定してください。");
     s.points = rows.map((r, i) => ({
@@ -223,6 +263,9 @@ export function applyData(
       s.locked = true;
     }
     if (kind === "population") {
+      s.dataInfo = {
+        columns: [headers[x], group >= 0 ? headers[group] : "集団"],
+      };
       s.groupLabel = group >= 0 ? headers[group] : "集団";
       const groups =
         group < 0 ? [] : [...new Set(rows.map((r) => r[group] || "全体"))];
@@ -248,6 +291,7 @@ export function applyData(
     const values = rows.map((r, i) => number(r, x, i));
     if (values.some((v) => v < 0))
       throw Error("この予測モデルでは0以上の数値を指定してください。");
+    s.dataInfo = { columns: [date >= 0 ? headers[date] : "月", headers[x]] };
     s.customValues = values;
     s.customLabel = headers[x];
     s.monthLabels =
@@ -305,7 +349,14 @@ export function applyData(
     s.selectedRow = 0;
     s.selectedCol = 0;
     s.showCounts = false;
-    s.dataInfo = { labels: { strata, methods, outcomes: headers.slice(2, 4) } };
+    s.dataInfo = {
+      labels: {
+        strata,
+        methods,
+        outcomes: headers.slice(2, 4),
+        fields: headers.slice(0, 2),
+      },
+    };
     s.source = name;
   } else if (kind === "ab") {
     if (rows.length !== 2 || rows.some((r) => r.length < 3))
@@ -325,6 +376,7 @@ export function applyData(
       throw Error(
         "対象数は10〜1,000の整数、成功数は0〜対象数で指定してください。",
       );
+    s.dataInfo = { columns: headers.slice(0, 3) };
     s.groupLabels = rows.map((r) => String(r[0]).slice(0, 40));
     [s.nA, s.successA] = counts[0];
     [s.nB, s.successB] = counts[1];

@@ -18,6 +18,14 @@ export const table = (heads, rows) =>
   `<div class="table-scroll"><table class="stat-table"><thead><tr>${heads.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((v) => `<td>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
 export const svg = (content, title, w = 720, h = 360) =>
   `<svg class="stat-chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(title)}">${content}</svg>`;
+const axisNumber = (value, span) => {
+  if (Math.abs(value) >= 1e5 || (value !== 0 && Math.abs(span) < 1e-5))
+    return value.toExponential(1);
+  return fmt(
+    value,
+    Math.max(1, Math.min(8, Math.ceil(-Math.log10(Math.abs(span) || 1)) + 1)),
+  );
+};
 export function axes({
   xmin = 0,
   xmax = 100,
@@ -40,7 +48,7 @@ export function axes({
   for (let i = 0; i <= 5; i++) {
     const xv = xmin + ((xmax - xmin) * i) / 5,
       yv = ymin + ((ymax - ymin) * i) / 5;
-    markup += `<line class="gridline" x1="${left}" x2="${right}" y1="${y(yv)}" y2="${y(yv)}"/><text x="${left - 9}" y="${y(yv) + 4}" text-anchor="end">${fmt(yv, ymax - ymin < 0.1 ? 3 : ymax - ymin < 1 ? 2 : 1)}</text><text x="${x(xv)}" y="${bottom + 19}" text-anchor="middle">${fmt(xv, xmax - xmin < 0.1 ? 3 : xmax - xmin < 1 ? 2 : 1)}</text>`;
+    markup += `<line class="gridline" x1="${left}" x2="${right}" y1="${y(yv)}" y2="${y(yv)}"/><text x="${left - 9}" y="${y(yv) + 4}" text-anchor="end">${axisNumber(yv, ymax - ymin)}</text><text x="${x(xv)}" y="${bottom + 19}" text-anchor="middle">${axisNumber(xv, xmax - xmin)}</text>`;
   }
   markup += `<path class="axis" d="M${left},${top}V${bottom}H${right}"/><text x="${(left + right) / 2}" y="${h - 5}" text-anchor="middle">${esc(xlabel)}</text><text x="${left}" y="16">${esc(ylabel)}</text>`;
   return {
