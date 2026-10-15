@@ -12,17 +12,19 @@ function fixture() {
   return prepareMap(questions, { ...common, points: { a: [-20, 0], b: [-19, 1], c: [20, 0], d: [21, 1] } },
     { ...common, terms: { "左の特徴": ["a", "b"], "右の特徴": ["c", "d"] } }, { ...common, count: 4 });
 }
-test("地域の出題候補は全座標から選び、中央への絞り込み・空範囲・アプリの10問制限を守る", () => {
+test("地域の出題候補は全座標から選び、円の境界・空範囲・最大5問を守る", () => {
   const model = fixture(), camera = { x: 0, y: 0, scale: 1 };
   assert.equal(practiceCandidates(model, camera, 44, 20).length, 4);
-  assert.equal(practiceCandidates(model, camera, 44, 20, true).length, 0);
-  const left = practiceCandidates(model, { ...camera, x: -19 }, 10, 20, true);
+  assert.deepEqual(practiceCandidates(model, camera, 44, 20, { x: 0, y: 0, radius: 20 }).map(p => p.id), ["a", "b", "c"]);
+  assert.equal(practiceCandidates(model, camera, 44, 20, { x: 0, y: 0, radius: 18 }).length, 0);
+  assert.equal(practiceCandidates(model, camera, 44, 20, { x: 0, y: 0, radius: 0 }).length, 0);
+  const left = practiceCandidates(model, camera, 44, 20, { x: -19, y: 0, radius: 2 });
   assert.deepEqual(new Set(left.map(p => p.id)), new Set(["a", "b"]));
   assert.deepEqual(samplePractice([]), []);
   assert.deepEqual(new Set(samplePractice(left)), new Set(left));
   const pool = Array.from({ length: 80 }, (_, id) => ({ id })), original = [...pool];
   const selected = samplePractice(pool, () => .9999);
-  assert.equal(selected.length, 10); assert.equal(new Set(selected).size, 10);
+  assert.equal(selected.length, 5); assert.equal(new Set(selected).size, 5);
   assert.ok(selected.every(p => pool.includes(p))); assert.ok(selected.includes(pool.at(-1)));
   assert.deepEqual(pool, original);
 });

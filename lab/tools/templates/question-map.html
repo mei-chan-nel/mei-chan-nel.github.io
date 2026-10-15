@@ -44,14 +44,18 @@
 </dialog>
 <dialog id="region-dialog" class="region-dialog" aria-labelledby="region-title" aria-describedby="region-description">
 <div class="nearby-heading"><h2 id="region-title">この地域を解く</h2><button id="region-close" type="button" aria-label="出題範囲の選択を閉じる">閉じる</button></div>
-<p id="region-description">枠内から最大10問を出題します。</p>
+<p id="region-description">選んだ地域から最大5問を出題します。</p>
 <div class="region-scopes" role="group" aria-label="出題する範囲">
 <button id="region-viewport" type="button" aria-pressed="true">表示範囲<span id="region-viewport-count"></span></button>
-<button id="region-center" type="button" aria-pressed="false">中央付近<span id="region-center-count"></span></button>
+<button id="region-custom" type="button" aria-pressed="false">地域を絞る<span id="region-custom-count"></span></button>
 </div>
-<canvas id="region-preview" width="600" height="260" role="img" aria-label="出題範囲のプレビュー"></canvas>
+<div class="region-map">
+<canvas id="region-preview" role="img" aria-label="出題範囲のプレビュー" aria-describedby="region-hint"></canvas>
+<div class="region-zoom" hidden><button id="region-zoom-in" type="button" aria-label="出題地域の地図を拡大">＋</button><button id="region-zoom-out" type="button" aria-label="出題地域の地図を縮小">−</button></div>
+</div>
+<p id="region-hint">地域を絞る：円をドラッグで移動。ホイール・ピンチ・＋／−で拡大縮小。矢印キーでも移動できます。</p>
 <p id="region-summary" role="status" aria-live="polite"></p>
-<a id="region-start" class="region-start" href="../../info1-quiz-app/app/">10問を解く ↗</a>
+<a id="region-start" class="region-start" href="../../info1-quiz-app/app/">5問を解く ↗</a>
 </dialog>
 <section class="map-guide" aria-labelledby="guide-title">
 <div><p class="eyebrow">HOW TO EXPLORE</p><h2 id="guide-title">見える量を、<br />自分で変える。</h2></div>

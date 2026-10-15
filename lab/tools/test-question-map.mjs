@@ -136,7 +136,7 @@ try{
   await dialog.locator('.card-explanation summary').click();
   if(question.explanation)assert.ok((await dialog.locator('.card-explanation').textContent()).includes(question.explanation));
   const href=await dialog.locator('.card-practice').getAttribute('href'),ids=new URL(href).searchParams.get('challenge').split(',');
-  assert.equal(ids[0],detailId);assert.ok(ids.length<=10&&ids.every(id=>byId.has(id)));
+  assert.equal(ids[0],detailId);assert.ok(ids.length<=5&&ids.every(id=>byId.has(id)));
   const scroll=dialog.locator('.question-detail');
   await scroll.evaluate(n=>{n.scrollTop=n.scrollHeight;});
   assert.ok(await scroll.evaluate(n=>n.scrollHeight<=n.clientHeight||n.scrollTop>0));

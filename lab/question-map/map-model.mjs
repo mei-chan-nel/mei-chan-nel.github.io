@@ -113,12 +113,14 @@ export function viewBounds(camera, width, height, margin = 0) {
     minY: camera.y - (height / 2 + margin) / camera.scale, maxY: camera.y + (height / 2 + margin) / camera.scale };
 }
 // Both regions use all points in their bounds, including questions whose
-// cards are currently hidden to avoid overlap. Keep the app's shared limit.
-export const PRACTICE_LIMIT = 10;
-export const PRACTICE_CENTER = .6;
-export function practiceCandidates(model, camera, width, height, central = false) {
-  const fraction = central ? PRACTICE_CENTER : 1;
-  return model.index.query(viewBounds(camera, width * fraction, height * fraction));
+// cards are currently hidden to avoid overlap.
+export const PRACTICE_LIMIT = 5;
+export function practiceCandidates(model, camera, width, height, circle = null) {
+  if (!circle) return model.index.query(viewBounds(camera, width, height));
+  const { x, y, radius } = circle;
+  if (![x, y, radius].every(Number.isFinite) || radius <= 0) return [];
+  return model.index.query({ minX: x - radius, maxX: x + radius, minY: y - radius, maxY: y + radius })
+    .filter(p => (p.x - x) ** 2 + (p.y - y) ** 2 <= radius ** 2);
 }
 export function samplePractice(points, random = Math.random) {
   const pool = [...points], count = Math.min(PRACTICE_LIMIT, pool.length);

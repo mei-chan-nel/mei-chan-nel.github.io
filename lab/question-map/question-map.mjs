@@ -1,5 +1,6 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, PRACTICE_CENTER } from "./map-model.mjs?v=7";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, PRACTICE_LIMIT } from "./map-model.mjs?v=8";
+import { RegionPicker } from "./region-picker.mjs?v=1";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -162,19 +163,19 @@ function buildTerrain() {
   }
   state.terrain = { bounds: field.bounds, path };
 }
-function drawTerrain() {
-  const { camera, width, height, terrain, heat } = state;
-  context.save();
-  context.translate(width / 2 - camera.x * camera.scale, height / 2 - camera.y * camera.scale);
-  context.scale(camera.scale, camera.scale);
-  context.fillStyle = "#e5e8dd"; context.fill(terrain.path, "evenodd");
+function drawTerrain(ctx = context, camera = state.camera, width = state.width, height = state.height) {
+  const { terrain, heat } = state;
+  ctx.save();
+  ctx.translate(width / 2 - camera.x * camera.scale, height / 2 - camera.y * camera.scale);
+  ctx.scale(camera.scale, camera.scale);
+  ctx.fillStyle = "#e5e8dd"; ctx.fill(terrain.path, "evenodd");
   if (heat) {
-    context.save(); context.clip(terrain.path, "evenodd");
-    context.drawImage(heat.canvas, heat.bounds.minX, heat.bounds.minY, heat.bounds.maxX - heat.bounds.minX, heat.bounds.maxY - heat.bounds.minY);
-    context.restore();
+    ctx.save(); ctx.clip(terrain.path, "evenodd");
+    ctx.drawImage(heat.canvas, heat.bounds.minX, heat.bounds.minY, heat.bounds.maxX - heat.bounds.minX, heat.bounds.maxY - heat.bounds.minY);
+    ctx.restore();
   }
-  context.strokeStyle = "#627e75"; context.lineWidth = 1.15 / camera.scale; context.stroke(terrain.path);
-  context.restore();
+  ctx.strokeStyle = "#627e75"; ctx.lineWidth = 1.15 / camera.scale; ctx.stroke(terrain.path);
+  ctx.restore();
 }
 
 function reservedBoxes() {
@@ -344,8 +345,8 @@ function reconcileCards(wanted) {
 }
 function practiceLink(point) {
   const practice = element("a", "card-practice", "この周りの問題を解く ↗");
-  const peers = surroundingQuestions(state.model, point, clamp(120 / state.camera.scale, 4, 10), 10);
-  const ids = [point.id, ...peers.filter(p => p.id !== point.id).map(p => p.id)].slice(0, 10);
+  const peers = surroundingQuestions(state.model, point, clamp(120 / state.camera.scale, 4, 10), PRACTICE_LIMIT);
+  const ids = [point.id, ...peers.filter(p => p.id !== point.id).map(p => p.id)].slice(0, PRACTICE_LIMIT);
   practice.href = practiceUrl(ids);
   return practice;
 }
@@ -360,49 +361,61 @@ function showMapDialog(dialog, returnFocus = viewport) {
   dialog.showModal();
   scrollTo({ left: state.detailScroll.x, top: state.detailScroll.y, behavior: "instant" });
 }
-function updatePracticeScope(central) {
-  const session = state.practiceSession, points = central ? session.center : session.viewport;
-  if (!points.length) return;
+function updatePracticeSelection() {
+  const session = state.practiceSession;
+  if (!session) return;
+  const circlePoints = practiceCandidates(state.model, state.camera, state.width, state.height, session.circle);
+  $("#region-custom-count").textContent = `${circlePoints.length.toLocaleString()}問`;
+  const points = session.custom ? circlePoints : session.viewport;
+  const preview = $("#region-preview");
+  preview.setAttribute("aria-label", `${session.custom ? "円内" : "表示範囲全体"}の${points.length.toLocaleString()}問が出題候補です。`);
+  const key = `${session.custom}:${points.map(p => p.id).sort().join(",")}`;
+  if (key === session.key) return;
+  session.key = key;
   const selected = samplePractice(points), count = selected.length;
-  $("#region-viewport").setAttribute("aria-pressed", String(!central));
-  $("#region-center").setAttribute("aria-pressed", String(central));
-  $("#region-summary").textContent = points.length > count ?
+  $("#region-summary").textContent = !count ? "円内に問題がありません。円を動かすか、縮小してください。" : points.length > count ?
     `範囲内の${points.length.toLocaleString()}問からランダムに${count}問を出題します。` : `範囲内の${count}問を出題します。`;
   const link = $("#region-start");
-  link.textContent = `${count}問を解く ↗`; link.href = practiceUrl(selected.map(p => p.id));
-  const preview = $("#region-preview"), ctx = preview.getContext("2d"), image = session.image;
-  preview.setAttribute("aria-label", `${central ? "中央付近" : "表示範囲全体"}の${points.length.toLocaleString()}問が出題候補。枠内が対象範囲です。`);
-  const scale = Math.min((preview.width - 32) / image.width, (preview.height - 24) / image.height);
-  const w = image.width * scale, h = image.height * scale, x = (preview.width - w) / 2, y = (preview.height - h) / 2;
-  ctx.clearRect(0, 0, preview.width, preview.height); ctx.drawImage(image, x, y, w, h);
-  const fraction = central ? PRACTICE_CENTER : 1;
-  const box = { x: x + w * (1 - fraction) / 2, y: y + h * (1 - fraction) / 2, w: w * fraction, h: h * fraction };
-  if (central) {
-    ctx.beginPath(); ctx.rect(x, y, w, h); ctx.rect(box.x, box.y, box.w, box.h);
-    ctx.fillStyle = "rgb(255 255 255 / 65%)"; ctx.fill("evenodd");
-  }
-  ctx.strokeStyle = "#267765"; ctx.lineWidth = 3; ctx.strokeRect(box.x, box.y, box.w, box.h);
+  link.textContent = count ? `${count}問を解く ↗` : "対象の問題がありません";
+  link.setAttribute("aria-disabled", String(!count)); link.tabIndex = count ? 0 : -1;
+  if (count) link.href = practiceUrl(selected.map(p => p.id)); else link.removeAttribute("href");
+}
+function updatePracticeScope(custom) {
+  const session = state.practiceSession;
+  session.custom = custom; session.picker.setEditable(custom);
+  $("#region-viewport").setAttribute("aria-pressed", String(!custom));
+  $("#region-custom").setAttribute("aria-pressed", String(custom));
+  $(".region-zoom").hidden = !custom;
+  updatePracticeSelection();
 }
 $("#region-practice").addEventListener("click", () => {
   if (!state.model) return;
   const all = practiceCandidates(state.model, state.camera, state.width, state.height);
   if (!all.length) { $("#region-practice").disabled = true; return; }
   state.inertia = null; state.target = { ...state.camera }; requestDraw();
-  const center = practiceCandidates(state.model, state.camera, state.width, state.height, true);
-  const image = document.createElement("canvas"); image.width = canvas.width; image.height = canvas.height;
-  image.getContext("2d").drawImage(canvas, 0, 0);
-  state.practiceSession = { viewport: all, center, image };
+  const session = state.practiceSession = { viewport: all, custom: false, key: "" };
   $("#region-viewport-count").textContent = `${all.length.toLocaleString()}問`;
-  $("#region-center-count").textContent = `${center.length.toLocaleString()}問`;
-  $("#region-center").disabled = !center.length;
-  updatePracticeScope(false);
   showMapDialog($("#region-dialog"), $("#region-practice"));
+  session.picker = new RegionPicker($("#region-preview"), { camera: state.camera, width: state.width, height: state.height, bounds: state.model.bounds,
+    drawMap(ctx, camera, width, height) {
+      drawTerrain(ctx, camera, width, height);
+      for (const point of state.model.index.query(viewBounds(camera, width, height))) {
+        const p = project(point, camera, width, height), record = state.records.get(point.id);
+        ctx.beginPath(); ctx.arc(p.x, p.y, 1.7, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${rateColor(colorRate(record?.rate, state.heat?.colorRange)).join(",")},.8)`; ctx.fill();
+      }
+    },
+    onChange(circle) { session.circle = circle; updatePracticeSelection(); }
+  });
+  session.circle = session.picker.selection(); updatePracticeScope(false);
 });
 $("#region-viewport").addEventListener("click", () => updatePracticeScope(false));
-$("#region-center").addEventListener("click", () => updatePracticeScope(true));
+$("#region-custom").addEventListener("click", () => updatePracticeScope(true));
+$("#region-zoom-in").addEventListener("click", () => state.practiceSession?.picker.zoom(1.4));
+$("#region-zoom-out").addEventListener("click", () => state.practiceSession?.picker.zoom(1 / 1.4));
 $("#region-close").addEventListener("click", () => { $("#region-dialog").close(); restoreDetailScroll(); });
 $("#region-dialog").addEventListener("close", () => {
-  if (!$("#region-dialog").open) { state.practiceSession = null; restoreDetailScroll(); }
+  if (!$("#region-dialog").open) { state.practiceSession?.picker.destroy(); state.practiceSession = null; restoreDetailScroll(); }
 });
 function showQuestion(point) {
   state.selected = point.id; state.inertia = null; state.target = { ...state.camera }; requestDraw(true);
