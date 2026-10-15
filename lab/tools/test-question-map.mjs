@@ -56,6 +56,7 @@ try{
   assert.equal(await page.locator('.map-hero h1').textContent(),'情報の可視化、問題マップ');
   assert.equal(await page.locator('#map-search,#heat-toggle,.map-toolbar,#map-settings,#heat-note,[data-stage]').count(),0);
   assert.deepEqual(await page.locator('.map-layer-controls button').allTextContents(),['全画面','タグ','単語','問題','自動']);
+  await page.locator('#map-fullscreen').scrollIntoViewIfNeeded();
   const normalBounds=await page.locator('.map-exhibit').boundingBox(),initialScroll=await page.evaluate(()=>scrollY);
   await page.locator('#map-fullscreen').click();
   const expanded=await page.locator('.map-exhibit').evaluate(el=>{
