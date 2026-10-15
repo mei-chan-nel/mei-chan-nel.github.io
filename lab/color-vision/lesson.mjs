@@ -90,9 +90,15 @@ export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
   {...item, title:`${item.name}の改善を全体で見る`, short:'全体', phase:'overview', state:index+1, number:index+1,
     version:item.title, regions:[item.region],
     tip:index===IMPROVEMENTS.length-1
-      ? '8つの改善を加えたページです。「0 ページ全体」と切り替えて、最初のデザインと見比べてみよう。'
+      ? '次は、一番下の「完成品を見る」で、注目枠を外した最終デザインを確かめよう。'
       : 'ページ全体での変化を確かめたら、次の番号の「拡大して観察」を選びましょう。'},
-])];
+]), {title:'完成品を見る', short:'完成', phase:'complete', state:IMPROVEMENTS.length, number:IMPROVEMENTS.length,
+  version:'完成した案内ページ', regions:[], question:'色が変わっても、必要な情報は伝わる？',
+  change:'8つの改善をすべて反映した案内ページです。注目枠を外して、ページ全体を表示しています。',
+  benefit:'状態・会場・グラフを、文字や記号、模様、線種、ラベルでも読み取れるようになりました。',
+  remaining:'実際の利用者の見え方や、端末での文字サイズ、説明の分かりやすさを引き続き確認しましょう。',
+  sideEffect:'この例では新しい重なりは見られません。追加した手掛かりが、情報を探す負担になっていないかも確かめましょう。',
+  tip:'「0 ページ全体」と切り替えて、最初のデザインとの違いを見つけよう。各工程にはいつでも戻れます。'}];
 export const COLORS = {red:'#c66f4a', green:'#758b4b', blue:'#0072b2', orange:'#e69f00', mapBlue:'#3798c3', mapGreen:'#45a58e', ink:'#203b40'};
 
 // An original, fictional festival page, rasterized once before all simulations.
