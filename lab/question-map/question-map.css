@@ -10,6 +10,14 @@
 .map-layer-controls button[aria-pressed="true"] { color: var(--white); background: var(--ink); border-color: var(--ink); }
 .map-layer-controls #layers-mode { margin-left: 8px; border-color: var(--line); }
 .map-layer-controls #layers-mode[aria-pressed="true"] { border-color: var(--ink); }
+
+/* ブラウザの全画面APIを使わず、地図だけを表示領域いっぱいに広げる。 */
+.map-layer-controls #map-fullscreen { margin-right: auto; border-color: var(--line); }
+html.question-map-expanded { overflow: hidden; }
+.map-exhibit.is-expanded { position: fixed; inset: 0; z-index: 1000; box-sizing: border-box; display: flex; flex-direction: column; width: 100%; height: 100vh; height: 100dvh; border: 0; border-radius: 0; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+.map-exhibit.is-expanded .map-layer-controls, .map-exhibit.is-expanded .map-bottom,
+.map-exhibit.is-expanded .score-source, .map-exhibit.is-expanded .history-summary { flex-shrink: 0; }
+.map-exhibit.is-expanded .map-viewport { flex: 1 1 0; height: auto; min-height: 0; overscroll-behavior: contain; }
 .map-viewport { position: relative; height: clamp(440px, 66vh, 680px); overflow: hidden; isolation: isolate; background: #e8efed; touch-action: none; cursor: grab; }
 .map-viewport.is-dragging { cursor: grabbing; }
 #map-canvas, .map-labels, .map-cards { position: absolute; inset: 0; width: 100%; height: 100%; }
