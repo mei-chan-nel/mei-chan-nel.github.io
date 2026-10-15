@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {simulateRGB,simulatePixels,decode,encode,contrast,fromHex,PARAMETERS} from './simulation.mjs';
-import {COLORS,VENUES,CONTRAST_EXAMPLES,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
+import {COLORS,VENUES,PANELS,CONTRAST_EXAMPLES,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
 const fixtures=JSON.parse(await readFile(new URL('./reference-fixtures.json',import.meta.url),'utf8'));
 
 test('native public-domain C reference: both Brettel planes, sRGB decoding, and clipping',()=>{
@@ -44,17 +44,18 @@ test('lesson colors support the stated observation; this is not a perceptual thr
   for(const type of ['p','d'])assert.ok(separation(COLORS.blue,COLORS.orange,type)>separation(COLORS.red,COLORS.green,type)*5);
   assert.ok(separation(COLORS.mapBlue,COLORS.mapGreen,'t')<separation(COLORS.mapBlue,COLORS.mapGreen,'normal'));
 });
-test('contrast evidence distinguishes incomplete improvements and text/graphic criteria',()=>{
+test('contrast evidence matches the strong panel example and text/graphic criteria',()=>{
   for(const [key,evidence] of Object.entries(CONTRAST_EXAMPLES)){
     const before=contrast(...evidence.before),after=contrast(...evidence.after);
     const threshold=evidence.kind==='graphic'?3:4.5;
-    if(key==='panelsPalette'){assert.ok(before>=threshold);assert.ok(after<threshold);}
-    else{assert.ok(after>=threshold);if(evidence.kind==='text')assert.ok(before<threshold);}
+    assert.ok(after>=threshold);if(evidence.kind==='text')assert.ok(before<threshold);
   }
   for(const venue of VENUES)assert.ok(contrast(venue.foreground,venue.color)>=4.5);
   assert.equal(contrast(...CONTRAST_EXAMPLES.warning.before).toFixed(2),'1.04');
   assert.equal(contrast(...CONTRAST_EXAMPLES.warning.after).toFixed(2),'7.80');
-  for(const background of [COLORS.red,COLORS.mapGreen,COLORS.mapBlue])assert.ok(contrast('#ffffff',background)<4.5);
+  for(const panel of PANELS){assert.ok(contrast('#ffffff',panel.color)<2.2);assert.ok(contrast(COLORS.ink,panel.color)>5.5);}
+  assert.equal(contrast(...CONTRAST_EXAMPLES.panelsText.before).toFixed(2),'1.32');
+  assert.equal(contrast(...CONTRAST_EXAMPLES.panelsText.after).toFixed(2),'9.01');
   assert.equal(contrast(COLORS.chartOrange,'#ffffff').toFixed(2),'4.44');
   for(const background of ['#ffffff','#fffef9','#e9ede4','#f4f5f0'])assert.ok(contrast(COLORS.soft,background)>=4.5);
 });

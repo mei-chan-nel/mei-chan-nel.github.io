@@ -25,10 +25,11 @@
       <button id="upload-tab" type="button" role="tab" aria-selected="false" aria-controls="upload-panel" tabindex="-1">自分の画像で試す <small>ブラウザ内で処理</small></button>
     </div>
     <section id="upload-panel" role="tabpanel" aria-labelledby="upload-tab" hidden>
-      <div id="drop-zone" class="drop-zone"><div><strong>自分のデザインを、4つの見え方で。</strong><p>PNG・JPEG・WebP（20 MBまで）。画像はサーバーへ送信されません。</p></div><label class="file-button" for="image-input">画像を選ぶ <span aria-hidden="true">＋</span></label><input class="visually-hidden" id="image-input" type="file" accept="image/png,image/jpeg,image/webp"><span class="drop-hint">ここにドロップもできます</span></div>
+      <div id="drop-zone" class="drop-zone"><div><strong>画像をドラッグ＆ドロップ、または選択。</strong><p>PNG・JPEG・WebP（20 MBまで）。画像はサーバーへ送信されません。</p></div><label class="file-button" for="image-input">画像を選ぶ <span aria-hidden="true">＋</span></label><input class="visually-hidden" id="image-input" type="file" accept="image/png,image/jpeg,image/webp"><span class="drop-hint">下の比較エリアにもドロップできます</span></div>
     </section>
     <div class="workspace">
       <section id="comparison-card" class="comparison" aria-label="見え方の比較">
+        <div class="drop-overlay" aria-hidden="true"><strong>画像をドロップして読み込む</strong><span>ブラウザ内で処理します</span></div>
         <div class="comparison-toolbar"><button id="fullscreen-toggle" type="button" aria-pressed="false">全画面</button><span class="comparison-label">4種類を比較</span><div class="zoom-controls"><button id="zoom-out" aria-label="縮小">−</button><label class="visually-hidden" for="zoom">表示倍率</label><input id="zoom" type="range" min="100" max="600" value="100" step="10"><output id="zoom-value" for="zoom">100%</output><button id="zoom-in" aria-label="拡大">＋</button><button id="reset-view">全体に戻す</button></div><label class="highlight-switch"><input id="show-changes" type="checkbox" checked>注目箇所</label></div>
         <div class="focus-bar"><span class="focus-label">見るところ</span><label class="visually-hidden" for="focus-region">注目する場所</label><select id="focus-region"><option value="all">ページ全体</option></select><span id="interaction-hint">拡大・表示位置はすべて同期。画像をドラッグして移動。</span></div>
         <div class="comparison-body">
@@ -38,7 +39,7 @@
           </section>
           <div class="comparison-area">
         <div id="comparison-grid" class="comparison-grid" aria-busy="true"></div>
-        <div id="empty-state" class="empty-state" hidden><span aria-hidden="true">▧</span><h2>画像を読み込んで、比較をはじめよう</h2><p>改善は加えず、現在のデザインをそのまま確認します。</p><label for="image-input" class="text-file-label">画像を選ぶ →</label></div>
+        <div id="empty-state" class="empty-state" hidden><span aria-hidden="true">▧</span><h2>ここに画像をドロップ</h2><p>改善は加えず、現在のデザインを4種類で確認します。</p><label for="image-input" class="text-file-label">または、画像を選ぶ →</label></div>
           </div>
         </div>
         <p id="status-message" class="status-message" role="status" aria-live="polite">教材を準備しています…</p>

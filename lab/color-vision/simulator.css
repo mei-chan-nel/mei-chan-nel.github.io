@@ -28,7 +28,7 @@ button:focus-visible, select:focus-visible, input:focus-visible, .viewport:focus
 .mode-bar small { margin-left: 10px; font-size: 10px; font-weight: 400; color: var(--ink-soft); }
 .mini-label { margin: 0; font: 700 10px/1.5 Arial,sans-serif; letter-spacing: .12em; color: var(--sim-accent); }
 .workspace { display: grid; grid-template-columns: minmax(0,1fr) 220px; align-items: start; gap: 18px; padding: 16px 0 20px; }
-.comparison { min-width: 0; background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.comparison { position: relative; min-width: 0; background: var(--white); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .comparison-toolbar { min-height: 52px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--line); }
 .comparison-label { font-size: 11px; font-weight: 700; }
 #fullscreen-toggle { min-height: 34px; padding: 5px 12px; border: 1px solid var(--ink); border-radius: 5px; font-size: 12px; font-weight: 700; }
@@ -87,8 +87,11 @@ input[type="checkbox"] { accent-color: var(--sim-accent); width: 15px; height: 1
 .contrast-evidence { margin: 5px 0; background: var(--white); border: 1px solid var(--line); border-radius: 5px; padding: 7px 10px; font-size: 10px; line-height: 1.8; }
 .contrast-evidence strong, .contrast-evidence span { display: block; }
 .contrast-evidence small { display: block; font-size: 9px; color: var(--ink-soft); }
-.drop-zone { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 15px 0; border: 2px dashed transparent; }
-.drop-zone.is-dragging { background: #eaf1ed; border-color: var(--mint-strong); }
+.drop-zone { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; padding: 15px; margin-top: 12px; border: 2px dashed #8f9f98; border-radius: 8px; }
+.drop-zone.is-dragging { background: #eaf1ed; border-color: var(--ink); }
+.drop-overlay { display: none; }
+.comparison.is-upload.is-dragging .drop-overlay { display: flex; position: absolute; inset: 8px; z-index: 5; pointer-events: none; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 3px dashed var(--ink); border-radius: 8px; background: #eaf1edf5; text-align: center; padding: 20px; }
+.drop-overlay strong { font-size: clamp(17px,2vw,23px); }.drop-overlay span { font-size: 12px; }
 .drop-zone strong { font-size: 13px; }.drop-zone p { margin: 3px 0 0; color: var(--ink-soft); font-size: 11px; }
 .file-button { margin-left: auto; border: 1px solid var(--ink); border-radius: 6px; padding: 7px 15px; background: var(--ink); color: white; font-size: 12px; font-weight: 600; }
 .file-button span { margin-left: 20px; }.drop-hint { font-size: 10px; color: var(--ink-soft); }

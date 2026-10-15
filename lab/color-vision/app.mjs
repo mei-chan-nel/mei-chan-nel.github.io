@@ -135,7 +135,7 @@ function setStep(index) {
 }
 function setMode(next) {
   if (next === mode) return;
-  mode = next; error(); reset(); if (imageDialog.open) imageDialog.close();
+  mode = next; clearDropState(); error(); reset(); if (imageDialog.open) imageDialog.close();
   const learning = mode === 'learn';
   for (const [id, active] of [['learn-tab', learning], ['upload-tab', !learning]]) {
     $(id).setAttribute('aria-selected', String(active)); $(id).tabIndex = active ? 0 : -1;
@@ -350,12 +350,33 @@ async function readImage(file){
 }
 $('image-input').addEventListener('change',(e)=>readImage(e.target.files?.[0]));
 let dragDepth=0;
-$('drop-zone').addEventListener('dragenter',(e)=>{e.preventDefault();dragDepth++;$('drop-zone').classList.add('is-dragging');});
-$('drop-zone').addEventListener('dragover',(e)=>e.preventDefault());
-$('drop-zone').addEventListener('dragleave',()=>{if(--dragDepth<=0){dragDepth=0;$('drop-zone').classList.remove('is-dragging');}});
-$('drop-zone').addEventListener('drop',(e)=>{e.preventDefault();dragDepth=0;$('drop-zone').classList.remove('is-dragging');readImage(e.dataTransfer.files[0]);});
-// Prevent an accidental drop elsewhere from navigating away with a local image.
-window.addEventListener('dragover',(e)=>e.preventDefault());window.addEventListener('drop',(e)=>e.preventDefault());
+const fileDrag=e=>[...(e.dataTransfer?.types??[])].includes('Files');
+function clearDropState(){
+  dragDepth=0;
+  $('drop-zone').classList.remove('is-dragging');card.classList.remove('is-dragging');
+}
+// The whole upload view accepts files, including the empty area, existing images
+// and fullscreen. File dragging stays separate from pointer-based image panning.
+window.addEventListener('dragenter',e=>{
+  if(!fileDrag(e)||mode!=='upload')return;
+  e.preventDefault();dragDepth++;
+  $('drop-zone').classList.add('is-dragging');card.classList.add('is-dragging');
+});
+window.addEventListener('dragover',e=>{
+  if(!fileDrag(e))return;
+  e.preventDefault();e.dataTransfer.dropEffect=mode==='upload'?'copy':'none';
+});
+window.addEventListener('dragleave',e=>{
+  if(fileDrag(e)&&--dragDepth<=0)clearDropState();
+});
+window.addEventListener('drop',e=>{
+  if(!fileDrag(e))return;
+  e.preventDefault();clearDropState();
+  if(mode!=='upload')return;
+  if(e.dataTransfer.files.length!==1){error('画像は1枚ずつドロップしてください。');return;}
+  readImage(e.dataTransfer.files[0]);
+});
+window.addEventListener('dragend',clearDropState);
 $('remove-image').addEventListener('click',()=>{uploadId++;uploadSet=null;uploadDescription='';$('image-input').value='';$('save-image').disabled=true;$('remove-image').disabled=true;error();reset();render();});
 $('save-image').addEventListener('click',async()=>{
   if(!uploadSet)return;const selected=$('save-type').value;const set=uploadSet;$('save-image').disabled=true;error();
