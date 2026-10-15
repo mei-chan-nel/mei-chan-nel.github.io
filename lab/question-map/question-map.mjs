@@ -1,6 +1,6 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, PRACTICE_LIMIT } from "./map-model.mjs?v=8";
-import { RegionPicker } from "./region-picker.mjs?v=1";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle, PRACTICE_LIMIT } from "./map-model.mjs?v=9";
+import { RegionPicker } from "./region-picker.mjs?v=2";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -364,39 +364,29 @@ function showMapDialog(dialog, returnFocus = viewport) {
 function updatePracticeSelection() {
   const session = state.practiceSession;
   if (!session) return;
-  const circlePoints = practiceCandidates(state.model, state.camera, state.width, state.height, session.circle);
-  $("#region-custom-count").textContent = `${circlePoints.length.toLocaleString()}問`;
-  const points = session.custom ? circlePoints : session.viewport;
+  const points = practiceCandidates(state.model, state.camera, state.width, state.height, session.circle);
   const preview = $("#region-preview");
-  preview.setAttribute("aria-label", `${session.custom ? "円内" : "表示範囲全体"}の${points.length.toLocaleString()}問が出題候補です。`);
-  const key = `${session.custom}:${points.map(p => p.id).sort().join(",")}`;
+  preview.setAttribute("aria-label", `円内の${points.length.toLocaleString()}問が出題候補です。`);
+  const key = points.map(p => p.id).sort().join(",");
   if (key === session.key) return;
   session.key = key;
   const selected = samplePractice(points), count = selected.length;
   $("#region-summary").textContent = !count ? "円内に問題がありません。円を動かすか、縮小してください。" : points.length > count ?
-    `範囲内の${points.length.toLocaleString()}問からランダムに${count}問を出題します。` : `範囲内の${count}問を出題します。`;
+    `円内の${points.length.toLocaleString()}問からランダムに${count}問を出題します。` : `円内の${count}問を出題します。`;
   const link = $("#region-start");
   link.textContent = count ? `${count}問を解く ↗` : "対象の問題がありません";
   link.setAttribute("aria-disabled", String(!count)); link.tabIndex = count ? 0 : -1;
   if (count) link.href = practiceUrl(selected.map(p => p.id)); else link.removeAttribute("href");
-}
-function updatePracticeScope(custom) {
-  const session = state.practiceSession;
-  session.custom = custom; session.picker.setEditable(custom);
-  $("#region-viewport").setAttribute("aria-pressed", String(!custom));
-  $("#region-custom").setAttribute("aria-pressed", String(custom));
-  $(".region-zoom").hidden = !custom;
-  updatePracticeSelection();
 }
 $("#region-practice").addEventListener("click", () => {
   if (!state.model) return;
   const all = practiceCandidates(state.model, state.camera, state.width, state.height);
   if (!all.length) { $("#region-practice").disabled = true; return; }
   state.inertia = null; state.target = { ...state.camera }; requestDraw();
-  const session = state.practiceSession = { viewport: all, custom: false, key: "" };
-  $("#region-viewport-count").textContent = `${all.length.toLocaleString()}問`;
+  const session = state.practiceSession = { key: null };
+  const circle = initialPracticeCircle(state.model, state.camera, state.width, state.height);
   showMapDialog($("#region-dialog"), $("#region-practice"));
-  session.picker = new RegionPicker($("#region-preview"), { camera: state.camera, width: state.width, height: state.height, bounds: state.model.bounds,
+  session.picker = new RegionPicker($("#region-preview"), { circle, bounds: state.model.bounds,
     drawMap(ctx, camera, width, height) {
       drawTerrain(ctx, camera, width, height);
       for (const point of state.model.index.query(viewBounds(camera, width, height))) {
@@ -407,10 +397,8 @@ $("#region-practice").addEventListener("click", () => {
     },
     onChange(circle) { session.circle = circle; updatePracticeSelection(); }
   });
-  session.circle = session.picker.selection(); updatePracticeScope(false);
+  session.circle = session.picker.selection(); session.picker.paint(); updatePracticeSelection();
 });
-$("#region-viewport").addEventListener("click", () => updatePracticeScope(false));
-$("#region-custom").addEventListener("click", () => updatePracticeScope(true));
 $("#region-zoom-in").addEventListener("click", () => state.practiceSession?.picker.zoom(1.4));
 $("#region-zoom-out").addEventListener("click", () => state.practiceSession?.picker.zoom(1 / 1.4));
 $("#region-close").addEventListener("click", () => { $("#region-dialog").close(); restoreDetailScroll(); });

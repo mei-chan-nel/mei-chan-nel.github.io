@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
-  stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice } from "../lab/question-map/map-model.mjs";
+  stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
@@ -27,6 +27,21 @@ test("地域の出題候補は全座標から選び、円の境界・空範囲�
   assert.equal(selected.length, 5); assert.equal(new Set(selected).size, 5);
   assert.ok(selected.every(p => pool.includes(p))); assert.ok(selected.includes(pool.at(-1)));
   assert.deepEqual(pool, original);
+});
+test("出題の初期円は現在の地域を包み、全体表示では問題の広がりまでに収める", () => {
+  const model = fixture();
+  for (const [width, height] of [[1180, 660], [356, 580], [286, 427]]) {
+    const overview = fitCamera(model.bounds, width, height);
+    const circle = initialPracticeCircle(model, overview, width, height);
+    assert.deepEqual(new Set(practiceCandidates(model, overview, width, height, circle)), new Set(model.points));
+    assert.ok(circle.radius < Math.hypot(width, height) / (2 * overview.scale));
+    const local = { x: 20, y: 0, scale: 400 }, nearby = initialPracticeCircle(model, local, width, height);
+    assert.equal(nearby.x, local.x); assert.equal(nearby.y, local.y);
+    assert.ok(nearby.radius >= Math.hypot(width, height) / (2 * local.scale));
+    const visible = model.index.query(viewBounds(local, width, height)), selected = practiceCandidates(model, local, width, height, nearby);
+    assert.ok(visible.every(p => selected.includes(p)));
+    assert.ok(nearby.radius < circle.radius / 5);
+  }
 });
 test("実データの全ID・座標・用語索引・メタデータが対応する", async () => {
   const app = new URL("../../info1-quiz-app/data/questions/", import.meta.url);

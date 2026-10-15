@@ -84,17 +84,10 @@ html.question-detail-open { overflow: hidden; }
 .region-dialog { box-sizing: border-box; width: min(560px, calc(100% - 24px)); max-height: 88svh; padding: 22px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 16px; background: var(--white); color: var(--ink); }
 .region-dialog::backdrop { background: rgb(16 47 53 / 45%); }
 .region-dialog > p { margin: 14px 0; font-size: .8rem; color: var(--ink-soft); }
-.region-scopes { display: flex; gap: 8px; }
-.region-scopes button { flex: 1; padding: 10px; min-height: 64px; border: 1px solid var(--line); border-radius: 9px; background: transparent; color: var(--ink); font: inherit; font-size: .85rem; cursor: pointer; }
-.region-scopes button span { display: block; margin-top: 2px; font-size: .7rem; }
-.region-scopes button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--white); }
-.region-scopes button:disabled { opacity: .45; cursor: default; }
 .region-map { position: relative; height: clamp(180px, 28svh, 260px); margin-top: 14px; border-radius: 9px; overflow: hidden; background: #e8efed; }
-#region-preview { display: block; width: 100%; height: 100%; }
-#region-preview.is-editable { cursor: grab; touch-action: none; }
+#region-preview { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
 #region-preview.is-dragging { cursor: grabbing; }
 .region-zoom { position: absolute; right: 8px; top: 8px; display: flex; flex-direction: column; gap: 4px; }
-.region-zoom[hidden] { display: none; }
 .region-zoom button { width: 40px; height: 40px; padding: 0; border: 1px solid var(--line); border-radius: 7px; background: rgb(255 255 255 / 95%); color: var(--ink); font: inherit; font-size: 1.2rem; cursor: pointer; }
 #region-hint { font-size: .7rem; line-height: 1.6; }
 .region-start { display: block; padding: 12px; border-radius: 9px; background: var(--mint-strong); color: var(--white); text-align: center; text-decoration: none; font-size: .9rem; font-weight: 600; }

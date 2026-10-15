@@ -1,22 +1,20 @@
-import { clamp, project, unproject, viewBounds, zoomAbout } from "./map-model.mjs?v=8";
+import { clamp, unproject, zoomAbout } from "./map-model.mjs?v=9";
 
 // A separate camera keeps a cancelled selection from moving the main map.
 export class RegionPicker {
-  constructor(canvas, { camera, width, height, bounds, drawMap, onChange }) {
-    Object.assign(this, { canvas, bounds, drawMap, onChange, initialCamera: { ...camera }, initialWidth: width,
-      originalBounds: viewBounds(camera, width, height), pointers: new Map(), editable: false, frame: 0 });
+  constructor(canvas, { circle, bounds, drawMap, onChange }) {
+    Object.assign(this, { canvas, bounds, drawMap, onChange, initialCircle: circle, pointers: new Map(), frame: 0 });
+    canvas.tabIndex = 0;
     this.ctx = canvas.getContext("2d"); this.events = new AbortController();
     const listen = (name, handler, options = {}) => canvas.addEventListener(name, handler, { ...options, signal: this.events.signal });
     listen("pointerdown", e => this.down(e)); listen("pointermove", e => this.move(e));
     for (const name of ["pointerup", "pointercancel", "lostpointercapture"]) listen(name, e => this.up(e));
     listen("wheel", e => {
-      if (!this.editable) return;
       e.preventDefault();
       const delta = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? this.height : 1);
       this.zoom(Math.exp(clamp(-delta * .002, -.5, .5)));
     }, { passive: false });
     listen("keydown", e => {
-      if (!this.editable) return;
       if (e.key === "+" || e.key === "=") this.zoom(1.4);
       else if (e.key === "-") this.zoom(1 / 1.4);
       else if (e.key.startsWith("Arrow")) {
@@ -42,10 +40,10 @@ export class RegionPicker {
     this.center.x = clamp(this.center.x, pad, w - pad); this.center.y = clamp(this.center.y, pad, h - pad);
     const b = this.bounds;
     this.minScale = Math.min((w - 24) / (b.maxX - b.minX + 4), (h - 24) / (b.maxY - b.minY + 4)) * .7;
-    this.maxScale = Math.max(this.minScale * 192, this.initialCamera.scale * w / this.initialWidth);
-    const scale = previous ? this.radius / previous.radius : this.initialCamera.scale * w / this.initialWidth;
+    this.maxScale = this.minScale * 192;
+    const circle = previous || this.initialCircle, scale = this.radius / circle.radius;
     this.minScale = Math.min(this.minScale, scale); this.maxScale = Math.max(this.maxScale, scale);
-    this.camera = previous ? { scale, x: previous.x - (this.center.x - w / 2) / scale, y: previous.y - (this.center.y - h / 2) / scale } : { ...this.initialCamera, scale };
+    this.camera = { scale, x: circle.x - (this.center.x - w / 2) / scale, y: circle.y - (this.center.y - h / 2) / scale };
     this.ratio = Math.min(devicePixelRatio || 1, 2);
     this.canvas.width = Math.round(w * this.ratio); this.canvas.height = Math.round(h * this.ratio);
     this.pointers.clear(); this.gesture = null; this.canvas.classList.remove("is-dragging");
@@ -54,13 +52,7 @@ export class RegionPicker {
   selection() {
     return { ...unproject(this.center, this.camera, this.width, this.height), radius: this.radius / this.camera.scale };
   }
-  setEditable(editable) {
-    this.editable = editable; this.pointers.clear(); this.gesture = null;
-    this.canvas.classList.toggle("is-editable", editable); this.canvas.classList.remove("is-dragging");
-    this.canvas.tabIndex = editable ? 0 : -1; this.paint();
-  }
   zoom(factor) {
-    if (!this.editable) return;
     // Zoom around the circle, preserving its geographic centre.
     this.camera = zoomAbout(this.camera, factor, this.center, this.width, this.height, this.minScale, this.maxScale);
     this.changed();
@@ -76,7 +68,7 @@ export class RegionPicker {
       points.length ? { start: points[0], center: { ...this.center } } : null;
   }
   down(event) {
-    if (!this.editable || (event.pointerType === "mouse" && event.button !== 0)) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
     event.preventDefault(); this.canvas.focus({ preventScroll: true });
     this.canvas.setPointerCapture(event.pointerId); this.pointers.set(event.pointerId, this.local(event));
     this.rebase(); this.canvas.classList.add("is-dragging");
@@ -109,24 +101,16 @@ export class RegionPicker {
   }
   paint() {
     if (!this.camera) return;
-    const { ctx, width: w, height: h } = this, b = this.originalBounds;
-    const scale = Math.min((w - 24) / (b.maxX - b.minX), (h - 24) / (b.maxY - b.minY));
-    const camera = this.editable ? this.camera : { x: (b.minX + b.maxX) / 2, y: (b.minY + b.maxY) / 2, scale };
+    const { ctx, width: w, height: h } = this;
     ctx.setTransform(this.ratio, 0, 0, this.ratio, 0, 0);
-    ctx.fillStyle = "#e8efed"; ctx.fillRect(0, 0, w, h); this.drawMap(ctx, camera, w, h);
-    ctx.strokeStyle = "#267765"; ctx.lineWidth = 2;
-    if (this.editable) {
-      const { x, y } = this.center, r = this.radius;
-      ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgb(255 255 255 / 62%)"; ctx.fill("evenodd");
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 5; ctx.stroke();
-      ctx.strokeStyle = "#267765"; ctx.lineWidth = 2; ctx.stroke();
-      ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = "#267765"; ctx.fill();
-    } else {
-      const p = project({ x: b.minX, y: b.minY }, camera, w, h);
-      ctx.strokeRect(p.x, p.y, (b.maxX - b.minX) * scale, (b.maxY - b.minY) * scale);
-    }
+    ctx.fillStyle = "#e8efed"; ctx.fillRect(0, 0, w, h); this.drawMap(ctx, this.camera, w, h);
+    const { x, y } = this.center, r = this.radius;
+    ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.moveTo(x + r, y); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgb(255 255 255 / 62%)"; ctx.fill("evenodd");
+    ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 5; ctx.stroke();
+    ctx.strokeStyle = "#267765"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI * 2); ctx.fillStyle = "#267765"; ctx.fill();
   }
   destroy() {
     this.events.abort(); this.observer.disconnect(); cancelAnimationFrame(this.frame);

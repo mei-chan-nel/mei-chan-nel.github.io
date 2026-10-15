@@ -18,10 +18,10 @@ async function candidates(page, custom = false) {
     return custom ? (px - circle.x) ** 2 + (py - circle.y) ** 2 <= circle.radius ** 2 : px >= 0 && px <= width && py >= 0 && py <= height;
   }).map(([id]) => id);
 }
-async function checkScope(page, custom = false) {
-  const ids = await candidates(page, custom), href = await page.locator("#region-start").getAttribute("href");
-  const label = await page.locator(custom ? "#region-custom-count" : "#region-viewport-count").textContent();
-  assert.equal(Number(label.replace(/[^\d]/g, "")), ids.length);
+async function checkScope(page) {
+  const ids = await candidates(page, true), href = await page.locator("#region-start").getAttribute("href");
+  const label = await page.locator("#region-preview").getAttribute("aria-label");
+  assert.equal(Number(label.match(/円内の([\d,]+)問/)[1].replaceAll(",", "")), ids.length);
   if (!ids.length) {
     assert.equal(href, null); assert.equal(await page.locator("#region-start").getAttribute("aria-disabled"), "true");
     return [];
@@ -39,6 +39,26 @@ async function circleGeometry(page) {
     const { a, d, e, f, ratio } = window.regionTransform, { x, y, radius } = window.regionCircle;
     return { x, y, radius, worldX: (x * ratio - e) / a, worldY: (y * ratio - f) / d, worldRadius: radius * ratio / a, scale: a / ratio };
   });
+}
+async function checkInitialRegion(page, overview = false) {
+  const geometry = await circleGeometry(page), visible = await candidates(page), selected = await candidates(page, true);
+  assert.ok(visible.length > 0 && visible.every(id => selected.includes(id)), "The initial circle includes the questions in the main view");
+  const original = await page.evaluate(() => {
+    const t = window.mapTransform, scale = t.a / t.ratio;
+    return { x: (t.width / 2 - t.e / t.ratio) / scale, y: (t.height / 2 - t.f / t.ratio) / scale,
+      radius: Math.hypot(t.width, t.height) / (2 * scale), widthScale: scale * document.querySelector("#region-preview").clientWidth / t.width };
+  });
+  assert.ok(Math.abs(geometry.worldX - original.x) < 1e-4 && Math.abs(geometry.worldY - original.y) < 1e-4, "Opening preserves the region centre");
+  if (overview) {
+    assert.equal(selected.length, questions.length);
+    const extent = Math.max(...Object.values(coordinates).map(([x, y]) => Math.hypot(x - original.x, y - original.y)));
+    assert.ok(geometry.worldRadius <= extent * 1.08, "Overview does not zoom out into the empty viewport margins");
+  } else {
+    assert.ok(geometry.worldRadius >= original.radius * .99 && geometry.worldRadius <= original.radius * 1.08, "A local view fits in the circle with a small margin");
+    assert.ok(geometry.scale < original.widthScale, "The picker pulls back from an enlarged main view");
+  }
+  await checkScope(page);
+  return geometry;
 }
 async function dragCircle(page, dx, dy, touch = false) {
   const box = await page.locator("#region-preview").boundingBox(), c = await circleGeometry(page);
@@ -86,24 +106,21 @@ try {
     const scrollBefore = await page.evaluate(() => scrollY);
     await page.locator("#region-practice").click();
     await page.waitForSelector("#region-dialog[open]");
-    assert.equal(await page.locator("#region-viewport").getAttribute("aria-pressed"), "true");
-    await checkScope(page);
+    await settle(page);
+    assert.equal(await page.locator(".region-scopes,#region-viewport,#region-custom").count(), 0);
+    assert.ok(!(await page.locator("#region-dialog").textContent()).match(/表示範囲|地域を絞る/));
+    await checkInitialRegion(page, true);
     assert.ok((await candidates(page)).length > await page.locator(".map-card").count(), "Candidates include hidden cards");
-    const fullPreview = await page.locator("#region-preview").screenshot();
-    await page.locator("#region-custom").click(); await settle(page);
-    await checkScope(page, true);
-    assert.equal(await page.locator("#region-custom").textContent().then(t => t.startsWith("地域を絞る")), true);
-    assert.notDeepEqual(await page.locator("#region-preview").screenshot(), fullPreview, "Preview highlights the selected scope");
     const mainBefore = await page.evaluate(() => window.mapTransform), geometry = await circleGeometry(page);
     await dragCircle(page, 24, 16, width < 600);
     const moved = await circleGeometry(page); assert.ok(moved.x - geometry.x > 20 && moved.y - geometry.y > 12);
-    await checkScope(page, true);
+    await checkScope(page);
     await page.locator("#region-zoom-in").click(); await settle(page);
     const enlarged = await circleGeometry(page);
     assert.ok(enlarged.worldRadius < moved.worldRadius * .73);
     // Canvas exposes a float-rounded transform; tolerate a fraction of a pixel.
     assert.ok(Math.abs(enlarged.worldX - moved.worldX) < 1e-4 && Math.abs(enlarged.worldY - moved.worldY) < 1e-4);
-    await checkScope(page, true);
+    await checkScope(page);
     await page.locator("#region-zoom-out").click(); await settle(page);
     assert.ok(Math.abs((await circleGeometry(page)).worldRadius - moved.worldRadius) < 1e-4);
     const box = await page.locator("#region-preview").boundingBox();
@@ -112,7 +129,7 @@ try {
     await page.keyboard.down("Control"); await page.mouse.wheel(0, -150); await page.keyboard.up("Control"); await settle(page);
     assert.ok((await circleGeometry(page)).worldRadius < moved.worldRadius);
     assert.deepEqual(await page.evaluate(() => ({ y: scrollY, scale: visualViewport.scale })), pageBeforeWheel);
-    await checkScope(page, true);
+    await checkScope(page);
     if (width < 600) {
       const cdp = await context.newCDPSession(page), c = await circleGeometry(page);
       const cx = box.x + c.x, cy = box.y + c.y;
@@ -122,9 +139,9 @@ try {
       }
       await cdp.detach(); await settle(page);
       assert.ok((await circleGeometry(page)).worldRadius < c.worldRadius * .6);
-      await checkScope(page, true);
+      await checkScope(page);
     }
-    await page.locator("#region-preview").focus(); await page.keyboard.press("ArrowLeft"); await settle(page); await checkScope(page, true);
+    await page.locator("#region-preview").focus(); await page.keyboard.press("ArrowLeft"); await settle(page); await checkScope(page);
     assert.deepEqual(await page.evaluate(() => window.mapTransform), mainBefore, "Picker gestures leave the main map unchanged");
     if (process.env.LAB_AXE_MODULE) {
       await page.addScriptTag({ path: process.env.LAB_AXE_MODULE });
@@ -138,17 +155,16 @@ try {
       await dragCircle(page, (nearest.xy[0] - c.worldX) * c.scale, (nearest.xy[1] - c.worldY) * c.scale);
       for (let i = 0; i < 15; i++) await page.locator("#region-zoom-in").click();
       await settle(page);
-      const few = await checkScope(page, true);
+      const few = await checkScope(page);
       assert.ok(few.length > 0 && few.length <= 5, "A small circle passes only the available questions");
       const high = await circleGeometry(page), maxX = Math.max(...Object.values(coordinates).map(p => p[0]));
       const steps = Math.ceil((maxX + high.worldRadius * 2 - high.worldX) * high.scale / 16) + 1;
       await page.locator("#region-preview").evaluate((n, steps) => {
         for (let i = 0; i < steps; i++) n.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
       }, steps);
-      await settle(page); assert.equal((await checkScope(page, true)).length, 0);
-      await page.locator("#region-viewport").click(); await checkScope(page);
-      await page.locator("#region-custom").click(); await settle(page);
-      assert.equal((await checkScope(page, true)).length, 0, "An empty circle stays selectable without falling back to another area");
+      await settle(page); assert.equal((await checkScope(page)).length, 0);
+      await page.locator("#region-preview").focus(); await page.keyboard.press("+"); await settle(page);
+      assert.equal((await checkScope(page)).length, 0, "An empty circle stays selectable without falling back to another area");
       await page.setViewportSize({ width: 390, height: 1000 }); await settle(page);
       for (let i = 0; i < 30; i++) await page.locator("#region-zoom-out").click();
       await settle(page); await dragCircle(page, 60, 0);
@@ -158,7 +174,7 @@ try {
       assert.ok(Math.abs(afterResize.worldX - beforeResize.worldX) < 1e-4 && Math.abs(afterResize.worldY - beforeResize.worldY) < 1e-4);
       assert.ok(Math.abs(afterResize.worldRadius - beforeResize.worldRadius) < 1e-4);
       assert.deepEqual((await candidates(page, true)).sort(), resizeIds, "Resizing preserves the geographic circle and its candidates");
-      await checkScope(page, true);
+      await checkScope(page);
     }
     await page.keyboard.press("Escape");
     await page.waitForSelector("#region-dialog:not([open])", { state: "attached" });
@@ -167,19 +183,22 @@ try {
     assert.equal(await page.evaluate(() => localStorage.getItem("info1LearningRecord:v1")), before);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     // Zoom and pan, then compare the dialog against the actual transformed map.
-    await page.locator("#zoom-in").click(); await page.locator("#zoom-in").click();
+    for (let i = 0; i < 5; i++) await page.locator("#zoom-in").click();
     await page.waitForTimeout(700);
     await page.locator("#map-viewport").focus(); await page.keyboard.press("ArrowRight"); await page.waitForTimeout(600);
-    await page.locator("#region-practice").click(); await checkScope(page);
-    await page.locator("#region-custom").click(); await settle(page);
-    await checkScope(page, true);
+    await page.locator("#region-practice").click(); await settle(page);
+    const localCircle = await checkInitialRegion(page);
+    if (process.env.LAB_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.LAB_SCREENSHOT_DIR}/question-map-practice-local-${width}.png` });
+    await dragCircle(page, 20, 0, width < 600); await checkScope(page);
     await page.locator("#region-close").click();
     await page.locator("#region-practice").click();
-    assert.equal(await page.locator("#region-viewport").getAttribute("aria-pressed"), "true", "Every opening defaults to the visible range");
+    await settle(page);
+    const reopened = await checkInitialRegion(page);
+    assert.ok(Math.abs(reopened.worldX - localCircle.worldX) < 1e-4 && Math.abs(reopened.worldRadius - localCircle.worldRadius) < 1e-4, "Every opening starts from the main view again");
     await checkScope(page); await page.locator("#region-close").click();
     // Use the real app's challenge route and answer without resetting demo history.
-    await page.locator("#region-practice").click(); await page.locator("#region-custom").click(); await settle(page);
-    const appIds = await checkScope(page, true);
+    await page.locator("#region-practice").click(); await settle(page);
+    const appIds = await checkScope(page);
     const recordBefore = await page.evaluate(() => JSON.parse(localStorage.getItem("info1LearningRecord:v1") || '{"q":{}}'));
     await page.locator("#region-start").click(); await page.waitForSelector(".choice-button");
     assert.deepEqual(new URL(page.url()).searchParams.get("challenge").split(","), appIds);

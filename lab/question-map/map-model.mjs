@@ -115,6 +115,13 @@ export function viewBounds(camera, width, height, margin = 0) {
 // Both regions use all points in their bounds, including questions whose
 // cards are currently hidden to avoid overlap.
 export const PRACTICE_LIMIT = 5;
+export function initialPracticeCircle(model, camera, width, height) {
+  const viewportRadius = Math.hypot(width, height) / (2 * camera.scale);
+  // A local view fits inside the circle. At overview, stop at the actual
+  // question extent instead of including the viewport's empty margins.
+  const mapRadius = Math.max(1, ...model.points.map(p => Math.hypot(p.x - camera.x, p.y - camera.y)));
+  return { x: camera.x, y: camera.y, radius: Math.min(viewportRadius, mapRadius) * 1.04 };
+}
 export function practiceCandidates(model, camera, width, height, circle = null) {
   if (!circle) return model.index.query(viewBounds(camera, width, height));
   const { x, y, radius } = circle;
