@@ -228,8 +228,6 @@ $('zoom-in').addEventListener('click',()=>changeZoom(zoom+.25));$('zoom-out').ad
 $('reset-view').addEventListener('click',()=>{reset();drawOutlines();});
 $('show-changes').addEventListener('change',()=>{drawOutlines();syncPositions();});
 $('focus-region').addEventListener('change',(e)=>focusRegion(e.target.value));
-$('comparison-view').value=matchMedia('(max-width:700px)').matches?'p':'all';grid.dataset.view=$('comparison-view').value;
-$('comparison-view').addEventListener('change',(e)=>{grid.dataset.view=e.target.value;syncPositions();});
 new ResizeObserver(syncPositions).observe(grid);
 
 async function readImage(file){

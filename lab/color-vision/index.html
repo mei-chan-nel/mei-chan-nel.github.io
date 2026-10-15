@@ -32,9 +32,9 @@
     </section>
     <div class="workspace">
       <section class="comparison" aria-label="見え方の比較">
-        <div class="comparison-toolbar"><div class="view-picker"><label class="visually-hidden" for="comparison-view">比較する種類</label><select id="comparison-view"><option value="all">4種類を比較</option><option value="p">通常 ＋ P型</option><option value="d">通常 ＋ D型</option><option value="t">通常 ＋ T型</option></select></div><div class="zoom-controls"><button id="zoom-out" aria-label="縮小">−</button><label class="visually-hidden" for="zoom">表示倍率</label><input id="zoom" type="range" min="100" max="600" value="100" step="10"><output id="zoom-value" for="zoom">100%</output><button id="zoom-in" aria-label="拡大">＋</button><button id="reset-view">全体に戻す</button></div><label class="highlight-switch"><input id="show-changes" type="checkbox" checked>変更箇所</label></div>
+        <div class="comparison-toolbar"><span class="comparison-label">4種類を比較</span><div class="zoom-controls"><button id="zoom-out" aria-label="縮小">−</button><label class="visually-hidden" for="zoom">表示倍率</label><input id="zoom" type="range" min="100" max="600" value="100" step="10"><output id="zoom-value" for="zoom">100%</output><button id="zoom-in" aria-label="拡大">＋</button><button id="reset-view">全体に戻す</button></div><label class="highlight-switch"><input id="show-changes" type="checkbox" checked>変更箇所</label></div>
         <div class="focus-bar"><span class="focus-label">見るところ</span><label class="visually-hidden" for="focus-region">注目する場所</label><select id="focus-region"><option value="all">ページ全体</option></select><span id="interaction-hint">拡大・表示位置はすべて同期。画像をドラッグして移動。</span></div>
-        <div id="comparison-grid" class="comparison-grid" data-view="all" aria-busy="true"></div>
+        <div id="comparison-grid" class="comparison-grid" aria-busy="true"></div>
         <div id="empty-state" class="empty-state" hidden><span aria-hidden="true">▧</span><h2>画像を読み込んで、比較をはじめよう</h2><p>改善は加えず、現在のデザインをそのまま確認します。</p><label for="image-input" class="text-file-label">画像を選ぶ →</label></div>
         <p id="status-message" class="status-message" role="status" aria-live="polite">教材を準備しています…</p>
         <p id="error-message" class="error-message" role="alert" hidden></p>
