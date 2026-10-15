@@ -82,6 +82,46 @@ function domain(s, id) {
   };
   const rows = (a, min = 1, max = 300) =>
     Array.isArray(a) && a.length >= min && a.length <= max;
+  if (s.dataInfo) {
+    const d = s.dataInfo;
+    need(
+      typeof d === "object" &&
+        !Array.isArray(d) &&
+        typeof d.name === "string" &&
+        d.name.length <= 160 &&
+        ["sample", "user", "project", "model", "saved"].includes(d.origin),
+      "データの出所を確認してください。",
+    );
+    need(
+      Array.isArray(d.columns) &&
+        d.columns.length <= 20 &&
+        d.columns.every((v) => typeof v === "string" && v.length <= 100),
+      "項目名を確認してください。",
+    );
+    need(
+      Array.isArray(d.baseline) &&
+        d.baseline.length <= 300 &&
+        d.baseline.every((r) => Array.isArray(r) && r.length <= 20),
+      "元データの形式を確認してください。",
+    );
+    if (d.labels)
+      need(
+        ["methods", "strata", "outcomes"].every(
+          (k) =>
+            Array.isArray(d.labels[k]) &&
+            d.labels[k].length === 2 &&
+            d.labels[k].every((v) => typeof v === "string" && v.length <= 100),
+        ),
+        "集団・方式・結果のラベルを確認してください。",
+      );
+  }
+  if (s.monthLabels)
+    need(
+      Array.isArray(s.monthLabels) &&
+        s.monthLabels.length === 48 &&
+        s.monthLabels.every((v) => typeof v === "string" && v.length <= 40),
+      "月のラベルを確認してください。",
+    );
   if (id === "correlation" || id === "summary") {
     need(rows(s.points, 2), "データは2〜300点にしてください。");
     need(
@@ -126,15 +166,41 @@ function domain(s, id) {
       "比較用所得を確認してください。",
     );
   }
+  if (s.customPopulation)
+    need(
+      Array.isArray(s.customPopulation) &&
+        rows(s.customPopulation, 2) &&
+        s.customPopulation.every(
+          (p, i) =>
+            p.id === i &&
+            Number.isFinite(p.value) &&
+            typeof p.frequent === "boolean",
+        ),
+      "母集団データを確認してください。",
+    );
+  if (s.customValues)
+    need(
+      Array.isArray(s.customValues) &&
+        s.customValues.length === 48 &&
+        s.customValues.every((v) => Number.isFinite(v) && v >= 0),
+      "月別データは0以上の数値48件にしてください。",
+    );
   if (id === "sampling") {
     need(
-      Number.isInteger(s.n) && s.n >= 1 && s.n <= 120,
+      Number.isInteger(s.n) &&
+        s.n >= 1 &&
+        s.n <= (s.customPopulation?.length || 120),
       "標本数は1〜120人にしてください。",
     );
     need(
       rows(s.history, 1, 2000) &&
-        rows(s.last, 1, 120) &&
-        s.last.every((v) => Number.isInteger(v) && v >= 0 && v < 120),
+        rows(s.last, 1, s.customPopulation?.length || 120) &&
+        s.last.every(
+          (v) =>
+            Number.isInteger(v) &&
+            v >= 0 &&
+            v < (s.customPopulation?.length || 120),
+        ),
       "抽出履歴を確認してください。",
     );
   }

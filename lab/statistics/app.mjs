@@ -1,10 +1,38 @@
 import { esc } from "./shared/ui.mjs";
 import { validateDocument } from "./shared/validation.mjs";
+import { currentData, restoreInput } from "./shared/data-model.mjs";
+import { composeWorkbench } from "./workbench.mjs";
+import { openDataEditor } from "./data-editor.mjs";
+import { normalizeExperiment } from "./sampling/model.mjs";
+import { readDataset } from "./shared/data.mjs";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261015-ui2`)).default;
 const clone = (x) => JSON.parse(JSON.stringify(x));
+const ui = { view: 0, openSections: {} };
+function prepare(next) {
+  if (id === "sampling") next = normalizeExperiment(next);
+  if (!next.dataInfo) {
+    const data = currentData(id, next);
+    const projectData = project ? readDataset() : null;
+    next.dataInfo = {
+      name: data.name,
+      origin: project
+        ? projectData.origin === "user"
+          ? "user"
+          : "project"
+        : restoredLegacy
+          ? "saved"
+          : data.origin,
+      columns: data.headers,
+      baseline: clone(data.rows),
+    };
+  }
+  return next;
+}
 const key = `study-atlas-statistics-${id}-v1`,
   project = new URLSearchParams(location.search).get("dataset") === "project";
+let restoredLegacy = false;
 let state = config.initial(),
   snapshot = null,
   notes = {};
@@ -13,10 +41,13 @@ try {
   if (saved && !project) {
     validateDocument(saved, id, config.initial());
     state = saved.state;
+    restoredLegacy = !saved.state.dataInfo;
     snapshot = saved.snapshot || null;
     notes = saved.notes || {};
   }
 } catch {}
+state = prepare(state);
+restoredLegacy = false;
 const root = document.querySelector("#experiment"),
   status = document.querySelector("#stat-status");
 const statusText = (s) => {
@@ -47,16 +78,60 @@ function draw() {
     config.render(root, {
       state,
       update: (patch) => {
-        state = { ...state, ...patch };
+        state = prepare({ ...state, ...patch });
         persist();
         draw();
       },
       replace: (next) => {
-        state = next;
+        state = prepare(next);
         persist();
         draw();
       },
     });
+    const views = composeWorkbench(root, id, ui, draw) || [];
+    fitWorkspaceCharts(root.querySelector(".workbench-display"));
+    const tabs = document.querySelector("#view-tabs");
+    tabs.innerHTML = views
+      .map(
+        (v, i) =>
+          `<button type="button" data-view="${i}" aria-pressed="${v.active}">${esc(v.label)}</button>`,
+      )
+      .join("");
+    tabs
+      .querySelectorAll("button")
+      .forEach((b, i) => (b.onclick = views[i].choose));
+    const data = currentData(id, state);
+    const origin =
+      {
+        sample: "教材サンプル・架空",
+        user: "自分のデータ",
+        project: "横断課題の共通データ",
+        model: "確率モデル",
+      }[data.origin] || "保存したデータ";
+    document.querySelector("#data-name").textContent =
+      `${origin}：${data.origin === "sample" ? data.name.replace(/^架空の/, "") : data.name}`;
+    document.querySelector("#reset").textContent =
+      data.origin === "user"
+        ? "読み込み直後に戻す"
+        : project
+          ? "課題の元データに戻す"
+          : "初期化";
+    document.querySelector("#data-description").textContent =
+      id === "probability"
+        ? state.mode === "normal"
+          ? "右の平均・標準偏差・区間の条件から、理論分布を描きます。"
+          : "右の確率・試行回数の条件から、実験データを生成します。"
+        : (id === "probability"
+            ? ""
+            : `${data.rows.length}${id === "correlation" ? "組" : "行"} ／ `) +
+          data.headers.join(" ・ ") +
+          (id === "hypothesis-test"
+            ? ` ／ A＝${data.rows[0][0]}・B＝${data.rows[1][0]}`
+            : "") +
+          (data.edits ? ` ／ 元データから${data.edits}行を変更` : "") +
+          (data.filename ? ` ／ ${data.filename}` : "");
+    document.querySelector("#analysis-flow").textContent =
+      "処理：" + data.operation;
     if (focus?.id) {
       const target = document.getElementById(focus.id);
       if (target) {
@@ -79,6 +154,7 @@ function draw() {
 function drawSnapshot() {
   const box = document.querySelector("#comparison");
   box.hidden = !snapshot;
+  document.querySelector("#comparison-empty").hidden = Boolean(snapshot);
   if (!snapshot) return;
   box.innerHTML =
     '<h2>比較のために残した実験</h2><p class="hint">操作前の条件と結果です。上の実験を変えて見比べてください。</p><div class="frozen"></div>';
@@ -135,10 +211,13 @@ function drawMissions() {
   document.querySelectorAll("[data-mission]").forEach(
     (b) =>
       (b.onclick = () => {
-        state = {
-          ...state,
+        state = prepare({
+          ...config.initial(),
           ...clone(config.missions[+b.dataset.mission].preset),
-        };
+          dataInfo: null,
+        });
+        ui.view = 0;
+        document.querySelector("#learning-dialog").close();
         persist();
         draw();
         root.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -162,7 +241,12 @@ function drawMissions() {
 document.querySelector("#explanation-body").innerHTML = config.explanation;
 document.querySelector("#lab-lead").textContent = config.lead;
 document.querySelector("#reset").onclick = () => {
-  state = config.initial();
+  state = prepare(
+    state.dataInfo?.origin === "user"
+      ? restoreInput(id, state, config.initial())
+      : config.initial(),
+  );
+  ui.view = 0;
   persist();
   draw();
 };
@@ -184,6 +268,7 @@ document.querySelector("#record").onclick = () => {
     );
     records[id] = {
       title: config.title,
+      data: currentData(id, state),
       metrics: [...root.querySelectorAll(".metrics>div")].map(
         (el) => el.innerText,
       ),
@@ -224,7 +309,7 @@ document.querySelector("#import").onchange = async (e) => {
     if (file.size > 1000000) throw Error("ファイルは1MB以内にしてください。");
     const d = JSON.parse(await file.text());
     validateDocument(d, id, config.initial());
-    state = d.state;
+    state = prepare(d.state);
     snapshot = d.snapshot || null;
     notes = d.notes && typeof d.notes === "object" ? d.notes : {};
     persist();
@@ -237,6 +322,41 @@ document.querySelector("#import").onchange = async (e) => {
   e.target.value = "";
 };
 
+document.querySelector("#lab-picker").onchange = (e) =>
+  (location.href = `../${e.target.value}/`);
+document.querySelector("#open-data").onclick = () => {
+  if (id === "probability") {
+    root
+      .querySelector(".workbench-controls input")
+      ?.focus({ preventScroll: true });
+    return;
+  }
+  openDataEditor({
+    id,
+    state,
+    apply: (next) => {
+      state = prepare(next);
+      ui.view = 0;
+      persist();
+      draw();
+      statusText(
+        "データを読み込みました。使用中の列と処理を上部で確認できます。",
+      );
+    },
+  });
+};
+if (id === "probability")
+  document.querySelector("#open-data").textContent = "モデルの条件を変える";
+document.querySelector("#show-tools").onclick = () =>
+  document.querySelector("#tools-dialog").showModal();
+document.querySelector("#show-comparison").onclick = () =>
+  document.querySelector("#comparison-dialog").showModal();
+document.querySelector("#show-learning").onclick = () => {
+  document.querySelector(".stat-missions").open = true;
+  document.querySelector("#learning-dialog").showModal();
+};
+document.querySelector("#import-button").onclick = () =>
+  document.querySelector("#import").click();
 drawMissions();
 draw();
 statusText(
@@ -244,3 +364,9 @@ statusText(
     ? "横断課題のデータを読み込みました。ラボでの変更は課題の元データに影響しません。"
     : "開いた直後から自由に実験できます。操作はブラウザに自動保存されます。",
 );
+
+let layoutTimer;
+window.addEventListener("resize", () => {
+  clearTimeout(layoutTimer);
+  layoutTimer = setTimeout(draw, 120);
+});

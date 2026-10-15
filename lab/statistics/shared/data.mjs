@@ -12,6 +12,7 @@ export const studyData = () =>
   }));
 export const defaultDataset = () => ({
   name: "学習時間と確認テスト（架空の24人）",
+  origin: "sample",
   xLabel: "1週間の学習時間（時間）",
   yLabel: "確認テストの得点（点）",
   rows: studyData(),
@@ -37,6 +38,8 @@ export function validateDataset(d) {
     throw Error("x・yには有限の数値を入力してください。");
   return {
     name: d.name.slice(0, 120),
+    origin:
+      d.origin === "user" ? "user" : d.origin === "sample" ? "sample" : "saved",
     xLabel: String(d.xLabel || "x").slice(0, 100),
     yLabel: String(d.yLabel || "y").slice(0, 100),
     rows: d.rows.map((r, i) => ({

@@ -1,5 +1,6 @@
 // Keep the statistics suites in the repository's standard scripts/*.test.mjs checks.
 import "../lab/statistics/shared/test.mjs";
+import "../lab/statistics/shared/data-model.test.mjs";
 import "../lab/statistics/correlation/test.mjs";
 import "../lab/statistics/histogram/test.mjs";
 import "../lab/statistics/summary/test.mjs";
@@ -25,10 +26,15 @@ test("all nine independent labs have real modules, three inquiry missions and va
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs"'));
+    assert.ok(html.includes('src="./../app.mjs?v=20261015-ui2"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
-    assert.ok(html.includes('href="../projects/"'));
+    assert.ok(html.includes('href="../projects/?start=records"'));
+    assert.ok(html.includes('id="open-data"'));
+    assert.ok(html.includes('id="analysis-flow"'));
+    assert.ok(html.includes('id="view-tabs"'));
+    assert.ok(html.includes('id="learning-dialog"'));
+    assert.ok(!html.includes('class="stat-badge"'));
     assert.ok(html.includes(`data-stat-lab="${id}"`));
   }
 });

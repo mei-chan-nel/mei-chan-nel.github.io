@@ -4,19 +4,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <script src="../../../assets/site-analytics.js?v=2026101201" defer></script>
 <title>代表値とばらつき｜Interactive Lab</title>
-<meta name="description" content="平均が同じでも、同じデータとは限らない。" />
+<meta name="description" content="データの中心とばらつきを、平均・中央値・箱ひげ図で比べる。" />
 <meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
-<meta property="og:title" content="代表値とばらつき｜Interactive Lab" /><meta property="og:description" content="平均が同じでも、同じデータとは限らない。" />
+<meta property="og:title" content="代表値とばらつき｜Interactive Lab" /><meta property="og:description" content="データの中心とばらつきを、平均・中央値・箱ひげ図で比べる。" />
 <meta property="og:url" content="https://mei-chan-nel.com/lab/statistics/summary/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
 <link rel="canonical" href="https://mei-chan-nel.com/lab/statistics/summary/" /><meta name="theme-color" content="#102f35" />
 <link rel="icon" href="../../icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="../../../assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="../../lab.css?v=3" />
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
-<script src="../../../assets/manual-ads.js?v=2026080901" defer></script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"代表値とばらつき","item":"https://mei-chan-nel.com/lab/statistics/summary/"}]}</script>
 <link rel="stylesheet" href="./../statistics.css" />
-<script type="module" src="./../app.mjs"></script>
+<link rel="stylesheet" href="./../workspace.css" />
+<script type="module" src="./../app.mjs?v=20261015-ui2"></script>
 <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:type" content="image/png" />
@@ -26,7 +25,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
-</head><body data-stat-lab="summary">
+</head><body data-statistics="summary" data-stat-lab="summary">
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../../">トップページ</a>
 <a href="../../../info1-quiz-app/app/">学習アプリ</a>
@@ -37,11 +36,9 @@
 <a href="../../../LectureNote/">講義ノート</a>
 <a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
 <main id="main-content" class="lab-shell lab-content-page stat-page">
-<nav class="breadcrumb" aria-label="パンくず"><a href="../../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../../">Interactive Lab</a><span aria-hidden="true">/</span><a href="../">統計・データ分析</a><span aria-hidden="true">/</span><span>代表値とばらつき</span></nav>
-<header class="stat-hero"><div><p class="eyebrow">INTERACTIVE LAB / STATISTICS 03</p><h1>代表値とばらつき</h1><p>平均が同じでも、同じデータとは限らない。</p></div><span class="stat-badge">動かして、理由を考える。</span></header><nav class="stat-nav" aria-label="統計ラボ"><a href="../correlation/" >01 散布図と相関・回帰</a><a href="../histogram/" >02 データの分布とヒストグラム</a><a href="../summary/" aria-current="page">03 代表値とばらつき</a><a href="../sampling/" >04 標本調査と推定</a><a href="../crosstab/" >05 クロス集計とデータの関係</a><a href="../time-series/" >06 時系列データの分析</a><a href="../probability/" >07 確率と確率分布</a><a href="../hypothesis-test/" >08 統計的な判断と仮説検定</a><a href="../lorenz/" >09 格差とローレンツ曲線</a><a href="../projects/">横断分析課題 →</a></nav><div class="stat-toolbar"><div class="actions"><button id="reset" type="button">初期化</button><button id="capture" type="button">比較に残す</button><button id="clear-compare" type="button">比較を消す</button></div><div class="actions"><button id="record" type="button">分析課題に記録</button><button id="export" type="button">JSON保存</button><label class="button" for="import">JSON読込</label><input id="import" type="file" accept=".json,application/json" hidden></div></div><p id="stat-status" class="stat-status" role="status" aria-live="polite"></p><p id="lab-lead" class="hint"></p><div id="experiment" aria-label="統計実験"></div><section id="comparison" class="stat-compare" hidden></section><details class="stat-missions" open><summary>発見のミッション <small>自由に選んで、予想を試そう</small></summary><div id="mission-list" class="mission-grid"></div></details><details class="stat-explanation"><summary>しくみ・計算・読み取り方を詳しく</summary><div id="explanation-body"></div><p class="hint">参考教材：<a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">放送大学「身近な統計」</a>。文章・図・データは独自に作成しています。</p></details><div class="stat-related"><a class="button" href="../">← 統計ラボの一覧</a><a class="button" href="../projects/">横断分析課題 →</a><a class="button" href="../../../LectureNote/statistics.html">講義ノートで学ぶ ↗</a></div>
+<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">統計・データ分析</a><span aria-hidden="true"> / </span><span>代表値とばらつき</span></nav><h1>代表値とばらつき</h1><p>データの中心とばらつきを、平均・中央値・箱ひげ図で比べる。</p></div><label class="lab-picker" for="lab-picker"><span>ラボを切り替える</span><select id="lab-picker"><option value="correlation" >散布図と相関・回帰</option><option value="histogram" >データの分布とヒストグラム</option><option value="summary" selected>代表値とばらつき</option><option value="sampling" >標本調査と推定</option><option value="crosstab" >クロス集計とデータの関係</option><option value="time-series" >時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header><section class="data-summary" aria-label="使用中のデータ"><div><strong id="data-name">サンプルデータを準備しています</strong><p id="data-description"></p></div><div class="actions"><button id="open-data" class="primary" type="button">自分のデータを使う</button><button id="reset" type="button">初期化</button></div></section><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p><div class="workspace-tabbar"><nav id="view-tabs" class="view-tabs" aria-label="分析結果の表示"></nav><div class="workspace-actions"><button id="capture" type="button">比較に残す</button><button id="show-comparison" type="button">比較を見る</button><button id="show-learning" type="button">ミッション・解説</button><button id="show-tools" type="button">記録・保存</button></div></div><p id="lab-lead" hidden></p><div id="experiment" aria-label="統計実験"></div><p id="stat-status" class="stat-status" role="status" aria-live="polite"></p><dialog id="comparison-dialog" class="workspace-dialog"><form method="dialog" class="dialog-heading"><h2>条件と結果を比較する</h2><button value="close">閉じる</button></form><div class="actions"><button id="clear-compare" type="button">比較を消す</button></div><section id="comparison" class="stat-compare" hidden></section><p id="comparison-empty">上の「比較に残す」で、変更前の条件と結果を記録できます。</p></dialog><dialog id="learning-dialog" class="workspace-dialog"><form method="dialog" class="dialog-heading"><h2>ミッション・解説</h2><button value="close">閉じる</button></form><details class="stat-missions"><summary>3つのミッションから選ぶ</summary><div id="mission-list" class="mission-grid"></div></details><details class="stat-explanation"><summary>しくみ・計算・読み取り方</summary><div id="explanation-body"></div></details></dialog><dialog id="tools-dialog" class="workspace-dialog"><form method="dialog" class="dialog-heading"><h2>分析の記録と実験の保存</h2><button value="close">閉じる</button></form><section><h3>分析課題に結果を残す</h3><p>使用したデータと処理、統計量、ミッションの記録を保存します。</p><button id="record" type="button">分析課題に記録</button> <a href="../projects/?start=records">記録と結論のページへ</a></section><section><h3>実験をファイルに保存する</h3><p>操作状態を含むJSONです。数値データを読み込む場合は「自分のデータを使う」を選んでください。</p><div class="actions"><button id="export" type="button">実験をJSON保存</button><button id="import-button" type="button">実験JSONを開く</button><input id="import" type="file" accept=".json,application/json" hidden></div></section></dialog>
 </main>
-<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
-<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>
+<footer class="stat-footer"><a href="../">統計ラボ一覧</a><a href="../../">Interactive Lab</a><a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">参考教材</a><details class="site-menu"><summary>サイト案内</summary><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>
 <a href="../../../info1-quiz-app/app/">学習アプリ</a>
 <a href="../../../info1-quiz-app/questions/">問題を探す</a>
 <a href="../../../terms/">用語一覧</a>
@@ -53,6 +50,6 @@
 <a href="../../../books/">書籍案内</a>
 <a href="../../../about.html">このサイトについて</a>
 <a href="../../../privacy.html">プライバシーポリシー</a>
-<a href="../../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<a href="../../../sitemap.html">サイトマップ</a></nav></details><span>情報Ⅰ Study Atlas</span></footer>
 <script type="module" src="../../navigation.mjs?v=1"></script>
 </body></html>

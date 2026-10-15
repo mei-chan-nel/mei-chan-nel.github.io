@@ -314,6 +314,11 @@ function render(root, ctx) {
   root
     .querySelector("#corr-delete")
     .addEventListener("click", () => remove(selected?.id));
+  const addOption = root.querySelector('#point-mode option[value="add"]');
+  if (addOption) {
+    addOption.disabled = points.length >= 300;
+    if (points.length >= 300) addOption.textContent = "追加は300点までです";
+  }
   const chart = root.querySelector("#corr-chart");
   chart.querySelectorAll("[data-id]").forEach((el) => {
     el.addEventListener("click", () =>
@@ -345,13 +350,18 @@ function render(root, ctx) {
     });
   });
   chart.addEventListener("click", (e) => {
-    if (s.mode !== "add" || e.target.closest("[data-id]")) return;
+    if (
+      s.mode !== "add" ||
+      points.length >= 300 ||
+      e.target.closest("[data-id]")
+    )
+      return;
     const pos = chart.createSVGPoint();
     pos.x = e.clientX;
     pos.y = e.clientY;
     const local = pos.matrixTransform(chart.getScreenCTM().inverse());
-    const x = a.ix(local.x),
-      y = a.iy(local.y);
+    const x = a.ix(local.x / Number(chart.dataset.scaleX || 1)),
+      y = a.iy(local.y / Number(chart.dataset.scaleY || 1));
     if (x < s.xMin || x > s.xMax || y < s.yMin || y > s.yMax) return;
     const id = `new-${Date.now()}-${points.length}`;
     ctx.update({

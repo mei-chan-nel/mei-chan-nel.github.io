@@ -218,7 +218,7 @@ function render(root, ctx) {
     : "棒・点・表の行を選ぶと、集計した元データが対応して強調されます。";
   root.innerHTML = `
     <div class="stat-grid">
-      <section class="panel chart-panel"><h2>区切り方で、分布の見え方は変わる？</h2><p class="muted">${esc(s.source)}。A・B は異なる集団です。${s.groupNames && s.groupNames.join("") !== "AB" ? `A＝${esc(s.groupNames[0])}、B＝${esc(s.groupNames[1])}。` : ""}すべて教材用の架空データです。</p>
+      <section class="panel chart-panel"><h2>区切り方で、分布の見え方は変わる？</h2><p class="muted">${esc(s.source)}。A・B は異なる集団です。${s.groupNames && s.groupNames.join("") !== "AB" ? `A＝${esc(s.groupNames[0])}、B＝${esc(s.groupNames[1])}。` : ""}${s.dataInfo?.origin === "user" ? "読み込んだ数値を使っています。" : "教材用の架空データです。"}</p>
       ${metrics([
         ["データ数", `${n}人`],
         ["平均", fmt(mean(rows.map((r) => r.value)))],
@@ -226,7 +226,7 @@ function render(root, ctx) {
         ["選択した階級", sel ? `${sel.count}人` : "未選択"],
       ])}
       ${svg(a.markup + grid + cumline, "階級幅と開始位置で変わる度数分布", 720, 360)}
-      <div class="legend"><span style="color:#168b87">● 集団A（${groupN.A}人）</span>　<span style="color:#de7c35">● 集団B（${groupN.B}人）</span></div>
+      <div class="legend"><span style="color:#168b87">● 集団A（${groupN.A}件）</span>　<span style="color:#de7c35">● 集団B（${groupN.B}件）</span></div>
       <h3>元のデータと集計を対応させる</h3>${svg(`<text x="16" y="42" fill="currentColor">A</text><text x="16" y="78" fill="currentColor">B</text><line x1="60" x2="690" y1="100" y2="100" stroke="#64748b"/>${raw}<text x="60" y="119" font-size="12" fill="currentColor">${esc(fmt(xmin))}</text><text x="650" y="119" font-size="12" fill="currentColor">${esc(fmt(xmax))}</text>`, "集団ごとの生データの点。階級の選択と連動します", 720, 125)}
       <p class="annotation" aria-live="polite">${esc(selectedText)}</p>
       ${relative && s.mode === "split" ? '<p class="hint">色別の相対度数も分母は全体の人数です。両色を足すと全体の相対度数になります。</p>' : ""}

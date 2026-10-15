@@ -1,5 +1,6 @@
 import { mean, rng, normal, fmt, clamp } from "../shared/math.mjs";
 import {
+  esc,
   range,
   select,
   metrics,
@@ -105,7 +106,9 @@ export function seriesIndicator(values, mode) {
   );
 }
 
-function month(i) {
+function month(i, s = {}) {
+  if (s.monthLabels?.[i]) return s.monthLabels[i];
+  if (s.customValues) return `${i + 1}か月目`;
   return `${2022 + Math.floor(i / 12)}年${(i % 12) + 1}月`;
 }
 function monthlyAxes(axis) {
@@ -115,11 +118,11 @@ function monthlyAxes(axis) {
     "",
   );
 }
-function tickLabels(axis, h = 360) {
+function tickLabels(axis, h = 360, s = {}) {
   return [0, 12, 24, 36, 47]
     .map(
       (i) =>
-        `<text x="${axis.x(i)}" y="${h - 15}" text-anchor="${i === 47 ? "end" : "middle"}" font-size="11">${2022 + Math.floor(i / 12)}.${(i % 12) + 1}</text>`,
+        `<text x="${axis.x(i)}" y="${h - 15}" text-anchor="${i === 47 ? "end" : "middle"}" font-size="11">${esc(month(i, s).replace("年", ".").replace("月", ""))}</text>`,
     )
     .join("");
 }
@@ -172,7 +175,8 @@ export default {
   explanation: `<h2>時間の順序に意味があるデータ</h2><p>このラボの注文数は、130＋月当たりの増加量×月番号＋12か月周期の波＋偶然変動で独自に生成しています。注文数が負にならないよう下限を1にしています。季節は毎年繰り返す動き、トレンドは長期的な動きです。現実には制度変更、休日、欠品なども影響し、同じ式が続くとは限りません。</p><h3>移動平均の窓は過去だけ</h3><p>kか月移動平均は、その月を含む直近kか月の合計÷kです。最初のk−1か月は計算できません。このラボは後方移動平均を使うため、未来の値は使いません。長い窓は偶然変動を弱めますが、変化への反応が遅れます。12か月の窓は1年の波を平均化します。</p><h3>何と比べるかを決める</h3><p>前月比＝(当月÷前月−1)×100、前年同月比＝(当月÷12か月前−1)×100です。指数は最初の月を100とした当月÷最初の月×100。前月比は短期変化を捉えますが季節の影響を受けます。前年同月比も、前年に特殊な出来事があれば影響を受けます。分母が0なら比率は定義できません。率の単純平均は、全期間の伸び率と一般には一致しません。</p><h3>実測を隠して予測し、後で確かめる</h3><p>灰色の範囲にある最後の12か月は検証用です。どの方法も最初の36か月だけを使い、12か月先まで一括で予測します。「直近の値」は最後の観測値、「直近の移動平均」は最後のkか月の平均を固定します。「直線トレンド」は36点への最小二乗直線を延長。「前年同月＋年変化」は前年の同じ月に、訓練期間の最後の12個の前年比較の差を平均した値を加えます。後者は季節の形と年変化が続くという仮定です。負の予測値は0で打ち切ります。</p><p>MAEは絶対誤差の平均、RMSEは誤差を2乗して平均した平方根です。RMSEは大きな外れを強く評価します。平均誤差は「予測−実測」の平均で、正なら多めに予測した傾向を示します。平均誤差が0に近くても、過大と過小が相殺していることがあります。</p><p>4年間だけの人工データで勝った方法が、現実でも最適とは限りません。検証用データで方法を選び続けると、その期間にも適合しすぎます。別のシードや別の期間で確かめ、予測には不確実性があることを伝えましょう。</p>`,
   render(root, ctx) {
     const s = ctx.state;
-    const values = createMonthlySeries(s);
+    const values = s.customValues || createMonthlySeries(s);
+    const valueUnit = s.customValues ? "" : "件";
     const ma = trailingMovingAverage(values, s.period);
     const forecasts = makeForecasts(values.slice(0, TRAIN), 12, s.period);
     const method = METHODS.some(([v]) => v === s.forecast)
@@ -189,7 +193,7 @@ export default {
       ymin: 0,
       ymax: maximum,
       xlabel: "",
-      ylabel: "注文数（件）",
+      ylabel: s.customLabel || "注文数（件）",
       w: 760,
       h: 370,
     });
@@ -203,7 +207,7 @@ export default {
         a.x,
         a.y,
         "moving-average",
-      )}</g><g style="stroke:${COLORS[method]};stroke-width:3;fill:none">${line([{ x: TRAIN - 1, y: values[TRAIN - 1] }, ...marked], a.x, a.y, "forecast-line")}</g>${points.map((p) => `<circle data-month="${p.x}" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${p.x === selected ? 7 : 4}" fill="${p.x >= TRAIN ? "#d96d39" : "#087f8c"}" stroke="white" tabindex="0" role="button" aria-label="${month(p.x)} ${fmt(p.y, 1)}件を詳しく見る"><title>${month(p.x)}：${fmt(p.y, 1)}件</title></circle>`).join("")}${selectedForecast === null ? "" : `<line x1="${a.x(selected)}" y1="${a.y(values[selected])}" x2="${a.x(selected)}" y2="${a.y(selectedForecast)}" stroke="#ba4c26" stroke-width="4"/><rect x="${a.x(selected) - 4}" y="${a.y(selectedForecast) - 4}" width="8" height="8" fill="${COLORS[method]}"/>`}<text x="${a.x(36) + 5}" y="30" font-size="11">検証用12か月</text>${tickLabels(a, 370)}`,
+      )}</g><g style="stroke:${COLORS[method]};stroke-width:3;fill:none">${line([{ x: TRAIN - 1, y: values[TRAIN - 1] }, ...marked], a.x, a.y, "forecast-line")}</g>${points.map((p) => `<circle data-month="${p.x}" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${p.x === selected ? 7 : 4}" fill="${p.x >= TRAIN ? "#d96d39" : "#087f8c"}" stroke="white" tabindex="0" role="button" aria-label="${esc(month(p.x, s))} ${fmt(p.y, 1)}${valueUnit}を詳しく見る"><title>${esc(month(p.x, s))}：${fmt(p.y, 1)}${valueUnit}</title></circle>`).join("")}${selectedForecast === null ? "" : `<line x1="${a.x(selected)}" y1="${a.y(values[selected])}" x2="${a.x(selected)}" y2="${a.y(selectedForecast)}" stroke="#ba4c26" stroke-width="4"/><rect x="${a.x(selected) - 4}" y="${a.y(selectedForecast) - 4}" width="8" height="8" fill="${COLORS[method]}"/>`}<text x="${a.x(36) + 5}" y="30" font-size="11">検証用12か月</text>${tickLabels(a, 370, s)}`,
       "月別の注文数、移動平均、訓練期間だけで作った12か月予測",
       760,
       370,
@@ -234,7 +238,7 @@ export default {
         indicators.map((y, x) => ({ x, y })).filter((p) => p.y !== null),
         b.x,
         b.y,
-      )}${indicators[selected] === null ? "" : `<circle cx="${b.x(selected)}" cy="${b.y(indicators[selected])}" r="6" fill="#d96d39"/>`}${tickLabels(b, 245)}`,
+      )}${indicators[selected] === null ? "" : `<circle cx="${b.x(selected)}" cy="${b.y(indicators[selected])}" r="6" fill="#d96d39"/>`}${tickLabels(b, 245, s)}`,
       "同じ月別データを、選んだ比較基準で読み替えた折れ線",
       760,
       245,
@@ -253,11 +257,11 @@ export default {
         : s.indicator === "index"
           ? `${fmt(values[selected], 1)} ÷ ${fmt(denominator, 1)} × 100 ＝ ${fmt(currentIndicator, 1)}`
           : `(${fmt(values[selected], 1)} ÷ ${fmt(denominator, 1)} − 1) × 100 ＝ ${fmt(currentIndicator, 1)}%`;
-    root.innerHTML = `<div class="stat-grid"><div><section class="panel chart-panel"><h2>未来を隠して、予測を比べる</h2><p class="hint">2022〜2025年の架空データ。点を選ぶとその月の計算を確認できます。すべての値は小数のまま計算しています。</p>${chart}<div class="legend"><span>● 実測（訓練）</span><span style="color:#d96d39">● 実測（検証）</span><span style="color:#8b5cf6">─ 後方移動平均</span><span style="color:${COLORS[method]}">━ 選択した予測</span></div>${metrics(
+    root.innerHTML = `<div class="stat-grid"><div><section class="panel chart-panel"><h2>未来を隠して、予測を比べる</h2><p class="hint">${s.customValues ? "読み込んだ48か月のデータ。" : "2022〜2025年の架空データ。"}点を選ぶとその月の計算を確認できます。すべての値は小数のまま計算しています。</p>${chart}<div class="legend"><span>● 実測（訓練）</span><span style="color:#d96d39">● 実測（検証）</span><span style="color:#8b5cf6">─ 後方移動平均</span><span style="color:${COLORS[method]}">━ 選択した予測</span></div>${metrics(
       [
         [
           "12か月のMAE",
-          `${fmt(score.mae, 1)} 件`,
+          `${fmt(score.mae, 1)}${valueUnit}`,
           "小さいほど絶対誤差が小さい",
         ],
         ["RMSE", `${fmt(score.rmse, 1)} 件`, "大きな誤差を強く評価"],
@@ -272,7 +276,7 @@ export default {
         ["index", "最初の月＝100の指数"],
       ],
       s.indicator,
-    )}${indicatorChart}<p class="annotation"><strong>${month(selected)}</strong>：${calculation}</p></section><section class="panel"><h2>4つの予測を同じ条件で評価</h2><p class="hint">すべて2024年12月までのデータだけを使用。2025年の実測値は、予測後の答え合わせに使います。</p>${table(
+    )}${indicatorChart}<p class="annotation"><strong>${esc(month(selected, s))}</strong>：${calculation}</p></section><section class="panel"><h2>4つの予測を同じ条件で評価</h2><p class="hint">${esc(month(35, s))}までの36か月だけを使用。残り12か月の実測値は、予測後の答え合わせに使います。</p>${table(
       ["方法", "MAE（件）", "RMSE（件）", "平均誤差（件）"],
       METHODS.map(([key, label]) => {
         const e = evaluateForecast(values.slice(TRAIN), forecasts[key]);
@@ -283,7 +287,7 @@ export default {
           fmt(e.bias, 1),
         ];
       }),
-    )}</section></div><aside><section class="panel controls"><h2>データを生み出す条件</h2>${range("trend", "長期トレンド（月当たり）", s.trend, -2, 6, 0.5, "件")}${range("seasonal", "季節変動の振幅", s.seasonal, 0, 60, 2, "件")}${range("noise", "偶然変動の標準偏差", s.noise, 0, 30, 1, "件")}<p class="hint">スライダーを変えても乱数の並びは同じ。条件の影響を比べられます。</p><button id="resample">別の偶然変動を試す</button><p class="muted">再現用シード：${s.seed}</p><h3>分析方法</h3>${range("period", "移動平均の期間", s.period, 1, 12, 1, "か月")}${select("forecast", "グラフで見る予測", METHODS, method)}<p class="hint">直近の移動平均による予測も、この期間を使用します。</p><h3>1か月を詳しく調べる</h3>${range("selected", "注目する月（開始から）", selected + 1, 1, 48, 1, "か月目")}<p><strong>${month(selected)}</strong><br>実測 ${fmt(values[selected], 1)}件<br>移動平均 ${ma[selected] === null ? "計算に必要な月数が不足" : `${fmt(ma[selected], 1)}件`}${selectedForecast === null ? "<br>訓練期間のため予測評価の対象外" : `<br>予測 ${fmt(selectedForecast, 1)}件<br>誤差（予測−実測）${fmt(selectedForecast - values[selected], 1)}件`}</p><details><summary>この月の移動平均の計算</summary><p>${
+    )}</section></div><aside><section class="panel controls"><h2>分析の操作</h2>${range("trend", "長期トレンド（月当たり）", s.trend, -2, 6, 0.5, "件")}${range("seasonal", "季節変動の振幅", s.seasonal, 0, 60, 2, "件")}${range("noise", "偶然変動の標準偏差", s.noise, 0, 30, 1, "件")}<p class="hint">スライダーを変えても乱数の並びは同じ。条件の影響を比べられます。</p><button id="resample">別の偶然変動を試す</button><p class="muted">再現用シード：${s.seed}</p><h3>分析方法</h3>${range("period", "移動平均の期間", s.period, 1, 12, 1, "か月")}${select("forecast", "グラフで見る予測", METHODS, method)}<p class="hint">直近の移動平均による予測も、この期間を使用します。</p><h3>1か月を詳しく調べる</h3>${range("selected", "注目する月（開始から）", selected + 1, 1, 48, 1, "か月目")}<p><strong>${esc(month(selected, s))}</strong><br>実測 ${fmt(values[selected], 1)}${valueUnit}<br>移動平均 ${ma[selected] === null ? "計算に必要な月数が不足" : `${fmt(ma[selected], 1)}${valueUnit}`}${selectedForecast === null ? "<br>訓練期間のため予測評価の対象外" : `<br>予測 ${fmt(selectedForecast, 1)}${valueUnit}<br>誤差（予測−実測）${fmt(selectedForecast - values[selected], 1)}${valueUnit}`}</p><details><summary>この月の移動平均の計算</summary><p>${
       ma[selected] === null
         ? `最初の${s.period - 1}か月は計算できません。`
         : `${values
@@ -291,8 +295,11 @@ export default {
             .map((v) => fmt(v, 1))
             .join(
               " ＋ ",
-            )} の合計 ÷ ${s.period} ＝ ${fmt(ma[selected], 1)}件（表示前の値で計算）`
+            )} の合計 ÷ ${s.period} ＝ ${fmt(ma[selected], 1)}${valueUnit}（表示前の値で計算）`
     }</p></details></section></aside></div>`;
+    if (s.customValues)
+      for (const key of ["trend", "seasonal", "noise", "resample"])
+        root.querySelector("#" + key).disabled = true;
     for (const key of ["trend", "seasonal", "noise", "period"])
       bind(root, key, (v) => ctx.update({ [key]: Number(v) }));
     for (const key of ["forecast", "indicator"])

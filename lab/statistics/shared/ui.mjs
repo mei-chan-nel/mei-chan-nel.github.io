@@ -110,7 +110,12 @@ export function drag(el, selector, callback) {
       p.y = ev.clientY;
       if (inverse) {
         const q = p.matrixTransform(inverse);
-        callback(t, q.x, q.y, ev);
+        callback(
+          t,
+          q.x / Number(el.dataset.scaleX || 1),
+          q.y / Number(el.dataset.scaleY || 1),
+          ev,
+        );
       }
     };
     const up = () => {

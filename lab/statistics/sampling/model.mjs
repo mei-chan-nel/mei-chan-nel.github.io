@@ -1,7 +1,13 @@
 import { mean, sd, rng } from "../shared/math.mjs";
 
 // An original, completely fictional finite population. Group is visible, not hidden.
-export function population() {
+export function population(custom) {
+  if (Array.isArray(custom))
+    return custom.map((p, id) => ({
+      id,
+      value: Number(p.value),
+      frequent: Boolean(p.frequent),
+    }));
   const random = rng(841917);
   return Array.from({ length: 120 }, (_, id) => {
     const frequent = id % 3 === 0;
@@ -65,15 +71,12 @@ export function simulateSample(people, n, method, seed, trial = 0) {
 
 export function newExperiment(overrides = {}) {
   const options = { n: 20, method: "random", seed: 20261015, ...overrides };
-  const first = simulateSample(
-    population(),
-    options.n,
-    options.method,
-    options.seed,
-  );
+  const people = population(options.customPopulation);
+  options.n = Math.min(people.length, Math.max(1, Math.trunc(options.n)));
+  const first = simulateSample(people, options.n, options.method, options.seed);
   return {
     ...options,
-    signature: `${options.n}/${options.method}/${options.seed}`,
+    signature: `${options.n}/${options.method}/${options.seed}/${options.customPopulation ? JSON.stringify(options.customPopulation) : "sample"}`,
     trials: 1,
     history: [
       {
@@ -88,26 +91,32 @@ export function newExperiment(overrides = {}) {
 }
 
 export function normalizeExperiment(state) {
-  const n = Math.min(120, Math.max(1, Math.trunc(Number(state.n) || 20)));
+  const people = population(state.customPopulation);
+  const n = Math.min(
+    people.length,
+    Math.max(1, Math.trunc(Number(state.n) || 20)),
+  );
   const method = state.method === "biased" ? "biased" : "random";
   const seed = Number.isFinite(Number(state.seed))
     ? Number(state.seed) >>> 0
     : 20261015;
-  const signature = `${n}/${method}/${seed}`;
+  const signature = `${n}/${method}/${seed}/${state.customPopulation ? JSON.stringify(state.customPopulation) : "sample"}`;
+  if (!state.customPopulation && state.signature === `${n}/${method}/${seed}`)
+    state = { ...state, signature };
   if (
     state.signature !== signature ||
     !Array.isArray(state.history) ||
     !Array.isArray(state.last) ||
     !state.history.length
   ) {
-    return newExperiment({ n, method, seed });
+    return newExperiment({ ...state, n, method, seed });
   }
   return { ...state, n, method, seed };
 }
 
 export function addTrials(state, count, replay = false) {
   const current = normalizeExperiment(state);
-  const people = population();
+  const people = population(current.customPopulation);
   const history = replay ? [] : [...current.history];
   const first = replay ? 0 : current.trials;
   const end = Math.min(2000, first + Math.max(0, Math.trunc(count)));

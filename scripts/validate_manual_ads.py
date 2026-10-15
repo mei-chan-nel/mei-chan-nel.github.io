@@ -219,7 +219,6 @@ def main() -> int:
         ("lab/flowchart/index.html", "after-interactive-lab-main"),
         ("lab/packet-routing/index.html", "after-interactive-lab-main"),
         ("lab/relational-database/index.html", "after-interactive-lab-main"),
-        *((path.relative_to(ROOT).as_posix(), "after-interactive-lab-main") for path in sorted((ROOT / "lab" / "statistics").glob("**/index.html"))),
     ):
         trace_path = ROOT / relative
         trace_text = trace_path.read_text(encoding="utf-8")

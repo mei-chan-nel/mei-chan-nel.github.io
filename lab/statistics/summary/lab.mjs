@@ -170,7 +170,7 @@ function render(root, ctx) {
     ],
     ["四分位範囲", fmt(iqr), "Q₃ − Q₁：中央50%の広がり"],
   ])}
-    <div class="stat-grid"><section class="panel chart-panel"><h2>中心と広がりを同時に見る</h2><p class="muted">${esc(s.source)} ／ ${values.length}人</p>${svg(drawing, "点を直接動かせるドットプロットと箱ひげ図", 720, 365).replace("<svg", '<svg id="summary-chart" style="touch-action:none"')}<p class="legend">橙の縦線：平均　青緑の破線：中央値　薄い帯：平均±標準偏差</p><p class="hint">平均±標準偏差の帯に必ず一定割合の点が入るわけではありません。箱は中央50%の範囲、橙の小点はひげの外です。</p></section>
+    <div class="stat-grid"><section class="panel chart-panel"><h2>中心と広がりを同時に見る</h2><p class="muted">${esc(s.source)} ／ ${values.length}件</p>${svg(drawing, "点を直接動かせるドットプロットと箱ひげ図", 720, 365).replace("<svg", '<svg id="summary-chart" style="touch-action:none"')}<p class="legend">橙の縦線：平均　青緑の破線：中央値　薄い帯：平均±標準偏差</p><p class="hint">平均±標準偏差の帯に必ず一定割合の点が入るわけではありません。箱は中央50%の範囲、橙の小点はひげの外です。</p></section>
     <section class="panel controls"><h2>1人を動かす、全体を広げる</h2>
       ${select(
         "summary-selected",

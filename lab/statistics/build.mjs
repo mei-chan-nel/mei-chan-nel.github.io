@@ -1,59 +1,77 @@
-import { mkdir, writeFile, readFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { renderPage } from "../tools/shell.mjs";
 import { labs } from "./catalog.mjs";
+import { experiences } from "./experience.mjs";
 const esc = (s) =>
   String(s)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll('"', "&quot;");
-const nav = (id, base = "../") =>
-  `<nav class="stat-nav" aria-label="統計ラボ">${labs.map(([slug, title], i) => `<a href="${base}${slug}/" ${id === slug ? 'aria-current="page"' : ""}>${String(i + 1).padStart(2, "0")} ${title}</a>`).join("")}<a href="${base}projects/">横断分析課題 →</a></nav>`;
-const save = async (slug, body, scripts = [], isLab = false) => {
-  const row = labs.find((r) => r[0] === slug),
-    name =
-      row?.[1] || (slug === "projects" ? "横断分析課題" : "統計・データ分析"),
-    path = slug ? `statistics/${slug}` : "statistics";
+const selector = (id) =>
+  `<label class="lab-picker" for="lab-picker"><span>ラボを切り替える</span><select id="lab-picker">${labs.map(([slug, title]) => `<option value="${slug}" ${id === slug ? "selected" : ""}>${title}</option>`).join("")}<option value="projects" ${id === "projects" ? "selected" : ""}>横断分析課題</option></select></label>`;
+const heading = (name, purpose, id) =>
+  `<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">統計・データ分析</a><span aria-hidden="true"> / </span><span>${name}</span></nav><h1>${name}</h1><p>${purpose}</p></div>${selector(id)}</header>`;
+const dialog = (id, title, body) =>
+  `<dialog id="${id}" class="workspace-dialog"><form method="dialog" class="dialog-heading"><h2>${title}</h2><button value="close">閉じる</button></form>${body}</dialog>`;
+async function save(slug, body, scripts = []) {
+  const name =
+    labs.find((r) => r[0] === slug)?.[1] ||
+    (slug === "projects" ? "横断分析課題" : "統計・データ分析");
   let html = renderPage({
     name,
-    description: row?.[2] || "9つの実験と横断分析で学ぶ、統計・データ分析。",
-    slug: path,
+    description:
+      experiences[slug]?.purpose ||
+      "自分のデータを使い、分布・代表値・相関などを可視化して確かめる統計ラボ。",
+    slug: slug ? `statistics/${slug}` : "statistics",
     body,
-    styles: [slug ? "../statistics.css" : "statistics.css"],
+    styles: [
+      slug ? "../statistics.css" : "statistics.css",
+      slug ? "../workspace.css" : "workspace.css",
+    ],
     scripts,
   });
   html = html
     .replace(
+      /<script\b[^>]*src="[^"]*(?:adsbygoogle|manual-ads)\.js[^"]*"[^>]*><\/script>\n?/g,
+      "",
+    )
+    .replace(/<div class="manual-ad-slot[^"]*"[^>]*hidden><\/div>\n?/g, "")
+    .replace(
       'class="lab-shell lab-content-page"',
       'class="lab-shell lab-content-page stat-page"',
     )
-    .replace("<body>", `<body${isLab ? ` data-stat-lab="${slug}"` : ""}>`);
+    .replace(
+      "<body>",
+      `<body data-statistics="${slug || "index"}"${experiences[slug] ? ` data-stat-lab="${slug}"` : ""}>`,
+    )
+    .replace(/<nav class="breadcrumb"[\s\S]*?<\/nav>\n/, "")
+    .replace(
+      /<footer class="site-footer">[\s\S]*?<\/footer>/,
+      (original) =>
+        `<footer class="stat-footer"><a href="${slug ? "../" : "./"}">統計ラボ一覧</a><a href="${slug ? "../../" : "../"}">Interactive Lab</a><a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">参考教材</a><details class="site-menu"><summary>サイト案内</summary>${original.match(/<nav aria-label="フッターナビゲーション">[\s\S]*?<\/nav>/)?.[0] || ""}</details><span>情報Ⅰ Study Atlas</span></footer>`,
+    );
   const url = new URL(
     slug ? `./${slug}/index.html` : "./index.html",
     import.meta.url,
   );
   await mkdir(new URL("./", url), { recursive: true });
   await writeFile(url, html);
-};
-const dots = Array.from(
-  { length: 35 },
-  (_, i) =>
-    `<circle cx="${40 + i * 9}" cy="${218 - i * 3.8 + Math.sin(i * 4) * 27}" r="${i % 6 === 0 ? 6 : 4}" fill="${i % 6 === 0 ? "#b9793c" : "#267467"}" opacity=".8"/>`,
-).join("");
+}
 await save(
   "",
-  `<div class="stat-index"><div class="stat-index-visual"><div><p class="eyebrow">INTERACTIVE LAB / STATISTICS & DATA</p><h1>データを動かす。<br><em>見方が、変わる。</em></h1><p>「平均だから安心？」「相関があれば原因？」<br>予想して、変えて、確かめる。9つの小さな実験室へ。</p><span class="stat-badge">情報Ⅰ・共通テストから、その先へ</span></div><svg viewBox="0 0 400 290" role="img" aria-label="点を動かして統計を探るイメージ"><path d="M30 30V250H380" stroke="#aec9b8" fill="none"/><path d="M40 230L360 98" stroke="#b9793c" stroke-width="2" stroke-dasharray="6 5"/>${dots}<text x="42" y="30" fill="#366455" font-size="13">observe → experiment → discover</text><rect x="245" y="225" width="135" height="40" rx="8" fill="#fff"/><text x="260" y="250" fill="#366455" font-size="12">一つ動かすと、何が変わる？</text></svg></div><div class="section-heading"><div><p class="eyebrow">CHOOSE YOUR EXPERIMENT</p><h2>気になる問いから、始めよう。</h2></div><p>各ラボは単独で使えます。ミッションは自由参加。</p></div><div class="stat-cards">${labs.map(([slug, title, desc, tags], i) => `<a class="stat-card" href="./${slug}/"><small>${String(i + 1).padStart(2, "0")}</small><h2>${title}</h2><p>${desc}</p><span>${tags}　↗</span></a>`).join("")}</div><section class="project-banner"><p class="eyebrow" style="color:#a7d6ba">DATA ANALYSIS PROJECT 01</p><h2>勉強時間が長いほど、得点は高い？</h2><p>一つの架空データを、分布・代表値・相関の3つの見方で調べよう。<br>方法を選び、証拠を持ち寄り、言えることと言えないことをまとめます。</p><a class="button" href="./projects/">横断分析課題を始める →</a></section><p class="hint">教材・題材・データは独自制作です。参考：<a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">放送大学「身近な統計」</a>。計算の定義と注意点は各ラボの解説に記載しています。</p></div>`,
+  `<header class="statistics-home-heading"><h1>統計・データ分析</h1><p>自分のデータを読み込み、分布・平均・相関などを可視化して確かめる。</p><div class="home-start"><a class="button primary" href="./projects/?start=data">自分のCSV・表データから始める</a><span>分布・相関などのラボでもCSVの読込・貼り付けができます。サンプルならすぐに操作できます。</span></div></header><div class="lab-directory">${labs.map(([id, title]) => `<a href="./${id}/" class="lab-directory-link"><h2>${title}<span aria-hidden="true">→</span></h2><p>${esc(experiences[id].purpose)}</p><small>${esc(experiences[id].input)} → ${esc(experiences[id].result)}</small></a>`).join("")}<a href="./projects/" class="lab-directory-link project-directory"><h2>同じデータで、複数の分析を比べる<span aria-hidden="true">→</span></h2><p>分布・代表値・相関の結果を持ち寄り、根拠と限界をまとめる。</p><small>共通データ → 3つのラボ → 分析レポート</small></a></div><p class="directory-note">確率はモデル条件から行う実験です。各ラボの入力形式・計算の前提は、データ読込画面と解説で確認できます。</p>`,
 );
-for (const [id, title, desc] of labs) {
+for (const [id, title] of labs) {
+  const e = experiences[id];
   await save(
     id,
-    `<header class="stat-hero"><div><p class="eyebrow">INTERACTIVE LAB / STATISTICS ${String(labs.findIndex((r) => r[0] === id) + 1).padStart(2, "0")}</p><h1>${title}</h1><p>${desc}</p></div><span class="stat-badge">動かして、理由を考える。</span></header>${nav(id)}<div class="stat-toolbar"><div class="actions"><button id="reset" type="button">初期化</button><button id="capture" type="button">比較に残す</button><button id="clear-compare" type="button">比較を消す</button></div><div class="actions"><button id="record" type="button">分析課題に記録</button><button id="export" type="button">JSON保存</button><label class="button" for="import">JSON読込</label><input id="import" type="file" accept=".json,application/json" hidden></div></div><p id="stat-status" class="stat-status" role="status" aria-live="polite"></p><p id="lab-lead" class="hint"></p><div id="experiment" aria-label="統計実験"></div><section id="comparison" class="stat-compare" hidden></section><details class="stat-missions" open><summary>発見のミッション <small>自由に選んで、予想を試そう</small></summary><div id="mission-list" class="mission-grid"></div></details><details class="stat-explanation"><summary>しくみ・計算・読み取り方を詳しく</summary><div id="explanation-body"></div><p class="hint">参考教材：<a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">放送大学「身近な統計」</a>。文章・図・データは独自に作成しています。</p></details><div class="stat-related"><a class="button" href="../">← 統計ラボの一覧</a><a class="button" href="../projects/">横断分析課題 →</a><a class="button" href="../../../LectureNote/statistics.html">講義ノートで学ぶ ↗</a></div>`,
-    ["../app.mjs"],
-    true,
+    `${heading(title, e.purpose, id)}<section class="data-summary" aria-label="使用中のデータ"><div><strong id="data-name">サンプルデータを準備しています</strong><p id="data-description"></p></div><div class="actions"><button id="open-data" class="primary" type="button">自分のデータを使う</button><button id="reset" type="button">初期化</button></div></section><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p><div class="workspace-tabbar"><nav id="view-tabs" class="view-tabs" aria-label="分析結果の表示"></nav><div class="workspace-actions"><button id="capture" type="button">比較に残す</button><button id="show-comparison" type="button">比較を見る</button><button id="show-learning" type="button">ミッション・解説</button><button id="show-tools" type="button">記録・保存</button></div></div><p id="lab-lead" hidden></p><div id="experiment" aria-label="統計実験"></div><p id="stat-status" class="stat-status" role="status" aria-live="polite"></p>${dialog("comparison-dialog", "条件と結果を比較する", '<div class="actions"><button id="clear-compare" type="button">比較を消す</button></div><section id="comparison" class="stat-compare" hidden></section><p id="comparison-empty">上の「比較に残す」で、変更前の条件と結果を記録できます。</p>')}${dialog("learning-dialog", "ミッション・解説", '<details class="stat-missions"><summary>3つのミッションから選ぶ</summary><div id="mission-list" class="mission-grid"></div></details><details class="stat-explanation"><summary>しくみ・計算・読み取り方</summary><div id="explanation-body"></div></details>')}${dialog("tools-dialog", "分析の記録と実験の保存", '<section><h3>分析課題に結果を残す</h3><p>使用したデータと処理、統計量、ミッションの記録を保存します。</p><button id="record" type="button">分析課題に記録</button> <a href="../projects/?start=records">記録と結論のページへ</a></section><section><h3>実験をファイルに保存する</h3><p>操作状態を含むJSONです。数値データを読み込む場合は「自分のデータを使う」を選んでください。</p><div class="actions"><button id="export" type="button">実験をJSON保存</button><button id="import-button" type="button">実験JSONを開く</button><input id="import" type="file" accept=".json,application/json" hidden></div></section>')}`,
+    ["../app.mjs?v=20261015-ui2"],
   );
 }
 await save(
   "projects",
-  `<header class="stat-hero"><div><p class="eyebrow">DATA ANALYSIS PROJECT / 01</p><h1>勉強時間と得点、どう調べる？</h1><p>一つの問いを、いくつかの見方で。必要なラボを選び、証拠を集めよう。</p></div></header>${nav("projects")}<div id="project-root"></div>`,
-  ["../projects.mjs"],
+  `${heading("横断分析課題", "同じデータを分布・代表値・相関で調べ、根拠を持って結論をまとめる。", "projects")}<div id="project-root"></div>`,
+  ["../projects.mjs?v=20261015-ui2"],
 );
-console.log("Built statistics index, 9 labs and project");
+console.log("Built compact statistics index, 9 labs and project");
