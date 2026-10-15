@@ -1,4 +1,4 @@
-import {drawLesson, STEPS, IMPROVEMENTS, REGIONS, COLORS} from './lesson.mjs';
+import {drawLesson, STEPS, IMPROVEMENTS, REGIONS, CONTRAST_EXAMPLES} from './lesson.mjs';
 import {contrast, simulatePixels} from './simulation.mjs';
 
 const $ = (id) => document.getElementById(id);
@@ -104,14 +104,16 @@ function updateNotes() {
     else button.removeAttribute('aria-current');
   });
   requestAnimationFrame(scrollActiveStep);
-  $('contrast-evidence').hidden = !item.evidence;
+  const evidence = CONTRAST_EXAMPLES[item.evidence];
+  $('contrast-evidence').hidden = !evidence;
   $('contrast-evidence').replaceChildren();
-  if (item.evidence) {
-    const before = item.evidence === 2 ? contrast('#ffffff', '#567658') : contrast('#ffffff', COLORS.orange);
-    const after = item.evidence === 2 ? contrast('#ffffff', COLORS.orange) : contrast(COLORS.ink, '#fff3d6');
-    const title = document.createElement('strong'); title.textContent = '飲食パネル：文字と背景の比率';
+  if (evidence) {
+    const before = contrast(...evidence.before), after = contrast(...evidence.after);
+    const title = document.createElement('strong'); title.textContent = evidence.title;
     const body = document.createElement('span'); body.textContent = `変更前 ${before.toFixed(2)} : 1 → 現在 ${after.toFixed(2)} : 1`;
-    const small = document.createElement('small'); small.textContent = '元のsRGB値から計算。通常の文字は4.5 : 1以上がWCAG AAの目安（大きな文字は3 : 1）。';
+    const small = document.createElement('small'); small.textContent = evidence.kind === 'graphic'
+      ? '元のsRGB値から計算。意味を伝えるグラフの線と背景は3 : 1以上がWCAG AAの目安。文字の基準とは別です。'
+      : '元のsRGB値から計算。通常の文字は4.5 : 1以上がWCAG AAの目安（大きな文字は3 : 1）。';
     $('contrast-evidence').replaceChildren(title, body, small);
   }
 }

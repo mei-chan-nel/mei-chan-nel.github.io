@@ -18,36 +18,36 @@ export const IMPROVEMENTS = [
     tip:'同じ拡大位置で観察と改善を切り替え、点だけの状態と見比べてみよう。'},
   {name:'パネルの配色', title:'案内パネルの色を変える', region:'panels',
     question:'色を変えれば、文字も読みやすくなる？',
-    observation:'案内パネルだけを拡大します。白い文字の読みやすさを覚えてから、配色を変えてみましょう。',
+    observation:'3枚の案内パネルの白文字を見比べます。元のステージは3.62:1、展示は4.23:1で、通常文字の4.5:1を下回っています。',
     change:'「どこへ行こう？」の案内パネルだけを青・オレンジの配色へ変更します。',
-    benefit:'ステージと飲食エリアの背景色の違いは、P・D型でも分かりやすくなります。',
-    remaining:'会場と分類の対応は色が頼りで、案内パネルの情報はまだ十分ではありません。',
+    benefit:'この例のP・D列でも、ステージと飲食の背景が分かれます。ステージの白文字は5.19:1に改善します。',
+    remaining:'分類名は元から文字で読めますが、会場名はありません。展示の白文字も4.23:1のままです。',
     sideEffect:'飲食エリアの白文字とオレンジのコントラストが5.09:1から2.25:1へ下がりました。',
     tip:'「飲食エリア」の白文字に注目。配色変更の効果と、新しい読みにくさを確認しよう。', evidence:2},
   {name:'パネルの文字', title:'案内パネルを読みやすくする', region:'panels',
     question:'飲食エリアの白い文字は読みやすい？',
     observation:'直前の配色変更を残したまま、案内パネルを拡大します。オレンジと白文字の明暗差に注目しましょう。',
     change:'案内パネルだけを淡い背景＋濃い文字へ変更し、体育館・中庭・校舎の会場名も添えます。',
-    benefit:'飲食パネルの文字と背景の比率が10.81:1へ上がり、会場名も色に頼らず読めます。',
-    remaining:'お知らせの淡い文字や、地図・時刻表・グラフの色依存はまだ改善していません。',
+    benefit:'3枚とも文字と背景の比率が10:1を超え、会場名も読めます。背景色を地図の色と照合する必要はありません。',
+    remaining:'お知らせと地図の文字の明暗差、時刻表の会場表示、グラフの色による区別は未改善です。',
     sideEffect:'この箇所に新しい重なりはありません。分類の色が淡くなっても、会場名が手掛かりになります。',
     tip:'会場名と文字の明暗差を確認したら、全体表示でもバランスを見てみよう。', evidence:3},
   {name:'お知らせ', title:'大切なお知らせを伝える', region:'notice',
     question:'淡い文字だけで、変更の重要さが伝わる？',
     observation:'黄色いお知らせ帯だけを拡大します。開演時刻が変わったことを、すぐに見つけられますか。',
     change:'お知らせ帯だけの文字を濃くし、見出しに「重要」を加えます。',
-    benefit:'通常表示でも明暗差が増え、色の見え方によらず重要な変更だと分かります。',
-    remaining:'地図の色と白文字、時刻表の会場分類、グラフの実線は未改善です。',
+    benefit:'文字と背景の比率が2.14:1から7.87:1へ上がります。「重要」の文字でも意味を伝えます。',
+    remaining:'地図の白文字と背景の明暗差、時刻表の会場分類、グラフの実線は未改善です。',
     sideEffect:'この箇所で新しい問題は見つかっていません。強調語を増やしすぎないことも大切です。',
-    tip:'色を変えただけでなく、「重要」という言葉も手掛かりになっているか確かめよう。'},
+    tip:'色を変えただけでなく、「重要」という言葉も手掛かりになっているか確かめよう。', evidence:4},
   {name:'会場案内図', title:'地図を模様と記号でも分ける', region:'map',
     question:'T型で青と緑が近づいても、会場をたどれる？',
     observation:'会場案内図だけを拡大します。特にT型の中庭と校舎、各会場の白い文字を見てみましょう。',
-    change:'地図のカードだけにA・B・Cと模様を追加。会場名は白地に濃い文字を載せ、凡例にも記号を付けます。',
-    benefit:'色が似ても記号と模様で会場を区別でき、会場名も読みやすくなります。',
+    change:'地図だけにA・B・Cと模様、白地の会場名を追加。凡例には会場名と、元からあった催しの分類を両方残します。',
+    benefit:'会場名の明暗差を改善し、色が似ても記号と模様で会場をたどれます。体育館＝ステージなどの対応も文字で分かります。',
     remaining:'時刻表は会場を色で示したままです。グラフにも色だけの区別が残っています。',
     sideEffect:'記号と模様で情報が増えました。会場名を囲む白地を用意し、文字と模様が重ならないようにしています。',
-    tip:'中庭と校舎を、色の名前を使わず説明できるか試してみよう。'},
+    tip:'中庭と校舎を、色の名前を使わず説明できるか試してみよう。', evidence:5},
   {name:'タイムテーブル', title:'時刻表に会場名を加える', region:'timetable',
     question:'どのイベントが、どこで行われる？',
     observation:'タイムテーブルだけを拡大します。左の色帯だけで会場を判断する負担を考えてみましょう。',
@@ -61,29 +61,29 @@ export const IMPROVEMENTS = [
     observation:'混雑予想グラフだけを拡大します。2本の線が近づく14時付近を、P・D型でも追ってみましょう。',
     change:'グラフのカードだけを変更。青・オレンジにし、実線と破線、丸と四角、線の右端の名前を追加します。',
     benefit:'色が似ても、線種と点の形で系列を追えるようになります。',
-    remaining:'14時付近の系列名が近すぎて、ラベルが重なっています。',
-    sideEffect:'手掛かりを足した結果、右端の名前が重なりました。次の工程でこの箇所を整理します。',
-    tip:'線を追いやすくなった効果と、重なった名前の問題を両方見つけよう。'},
+    remaining:'右端の系列名が重なり、模擬店のオレンジは白背景に対して2.25:1で、線の明暗差も不足しています。',
+    sideEffect:'このラベル配置では名前が重なりました。オレンジの線は、必要な図形と背景の3:1の目安も下回ります。',
+    tip:'手掛かりは増えましたが、まだ改善途中です。名前の位置と、線そのものの見つけやすさも確認しよう。', evidence:7},
   {name:'グラフの整理', title:'グラフの名前を整理する', region:'chart',
     question:'重なった系列名を、読みやすくできる？',
     observation:'直前のグラフをそのまま拡大します。右端の重なったラベルと、明るいオレンジの線に注目しましょう。',
     change:'グラフだけの名前を上部の凡例へ移し、線種と点を併記。オレンジの線を濃くします。',
-    benefit:'名前の重なりがなくなり、色・線種・点を使って系列をたどれます。',
+    benefit:'名前の重なりを解消。模擬店の線と白背景の比率は2.25:1から4.44:1へ上がり、線種と点でもたどれます。',
     remaining:'実際の利用者の見え方、端末での文字サイズ、説明の分かりやすさは引き続き確認が必要です。',
-    sideEffect:'この例では新しい重なりはありません。凡例との対応が分かるか、利用者にも確かめましょう。',
-    tip:'最後に同じ番号の「全体を見る」で、ページ全体に加えた改善を見直そう。'},
+    sideEffect:'凡例と線を見比べる必要が生じます。直接ラベルも、重ならない位置に置ければ有効です。',
+    tip:'凡例が常に最善とは限りません。この例の改善効果と、照合する手間を確かめよう。', evidence:8},
 ];
 const initial = {title:'まず、ページ全体を見る', short:'初期状態', phase:'initial', state:0, number:0,
   version:'はじめのデザイン', regions:[], question:'色だけで伝えている情報は、どこだろう？',
   change:'まだ変更していません。通常・P・D・T型の4枚は、すべて同じ初期デザインを元にしています。',
-  benefit:'左側の「拡大して観察」「改善する」「全体を見る」で、1箇所の改善とページ全体への効果を確かめられます。',
+  benefit:'まだデザインは改善していません。左側の3つの操作で、1箇所の改善とページ全体への効果を確かめます。',
   remaining:'状態表示、案内パネル、お知らせ、地図、時刻表、グラフを順番に扱います。',
   sideEffect:'変更はありません。各回の3つの操作には、いつでも自由に戻れます。',
   tip:'まずは「1 状態表示」の「拡大して観察」から始めよう。画像をクリックすると、1枚ずつ大きく表示できます。'};
 export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
   {...item, title:`${item.name}を観察する`, short:'観察', phase:'observe', state:index, number:index+1,
     version:index===0?'はじめのデザイン':IMPROVEMENTS[index-1].title, regions:[item.region],
-    change:`まだ変更しません。${item.observation}`, benefit:'この箇所を4種類の見え方で観察し、次の改善で何が変わるかを考えます。',
+    change:`まだ変更しません。${item.observation}`, benefit:'まだデザインは改善していません。4種類で観察し、次の改善で何が変わるかを考えます。',
     remaining:item.observation, sideEffect:'この工程は拡大して見るだけです。画像内のデザインは変えていません。',
     tip:'次に、左側の同じ番号の「改善する」を選びましょう。拡大した場所は同じままです。', evidence:undefined},
   {...item, short:'改善', phase:'improve', state:index+1, number:index+1, version:item.title, regions:[item.region]},
@@ -96,21 +96,29 @@ export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
   version:'完成した案内ページ', regions:[], question:'色が変わっても、必要な情報は伝わる？',
   change:'8つの改善をすべて反映した案内ページです。注目枠を外して、ページ全体を表示しています。',
   benefit:'状態・会場・グラフを、文字や記号、模様、線種、ラベルでも読み取れるようになりました。',
-  remaining:'実際の利用者の見え方や、端末での文字サイズ、説明の分かりやすさを引き続き確認しましょう。',
+  remaining:'「完成」はこの教材の改善例です。実際の利用者による確認や、文字サイズ・読み上げなどの確認は別に必要です。',
   sideEffect:'この例では新しい重なりは見られません。追加した手掛かりが、情報を探す負担になっていないかも確かめましょう。',
   tip:'「0 ページ全体」と切り替えて、最初のデザインとの違いを見つけよう。各工程にはいつでも戻れます。'}];
-export const COLORS = {red:'#c66f4a', green:'#758b4b', blue:'#0072b2', orange:'#e69f00', mapBlue:'#3798c3', mapGreen:'#45a58e', ink:'#203b40'};
+export const COLORS = {red:'#c66f4a', green:'#758b4b', blue:'#0072b2', orange:'#e69f00', chartOrange:'#a66b00', mapBlue:'#3798c3', mapGreen:'#45a58e', ink:'#203b40', soft:'#52686d'};
+export const CONTRAST_EXAMPLES = {
+  2:{title:'飲食パネル：文字と背景', before:['#ffffff','#567658'], after:['#ffffff',COLORS.orange], kind:'text'},
+  3:{title:'飲食パネル：文字と背景', before:['#ffffff',COLORS.orange], after:[COLORS.ink,'#fff3d6'], kind:'text'},
+  4:{title:'お知らせ：文字と背景', before:['#c5a55b','#fff3d6'], after:['#654519','#fff3d6'], kind:'text'},
+  5:{title:'地図の中庭：文字と背景', before:['#ffffff',COLORS.mapGreen], after:[COLORS.ink,'#ffffff'], kind:'text'},
+  7:{title:'模擬店：グラフの線と背景', before:[COLORS.green,'#ffffff'], after:[COLORS.orange,'#ffffff'], kind:'graphic'},
+  8:{title:'模擬店：グラフの線と背景', before:[COLORS.orange,'#ffffff'], after:[COLORS.chartOrange,'#ffffff'], kind:'graphic'},
+};
 
 // An original, fictional festival page, rasterized once before all simulations.
 export function drawLesson(state) {
   const canvas = document.createElement('canvas');
   canvas.width = SIZE.width; canvas.height = SIZE.height;
   const c = canvas.getContext('2d', {colorSpace: 'srgb', willReadFrequently: true});
-  const ink = COLORS.ink, soft = '#637579', line = '#dce2df';
+  const ink = COLORS.ink, soft = COLORS.soft, line = '#dce2df';
   const statusDone=state>=1, panelsColored=state>=2, panelsReadable=state>=3;
   const noticeDone=state>=4, mapDone=state>=5, timetableDone=state>=6;
   const chartCues=state>=7, chartOrganized=state>=8;
-  const series=chartCues?[COLORS.blue,chartOrganized?'#a66b00':COLORS.orange]:[COLORS.red,COLORS.green];
+  const series=chartCues?[COLORS.blue,chartOrganized?COLORS.chartOrange:COLORS.orange]:[COLORS.red,COLORS.green];
   const statusColors=statusDone?[COLORS.blue,COLORS.orange]:[COLORS.green,COLORS.red];
   const text = (s,x,y,size=18,color=ink,weight=400) => {c.fillStyle=color;c.font=`${weight} ${size}px "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif`;c.fillText(s,x,y);};
   const rect = (x,y,w,h,color,r=0) => {c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();};
@@ -152,7 +160,7 @@ export function drawLesson(state) {
     text(['体育館','中庭','校舎'][i],x+48,y+68,19,mapDone?ink:'#ffffff',700);
   });
   stroke(80,535,573,535,'#c6cfcb',8);text('↑ 正門',280,571,16,soft);
-  const mapLegend=mapDone?['A 体育館','B 中庭','C 校舎']:['ステージ','模擬店','展示'];
+  const mapLegend=mapDone?['A 体育館：ステージ','B 中庭：模擬店','C 校舎：展示']:['ステージ','模擬店','展示'];
   mapLegend.forEach((v,i)=>{rect(48+i*185,580,10,8,mapColors[i]);text(v,65+i*185,589,13,ink);});
   card(646,346,426,252);text('PROGRAM',666,374,12,soft,700);text('タイムテーブル',666,400,21,ink,700);
   const events=[['10:30','吹奏楽ライブ',0],['11:00','焼きそば販売',1],['12:00','科学の実験室',2],['13:30','ダンス公演',0]];
