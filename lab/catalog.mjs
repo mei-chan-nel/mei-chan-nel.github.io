@@ -55,9 +55,18 @@ export const contents = [
     id: "thinking-tools",
     group: "society-security",
     generated: false,
-    name: "思考ツールで問題解決を体験する",
+    name: "思考ツール",
     description:
       "付箋、原因の枝、アイデア、比較表。7つの段階を行き来しながら、考えをつなぐ。プリセット体験・自由作成に対応。",
+  },
+  {
+    id: "relational-database",
+    group: "data-database",
+    styles: ["database.css?v=1"],
+    scripts: ["app.mjs?v=1"],
+    name: "リレーショナルデータベース",
+    description:
+      "自分で表をつくり、関係をつなぐ。結合・射影・選択を操作して、必要なデータを取り出そう。",
   },
   {
     id: "radix-conversion",
