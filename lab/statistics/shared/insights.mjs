@@ -8,13 +8,20 @@ export function insight(id, state) {
   const data = currentData(id, state),
     before = state.dataInfo?.baseline;
   if (id === "correlation") {
-    const r = regression(state.points),
+    const train = state.points.filter(
+      (p) => !state.excludeSelected || p.id !== state.selectedId,
+    );
+    if (train.length < 2)
+      return "検証用の点を外した後も、学習用にxの異なる2組以上が必要です。元データを3組以上にして確かめましょう。";
+    const r = regression(train),
       prior = before ? regression(before.map(([x, y]) => ({ x, y }))) : r;
     if (!Number.isFinite(r.r))
       return "値がすべて同じ列があるため、相関係数は定義できません。点を動かして、散らばりを作ってみましょう。";
-    const change = Number.isFinite(prior.r)
-      ? `読み込み直後の r=${fmt(prior.r, 3)} → 現在 ${fmt(r.r, 3)}。`
-      : `現在の r=${fmt(r.r, 3)}。`;
+    const change = state.excludeSelected
+      ? `学習用 ${train.length}組の r=${fmt(r.r, 3)}。`
+      : Number.isFinite(prior.r)
+        ? `読み込み直後の r=${fmt(prior.r, 3)} → 現在 ${fmt(r.r, 3)}。`
+        : `現在の r=${fmt(r.r, 3)}。`;
     return (
       change +
       (state.excludeSelected
@@ -47,7 +54,7 @@ export function insight(id, state) {
     const values = population(state.customPopulation).map((p) => p.value),
       truth = mean(values),
       estimates = state.history.map((r) => r.mean);
-    return `${state.trials}回の標本平均の平均は ${fmt(mean(estimates))}、母平均は ${fmt(truth)}。${state.method === "biased" ? "人数を増やしても、選び方の偏りは取り除けません。" : `この標本数での標準誤差は ${fmt(finiteSE(values, state.n))}。標本数を増やすと、推定のばらつきが小さくなります。`}`;
+    return `${state.trials}回の標本平均の平均は ${fmt(mean(estimates))}、母平均は ${fmt(truth)}。${state.n === values.length ? "全数調査なので、標本平均は毎回母平均に一致します。" : state.method === "biased" ? "一部の標本を増やすだけでは、選び方の偏りが必ず解消されるとはいえません。" : `この標本数での標準誤差は ${fmt(finiteSE(values, state.n))}。標本数を増やすと、推定のばらつきが小さくなります。`}`;
   }
   if (id === "crosstab") {
     const names = state.dataInfo?.labels?.methods || ["A", "B"];
@@ -82,7 +89,7 @@ export function insight(id, state) {
       return `区間内は ${observed}/${values.length}件（${fmt((observed / values.length) * 100, 1)}%）。正規分布モデルの面積は ${fmt(normalInterval(state.mu, state.sigma, state.low, state.high).probability * 100, 1)}%。実際の割合と理論の確率を区別して読みます。`;
     }
     return state.mode === "coin"
-      ? `${values.length}回のうち表は ${sum(values)}回。割合は揺れながら変わります。これまでの表・裏の並びが、次の1回の確率を変えるわけではありません。`
+      ? `${values.length}回のうち表は ${sum(values)}回。割合は揺れながら変わります。独立な試行のモデルでは、これまでの表・裏の並びが次の1回の確率を変えるわけではありません。`
       : `${values.length}セットの平均成功回数は ${fmt(mean(values))}、理論平均は ${fmt(state.n * state.p)}。反復数を増やす操作と、1セットの回数を変える操作は、別のものを変えています。`;
   }
   if (id === "hypothesis-test")

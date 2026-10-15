@@ -6,15 +6,15 @@ import { renderDataTab } from "./data-tab.mjs";
 import { sampleState } from "./shared/samples.mjs";
 import { normalizeExperiment } from "./sampling/model.mjs";
 import { readDataset } from "./shared/data.mjs";
-import { experiences } from "./experience.mjs";
+import { dataStep, learningViews, renderStepNavigation } from "./learning.mjs";
 import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261016-data`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261016-learning`)).default;
 const ui = {
   view: 0,
-  dataTab: new URLSearchParams(location.search).get("view") === "data",
+  dataTab: true,
   openSections: {},
   dataPage: 0,
 };
@@ -57,6 +57,7 @@ function persist() {
   } catch {}
 }
 function replace(next) {
+  if (id === "probability" && next.mode !== state.mode) ui.view = 0;
   state = prepare(next);
   persist();
   draw();
@@ -76,7 +77,36 @@ function draw() {
       : null;
   try {
     config.render(root, { state, update, replace });
+    ui.state = state;
     const views = composeWorkbench(root, id, ui, draw) || [];
+    const steps = [dataStep(id), ...learningViews(id, state)];
+    const activate = (index, scroll = false) => {
+      ui.dataTab = index === 0;
+      if (index) {
+        ui.view = index - 1;
+        if (id === "correlation" && index <= 2) {
+          state = { ...state, excludeSelected: index === 2 };
+          if (index === 2)
+            state = {
+              ...state,
+              manual: false,
+              predictionX:
+                state.points.find((p) => p.id === state.selectedId)?.x ??
+                state.predictionX,
+            };
+          persist();
+        }
+      }
+      draw();
+      if (scroll) {
+        document
+          .querySelector("#view-tabs")
+          .scrollIntoView({ behavior: "smooth", block: "start" });
+        document
+          .querySelector(index ? `#view-${index - 1}` : "#data-tab")
+          .focus({ preventScroll: true });
+      }
+    };
     const tabs = document.querySelector("#view-tabs");
     tabs.innerHTML =
       `<button type="button" id="data-tab" aria-pressed="${ui.dataTab}">データ</button>` +
@@ -86,20 +116,24 @@ function draw() {
             `<button type="button" id="view-${i}" data-view="${i}" aria-pressed="${!ui.dataTab && v.active}">${esc(v.label)}</button>`,
         )
         .join("");
-    tabs.querySelector("#data-tab").onclick = () => {
-      ui.dataTab = true;
-      draw();
-    };
-    tabs.querySelectorAll("[data-view]").forEach(
-      (b, i) =>
-        (b.onclick = () => {
-          ui.dataTab = false;
-          views[i].choose();
-        }),
-    );
+    tabs.querySelector("#data-tab").onclick = () => activate(0);
+    tabs
+      .querySelectorAll("[data-view]")
+      .forEach((b, i) => (b.onclick = () => activate(i + 1)));
+    const index = ui.dataTab ? 0 : ui.view + 1;
+    const lesson = steps[index];
+    document.querySelector("#tab-progress").textContent =
+      `${index + 1} / ${steps.length} · ${lesson.level}：${lesson.purpose}`;
+    const navigation = document.querySelector("#step-navigation");
+    navigation.hidden = ui.dataTab;
+    if (!ui.dataTab)
+      renderStepNavigation(navigation, steps, index, (next) =>
+        activate(next, true),
+      );
     const lead = document.querySelector("#lab-lead"),
       flow = document.querySelector("#analysis-flow");
-    lead.hidden = ui.dataTab;
+    lead.hidden = false;
+    lead.textContent = lesson.action;
     flow.hidden = ui.dataTab;
     finding.hidden = ui.dataTab;
     if (ui.dataTab) {
@@ -123,13 +157,10 @@ function draw() {
           replace(sampleState(id, base));
         },
         apply: replace,
-        analyze: () => {
-          ui.dataTab = false;
-          draw();
-        },
+        analyze: () => activate(1, true),
+        nextLabel: steps[1].title,
       });
     } else {
-      lead.textContent = experiences[id].firstTry;
       flow.textContent = "処理：" + currentData(id, state).operation;
       finding.textContent = insight(id, state);
       root.querySelector(".workbench-display").append(finding);

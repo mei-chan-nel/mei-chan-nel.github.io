@@ -2,14 +2,16 @@ import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
 import { esc, table, metrics } from "./shared/ui.mjs";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
 import { renderDataTab } from "./data-tab.mjs";
+import { renderStepNavigation } from "./learning.mjs";
 import correlation from "./correlation/lab.mjs";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
-if (dataset.origin !== "user") dataset = saveDataset(defaultDataset());
-let active =
-  new URLSearchParams(location.search).get("start") === "data"
-    ? "data"
-    : "analysis";
+let active = "data";
+const steps = [
+  { title: "データ" },
+  { title: "分析方法を選ぶ" },
+  { title: "特徴を見比べる" },
+];
 const ui = { dataPage: 0 };
 function draw() {
   document.querySelector(".workspace-intro").textContent =
@@ -25,7 +27,9 @@ function draw() {
       ([id, label]) =>
         `<button type="button" data-project-tab="${id}" aria-pressed="${active === id}">${label}</button>`,
     )
-    .join("")}</nav><div id="project-view"></div>`;
+    .join(
+      "",
+    )}</nav><p class="tab-progress">${["data", "analysis", "results"].indexOf(active) + 1} / 3 · ${active === "data" ? "同じ行の対応と項目名・単位を確かめてから分析へ進みます。" : active === "analysis" ? "調べたいことに合うラボを選びます。どのラボもデータの確認から始まります。" : "同じ元データについて、複数の見方を組み合わせます。"}</p><div id="project-view"></div><nav id="project-step-navigation" class="step-navigation" aria-label="分析課題の順路"></nav>`;
   root.querySelectorAll("[data-project-tab]").forEach(
     (b) =>
       (b.onclick = () => {
@@ -34,6 +38,20 @@ function draw() {
       }),
   );
   const view = root.querySelector("#project-view");
+  const navigation = root.querySelector("#project-step-navigation");
+  navigation.hidden = active === "data";
+  if (active !== "data")
+    renderStepNavigation(
+      navigation,
+      steps,
+      ["data", "analysis", "results"].indexOf(active),
+      (index) => {
+        active = ["data", "analysis", "results"][index];
+        draw();
+        root.scrollIntoView({ behavior: "smooth", block: "start" });
+      },
+    );
+
   if (active === "data") {
     const state = {
       ...correlation.initial(),
@@ -118,11 +136,11 @@ function draw() {
     )}${metrics([
       ["2列の相関係数 r", fmt(r.r, 3), "直線的な関係の強さ"],
       [
-        "得点側の最小〜最大",
+        "分析する列の最小〜最大",
         `${fmt(Math.min(...values))}〜${fmt(Math.max(...values))}`,
         dataset.yLabel,
       ],
-    ])}<p class="experiment-insight">${Number.isFinite(r.r) ? (Math.abs(r.r) > 0.5 ? "2つの量には直線的な関連が見られます。ただし、同じ学習時間でも値はばらつきます。散布図で、直線から外れる点にも注目してみましょう。" : "直線的な関係は強くありません。分布の形や集団別の違いも見てみましょう。") : "一方の値がすべて同じため、相関係数は定義できません。"}</p><p>平均や相関係数だけでは、山の数や外れ値はわかりません。<a class="text-link" href="../histogram/?dataset=project&field=y">分布</a>・<a class="text-link" href="../summary/?dataset=project&field=y">代表値</a>・<a class="text-link" href="../correlation/?dataset=project">散布図</a>を行き来して確かめられます。</p></section>`;
+    ])}<p class="experiment-insight">${Number.isFinite(r.r) ? `このデータの相関係数は r = ${fmt(r.r, 3)}。係数だけでなく、点が1本の直線からどれだけ散らばるかや、集団別の違いにも注目しましょう。相関は因果関係を証明するものではありません。` : "一方の値がすべて同じため、相関係数は定義できません。"}</p><p>平均や相関係数だけでは、山の数や外れ値はわかりません。<a class="text-link" href="../histogram/?dataset=project&field=y">分布</a>・<a class="text-link" href="../summary/?dataset=project&field=y">代表値</a>・<a class="text-link" href="../correlation/?dataset=project">散布図</a>を行き来して確かめられます。</p></section>`;
   }
 }
 document.querySelector("#lab-picker").onchange = (e) =>

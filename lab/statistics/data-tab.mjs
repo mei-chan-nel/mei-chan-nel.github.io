@@ -1,7 +1,10 @@
-import { fmt } from "./shared/math.mjs";
 import { esc, table } from "./shared/ui.mjs";
 import { currentData } from "./shared/data-model.mjs";
 import { mountDataEditor, downloadCSV } from "./data-editor.mjs";
+export const formatDataValue = (value) =>
+  typeof value === "number" && !Number.isInteger(value)
+    ? Number(value.toPrecision(8)).toString()
+    : value;
 export function renderDataTab(
   root,
   {
@@ -10,6 +13,7 @@ export function renderDataTab(
     sample,
     apply,
     analyze,
+    nextLabel = "分析方法を選ぶ",
     update,
     allowGroup = false,
     dataOverride = null,
@@ -21,17 +25,12 @@ export function renderDataTab(
     pageCount = Math.max(1, Math.ceil(data.rows.length / pageSize));
   const page = Math.min(ui.dataPage || 0, pageCount - 1),
     from = page * pageSize;
-  root.innerHTML = `<section class="data-view" aria-label="分析に使っているデータ"><div class="data-view-heading"><div><h2>${esc(data.name)}</h2><p>${data.origin === "user" ? "読み込んだデータ" : "毎回新しく生成する架空のサンプル"} · ${data.rows.length}行${data.filename ? ` · ${esc(data.filename)}` : ""}</p></div><div class="actions"><button id="use-sample" type="button">サンプルを使用</button><button id="download-csv" type="button">CSVでダウンロード</button><button id="upload-csv" type="button" class="primary">CSVでアップロード</button></div></div>${id === "probability" ? `<label class="control probability-data-kind">データの種類<select id="probability-data-mode"><option value="coin" ${state.mode === "coin" ? "selected" : ""}>コインの結果（表=1・裏=0）</option><option value="binomial" ${state.mode === "binomial" ? "selected" : ""}>1セットの成功回数（0〜${state.n}）</option><option value="normal" ${state.mode === "normal" ? "selected" : ""}>連続した測定値</option></select></label>` : ""}<div class="data-table">${table(
+  root.innerHTML = `<section class="data-view" aria-label="分析に使っているデータ"><div class="data-view-heading"><div><h2>${esc(data.name)}</h2><p>${data.origin === "user" ? "読み込んだデータ" : "架空のサンプル（各タブで同じ値を使用）"} · ${data.rows.length}行${data.filename ? ` · ${esc(data.filename)}` : ""}</p></div><div class="actions"><button id="use-sample" type="button">サンプルを使用</button><button id="download-csv" type="button">CSVでダウンロード</button><button id="upload-csv" type="button" class="primary">CSVでアップロード</button></div></div>${id === "probability" ? `<label class="control probability-data-kind">データの種類<select id="probability-data-mode"><option value="coin" ${state.mode === "coin" ? "selected" : ""}>コインの結果（表=1・裏=0）</option><option value="binomial" ${state.mode === "binomial" ? "selected" : ""}>1セットの成功回数（0〜${state.n}）</option><option value="normal" ${state.mode === "normal" ? "selected" : ""}>連続した測定値</option></select></label>` : ""}<div class="data-table">${table(
     ["番号", ...data.headers],
     data.rows
       .slice(from, from + pageSize)
-      .map((row, i) => [
-        from + i + 1,
-        ...row.map((v) =>
-          typeof v === "number" && !Number.isInteger(v) ? fmt(v, 4) : v,
-        ),
-      ]),
-  )}</div>${pageCount > 1 ? `<div class="data-pagination"><button id="data-prev" type="button" ${page ? "" : "disabled"}>前の20行</button><span>${from + 1}〜${Math.min(data.rows.length, from + pageSize)}行 / ${data.rows.length}行</span><button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次の20行</button></div>` : ""}<p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">このデータで実験する →</button><button id="paste-data" type="button">表データを貼り付ける・列を選ぶ</button></div><div id="data-upload" hidden></div><p id="data-message" role="status"></p></section>`;
+      .map((row, i) => [from + i + 1, ...row.map(formatDataValue)]),
+  )}</div>${pageCount > 1 ? `<div class="data-pagination"><button id="data-prev" type="button" ${page ? "" : "disabled"}>前の20行</button><span>${from + 1}〜${Math.min(data.rows.length, from + pageSize)}行 / ${data.rows.length}行</span><button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次の20行</button></div>` : ""}<p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button><button id="paste-data" type="button">表データを貼り付ける・列を選ぶ</button></div><div id="data-upload" hidden></div><p id="data-message" role="status"></p></section>`;
   root.querySelector("#use-sample").onclick = () => {
     ui.dataPage = 0;
     sample();
@@ -76,6 +75,7 @@ export function renderDataTab(
         sample,
         apply,
         analyze,
+        nextLabel,
         update,
         allowGroup,
         dataOverride,

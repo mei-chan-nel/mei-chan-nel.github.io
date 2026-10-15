@@ -652,3 +652,42 @@ body[data-statistics]
   margin: 0 18px 18px;
   font-size: 0.84rem;
 }
+
+#view-tabs {
+  scroll-margin-top: 130px;
+}
+.tab-progress {
+  color: #47675b;
+  font-size: 0.86rem;
+  line-height: 1.85;
+  margin: 16px 0 6px;
+}
+.step-navigation {
+  margin: 26px 0 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+.step-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.step-buttons > span {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  margin-left: auto;
+}
+.step-buttons button {
+  font-size: 0.83rem;
+}
+@media (max-width: 600px) {
+  .step-buttons {
+    gap: 10px;
+  }
+  .step-buttons button {
+    font-size: 0.77rem;
+    max-width: 100%;
+  }
+}

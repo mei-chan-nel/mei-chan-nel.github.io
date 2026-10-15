@@ -116,6 +116,24 @@ export function scaleSpread(values, requested, min = 0, max = 100) {
   return { factor, values: values.map((v) => center + (v - center) * factor) };
 }
 
+export function boxSummary(values, mode = "five") {
+  const sorted = [...values].sort((a, b) => a - b),
+    q = quartiles(values);
+  const iqr = q.q3 - q.q1;
+  const inner =
+    mode === "iqr"
+      ? sorted.filter((v) => v >= q.q1 - 1.5 * iqr && v <= q.q3 + 1.5 * iqr)
+      : sorted;
+  const lower = inner[0] ?? sorted[0] ?? null,
+    upper = inner.at(-1) ?? sorted.at(-1) ?? null;
+  return {
+    ...q,
+    lower,
+    upper,
+    outliers: sorted.filter((v) => v < lower || v > upper),
+  };
+}
+
 function render(root, ctx) {
   const s = ctx.state;
   const values = s.points.map((p) => p.value),
@@ -127,12 +145,7 @@ function render(root, ctx) {
   const selected = s.points.find((p) => p.id === s.selectedId) || s.points[0];
   const sorted = [...values].sort((a, b) => a - b),
     iqr = q.q3 - q.q1;
-  const inner = sorted.filter(
-    (v) => v >= q.q1 - 1.5 * iqr && v <= q.q3 + 1.5 * iqr,
-  );
-  const lower = inner[0] ?? sorted[0],
-    upper = inner.at(-1) ?? sorted.at(-1);
-  const outliers = sorted.filter((v) => v < lower || v > upper);
+  const { lower, upper, outliers } = boxSummary(values, s.boxMode);
   const span = s.max - s.min;
   const x = (v) => 55 + (625 * (v - s.min)) / span,
     ix = (px) => clamp(((px - 55) * span) / 625 + s.min, s.min, s.max);
@@ -141,7 +154,7 @@ function render(root, ctx) {
     (_, i) =>
       `<line x1="${x(s.min + (span * i) / 10)}" x2="${x(s.min + (span * i) / 10)}" y1="168" y2="174" stroke="#94a3a3"/><text x="${x(s.min + (span * i) / 10)}" y="192" text-anchor="middle" fill="currentColor" font-size="12">${fmt(s.min + (span * i) / 10, 0)}</text>`,
   ).join("");
-  let drawing = `<text x="55" y="23" fill="currentColor" font-size="14">1点 = 1人。点を左右に動かせます</text><line x1="55" x2="680" y1="168" y2="168" stroke="#7c9696"/>${ticks}`;
+  let drawing = `<text x="55" y="23" fill="currentColor" font-size="14">1点 = 1件。点を左右に動かせます</text><line x1="55" x2="680" y1="168" y2="168" stroke="#7c9696"/>${ticks}`;
   if (s.showSD && Number.isFinite(deviation))
     drawing += `<rect x="${x(Math.max(s.min, avg - deviation))}" y="37" width="${x(Math.min(s.max, avg + deviation)) - x(Math.max(s.min, avg - deviation))}" height="113" fill="#d9873215"/><text x="367" y="49" text-anchor="middle" fill="#98551d" font-size="11">平均 ± 標準偏差（目盛の範囲内）</text>`;
   drawing += `<line x1="${x(avg)}" x2="${x(avg)}" y1="48" y2="166" stroke="#ba622a" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="48" y2="166" stroke="#237b78" stroke-width="2" stroke-dasharray="5 4"/>`;
@@ -156,12 +169,12 @@ function render(root, ctx) {
   s.points.forEach((p, i) => {
     drawing += `<circle class="point" data-id="${esc(p.id)}" cx="${placed[i].x}" cy="${143 - placed[i].row * dotStep}" r="${Math.min(8, Math.max(3, dotStep / 2 - 1))}" style="fill:${p.id === selected?.id ? "#d98732" : "#237b78"};stroke:${p.id === selected?.id ? "#9d4c15" : "#fff"};stroke-width:2" tabindex="0" role="button" aria-label="データ${i + 1}、${fmt(p.value)}。選択して数値で編集可能"><title>データ${i + 1}: ${fmt(p.value)}</title></circle>`;
   });
-  drawing += `<text x="55" y="226" fill="currentColor" font-size="14">箱ひげ図（1.5 × 四分位範囲のひげ）</text><line x1="${x(lower)}" x2="${x(upper)}" y1="264" y2="264" stroke="#567373" stroke-width="2"/><line x1="${x(lower)}" x2="${x(lower)}" y1="251" y2="277" stroke="#567373" stroke-width="2"/><line x1="${x(upper)}" x2="${x(upper)}" y1="251" y2="277" stroke="#567373" stroke-width="2"/><rect x="${x(q.q1)}" y="244" width="${Math.max(0, x(q.q3) - x(q.q1))}" height="40" fill="#237b7825" stroke="#237b78" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="244" y2="284" stroke="#237b78" stroke-width="4"/>${outliers.map((v) => `<circle cx="${x(v)}" cy="264" r="5" fill="#d98732"><title>1.5IQRの範囲外: ${fmt(v)}</title></circle>`).join("")}<text x="${x(q.q1)}" y="310" text-anchor="end" fill="currentColor" font-size="12">Q₁</text><text x="${x(med)}" y="333" text-anchor="middle" fill="currentColor" font-size="12">中央値</text><text x="${x(q.q3)}" y="310" text-anchor="start" fill="currentColor" font-size="12">Q₃</text><text x="680" y="353" text-anchor="end" fill="currentColor" font-size="12">${esc(s.label)}</text>`;
+  drawing += `<text x="55" y="226" fill="currentColor" font-size="14">${s.boxMode === "iqr" ? "発展：箱ひげ図（1.5IQR方式）" : "箱ひげ図（最小値〜最大値）"}</text><line x1="${x(lower)}" x2="${x(upper)}" y1="264" y2="264" stroke="#567373" stroke-width="2"/><line x1="${x(lower)}" x2="${x(lower)}" y1="251" y2="277" stroke="#567373" stroke-width="2"/><line x1="${x(upper)}" x2="${x(upper)}" y1="251" y2="277" stroke="#567373" stroke-width="2"/><rect x="${x(q.q1)}" y="244" width="${Math.max(0, x(q.q3) - x(q.q1))}" height="40" fill="#237b7825" stroke="#237b78" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="244" y2="284" stroke="#237b78" stroke-width="4"/>${outliers.map((v) => `<circle cx="${x(v)}" cy="264" r="5" fill="#d98732"><title>1.5IQRの範囲外: ${fmt(v)}</title></circle>`).join("")}<text x="${x(q.q1)}" y="310" text-anchor="end" fill="currentColor" font-size="12">Q₁</text><text x="${x(med)}" y="333" text-anchor="middle" fill="currentColor" font-size="12">中央値</text><text x="${x(q.q3)}" y="310" text-anchor="start" fill="currentColor" font-size="12">Q₃</text><text x="680" y="353" text-anchor="end" fill="currentColor" font-size="12">${esc(s.label)}</text>`;
   const selectedD = selected ? selected.value - avg : NaN;
   const denom = s.sample ? values.length - 1 : values.length;
   const sse = values.reduce((t, v) => t + (v - avg) ** 2, 0);
   root.innerHTML = `${metrics([
-    ["平均値", fmt(avg), "合計を人数で等分"],
+    ["平均値", fmt(avg), "合計を件数で等分"],
     ["中央値", fmt(med), "小さい順で中央"],
     [
       s.sample ? "標本標準偏差" : "標準偏差",
@@ -170,11 +183,11 @@ function render(root, ctx) {
     ],
     ["四分位範囲", fmt(iqr), "Q₃ − Q₁：中央50%の広がり"],
   ])}
-    <div class="stat-grid"><section class="panel chart-panel"><h2>中心と広がりを同時に見る</h2><p class="muted">${esc(s.source)} ／ ${values.length}件</p>${svg(drawing, "点を直接動かせるドットプロットと箱ひげ図", 720, 365).replace("<svg", '<svg id="summary-chart" style="touch-action:none"')}<p class="legend">橙の縦線：平均　青緑の破線：中央値　薄い帯：平均±標準偏差</p><p class="hint">平均±標準偏差の帯に必ず一定割合の点が入るわけではありません。箱は中央50%の範囲、橙の小点はひげの外です。</p></section>
-    <section class="panel controls"><h2>1人を動かす、全体を広げる</h2>
+    <div class="stat-grid"><section class="panel chart-panel"><h2>中心と広がりを同時に見る</h2><p class="muted">${esc(s.dataInfo?.name || s.source)} ／ ${values.length}件</p>${svg(drawing, "点を直接動かせるドットプロットと箱ひげ図", 720, 365).replace("<svg", '<svg id="summary-chart" style="touch-action:none"')}<p class="legend">橙の縦線：平均　青緑の破線：中央値　薄い帯：平均±標準偏差</p><p class="hint">平均±標準偏差の帯に必ず一定割合の点が入るわけではありません。箱は第1〜第3四分位数の範囲です。${s.boxMode === "iqr" ? "橙の小点は1.5IQR方式のひげの外側にあり、データの誤りとは限りません。" : "基本のひげは最小値と最大値まで伸びます。"}</p></section>
+    <section class="panel controls"><h2>1点を動かす、全体を広げる</h2>
       ${select(
         "summary-selected",
-        "編集する人",
+        "編集する点",
         s.points.map((p, i) => [p.id, `データ${i + 1}: ${fmt(p.value)}`]),
         selected?.id || "",
       )}
@@ -183,7 +196,16 @@ function render(root, ctx) {
       ${range("summary-spread", "平均を保って、全体のばらつきを拡大", s.spreadFactor, 0, 2.5, 0.05, "倍")}
       <p class="hint">基準データの各偏差を同じ倍率にします。上限・下限を越える手前で止めるため、平均は変わりません。点を個別に編集すると、その状態が新しい基準になります。</p>
       <div class="actions"><button id="summary-outlier" type="button">選択点を上限へ</button><button id="summary-add" type="button" ${s.meanLocked || s.points.length >= 40 ? "disabled" : ""}>平均の点を追加</button><button id="summary-remove" type="button" ${s.meanLocked || s.points.length <= 2 ? "disabled" : ""}>選択点を削除</button></div>
-      ${s.meanLocked ? '<p class="muted">人数の変更は平均固定を解除して行えます。</p>' : ""}
+      ${s.meanLocked ? '<p class="muted">件数の変更は平均固定を解除して行えます。</p>' : ""}
+      ${select(
+        "summary-box-mode",
+        "箱ひげ図の方式",
+        [
+          ["five", "基本：最小値〜最大値のひげ"],
+          ["iqr", "発展：1.5IQR方式・外側は点"],
+        ],
+        s.boxMode || "five",
+      )}
       <label><input id="summary-sd" type="checkbox" ${s.showSD ? "checked" : ""}> 平均±標準偏差の帯を表示</label>
       ${select(
         "summary-denominator",
@@ -204,7 +226,7 @@ function render(root, ctx) {
       )}。符号が打ち消し合うので、二乗して広がりを測ります。</p><p class="annotation">分散 = Σ(偏差²) ÷ ${s.sample ? "(n−1)" : "n"} = ${fmt(sse)} ÷ ${denom} = <strong>${Number.isFinite(vari) ? fmt(vari) : "定義できない"}</strong><br>標準偏差 = √分散 = <strong>${Number.isFinite(deviation) ? fmt(deviation) : "定義できない"}</strong></p><p class="muted">分散の単位は「${esc(s.label)}の二乗」。平方根を取ると、標準偏差は元のデータと同じ単位に戻ります。</p>
     </section><section class="panel"><h2>データの中身と、箱の境界</h2>
       ${table(["最小値", "第1四分位数", "中央値", "第3四分位数", "最大値"], [[fmt(sorted[0]), fmt(q.q1), fmt(med), fmt(q.q3), fmt(sorted.at(-1))]])}
-      <p>1.5IQRの境界：${fmt(q.q1 - 1.5 * iqr)} 〜 ${fmt(q.q3 + 1.5 * iqr)}。ひげはその範囲内にある実際の値 ${fmt(lower)} 〜 ${fmt(upper)} まで。外側の点も削除せず示します。</p>
+      <p>${s.boxMode === "iqr" ? `発展の1.5IQR方式：境界 ${fmt(q.q1 - 1.5 * iqr)} 〜 ${fmt(q.q3 + 1.5 * iqr)} の内側にある実測値 ${fmt(lower)} 〜 ${fmt(upper)} までひげを伸ばし、外側は点で示します。` : `基本の5数要約方式：ひげは最小値 ${fmt(lower)} から最大値 ${fmt(upper)} まで。四分位数と中央値を合わせた5つの値で表します。`}</p>
       <details><summary>全員の値・偏差・二乗を見る</summary>${table(
         ["データ", s.label, "偏差", "偏差²"],
         s.points.map((p, i) => [
@@ -244,6 +266,12 @@ function render(root, ctx) {
       spreadFactor: next.factor,
     });
   });
+  bind(
+    root,
+    "summary-box-mode",
+    (boxMode) => ctx.update({ boxMode }),
+    "change",
+  );
   bind(
     root,
     "summary-denominator",
@@ -309,6 +337,6 @@ export default {
   lead: "このクラスの「ふつうの得点」は何点？ 1人の点を動かして、平均・中央値・広がりの変化を比べてみましょう。",
   initial,
   render,
-  explanation: `<h2>中心の位置と、広がりを組み合わせる</h2><p>平均値は全員の合計を等しく分けた値です。すべての値を使うため、極端な値にも影響されます。中央値は並べ替えた中央の値で、人数が偶数なら中央の2値の平均。外側の値がさらに遠くへ動いても、中央の順位が変わらなければ中央値は変わりません。片方だけを「正しい代表値」とせず、分布の形や分析目的と一緒に選びます。</p><h3>分散と標準偏差</h3><p>偏差は各データと平均の差。偏差の合計は0になるため、その二乗を平均して分散を求めます。標準偏差は分散の平方根。偏差をk倍にすると、分散はk²倍、標準偏差は|k|倍になります。すべての値に同じ数を足しても、偏差・分散・標準偏差は変わりません。</p><p>このデータそのものを記述するときは二乗の合計をnで割ります。無作為標本から母分散を推定するときはn−1で割る不偏分散が使われます。その平方根（標本標準偏差）自体が母標準偏差の不偏推定量という意味ではありません。人数1ではn−1が0となり、定義できません。</p><h3>四分位数と箱ひげ図の約束</h3><p>この教材では、中央値を求め、人数が奇数なら中央の1値を除いた下半分・上半分それぞれの中央値をQ₁・Q₃とします。Q₃−Q₁が四分位範囲（IQR）。ソフトや教科書には補間など別の四分位数の定義があり、小さなデータでは数値が異なることがあります。</p><p>箱ひげ図はQ₁〜Q₃を箱、中央値を箱内の線として示します。ここではQ₁−1.5IQR〜Q₃+1.5IQRの内側にある最小・最大の実測値までひげを伸ばし、外側は点で表示します。教科書で使う「最小値から最大値までのひげ」とは方式が違います。外側の点が誤りとは限らず、理由を調べて判断します。</p><h3>読み取れないこともある</h3><p>平均と標準偏差が同じでも、左右対称か、山が2つあるか、外れ値があるかは決まりません。箱ひげ図だけでも山の数は読み取れません。ドットプロットやヒストグラムを併用して、値がどこに集まっているか確かめましょう。架空データは操作による発見のために独自に作成しています。</p>`,
+  explanation: `<h2>中心の位置と、広がりを組み合わせる</h2><p>平均値は全員の合計を等しく分けた値です。すべての値を使うため、極端な値にも影響されます。中央値は並べ替えた中央の値で、人数が偶数なら中央の2値の平均。外側の値がさらに遠くへ動いても、中央の順位が変わらなければ中央値は変わりません。片方だけを「正しい代表値」とせず、分布の形や分析目的と一緒に選びます。</p><h3>分散と標準偏差</h3><p>偏差は各データと平均の差。偏差の合計は0になるため、その二乗を平均して分散を求めます。標準偏差は分散の平方根。偏差をk倍にすると、分散はk²倍、標準偏差は|k|倍になります。すべての値に同じ数を足しても、偏差・分散・標準偏差は変わりません。</p><p>このデータそのものを記述するときは二乗の合計をnで割ります。無作為標本から母分散を推定するときはn−1で割る不偏分散が使われます。その平方根（標本標準偏差）自体が母標準偏差の不偏推定量という意味ではありません。人数1ではn−1が0となり、定義できません。</p><h3>四分位数と箱ひげ図の約束</h3><p>この教材では、中央値を求め、人数が奇数なら中央の1値を除いた下半分・上半分それぞれの中央値をQ₁・Q₃とします。Q₃−Q₁が四分位範囲（IQR）。ソフトや教科書には補間など別の四分位数の定義があり、小さなデータでは数値が異なることがあります。</p><p>箱ひげ図はQ₁〜Q₃を箱、中央値を箱内の線として示します。基本表示は、最小値から最大値までひげを伸ばす5数要約方式です。「発展：1.5IQR方式」へ切り替えると、Q₁−1.5IQR〜Q₃+1.5IQRの内側の最小・最大の実測値までひげを伸ばし、外側は点で表示します。方式が違っても四分位数と元データは変わりません。外側の点が誤りとは限らず、理由を調べて判断します。</p><h3>読み取れないこともある</h3><p>平均と標準偏差が同じでも、左右対称か、山が2つあるか、外れ値があるかは決まりません。箱ひげ図だけでも山の数は読み取れません。ドットプロットやヒストグラムを併用して、値がどこに集まっているか確かめましょう。架空データは操作による発見のために独自に作成しています。</p>`,
   related: ["histogram", "correlation", "projects", "sampling"],
 };

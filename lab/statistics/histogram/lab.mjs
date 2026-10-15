@@ -145,7 +145,7 @@ function render(root, ctx) {
     w: 720,
     h: 360,
     xlabel: s.label,
-    ylabel: cumulative ? "累積相対度数" : relative ? "相対度数" : "度数（人）",
+    ylabel: cumulative ? "累積相対度数" : relative ? "相対度数" : "度数（件）",
   });
   const sel = bins[s.selected];
   const groupN = {
@@ -170,7 +170,7 @@ function render(root, ctx) {
         .map(([g, count, color], j) => {
           const value = relative ? count / n : count,
             bw = w / values.length;
-          return `<rect data-bin="${i}" tabindex="0" role="button" aria-label="${g}、${fmt(b.lo)}以上${fmt(b.hi)}未満、${count}人" x="${x + j * bw + 1}" y="${a.y(value)}" width="${Math.max(0.5, bw - 2)}" height="${Math.max(0, a.y(0) - a.y(value))}" fill="${color}" opacity="${sel && !chosen ? ".42" : ".88"}" stroke="${chosen ? "#172f36" : "none"}" stroke-width="2"><title>${g}: ${count}人</title></rect>`;
+          return `<rect data-bin="${i}" tabindex="0" role="button" aria-label="${g}、${fmt(b.lo)}以上${fmt(b.hi)}未満、${count}件" x="${x + j * bw + 1}" y="${a.y(value)}" width="${Math.max(0.5, bw - 2)}" height="${Math.max(0, a.y(0) - a.y(value))}" fill="${color}" opacity="${sel && !chosen ? ".42" : ".88"}" stroke="${chosen ? "#172f36" : "none"}" stroke-width="2"><title>${g}: ${count}件</title></rect>`;
         })
         .join("");
     })
@@ -214,16 +214,16 @@ function render(root, ctx) {
     })
     .join("");
   const selectedText = sel
-    ? `${fmt(sel.lo)}以上 ${fmt(sel.hi)}未満：${sel.count}/${n}人 = ${fmt(sel.relative * 100, 1)}%。${fmt(sel.hi)}未満の累積は ${fmt(sel.cumulative * 100, 1)}%。`
+    ? `${fmt(sel.lo)}以上 ${fmt(sel.hi)}未満：${sel.count}/${n}件 = ${fmt(sel.relative * 100, 1)}%。${fmt(sel.hi)}未満の累積は ${fmt(sel.cumulative * 100, 1)}%。`
     : "棒・点・表の行を選ぶと、集計した元データが対応して強調されます。";
   root.innerHTML = `
     <div class="stat-grid">
-      <section class="panel chart-panel"><h2>区切り方で、分布の見え方は変わる？</h2><p class="muted">${esc(s.source)}。A・B は異なる集団です。${s.groupNames && s.groupNames.join("") !== "AB" ? `A＝${esc(s.groupNames[0])}、B＝${esc(s.groupNames[1])}。` : ""}${s.dataInfo?.origin === "user" ? "読み込んだ数値を使っています。" : "教材用の架空データです。"}</p>
+      <section class="panel chart-panel"><h2>区切り方で、分布の見え方は変わる？</h2><p class="muted">${esc(s.dataInfo?.name || s.source)}。${new Set(s.rows.map((r) => r.group)).size > 1 ? `A・B は異なる集団です。${s.groupNames && s.groupNames.join("") !== "AB" ? `A＝${esc(s.groupNames[0])}、B＝${esc(s.groupNames[1])}。` : ""}` : "1つの集団を表示しています。"}${s.dataInfo?.origin === "user" ? "読み込んだ数値を使っています。" : "教材用の架空データです。"}</p>
       ${metrics([
-        ["データ数", `${n}人`],
+        ["データ数", `${n}件`],
         ["平均", fmt(mean(rows.map((r) => r.value)))],
         ["中央値", fmt(median(rows.map((r) => r.value)))],
-        ["選択した階級", sel ? `${sel.count}人` : "未選択"],
+        ["選択した階級", sel ? `${sel.count}件` : "未選択"],
       ])}
       ${svg(a.markup + grid + cumline, "階級幅と開始位置で変わる度数分布", 720, 360)}
       <div class="legend"><span style="color:#168b87">● 集団A（${groupN.A}件）</span>　<span style="color:#de7c35">● 集団B（${groupN.B}件）</span></div>
@@ -249,7 +249,7 @@ function render(root, ctx) {
         "measure",
         "縦軸",
         [
-          ["count", "度数（人数）"],
+          ["count", "度数（件数）"],
           ["relative", "相対度数（全体に占める割合）"],
           ["cumulative", "累積相対度数（折れ線）"],
         ],

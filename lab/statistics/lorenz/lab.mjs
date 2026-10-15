@@ -149,7 +149,7 @@ function render(root, ctx) {
     ? `<p class="annotation">比較用（橙）：総額 ${fmt(sum(ref))}${unit}、平均 ${fmt(mean(ref))}${unit}、ジニ係数 ${f(refGini, 3)}。現在との差 ${coeff !== null && refGini !== null ? fmt(coeff - refGini, 3) : "—"}。</p>`
     : "";
   root.innerHTML = `
-  <div class="stat-grid"><section class="panel chart-panel"><h2>所得を分けると、曲線はどう動く？</h2><p class="muted">${s.dataInfo?.origin === "user" ? "読み込んだ" : "架空の"}${n}人の所得です。${unit ? "単位は万円。" : "項目名と単位は上の使用データ欄で確認できます。"}税や世帯人数を省いたモデルとして比較します。</p>
+  <div class="stat-grid"><section class="panel chart-panel"><h2>所得を分けると、曲線はどう動く？</h2><p class="muted">${s.dataInfo?.origin === "user" ? "読み込んだ" : "架空の"}${n}人の所得です。${unit ? "単位は万円。" : "項目名と単位はデータタブで確認できます。"}税や世帯人数を省いたモデルとして比較します。</p>
   ${metrics([
     ["所得総額", `${fmt(total)}${unit}`],
     ["平均", `${fmt(mean(values))}${unit}`],

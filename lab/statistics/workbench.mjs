@@ -1,3 +1,4 @@
+import { learningViews } from "./learning.mjs";
 import { esc } from "./shared/ui.mjs";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
@@ -37,7 +38,7 @@ export function composeWorkbench(root, id, ui, onChange) {
         (p) => p.querySelector("h3")?.textContent === "選んだセルの分子・分母",
       ),
       inspector = root.querySelector(".stat-grid>aside");
-    main = [plot, group(tables), denominator];
+    main = [group(tables), plot, denominator];
     controls = [group([top, inspector])];
   }
   if (id === "time-series") {
@@ -55,7 +56,7 @@ export function composeWorkbench(root, id, ui, onChange) {
     dragPanel.innerHTML =
       '<h2>所得の取っ手を動かす</h2><p class="hint">1人ずつの所得を横にドラッグします。総額固定中は、残りの人の比率を保って調整します。</p>';
     if (bars) dragPanel.append(bars);
-    main = [panels[0], dragPanel, panels[2]];
+    main = [dragPanel, panels[0], panels[2]];
     controls = [panels[1]];
   }
   if (id === "probability") {
@@ -197,19 +198,9 @@ export function composeWorkbench(root, id, ui, onChange) {
     );
   }
 
-  const names = {
-    correlation: ["相関と直線", "予測を確かめる", "残差の表"],
-    summary: ["分布と代表値", "分散の計算", "数値の一覧"],
-    histogram: ["分布を見る", "度数分布表"],
-    sampling: ["今回の抽出", "推定値の分布", "区間を比べる", "計算・標本一覧"],
-    crosstab: ["割合を比べる", "クロス集計表", "分子・分母"],
-    "time-series": ["推移と予測", "伸び率・指数", "予測方法を比較"],
-    "hypothesis-test": ["観測された差を判断", "誤判定と検出力"],
-    lorenz: ["曲線とジニ係数", "所得をバーで動かす", "累積比率の計算"],
-    probability: ["実験結果", "標準化"],
-  };
+  const lessons = learningViews(id, ui.state);
   return main.map((_, i) => ({
-    label: names[id][i],
+    label: lessons[i].title,
     active: i === view,
     choose: () => {
       ui.view = i;

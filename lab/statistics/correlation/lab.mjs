@@ -182,7 +182,9 @@ function render(root, ctx) {
     (s.predictionX < Math.min(...train.map((p) => p.x)) ||
       s.predictionX > Math.max(...train.map((p) => p.x)));
   const message = !fitOK
-    ? "x がすべて同じ、または点が足りないため、回帰直線を一意に求められません。x の異なる点を2つ以上置いてください。"
+    ? s.excludeSelected && points.length < 3
+      ? "検証用の1点を外すには、元データが3組以上必要です。データタブで別のデータを読み込むか、相関と直線のタブで点を追加してください。"
+      : "x がすべて同じ、または点が足りないため、回帰直線を一意に求められません。x の異なる学習用の点を2つ以上置いてください。"
     : !Number.isFinite(fit.r)
       ? "y の値がすべて同じため、相関係数は定義できません。傾き0の回帰直線は求められます。"
       : `点は ${points.length} 個。${s.manual ? "実線は手動の直線、灰色の破線は最小二乗直線です。" : "実線は残差平方和を最小にする回帰直線です。"}`;
@@ -206,7 +208,7 @@ function render(root, ctx) {
       [
         "学習データのRMSE",
         lineOK ? fmt(residuals.rmse, 2) : "—",
-        "誤差の典型的な大きさ・得点の単位",
+        "誤差の典型的な大きさ・yと同じ単位",
       ],
     ])}
     <div class="stat-grid"><section class="panel chart-panel"><h2>点を動かして、関係を変える</h2><p class="muted">${esc(s.source)}。点をドラッグ／タップして選択できます。${s.mode === "add" ? "図の空いている場所を押すと点を追加します。" : s.mode === "delete" ? "点を押すと削除します。" : "数値での編集もできます。"}</p>
