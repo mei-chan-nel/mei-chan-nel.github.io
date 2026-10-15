@@ -55,7 +55,32 @@ try{
   await page.goto(base+'/lab/question-map/');await ready(page);
   assert.equal(await page.locator('.map-hero h1').textContent(),'情報の可視化、問題マップ');
   assert.equal(await page.locator('#map-search,#heat-toggle,.map-toolbar,#map-settings,#heat-note,[data-stage]').count(),0);
-  assert.deepEqual(await page.locator('.map-layer-controls button').allTextContents(),['タグ','単語','問題','自動']);
+  assert.deepEqual(await page.locator('.map-layer-controls button').allTextContents(),['全画面','タグ','単語','問題','自動']);
+  const normalBounds=await page.locator('.map-exhibit').boundingBox(),initialScroll=await page.evaluate(()=>scrollY);
+  await page.locator('#map-fullscreen').click();
+  const expanded=await page.locator('.map-exhibit').evaluate(el=>{
+    const r=el.getBoundingClientRect(),v=el.querySelector('#map-viewport').getBoundingClientRect(),
+      b=el.querySelector('.history-summary').getBoundingClientRect();
+    return{left:r.left,top:r.top,width:r.width,height:r.height,mapHeight:v.height,footerEnd:b.bottom,
+      screenWidth:innerWidth,screenHeight:innerHeight,locked:document.documentElement.classList.contains('question-map-expanded'),
+      headerHidden:document.querySelector('.site-header').inert};
+  });
+  assert.ok(expanded.locked&&expanded.headerHidden);
+  assert.ok(Math.abs(expanded.left)<1&&Math.abs(expanded.top)<1&&Math.abs(expanded.width-expanded.screenWidth)<2&&Math.abs(expanded.height-expanded.screenHeight)<2);
+  assert.ok(expanded.mapHeight>90&&expanded.footerEnd<=expanded.screenHeight+1,'Expanded map and footer must fit the viewport');
+  assert.equal(await page.locator('#map-fullscreen').textContent(),'元に戻す');
+  assert.equal(await page.locator('#map-fullscreen').getAttribute('aria-pressed'),'true');
+  await page.locator('#map-fullscreen').click();
+  const returnedBounds=await page.locator('.map-exhibit').boundingBox();
+  assert.ok(Math.abs(returnedBounds.width-normalBounds.width)<2);
+  assert.equal(await page.locator('#map-fullscreen').textContent(),'全画面');
+  assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('question-map-expanded')),false);
+  assert.equal(await page.evaluate(()=>document.querySelector('.site-header').inert),false);
+  assert.equal(await page.evaluate(()=>scrollY),initialScroll);
+  await page.locator('#map-fullscreen').click();
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#map-fullscreen').getAttribute('aria-pressed'),'false');
+  assert.equal(await page.evaluate(()=>document.documentElement.classList.contains('question-map-expanded')),false);
   assert.deepEqual(await selectedLayers(page),['tag']);assert.equal(await page.locator('#layers-mode').getAttribute('aria-pressed'),'true');
   assert.deepEqual(await page.locator('.heat-range button').allTextContents(),['0～100％','地域差強調']);
   const positions=await page.evaluate(()=>{const a=document.querySelector('.heat-legend').getBoundingClientRect(),b=document.querySelector('.heat-range').getBoundingClientRect();return{right:a.right,x:b.x,dy:Math.abs((a.top+a.height/2)-(b.top+b.height/2)),font:parseFloat(getComputedStyle(document.querySelector('.heat-range')).fontSize)};});
@@ -148,6 +173,14 @@ try{
   assert.ok(await scroll.evaluate(n=>n.scrollHeight<=n.clientHeight||n.scrollTop>0));
   await page.locator('#question-close').click();
   assert.equal(await page.evaluate(()=>scrollY),yBefore);
+  await page.locator('#map-fullscreen').click();
+  assert.equal(await page.locator('#map-fullscreen').getAttribute('aria-pressed'),'true');
+  await activeCards().first().evaluate(node=>node.click());
+  await page.waitForSelector('#question-dialog[open]');
+  await page.locator('#question-close').click();
+  assert.equal(await page.locator('#map-fullscreen').getAttribute('aria-pressed'),'true');
+  await page.locator('#map-fullscreen').click();
+
   await activeCards().first().focus();await page.keyboard.press('Enter');await page.waitForSelector('#question-dialog[open]');
   await page.keyboard.press('Escape');
   // Sweep a populated neighborhood, including narrow widths and deep zoom.
