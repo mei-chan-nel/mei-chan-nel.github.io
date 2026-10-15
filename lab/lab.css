@@ -23,6 +23,7 @@
 .lab-content-grid:empty { display: none; }
 .lab-content-grid .archive-field-card > span { color: var(--lab-accent); }
 .lab-shell a:focus-visible { outline: 3px solid var(--mint-strong); outline-offset: 4px; }
+.lab-content-grid:not(:empty) { margin-top: 24px; }
 @media (max-width: 600px) {
   .lab-shell { width: calc(100% - 32px); padding-bottom: 48px; }
   .lab-hero { padding: 30px 0; }

@@ -1,4 +1,4 @@
-// Match the learning app's six subject areas. No individual exhibits yet.
+// Match the learning app's six subject areas.
 export const groups = [
   {
     id: "society-security",
@@ -39,4 +39,11 @@ export const groups = [
 ];
 
 // Add completed exhibits here; category headings are not content cards.
-export const contents = [];
+export const contents = [
+  {
+    id: "color-vision",
+    group: "information-design",
+    name: "色覚シミュレーター",
+    description: "文化祭の案内を段階的に改善。通常・P型・D型・T型を比べ、色に頼らない伝え方を見つけよう。自分の画像もブラウザ内で確認できます。",
+  },
+];
