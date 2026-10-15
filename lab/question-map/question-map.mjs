@@ -1,6 +1,6 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
-  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle, PRACTICE_LIMIT } from "./map-model.mjs?v=9";
-import { RegionPicker } from "./region-picker.mjs?v=3";
+  viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle, PRACTICE_LIMIT } from "./map-model.mjs?v=10";
+import { RegionPicker } from "./region-picker.mjs?v=4";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -384,8 +384,9 @@ $("#region-practice").addEventListener("click", () => {
   if (!all.length) { $("#region-practice").disabled = true; return; }
   state.inertia = null; state.target = { ...state.camera }; requestDraw();
   const session = state.practiceSession = { key: null };
-  const circle = initialPracticeCircle(state.model, state.camera, state.width, state.height);
   showMapDialog($("#region-dialog"), $("#region-practice"));
+  const preview = $("#region-preview");
+  const circle = initialPracticeCircle(state.camera, state.width, preview.clientWidth, preview.clientHeight);
   session.picker = new RegionPicker($("#region-preview"), { circle, bounds: state.model.bounds,
     drawMap(ctx, camera, width, height) {
       drawTerrain(ctx, camera, width, height);

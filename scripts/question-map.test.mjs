@@ -28,19 +28,15 @@ test("地域の出題候補は全座標から選び、円の境界・空範囲�
   assert.ok(selected.every(p => pool.includes(p))); assert.ok(selected.includes(pool.at(-1)));
   assert.deepEqual(pool, original);
 });
-test("出題の初期円は現在の地域を包み、全体表示では問題の広がりまでに収める", () => {
-  const model = fixture();
-  for (const [width, height] of [[1180, 660], [356, 580], [286, 427]]) {
-    const overview = fitCamera(model.bounds, width, height);
-    const circle = initialPracticeCircle(model, overview, width, height);
-    assert.deepEqual(new Set(practiceCandidates(model, overview, width, height, circle)), new Set(model.points));
-    assert.ok(circle.radius < Math.hypot(width, height) / (2 * overview.scale));
-    const local = { x: 20, y: 0, scale: 400 }, nearby = initialPracticeCircle(model, local, width, height);
-    assert.equal(nearby.x, local.x); assert.equal(nearby.y, local.y);
-    assert.ok(nearby.radius >= Math.hypot(width, height) / (2 * local.scale));
-    const visible = model.index.query(viewBounds(local, width, height)), selected = practiceCandidates(model, local, width, height, nearby);
-    assert.ok(visible.every(p => selected.includes(p)));
-    assert.ok(nearby.radius < circle.radius / 5);
+test("出題の初期表示は以前の横方向の距離感と現在の中心を保つ", () => {
+  for (const [width, previewWidth, previewHeight] of [[1180, 514, 260], [356, 314, 260], [286, 244, 187]]) {
+    const camera = { x: 20, y: -4, scale: 4 };
+    const circle = initialPracticeCircle(camera, width, previewWidth, previewHeight);
+    assert.equal(circle.x, camera.x); assert.equal(circle.y, camera.y);
+    const previewScale = Math.min(previewWidth, previewHeight) * .32 / circle.radius;
+    assert.ok(Math.abs(previewWidth / previewScale - width / camera.scale) < 1e-9);
+    const near = initialPracticeCircle({ ...camera, scale: 40 }, width, previewWidth, previewHeight);
+    assert.ok(Math.abs(near.radius * 10 - circle.radius) < 1e-9);
   }
 });
 test("実データの全ID・座標・用語索引・メタデータが対応する", async () => {

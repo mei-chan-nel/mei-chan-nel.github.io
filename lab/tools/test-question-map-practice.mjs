@@ -43,21 +43,16 @@ async function circleGeometry(page) {
 }
 async function checkInitialRegion(page, overview = false) {
   const geometry = await circleGeometry(page), visible = await candidates(page), selected = await candidates(page, true);
-  assert.ok(visible.length > 0 && visible.every(id => selected.includes(id)), "The initial circle includes the questions in the main view");
+  assert.ok(visible.length > 0 && selected.length > 0, "The initial region contains questions");
   const original = await page.evaluate(() => {
     const t = window.mapTransform, scale = t.a / t.ratio;
     return { x: (t.width / 2 - t.e / t.ratio) / scale, y: (t.height / 2 - t.f / t.ratio) / scale,
       radius: Math.hypot(t.width, t.height) / (2 * scale), widthScale: scale * document.querySelector("#region-preview").clientWidth / t.width };
   });
   assert.ok(Math.abs(geometry.worldX - original.x) < 1e-4 && Math.abs(geometry.worldY - original.y) < 1e-4, "Opening preserves the region centre");
-  if (overview) {
-    assert.equal(selected.length, questions.length);
-    const extent = Math.max(...Object.values(coordinates).map(([x, y]) => Math.hypot(x - original.x, y - original.y)));
-    assert.ok(geometry.worldRadius <= extent * 1.08, "Overview does not zoom out into the empty viewport margins");
-  } else {
-    assert.ok(geometry.worldRadius >= original.radius * .99 && geometry.worldRadius <= original.radius * 1.08, "A local view fits in the circle with a small margin");
-    assert.ok(geometry.scale < original.widthScale, "The picker pulls back from an enlarged main view");
-  }
+  assert.ok(Math.abs(geometry.scale / original.widthScale - 1) < 1e-5, "Opening preserves the earlier picker's horizontal distance");
+  assert.ok(geometry.worldRadius < original.radius * .55, "Opening stays closer than fitting the whole viewport into the circle");
+  if (overview) assert.ok(selected.length < questions.length, "Overview begins with a local selection rather than the entire map");
   await checkScope(page);
   return geometry;
 }

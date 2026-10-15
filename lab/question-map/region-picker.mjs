@@ -1,4 +1,4 @@
-import { clamp, unproject, zoomAbout } from "./map-model.mjs?v=9";
+import { clamp, unproject, zoomAbout } from "./map-model.mjs?v=10";
 
 // A separate camera keeps a cancelled selection from moving the main map.
 export class RegionPicker {
