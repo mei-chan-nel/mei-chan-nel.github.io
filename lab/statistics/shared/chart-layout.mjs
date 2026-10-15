@@ -1,7 +1,6 @@
-// Reflow coordinates instead of shrinking a tall SVG into a short desktop workspace.
+// Reflow coordinates to keep text and handles readable at the displayed chart size.
 // Points keep their hit area and text keeps its readable font size.
 export function fitWorkspaceCharts(container) {
-  if (window.innerWidth < 1000) return;
   for (const svg of container.querySelectorAll("svg")) {
     const box = svg.getBoundingClientRect(),
       original = svg.viewBox.baseVal;

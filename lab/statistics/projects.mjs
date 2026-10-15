@@ -19,6 +19,10 @@ function draw() {
     dataset.origin === "sample"
       ? "学習時間が長いほど高得点か。分布・代表値・相関の3方向で確かめる。"
       : "同じデータを分布・代表値・相関で調べ、根拠を持って結論をまとめる。";
+  document.querySelector(".workspace-intro").textContent =
+    dataset.origin === "sample"
+      ? "学習時間が長い人ほど高得点でしょうか。まず架空の24人のデータを確認し、問いに合うラボを選んで調べます。結果を持ち帰って見比べ、データから言えること・言えないことを整理しましょう。自分の2列の数値データでも取り組めます。"
+      : `「${dataset.xLabel}」と「${dataset.yLabel}」には、どのような特徴や関係があるでしょうか。同じデータを各ラボへ引き継ぎ、分布・代表値・相関のうち、問いに合う方法で調べます。結果を記録し、根拠と限界を含めた結論をまとめましょう。`;
   let records = {};
   try {
     records = JSON.parse(

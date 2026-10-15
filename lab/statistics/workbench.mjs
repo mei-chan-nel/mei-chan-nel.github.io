@@ -89,20 +89,7 @@ export function composeWorkbench(root, id, ui, onChange) {
   main[view].querySelectorAll("details").forEach((d) => {
     if (id === "correlation" && view === 2) d.open = true;
   });
-  // Secondary descriptions remain available without pushing the graph off the page.
-  for (const pane of [main[view], controls[view] || controls[0]]) {
-    if (!pane) continue;
-    const hints = [
-      ...pane.querySelectorAll(":scope>p.hint,:scope>p.muted"),
-    ].filter((p) => p.textContent.length > 35);
-    if (hints.length) {
-      const help = document.createElement("details");
-      help.className = "pane-help";
-      help.innerHTML = "<summary>表示と操作の補足</summary>";
-      hints.forEach((p) => help.append(p));
-      pane.append(help);
-    }
-  }
+  // Keep instructions beside the graph they explain. Advanced controls remain optional.
   if (id === "histogram") {
     const old = side.querySelector("#raw-details");
     if (old) old.hidden = true;

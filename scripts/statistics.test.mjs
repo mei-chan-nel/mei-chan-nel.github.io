@@ -26,14 +26,17 @@ test("all nine independent labs have real modules, three inquiry missions and va
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs?v=20261015-ui2"'));
+    assert.ok(html.includes('src="./../app.mjs?v=20261015-ui3"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('href="../projects/?start=records"'));
     assert.ok(html.includes('id="open-data"'));
     assert.ok(html.includes('id="analysis-flow"'));
     assert.ok(html.includes('id="view-tabs"'));
-    assert.ok(html.includes('id="learning-dialog"'));
+    assert.ok(html.includes('id="missions"'));
+    assert.ok(html.includes('id="academic"'));
+    assert.ok(html.includes('class="workspace-intro"'));
+    assert.ok(!html.includes('id="learning-dialog"'));
     assert.ok(!html.includes('class="stat-badge"'));
     assert.ok(html.includes(`data-stat-lab="${id}"`));
   }

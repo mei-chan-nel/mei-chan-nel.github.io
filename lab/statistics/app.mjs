@@ -5,9 +5,11 @@ import { composeWorkbench } from "./workbench.mjs";
 import { openDataEditor } from "./data-editor.mjs";
 import { normalizeExperiment } from "./sampling/model.mjs";
 import { readDataset } from "./shared/data.mjs";
+import { experiences } from "./experience.mjs";
+import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261015-ui2`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261015-ui3`)).default;
 const clone = (x) => JSON.parse(JSON.stringify(x));
 const ui = { view: 0, openSections: {} };
 function prepare(next) {
@@ -130,6 +132,8 @@ function draw() {
             : "") +
           (data.edits ? ` ／ 元データから${data.edits}行を変更` : "") +
           (data.filename ? ` ／ ${data.filename}` : "");
+    document.querySelector("#lab-lead").textContent =
+      data.origin === "sample" ? config.lead : experiences[id].firstTry;
     document.querySelector("#analysis-flow").textContent =
       "処理：" + data.operation;
     if (focus?.id) {
@@ -164,6 +168,13 @@ function drawSnapshot() {
       update: () => {},
       replace: () => {},
     });
+    composeWorkbench(
+      box.querySelector(".frozen"),
+      id,
+      { view: ui.view, openSections: {} },
+      () => {},
+    );
+    fitWorkspaceCharts(box.querySelector(".workbench-display"));
     const ids = new Map(
       [...box.querySelectorAll("[id]")].map((el) => [
         el.id,
@@ -205,7 +216,7 @@ function drawMissions() {
   document.querySelector("#mission-list").innerHTML = (config.missions || [])
     .map(
       (m, i) =>
-        `<article class="mission-card"><span class="mission-no">0${i + 1}</span><h3>${esc(m.title)}</h3><p>${esc(m.body)}</p>${m.preset ? `<button type="button" data-mission="${i}">実験の条件をセット</button>` : ""}<label>予想と、実験からわかったこと<textarea data-note="${i}" placeholder="予想 → 操作 → 結果 → その理由">${esc(notes[i] || "")}</textarea></label><label><span><input type="checkbox" data-done="${i}" ${notes["done" + i] ? "checked" : ""}> 結果を比べ、理由を記録した</span></label></article>`,
+        `<article class="mission-card"><span class="mission-no">0${i + 1}</span><h3>${esc(m.title)}</h3><p>${esc(m.body)}</p>${m.preset ? `<button type="button" data-mission="${i}">教材サンプルをセット</button>` : ""}<label>予想と、実験からわかったこと<textarea data-note="${i}" placeholder="予想 → 操作 → 結果 → その理由">${esc(notes[i] || "")}</textarea></label><label><span><input type="checkbox" data-done="${i}" ${notes["done" + i] ? "checked" : ""}> 結果を比べ、理由を記録した</span></label></article>`,
     )
     .join("");
   document.querySelectorAll("[data-mission]").forEach(
@@ -217,7 +228,6 @@ function drawMissions() {
           dataInfo: null,
         });
         ui.view = 0;
-        document.querySelector("#learning-dialog").close();
         persist();
         draw();
         root.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -238,8 +248,10 @@ function drawMissions() {
       }),
   );
 }
-document.querySelector("#explanation-body").innerHTML = config.explanation;
-document.querySelector("#lab-lead").textContent = config.lead;
+renderAcademicExplanation(
+  document.querySelector("#explanation-body"),
+  config.explanation,
+);
 document.querySelector("#reset").onclick = () => {
   state = prepare(
     state.dataInfo?.origin === "user"
@@ -349,11 +361,12 @@ if (id === "probability")
   document.querySelector("#open-data").textContent = "モデルの条件を変える";
 document.querySelector("#show-tools").onclick = () =>
   document.querySelector("#tools-dialog").showModal();
-document.querySelector("#show-comparison").onclick = () =>
-  document.querySelector("#comparison-dialog").showModal();
-document.querySelector("#show-learning").onclick = () => {
-  document.querySelector(".stat-missions").open = true;
-  document.querySelector("#learning-dialog").showModal();
+document.querySelector("#show-comparison").onclick = () => {
+  const panel = document.querySelector("#comparison-panel");
+  panel.hidden = false;
+  panel.open = true;
+  drawSnapshot();
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 document.querySelector("#import-button").onclick = () =>
   document.querySelector("#import").click();
