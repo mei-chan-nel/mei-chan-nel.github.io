@@ -1,9 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
   stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
+
+// Local checkouts use the repository name; integrated CI checks out to app/.
+const appRoot = ["../../info1-quiz-app/", "../../app/"].map(path => new URL(path, import.meta.url))
+  .find(path => existsSync(new URL("data/questions/completed_questions.json", path)));
+if (!appRoot) throw new Error("隣接する学習アプリのチェックアウトが見つかりません。");
 
 const question = (id, tags) => ({ id, tags, stem: `Question ${id}`, choices: [], explanation: "" });
 function fixture() {
@@ -40,7 +46,7 @@ test("出題の初期表示は以前の横方向の距離感と現在の中心�
   }
 });
 test("実データの全ID・座標・用語索引・メタデータが対応する", async () => {
-  const app = new URL("../../info1-quiz-app/data/questions/", import.meta.url);
+  const app = new URL("data/questions/", appRoot);
   const data = await Promise.all(["completed_questions.json", "map_points.json", "map_terms.json", "map_metadata.json"].map(async name => JSON.parse(await readFile(new URL(name, app), "utf8"))));
   const model = prepareMap(...data);
   const source = await readFile(new URL("completed_questions.json", app), "utf8");
@@ -128,7 +134,7 @@ test("周辺問題は距離順で、学習アプリの最大10問に収まる", 
   assert.equal(surroundingQuestions(model, model.byId.get("a"), 100, 2).length, 2);
 });
 test("全体成績は取得した集計だけを正規化し、不正な応答を拒否する", async () => {
-  const source = await readFile(new URL("../../info1-quiz-app/app/startup.js", import.meta.url), "utf8");
+  const source = await readFile(new URL("app/startup.js", appRoot), "utf8");
   assert.ok(parseStatsConfig(source).url.endsWith("get_question_stats"));
   const records = normalizeStats({questions:{a:{attempts:20,correct:15},b:{attempts:0,correct:0},unknown:{attempts:99,correct:99}}},["a","b","missing"]);
   assert.equal(records.get("a").rate,.75);assert.equal(records.size,1);

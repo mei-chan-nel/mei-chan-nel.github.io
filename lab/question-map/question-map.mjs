@@ -13,7 +13,7 @@ const state = { model: null, records: new Map(), width: 0, height: 0, fitScale: 
   automatic: true, layerModes: { tag: "auto", term: "auto", question: "auto" }, heatModes: { personal: "absolute", global: "distribution" },
   camera: null, target: null, stage: -1, selected: null, heat: null, terrain: null, scoreSource: "personal", personalRecords: new Map(), globalRecords: null, globalRequest: null, globalError: "", personalUnavailable: false,
   labels: new Map(), labelMemory: new Map(), labelNodes: new Map(), cardNodes: new Map(), cardMeasurements: new Map(), charWidths: new Map(), layoutScale: 0, frame: 0,
-  lastLayout: 0, summaryTimer: 0, pointers: new Map(), gesture: null, inertia: null };
+  lastLayout: 0, layoutCamera: null, summaryTimer: 0, pointers: new Map(), gesture: null, inertia: null };
 
 function element(tag, className, text) {
   const node = document.createElement(tag);
@@ -135,8 +135,12 @@ function draw(now) {
       context.strokeStyle = `rgba(82,116,100,${.22 + entry.focus * .16})`; context.lineWidth = .8; context.stroke();
     }
   }
-  if (changed || !state.lastLayout || now - state.lastLayout > 100) {
-    layoutContent(visible); state.lastLayout = now;
+  // Always reconcile the final camera position, even when movement finishes
+  // between throttled layouts. Counts and cards must describe the same view.
+  const settledViewChanged = !moving && !state.inertia &&
+    (!state.layoutCamera || ["x", "y", "scale"].some(key => state.layoutCamera[key] !== camera[key]));
+  if (changed || !state.lastLayout || settledViewChanged || now - state.lastLayout > 100) {
+    layoutContent(visible); state.lastLayout = now; state.layoutCamera = { ...camera };
     $("#region-practice").disabled = !visible.length;
     $("#zoom-readout").textContent = `×${zoom.toFixed(1)} · ${stage < 0 ? "地図" : STAGES[stage]}`;
     updateLayerControls();
@@ -622,6 +626,7 @@ function beginGesture(alreadyMoved = false) {
     lastTime: performance.now(), velocity: { x: 0, y: 0 }, moved: alreadyMoved || state.pointers.size > 1 };
 }
 viewport.addEventListener("pointerdown", event => {
+  state.pendingTap = null;
   if (!state.model || event.button !== 0 || event.target.closest(".map-controls,a")) return;
   state.inertia = null; state.target = { ...state.camera };
   state.pointers.set(event.pointerId, localPoint(event)); viewport.setPointerCapture(event.pointerId);
@@ -651,15 +656,25 @@ function endGesture(event) {
   viewport.classList.remove("is-dragging"); state.gesture = null;
   if (event.type === "pointercancel") return;
   if (!gesture.moved) {
-    if (gesture.question) { showQuestion(gesture.question); return; }
-    if (gesture.label) { focusPoint(gesture.label.anchor, Math.max(3, state.camera.scale / state.fitScale * 1.8)); return; }
-    const points = nearby(localPoint(event));
-    if (points.length > 1) showNearby(points);
-    else if (points.length === 1) { if (state.stage >= 2) showQuestion(points[0]); else focusPoint(points[0], Math.max(7, state.camera.scale / state.fitScale)); }
+    // Open only after the originating click targets the map. Opening during
+    // pointerup can retarget a touch's following click into the new dialog.
+    state.pendingTap = { gesture, screen: localPoint(event) };
   } else if (!reducedMotion.matches && performance.now() - gesture.lastTime < 80 && !gesture.distance) {
     state.inertia = gesture.velocity; requestDraw();
   }
 }
+viewport.addEventListener("click", event => {
+  const tap = state.pendingTap;
+  state.pendingTap = null;
+  if (!tap || event.detail === 0) return;
+  event.preventDefault();
+  const { gesture, screen } = tap;
+  if (gesture.question) { showQuestion(gesture.question); return; }
+  if (gesture.label) { focusPoint(gesture.label.anchor, Math.max(3, state.camera.scale / state.fitScale * 1.8)); return; }
+  const points = nearby(screen);
+  if (points.length > 1) showNearby(points);
+  else if (points.length === 1) { if (state.stage >= 2) showQuestion(points[0]); else focusPoint(points[0], Math.max(7, state.camera.scale / state.fitScale)); }
+});
 viewport.addEventListener("pointerup", endGesture);
 viewport.addEventListener("pointercancel", endGesture);
 viewport.addEventListener("lostpointercapture", event => {

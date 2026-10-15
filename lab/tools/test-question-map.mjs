@@ -9,6 +9,7 @@ const byId=new Map(questions.map(q=>[q.id,q]));
 const coordinates=JSON.parse(await readFile(new URL('../../../info1-quiz-app/data/questions/map_points.json',import.meta.url))).points;
 const browser=await chromium.launch({executablePath:process.env.LAB_CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox']});
 const errors=[],requests=[];
+const widths=(process.env.LAB_TEST_WIDTHS||'1280,390,320').split(',').map(Number);
 async function ready(page){await page.waitForSelector('#map-status[hidden]',{state:'attached'});await page.waitForSelector('.preview-controls button:not([disabled])',{timeout:10000}).catch(()=>{});await page.waitForTimeout(350);}
 async function zoomLevel(page){return Number((await page.locator('#zoom-readout').textContent()).match(/×([\d.]+)/)[1]);}
 async function stage(page,index){
@@ -33,7 +34,7 @@ async function canvasColors(page){return page.locator('#map-canvas').evaluate(n=
  return s.map(v=>v/Math.max(1,count));
 });}
 try{
- for(const width of [1280,390,320]){
+ for(const width of widths){
   const context=await browser.newContext({viewport:{width,height:1000},isMobile:width<600,hasTouch:width<600});
   await context.route('**/*',route=>{
    const url=new URL(route.request().url());
@@ -49,7 +50,7 @@ try{
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{
    window.coastStrokes=0;const stroke=CanvasRenderingContext2D.prototype.stroke;
-   CanvasRenderingContext2D.prototype.stroke=function(...args){if(this.canvas.id==='map-canvas'&&args[0] instanceof Path2D)window.coastStrokes++;return stroke.apply(this,args);};
+   CanvasRenderingContext2D.prototype.stroke=function(...args){if(this.canvas.id==='map-canvas'&&args[0] instanceof Path2D){window.coastStrokes++;const m=this.getTransform();window.mapDebugTransform={a:m.a,d:m.d,e:m.e,f:m.f,ratio:Math.min(devicePixelRatio||1,2),width:this.canvas.clientWidth,height:this.canvas.clientHeight};}return stroke.apply(this,args);};
   });
   await page.goto(base+'/lab/question-map/');await ready(page);
   assert.equal(await page.locator('.map-hero h1').textContent(),'情報の可視化、問題マップ');
@@ -133,6 +134,8 @@ try{
   const clickBox=await detailCard.boundingBox(),cx=clickBox.x+clickBox.width/2,cy=clickBox.y+clickBox.height/2;
   if(width<600)await page.touchscreen.tap(cx,cy);else await page.mouse.click(cx,cy);
   await page.waitForSelector('#question-dialog[open]');
+  await page.waitForTimeout(350);
+  assert.equal(new URL(page.url()).pathname,'/lab/question-map/','Opening a detail must not activate its practice link with the same tap');
   const dialog=page.locator('#question-dialog'),question=byId.get(detailId);
   assert.equal(await dialog.locator('.card-stem').textContent(),question.stem);
   assert.deepEqual(await dialog.locator('.card-choices > li').allTextContents(),question.choices.map(c=>c.text));
@@ -152,7 +155,10 @@ try{
   for(const key of ['ArrowRight','ArrowRight','ArrowDown','ArrowLeft','ArrowUp','+','-']){
    await page.keyboard.press(key);await page.waitForTimeout(500);
    const visible=Number((await page.locator('#visible-summary').textContent()).match(/範囲 ([\d,]+)/)[1].replaceAll(',',''));
-   if(visible>0)assert.ok(await activeCards().count(),`A visible question should have a card after ${key}`);
+   const actual=await page.evaluate(coordinates=>{const t=window.mapDebugTransform;return Object.values(coordinates).filter(p=>{const x=(p[0]*t.a+t.e)/t.ratio,y=(p[1]*t.d+t.f)/t.ratio;return x>=0&&y>=0&&x<=t.width&&y<=t.height;}).length;},coordinates);
+   assert.equal(visible,actual,`The visible count should match the settled map after ${key}`);
+   assert.equal(await page.locator('#region-practice').isDisabled(),actual===0);
+   if(actual>0)assert.ok(await activeCards().count(),`A visible question should have a card after ${key}`);
    const boxes=await activeCards().evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect(),v=n.closest('#map-viewport').getBoundingClientRect();return{x:r.x-v.x,y:r.y-v.y,w:r.width,h:r.height,vw:v.width,vh:v.height};}));
    assert.ok(boxes.every(b=>b.x>=0&&b.y>=0&&b.x+b.w<=b.vw+1&&b.y+b.h<=b.vh+1),'Cards should fit inside map');
   }
@@ -238,5 +244,5 @@ try{
  assert.ok(!(await page.locator('#history-summary').textContent()).includes('個人成績'));
  await page.locator('#score-personal').click();assert.ok((await page.locator('#history-summary').textContent()).startsWith('個人成績'));
  console.log('PASS failed aggregate request stays explicitly unavailable and never uses personal data as global data');
- await context.close();assert.deepEqual(errors,[]);assert.ok(requests.length>=24);
+ await context.close();assert.deepEqual(errors,[]);assert.ok(requests.length>=widths.length*Math.ceil(questions.length/200));
 }finally{await browser.close();}
