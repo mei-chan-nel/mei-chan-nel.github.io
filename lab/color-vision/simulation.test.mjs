@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {simulateRGB,simulatePixels,decode,encode,contrast,fromHex,PARAMETERS} from './simulation.mjs';
-import {COLORS,STEPS,REGIONS,SIZE} from './lesson.mjs';
+import {COLORS,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
 const fixtures=JSON.parse(await readFile(new URL('./reference-fixtures.json',import.meta.url),'utf8'));
 
 test('native public-domain C reference: both Brettel planes, sRGB decoding, and clipping',()=>{
@@ -45,7 +45,13 @@ test('lesson colors support the stated observation; this is not a perceptual thr
   assert.ok(separation(COLORS.mapBlue,COLORS.mapGreen,'t')<separation(COLORS.mapBlue,COLORS.mapGreen,'normal'));
 });
 test('all lesson steps and regions are complete and lie within the page',()=>{
-  assert.equal(STEPS.length,5);
+  assert.equal(STEPS.length,1+IMPROVEMENTS.length*2);
+  IMPROVEMENTS.forEach((item,i)=>{
+    const observation=STEPS[1+i*2], improvement=STEPS[2+i*2];
+    assert.equal(observation.phase,'observe');assert.equal(improvement.phase,'improve');
+    assert.equal(observation.state,i);assert.equal(improvement.state,i+1);
+    assert.deepEqual(observation.regions,[item.region]);assert.deepEqual(improvement.regions,[item.region]);
+  });
   for(const step of STEPS){for(const field of ['title','question','change','benefit','remaining','sideEffect','tip'])assert.ok(step[field]);for(const key of step.regions)assert.ok(REGIONS[key]);}
   for(const {box:[x,y,w,h]} of Object.values(REGIONS)){assert.ok(x>=0&&y>=0&&x+w<=SIZE.width&&y+h<=SIZE.height);}
 });

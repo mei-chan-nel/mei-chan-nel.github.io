@@ -19,7 +19,7 @@
 - `tools/build-pages.mjs`: 入口 `index.html` の生成。個別ページは生成しません。
 - `lab.css`: 入口のレイアウト。既存 `assets/site.css` の配色・ヘッダー・フッターを使用します。
 - `navigation.mjs`: ナビゲーションの表示補助。解析・広告スクリプトは読み込みません。
-- `color-vision/`: 通常・P・D・T型の同期比較、5段階の学習教材、ブラウザ内画像読込とPNG保存。手法と検証は[教材README](color-vision/README.md)を参照。
+- `color-vision/`: 通常・P・D・T型の同期比較、観察と1箇所ずつの改善を組み合わせた学習教材、ブラウザ内画像読込とPNG保存。手法と検証は[教材README](color-vision/README.md)を参照。
 
 ```sh
 node lab/tools/build-pages.mjs
