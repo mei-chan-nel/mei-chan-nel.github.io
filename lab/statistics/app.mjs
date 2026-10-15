@@ -11,7 +11,7 @@ import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261016-learning`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261016-table`)).default;
 const ui = {
   view: 0,
   dataTab: true,
@@ -81,6 +81,7 @@ function draw() {
     const views = composeWorkbench(root, id, ui, draw) || [];
     const steps = [dataStep(id), ...learningViews(id, state)];
     const activate = (index, scroll = false) => {
+      if (ui.dataTab && index > 0 && ui.commitData && !ui.commitData()) return;
       ui.dataTab = index === 0;
       if (index) {
         ui.view = index - 1;

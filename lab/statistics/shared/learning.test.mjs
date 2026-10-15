@@ -1,7 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { boxSummary } from "../summary/lab.mjs";
-import { formatDataValue } from "../data-tab.mjs";
 import { insight } from "./insights.mjs";
 import correlation from "../correlation/lab.mjs";
 import { newExperiment } from "../sampling/model.mjs";
@@ -47,9 +46,4 @@ test("a biased ordering of a complete census is still exact, and is explained as
   });
   assert.match(insight("sampling", s), /全数調査/);
   assert.doesNotMatch(insight("sampling", s), /偏りが必ず/);
-});
-test("data view rounding never silently turns a small nonzero measurement into zero", () => {
-  assert.equal(Number(formatDataValue(0.00000000123)), 0.00000000123);
-  assert.equal(formatDataValue(5), 5);
-  assert.equal(formatDataValue("地域"), "地域");
 });

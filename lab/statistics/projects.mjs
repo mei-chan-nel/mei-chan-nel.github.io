@@ -33,6 +33,13 @@ function draw() {
   root.querySelectorAll("[data-project-tab]").forEach(
     (b) =>
       (b.onclick = () => {
+        if (
+          active === "data" &&
+          b.dataset.projectTab !== "data" &&
+          ui.commitData &&
+          !ui.commitData()
+        )
+          return;
         active = b.dataset.projectTab;
         draw();
       }),

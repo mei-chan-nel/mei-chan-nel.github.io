@@ -217,7 +217,7 @@ export function dataStep(id) {
             : id === "probability"
               ? "コインの0/1・1セットの成功回数・連続値から種類を選び、実験または読込の値を確認します。"
               : "1行が何を表すか、項目名・単位・値の対応を確かめてから、グラフへ進みます。",
-    "サンプルのまま進むことも、CSVで自分のデータに置き換えることもできます。",
+    "サンプル・表への入力・CSVの読み込みで、分析するデータを用意します。",
   );
 }
 export function renderStepNavigation(container, steps, index, go) {

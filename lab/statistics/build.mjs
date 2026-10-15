@@ -73,7 +73,7 @@ for (const [id, title] of labs) {
 <nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
 ${academic('<div id="explanation-body"></div>')}
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    ["../app.mjs?v=20261016-learning"],
+    ["../app.mjs?v=20261016-table"],
   );
 }
 await save(
@@ -81,7 +81,7 @@ await save(
   `${heading("横断分析課題", "同じデータを分布・代表値・相関で眺め、見える特徴の違いを比べる。", "projects", "学習時間が長い人ほど高得点でしょうか。分布・代表値・相関から同じデータを見ると、どんな違いが見つかるか試せます。自分の2列の数値データでも利用できます。")}
 <nav class="page-anchors" aria-label="ページ内の案内"><a href="#project-root">データと分析方法を選ぶ</a><a href="#academic">分析を進めるヒントを読む</a></nav><div id="project-root"></div>
 ${academic(`<details class="academic-section"><summary>問いに合わせて分析方法を選ぶ</summary><div class="explanation-content"><p>「得点の低い人はどれくらいいるか」には分布、「典型的な得点や個人差はどれくらいか」には代表値とばらつき、「時間と得点に関係があるか」には散布図が役立ちます。すべての方法を使うことより、問いの根拠になる情報を選ぶことが大切です。</p><p>サンプルは学習用に独自制作した架空の24人です。実在する生徒についての結論には使えません。各ラボへは同じ行の対応と列名を引き継ぎ、分布・代表値ではどちらの列を分析するか選べます。</p></div></details><details class="academic-section"><summary>分析結果を結び付け、限界も確かめる</summary><div class="explanation-content"><p>平均が高いことと、全員の得点が高いことは同じではありません。分布に複数の山があれば、集団別にも調べます。相関係数が大きくても、外れ値が直線を動かしていないか、予測範囲が元データから離れすぎていないかを確認しましょう。</p><p>学習時間と得点の関連から、時間を増やせば必ず得点が上がるとは言えません。既習内容、学習方法、対象者の選ばれ方なども関係しえます。どの集団のデータか、条件がそろっているか、他の説明はないかも考えると、数値の意味を読み取りやすくなります。</p></div></details>`)}`,
-  ["../projects.mjs?v=20261016-learning"],
+  ["../projects.mjs?v=20261016-table"],
 );
 console.log(
   "Built statistics index, 9 labs and project with natural page flow",

@@ -1,13 +1,13 @@
-import { esc, table } from "./shared/ui.mjs";
+import { esc } from "./shared/ui.mjs";
 import { currentData } from "./shared/data-model.mjs";
+import {
+  applyTableRows,
+  numericTableColumn,
+  tableConstraint,
+} from "./shared/table-data.mjs";
 import { mountDataEditor, downloadCSV } from "./data-editor.mjs";
-export const formatDataValue = (value) =>
-  typeof value === "number" && !Number.isInteger(value)
-    ? Number(value.toPrecision(8)).toString()
-    : value;
-export function renderDataTab(
-  root,
-  {
+export function renderDataTab(root, options) {
+  const {
     id,
     state,
     sample,
@@ -18,25 +18,134 @@ export function renderDataTab(
     allowGroup = false,
     dataOverride = null,
     ui = {},
-  },
-) {
+  } = options;
   const data = dataOverride || currentData(id, state);
-  const pageSize = 20,
-    pageCount = Math.max(1, Math.ceil(data.rows.length / pageSize));
-  const page = Math.min(ui.dataPage || 0, pageCount - 1),
+  const source = JSON.stringify([
+    id,
+    state.mode,
+    data.headers,
+    data.rows,
+    data.name,
+    data.origin,
+    data.filename,
+  ]);
+  if (ui.dataDraft?.source !== source) {
+    ui.dataDraft = {
+      source,
+      rows: data.rows.map((row) => row.map((value) => String(value ?? ""))),
+      dirty: false,
+    };
+  }
+  const draft = ui.dataDraft;
+  const pageSize = window.innerWidth <= 600 ? 8 : 20,
+    limit = id === "probability" ? 10000 : 300;
+  const pageCount = Math.max(1, Math.ceil(draft.rows.length / pageSize));
+  const page = Math.max(0, Math.min(ui.dataPage || 0, pageCount - 1)),
     from = page * pageSize;
-  root.innerHTML = `<section class="data-view" aria-label="分析に使っているデータ"><div class="data-view-heading"><div><h2>${esc(data.name)}</h2><p>${data.origin === "user" ? "読み込んだデータ" : "架空のサンプル（各タブで同じ値を使用）"} · ${data.rows.length}行${data.filename ? ` · ${esc(data.filename)}` : ""}</p></div><div class="actions"><button id="use-sample" type="button">サンプルを使用</button><button id="download-csv" type="button">CSVでダウンロード</button><button id="upload-csv" type="button" class="primary">CSVでアップロード</button></div></div>${id === "probability" ? `<label class="control probability-data-kind">データの種類<select id="probability-data-mode"><option value="coin" ${state.mode === "coin" ? "selected" : ""}>コインの結果（表=1・裏=0）</option><option value="binomial" ${state.mode === "binomial" ? "selected" : ""}>1セットの成功回数（0〜${state.n}）</option><option value="normal" ${state.mode === "normal" ? "selected" : ""}>連続した測定値</option></select></label>` : ""}<div class="data-table">${table(
-    ["番号", ...data.headers],
-    data.rows
-      .slice(from, from + pageSize)
-      .map((row, i) => [from + i + 1, ...row.map(formatDataValue)]),
-  )}</div>${pageCount > 1 ? `<div class="data-pagination"><button id="data-prev" type="button" ${page ? "" : "disabled"}>前の20行</button><span>${from + 1}〜${Math.min(data.rows.length, from + pageSize)}行 / ${data.rows.length}行</span><button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次の20行</button></div>` : ""}<p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button><button id="paste-data" type="button">表データを貼り付ける・列を選ぶ</button></div><div id="data-upload" hidden></div><p id="data-message" role="status"></p></section>`;
+  ui.dataPage = page;
+  const redraw = () => renderDataTab(root, options);
+  root.innerHTML = `<section class="data-view" aria-label="分析に使っているデータ">
+    <div class="data-view-heading"><div><h2>${esc(data.name)}</h2><p>${state.dataInfo?.tableEdited ? "表で編集したデータ" : data.origin === "user" ? "自分のデータ" : "架空のサンプル（各タブで同じ値を使用）"} · <span id="data-row-count">${draft.rows.length}</span>行${data.filename ? ` · ${esc(data.filename)}` : ""}</p></div>
+    <div class="actions data-file-actions"><button id="use-sample" type="button">サンプルを使用</button><button id="download-csv" type="button">CSVでダウンロード</button><button id="upload-csv" type="button">CSVでアップロード</button></div></div>
+    ${id === "probability" ? `<label class="control probability-data-kind">データの種類<select id="probability-data-mode"><option value="coin" ${state.mode === "coin" ? "selected" : ""}>コインの結果（表=1・裏=0）</option><option value="binomial" ${state.mode === "binomial" ? "selected" : ""}>1セットの成功回数（0〜${state.n}）</option><option value="normal" ${state.mode === "normal" ? "selected" : ""}>連続した測定値</option></select></label>` : ""}
+    <p class="data-edit-help" id="data-edit-help">セルに入力して編集できます。「変更を反映」または次のタブへ進むと、図表にも反映します。</p>
+    <p class="data-constraint">${esc(tableConstraint(id, state))}</p>
+    <div class="data-table"><table class="stat-table editable-data-table" data-columns="${data.headers.length}" aria-describedby="data-edit-help"><thead><tr><th scope="col">番号</th>${data.headers.map((h) => `<th scope="col">${esc(h)}</th>`).join("")}<th scope="col" class="data-row-action">削除</th></tr></thead><tbody>${
+      draft.rows
+        .slice(from, from + pageSize)
+        .map((row, i) => {
+          const r = from + i;
+          return `<tr><th scope="row">${r + 1}<span class="data-row-number-label">行目</span></th>${row.map((value, c) => `<td data-label="${esc(data.headers[c])}"><input id="data-cell-${r}-${c}" class="data-cell" type="text" ${numericTableColumn(id, c) ? 'inputmode="decimal" maxlength="40"' : 'maxlength="100"'} data-row="${r}" data-column="${c}" aria-label="${r + 1}行目 ${esc(data.headers[c])}" value="${esc(value)}" spellcheck="false" autocomplete="off"></td>`).join("")}<td class="data-row-action"><button type="button" data-remove-row="${r}" aria-label="${r + 1}行目を削除" title="${r + 1}行目を削除">×</button></td></tr>`;
+        })
+        .join("") ||
+      `<tr><td colspan="${data.headers.length + 2}">「行を追加」からデータを入力できます。</td></tr>`
+    }</tbody></table></div>
+    <div class="data-edit-actions"><button id="add-data-row" type="button" ${draft.rows.length >= limit ? "disabled" : ""}>＋ 行を追加</button><div class="actions"><button id="discard-data-edits" type="button" ${draft.dirty ? "" : "disabled"}>編集を取り消す</button><button id="apply-data-edits" type="button" ${draft.dirty ? "" : "disabled"}>変更を反映</button></div></div>
+    <p id="data-message" class="data-edit-status" role="status" aria-live="polite">${draft.dirty ? "未反映の変更があります。" : esc(ui.dataNotice || "")}</p>
+    ${pageCount > 1 ? `<div class="data-pagination"><button id="data-prev" type="button" ${page ? "" : "disabled"}>前の${pageSize}行</button><span>${from + 1}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span><button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次の${pageSize}行</button></div>` : ""}
+    <p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button><button id="paste-data" type="button">表データを貼り付ける・列を選ぶ</button></div><div id="data-upload" hidden></div></section>`;
+  const message = root.querySelector("#data-message");
+  const mark = () => {
+    draft.dirty =
+      JSON.stringify(draft.rows) !==
+      JSON.stringify(
+        data.rows.map((row) => row.map((value) => String(value ?? ""))),
+      );
+    root.querySelector("#discard-data-edits").disabled = !draft.dirty;
+    root.querySelector("#apply-data-edits").disabled = !draft.dirty;
+    message.textContent = draft.dirty ? "未反映の変更があります。" : "";
+    message.classList.remove("error");
+    message.setAttribute("role", "status");
+    ui.dataNotice = "";
+  };
+  const commit = () => {
+    if (!draft.dirty) return true;
+    try {
+      const next = applyTableRows(id, state, data, draft.rows, allowGroup);
+      ui.dataDraft = null;
+      ui.dataNotice = "変更を反映しました。";
+      apply(next);
+      return true;
+    } catch (e) {
+      message.textContent = `変更を反映できません。${e.message}`;
+      message.classList.add("error");
+      message.setAttribute("role", "alert");
+      message.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+  };
+  // Header tabs use this same guard, so changing tabs cannot silently use stale values.
+  ui.commitData = commit;
+  root.querySelectorAll(".data-cell").forEach((input) => {
+    input.addEventListener("input", () => {
+      draft.rows[Number(input.dataset.row)][Number(input.dataset.column)] =
+        input.value;
+      mark();
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.isComposing) {
+        e.preventDefault();
+        commit();
+      }
+    });
+  });
+  root.querySelector("#add-data-row").onclick = () => {
+    draft.rows.push(data.headers.map(() => ""));
+    draft.dirty = true;
+    ui.dataNotice = "";
+    ui.dataPage = Math.floor((draft.rows.length - 1) / pageSize);
+    redraw();
+    const cell = root.querySelector(`#data-cell-${draft.rows.length - 1}-0`);
+    cell.focus({ preventScroll: true });
+    cell.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  root.querySelectorAll("[data-remove-row]").forEach((button) => {
+    button.onclick = () => {
+      const index = Number(button.dataset.removeRow);
+      draft.rows.splice(index, 1);
+      mark();
+      redraw();
+      const focusRow = Math.min(index, draft.rows.length - 1);
+      root
+        .querySelector(`#data-cell-${focusRow}-0`)
+        ?.focus({ preventScroll: true });
+    };
+  });
+  root.querySelector("#apply-data-edits").onclick = commit;
+  root.querySelector("#discard-data-edits").onclick = () => {
+    ui.dataDraft = null;
+    ui.dataNotice = "編集を取り消しました。";
+    redraw();
+  };
   root.querySelector("#use-sample").onclick = () => {
+    ui.dataDraft = null;
     ui.dataPage = 0;
+    ui.dataNotice = "";
     sample();
   };
-  root.querySelector("#download-csv").onclick = () =>
-    downloadCSV(`statistics-${id}.csv`, data.headers, data.rows);
+  root.querySelector("#download-csv").onclick = () => {
+    if (commit()) downloadCSV(`statistics-${id}.csv`, data.headers, draft.rows);
+  };
   const open = (file) => {
     const container = root.querySelector("#data-upload");
     container.hidden = false;
@@ -44,9 +153,11 @@ export function renderDataTab(
       id,
       state,
       allowGroup,
-      dataOverride,
+      dataOverride: { ...data, rows: draft.rows },
       apply: (next) => {
         ui.dataPage = 0;
+        ui.dataDraft = null;
+        ui.dataNotice = "";
         apply(next);
         root.scrollIntoView({ behavior: "smooth", block: "start" });
       },
@@ -56,12 +167,21 @@ export function renderDataTab(
   };
   root.querySelector("#upload-csv").onclick = () => open(true);
   root.querySelector("#paste-data").onclick = () => open(false);
-  root.querySelector("#analyze-data").onclick = analyze;
+  root.querySelector("#analyze-data").onclick = () => {
+    if (commit()) analyze();
+  };
   root
     .querySelector("#probability-data-mode")
     ?.addEventListener("change", (e) => {
+      const mode = e.target.value;
+      if (!commit()) {
+        e.target.value = state.mode;
+        return;
+      }
       ui.dataPage = 0;
-      update({ mode: e.target.value });
+      ui.dataDraft = null;
+      ui.dataNotice = "";
+      update({ mode });
     });
   for (const [key, offset] of [
     ["prev", -1],
@@ -69,17 +189,6 @@ export function renderDataTab(
   ])
     root.querySelector(`#data-${key}`)?.addEventListener("click", () => {
       ui.dataPage = page + offset;
-      renderDataTab(root, {
-        id,
-        state,
-        sample,
-        apply,
-        analyze,
-        nextLabel,
-        update,
-        allowGroup,
-        dataOverride,
-        ui,
-      });
+      redraw();
     });
 }
