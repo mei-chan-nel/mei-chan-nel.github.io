@@ -33,11 +33,9 @@ export class RegionPicker {
   resize() {
     const w = this.canvas.clientWidth, h = this.canvas.clientHeight;
     if (!w || !h || (w === this.width && h === this.height)) return;
-    const previous = this.camera && this.selection(), oldWidth = this.width, oldHeight = this.height;
-    this.center = { x: oldWidth ? this.center.x / oldWidth * w : w / 2, y: oldHeight ? this.center.y / oldHeight * h : h / 2 };
+    const previous = this.camera && this.selection();
+    this.center = { x: w / 2, y: h / 2 };
     this.width = w; this.height = h; this.radius = Math.min(w, h) * .32;
-    const pad = this.radius + 5;
-    this.center.x = clamp(this.center.x, pad, w - pad); this.center.y = clamp(this.center.y, pad, h - pad);
     const b = this.bounds;
     this.minScale = Math.min((w - 24) / (b.maxX - b.minX + 4), (h - 24) / (b.maxY - b.minY + 4)) * .7;
     this.maxScale = this.minScale * 192;
@@ -65,7 +63,7 @@ export class RegionPicker {
     const points = [...this.pointers.values()];
     this.gesture = points.length >= 2 ? { camera: { ...this.camera }, midpoint: { x: (points[0].x + points[1].x) / 2, y: (points[0].y + points[1].y) / 2 },
       distance: Math.max(1, Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y)) } :
-      points.length ? { start: points[0], center: { ...this.center } } : null;
+      points.length ? { start: points[0], camera: { ...this.camera } } : null;
   }
   down(event) {
     if (event.pointerType === "mouse" && event.button !== 0) return;
@@ -84,9 +82,9 @@ export class RegionPicker {
       this.camera.x -= (midpoint.x - gesture.midpoint.x) / this.camera.scale;
       this.camera.y -= (midpoint.y - gesture.midpoint.y) / this.camera.scale;
     } else {
-      const pad = this.radius + 5;
-      this.center.x = clamp(gesture.center.x + points[0].x - gesture.start.x, pad, this.width - pad);
-      this.center.y = clamp(gesture.center.y + points[0].y - gesture.start.y, pad, this.height - pad);
+      this.camera = { ...gesture.camera,
+        x: gesture.camera.x - (points[0].x - gesture.start.x) / gesture.camera.scale,
+        y: gesture.camera.y - (points[0].y - gesture.start.y) / gesture.camera.scale };
     }
     this.changed();
   }

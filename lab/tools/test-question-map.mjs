@@ -70,6 +70,9 @@ try{
   const before=await labels(page);await page.locator('#zoom-in').click();await page.waitForTimeout(150);const after=await labels(page);
   assert.ok(after.some(a=>before.some(b=>a.key===b.key&&a.scale>b.scale*1.15&&a.opacity<b.opacity)), 'Letters should grow and fade while approaching');
   await stage(page,1);assert.deepEqual(await selectedLayers(page),['term']);
+  await page.locator('#layer-term').click();assert.equal(await page.locator('#layers-mode').textContent(),'手動');assert.deepEqual(await selectedLayers(page),['term']);
+  await page.locator('#layer-term').click();assert.deepEqual(await selectedLayers(page),[]);
+  await page.locator('#layers-mode').click();await page.waitForTimeout(750);assert.deepEqual(await selectedLayers(page),['term']);
   await page.locator('#map-viewport').scrollIntoViewIfNeeded();
   const word=await page.locator('.map-label.is-term:not(.is-leaving)').evaluateAll(nodes=>{
    const v=document.querySelector('#map-viewport').getBoundingClientRect();
@@ -155,10 +158,12 @@ try{
   }
   await stage(page,-1);assert.equal(await page.locator('.map-label').count(),0);
   const overviewZoom=await zoomLevel(page),overviewGeometry=await exhibitGeometry(page);
-  // Clicking the selected automatic layer turns it off and enters manual.
+  // The selected automatic layer stays on when entering manual.
   await page.locator('#layer-tag').click();await page.waitForTimeout(750);
-  assert.equal(await page.locator('#layers-mode').textContent(),'手動');assert.deepEqual(await selectedLayers(page),[]);
+  assert.equal(await page.locator('#layers-mode').textContent(),'手動');assert.deepEqual(await selectedLayers(page),['tag']);
   assert.equal(await zoomLevel(page),overviewZoom);assert.deepEqual(await exhibitGeometry(page),overviewGeometry);
+  await page.locator('#layer-tag').click();await page.waitForTimeout(350);
+  assert.deepEqual(await selectedLayers(page),[]);
   await page.locator('#layer-tag').click();await page.waitForTimeout(350);
   assert.deepEqual(await selectedLayers(page),['tag']);assert.ok(await page.locator('.map-label:not(.is-term):not(.is-leaving)').count());
   await page.locator('#layer-term').click();assert.deepEqual(await selectedLayers(page),['tag','term']);
@@ -180,8 +185,10 @@ try{
   await page.locator('#layers-mode').click();await page.waitForTimeout(750);assert.ok(await activeCards().count());
   assert.equal(await zoomLevel(page),manualZoom);assert.equal(await page.locator('#layers-mode').textContent(),'自動');
   assert.deepEqual(await selectedLayers(page),['question']);
-  // A different layer is added to the current selection before entering manual.
-  await page.locator('#layer-tag').click();assert.deepEqual(await selectedLayers(page),['tag','question']);
+  await page.locator('#layer-question').click();assert.equal(await page.locator('#layers-mode').textContent(),'手動');assert.deepEqual(await selectedLayers(page),['question']);
+  await page.locator('#layers-mode').click();assert.deepEqual(await selectedLayers(page),['question']);
+  // An inactive automatic layer becomes the sole manual selection.
+  await page.locator('#layer-tag').click();assert.deepEqual(await selectedLayers(page),['tag']);
   await page.locator('#layers-mode').click();assert.deepEqual(await selectedLayers(page),['question']);
   await stage(page,-1);assert.deepEqual(await selectedLayers(page),['tag']);
   const localRecord=await page.evaluate(()=>localStorage.getItem('info1LearningRecord:v1'));

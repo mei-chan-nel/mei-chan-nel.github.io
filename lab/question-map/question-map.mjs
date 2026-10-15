@@ -1,6 +1,6 @@
 import { STAGES, STAGE_ZOOMS, clamp, stageAt, prepareMap, verifySourceText, fitCamera, project, unproject,
   viewBounds, zoomAbout, labelCandidates, placeLabels, spatialOrder, historyRecords, rateColor, colorRate, heatField, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle, PRACTICE_LIMIT } from "./map-model.mjs?v=9";
-import { RegionPicker } from "./region-picker.mjs?v=2";
+import { RegionPicker } from "./region-picker.mjs?v=3";
 
 import { loadQuestionStats } from "./question-stats.mjs?v=2";
 
@@ -533,13 +533,11 @@ for (const mode of ["absolute", "distribution"]) $("#heat-" + mode).addEventList
   if (state.model) updateScore();
 });
 for (const button of document.querySelectorAll("[data-layer]")) button.addEventListener("click", () => {
-  if (state.automatic) {
-    const active = automaticLayer();
-    for (const kind of Object.keys(state.layerModes)) state.layerModes[kind] = kind === active ? "on" : "off";
-    state.automatic = false;
-  }
   const kind = button.dataset.layer;
-  state.layerModes[kind] = state.layerModes[kind] === "on" ? "off" : "on";
+  if (state.automatic) {
+    for (const layer of Object.keys(state.layerModes)) state.layerModes[layer] = layer === kind ? "on" : "off";
+    state.automatic = false;
+  } else state.layerModes[kind] = state.layerModes[kind] === "on" ? "off" : "on";
   updateLayerControls(); requestDraw(true);
 });
 $("#layers-mode").addEventListener("click", () => {

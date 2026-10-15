@@ -19,6 +19,7 @@ async function candidates(page, custom = false) {
   }).map(([id]) => id);
 }
 async function checkScope(page) {
+  assert.ok(await page.locator("#region-preview").evaluate(n => Math.abs(window.regionCircle.x - n.clientWidth / 2) < .01 && Math.abs(window.regionCircle.y - n.clientHeight / 2) < .01), "The selection circle stays in the centre");
   const ids = await candidates(page, true), href = await page.locator("#region-start").getAttribute("href");
   const label = await page.locator("#region-preview").getAttribute("aria-label");
   assert.equal(Number(label.match(/円内の([\d,]+)問/)[1].replaceAll(",", "")), ids.length);
@@ -60,7 +61,7 @@ async function checkInitialRegion(page, overview = false) {
   await checkScope(page);
   return geometry;
 }
-async function dragCircle(page, dx, dy, touch = false) {
+async function dragMap(page, dx, dy, touch = false) {
   const box = await page.locator("#region-preview").boundingBox(), c = await circleGeometry(page);
   const x = box.x + c.x, y = box.y + c.y;
   if (touch) {
@@ -112,8 +113,10 @@ try {
     await checkInitialRegion(page, true);
     assert.ok((await candidates(page)).length > await page.locator(".map-card").count(), "Candidates include hidden cards");
     const mainBefore = await page.evaluate(() => window.mapTransform), geometry = await circleGeometry(page);
-    await dragCircle(page, 24, 16, width < 600);
-    const moved = await circleGeometry(page); assert.ok(moved.x - geometry.x > 20 && moved.y - geometry.y > 12);
+    await dragMap(page, 24, 16, width < 600);
+    const moved = await circleGeometry(page);
+    assert.equal(moved.x, geometry.x); assert.equal(moved.y, geometry.y);
+    assert.ok(Math.abs((moved.worldX - geometry.worldX) * geometry.scale + 24) < .01 && Math.abs((moved.worldY - geometry.worldY) * geometry.scale + 16) < .01, "The map follows the drag beneath the fixed circle");
     await checkScope(page);
     await page.locator("#region-zoom-in").click(); await settle(page);
     const enlarged = await circleGeometry(page);
@@ -152,7 +155,7 @@ try {
     if (width === 1280) {
       const c = await circleGeometry(page), ids = await candidates(page, true);
       const nearest = ids.map(id => ({ id, xy: coordinates[id] })).sort((a, b) => (a.xy[0] - c.worldX) ** 2 + (a.xy[1] - c.worldY) ** 2 - (b.xy[0] - c.worldX) ** 2 - (b.xy[1] - c.worldY) ** 2)[0];
-      await dragCircle(page, (nearest.xy[0] - c.worldX) * c.scale, (nearest.xy[1] - c.worldY) * c.scale);
+      await dragMap(page, (c.worldX - nearest.xy[0]) * c.scale, (c.worldY - nearest.xy[1]) * c.scale);
       for (let i = 0; i < 15; i++) await page.locator("#region-zoom-in").click();
       await settle(page);
       const few = await checkScope(page);
@@ -167,7 +170,7 @@ try {
       assert.equal((await checkScope(page)).length, 0, "An empty circle stays selectable without falling back to another area");
       await page.setViewportSize({ width: 390, height: 1000 }); await settle(page);
       for (let i = 0; i < 30; i++) await page.locator("#region-zoom-out").click();
-      await settle(page); await dragCircle(page, 60, 0);
+      await settle(page); await dragMap(page, 60, 0);
       const beforeResize = await circleGeometry(page), resizeIds = (await candidates(page, true)).sort();
       await page.setViewportSize({ width: 1280, height: 1000 }); await settle(page);
       const afterResize = await circleGeometry(page);
@@ -189,7 +192,7 @@ try {
     await page.locator("#region-practice").click(); await settle(page);
     const localCircle = await checkInitialRegion(page);
     if (process.env.LAB_SCREENSHOT_DIR) await page.screenshot({ path: `${process.env.LAB_SCREENSHOT_DIR}/question-map-practice-local-${width}.png` });
-    await dragCircle(page, 20, 0, width < 600); await checkScope(page);
+    await dragMap(page, 20, 0, width < 600); await checkScope(page);
     await page.locator("#region-close").click();
     await page.locator("#region-practice").click();
     await settle(page);

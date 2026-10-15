@@ -39,7 +39,6 @@ try{
   const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/lab/question-map/');await page.waitForSelector('#map-status[hidden]',{state:'attached'});await page.waitForTimeout(400);
   const record=await page.evaluate(()=>localStorage.getItem('info1LearningRecord:v1'));
-  await page.locator('#layer-tag').click();
   for(const kind of ['tag','term']){
    await page.locator('#layer-'+kind).click();await page.waitForTimeout(900);
    const before=coverage(await snapshot(page,kind));assert.ok(before.cells>=4);
