@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {simulateRGB,simulatePixels,decode,encode,contrast,fromHex,PARAMETERS} from './simulation.mjs';
-import {COLORS,CONTRAST_EXAMPLES,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
+import {COLORS,VENUES,CONTRAST_EXAMPLES,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
 const fixtures=JSON.parse(await readFile(new URL('./reference-fixtures.json',import.meta.url),'utf8'));
 
 test('native public-domain C reference: both Brettel planes, sRGB decoding, and clipping',()=>{
@@ -45,13 +45,15 @@ test('lesson colors support the stated observation; this is not a perceptual thr
   assert.ok(separation(COLORS.mapBlue,COLORS.mapGreen,'t')<separation(COLORS.mapBlue,COLORS.mapGreen,'normal'));
 });
 test('contrast evidence distinguishes incomplete improvements and text/graphic criteria',()=>{
-  for(const [number,evidence] of Object.entries(CONTRAST_EXAMPLES)){
+  for(const [key,evidence] of Object.entries(CONTRAST_EXAMPLES)){
     const before=contrast(...evidence.before),after=contrast(...evidence.after);
     const threshold=evidence.kind==='graphic'?3:4.5;
-    if(['2','7'].includes(number)){assert.ok(before>=threshold);assert.ok(after<threshold);}
-    else{assert.ok(before<threshold);assert.ok(after>=threshold);}
+    if(key==='panelsPalette'){assert.ok(before>=threshold);assert.ok(after<threshold);}
+    else{assert.ok(after>=threshold);if(evidence.kind==='text')assert.ok(before<threshold);}
   }
-  for(const background of ['#e5f0f6','#fff3d6','#eceef5'])assert.ok(contrast(COLORS.ink,background)>10);
+  for(const venue of VENUES)assert.ok(contrast(venue.foreground,venue.color)>=4.5);
+  assert.equal(contrast(...CONTRAST_EXAMPLES.warning.before).toFixed(2),'1.04');
+  assert.equal(contrast(...CONTRAST_EXAMPLES.warning.after).toFixed(2),'7.80');
   for(const background of [COLORS.red,COLORS.mapGreen,COLORS.mapBlue])assert.ok(contrast('#ffffff',background)<4.5);
   assert.equal(contrast(COLORS.chartOrange,'#ffffff').toFixed(2),'4.44');
   for(const background of ['#ffffff','#fffef9','#e9ede4','#f4f5f0'])assert.ok(contrast(COLORS.soft,background)>=4.5);

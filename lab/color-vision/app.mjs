@@ -86,8 +86,8 @@ completedButton.addEventListener('click', () => setStep(STEPS.length - 1));
 $('step-buttons').append(completedButton);
 function updateNotes() {
   const item = STEPS[step];
-  $('step-number').textContent = item.phase === 'initial' ? 'START / 8つの改善'
-    : item.phase === 'complete' ? 'FINISH / 8つの改善を反映' : `工程 ${String(item.number).padStart(2, '0')} / 08 · ${item.short}`;
+  $('step-number').textContent = item.phase === 'initial' ? `START / ${IMPROVEMENTS.length}つの改善`
+    : item.phase === 'complete' ? `FINISH / ${IMPROVEMENTS.length}つの改善を反映` : `工程 ${String(item.number).padStart(2, '0')} / ${String(IMPROVEMENTS.length).padStart(2, '0')} · ${item.short}`;
   $('step-title').textContent = item.title; $('step-question').textContent = item.question;
   for (const field of ['change', 'benefit', 'remaining', 'sideEffect']) {
     $('step-' + field.replace(/[A-Z]/g, c => '-' + c.toLowerCase())).textContent = item[field];
@@ -185,7 +185,7 @@ async function render() {
     grid.setAttribute('aria-busy', 'false');
     status(currentMode === 'upload' ? uploadDescription : item.phase === 'initial'
       ? '通常・P・D・T型を2×2で比較。左の「拡大して観察」から始めましょう。'
-      : item.phase === 'complete' ? '8つの改善を反映した完成品です。「0 ページ全体」と切り替えて最初のデザインと見比べましょう。'
+      : item.phase === 'complete' ? `${IMPROVEMENTS.length}つの改善を反映した完成品です。「0 ページ全体」と切り替えて最初のデザインと見比べましょう。`
       : item.phase === 'observe' ? `${REGIONS[item.region].label}を拡大して観察中です。次に同じ番号の「改善する」を選びましょう。`
       : item.phase === 'overview' ? `工程${item.number}までの改善をページ全体で確認中です。同じ番号の「拡大して観察」で変更前に戻れます。`
       : `${REGIONS[item.region].label}だけを変更しました。「全体を見る」で、ページ全体の中で効果を確かめましょう。`);
