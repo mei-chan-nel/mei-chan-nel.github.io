@@ -219,6 +219,7 @@ def main() -> int:
         ("lab/flowchart/index.html", "after-interactive-lab-main"),
         ("lab/packet-routing/index.html", "after-interactive-lab-main"),
         ("lab/relational-database/index.html", "after-interactive-lab-main"),
+        ("lab/question-map/index.html", "after-interactive-lab-main"),
     ):
         trace_path = ROOT / relative
         trace_text = trace_path.read_text(encoding="utf-8")
