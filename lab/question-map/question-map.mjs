@@ -550,6 +550,36 @@ $("#layers-mode").addEventListener("click", () => {
   for (const kind of Object.keys(state.layerModes)) state.layerModes[kind] = "auto";
   updateLayerControls(); requestDraw(true);
 });
+
+const mapExhibit = $(".map-exhibit"), expandButton = $("#map-fullscreen");
+const outsideMap = Array.from(document.querySelectorAll(".site-header, .site-footer, .manual-ad-slot, .breadcrumb, .map-hero, .map-guide"));
+const originalInert = new Map(outsideMap.map(node => [node, node.inert]));
+let mapExpandedScroll = null;
+function setMapExpanded(expanded) {
+  if (mapExhibit.classList.contains("is-expanded") === expanded) return;
+  if (expanded) mapExpandedScroll = { x: scrollX, y: scrollY };
+  mapExhibit.classList.toggle("is-expanded", expanded);
+  document.documentElement.classList.toggle("question-map-expanded", expanded);
+  for (const node of outsideMap) node.inert = expanded || originalInert.get(node);
+  expandButton.textContent = expanded ? "元に戻す" : "全画面";
+  expandButton.setAttribute("aria-pressed", String(expanded));
+  expandButton.setAttribute("aria-label", expanded ? "全画面表示を終了する" : "地図を画面いっぱいに表示");
+  state.inertia = null;
+  if (state.camera) state.target = { ...state.camera };
+  resize();
+  if (!expanded && mapExpandedScroll) {
+    scrollTo({ left: mapExpandedScroll.x, top: mapExpandedScroll.y, behavior: "instant" });
+    mapExpandedScroll = null;
+  }
+}
+expandButton.addEventListener("click", () => setMapExpanded(!mapExhibit.classList.contains("is-expanded")));
+window.addEventListener("keydown", event => {
+  if (event.key !== "Escape" || !mapExhibit.classList.contains("is-expanded") || document.querySelector("dialog[open]")) return;
+  event.preventDefault();
+  event.stopPropagation();
+  setMapExpanded(false);
+  expandButton.focus({ preventScroll: true });
+}, true);
 window.addEventListener("storage", event => { if (!event.key || ["info1LearningRecord:v1", "info1QuizStats:v4"].includes(event.key)) updateHistory(); });
 window.addEventListener("pageshow", updateHistory);
 window.addEventListener("focus", updateHistory);
