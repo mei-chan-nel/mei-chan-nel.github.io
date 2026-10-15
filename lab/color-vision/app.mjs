@@ -70,11 +70,11 @@ $('step-buttons').append(initialButton);
 IMPROVEMENTS.forEach((item, index) => {
   const group = document.createElement('div'); group.className = 'step-group';
   const title = document.createElement('p'); title.textContent = `${index + 1} ${item.name}`; group.append(title);
-  for (const [offset, label, action] of [[1, '⌕ 観察して拡大', '観察'], [2, '改善する →', '改善']]) {
-    const target = index * 2 + offset;
+  for (const [offset, label] of [[1, '拡大して観察'], [2, '改善する'], [3, '全体を見る']]) {
+    const target = index * 3 + offset;
     const button = document.createElement('button'); button.className = 'step-button'; button.type = 'button';
     button.dataset.step = String(target); button.textContent = label;
-    button.setAttribute('aria-label', `${index + 1} ${item.name}を${action}`);
+    button.setAttribute('aria-label', `${index + 1} ${item.name}：${label}`);
     button.addEventListener('click', () => setStep(target)); group.append(button);
   }
   $('step-buttons').append(group);
@@ -97,8 +97,8 @@ function updateNotes() {
     else button.removeAttribute('aria-current');
   });
   requestAnimationFrame(scrollActiveStep);
-  $('previous-step').disabled = step === 0; $('next-step').disabled = step === STEPS.length - 1;
   $('contrast-evidence').hidden = !item.evidence;
+  $('contrast-evidence').replaceChildren();
   if (item.evidence) {
     const before = item.evidence === 2 ? contrast('#ffffff', '#567658') : contrast('#ffffff', COLORS.orange);
     const after = item.evidence === 2 ? contrast('#ffffff', COLORS.orange) : contrast(COLORS.ink, '#fff3d6');
@@ -116,11 +116,14 @@ function scrollActiveStep() {
   else if(a.top<r.top+8)$('learning-panel').scrollTop-=r.top-a.top+8;
 }
 function setStep(index) {
-  if (index === step || index < 0 || index >= STEPS.length) return;
+  if (index < 0 || index >= STEPS.length) return;
+  if (index === step) {
+    const item = STEPS[step];
+    focusRegion(item.phase === 'overview' ? 'all' : item.regions[0] ?? 'all');
+    return;
+  }
   step = index; updateNotes(); error(); render();
 }
-$('previous-step').addEventListener('click', () => setStep(step - 1));
-$('next-step').addEventListener('click', () => setStep(step + 1));
 function setMode(next) {
   if (next === mode) return;
   mode = next; error(); reset(); if (imageDialog.open) imageDialog.close();
@@ -160,9 +163,7 @@ async function render() {
       const column = document.createElement('section'); column.className = 'view-column'; column.dataset.type = type;
       const heading = document.createElement('h3'); heading.className = 'view-heading'; heading.textContent = label;
       const small = document.createElement('small'); small.textContent = english; heading.append(small);
-      const expand = document.createElement('button'); expand.className = 'expand-image'; expand.type = 'button';
-      expand.textContent = '拡大 ↗'; expand.setAttribute('aria-label', `${label}の画像を拡大表示`);
-      expand.addEventListener('click', () => openExpanded(type)); heading.append(expand); column.append(heading);
+      column.append(heading);
       const figure = document.createElement('figure');
       const viewport = document.createElement('div'); viewport.className = 'viewport'; viewport.tabIndex = 0;
       viewport.setAttribute('role', 'button'); viewport.setAttribute('aria-haspopup', 'dialog');
@@ -171,12 +172,13 @@ async function render() {
       canvas.setAttribute('aria-hidden', 'true'); canvas.getContext('2d', {colorSpace:'srgb'}).drawImage(current[type], 0, 0);
       viewport.append(canvas); bindViewport(viewport, type); figure.append(viewport); column.append(figure); grid.append(column);
     });
-    if (currentMode === 'learn') focusRegion(item.regions[0] ?? 'all'); else syncPositions();
+    if (currentMode === 'learn') focusRegion(item.phase === 'overview' ? 'all' : item.regions[0] ?? 'all'); else syncPositions();
     grid.setAttribute('aria-busy', 'false');
     status(currentMode === 'upload' ? uploadDescription : item.phase === 'initial'
-      ? '通常・P・D・T型を2×2で比較。左の「観察」から始めましょう。'
+      ? '通常・P・D・T型を2×2で比較。左の「拡大して観察」から始めましょう。'
       : item.phase === 'observe' ? `${REGIONS[item.region].label}を拡大して観察中です。次に同じ番号の「改善する」を選びましょう。`
-      : `${REGIONS[item.region].label}だけを変更しました。「観察」に戻ると、同じ場所で変更前を確認できます。`);
+      : item.phase === 'overview' ? `工程${item.number}までの改善をページ全体で確認中です。同じ番号の「拡大して観察」で変更前に戻れます。`
+      : `${REGIONS[item.region].label}だけを変更しました。「全体を見る」で、ページ全体の中で効果を確かめましょう。`);
   } catch (e) {
     if (id !== renderId) return; grid.setAttribute('aria-busy', 'false'); error(e.message); status('処理を完了できませんでした。');
   }

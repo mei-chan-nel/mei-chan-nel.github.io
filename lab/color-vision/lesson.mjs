@@ -71,15 +71,15 @@ export const IMPROVEMENTS = [
     benefit:'名前の重なりがなくなり、色・線種・点を使って系列をたどれます。',
     remaining:'実際の利用者の見え方、端末での文字サイズ、説明の分かりやすさは引き続き確認が必要です。',
     sideEffect:'この例では新しい重なりはありません。凡例との対応が分かるか、利用者にも確かめましょう。',
-    tip:'最後に「全体に戻す」で、ページ全体に加えた改善を見直そう。'},
+    tip:'最後に同じ番号の「全体を見る」で、ページ全体に加えた改善を見直そう。'},
 ];
 const initial = {title:'まず、ページ全体を見る', short:'初期状態', phase:'initial', state:0, number:0,
   version:'はじめのデザイン', regions:[], question:'色だけで伝えている情報は、どこだろう？',
   change:'まだ変更していません。通常・P・D・T型の4枚は、すべて同じ初期デザインを元にしています。',
-  benefit:'左側の「観察」で1箇所を拡大し、「改善」でその場所だけを変えて、効果を確かめられます。',
+  benefit:'左側の「拡大して観察」「改善する」「全体を見る」で、1箇所の改善とページ全体への効果を確かめられます。',
   remaining:'状態表示、案内パネル、お知らせ、地図、時刻表、グラフを順番に扱います。',
-  sideEffect:'変更はありません。各工程の観察と改善には、いつでも自由に戻れます。',
-  tip:'まずは「1 状態表示」の観察から始めよう。画像をクリックすると、1枚ずつ大きく表示できます。'};
+  sideEffect:'変更はありません。各回の3つの操作には、いつでも自由に戻れます。',
+  tip:'まずは「1 状態表示」の「拡大して観察」から始めよう。画像をクリックすると、1枚ずつ大きく表示できます。'};
 export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
   {...item, title:`${item.name}を観察する`, short:'観察', phase:'observe', state:index, number:index+1,
     version:index===0?'はじめのデザイン':IMPROVEMENTS[index-1].title, regions:[item.region],
@@ -87,6 +87,11 @@ export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
     remaining:item.observation, sideEffect:'この工程は拡大して見るだけです。画像内のデザインは変えていません。',
     tip:'次に、左側の同じ番号の「改善する」を選びましょう。拡大した場所は同じままです。', evidence:undefined},
   {...item, short:'改善', phase:'improve', state:index+1, number:index+1, version:item.title, regions:[item.region]},
+  {...item, title:`${item.name}の改善を全体で見る`, short:'全体', phase:'overview', state:index+1, number:index+1,
+    version:item.title, regions:[item.region],
+    tip:index===IMPROVEMENTS.length-1
+      ? '8つの改善を加えたページです。「0 ページ全体」と切り替えて、最初のデザインと見比べてみよう。'
+      : 'ページ全体での変化を確かめたら、次の番号の「拡大して観察」を選びましょう。'},
 ])];
 export const COLORS = {red:'#c66f4a', green:'#758b4b', blue:'#0072b2', orange:'#e69f00', mapBlue:'#3798c3', mapGreen:'#45a58e', ink:'#203b40'};
 

@@ -45,12 +45,12 @@ test('lesson colors support the stated observation; this is not a perceptual thr
   assert.ok(separation(COLORS.mapBlue,COLORS.mapGreen,'t')<separation(COLORS.mapBlue,COLORS.mapGreen,'normal'));
 });
 test('all lesson steps and regions are complete and lie within the page',()=>{
-  assert.equal(STEPS.length,1+IMPROVEMENTS.length*2);
+  assert.equal(STEPS.length,1+IMPROVEMENTS.length*3);
   IMPROVEMENTS.forEach((item,i)=>{
-    const observation=STEPS[1+i*2], improvement=STEPS[2+i*2];
-    assert.equal(observation.phase,'observe');assert.equal(improvement.phase,'improve');
-    assert.equal(observation.state,i);assert.equal(improvement.state,i+1);
-    assert.deepEqual(observation.regions,[item.region]);assert.deepEqual(improvement.regions,[item.region]);
+    const observation=STEPS[1+i*3], improvement=STEPS[2+i*3], overview=STEPS[3+i*3];
+    assert.equal(observation.phase,'observe');assert.equal(improvement.phase,'improve');assert.equal(overview.phase,'overview');
+    assert.equal(observation.state,i);assert.equal(improvement.state,i+1);assert.equal(overview.state,improvement.state);
+    for(const phase of [observation,improvement,overview])assert.deepEqual(phase.regions,[item.region]);
   });
   for(const step of STEPS){for(const field of ['title','question','change','benefit','remaining','sideEffect','tip'])assert.ok(step[field]);for(const key of step.regions)assert.ok(REGIONS[key]);}
   for(const {box:[x,y,w,h]} of Object.values(REGIONS)){assert.ok(x>=0&&y>=0&&x+w<=SIZE.width&&y+h<=SIZE.height);}
