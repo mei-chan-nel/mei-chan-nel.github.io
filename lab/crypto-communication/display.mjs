@@ -89,6 +89,7 @@ export function createDisplayController({
     ].filter(
       (el) =>
         !el.disabled &&
+        el.getClientRects().length > 0 &&
         !el.closest(
           "[hidden], dialog:not([open]), details:not([open]) :not(summary)",
         ),

@@ -504,6 +504,7 @@ $("tools-dialog").addEventListener("keydown", (e) => {
   ].filter(
     (el) =>
       !el.disabled &&
+      el.getClientRects().length > 0 &&
       !el.closest("[hidden]") &&
       !el.closest("details:not([open]) :not(summary)"),
   );
