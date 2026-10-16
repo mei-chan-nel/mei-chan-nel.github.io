@@ -1,6 +1,11 @@
 import { createLab, rounds } from "./model.mjs";
 import { describeSituation, describeItem } from "./presentation.mjs";
 import { createDisplayController } from "./display.mjs";
+import {
+  compactStory,
+  compactOutcome,
+  paginateText,
+} from "./screen-layout.mjs";
 const lab = createLab();
 const $ = (id) => document.getElementById(id);
 const esc = (value) =>
@@ -73,6 +78,14 @@ let resultHeading = "まだ行動していない。",
   feedbackText = "状況と目的を読んで、行動を一つ選んでみよう。",
   feedbackError = false;
 let toolFeedback = "道具を選び、自由に組み合わせを試せます。";
+let overviewActive = false,
+  lastTool = "",
+  briefPage = 0,
+  decryptPage = 0;
+let infoTopic = "situation",
+  infoPage = 0,
+  infoPages = [],
+  infoOpener = null;
 const visits = new Set();
 const itemNotes = new Map();
 let createdCount = 0;
@@ -97,7 +110,9 @@ function render() {
   const focusedItem = document.activeElement?.dataset?.item;
   const s = lab.snapshot(),
     r = rounds[s.round],
-    story = describeSituation(s),
+    story = overviewActive
+      ? { ...describeSituation(s), ...compactStory(s) }
+      : describeSituation(s),
     done = s.phase === "done";
   if (s.result) visits.add(s.round);
   document.querySelectorAll("[data-round]").forEach((b) => {
@@ -118,10 +133,16 @@ function render() {
         `<li class="${i < s.step ? "complete" : i === s.step ? "active" : ""}" ${i === s.step && !done ? 'aria-current="step"' : ""}><span>${i + 1}.</span>${esc(text)}</li>`,
     )
     .join("");
-  $("scene-status").textContent = done
-    ? "■ この通信は終了"
-    : "Ⅱ 相手に届く前で停止中";
-  $("direction").textContent = story.route;
+  $("scene-status").textContent = overviewActive
+    ? done
+      ? "■ 通信終了"
+      : "Ⅱ 停止中"
+    : done
+      ? "■ この通信は終了"
+      : "Ⅱ 相手に届く前で停止中";
+  $("direction").textContent = overviewActive
+    ? story.route.replace("あなたの中継機", "中継機")
+    : story.route;
   $("scene").classList.toggle("reverse", s.phase === "public");
   $("alice-state").textContent = done
     ? "通信が終わったね"
@@ -163,7 +184,7 @@ function render() {
     ? `すり替えたデータを${story.recipient}に送り、反応を見る。`
     : `中継機に届いた元のデータを${story.recipient}へ送る。`;
   $("outgoing-label").textContent = s.outgoing
-    ? `${displayLabel(s.outgoing)}（すり替え中）`
+    ? `${overviewActive ? s.outgoing.label : displayLabel(s.outgoing)}（すり替え中）`
     : `${s.incoming.label}（元のまま）`;
   $("restore").hidden = !s.outgoing || done;
   $("inventory-count").textContent = s.inventory.length;
@@ -173,10 +194,34 @@ function render() {
   $("original-message").textContent = s.original || "未解読";
   const result = $("action-result");
   result.className = `action-result ${s.result ? (s.result.accepted ? "success" : "error") : feedbackError ? "error" : ""}`;
-  $("result-heading").textContent = s.result?.title || resultHeading;
-  $("feedback").textContent = s.result?.text || feedbackText;
+  const shortTitles = {
+    "attack-success": s.read
+      ? "盗聴・改ざんに成功"
+      : "改ざんは受理・盗聴は未達成",
+    "signature-rejected": "ボブが拒否：署名が不一致",
+    authenticated: "公開鍵のすり替えを検出",
+    "bad-public": "アリスが公開鍵を拒否",
+    "bad-key": "ボブは共通鍵を取得できない",
+    "bad-message": "ボブは本文を復号できない",
+    "original-accepted": "ボブが本文を受理",
+  };
+  $("result-heading").textContent = overviewActive
+    ? s.result
+      ? shortTitles[s.result.code] || s.result.title
+      : feedbackError
+        ? "この操作はできなかった"
+        : {
+            copy: "中継機でコピーした！",
+            replace: "送るデータを変更した",
+            deliver: "相手にデータを届けた",
+            tool: "道具を使った",
+          }[lastAction] || "行動を選ぼう"
+    : s.result?.title || resultHeading;
+  $("feedback").textContent = overviewActive
+    ? compactOutcome(s, lastAction, feedbackError)
+    : s.result?.text || feedbackText;
   $("bob-result").innerHTML = s.result?.message
-    ? `<p class="received" lang="en">${esc(s.result.message)}</p>`
+    ? `<p class="received" lang="en">${esc(overviewActive && Array.from(s.result.message).length > 12 ? Array.from(s.result.message).slice(0, 12).join("") + "…" : s.result.message)}</p>`
     : s.result?.hiddenMessage
       ? "<p>ボブは本文を読みましたが、あなたはまだ復号していないので表示されません。</p>"
       : "";
@@ -192,12 +237,19 @@ function render() {
     .map((l) => `<li class="${l.kind}">${esc(l.text)}</li>`)
     .join("");
   renderTools(s);
+  renderBriefPages();
   if (focusedItem)
     document
       .querySelector(`[data-item="${focusedItem}"]`)
       ?.focus({ preventScroll: true });
 }
 function renderTools(s) {
+  Object.assign($("tools-dialog").dataset, {
+    mode,
+    round: String(s.round),
+    lastTool,
+    failed: String(feedbackError),
+  });
   const keyItems = s.inventory.filter((a) => keyTypes.has(a.type)),
     dataItems = s.inventory.filter((a) => !keyTypes.has(a.type));
   if (!s.inventory.some((a) => a.id === selected)) selected = "";
@@ -239,33 +291,53 @@ function renderTools(s) {
   $("key-field").hidden = mode === "replace";
   $("data-label").textContent = modeInfo[mode].data || "";
   $("key-label").textContent = modeInfo[mode].key || "";
-  $("draft").value = s.draft;
+  if ($("draft").value !== s.draft) $("draft").value = s.draft;
   $("signature-controls").hidden = s.round < 2;
   $("signature-choice").value = s.signatureChoice;
   $("signature-info").textContent = s.signature
     ? `手元にある署名：${s.signature.label}。本文を変えても、この署名は変わりません。`
     : "元の署名はまだ取り出していません。署名付きの本文を復号すると、署名も手元に残ります。";
-  $("decrypt-result").textContent = s.decryptResult
+  const plaintext = s.decryptResult
     ? s.decryptResult.kind === "key"
       ? `${s.decryptResult.label}を取得！ 持ち物の「鍵」に追加しました。`
       : s.decryptResult.label
     : "まだ復号していません。";
+  const pageSize =
+    $("game-console").dataset.layout === "narrow" &&
+    $("game-console").dataset.density === "tiny"
+      ? 30
+      : 80;
+  const pages = overviewActive
+    ? paginateText(plaintext, pageSize)
+    : [plaintext];
+  decryptPage = Math.min(decryptPage, pages.length - 1);
+  $("decrypt-result").textContent = pages[decryptPage];
+  $("decrypt-pagination").hidden = pages.length < 2;
+  $("decrypt-page-count").textContent = `${decryptPage + 1} / ${pages.length}`;
+  $("decrypt-prev").disabled = decryptPage === 0;
+  $("decrypt-next").disabled = decryptPage === pages.length - 1;
   $("edit-decrypted").hidden = s.decryptResult?.kind !== "message";
   const made = s.inventory.find((a) => a.id === createdId);
   $("created-card").hidden = !made;
   $("created-label").textContent = made ? displayLabel(made) : "";
   $("use-created").disabled = s.phase === "done";
   $("set-outgoing").disabled = s.phase === "done";
-  $("tool-feedback").textContent = toolFeedback;
+  $("tool-feedback").textContent = overviewActive
+    ? $("game-console").dataset.density === "tiny"
+      ? toolFeedback.split("。")[0] + "。"
+      : paginateText(toolFeedback, 90)[0]
+    : toolFeedback;
   $("tool-feedback").classList.toggle("error", feedbackError);
 }
 function setMode(value) {
   mode = value;
+  setToolView("form");
   renderTools(lab.snapshot());
 }
 function showTools(value = "decrypt", source = document.activeElement) {
   opener = source;
   mode = value;
+  setToolView("form");
   renderTools(lab.snapshot());
   const dialog = $("tools-dialog");
   if (!dialog.open) {
@@ -289,7 +361,7 @@ function closeTools() {
   opener?.focus({ preventScroll: true });
 }
 function announceResult() {
-  if (!$("tools-dialog").open)
+  if (!overviewActive && !$("tools-dialog").open)
     $("action-result").scrollIntoView({ block: "nearest", behavior: "smooth" });
 }
 function act(
@@ -306,9 +378,15 @@ function act(
     ? "その組み合わせでは、うまくいかなかった。"
     : heading;
   lastAction = action;
+  if (create && !response?.id) createdId = null;
   if (create && response?.id) {
     createdId = response.id;
     itemNotes.set(createdId, `自分で作成 ${++createdCount}`);
+  }
+  if ($("tools-dialog").open) {
+    lastTool = mode;
+    decryptPage = 0;
+    setToolView("result");
   }
   render();
   announceResult();
@@ -322,6 +400,8 @@ function restart(round, authenticate = $("authenticate").checked) {
   itemNotes.clear();
   createdCount = 0;
   lastAction = "";
+  lastTool = "";
+  decryptPage = 0;
   feedbackError = false;
   resultHeading = "新しい通信が始まった。";
   feedbackText =
@@ -333,6 +413,7 @@ function stageReplacement(id) {
   if (!id) {
     feedbackError = true;
     toolFeedback = "まず、相手に送るデータを持ち物から選んでください。";
+    setToolView("result");
     renderTools(lab.snapshot());
     return;
   }
@@ -350,7 +431,8 @@ $("start-game").addEventListener("click", () => {
   $("briefing").hidden = true;
   $("gameplay").hidden = false;
   $("round-title").focus({ preventScroll: true });
-  $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (!overviewActive)
+    $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
 });
 $("help-button").addEventListener("click", () => {
   $("briefing").hidden = false;
@@ -358,7 +440,11 @@ $("help-button").addEventListener("click", () => {
   $("start-game").textContent = started
     ? "▶ 通信画面に戻る"
     : "▶ 通信経路に入る";
-  $("briefing-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (!overviewActive)
+    $("briefing-title").scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    });
 });
 $("rounds").addEventListener("click", (e) => {
   const b = e.target.closest("[data-round]");
@@ -367,7 +453,8 @@ $("rounds").addEventListener("click", (e) => {
 $("restart").addEventListener("click", () => restart(lab.snapshot().round));
 $("retry-result").addEventListener("click", () => {
   restart(lab.snapshot().round);
-  $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (!overviewActive)
+    $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
 });
 $("authenticate").addEventListener("change", () => restart(3));
 $("capture").addEventListener("click", () => {
@@ -491,12 +578,195 @@ $("signature-choice").addEventListener("change", (e) =>
 );
 $("next-round").addEventListener("click", () => {
   restart(Math.min(3, lab.snapshot().round + 1), true);
-  $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  if (!overviewActive)
+    $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
+});
+function setToolView(view) {
+  $("tools-dialog").dataset.view = view;
+  $("tool-form-tab").setAttribute("aria-pressed", String(view === "form"));
+  $("tool-result-tab").setAttribute("aria-pressed", String(view === "result"));
+}
+function renderBriefPages() {
+  document
+    .querySelectorAll("[data-brief-page]")
+    .forEach((el) =>
+      el.classList.toggle(
+        "is-selected",
+        Number(el.dataset.briefPage) === briefPage,
+      ),
+    );
+  document
+    .querySelectorAll("[data-brief]")
+    .forEach((el) =>
+      el.setAttribute(
+        "aria-pressed",
+        String(Number(el.dataset.brief) === briefPage),
+      ),
+    );
+}
+function infoContent() {
+  const s = lab.snapshot(),
+    story = describeSituation(s);
+  return {
+    situation: [
+      story.text,
+      story.goal,
+      rounds[s.round].description,
+      `中継機にあるもの：${s.incoming.label}\n${itemValue(s.incoming)}`,
+    ],
+    result: [
+      ...(s.result?.message
+        ? [`ボブが受理した本文：\n${s.result.message}`]
+        : []),
+      s.result?.text || feedbackText,
+    ],
+    hint: hints[s.round],
+    log: s.log.map((entry, i) => `${i + 1}. ${entry.text}`),
+    tool: [
+      ...(s.decryptResult?.kind === "message" ? [s.decryptResult.label] : []),
+      toolFeedback,
+      modeInfo[mode].prompt,
+      describeItem(s.inventory.find((a) => a.id === selected)),
+    ],
+  }[infoTopic];
+}
+function buildInfoPages() {
+  const width =
+    $("info-dialog").clientWidth || document.defaultView.innerWidth - 24;
+  const height =
+    $("info-dialog").clientHeight || document.defaultView.innerHeight - 24;
+  const limit = Math.max(
+    45,
+    Math.min(
+      160,
+      Math.floor((width - 60) / 14) *
+        Math.max(2, Math.floor((height - 190) / 24)),
+    ),
+  );
+  infoPages = infoContent().flatMap((text) => paginateText(text, limit));
+  infoPage = Math.min(infoPage, infoPages.length - 1);
+  renderInfoPage();
+}
+function renderInfoPage() {
+  $("info-title").textContent = {
+    situation: "場面の詳しい説明",
+    result: "結果と仕組み",
+    hint: "考えるヒント",
+    log: "行動の記録",
+    tool: "道具の詳しい説明",
+  }[infoTopic];
+  $("info-text").textContent = infoPages[infoPage];
+  $("info-count").textContent = `${infoPage + 1} / ${infoPages.length}`;
+  $("info-prev").disabled = infoPage === 0;
+  $("info-next").disabled = infoPage === infoPages.length - 1;
+  document
+    .querySelectorAll("[data-info]")
+    .forEach((button) =>
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.info === infoTopic),
+      ),
+    );
+}
+function openInfo(topic) {
+  infoOpener = document.activeElement;
+  infoTopic = topic;
+  infoPage = 0;
+  const dialog = $("info-dialog");
+  if (!dialog.open) {
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else {
+      dialog.setAttribute("open", "");
+      dialog.classList.add("fallback-dialog");
+      dialog.setAttribute("aria-modal", "true");
+    }
+  }
+  document.body.classList.add("tools-open");
+  buildInfoPages();
+  $("close-info").focus({ preventScroll: true });
+}
+function closeInfo() {
+  const dialog = $("info-dialog");
+  if (typeof dialog.close === "function") dialog.close();
+  else dialog.removeAttribute("open");
+  if (!$("tools-dialog").open) document.body.classList.remove("tools-open");
+  infoOpener?.focus({ preventScroll: true });
+}
+$("brief-tabs").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-brief]");
+  if (button) {
+    briefPage = Number(button.dataset.brief);
+    renderBriefPages();
+  }
+});
+$("open-info").addEventListener("click", () => openInfo("situation"));
+$("situation-details").addEventListener("click", () => openInfo("situation"));
+$("result-details").addEventListener("click", () => openInfo("result"));
+$("tool-details").addEventListener("click", () => openInfo("tool"));
+$("close-info").addEventListener("click", closeInfo);
+$("info-dialog").addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeInfo();
+});
+$("info-dialog").addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    event.stopPropagation();
+    closeInfo();
+    return;
+  }
+  if (event.key !== "Tab") return;
+  const items = [...$("info-dialog").querySelectorAll("button")].filter(
+    (el) => !el.disabled,
+  );
+  if (event.shiftKey && document.activeElement === items[0]) {
+    event.preventDefault();
+    items.at(-1)?.focus();
+  } else if (!event.shiftKey && document.activeElement === items.at(-1)) {
+    event.preventDefault();
+    items[0]?.focus();
+  }
+});
+$("info-topics").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-info]");
+  if (button) {
+    infoTopic = button.dataset.info;
+    infoPage = 0;
+    buildInfoPages();
+  }
+});
+$("info-prev").addEventListener("click", () => {
+  if (infoPage > 0) {
+    infoPage--;
+    renderInfoPage();
+  }
+});
+$("info-next").addEventListener("click", () => {
+  if (infoPage < infoPages.length - 1) {
+    infoPage++;
+    renderInfoPage();
+  }
+});
+$("tool-form-tab").addEventListener("click", () => setToolView("form"));
+$("tool-result-tab").addEventListener("click", () => setToolView("result"));
+$("back-tool-form").addEventListener("click", () => setToolView("form"));
+$("decrypt-prev").addEventListener("click", () => {
+  decryptPage = Math.max(0, decryptPage - 1);
+  renderTools(lab.snapshot());
+});
+$("decrypt-next").addEventListener("click", () => {
+  decryptPage++;
+  renderTools(lab.snapshot());
 });
 createDisplayController({
   document,
   target: $("game-console"),
   button: $("fullscreen"),
   announce: (text) => ($("display-status").textContent = text),
+  onChange: (active) => {
+    overviewActive = active;
+    render();
+    if ($("info-dialog").open) buildInfoPages();
+  },
 });
 render();

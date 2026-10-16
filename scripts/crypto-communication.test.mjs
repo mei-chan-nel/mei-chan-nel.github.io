@@ -258,3 +258,57 @@ test("narrative explains the relay, stops and round-specific goals without revea
   assert.equal(story.recipient, "アリス");
   assert.equal(JSON.stringify(story).includes("I love you."), false);
 });
+
+test("fullscreen composition follows width, height and orientation without scaling text", async () => {
+  const { screenLayout } =
+    await import("../lab/crypto-communication/screen-layout.mjs");
+  assert.deepEqual(screenLayout(1366, 768), {
+    layout: "wide",
+    density: "comfortable",
+  });
+  assert.deepEqual(screenLayout(1280, 600), {
+    layout: "wide",
+    density: "compact",
+  });
+  assert.deepEqual(screenLayout(390, 844), {
+    layout: "narrow",
+    density: "comfortable",
+  });
+  assert.deepEqual(screenLayout(375, 667), {
+    layout: "narrow",
+    density: "compact",
+  });
+  assert.deepEqual(screenLayout(844, 390), { layout: "wide", density: "tiny" });
+  assert.deepEqual(screenLayout(320, 480), {
+    layout: "narrow",
+    density: "tiny",
+  });
+});
+test("paged explanations preserve all characters including non-BMP characters", async () => {
+  const { paginateText } =
+    await import("../lab/crypto-communication/screen-layout.mjs");
+  const text = "公開鍵と秘密鍵を比べよう。🙂署名も確かめよう！".repeat(20);
+  const pages = paginateText(text, 65);
+  assert.ok(pages.length > 1);
+  assert.equal(pages.join(""), text);
+  assert.ok(pages.every((page) => Array.from(page).length <= 65));
+});
+test("compact overview keeps the goal and observable result while preserving secrecy", async () => {
+  const { compactStory, compactOutcome } =
+    await import("../lab/crypto-communication/screen-layout.mjs");
+  const lab = createLab();
+  for (let round = 0; round < 4; round++) {
+    lab.start(round);
+    const text = JSON.stringify(compactStory(lab.snapshot()));
+    assert.equal(text.includes("I love you."), false);
+    assert.ok(compactStory(lab.snapshot()).goal.length > 0);
+  }
+  lab.start(0);
+  lab.forward();
+  lab.forward();
+  assert.match(compactOutcome(lab.snapshot(), "deliver"), /ボブ/);
+  assert.equal(
+    compactOutcome(lab.snapshot(), "deliver").includes("I love you."),
+    false,
+  );
+});

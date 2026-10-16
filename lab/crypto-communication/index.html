@@ -15,7 +15,8 @@
     <meta name="theme-color" content="#102f35" />
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-    <link rel="stylesheet" href="./style.css?v=2" />
+    <link rel="stylesheet" href="./style.css?v=3" />
+    <link rel="stylesheet" href="./viewport.css?v=3" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -59,7 +60,12 @@
               <small>通信経路のチャーリー</small></span
             >
             <div>
-              <button type="button" id="help-button" class="toolbar-button">
+              <button type="button" id="restart" class="toolbar-button">
+                ↻ やり直す
+              </button>
+              <button type="button" id="open-info" class="toolbar-button">
+                詳しく</button
+              ><button type="button" id="help-button" class="toolbar-button">
                 ? 遊び方</button
               ><button
                 type="button"
@@ -98,22 +104,31 @@
                 ><b>C</b>あなたの中継機<small>データはここで止まる</small></span
               ><i aria-hidden="true">→</i><span><b>B</b>ボブ</span>
             </div>
+            <nav id="brief-tabs" class="brief-tabs" aria-label="遊び方の説明">
+              <button type="button" data-brief="0" aria-pressed="true">
+                1 場所</button
+              ><button type="button" data-brief="1" aria-pressed="false">
+                2 コピー</button
+              ><button type="button" data-brief="2" aria-pressed="false">
+                3 目的
+              </button>
+            </nav>
             <div class="briefing-columns">
-              <div>
+              <div data-brief-page="0">
                 <span class="brief-number">01 / どこにいる？</span>
                 <h3>二人の間の中継機を操作する。</h3>
                 <p>
                   鍵や暗号文は、あなたの中継機を通って相手に届きます。<strong>届くたびに時間が止まる</strong>ので、何をするか選べます。
                 </p>
               </div>
-              <div>
+              <div data-brief-page="1">
                 <span class="brief-number">02 / コピーって？</span>
                 <h3>通ったデータを、手元に記録する。</h3>
                 <p>
                   「コピーする」は、中継機の記録機能で<strong>同じデータを持ち物に残す</strong>操作です。暗号文をコピーしても、中身が読めるとは限りません。
                 </p>
               </div>
-              <div>
+              <div data-brief-page="2">
                 <span class="brief-number">03 / 何を目指す？</span>
                 <h3>秘密を読み、別の言葉を届ける。</h3>
                 <p>
@@ -133,7 +148,7 @@
               </button>
             </div>
           </section>
-          <div id="gameplay" hidden>
+          <div id="gameplay" hidden="">
             <nav id="rounds" class="round-nav" aria-label="ラウンドを選択">
               <button type="button" data-round="0" aria-current="step">
                 <span>ROUND 1</span>共通鍵</button
@@ -151,22 +166,22 @@
                 <h2 id="round-title" tabindex="-1">共通鍵暗号方式</h2>
                 <p id="round-description"></p>
               </div>
-              <button type="button" id="restart" class="toolbar-button">
-                ↻ やり直す
-              </button>
             </div>
-            <div id="auth-control" class="auth-control" hidden>
-              <label
-                ><input type="checkbox" id="authenticate" checked />
-                アリスがボブの公開鍵の持ち主を確認する</label
-              >
-              <p>
-                信頼済みの指紋
-                <code>B0B7 · 29AF · 613C</code>
-                と照合。切り替えると、新しい通信で比較できます。
-              </p>
+
+            <div class="phase-row">
+              <ol id="stages" class="stages" aria-label="通信の進行"></ol>
+              <div id="auth-control" class="auth-control" hidden="">
+                <label
+                  ><input type="checkbox" id="authenticate" checked="" />
+                  アリスがボブの公開鍵の持ち主を確認する</label
+                >
+                <p>
+                  信頼済みの指紋
+                  <code>B0B7 · 29AF · 613C</code>
+                  と照合。切り替えると、新しい通信で比較できます。
+                </p>
+              </div>
             </div>
-            <ol id="stages" class="stages" aria-label="通信の進行"></ol>
             <div class="play-layout">
               <div class="scene-column">
                 <section
@@ -192,18 +207,21 @@
                         <path
                           fill="#b2d9e7"
                           d="M7 1h10v2h3v14h-3V7H7v10H4V3h3z"
-                        />
-                        <path fill="#f3d1a1" d="M7 7h10v10H7z" />
-                        <path fill="#173e43" d="M8 10h2v2H8zm6 0h2v2h-2z" />
+                        ></path>
+                        <path fill="#f3d1a1" d="M7 7h10v10H7z"></path>
+                        <path
+                          fill="#173e43"
+                          d="M8 10h2v2H8zm6 0h2v2h-2z"
+                        ></path>
                         <path
                           fill="#f3d1a1"
                           d="M10 17h4v3h-4zM3 21h3v7H3zm15 0h3v7h-3z"
-                        />
-                        <path fill="#729fb8" d="M6 19h12v10H6z" />
+                        ></path>
+                        <path fill="#729fb8" d="M6 19h12v10H6z"></path>
                         <path
                           fill="#d8e6e2"
                           d="M6 29h5v3H5v-2h1zm7 0h5v1h1v2h-6z"
-                        />
+                        ></path>
                       </svg>
                       <h3>アリス <small>ALICE</small></h3>
                       <span>送りたい人</span>
@@ -223,17 +241,17 @@
                         aria-hidden="true"
                         shape-rendering="crispEdges"
                       >
-                        <path fill="#ceb8f1" d="M7 2h10v2h3v15H4V4h3z" />
-                        <path fill="#173e43" d="M7 8h10v9H7z" />
-                        <path fill="#b2e4bb" d="M7 9h4v3H7zm6 0h4v3h-4z" />
+                        <path fill="#ceb8f1" d="M7 2h10v2h3v15H4V4h3z"></path>
+                        <path fill="#173e43" d="M7 8h10v9H7z"></path>
+                        <path fill="#b2e4bb" d="M7 9h4v3H7zm6 0h4v3h-4z"></path>
                         <path
                           fill="#ceb8f1"
                           d="M6 19h12v11H6zM3 22h3v6H3zm15 0h3v6h-3z"
-                        />
+                        ></path>
                         <path
                           fill="#d8e6e2"
                           d="M6 30h5v2H5v-1h1zm7 0h5v1h1v1h-6z"
-                        />
+                        ></path>
                       </svg>
                       <h3>チャーリー <b>YOU</b></h3>
                       <p>中継機を操作できる</p>
@@ -247,18 +265,21 @@
                         aria-hidden="true"
                         shape-rendering="crispEdges"
                       >
-                        <path fill="#b1d9af" d="M6 2h12v3h2v5H4V5h2z" />
-                        <path fill="#f3d1a1" d="M7 10h10v8H7z" />
-                        <path fill="#173e43" d="M8 11h2v2H8zm6 0h2v2h-2z" />
+                        <path fill="#b1d9af" d="M6 2h12v3h2v5H4V5h2z"></path>
+                        <path fill="#f3d1a1" d="M7 10h10v8H7z"></path>
+                        <path
+                          fill="#173e43"
+                          d="M8 11h2v2H8zm6 0h2v2h-2z"
+                        ></path>
                         <path
                           fill="#f3d1a1"
                           d="M10 18h4v2h-4zM3 21h3v7H3zm15 0h3v7h-3z"
-                        />
-                        <path fill="#6caa99" d="M6 19h12v11H6z" />
+                        ></path>
+                        <path fill="#6caa99" d="M6 19h12v11H6z"></path>
                         <path
                           fill="#d8e6e2"
                           d="M6 30h5v2H5v-1h1zm7 0h5v1h1v1h-6z"
-                        />
+                        ></path>
                       </svg>
                       <h3>ボブ <small>BOB</small></h3>
                       <span>受け取りたい人</span>
@@ -274,7 +295,14 @@
                   </div>
                 </section>
                 <section class="story-box" aria-labelledby="situation-title">
-                  <span class="box-label">いまの状況</span>
+                  <span class="box-label">いまの状況</span
+                  ><button
+                    type="button"
+                    id="situation-details"
+                    class="text-detail"
+                  >
+                    詳しく
+                  </button>
                   <h3 id="situation-title"></h3>
                   <p id="situation-text"></p>
                   <div class="goal-line">
@@ -330,7 +358,7 @@
                   <div class="outgoing-card">
                     <span>次に届けるもの</span
                     ><strong id="outgoing-label">届いた元のデータ</strong
-                    ><button type="button" id="restore" hidden>
+                    ><button type="button" id="restore" hidden="">
                       ↶ 元のデータに戻す
                     </button>
                   </div>
@@ -362,23 +390,30 @@
                   type="button"
                   id="result-tools"
                   class="pixel-button secondary"
-                  hidden
+                  hidden=""
                 >
                   ▦ コピーしたデータを調べる</button
                 ><button
                   type="button"
                   id="retry-result"
                   class="pixel-button secondary"
-                  hidden
+                  hidden=""
                 >
                   ↻ もう一度挑戦</button
                 ><button
                   type="button"
                   id="next-round"
                   class="pixel-button primary"
-                  hidden
+                  hidden=""
                 >
                   次のラウンドへ →
+                </button>
+                <button
+                  type="button"
+                  id="result-details"
+                  class="pixel-button secondary"
+                >
+                  結果の説明
                 </button>
               </div>
             </section>
@@ -401,6 +436,7 @@
             id="tools-dialog"
             class="tools-dialog"
             aria-labelledby="tools-title"
+            data-view="form"
           >
             <header class="tools-header">
               <div>
@@ -415,6 +451,13 @@
                 × 通信画面に戻る
               </button>
             </header>
+            <nav class="tool-view-tabs" aria-label="道具の画面">
+              <button type="button" id="tool-form-tab" aria-pressed="true">
+                操作</button
+              ><button type="button" id="tool-result-tab" aria-pressed="false">
+                直前の結果</button
+              ><button type="button" id="tool-details">道具の説明</button>
+            </nav>
             <p class="tools-lead">
               通信は止まったまま。手元のデータを調べても、相手に届くデータは自動では変わりません。
             </p>
@@ -437,149 +480,226 @@
               </section>
               <section class="workbench" aria-labelledby="workbench-title">
                 <h3 id="workbench-title">何を試す？</h3>
-                <div
-                  id="tool-modes"
-                  class="tool-modes"
-                  role="group"
-                  aria-label="使う道具"
+
+                <div class="tools-form">
+                  <div
+                    id="tool-modes"
+                    class="tool-modes"
+                    role="group"
+                    aria-label="使う道具"
+                  >
+                    <button
+                      type="button"
+                      data-mode="decrypt"
+                      aria-pressed="true"
+                    >
+                      暗号文を開く</button
+                    ><button
+                      type="button"
+                      data-mode="message"
+                      aria-pressed="false"
+                    >
+                      本文を作る</button
+                    ><button
+                      type="button"
+                      data-mode="wrap"
+                      aria-pressed="false"
+                    >
+                      鍵を包む</button
+                    ><button
+                      type="button"
+                      data-mode="replace"
+                      aria-pressed="false"
+                    >
+                      すり替える
+                    </button>
+                  </div>
+                  <p id="tool-prompt" class="tool-prompt"></p>
+                  <div id="data-field">
+                    <label for="data-select" id="data-label"
+                      >開けたい暗号文</label
+                    ><select id="data-select"></select>
+                    <p
+                      id="selected-description"
+                      class="selected-description"
+                    ></p>
+                    <details class="data-details">
+                      <summary>選んだデータの識別番号</summary>
+                      <code id="selected-preview"></code>
+                    </details>
+                  </div>
+                  <div id="key-field">
+                    <label for="key-select" id="key-label"
+                      >開けるために試す鍵</label
+                    ><select id="key-select"></select>
+                  </div>
+                  <div data-tool-panel="decrypt">
+                    <button
+                      type="button"
+                      id="decrypt"
+                      class="pixel-button primary full-width"
+                    >
+                      選んだ鍵で、復号を試す
+                    </button>
+                  </div>
+                  <div data-tool-panel="wrap" hidden="">
+                    <button
+                      type="button"
+                      id="wrap"
+                      class="pixel-button primary full-width"
+                    >
+                      共通鍵を公開鍵で包む
+                    </button>
+                  </div>
+                  <div data-tool-panel="message" hidden="">
+                    <label for="draft">ボブに届けたい本文</label
+                    ><textarea
+                      id="draft"
+                      rows="3"
+                      maxlength="500"
+                      placeholder="復号した本文を編集したり、自分で文を書いたりできます。"
+                      spellcheck="false"
+                    ></textarea>
+                    <div id="signature-controls" hidden="">
+                      <label for="signature-choice">添える電子署名</label
+                      ><select id="signature-choice">
+                        <option value="keep">復号した元の署名を添える</option>
+                        <option value="charlie">
+                          チャーリーの秘密鍵で署名する
+                        </option>
+                        <option value="none">署名を付けない</option>
+                      </select>
+                      <p id="signature-info" class="small-note"></p>
+                    </div>
+                    <button
+                      type="button"
+                      id="encrypt"
+                      class="pixel-button primary full-width"
+                    >
+                      この本文を、共通鍵で暗号化する
+                    </button>
+                  </div>
+                  <div data-tool-panel="replace" hidden="">
+                    <button
+                      type="button"
+                      id="set-outgoing"
+                      class="pixel-button primary full-width"
+                    >
+                      これを送るデータにする
+                    </button>
+                    <p class="small-note">
+                      セットすると通信画面に戻ります。「相手に届ける」を選ぶまで、まだ送信しません。
+                    </p>
+                    <details class="advanced">
+                      <summary>ほかの実験：暗号文を直接書き換える</summary>
+                      <p>
+                        本文を開かずに暗号文の一部を変える実験です。このモデルでは、有効な暗号文は対応する鍵を使って作ります。
+                      </p>
+                      <button
+                        type="button"
+                        id="corrupt"
+                        class="pixel-button secondary"
+                      >
+                        選んだ暗号文を直接書き換える
+                      </button>
+                    </details>
+                  </div>
+                </div>
+                <section
+                  id="tool-outcome"
+                  class="tool-outcome"
+                  aria-label="道具を使った結果"
                 >
-                  <button type="button" data-mode="decrypt" aria-pressed="true">
-                    暗号文を開く</button
-                  ><button
-                    type="button"
-                    data-mode="message"
-                    aria-pressed="false"
+                  <div
+                    id="tool-feedback"
+                    class="tool-feedback"
+                    role="status"
+                    aria-live="polite"
                   >
-                    本文を作る</button
-                  ><button type="button" data-mode="wrap" aria-pressed="false">
-                    鍵を包む</button
-                  ><button
-                    type="button"
-                    data-mode="replace"
-                    aria-pressed="false"
-                  >
-                    すり替える
-                  </button>
-                </div>
-                <p id="tool-prompt" class="tool-prompt"></p>
-                <div id="data-field">
-                  <label for="data-select" id="data-label">開けたい暗号文</label
-                  ><select id="data-select"></select>
-                  <p id="selected-description" class="selected-description"></p>
-                  <details class="data-details">
-                    <summary>選んだデータの識別番号</summary>
-                    <code id="selected-preview"></code>
-                  </details>
-                </div>
-                <div id="key-field">
-                  <label for="key-select" id="key-label"
-                    >開けるために試す鍵</label
-                  ><select id="key-select"></select>
-                </div>
-                <div data-tool-panel="decrypt">
-                  <button
-                    type="button"
-                    id="decrypt"
-                    class="pixel-button primary full-width"
-                  >
-                    選んだ鍵で、復号を試す
-                  </button>
+                    どの道具でも自由に試せます。
+                  </div>
                   <div id="decryption" class="decryption">
                     <h4>最後に開けた中身</h4>
                     <p id="decrypt-result">まだ復号していません。</p>
+                    <nav
+                      id="decrypt-pagination"
+                      class="decrypt-pagination"
+                      hidden=""
+                      aria-label="復号した本文のページ"
+                    >
+                      <button type="button" id="decrypt-prev">←</button
+                      ><span id="decrypt-page-count"></span
+                      ><button type="button" id="decrypt-next">→</button>
+                    </nav>
                     <button
                       type="button"
                       id="edit-decrypted"
                       class="pixel-button secondary"
-                      hidden
+                      hidden=""
                     >
                       この本文を書き換える →
                     </button>
                   </div>
-                </div>
-                <div data-tool-panel="wrap" hidden>
-                  <button
-                    type="button"
-                    id="wrap"
-                    class="pixel-button primary full-width"
-                  >
-                    共通鍵を公開鍵で包む
-                  </button>
-                </div>
-                <div data-tool-panel="message" hidden>
-                  <label for="draft">ボブに届けたい本文</label
-                  ><textarea
-                    id="draft"
-                    rows="3"
-                    maxlength="500"
-                    placeholder="復号した本文を編集したり、自分で文を書いたりできます。"
-                    spellcheck="false"
-                  ></textarea>
-                  <div id="signature-controls" hidden>
-                    <label for="signature-choice">添える電子署名</label
-                    ><select id="signature-choice">
-                      <option value="keep">復号した元の署名を添える</option>
-                      <option value="charlie">
-                        チャーリーの秘密鍵で署名する
-                      </option>
-                      <option value="none">署名を付けない</option>
-                    </select>
-                    <p id="signature-info" class="small-note"></p>
+                  <div id="created-card" class="created-card" hidden="">
+                    <span>新しく作ったデータ</span
+                    ><strong id="created-label"></strong
+                    ><button
+                      type="button"
+                      id="use-created"
+                      class="pixel-button secondary"
+                    >
+                      これを送るデータにする →
+                    </button>
                   </div>
                   <button
                     type="button"
-                    id="encrypt"
-                    class="pixel-button primary full-width"
-                  >
-                    この本文を、共通鍵で暗号化する
-                  </button>
-                </div>
-                <div data-tool-panel="replace" hidden>
-                  <button
-                    type="button"
-                    id="set-outgoing"
-                    class="pixel-button primary full-width"
-                  >
-                    これを送るデータにする
-                  </button>
-                  <p class="small-note">
-                    セットすると通信画面に戻ります。「相手に届ける」を選ぶまで、まだ送信しません。
-                  </p>
-                  <details class="advanced">
-                    <summary>ほかの実験：暗号文を直接書き換える</summary>
-                    <p>
-                      本文を開かずに暗号文の一部を変える実験です。このモデルでは、有効な暗号文は対応する鍵を使って作ります。
-                    </p>
-                    <button
-                      type="button"
-                      id="corrupt"
-                      class="pixel-button secondary"
-                    >
-                      選んだ暗号文を直接書き換える
-                    </button>
-                  </details>
-                </div>
-                <div id="created-card" class="created-card" hidden>
-                  <span>新しく作ったデータ</span
-                  ><strong id="created-label"></strong
-                  ><button
-                    type="button"
-                    id="use-created"
+                    id="back-tool-form"
                     class="pixel-button secondary"
                   >
-                    これを送るデータにする →
+                    ← 道具に戻る
                   </button>
-                </div>
-                <div
-                  id="tool-feedback"
-                  class="tool-feedback"
-                  role="status"
-                  aria-live="polite"
-                >
-                  どの道具でも自由に試せます。
-                </div>
+                </section>
               </section>
             </div>
+          </dialog>
+          <dialog
+            id="info-dialog"
+            class="tools-dialog info-dialog"
+            aria-labelledby="info-title"
+          >
+            <header class="tools-header">
+              <h2 id="info-title">詳しい説明</h2>
+              <button
+                type="button"
+                id="close-info"
+                class="pixel-button secondary"
+              >
+                × 戻る
+              </button>
+            </header>
+            <nav id="info-topics" class="info-topics" aria-label="説明の種類">
+              <button type="button" data-info="situation">状況</button
+              ><button type="button" data-info="result">結果</button
+              ><button type="button" data-info="hint">ヒント</button
+              ><button type="button" data-info="log">記録</button>
+            </nav>
+            <article class="info-page"><p id="info-text"></p></article>
+            <footer class="info-pagination">
+              <button
+                type="button"
+                id="info-prev"
+                class="pixel-button secondary"
+              >
+                ← 前</button
+              ><span id="info-count"></span
+              ><button
+                type="button"
+                id="info-next"
+                class="pixel-button secondary"
+              >
+                次 →
+              </button>
+            </footer>
           </dialog>
         </div>
       </section>
@@ -640,10 +760,10 @@
           ><a href="../../about.html">このサイトについて</a>
         </nav>
       </div>
-      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+      <p class="copyright"><small>© 2026 めいちゃんねる</small></p>
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=2"></script>
+    <script type="module" src="./app.mjs?v=3"></script>
   </body>
 </html>

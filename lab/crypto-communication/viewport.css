@@ -1,0 +1,1325 @@
+/* The expanded game is a dashboard with explicit tracks, not a scrolling page.
+   Long explanations live in the paged reader; type and controls are not scaled. */
+.phase-row {
+  display: contents;
+}
+.brief-tabs,
+.tool-view-tabs,
+#back-tool-form {
+  display: none;
+}
+.text-detail {
+  float: right;
+  color: var(--game-gold);
+  border: 0;
+  background: transparent;
+  font-size: 0.7rem;
+  min-height: 28px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.info-dialog[open] {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 12px;
+  height: min(520px, calc(100dvh - 24px));
+  overflow: clip;
+}
+.info-topics,
+.info-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-topics button,
+.tool-view-tabs button,
+.brief-tabs button {
+  flex: 1;
+  min-height: 38px;
+  padding: 7px;
+  border: 1px solid var(--game-line);
+  background: var(--game-panel);
+  color: var(--game-paper);
+  font-size: 0.75rem;
+}
+.info-topics button[aria-pressed="true"],
+.tool-view-tabs button[aria-pressed="true"],
+.brief-tabs button[aria-pressed="true"] {
+  color: var(--game-bg);
+  background: var(--game-violet);
+  border-color: var(--game-violet);
+}
+.info-page {
+  display: grid;
+  align-content: center;
+  min-height: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--game-line);
+}
+.info-page p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.9;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.info-pagination {
+  justify-content: space-between;
+}
+.info-pagination span {
+  font:
+    600 0.8rem Consolas,
+    monospace;
+}
+.tool-outcome {
+  margin-top: 18px;
+}
+.game-console.is-viewport {
+  overflow: clip;
+}
+.is-viewport .game-inner {
+  width: 100%;
+  height: 100%;
+  max-width: 1600px;
+  display: grid;
+  grid-template-rows: 48px minmax(0, 1fr);
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+.is-viewport .game-toolbar {
+  position: static;
+  padding: 0;
+  min-height: 0;
+}
+.is-viewport .game-logo small {
+  display: none;
+}
+.is-viewport .toolbar-button {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.is-viewport .game-toolbar > div {
+  gap: 6px;
+}
+.is-viewport #gameplay {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 36px 26px minmax(0, 1fr) 124px;
+  gap: 8px;
+}
+.is-viewport .round-nav {
+  margin: 0;
+  min-height: 0;
+}
+.is-viewport .round-nav button {
+  padding: 4px 12px;
+  min-height: 0;
+  font-size: 13px;
+}
+.is-viewport .round-nav button span {
+  display: inline;
+  margin: 0 7px 0 0;
+  font-size: 10px;
+}
+.is-viewport .level-heading,
+.is-viewport .game-notes {
+  display: none;
+}
+.is-viewport .phase-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  min-height: 0;
+}
+.is-viewport .stages {
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  margin: 0;
+}
+.is-viewport .stages li {
+  font-size: 11px;
+  padding-bottom: 3px;
+  line-height: 1.4;
+}
+.is-viewport .auth-control {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.is-viewport .auth-control label {
+  font-size: 12px;
+  gap: 7px;
+}
+.is-viewport .auth-control p {
+  display: none;
+}
+.is-viewport .auth-control input {
+  width: 18px;
+  height: 18px;
+}
+.is-viewport .play-layout {
+  min-height: 0;
+  height: 100%;
+  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 1fr);
+  gap: 12px;
+}
+.is-viewport .scene-column {
+  display: grid;
+  grid-template-rows: minmax(110px, 1fr) 146px;
+  min-height: 0;
+  gap: 8px;
+}
+.is-viewport .scene {
+  display: grid;
+  grid-template-rows: 24px minmax(0, 1fr) 32px;
+  min-height: 0;
+}
+.is-viewport .scene-top {
+  padding: 2px 9px;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.is-viewport .network-scene {
+  min-height: 0;
+  padding: 8px 12px;
+}
+.is-viewport .actor-bubble {
+  min-height: 25px;
+  padding: 3px;
+  font-size: 10px;
+}
+.is-viewport .pixel-character {
+  width: 42px;
+  height: 56px;
+  margin: 3px auto;
+}
+.is-viewport .charlie-sprite {
+  width: 26px;
+  height: 35px;
+}
+.is-viewport .actor h3,
+.is-viewport .relay h3 {
+  font-size: 12px;
+}
+.is-viewport .actor h3 small,
+.is-viewport .actor > span:last-child,
+.is-viewport .relay p {
+  font-size: 9px;
+}
+.is-viewport .packet-sprite {
+  margin-bottom: 4px;
+  padding: 4px;
+}
+.is-viewport .packet-shape {
+  font-size: 18px;
+}
+.is-viewport .packet-sprite b {
+  font-size: 11px;
+}
+.is-viewport .packet-sprite small {
+  font-size: 9px;
+}
+.is-viewport .relay-machine {
+  max-width: 100px;
+  padding: 3px 6px;
+}
+.is-viewport .packet-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 9px;
+}
+.is-viewport .packet-card > span {
+  font-size: 10px;
+  margin: 0;
+}
+.is-viewport .packet-card strong {
+  font-size: 12px;
+}
+.is-viewport .packet-card details {
+  display: none;
+}
+.is-viewport .story-box {
+  min-height: 0;
+  margin: 0;
+  padding: 9px 12px;
+}
+.is-viewport .story-box > .box-label {
+  font-size: 10px;
+}
+.is-viewport .story-box h3 {
+  font-size: 15px;
+  margin: 1px 0 4px;
+  line-height: 1.45;
+}
+.is-viewport .story-box > p {
+  font-size: 13px;
+  line-height: 1.55;
+}
+.is-viewport .goal-line {
+  margin-top: 6px;
+  padding-top: 5px;
+}
+.is-viewport .goal-line b {
+  font-size: 10px;
+}
+.is-viewport .goal-line p {
+  font-size: 13px;
+  margin: 1px 0 0;
+  line-height: 1.5;
+}
+.is-viewport .text-detail {
+  min-height: 24px;
+  padding: 0;
+  font-size: 10px;
+}
+.is-viewport .command-column {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 32px 30px;
+  gap: 6px;
+  min-height: 0;
+}
+.is-viewport .command-box {
+  display: grid;
+  grid-template-rows: 36px repeat(4, minmax(44px, 1fr)) auto;
+  min-height: 0;
+}
+.is-viewport .command-heading {
+  padding: 6px 12px;
+}
+.is-viewport .command-heading h3 {
+  display: none;
+}
+.is-viewport .command-heading .box-label {
+  font-size: 12px;
+}
+.is-viewport .command {
+  min-height: 44px;
+  padding: 7px 10px;
+  gap: 10px;
+}
+.is-viewport .command strong {
+  font-size: 14px;
+  line-height: 1.35;
+}
+.is-viewport .command small {
+  font-size: 11px;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+.is-viewport .command-icon {
+  width: 27px;
+  height: 27px;
+  font-size: 18px;
+}
+.is-viewport .command i {
+  font-size: 16px;
+}
+.is-viewport .outgoing-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 5px 10px;
+  min-height: 30px;
+}
+.is-viewport .outgoing-card > span {
+  display: none;
+}
+.is-viewport .outgoing-card strong {
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+}
+.is-viewport .outgoing-card > button {
+  min-height: 24px;
+  font-size: 10px;
+  padding: 0 0 0 8px;
+}
+.is-viewport .mission-tracker {
+  padding: 0 3px;
+  font-size: 11px;
+  line-height: 1.3;
+  gap: 0 4px;
+  align-content: center;
+}
+.is-viewport .secret-card {
+  padding: 3px 9px;
+  justify-content: space-between;
+  gap: 4px;
+}
+.is-viewport .secret-card > span {
+  font-size: 10px;
+}
+.is-viewport .secret-card strong {
+  font-size: 14px;
+  line-height: 1.3;
+}
+.is-viewport .action-result {
+  position: relative;
+  min-height: 0;
+  margin: 0;
+  padding: 8px 88px 8px 12px;
+}
+.is-viewport .action-result > .box-label {
+  font-size: 10px;
+}
+.is-viewport .action-result h3 {
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 2px 0 4px;
+}
+.is-viewport .action-result > p {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.is-viewport .bob-result .received {
+  display: inline-block;
+  font-size: 15px;
+  line-height: 1.3;
+  margin: 3px 0 0;
+  padding: 0 0 0 8px;
+}
+.is-viewport .bob-result p:not(.received) {
+  display: none;
+}
+.is-viewport .result-actions {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+}
+.is-viewport #result-tools,
+.is-viewport #retry-result,
+.is-viewport #next-round {
+  display: none;
+}
+.is-viewport #result-details {
+  min-height: 42px;
+  padding: 7px;
+  font-size: 11px;
+  box-shadow: none;
+}
+/* A short window removes repeated helper text and gives the controls more room. */
+.is-viewport[data-density="compact"] .game-inner {
+  grid-template-rows: 44px minmax(0, 1fr);
+  gap: 6px;
+  padding: 0 12px 6px;
+}
+.is-viewport[data-density="compact"] #gameplay {
+  grid-template-rows: 30px 20px minmax(0, 1fr) 100px;
+  gap: 6px;
+}
+.is-viewport[data-density="compact"] .scene-column {
+  grid-template-rows: minmax(90px, 1fr) 124px;
+  gap: 6px;
+}
+.is-viewport[data-density="compact"] .actor-bubble,
+.is-viewport[data-density="compact"] .charlie-sprite,
+.is-viewport[data-density="compact"] .actor > span:last-child,
+.is-viewport[data-density="compact"] .relay p {
+  display: none;
+}
+.is-viewport[data-density="compact"] .network-scene {
+  padding: 4px 8px;
+}
+.is-viewport[data-density="compact"] .pixel-character {
+  width: 30px;
+  height: 40px;
+}
+.is-viewport[data-density="compact"] .packet-sprite {
+  padding: 2px;
+}
+.is-viewport[data-density="compact"] .packet-shape {
+  display: none;
+}
+.is-viewport[data-density="compact"] .command small {
+  display: none;
+}
+.is-viewport[data-density="compact"] .command-box {
+  grid-template-rows: 24px repeat(4, minmax(44px, 1fr)) auto;
+}
+.is-viewport[data-density="compact"] .command-column {
+  grid-template-rows: minmax(0, 1fr) 26px;
+}
+.is-viewport[data-density="compact"] .mission-tracker {
+  display: none;
+}
+.is-viewport[data-density="compact"] .command-heading {
+  padding: 2px 10px;
+}
+.is-viewport[data-density="compact"] .action-result > .box-label {
+  display: none;
+}
+.is-viewport[data-density="compact"] .action-result h3 {
+  font-size: 14px;
+}
+.is-viewport[data-density="compact"] .action-result > p {
+  font-size: 12px;
+}
+/* Portrait: overview, commands in a 2x2 pad, and outcome stay on the same screen. */
+.is-viewport[data-layout="narrow"] .game-logo {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .game-toolbar > div {
+  width: 100%;
+  justify-content: space-between;
+}
+.is-viewport[data-layout="narrow"] .toolbar-button {
+  padding: 5px 7px;
+  font-size: 11px;
+}
+.is-viewport[data-layout="narrow"] .round-nav button {
+  text-align: center;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+.is-viewport[data-layout="narrow"] .round-nav button span {
+  display: block;
+  font-size: 9px;
+  line-height: 1.25;
+  margin: 0;
+}
+.is-viewport[data-layout="narrow"] .phase-row {
+  gap: 4px;
+}
+.is-viewport[data-layout="narrow"]
+  .phase-row:has(.auth-control:not([hidden]))
+  .stages {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .auth-control {
+  margin: auto;
+}
+.is-viewport[data-layout="narrow"] .auth-control label {
+  font-size: 11px;
+}
+.is-viewport[data-layout="narrow"] .stages li {
+  font-size: 9px;
+}
+.is-viewport[data-layout="narrow"] .play-layout {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows:
+    minmax(68px, 0.8fr) minmax(106px, 1fr) minmax(140px, 1fr)
+    30px;
+  gap: 6px;
+}
+.is-viewport[data-layout="narrow"] .scene-column,
+.is-viewport[data-layout="narrow"] .command-column {
+  display: contents;
+}
+.is-viewport[data-layout="narrow"] .scene {
+  grid-column: 1/-1;
+  grid-row: 1;
+  grid-template-rows: 20px minmax(0, 1fr);
+}
+.is-viewport[data-layout="narrow"] .scene .packet-card {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .scene-top {
+  font-size: 9px;
+}
+.is-viewport[data-layout="narrow"] .network-scene {
+  grid-template-columns: 1fr 1.5fr 1fr;
+  padding: 3px 8px;
+  gap: 8px;
+  align-items: center;
+}
+.is-viewport[data-layout="narrow"] .actor-bubble,
+.is-viewport[data-layout="narrow"] .charlie-sprite,
+.is-viewport[data-layout="narrow"] .actor h3 small,
+.is-viewport[data-layout="narrow"] .actor > span:last-child,
+.is-viewport[data-layout="narrow"] .relay p {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .pixel-character {
+  width: 24px;
+  height: 32px;
+  margin: 0 auto;
+}
+.is-viewport[data-layout="narrow"] .actor h3,
+.is-viewport[data-layout="narrow"] .relay h3 {
+  font-size: 11px;
+}
+.is-viewport[data-layout="narrow"] .packet-sprite {
+  padding: 2px;
+  margin-bottom: 3px;
+}
+.is-viewport[data-layout="narrow"] .packet-shape {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .relay-machine {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .cable {
+  top: 49%;
+}
+.is-viewport[data-layout="narrow"] .story-box {
+  grid-column: 1/-1;
+  grid-row: 2;
+  padding: 6px 9px;
+}
+.is-viewport[data-layout="narrow"] .story-box h3 {
+  font-size: 14px;
+}
+.is-viewport[data-layout="narrow"] .story-box > p,
+.is-viewport[data-layout="narrow"] .goal-line p {
+  font-size: 12px;
+  line-height: 1.45;
+}
+.is-viewport[data-layout="narrow"] .story-box > .box-label {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .goal-line {
+  margin-top: 4px;
+  padding-top: 3px;
+}
+.is-viewport[data-layout="narrow"] .goal-line b {
+  font-size: 9px;
+}
+.is-viewport[data-layout="narrow"] .command-box {
+  grid-column: 1/-1;
+  grid-row: 3;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 18px minmax(44px, 1fr) minmax(44px, 1fr) 30px;
+}
+.is-viewport[data-layout="narrow"] .command-heading {
+  grid-column: 1/-1;
+  padding: 0 8px;
+}
+.is-viewport[data-layout="narrow"] .command-heading .box-label {
+  font-size: 10px;
+}
+.is-viewport[data-layout="narrow"] .command {
+  padding: 5px 7px;
+  gap: 6px;
+}
+.is-viewport[data-layout="narrow"] .command strong {
+  font-size: 12px;
+}
+.is-viewport[data-layout="narrow"] .command small,
+.is-viewport[data-layout="narrow"] .command i {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .command-icon {
+  width: 21px;
+  height: 21px;
+  font-size: 15px;
+}
+.is-viewport[data-layout="narrow"] .outgoing-card {
+  grid-column: 1/-1;
+  padding: 3px 8px;
+  min-height: 0;
+}
+.is-viewport[data-layout="narrow"] .outgoing-card strong {
+  font-size: 11px;
+}
+.is-viewport[data-layout="narrow"] .mission-tracker {
+  display: grid;
+  grid-row: 4;
+  grid-column: 1;
+  font-size: 9px;
+  padding: 0;
+}
+.is-viewport[data-layout="narrow"] .secret-card {
+  grid-row: 4;
+  grid-column: 2;
+  padding: 3px 6px;
+}
+.is-viewport[data-layout="narrow"] .secret-card > span {
+  font-size: 9px;
+}
+.is-viewport[data-layout="narrow"] .secret-card strong {
+  font-size: 12px;
+}
+.is-viewport[data-layout="narrow"] .action-result {
+  padding-left: 9px;
+  padding-right: 76px;
+}
+.is-viewport[data-layout="narrow"] .action-result h3 {
+  font-size: 14px;
+}
+.is-viewport[data-layout="narrow"] .action-result > p {
+  font-size: 12px;
+}
+.is-viewport[data-layout="narrow"] #result-details {
+  font-size: 10px;
+  padding: 6px;
+}
+.is-viewport[data-layout="narrow"][data-density="compact"] .play-layout {
+  grid-template-rows:
+    minmax(54px, 0.65fr) minmax(94px, 1fr) minmax(128px, 1fr)
+    28px;
+  gap: 4px;
+}
+.is-viewport[data-layout="narrow"][data-density="compact"] .story-box > p {
+  display: none;
+}
+/* Low landscape windows keep a two-column overview and use a 2x2 command pad. */
+.is-viewport[data-density="tiny"] .game-inner {
+  grid-template-rows: 44px minmax(0, 1fr);
+  gap: 4px;
+  padding: 0 8px 4px;
+}
+.is-viewport[data-density="tiny"] #gameplay {
+  grid-template-rows: 24px 16px minmax(0, 1fr) 68px;
+  gap: 4px;
+}
+.is-viewport[data-density="tiny"] .game-logo small,
+.is-viewport[data-density="tiny"] .game-logo i {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .game-logo {
+  font-size: 10px;
+}
+.is-viewport[data-density="tiny"] .toolbar-button {
+  padding: 4px 7px;
+  font-size: 10px;
+  min-height: 36px;
+}
+.is-viewport[data-density="tiny"] .round-nav button {
+  padding: 1px 5px;
+  font-size: 11px;
+}
+.is-viewport[data-density="tiny"] .round-nav button span {
+  font-size: 8px;
+}
+.is-viewport[data-density="tiny"] .stages li,
+.is-viewport[data-density="tiny"] .auth-control label {
+  font-size: 9px;
+}
+.is-viewport[data-density="tiny"] .play-layout {
+  gap: 6px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.is-viewport[data-density="tiny"] .scene-column {
+  grid-template-rows: minmax(50px, 1fr) 78px;
+  gap: 4px;
+}
+.is-viewport[data-density="tiny"] .scene {
+  grid-template-rows: 16px minmax(0, 1fr);
+}
+.is-viewport[data-density="tiny"] .packet-card {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .network-scene {
+  padding: 1px 5px;
+  gap: 4px;
+  align-items: center;
+}
+.is-viewport[data-density="tiny"] .actor-bubble,
+.is-viewport[data-density="tiny"] .charlie-sprite,
+.is-viewport[data-density="tiny"] .actor h3 small,
+.is-viewport[data-density="tiny"] .actor > span:last-child,
+.is-viewport[data-density="tiny"] .relay p,
+.is-viewport[data-density="tiny"] .packet-shape,
+.is-viewport[data-density="tiny"] .relay-machine {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .pixel-character {
+  width: 18px;
+  height: 24px;
+  margin: 0 auto;
+}
+.is-viewport[data-density="tiny"] .actor h3,
+.is-viewport[data-density="tiny"] .relay h3 {
+  font-size: 10px;
+}
+.is-viewport[data-density="tiny"] .packet-sprite {
+  padding: 1px;
+  margin: 0 0 2px;
+}
+.is-viewport[data-density="tiny"] .packet-sprite b {
+  font-size: 10px;
+}
+.is-viewport[data-density="tiny"] .packet-sprite small {
+  font-size: 8px;
+}
+.is-viewport[data-density="tiny"] .story-box {
+  padding: 4px 7px;
+}
+.is-viewport[data-density="tiny"] .story-box > .box-label,
+.is-viewport[data-density="tiny"] .story-box > p {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .story-box h3 {
+  font-size: 12px;
+  line-height: 1.3;
+  margin: 0 0 2px;
+}
+.is-viewport[data-density="tiny"] .goal-line {
+  margin-top: 2px;
+  padding-top: 2px;
+}
+.is-viewport[data-density="tiny"] .goal-line b {
+  font-size: 9px;
+}
+.is-viewport[data-density="tiny"] .goal-line p {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.is-viewport[data-density="tiny"] .command-column {
+  grid-template-rows: minmax(0, 1fr) 20px;
+  gap: 2px;
+}
+.is-viewport[data-density="tiny"] .command-box {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 14px minmax(44px, 1fr) minmax(44px, 1fr) 24px;
+}
+.is-viewport[data-density="tiny"] .command-heading {
+  grid-column: 1/-1;
+  padding: 0 6px;
+  line-height: 1;
+}
+.is-viewport[data-density="tiny"] .command-heading .box-label {
+  font-size: 9px;
+}
+.is-viewport[data-density="tiny"] .command {
+  padding: 3px 5px;
+  min-height: 44px;
+  gap: 4px;
+}
+.is-viewport[data-density="tiny"] .command strong {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.is-viewport[data-density="tiny"] .command small,
+.is-viewport[data-density="tiny"] .command i {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .command-icon {
+  width: 17px;
+  height: 17px;
+  font-size: 13px;
+}
+.is-viewport[data-density="tiny"] .outgoing-card {
+  grid-column: 1/-1;
+  padding: 1px 6px;
+  min-height: 0;
+}
+.is-viewport[data-density="tiny"] .outgoing-card strong {
+  font-size: 10px;
+}
+.is-viewport[data-density="tiny"] .outgoing-card > button {
+  font-size: 9px;
+  min-height: 20px;
+}
+.is-viewport[data-density="tiny"] .mission-tracker {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .secret-card {
+  padding: 0 5px;
+}
+.is-viewport[data-density="tiny"] .secret-card > span {
+  font-size: 9px;
+}
+.is-viewport[data-density="tiny"] .secret-card strong {
+  font-size: 11px;
+}
+.is-viewport[data-density="tiny"] .action-result {
+  padding: 4px 72px 4px 8px;
+}
+.is-viewport[data-density="tiny"] .action-result > .box-label {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .action-result h3 {
+  font-size: 12px;
+  line-height: 1.25;
+  margin: 0 0 2px;
+}
+.is-viewport[data-density="tiny"] .action-result > p {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.is-viewport[data-density="tiny"] .bob-result .received {
+  font-size: 12px;
+  line-height: 1.2;
+  margin: 1px 0 0;
+}
+.is-viewport[data-density="tiny"] #result-details {
+  font-size: 10px;
+  min-height: 36px;
+  padding: 4px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .play-layout {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 28px minmax(64px, 1fr) minmax(110px, 1.5fr) 22px;
+  gap: 3px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .scene {
+  grid-template-rows: 1fr;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .scene-top {
+  display: none;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .pixel-character {
+  display: none;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .packet-sprite small {
+  display: none;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .story-box {
+  grid-row: 2;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .command-box {
+  grid-row: 3;
+  grid-template-rows: 12px minmax(38px, 1fr) minmax(38px, 1fr) 22px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .command {
+  min-height: 38px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .mission-tracker {
+  display: grid;
+}
+/* The introduction is paged in expanded mode, so its start button never falls below the screen. */
+.is-viewport .briefing {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+  gap: 10px;
+  padding: 12px 4px 0;
+}
+.is-viewport .briefing > .pixel-label,
+.is-viewport .briefing-lead,
+.is-viewport .briefing-bottom > p {
+  display: none;
+}
+.is-viewport .briefing h2 {
+  font-size: clamp(18px, 2vw, 25px);
+  line-height: 1.4;
+}
+.is-viewport .brief-route {
+  width: min(650px, 100%);
+  padding: 10px 18px;
+  margin: 0 auto;
+}
+.is-viewport .brief-route b {
+  width: 28px;
+  height: 28px;
+  margin-bottom: 4px;
+  font-size: 18px;
+}
+.is-viewport .brief-tabs {
+  display: flex;
+  gap: 6px;
+}
+.is-viewport .briefing-columns {
+  display: block;
+  min-height: 0;
+}
+.is-viewport [data-brief-page]:not(.is-selected) {
+  display: none;
+}
+.is-viewport .briefing-columns > div {
+  padding: 12px;
+  border: 1px solid var(--game-line);
+}
+.is-viewport .briefing-columns h3 {
+  font-size: 16px;
+  margin: 6px 0;
+}
+.is-viewport .briefing-columns p {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.is-viewport .briefing-bottom {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  justify-content: flex-end;
+}
+.is-viewport .briefing-bottom button {
+  margin: 0;
+  min-height: 42px;
+}
+.is-viewport[data-density="tiny"] .briefing {
+  gap: 5px;
+  padding-top: 5px;
+}
+.is-viewport[data-density="tiny"] .briefing h2 {
+  font-size: 16px;
+}
+.is-viewport[data-density="tiny"] .briefing h2 em {
+  display: inline;
+}
+.is-viewport[data-density="tiny"] .brief-route {
+  display: none;
+}
+.is-viewport[data-density="tiny"] .briefing {
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+}
+.is-viewport[data-density="tiny"] .briefing-columns > div {
+  padding: 7px;
+}
+.is-viewport[data-density="tiny"] .briefing-columns h3 {
+  font-size: 13px;
+}
+.is-viewport[data-density="tiny"] .briefing-columns p {
+  font-size: 12px;
+  line-height: 1.5;
+}
+/* In expanded mode the tool form and its outcome are separate fixed-height views.
+   All owned objects remain available through the two selectors. */
+.is-viewport #tools-dialog[open] {
+  display: grid;
+  grid-template-rows: 44px 38px minmax(0, 1fr);
+  gap: 8px;
+  width: min(960px, calc(100% - 24px));
+  height: min(600px, calc(100dvh - 24px));
+  max-height: none;
+  padding: 12px;
+  overflow: clip;
+}
+.is-viewport .tools-header {
+  padding: 0 0 5px;
+}
+.is-viewport .tools-header .pixel-label {
+  display: none;
+}
+.is-viewport .tools-header h2 {
+  font-size: 17px;
+  margin: 0;
+}
+.is-viewport .tools-header .pixel-button {
+  min-height: 36px;
+  padding: 6px 9px;
+  font-size: 12px;
+  box-shadow: none;
+}
+.is-viewport .tools-lead,
+.is-viewport .inventory-panel,
+.is-viewport #workbench-title {
+  display: none;
+}
+.is-viewport .tool-view-tabs {
+  display: flex;
+  gap: 6px;
+}
+.is-viewport .tools-layout {
+  display: block;
+  min-height: 0;
+}
+.is-viewport .workbench {
+  height: 100%;
+  min-height: 0;
+}
+.is-viewport .tools-form {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 40px auto minmax(0, 1fr);
+  gap: 8px 12px;
+  align-content: start;
+}
+.is-viewport #tool-modes {
+  grid-column: 1/-1;
+}
+.is-viewport #tool-prompt,
+.is-viewport .selected-description,
+.is-viewport .data-details {
+  display: none;
+}
+.is-viewport #data-field {
+  grid-row: 2;
+  grid-column: 1;
+}
+.is-viewport #key-field {
+  grid-row: 2;
+  grid-column: 2;
+}
+.is-viewport .workbench label {
+  font-size: 12px;
+  margin: 0 0 5px;
+}
+.is-viewport .workbench select {
+  min-height: 42px;
+  font-size: 12px;
+  padding: 7px;
+}
+.is-viewport [data-tool-panel] {
+  grid-column: 1/-1;
+  min-height: 0;
+}
+.is-viewport [data-tool-panel] > .pixel-button {
+  margin-top: 0;
+  min-height: 42px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.is-viewport #tools-dialog[data-mode="message"] #key-field {
+  grid-column: 1/-1;
+}
+.is-viewport [data-tool-panel="message"]:not([hidden]) {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  grid-template-rows: 20px minmax(48px, 1fr) 42px;
+  gap: 6px 12px;
+}
+.is-viewport [data-tool-panel="message"] > label {
+  grid-column: 1;
+  grid-row: 1;
+}
+.is-viewport #draft {
+  grid-column: 1;
+  grid-row: 2;
+  min-height: 0;
+  height: 100%;
+  resize: none;
+  font-size: 15px;
+  padding: 7px;
+}
+.is-viewport #signature-controls {
+  grid-column: 2;
+  grid-row: 1/3;
+}
+.is-viewport #signature-info {
+  display: none;
+}
+.is-viewport #encrypt {
+  grid-column: 1/-1;
+  grid-row: 3;
+}
+.is-viewport #tools-dialog[data-round="0"] #draft,
+.is-viewport #tools-dialog[data-round="1"] #draft {
+  grid-column: 1/-1;
+}
+.is-viewport [data-tool-panel="replace"] > .small-note {
+  font-size: 11px;
+  margin-top: 8px;
+}
+.is-viewport .advanced {
+  display: contents;
+}
+.is-viewport .advanced > summary,
+.is-viewport .advanced > p {
+  display: none;
+}
+.is-viewport .advanced > button {
+  margin-top: 8px;
+  min-height: 38px;
+  font-size: 11px;
+}
+.is-viewport #tools-dialog[data-view="form"] .tool-outcome,
+.is-viewport #tools-dialog[data-view="result"] .tools-form {
+  display: none;
+}
+.is-viewport .tool-outcome {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 10px;
+}
+.is-viewport #tool-feedback {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.is-viewport .tool-outcome .decryption,
+.is-viewport .tool-outcome .created-card {
+  min-height: 0;
+  margin: 0;
+  padding: 12px;
+}
+.is-viewport .decryption p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.is-viewport .decryption button,
+.is-viewport .created-card button {
+  min-height: 40px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+.is-viewport #tools-dialog:not([data-last-tool="decrypt"]) .decryption,
+.is-viewport #tools-dialog[data-last-tool="decrypt"] .created-card {
+  display: none;
+}
+.is-viewport #back-tool-form {
+  display: block;
+  min-height: 38px;
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.is-viewport .info-dialog[open] {
+  width: min(820px, calc(100% - 24px));
+  height: min(520px, calc(100dvh - 24px));
+  max-height: none;
+  padding: 12px;
+  grid-template-rows: 40px 36px minmax(0, 1fr) 40px;
+  gap: 8px;
+}
+.is-viewport .info-page p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.is-viewport .info-pagination .pixel-button {
+  min-height: 36px;
+  padding: 5px 12px;
+  font-size: 12px;
+}
+@media (max-height: 440px) {
+  .is-viewport #tools-dialog[open] {
+    grid-template-rows: 36px 32px minmax(0, 1fr);
+    gap: 5px;
+    padding: 8px;
+    height: calc(100dvh - 12px);
+  }
+  .is-viewport .tools-header h2 {
+    font-size: 14px;
+  }
+  .is-viewport .tools-header .pixel-button {
+    min-height: 30px;
+    font-size: 11px;
+  }
+  .is-viewport .tool-view-tabs button {
+    min-height: 30px;
+    font-size: 11px;
+    padding: 4px;
+  }
+  .is-viewport .tools-form {
+    grid-template-rows: 32px auto minmax(0, 1fr);
+    gap: 5px 10px;
+  }
+  .is-viewport .tool-modes button {
+    min-height: 32px;
+    font-size: 11px;
+    padding: 4px;
+  }
+  .is-viewport .workbench label {
+    font-size: 11px;
+    margin-bottom: 2px;
+  }
+  .is-viewport .workbench select {
+    min-height: 34px;
+    padding: 4px;
+    font-size: 11px;
+  }
+  .is-viewport [data-tool-panel] > .pixel-button {
+    min-height: 34px;
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  .is-viewport [data-tool-panel="message"]:not([hidden]) {
+    grid-template-rows: 16px minmax(32px, 1fr) 34px;
+    gap: 3px 8px;
+  }
+  .is-viewport #draft {
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 4px;
+  }
+  .is-viewport #tool-feedback {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .is-viewport .tool-outcome {
+    gap: 5px;
+  }
+  .is-viewport .tool-outcome .decryption,
+  .is-viewport .tool-outcome .created-card {
+    padding: 7px;
+  }
+  .is-viewport .decryption p {
+    font-size: 13px;
+  }
+  .is-viewport .created-card strong {
+    font-size: 12px;
+    margin: 3px 0 5px;
+  }
+  .is-viewport #back-tool-form {
+    min-height: 30px;
+    padding: 3px;
+  }
+  .is-viewport .info-dialog[open] {
+    grid-template-rows: 36px 30px minmax(0, 1fr) 34px;
+    gap: 5px;
+    height: calc(100dvh - 12px);
+    padding: 8px;
+  }
+  .is-viewport .info-page {
+    padding: 5px 8px;
+  }
+  .is-viewport .info-page p {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .is-viewport .info-topics button,
+  .is-viewport .info-pagination .pixel-button {
+    min-height: 30px;
+    font-size: 11px;
+    padding: 4px;
+  }
+}
+.is-viewport .tool-outcome > #tool-feedback {
+  grid-row: 1;
+}
+.is-viewport .tool-outcome > .decryption,
+.is-viewport .tool-outcome > .created-card {
+  grid-row: 2;
+}
+.is-viewport .tool-outcome > #back-tool-form {
+  grid-row: 3;
+}
+.is-viewport #tools-dialog[data-failed="true"] .decryption {
+  display: none;
+}
+.decrypt-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 6px 0;
+}
+.decrypt-pagination button {
+  min-height: 32px;
+  min-width: 40px;
+  border: 1px solid var(--game-line);
+  color: var(--game-paper);
+  background: var(--game-panel);
+  padding: 4px;
+}
+.decrypt-pagination span {
+  font-size: 11px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .play-layout {
+  grid-template-rows: 26px minmax(60px, 1fr) minmax(106px, 1.5fr) 20px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .command-box {
+  grid-template-rows: 10px minmax(36px, 1fr) minmax(36px, 1fr) 20px;
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .command {
+  min-height: 36px;
+}
+/* Let wrapped Japanese text determine the overview's explanation height. */
+.is-viewport[data-layout="wide"]:not([data-density="tiny"]) .scene-column {
+  grid-template-rows: minmax(90px, 1fr) auto;
+}
+.is-viewport[data-density="compact"] .story-box > p,
+.is-viewport[data-layout="narrow"] .story-box > p {
+  display: none;
+}
+.is-viewport[data-layout="wide"][data-density="tiny"] .scene-column {
+  grid-template-rows: minmax(50px, 1fr) 84px;
+}
+.is-viewport[data-layout="wide"][data-density="tiny"] .command-box {
+  grid-template-rows: 12px minmax(44px, 1fr) minmax(44px, 1fr) 22px;
+}
+@media (max-height: 440px) {
+  .is-viewport .decryption h4 {
+    display: none;
+  }
+  .is-viewport .decryption button,
+  .is-viewport .created-card button {
+    min-height: 30px;
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-top: 5px;
+  }
+}

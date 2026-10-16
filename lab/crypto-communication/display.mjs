@@ -1,3 +1,4 @@
+import { screenLayout } from "./screen-layout.mjs";
 // Native fullscreen where available; an in-page expansion also works on phones
 // and embedded pages that do not support element fullscreen.
 export function createDisplayController({
@@ -5,6 +6,7 @@ export function createDisplayController({
   target,
   button,
   announce,
+  onChange = () => {},
 }) {
   const body = document.body;
   let fallback = false;
@@ -14,6 +16,18 @@ export function createDisplayController({
     button.setAttribute("aria-pressed", String(active));
     button.textContent = active ? "↙ 全画面を終了" : "⛶ 全画面表示";
     body.classList.toggle("game-screen-lock", active);
+    target.classList.toggle("is-viewport", active);
+    if (active) {
+      Object.assign(
+        target.dataset,
+        screenLayout(
+          target.clientWidth || document.defaultView.innerWidth,
+          target.clientHeight || document.defaultView.innerHeight,
+        ),
+      );
+      target.scrollTop = 0;
+    }
+    onChange(active);
   }
   function leaveFallback() {
     fallback = false;
@@ -89,6 +103,13 @@ export function createDisplayController({
       first?.focus();
     }
   });
+  const resize = () => {
+    if (expanded()) refresh();
+  };
+  document.defaultView.addEventListener("resize", resize);
+  document.defaultView.visualViewport?.addEventListener("resize", resize);
+  if (document.defaultView.ResizeObserver)
+    new document.defaultView.ResizeObserver(resize).observe(target);
   button.addEventListener("click", toggle);
   refresh();
   return { toggle, expanded };
