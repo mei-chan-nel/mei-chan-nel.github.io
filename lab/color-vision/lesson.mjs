@@ -1,24 +1,26 @@
 export const SIZE = {width: 1100, height: 1010};
 export const REGIONS = {
-  notice: {label: 'お知らせ', box: [28, 179, 1044, 66]},
+  notice: {label: 'お知らせの文字', box: [40, 184, 560, 54]},
   status: {label: '状態表示', box: [28, 246, 336, 85]},
   warning: {label: '注意パネル', box: [740, 88, 310, 58]},
   map: {label: '会場案内図', box: [28, 346, 600, 330]},
+  venues: {label: '建物の見分け', box: [60, 420, 508, 146]},
   timetable: {label: 'タイムテーブル', box: [646, 692, 426, 271]},
   chart: {label: '混雑予想グラフ', box: [28, 692, 600, 271]},
   panels: {label: '案内パネル', box: [646, 346, 426, 330]},
 };
-export const COLORS = {red:'#c66f4a', green:'#758b4b', blue:'#0072b2', orange:'#e69f00', purple:'#6b3e75', chartOrange:'#a66b00', mapBlue:'#3798c3', mapGreen:'#45a58e', ink:'#203b40', soft:'#52686d'};
+export const COLORS = {red:'#c66f4a', green:'#758b4b', blue:'#0072b2', orange:'#e69f00', purple:'#8053a5', chartOrange:'#a66b00', chartBeforeBlue:'#3798c3', chartBeforeGreen:'#45a58e', ink:'#203b40', soft:'#52686d'};
+export const ROUTE_COLORS = {open:'#3a804d', closed:'#c74444'};
 // Venue colors link the spatial map and event timetable, not visitor information.
 export const VENUES = [
-  {name:'体育館', category:'ステージ', color:COLORS.blue, foreground:'#ffffff'},
-  {name:'中庭', category:'模擬店', color:COLORS.orange, foreground:COLORS.ink},
-  {name:'校舎', category:'展示', color:COLORS.purple, foreground:'#ffffff'},
+  {name:'体育館', category:'ステージ', color:'#356fb0', pattern:'stripe'},
+  {name:'中庭', category:'模擬店', color:COLORS.purple, pattern:'dots'},
+  {name:'校舎', category:'展示', color:'#aaa89f', pattern:'grid'},
 ];
 export const PANELS = [
-  {name:'入場', detail:'入場は無料です', color:'#58bceb'},
+  {name:'入場', detail:'入場は無料です', color:'#ffdf36'},
   {name:'飲食', detail:'食券は正門受付で', color:'#ffdf36'},
-  {name:'落とし物', detail:'校舎1階の本部へ', color:'#e1a0d4'},
+  {name:'落とし物', detail:'校舎1階の本部へ', color:'#ffdf36'},
 ];
 export const IMPROVEMENTS = [
   {name:'状態表示', title:'状態と凡例を文字・記号でそろえる', region:'status',
@@ -31,15 +33,15 @@ export const IMPROVEMENTS = [
     tip:'凡例の○・■と、各受付欄の○・■が一致することを確認しよう。'},
   {name:'パネルの文字', title:'明るい背景には、濃い文字を', region:'panels',
     question:'同じ背景のまま、白文字を濃い文字にすると？',
-    observation:'右の「ご来場のヒント」は、明るい水色・黄色・ピンクに白文字です。特に黄色の行は1.32:1。通常とP・D・T列で読みにくさを確認しましょう。',
-    change:'3行すべての文字・区切り線・矢印を、白から同じ濃い色へ変更。背景色・情報・配置は変えません。',
-    benefit:'黄色の行は1.32:1から9.01:1へ。水色は2.14→5.57:1、ピンクは2.06→5.78:1になり、3行とも文字色がそろいます。',
-    remaining:'パネルの背景色の区別が改善したわけではありません。情報は「入場」「飲食」「落とし物」の文字からも読み取ります。お知らせ・注意・地図などは未改善です。',
+    observation:'右の「ご来場のヒント」は、3行とも同じ明るい黄色に白文字です。文字と背景は1.32:1。通常とP・D・T列で読みにくさを確認しましょう。',
+    change:'3行すべての文字と区切り線を、白から同じ濃い色へ変更。背景色・情報・配置は変えません。',
+    benefit:'全行の文字と背景の比率が1.32:1から9.01:1へ上がります。同じ種類の案内として、背景色も文字色も統一しています。',
+    remaining:'案内の項目は「入場」「飲食」「落とし物」の見出しで区別します。お知らせ・注意パネル・地図などの課題は残っています。',
     sideEffect:'白文字の印象は変わります。この例では全行を濃い文字にそろえ、明るい背景を保ちながら読みやすさを確保します。',
     tip:'背景色を変えないので、色の区別と文字の読みやすさを混同せずに比較できます。', evidence:'panelsText'},
   {name:'お知らせ', title:'大切なお知らせを伝える', region:'notice',
     question:'淡い文字だけで、変更の重要さが伝わる？',
-    observation:'黄色いお知らせ帯を拡大します。開演時刻が変わったことを、すぐに見つけられますか。',
+    observation:'横長の帯全体ではなく、文字の入った左側だけを拡大します。開演時刻が変わったことを、すぐに見つけられますか。',
     change:'お知らせ帯の文字を濃くし、見出しに「重要」を加えます。',
     benefit:'文字と背景の比率が2.14:1から7.87:1へ上がります。「重要」の文字でも意味を伝えます。',
     remaining:'注意パネルの赤系文字と緑系背景、地図の通行情報、時刻表・グラフの色依存は未改善です。',
@@ -55,23 +57,31 @@ export const IMPROVEMENTS = [
     tip:'赤と緑が常に不適切なのではありません。実際の色の明暗差と、シミュレーションでの見え方を確かめよう。', evidence:'warning'},
   {name:'会場案内図', title:'通れる道を、色以外でも示す', region:'map',
     question:'正門から展示へ、通行止めを避けて行ける？',
-    observation:'L字型の校舎、体育館、中庭、正門の位置を見てから、2色の道と凡例を比べましょう。T列では通行可の青と通行止めの緑が近づきます。',
-    change:'建物や会場色はそのまま。通行止めの道に×・破線・文字と斜線の区画を加え、通れる道には進行方向の矢印を付けます。凡例も同じ記号にそろえます。',
+    observation:'通行可は緑、通行止めは赤という、よくある色分けです。P・D列で2色の道と凡例を比べ、正門から校舎への道をたどってみましょう。',
+    change:'通行可の緑と通行止めの赤は維持。通行止めに×・破線・文字・斜線区画を加え、通れる道には矢印を付けます。凡例も同じ記号にそろえます。',
     benefit:'通れない区間と迂回する方向を、色の違いだけに頼らず確認できます。×で通行止めを見つけ、矢印を使って校舎までの道をたどれます。',
-    remaining:'時刻表は会場を色帯だけで示し、グラフは系列を赤と緑の実線だけで区別しています。',
+    remaining:'体育館と中庭の青・紫は、P・D列で近づきます。時刻表の会場表示と、グラフの青・緑の区別も未改善です。',
     sideEffect:'記号で地図が混み合います。通行止めの文字は道の脇に置き、建物名や通れる道を隠さないようにしています。',
-    tip:'青・緑が似て見えても、正門→右回り→校舎1階の経路をたどれるか確かめよう。'},
+    tip:'赤・緑が似て見えても、正門→右回り→校舎1階の経路をたどれるか確かめよう。'},
+  {name:'建物の見分け', title:'青と紫の建物を、模様でも区別する', region:'venues',
+    question:'赤と緑以外なら、いつでも区別しやすい？',
+    observation:'体育館は青、中庭は紫、校舎は灰色です。この青と紫はP・D列で近づきます。建物名の位置を確かめ、通常の列とも比べましょう。',
+    change:'体育館に斜線、中庭に点、校舎に格子の模様を追加。建物の位置・色・名前は変えず、名札の白地も保ちます。',
+    benefit:'青と紫が似て見えても、斜線／点／格子と会場名を手掛かりに建物を区別できます。配色を維持する場合にも使える方法です。',
+    remaining:'時刻表は会場を小さな色帯だけで示しています。次に会場名を直接表示し、地図と照合しやすくします。',
+    sideEffect:'模様が増えると地図が混み合います。模様は建物の内側に収め、白い名札と通行経路を隠さないようにしています。',
+    tip:'建物の色は時刻表の色帯と全工程で一致します。色だけでなく、模様と会場名でも確認しよう。'},
   {name:'タイムテーブル', title:'イベントの会場を、文字で示す', region:'timetable',
     question:'どのイベントが、どこで行われる？',
     observation:'色帯だけで会場を判断するには、地図との照合が必要です。特に小さな色帯から、会場を確かめられますか。',
     change:'各行に体育館／中庭／校舎の会場名を追加。もとの色帯と、時刻・催し名は変えません。',
     benefit:'会場を文字で直接確認でき、地図で同じ会場名を探せます。色だけを覚えて照合する負担が減ります。',
-    remaining:'混雑予想グラフでは、ステージと模擬店を赤と緑の実線だけで区別しています。',
+    remaining:'混雑予想グラフでは、ステージと模擬店を青と緑の実線だけで区別しています。T列にも注目しましょう。',
     sideEffect:'行の文字数が増えます。この例では会場名を独立した列に置き、時刻・催し名と重ならないようにしています。',
     tip:'時刻表で行きたい催しの会場を調べ、地図で場所と通れる道を確かめよう。'},
   {name:'グラフ', title:'凡例を残し、線と直接ラベルを読みやすくする', region:'chart',
-    question:'P・D列でも、どちらの線か迷わず追える？',
-    observation:'2本の線が近づく14時付近を、P・D列でも追ってみましょう。上の凡例だけで、どちらの線か確認できますか。',
+    question:'T列でも、どちらの線か迷わず追える？',
+    observation:'元のグラフは青と緑の実線です。この組み合わせはT列で近づきます。14時付近をたどり、凡例だけでどちらの線か確認できるか考えましょう。',
     change:'凡例を保ったまま青・濃いオレンジに変更。実線／破線、丸／四角を加え、右端に重ならない直接ラベルと引き出し線を置きます。',
     benefit:'凡例と線の手掛かりが一致し、右端の名前からも系列を確認できます。模擬店の線は白背景に4.44:1を確保します。',
     remaining:'実際の利用者の見え方や、小さい画面での文字サイズ・線の太さは引き続き確認が必要です。',
@@ -82,7 +92,7 @@ const initial = {title:'まず、ページ全体を見る', short:'初期状態'
   version:'はじめのデザイン', regions:[], question:'色だけで伝えている情報は、どこだろう？',
   change:'まだ変更していません。通常・P・D・T型の4枚は、すべて同じ初期デザインを元にしています。',
   benefit:'まだデザインは改善していません。左側の3つの操作で、1箇所の改善とページ全体への効果を確かめます。',
-  remaining:'状態表示、案内パネル、お知らせ、注意パネル、地図、時刻表、グラフを順番に扱います。',
+  remaining:'状態表示、案内パネル、お知らせ、注意、地図の通行情報、建物、時刻表、グラフを順番に扱います。',
   sideEffect:'変更はありません。各回の3つの操作には、いつでも自由に戻れます。',
   tip:'まずは「1 状態表示」の「拡大して観察」から始めよう。画像をクリックすると、1枚ずつ大きく表示できます。'};
 export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
@@ -105,10 +115,10 @@ export const STEPS = [initial, ...IMPROVEMENTS.flatMap((item,index)=>[
   sideEffect:'この例では新しい重なりは見られません。追加した手掛かりが、情報を探す負担になっていないかも確かめましょう。',
   tip:'「0 ページ全体」と切り替えて、最初のデザインとの違いを見つけよう。各工程にはいつでも戻れます。'}];
 export const CONTRAST_EXAMPLES = {
-  panelsText:{title:'黄色の飲食案内：文字と背景', before:['#ffffff',PANELS[1].color], after:[COLORS.ink,PANELS[1].color], kind:'text'},
+  panelsText:{title:'来場案内の全行：文字と背景', before:['#ffffff',PANELS[1].color], after:[COLORS.ink,PANELS[1].color], kind:'text'},
   notice:{title:'お知らせ：文字と背景', before:['#c5a55b','#fff3d6'], after:['#654519','#fff3d6'], kind:'text'},
   warning:{title:'注意パネル：文字と背景', before:[COLORS.red,COLORS.green], after:['#8a2931','#fff1ed'], kind:'text'},
-  chart:{title:'模擬店：グラフの線と背景', before:[COLORS.green,'#ffffff'], after:[COLORS.chartOrange,'#ffffff'], kind:'graphic'},
+  chart:{title:'模擬店：グラフの線と背景', before:[COLORS.chartBeforeGreen,'#ffffff'], after:[COLORS.chartOrange,'#ffffff'], kind:'graphic'},
 };
 
 // An original, fictional festival page, rasterized once before all simulations.
@@ -120,8 +130,8 @@ export function drawLesson(state) {
   const done=region=>state>=IMPROVEMENTS.findIndex(item=>item.region===region)+1;
   const statusDone=done('status'), panelsReadable=done('panels');
   const noticeDone=done('notice'), warningDone=done('warning'), mapDone=done('map'), timetableDone=done('timetable');
-  const chartCues=done('chart');
-  const series=chartCues?[COLORS.blue,COLORS.chartOrange]:[COLORS.red,COLORS.green];
+  const venuesDone=done('venues'), chartCues=done('chart');
+  const series=chartCues?[COLORS.blue,COLORS.chartOrange]:[COLORS.chartBeforeBlue,COLORS.chartBeforeGreen];
   const statusColors=statusDone?[COLORS.blue,COLORS.chartOrange]:[COLORS.green,COLORS.red];
   const text = (s,x,y,size=18,color=ink,weight=400) => {c.fillStyle=color;c.font=`${weight} ${size}px "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif`;c.fillText(s,x,y);};
   const rect = (x,y,w,h,color,r=0) => {c.fillStyle=color;c.beginPath();c.roundRect(x,y,w,h,r);c.fill();};
@@ -159,14 +169,29 @@ export function drawLesson(state) {
   card(736,258,336,73);text('ご来場の方へ',753,284,17,ink,600);text('入場無料・受付は正門',753,315,17,ink);
   card(28,346,600,330);text('CAMPUS MAP',48,374,12,soft,700);text('会場案内図',48,400,21,ink,700);
   rect(48,412,560,235,'#f4f5f0',6);
-  // A spatial campus plan: an L-shaped school building, a gym, courtyard and gate.
-  rect(66,428,155,82,VENUES[0].color,3);
-  text('体育館',111,462,20,VENUES[0].foreground,700);text('ステージ',111,486,13,VENUES[0].foreground);
+  // All venue colors stay in sync with the timetable throughout the lesson.
+  const pattern=(venue,box)=>{
+    if(!venuesDone)return;
+    c.save();c.clip();
+    const [x,y,w,h]=box;
+    if(venue.pattern==='stripe')for(let k=x-h;k<x+w;k+=13)stroke(k,y,k+h,y+h,'#ffffff',2.5);
+    if(venue.pattern==='dots')for(let xx=x+6;xx<x+w;xx+=11)for(let yy=y+6;yy<y+h;yy+=11)circle(xx,yy,2,'#ffffff');
+    if(venue.pattern==='grid'){
+      for(let xx=x;xx<x+w;xx+=13)stroke(xx,y,xx,y+h,ink,1.5);
+      for(let yy=y;yy<y+h;yy+=13)stroke(x,yy,x+w,yy,ink,1.5);
+    }
+    c.restore();
+  };
+  rect(66,428,155,82,VENUES[0].color,3);pattern(VENUES[0],[66,428,155,82]);
+  rect(99,438,88,60,'#ffffff',4);
+  text('体育館',111,462,20,ink,700);text('ステージ',111,486,13,ink);
   c.fillStyle=VENUES[2].color;c.beginPath();
-  [[326,426],[559,426],[559,556],[509,556],[509,482],[326,482]].forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill();
-  text('校舎 1階',374,450,20,VENUES[2].foreground,700);text('展示・本部',374,472,13,VENUES[2].foreground);
-  stroke(523,493,545,493,'#ffffff88',1);stroke(523,515,545,515,'#ffffff88',1);stroke(523,537,545,537,'#ffffff88',1);
-  rect(326,503,112,57,VENUES[1].color,3);text('中庭',360,528,19,VENUES[1].foreground,700);text('模擬店',362,549,13,VENUES[1].foreground);
+  [[326,426],[559,426],[559,556],[509,556],[509,482],[326,482]].forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y));c.closePath();c.fill();pattern(VENUES[2],[326,426,233,130]);
+  rect(360,431,120,46,'#ffffff',4);
+  text('校舎 1階',374,450,20,ink,700);text('展示・本部',374,472,13,ink);
+  rect(326,503,112,57,VENUES[1].color,3);pattern(VENUES[1],[326,503,112,57]);
+  rect(350,508,76,46,'#ffffff',4);
+  text('中庭',360,528,19,ink,700);text('模擬店',362,549,13,ink);
   for(const [x,y] of [[80,614],[108,629],[569,615]]){circle(x,y,10,'#bfcbbd');stroke(x,y+4,x,y+13,soft,2);}
   text('N',578,440,12,ink,700);stroke(583,465,583,449,ink,2);stroke(583,449,579,455,ink,2);stroke(583,449,587,455,ink,2);
   rect(558,570,34,28,'#ffffff',3);text('WC',562,589,13,ink,700);
@@ -179,10 +204,10 @@ export function drawLesson(state) {
     for(let k=200;k<310;k+=10)stroke(k,513,k+44,557,'#93a7a0',2);
     c.restore();
   }
-  for(const points of openRoutes)route(points,COLORS.mapBlue);
-  route(closedRoute,COLORS.mapGreen,7,mapDone?[5,5]:[]);
-  const cross=(x,y)=>{stroke(x-5,y-5,x+5,y+5,ink,3);stroke(x-5,y+5,x+5,y-5,ink,3);};
-  const arrow=(x,y,up=false)=>{stroke(x+(up?-5:-7),y+(up?7:-5),x,y,ink,2);stroke(x+(up?5:-7),y+(up?7:5),x,y,ink,2);};
+  for(const points of openRoutes)route(points,ROUTE_COLORS.open);
+  route(closedRoute,ROUTE_COLORS.closed,7,mapDone?[5,5]:[]);
+  const cross=(x,y)=>{circle(x,y,7,'#ffffff');stroke(x-5,y-5,x+5,y+5,ink,3);stroke(x-5,y+5,x+5,y-5,ink,3);};
+  const arrow=(x,y,up=false)=>{circle(x-2,y+2,7,'#ffffff');stroke(x+(up?-5:-7),y+(up?7:-5),x,y,ink,2);stroke(x+(up?5:-7),y+(up?7:5),x,y,ink,2);};
   if(mapDone){
     cross(270,527);cross(270,551);
     rect(193,535,66,23,'#ffffff',3);text('通行止め',198,551,13,ink,700);
@@ -195,7 +220,7 @@ export function drawLesson(state) {
     if(mapDone){if(closed)cross(x+15,660);else arrow(x+22,660);}
     text(label,x+40,665,13,ink,600);
   };
-  mapLegend(66,COLORS.mapBlue,false,'通行可');mapLegend(274,COLORS.mapGreen,true,'通行止め');
+  mapLegend(66,ROUTE_COLORS.open,false,'通行可');mapLegend(274,ROUTE_COLORS.closed,true,'通行止め');
   card(646,692,426,271);text('PROGRAM',666,720,12,soft,700);text('タイムテーブル',666,746,21,ink,700);
   const events=[['10:30','吹奏楽ライブ',0],['11:00','焼きそば販売',1],['12:00','科学の実験室',2],['13:30','ダンス公演',0]];
   events.forEach(([time,name,cat],i)=>{
@@ -220,14 +245,13 @@ export function drawLesson(state) {
   }
   text('※ 予想値です。実際の混雑状況とは異なります。',48,953,12,soft);
   card(646,346,426,330);text('VISITOR INFO',666,374,12,soft,700);text('ご来場のヒント',666,400,21,ink,700);
-  text('会場の場所は、左の案内図へ。',666,430,15,soft);
+  text('ご来場前にご確認ください。',666,430,15,soft);
   PANELS.forEach((panel,i)=>{
     const y=450+i*69,foreground=panelsReadable?ink:'#ffffff';
     rect(666,y,386,57,panel.color,8);
     text(panel.name,680,y+35,17,foreground,600);
     stroke(769,y+12,769,y+44,foreground,1);
     text(panel.detail,785,y+35,17,foreground,600);
-    text('→',1020,y+36,23,foreground);
   });
   text('AOBA FESTIVAL 2026  ｜  このページは学習用の架空の案内です。',29,994,13,soft);
   return canvas;

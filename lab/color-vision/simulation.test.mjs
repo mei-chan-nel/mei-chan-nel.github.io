@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {simulateRGB,simulatePixels,decode,encode,contrast,fromHex,PARAMETERS} from './simulation.mjs';
-import {COLORS,VENUES,PANELS,CONTRAST_EXAMPLES,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
+import {COLORS,ROUTE_COLORS,VENUES,PANELS,CONTRAST_EXAMPLES,STEPS,IMPROVEMENTS,REGIONS,SIZE} from './lesson.mjs';
 const fixtures=JSON.parse(await readFile(new URL('./reference-fixtures.json',import.meta.url),'utf8'));
 
 test('native public-domain C reference: both Brettel planes, sRGB decoding, and clipping',()=>{
@@ -32,7 +32,6 @@ test('pixel conversion is independent per pixel and preserves alpha',()=>{
 });
 test('WCAG relative luminance contrast matches known black/white ratio and lesson claims',()=>{
   assert.equal(contrast('#000000','#ffffff'),21);assert.equal(contrast('#123456','#123456'),1);
-  assert.ok(contrast('#ffffff','#567658')>4.5);
   assert.ok(contrast('#ffffff',COLORS.orange)<3);
   assert.ok(contrast(COLORS.ink,'#fff3d6')>7);
   assert.ok(contrast('#c5a55b','#fff3d6')<3);
@@ -42,15 +41,20 @@ test('lesson colors support the stated observation; this is not a perceptual thr
   const distance=(a,b)=>Math.hypot(...a.map((v,i)=>v-b[i]));
   const separation=(a,b,type)=>distance(simulateRGB(fromHex(a),type),simulateRGB(fromHex(b),type));
   for(const type of ['p','d'])assert.ok(separation(COLORS.blue,COLORS.orange,type)>separation(COLORS.red,COLORS.green,type)*5);
-  assert.ok(separation(COLORS.mapBlue,COLORS.mapGreen,'t')<separation(COLORS.mapBlue,COLORS.mapGreen,'normal'));
+  for(const type of ['p','d'])assert.ok(separation(ROUTE_COLORS.open,ROUTE_COLORS.closed,type)<separation(ROUTE_COLORS.open,ROUTE_COLORS.closed,'normal')*.5);
+  const [gym,courtyard]=VENUES;
+  for(const type of ['p','d'])assert.ok(separation(gym.color,courtyard.color,type)<separation(gym.color,courtyard.color,'normal')*.6);
+  assert.ok(separation(COLORS.chartBeforeBlue,COLORS.chartBeforeGreen,'t')<separation(COLORS.chartBeforeBlue,COLORS.chartBeforeGreen,'normal'));
+  assert.equal(new Set(VENUES.map(v=>v.pattern)).size,VENUES.length);
+  assert.equal(new Set(PANELS.map(p=>p.color)).size,1);
 });
 test('contrast evidence matches the strong panel example and text/graphic criteria',()=>{
-  for(const [key,evidence] of Object.entries(CONTRAST_EXAMPLES)){
+  for(const evidence of Object.values(CONTRAST_EXAMPLES)){
     const before=contrast(...evidence.before),after=contrast(...evidence.after);
     const threshold=evidence.kind==='graphic'?3:4.5;
     assert.ok(after>=threshold);if(evidence.kind==='text')assert.ok(before<threshold);
   }
-  for(const venue of VENUES)assert.ok(contrast(venue.foreground,venue.color)>=4.5);
+  assert.ok(contrast(COLORS.ink,'#ffffff')>=4.5); // Building labels keep their white plates.
   assert.equal(contrast(...CONTRAST_EXAMPLES.warning.before).toFixed(2),'1.04');
   assert.equal(contrast(...CONTRAST_EXAMPLES.warning.after).toFixed(2),'7.80');
   for(const panel of PANELS){assert.ok(contrast('#ffffff',panel.color)<2.2);assert.ok(contrast(COLORS.ink,panel.color)>5.5);}

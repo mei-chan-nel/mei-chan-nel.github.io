@@ -61,6 +61,25 @@
       <aside id="upload-notes" class="lesson-notes upload-notes" aria-labelledby="upload-notes-title" hidden><p class="mini-label">YOUR DESIGN</p><h2 id="upload-notes-title">現状を確認する</h2><p class="upload-copy">通常・P・D・T型を見比べて、色だけで伝えている情報を探しましょう。</p><dl class="upload-checklist"><div><dt>01　意味は伝わる？</dt><dd>状態や分類を、色だけで示していませんか。</dd></div><div><dt>02　たどれる？</dt><dd>グラフの線や地図を、記号・線種・ラベルでも区別できますか。</dd></div><div><dt>03　文字は読める？</dt><dd>文字と背景の明暗差も確認しましょう。</dd></div></dl><div class="save-area"><label for="save-type">シミュレーションを保存</label><select id="save-type"><option value="all">4種類をまとめて（PNG）</option><option value="p">P型（PNG）</option><option value="d">D型（PNG）</option><option value="t">T型（PNG）</option><option value="normal">通常・元画像（PNG）</option></select><button id="save-image" class="primary-button" disabled>画像を保存 <span aria-hidden="true">↓</span></button><p>表示倍率によらず画像全体を保存します。透過部分は白背景に合成します。</p></div><button id="remove-image" class="quiet-button" disabled>読み込んだ画像を削除</button></aside>
       <dialog id="method-dialog" aria-labelledby="method-title"><div class="dialog-header"><p class="mini-label">ABOUT THIS SIMULATION</p><button id="close-method" aria-label="説明を閉じる">×</button></div><h2 id="method-title">見え方を理解するための、近似。</h2><p>「通常」は元画像の表示です。P型・D型・T型では、それぞれL・M・S錐体に関わる<strong>2色覚</strong>の見え方を近似しています。すべての色覚の多様性や、色弱の程度を表すものではありません。</p><h3>採用した手法</h3><p>Brettel・Viénot・Mollon（1997）の2投影面モデル。sRGBを線形RGBに変換し、分離面の判定に応じた行列で投影、表示可能範囲にクリップしてsRGBへ戻します。P・D・Tすべてで2投影面を使用します。</p><p>係数は、sRGB・Smith–Pokorny（1975）LMSモデル、RGB白を中立軸とするlibDaltonLensの公開実装を使用しています。</p><h3>結果の読み方</h3><p>個人差、照明、ディスプレイの色特性などで実際の見え方は変わります。特定の人の見え方の再現や、診断・アクセシビリティ適合の判定には使えません。実際の利用者による確認と組み合わせてください。</p><h3>画像の扱い</h3><p>画像の読込・変換・保存はブラウザ内だけで行います。PNG・JPEG・WebPを受け付け、長辺が1,600pxを超える場合は縮小します（4,000万画素まで）。白背景へ合成したsRGB画像を計算・保存します。リロードすると画像は消えます。</p><h3>出典</h3><ul><li><a href="https://doi.org/10.1364/JOSAA.14.002647" target="_blank" rel="noreferrer">Brettel et al. (1997), Computerized simulation of color appearance for dichromats</a></li><li><a href="https://github.com/DaltonLens/libDaltonLens" target="_blank" rel="noreferrer">libDaltonLens — Nicolas Burrus（Public domain / Unlicense）</a></li><li><a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html" target="_blank" rel="noreferrer">WCAG 2.2：色の使用</a> / <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html" target="_blank" rel="noreferrer">文字のコントラスト</a> / <a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html" target="_blank" rel="noreferrer">図形のコントラスト</a></li></ul><p class="method-small">コントラスト比は元のsRGBの相対輝度から計算します。シミュレーション画像の比率で適合判定はしません。文化祭のページは、この教材のために制作した架空の例です。</p></dialog>
     </div>
+    <details id="learning-points" class="learning-points">
+      <summary>学習のポイント<span>色の組み合わせと、改善の考え方</span></summary>
+      <div class="learning-points-body">
+        <p>同じ色名でも、実際の色・明るさ・面積・周りの色によって見分けやすさは変わります。下の「見え方」は、この教材の配色をシミュレーションした例です。個人差があり、型だけで誰かの見え方を決めることはできません。</p>
+        <table>
+          <caption>この教材で確かめた組み合わせと、色以外の手掛かり</caption>
+          <thead><tr><th scope="col">組み合わせ・使用箇所</th><th scope="col">起こりうること</th><th scope="col">改善のポイント</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">赤と緑<br><small>受付・通行経路</small></th><td>P・D型の例では、2色が近づいて状態や通行可否を取り違えやすくなります。</td><td>○・■、×、矢印、破線、直接の文字を併用。凡例と本体の色・記号もそろえます。</td></tr>
+            <tr><th scope="row">青と紫<br><small>体育館・中庭</small></th><td>紫の赤みが変わり、P・D型の例では青に近づきます。「赤と緑を避ければ十分」とは限りません。</td><td>建物の斜線・点・格子や会場名で区別。時刻表でも同じ会場色と名前を使い、色の記憶だけに頼らず照合できるようにします。</td></tr>
+            <tr><th scope="row">青と緑<br><small>混雑予想グラフ</small></th><td>T型の例では、2本の線の色が近づきます。線が接近・交差する場所では追いにくくなります。</td><td>配色を見直したうえで、実線／破線、丸／四角、直接ラベルを併用。凡例を残し、ラベル同士を重ねません。</td></tr>
+            <tr><th scope="row">明るい背景と白文字<br><small>来場案内</small></th><td>背景も文字も明るく、通常表示でも読みにくくなります。この黄色と白は1.32:1です。</td><td>明るい黄色は保ち、全行を同じ濃い文字へ。比率は9.01:1になり、項目の区別は見出しで伝えます。</td></tr>
+            <tr><th scope="row">明暗差の小さい文字と背景<br><small>お知らせ・注意パネル</small></th><td>淡い文字や、この例の赤系文字と緑系背景は、文字と背景の境界が分かりにくくなります。</td><td>文字と背景の明暗差を確保し、「重要」「注意」などの言葉も使います。色名だけで良し悪しを決めません。</td></tr>
+          </tbody>
+        </table>
+        <p class="points-check">確認する順番：<strong>通常とP・D・T型で比較 → 文字の明暗差を確認 → 色以外の手掛かりを追加 → 小さい画面と実際の利用者でも確認。</strong></p>
+        <p class="points-reference">文字のコントラスト比は元のsRGB値から計算します。WCAG AAの目安は通常文字4.5:1以上、大きな文字3:1以上、意味を伝える図形と隣接色3:1以上です。シミュレーションだけで適合判定はできず、文字サイズや説明の分かりやすさも確認します。<a href="https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html" target="_blank" rel="noreferrer">色の使用</a>・<a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html" target="_blank" rel="noreferrer">文字のコントラスト</a>・<a href="https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html" target="_blank" rel="noreferrer">図形のコントラスト</a></p>
+      </div>
+    </details>
     <footer class="sim-footer"><a href="../">← Interactive Labへ</a><p>観察する → 変えてみる → もう一度、確かめる。</p><span>情報Ⅰ Study Atlas</span></footer>
     <noscript><p>この教材の操作にはJavaScriptを有効にしてください。</p></noscript>
   </main>
