@@ -71,21 +71,6 @@
 .lab-content-page .primary:hover {
   background: #2e5557;
 }
-.experiment-bar {
-  display: flex;
-  align-items: end;
-  gap: 10px;
-  background: #edf1e9;
-  border: 1px solid #cbd5c9;
-  padding: 14px;
-  border-radius: 9px;
-}
-.experiment-bar label {
-  display: grid;
-  gap: 4px;
-  font-size: 0.68rem;
-  font-weight: 700;
-}
 .experiment-name {
   flex: 1;
 }
@@ -138,9 +123,9 @@
 }
 .memory-workspace {
   display: grid;
-  grid-template-columns: minmax(210px, 0.75fr) minmax(460px, 1.8fr) minmax(
-      275px,
-      1fr
+  grid-template-columns: minmax(200px, 0.7fr) minmax(260px, 0.95fr) minmax(
+      400px,
+      1.7fr
     );
   gap: 14px;
   align-items: start;
@@ -314,13 +299,16 @@
   border-radius: 2px;
 }
 .legend-next {
-  background: #d6e8d7;
+  background: #fffef9;
+  border: 1px dashed #b5cec0;
 }
 .legend-current {
-  background: #f0d5c4;
+  background: #eaf3ec;
+  border: 1px solid #267765;
 }
 .legend-access {
-  background: #d6e7ef;
+  background: #fce8e6;
+  border: 1px solid #e5b3aa;
 }
 .ram-scroll {
   height: 452px;
@@ -351,7 +339,7 @@
   width: 102px;
 }
 .ram-table th:nth-child(3) {
-  width: 122px;
+  width: 96px;
 }
 .ram-table td {
   border-bottom: 1px solid #e5eae2;
@@ -387,37 +375,31 @@
   gap: 3px;
 }
 .operand-wrap input {
-  width: 66px;
+  width: 100%;
   font:
     0.76rem ui-monospace,
     monospace;
   padding: 6px;
-}
-.ram-table .pad-button {
-  font-size: 0.6rem;
-  padding: 3px;
-  min-height: 28px;
-  line-height: 1.25;
 }
 .ram-table .live-cell {
   font-size: 0.66rem;
   overflow-wrap: anywhere;
 }
 .ram-table tr.next {
-  box-shadow: inset 3px 0 #488460;
-  background: #e5f0e1;
+  box-shadow: inset 3px 0 #b5cec0;
+  background: #fffef9;
 }
 .ram-table tr.current {
-  background: #f9e5d7;
-  box-shadow: inset 3px 0 #c67e5e;
+  background: #eaf3ec;
+  box-shadow: inset 3px 0 #267765;
 }
 .ram-table tr.accessed {
-  background: #dfedf3;
-  box-shadow: inset -3px 0 #6a9bac;
+  background: #fce8e6;
+  box-shadow: inset -3px 0 #b94732;
 }
 .ram-table tr.written .live-cell {
   font-weight: 800;
-  color: #9c4a30;
+  color: #267765;
 }
 .ram-note {
   padding: 10px 12px;
@@ -746,65 +728,6 @@
   font-size: 0.8rem;
   color: #3e6850;
 }
-.tap-dialog {
-  border: 1px solid #abc2b0;
-  border-radius: 10px;
-  width: min(450px, calc(100% - 24px));
-  padding: 18px;
-  color: #163c3f;
-}
-.tap-dialog::backdrop {
-  background: #14332d77;
-}
-.tap-dialog .dialog-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.tap-dialog h2 {
-  font-size: 1rem;
-}
-.tap-dialog button {
-  border: 1px solid #c5d7c7;
-  background: #f5f9ef;
-  padding: 10px;
-  border-radius: 5px;
-  font: inherit;
-  cursor: pointer;
-}
-.tap-dialog button:focus-visible {
-  outline: 3px solid #c36654;
-}
-.tap-pad-display {
-  background: #edf3e7;
-  padding: 18px;
-  font: 1.4rem monospace;
-  margin: 10px 0;
-  overflow-wrap: anywhere;
-}
-.tap-edit-tools,
-.tap-choices,
-.dialog-actions {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  margin: 10px 0;
-}
-.number-pad {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 5px;
-}
-.tap-choices button {
-  font-size: 0.7rem;
-  padding: 5px;
-}
-.dialog-actions {
-  justify-content: end;
-}
-.form-error {
-  color: #ab463b;
-}
 .visually-hidden {
   position: absolute !important;
   clip-path: inset(50%);
@@ -826,10 +749,10 @@ input[hidden] {
 }
 @media (max-width: 1100px) {
   .memory-workspace {
-    grid-template-columns: 210px minmax(380px, 1fr);
-  }
-  .cache-panel {
-    grid-column: 1/-1;
+    grid-template-columns: minmax(180px, 0.7fr) minmax(230px, 0.95fr) minmax(
+        360px,
+        1.7fr
+      );
   }
   #cache-lines {
     grid-template-columns: repeat(2, 1fr);
@@ -839,9 +762,6 @@ input[hidden] {
   }
   .experiment-name {
     min-width: 150px;
-  }
-  .experiment-bar {
-    flex-wrap: wrap;
   }
   .file-actions {
     margin-left: auto;
@@ -868,12 +788,6 @@ input[hidden] {
   }
   .experiment-name {
     flex: 1 1 180px;
-  }
-  .experiment-bar {
-    padding: 10px;
-  }
-  .experiment-bar select {
-    max-width: 170px;
   }
   .execution-bar {
     gap: 8px;
@@ -929,7 +843,7 @@ input[hidden] {
     width: 82px;
   }
   .ram-table th:nth-child(3) {
-    width: 112px;
+    width: 92px;
   }
   .ram-table td {
     padding: 4px;
@@ -944,7 +858,7 @@ input[hidden] {
     gap: 10px;
   }
   .ram-table .operand-wrap input {
-    width: 58px;
+    width: 100%;
   }
   .ram-table select {
     font-size: 0.62rem;
@@ -991,4 +905,518 @@ input[hidden] {
       color: #83988a;
     }
   }
+}
+
+/* Document actions follow the circuit Labs; preset loading is a separate row. */
+.experiment-setup {
+  min-width: 0;
+}
+.experiment-setup > summary {
+  display: none;
+}
+.memory-document-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.memory-document-bar .experiment-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 0.73rem;
+}
+.experiment-name > span {
+  flex-shrink: 0;
+  color: var(--ink-soft);
+}
+.experiment-name input {
+  width: 100%;
+  min-height: 34px;
+}
+.file-actions {
+  flex-shrink: 0;
+}
+.memory-document-bar button {
+  font-size: 0.73rem;
+  padding: 6px 16px;
+  min-height: 34px;
+}
+.memory-preset-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.memory-preset-bar > label {
+  font-size: 0.73rem;
+  color: var(--ink-soft);
+}
+.memory-preset-bar select {
+  font-size: 0.73rem;
+  max-width: 200px;
+}
+.memory-preset-bar .experiment-hint {
+  flex: 1 1 300px;
+  font-size: 0.71rem;
+  margin: 0 0 0 4px;
+  min-height: 0;
+}
+#memory-fullscreen {
+  white-space: nowrap;
+}
+#memory-fullscreen[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--white);
+}
+.memory-records {
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.memory-records > summary,
+.is-fullscreen .experiment-setup > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+  cursor: pointer;
+  font-size: 0.77rem;
+  font-weight: 700;
+  list-style: none;
+}
+.memory-records > summary::-webkit-details-marker,
+.experiment-setup > summary::-webkit-details-marker {
+  display: none;
+}
+.memory-records > summary::before,
+.experiment-setup > summary::before {
+  content: "▸";
+  transition: transform 0.15s;
+}
+.memory-records[open] > summary::before,
+.experiment-setup[open] > summary::before {
+  transform: rotate(90deg);
+}
+#record-count {
+  margin-left: auto;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+.memory-records .comparison-panel {
+  margin-top: 0;
+  padding-top: 8px;
+  border-top: 0;
+}
+@media (min-width: 701px) and (max-width: 900px) {
+  .memory-workspace {
+    grid-template-columns: minmax(200px, 0.8fr) minmax(300px, 1.2fr);
+  }
+  .ram-panel {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 700px) {
+  .memory-document-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .memory-document-bar .experiment-name {
+    flex-basis: 100%;
+  }
+  .memory-document-bar .file-actions {
+    margin-left: auto;
+  }
+  .memory-document-bar button {
+    padding: 6px 10px;
+  }
+  .memory-preset-bar .experiment-hint {
+    flex-basis: 100%;
+    margin: 0;
+  }
+}
+
+/* Same viewport-sized workspace as the other Labs, including embedded browsers. */
+html.memory-fullscreen,
+html.memory-fullscreen body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  scrollbar-gutter: auto;
+}
+.memory-lab.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: max(8px, env(safe-area-inset-top))
+    max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+  background: var(--paper);
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  gap: 7px;
+}
+.is-fullscreen .experiment-setup {
+  position: relative;
+  z-index: 5;
+}
+.is-fullscreen .experiment-setup > summary {
+  padding: 4px 8px;
+  min-height: 30px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+}
+#setup-name {
+  margin-left: auto;
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+  max-width: 55%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.is-fullscreen .setup-content {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  max-height: min(55dvh, 350px);
+  overflow: auto;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.is-fullscreen .execution-bar {
+  gap: 7px;
+}
+.is-fullscreen .execution-bar button,
+.is-fullscreen .execution-bar select {
+  min-height: 32px;
+  padding: 5px 9px;
+  font-size: 0.72rem;
+}
+.is-fullscreen #notice {
+  margin: 0 2px;
+  font-size: 0.68rem;
+  min-height: 1.5em;
+  max-height: 2.8em;
+  overflow: auto;
+}
+.is-fullscreen .memory-workspace {
+  display: grid;
+  grid-template-columns: minmax(175px, 0.7fr) minmax(235px, 0.95fr) minmax(
+      380px,
+      1.7fr
+    );
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+}
+.is-fullscreen .panel {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  grid-column: auto;
+}
+.is-fullscreen .cpu-panel,
+.is-fullscreen .cache-panel {
+  display: block;
+  height: 100%;
+  overflow: auto;
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+.is-fullscreen .panel-heading {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 9px 11px;
+  min-height: 38px;
+}
+.is-fullscreen .panel-heading h2 {
+  font-size: 0.85rem;
+}
+.is-fullscreen .tiny-label {
+  display: none;
+}
+.is-fullscreen .cpu-value {
+  margin: 10px;
+  padding: 12px;
+}
+.is-fullscreen .cpu-value strong {
+  font-size: 2rem;
+  margin-top: 5px;
+}
+.is-fullscreen .cpu-registers {
+  margin: 0 12px;
+}
+.is-fullscreen .cpu-registers > div {
+  padding: 7px 0;
+}
+.is-fullscreen .cpu-registers dd {
+  font-size: 0.9rem;
+}
+.is-fullscreen #current-command {
+  font-size: 0.78rem;
+  min-height: 0;
+}
+.is-fullscreen .transfer-route {
+  margin: 8px;
+  padding: 8px 4px;
+}
+.is-fullscreen .start-field {
+  margin: 9px 12px;
+}
+.is-fullscreen .ram-panel {
+  display: flex;
+  flex-direction: column;
+}
+.is-fullscreen .ram-panel .panel-heading,
+.is-fullscreen .ram-legend,
+.is-fullscreen .ram-note {
+  flex-shrink: 0;
+}
+.is-fullscreen .ram-scroll {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+.is-fullscreen .ram-legend {
+  padding: 6px 10px;
+}
+.is-fullscreen .ram-note {
+  padding: 6px 10px;
+  font-size: 0.58rem;
+}
+.is-fullscreen #cache-lines {
+  grid-template-columns: 1fr;
+  max-height: none;
+  overflow: visible;
+}
+.is-fullscreen .cache-controls {
+  padding: 9px 11px;
+}
+.is-fullscreen .cache-controls label {
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.is-fullscreen .access-reason {
+  min-height: 0;
+}
+.is-fullscreen .measurement-panel {
+  margin: 0;
+  padding: 7px 12px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 16px;
+}
+.is-fullscreen .measurement-title {
+  display: block;
+}
+.is-fullscreen .measurement-title > span {
+  display: block;
+  margin-top: 2px;
+}
+.is-fullscreen .metrics {
+  grid-template-columns: 1.3fr 1fr 1fr 1fr 1fr;
+  margin: 0;
+  gap: 10px;
+}
+.is-fullscreen .metrics strong {
+  font-size: 1.2rem;
+}
+.is-fullscreen .metrics > div {
+  padding-left: 10px;
+}
+.is-fullscreen .time-track {
+  grid-column: 1/-1;
+  margin-top: 6px;
+  height: 4px;
+}
+.is-fullscreen #access-summary {
+  grid-column: 1/-1;
+  margin-top: 4px;
+  font-size: 0.6rem;
+}
+.is-fullscreen .memory-records {
+  position: relative;
+  margin: 0;
+  border: 0;
+  z-index: 4;
+}
+.is-fullscreen .memory-records > summary {
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--white);
+  min-height: 30px;
+}
+.is-fullscreen .records-content {
+  position: absolute;
+  bottom: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  max-height: min(60dvh, 420px);
+  overflow: auto;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  padding: 14px;
+}
+.is-fullscreen .comparison-panel {
+  margin: 0;
+  padding: 0;
+}
+.is-fullscreen .comparison-heading h2 {
+  font-size: 1rem;
+}
+@media (max-width: 980px) {
+  .is-fullscreen .memory-workspace {
+    grid-template-columns: minmax(150px, 0.65fr) minmax(185px, 0.9fr) minmax(
+        310px,
+        1.65fr
+      );
+    gap: 8px;
+  }
+  .is-fullscreen .ram-table th:nth-child(1) {
+    width: 32px;
+  }
+  .is-fullscreen .ram-table th:nth-child(2) {
+    width: 82px;
+  }
+  .is-fullscreen .ram-table th:nth-child(3) {
+    width: 92px;
+  }
+  .is-fullscreen .ram-table select {
+    font-size: 0.64rem;
+  }
+  .is-fullscreen .ram-table .operand-wrap input {
+    width: 100%;
+  }
+}
+@media (max-width: 700px) {
+  .memory-lab.is-fullscreen {
+    gap: 5px;
+    padding: 6px;
+  }
+  .is-fullscreen .execution-bar {
+    gap: 5px;
+  }
+  .is-fullscreen .run-buttons {
+    gap: 4px;
+  }
+  .is-fullscreen .execution-bar button {
+    padding: 5px 7px;
+    font-size: 0.68rem;
+  }
+  .is-fullscreen .execution-bar label {
+    margin-left: auto;
+    font-size: 0.6rem;
+  }
+  .is-fullscreen .state-badge {
+    font-size: 0.6rem;
+  }
+  .is-fullscreen .measurement-panel {
+    column-gap: 8px;
+    padding: 6px 8px;
+  }
+  .is-fullscreen .measurement-title {
+    display: none;
+  }
+  .is-fullscreen .metrics {
+    grid-column: 1/-1;
+    gap: 6px;
+  }
+  .is-fullscreen .metrics strong {
+    font-size: 1rem;
+  }
+  .is-fullscreen .metrics span {
+    font-size: 0.55rem;
+  }
+  .is-fullscreen .metrics > div {
+    padding-left: 6px;
+  }
+  .is-fullscreen #access-summary {
+    max-height: 2.7em;
+    overflow: auto;
+    font-size: 0.54rem;
+  }
+  .is-fullscreen .memory-workspace {
+    grid-template-columns: minmax(135px, 0.9fr) minmax(160px, 1.1fr);
+    grid-template-rows: minmax(150px, 0.85fr) minmax(190px, 1.15fr);
+    gap: 6px;
+  }
+  .is-fullscreen .ram-panel {
+    grid-column: 1/-1;
+  }
+  .is-fullscreen .panel-heading {
+    padding: 7px 8px;
+    min-height: 34px;
+  }
+  .is-fullscreen .panel-heading h2 {
+    font-size: 0.76rem;
+  }
+  .is-fullscreen .cpu-value {
+    margin: 8px;
+    padding: 8px;
+  }
+  .is-fullscreen .cpu-value strong {
+    font-size: 1.6rem;
+  }
+  .is-fullscreen .cache-policy {
+    flex-wrap: wrap;
+    margin: 0 8px;
+  }
+  .is-fullscreen #cache-lines,
+  .is-fullscreen #access-events {
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+  .is-fullscreen .access-heading {
+    flex-wrap: wrap;
+    margin-left: 8px;
+    margin-right: 8px;
+  }
+  .is-fullscreen .cache-controls {
+    padding: 8px;
+  }
+  .is-fullscreen .cache-controls select {
+    max-width: 100%;
+  }
+}
+/* Match Program Trace: the last executed instruction and write target are green;
+   referenced source values use the same pale coral as its source variables. */
+.legend-write {
+  background: #cee6d5;
+  border: 1px solid #267765;
+}
+.ram-table tr.current th[scope="row"] {
+  color: #267765;
+}
+.ram-table tr.write-target {
+  background: #cee6d5;
+  box-shadow: inset -3px 0 #267765;
+}
+.lab-content-page .button-auto {
+  color: #267765;
+  border-color: #b5cec0;
+}
+.lab-content-page .button-auto:hover:not(:disabled),
+.lab-content-page .button-auto.is-running {
+  background: #eaf3ec;
+  border-color: #267765;
 }

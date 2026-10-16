@@ -11,11 +11,10 @@
 <div id="lab-guide" class="guide-panel" hidden>
   <h2>自分のプログラムで、確かめよう</h2>
   <ol>
+    <li>RAMの種類と値・番地を直接変更します。数値欄に直接入力できます。</li>
     <li>
-      RAMの種類と値・番地を直接変更します。「入力補助」からタップでも入力できます。
-    </li>
-    <li>
-      「1命令」で命令取得とデータ参照を確認。「連続実行」で最後まで進めます。
+      「次へ」で命令取得とデータ参照を確認。「自動実行」で最後まで進めます。「全画面」でCPU
+      → キャッシュ → RAMを広く表示できます。
     </li>
     <li>
       結果を保存し、キャッシュのON/OFFや容量を変えて再実行します。設定やRAMの編集時には、CPUとキャッシュが初期化されます。
@@ -26,249 +25,295 @@
     加算・減算は指定番地の数値を使います。「値の設定」だけは数値をそのまま使います。計算中の値は1つです。
   </p>
 </div>
-<section class="experiment-bar" aria-label="実験の準備">
-  <label>プログラム<select id="preset"></select></label
-  ><button id="load-preset">プリセットを適用</button
-  ><label class="experiment-name"
-    >実験名<input id="experiment-name" value="基本の加算" maxlength="60"
-  /></label>
-  <div class="file-actions">
-    <button id="export-program">JSON保存</button
-    ><button id="import-program">読込</button
-    ><input
-      type="file"
-      id="program-file"
-      accept="application/json,.json"
-      hidden
-    />
-  </div>
-</section>
-<p class="experiment-hint" id="preset-hint"></p>
-<div class="execution-bar">
-  <div class="run-buttons">
-    <button class="primary" id="run">
-      <span aria-hidden="true">▶</span> 連続実行</button
-    ><button id="pause" disabled>一時停止</button
-    ><button id="step">1命令 <span aria-hidden="true">→</span></button
-    ><button id="reset">初期状態に戻す</button>
-  </div>
-  <label
-    >表示の速さ<select id="speed">
-      <option value="1000">ゆっくり</option>
-      <option value="450" selected>通常</option>
-      <option value="60">速い</option>
-    </select></label
-  ><span class="state-badge" id="state">実行前</span>
-</div>
-<p id="notice" role="status" aria-live="polite">
-  16・17番地の数値を変えて、計算を試してみよう。
-</p>
-<div class="memory-workspace">
-  <section class="panel cpu-panel" aria-labelledby="cpu-heading">
-    <div class="panel-heading">
-      <div>
-        <span class="panel-index">01</span>
-        <h2 id="cpu-heading">CPU</h2>
+<div id="memory-lab" class="memory-lab">
+  <details class="experiment-setup" id="experiment-setup" open>
+    <summary>プログラムと保存 <span id="setup-name">基本の加算</span></summary>
+    <div class="setup-content">
+      <div
+        class="memory-document-bar"
+        role="group"
+        aria-label="プログラムの保存と読み込み"
+      >
+        <label class="experiment-name" for="experiment-name"
+          ><span>プログラム名</span
+          ><input
+            id="experiment-name"
+            value="基本の加算"
+            maxlength="60"
+            autocomplete="off"
+        /></label>
+        <div class="file-actions">
+          <button id="import-program" type="button">ファイルから読込</button>
+          <button id="export-program" type="button">ファイルに書出</button>
+          <input
+            type="file"
+            id="program-file"
+            accept="application/json,.json"
+            hidden
+          />
+        </div>
       </div>
-      <span class="tiny-label">命令を実行</span>
+      <div class="memory-preset-bar">
+        <label for="preset">プリセット</label
+        ><select id="preset"></select
+        ><button id="load-preset" type="button">適用</button>
+        <p class="experiment-hint" id="preset-hint"></p>
+      </div>
     </div>
-    <div class="cpu-value">
-      <span>計算中の値</span><strong id="acc">0</strong>
+  </details>
+  <div class="execution-bar">
+    <div class="run-buttons">
+      <button
+        class="primary"
+        id="step"
+        type="button"
+        title="1命令実行"
+        aria-label="次へ（1命令実行）"
+      >
+        <span aria-hidden="true">→</span> 次へ
+      </button>
+      <button id="reset" type="button">
+        <span aria-hidden="true">↺</span> 最初から
+      </button>
+      <button class="button-auto" id="run" type="button" aria-pressed="false">
+        <span aria-hidden="true">▶</span> 自動実行
+      </button>
     </div>
-    <dl class="cpu-registers">
-      <div>
-        <dt>次に実行する番地</dt>
-        <dd id="pc">0</dd>
-      </div>
-      <div>
-        <dt>現在の命令 <span id="current-address"></span></dt>
-        <dd id="current-command">—</dd>
-      </div>
-      <div>
-        <dt>実行した命令数</dt>
-        <dd id="steps">0</dd>
-      </div>
-    </dl>
-    <label class="start-field"
-      >開始番地<input
-        type="number"
-        id="start"
-        min="0"
-        max="31"
-        value="0"
-        step="1"
-    /></label>
-    <div
-      role="img"
-      class="transfer-route"
-      id="route"
-      aria-label="直前のデータの移動"
+    <button
+      id="memory-fullscreen"
+      type="button"
+      aria-pressed="false"
+      aria-controls="memory-lab"
+      aria-label="実験画面を全画面で表示"
     >
-      <span>CPU</span><b>↔</b><span>キャッシュ</span><b>↔</b><span>RAM</span>
-    </div>
-    <p class="small-note">命令もデータも、RAMからCPUへ。</p>
-    <details class="timing-settings">
-      <summary>仮想アクセス時間</summary>
-      <label
-        >CPU処理 / 命令<input
-          id="cpu-time"
-          type="number"
-          value="1"
-          min="0"
-          max="100000"
-          step="any"
-        /><span>ns</span></label
-      ><label
-        >キャッシュ / 参照<input
-          id="cache-time"
-          type="number"
-          value="2"
-          min="0"
-          max="100000"
-          step="any"
-        /><span>ns</span></label
-      ><label
-        >RAM / 転送<input
-          id="ram-time"
-          type="number"
-          value="40"
-          min="0"
-          max="100000"
-          step="any"
-        /><span>ns</span></label
-      >
-    </details>
-  </section>
-  <section class="panel ram-panel" aria-labelledby="ram-heading">
-    <div class="panel-heading">
-      <div>
-        <span class="panel-index">02</span>
-        <h2 id="ram-heading">主記憶装置 <small>RAM</small></h2>
+      <span aria-hidden="true">⛶</span> 全画面
+    </button>
+    <label
+      >実行速度<select id="speed">
+        <option value="1000">ゆっくり</option>
+        <option value="450" selected>通常</option>
+        <option value="60">速い</option>
+      </select></label
+    ><span class="state-badge" id="state">実行前</span>
+  </div>
+  <p id="notice" role="status" aria-live="polite">
+    16・17番地の数値を変えて、計算を試してみよう。
+  </p>
+  <div class="memory-workspace">
+    <section class="panel cpu-panel" aria-labelledby="cpu-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-index">01</span>
+          <h2 id="cpu-heading">CPU</h2>
+        </div>
+        <span class="tiny-label">命令を実行</span>
       </div>
-      <span class="tiny-label">32番地 · 直接編集</span>
-    </div>
-    <div class="ram-legend">
-      <span><i class="legend-next"></i>次の命令</span
-      ><span><i class="legend-current"></i>実行した命令</span
-      ><span><i class="legend-access"></i>参照 / 書込</span>
-    </div>
-    <div
-      role="region"
-      class="ram-scroll"
-      tabindex="0"
-      aria-label="RAMの番地一覧"
-    >
-      <table class="ram-table">
-        <thead>
-          <tr>
-            <th scope="col">番地</th>
-            <th scope="col">種類</th>
-            <th scope="col">初期値 / 対象番地</th>
-            <th scope="col">現在の内容</th>
-          </tr>
-        </thead>
-        <tbody id="ram-rows"></tbody>
-      </table>
-    </div>
-    <p class="ram-note">
-      2番地で1ブロック。左側を編集すると初期RAMからやり直します。書き込み結果は右側に表示。
-    </p>
-  </section>
-  <section class="panel cache-panel" aria-labelledby="cache-heading">
-    <div class="panel-heading">
-      <div>
-        <span class="panel-index">03</span>
-        <h2 id="cache-heading">キャッシュ</h2>
+      <div class="cpu-value">
+        <span>計算中の値</span><strong id="acc">0</strong>
       </div>
-      <label class="switch"
-        ><input id="cache-enabled" type="checkbox" checked /><span
-          >ON</span
-        ></label
+      <dl class="cpu-registers">
+        <div>
+          <dt>次に実行する番地</dt>
+          <dd id="pc">0</dd>
+        </div>
+        <div>
+          <dt>現在の命令 <span id="current-address"></span></dt>
+          <dd id="current-command">—</dd>
+        </div>
+        <div>
+          <dt>実行した命令数</dt>
+          <dd id="steps">0</dd>
+        </div>
+      </dl>
+      <label class="start-field"
+        >開始番地<input
+          type="number"
+          id="start"
+          min="0"
+          max="31"
+          value="0"
+          step="1"
+      /></label>
+      <div
+        role="img"
+        class="transfer-route"
+        id="route"
+        aria-label="直前のデータの移動"
       >
-    </div>
-    <div class="cache-controls">
-      <label
-        >保持できるブロック<select id="capacity">
-          <option value="1">1個（2番地）</option>
-          <option value="2" selected>2個（4番地）</option>
-          <option value="4">4個（8番地）</option>
-          <option value="8">8個（16番地）</option>
-          <option value="16">16個（32番地）</option>
-        </select></label
-      >
-    </div>
-    <div class="cache-policy">
-      <span>全相連</span><span>LRU</span><span>ライトスルー</span>
-    </div>
-    <p class="small-note" id="cache-caption">実行するとブロックが入ります。</p>
-    <div role="group" id="cache-lines" aria-label="保持中のブロック"></div>
-    <div class="access-heading">
-      <h3>この命令のアクセス</h3>
-      <span>押すと理由を表示</span>
-    </div>
-    <div id="access-events">
-      <p class="empty-note">
-        「1命令」を押して、<br />最初の命令を取得しよう。
+        <span>CPU</span><b>↔</b><span>キャッシュ</span><b>↔</b><span>RAM</span>
+      </div>
+      <p class="small-note">命令もデータも、RAMからCPUへ。</p>
+      <details class="timing-settings">
+        <summary>仮想アクセス時間</summary>
+        <label
+          >CPU処理 / 命令<input
+            id="cpu-time"
+            type="number"
+            value="1"
+            min="0"
+            max="100000"
+            step="any"
+          /><span>ns</span></label
+        ><label
+          >キャッシュ / 参照<input
+            id="cache-time"
+            type="number"
+            value="2"
+            min="0"
+            max="100000"
+            step="any"
+          /><span>ns</span></label
+        ><label
+          >RAM / 転送<input
+            id="ram-time"
+            type="number"
+            value="40"
+            min="0"
+            max="100000"
+            step="any"
+          /><span>ns</span></label
+        >
+      </details>
+    </section>
+    <section class="panel cache-panel" aria-labelledby="cache-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-index">02</span>
+          <h2 id="cache-heading">キャッシュ</h2>
+        </div>
+        <label class="switch"
+          ><input id="cache-enabled" type="checkbox" checked /><span
+            >ON</span
+          ></label
+        >
+      </div>
+      <div class="cache-controls">
+        <label
+          >保持できるブロック<select id="capacity">
+            <option value="1">1個（2番地）</option>
+            <option value="2" selected>2個（4番地）</option>
+            <option value="4">4個（8番地）</option>
+            <option value="8">8個（16番地）</option>
+            <option value="16">16個（32番地）</option>
+          </select></label
+        >
+      </div>
+      <div class="cache-policy">
+        <span>全相連</span><span>LRU</span><span>ライトスルー</span>
+      </div>
+      <p class="small-note" id="cache-caption">
+        実行するとブロックが入ります。
       </p>
+      <div role="group" id="cache-lines" aria-label="保持中のブロック"></div>
+      <div class="access-heading">
+        <h3>この命令のアクセス</h3>
+        <span>押すと理由を表示</span>
+      </div>
+      <div id="access-events">
+        <p class="empty-note">
+          「次へ」を押して、<br />最初の命令を取得しよう。
+        </p>
+      </div>
+      <div id="access-reason" class="access-reason"></div>
+    </section>
+    <section class="panel ram-panel" aria-labelledby="ram-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-index">03</span>
+          <h2 id="ram-heading">主記憶装置 <small>RAM</small></h2>
+        </div>
+        <span class="tiny-label">32番地 · 直接編集</span>
+      </div>
+      <div class="ram-legend">
+        <span><i class="legend-next"></i>次の命令</span
+        ><span><i class="legend-current"></i>実行した命令</span
+        ><span><i class="legend-access"></i>読出元</span
+        ><span><i class="legend-write"></i>書込先</span>
+      </div>
+      <div
+        role="region"
+        class="ram-scroll"
+        tabindex="0"
+        aria-label="RAMの番地一覧"
+      >
+        <table class="ram-table">
+          <thead>
+            <tr>
+              <th scope="col">番地</th>
+              <th scope="col">種類</th>
+              <th scope="col">初期値 / 対象番地</th>
+              <th scope="col">現在の内容</th>
+            </tr>
+          </thead>
+          <tbody id="ram-rows"></tbody>
+        </table>
+      </div>
+      <p class="ram-note">
+        2番地で1ブロック。左側を編集すると初期RAMからやり直します。書き込み結果は右側に表示。
+      </p>
+    </section>
+  </div>
+  <section class="measurement-panel" aria-labelledby="measurement-heading">
+    <div class="measurement-title">
+      <h2 id="measurement-heading">実行状況</h2>
+      <span>仮想時間 / ns</span>
     </div>
-    <div id="access-reason" class="access-reason"></div>
+    <div class="metrics">
+      <div>
+        <span>合計時間</span><strong id="total-time">0<small>ns</small></strong>
+      </div>
+      <div><span>CPU処理</span><strong id="cpu-metric">0</strong></div>
+      <div><span>メモリ待ち</span><strong id="wait-metric">0</strong></div>
+      <div><span>ヒット率</span><strong id="hit-rate">—</strong></div>
+      <div><span>アクセス回数</span><strong id="access-count">0</strong></div>
+    </div>
+    <div role="img" class="time-track" aria-label="CPU処理とメモリ待ちの割合">
+      <span id="cpu-track"></span><span id="wait-track"></span>
+    </div>
+    <p id="access-summary">命令取得 0 · 読出 0 · 書込 0　 /　RAM転送 0</p>
   </section>
+  <details class="memory-records" id="comparison-records" open>
+    <summary>記録と比較 <span id="record-count">0件</span></summary>
+    <div class="records-content">
+      <section class="comparison-panel" aria-labelledby="comparison-heading">
+        <div class="comparison-heading">
+          <div>
+            <p class="eyebrow">EXPERIMENT RECORDS</p>
+            <h2 id="comparison-heading">条件を変えて、比べよう。</h2>
+          </div>
+          <div>
+            <button id="save-result" disabled>この結果を保存</button
+            ><button id="compare-off">ON / OFFを一括比較</button
+            ><button id="clear-results">記録を消す</button>
+          </div>
+        </div>
+        <p class="small-note">
+          記録は最大12件、このブラウザに保存。各記録の「条件を復元」で初期RAMと設定を読み戻せます。同じ初期RAM・開始番地の記録には同じ条件番号が付きます。
+        </p>
+        <div class="comparison-scroll">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>記録 / 初期条件</th>
+                <th>キャッシュ</th>
+                <th>結果 / 命令数</th>
+                <th>合計時間</th>
+                <th>CPU / 待ち</th>
+                <th>ヒット率</th>
+                <th>アクセス / RAM転送</th>
+                <th><span class="visually-hidden">操作</span></th>
+              </tr>
+            </thead>
+            <tbody id="result-rows"></tbody>
+          </table>
+        </div>
+        <p id="comparison-empty" class="empty-note">
+          まず1回実行して、結果を残そう。次はキャッシュをOFFにしてみよう。
+        </p>
+      </section>
+    </div>
+  </details>
 </div>
-<section class="measurement-panel" aria-labelledby="measurement-heading">
-  <div class="measurement-title">
-    <h2 id="measurement-heading">実行状況</h2>
-    <span>仮想時間 / ns</span>
-  </div>
-  <div class="metrics">
-    <div>
-      <span>合計時間</span><strong id="total-time">0<small>ns</small></strong>
-    </div>
-    <div><span>CPU処理</span><strong id="cpu-metric">0</strong></div>
-    <div><span>メモリ待ち</span><strong id="wait-metric">0</strong></div>
-    <div><span>ヒット率</span><strong id="hit-rate">—</strong></div>
-    <div><span>アクセス回数</span><strong id="access-count">0</strong></div>
-  </div>
-  <div role="img" class="time-track" aria-label="CPU処理とメモリ待ちの割合">
-    <span id="cpu-track"></span><span id="wait-track"></span>
-  </div>
-  <p id="access-summary">命令取得 0 · 読出 0 · 書込 0　 /　RAM転送 0</p>
-</section>
-<section class="comparison-panel" aria-labelledby="comparison-heading">
-  <div class="comparison-heading">
-    <div>
-      <p class="eyebrow">EXPERIMENT RECORDS</p>
-      <h2 id="comparison-heading">条件を変えて、比べよう。</h2>
-    </div>
-    <div>
-      <button id="save-result" disabled>この結果を保存</button
-      ><button id="compare-off">ON / OFFを一括比較</button
-      ><button id="clear-results">記録を消す</button>
-    </div>
-  </div>
-  <p class="small-note">
-    記録は最大12件、このブラウザに保存。各記録の「条件を復元」で初期RAMと設定を読み戻せます。同じ初期RAM・開始番地の記録には同じ条件番号が付きます。
-  </p>
-  <div class="comparison-scroll">
-    <table class="comparison-table">
-      <thead>
-        <tr>
-          <th>記録 / 初期条件</th>
-          <th>キャッシュ</th>
-          <th>結果 / 命令数</th>
-          <th>合計時間</th>
-          <th>CPU / 待ち</th>
-          <th>ヒット率</th>
-          <th>アクセス / RAM転送</th>
-          <th><span class="visually-hidden">操作</span></th>
-        </tr>
-      </thead>
-      <tbody id="result-rows"></tbody>
-    </table>
-  </div>
-  <p id="comparison-empty" class="empty-note">
-    まず1回実行して、結果を残そう。次はキャッシュをOFFにしてみよう。
-  </p>
-</section>
 <details class="model-notes">
   <summary>この実験のしくみ・時間の数え方</summary>
   <p>
@@ -278,7 +323,7 @@
     ヒット＝キャッシュ時間。読出ミス＝キャッシュ時間＋RAM転送時間。書込ヒット＝キャッシュ時間＋RAM転送時間。書込ミス＝キャッシュ時間＋RAM転送時間×2（ブロック取得と書込）。OFF時は1参照につきRAM転送時間。ブロック取得は2番地まとめて1転送と数えます。合計＝命令数×CPU処理時間＋全アクセスの待ち時間。重なり処理・先読み・実機のバスやクロックは省いた教材用モデルです。表示の速さは仮想時間に影響しません。
   </p>
   <p>
-    値は安全な整数の範囲で扱います。連続実行は10,000命令ごとに一時停止。一括比較は10,000命令以内で終了するプログラムが対象です。RAM・設定の変更後はキャッシュを空にし、計算中の値を0に戻します。保存済みの比較記録は保持します。
+    値は安全な整数の範囲で扱います。自動実行は10,000命令ごとに一時停止。一括比較は10,000命令以内で終了するプログラムが対象です。RAM・設定の変更後はキャッシュを空にし、計算中の値を0に戻します。保存済みの比較記録は保持します。
   </p>
 </details>
 <a class="lab-back" href="../#algorithm">← Interactive Lab の一覧へ</a>

@@ -10,11 +10,11 @@ import {
   conditionKey,
 } from "./model.mjs";
 import { presets } from "./presets.mjs";
+import { createMemoryFullscreen } from "./fullscreen.mjs";
 import {
   field,
   selection,
 } from "../../program-trace/studio/expression-editor.js?v=20261009-function-help3";
-import { openTapPad } from "../../program-trace/studio/tap-controls.js?v=20261009-function-help3";
 const $ = (id) => document.getElementById(id);
 const el = (tag, value, className = "") => {
   const item = document.createElement(tag);
@@ -162,6 +162,7 @@ function guarded(action) {
 }
 function renderInputs() {
   $("experiment-name").value = name;
+  $("setup-name").textContent = name || "名前のないプログラム";
   $("start").value = config.start;
   $("capacity").value = config.blocks;
   $("cache-enabled").checked = config.enabled;
@@ -198,29 +199,10 @@ function renderInputs() {
       operandCell = el("td"),
       live = el("td", "", "live-cell"),
       wrap = el("div", undefined, "operand-wrap");
-    const pad = button(
-      "入力\n補助",
-      () => {
-        stop();
-        renderControls();
-        openTapPad(
-          operand.input.value,
-          `${address}番地の${kind.input.value === "data" || kind.input.value === "set" ? "値" : "対象番地"}`,
-          "number",
-          (value) => {
-            operand.input.value = value;
-            readDraft();
-          },
-        );
-      },
-      "pad-button",
-    );
-    pad.setAttribute("aria-label", `${address}番地の入力補助`);
     function updateOperand() {
       const noArg = kind.input.value === "halt",
         value = ["data", "set"].includes(kind.input.value);
       operand.input.disabled = noArg;
-      pad.disabled = noArg;
       operand.input.min = value ? String(Number.MIN_SAFE_INTEGER) : "0";
       operand.input.max = value
         ? String(Number.MAX_SAFE_INTEGER)
@@ -236,7 +218,7 @@ function renderInputs() {
     });
     operand.input.addEventListener("change", () => guarded(() => {}));
     kindCell.append(kind.input);
-    wrap.append(operand.input, pad);
+    wrap.append(operand.input);
     operandCell.append(wrap);
     row.append(index, kindCell, operandCell, live);
     $("ram-rows").append(row);
@@ -245,10 +227,16 @@ function renderInputs() {
   });
 }
 function renderControls() {
-  $("run").disabled = running || comparing || machine.halted || !!machine.error;
+  $("run").disabled = comparing || machine.halted || !!machine.error;
+  $("run").setAttribute("aria-pressed", String(running));
+  $("run").classList.toggle("is-running", running);
+  $("run").replaceChildren(
+    el("span", running ? "Ⅱ" : "▶"),
+    document.createTextNode(running ? " 一時停止" : " 自動実行"),
+  );
+  $("run").firstElementChild.setAttribute("aria-hidden", "true");
   $("step").disabled =
     running || comparing || machine.halted || !!machine.error;
-  $("pause").disabled = !running;
   $("save-result").disabled = running || comparing || !machine.steps;
   $("compare-off").disabled = running || comparing;
   $("state").textContent = comparing
@@ -339,6 +327,10 @@ function render() {
       e?.kind !== "fetch" && e?.address === address,
     );
     row.classList.toggle(
+      "write-target",
+      e?.kind === "write" && e?.address === address,
+    );
+    row.classList.toggle(
       "written",
       machine.ram[address].op === "data" &&
         JSON.stringify(machine.ram[address]) !==
@@ -350,7 +342,7 @@ function render() {
   if (!machine.events.length) {
     const p = el(
       "p",
-      "「1命令」を押して、最初の命令を取得しよう。",
+      "「次へ」を押して、最初の命令を取得しよう。",
       "empty-note",
     );
     $("access-events").append(p);
@@ -361,6 +353,7 @@ function render() {
       () => {
         selectedEvent = i;
         render();
+        revealRam(event.address);
       },
       "access-event",
     );
@@ -410,10 +403,30 @@ function render() {
   $("access-summary").textContent =
     `命令取得 ${s.fetch} · 読出 ${s.read} · 書込 ${s.write}　 /　ヒット ${s.hits} · ミス ${s.misses}　 /　RAM転送 ${s.ramReads + s.ramWrites}（取得 ${s.ramReads}・書込 ${s.ramWrites}）`;
 }
+function revealRam(address) {
+  const row = rows[address]?.row,
+    list = document.querySelector(".ram-scroll");
+  if (!row || !list) return;
+  const bounds = list.getBoundingClientRect(),
+    target = row.getBoundingClientRect();
+  const header = list.querySelector("thead").getBoundingClientRect().height;
+  if (target.top < bounds.top + header)
+    list.scrollTop += target.top - bounds.top - header;
+  else if (target.bottom > bounds.bottom)
+    list.scrollTop += target.bottom - bounds.bottom;
+}
+createMemoryFullscreen({
+  surface: $("memory-lab"),
+  button: $("memory-fullscreen"),
+  onChange: () => {
+    if (machine?.currentAddress !== null) revealRam(machine?.currentAddress);
+  },
+});
 function execute() {
   machine.step();
   selectedEvent = -1;
   render();
+  revealRam(machine.currentAddress);
   if (machine.error) {
     stop();
     announce(machine.error, true);
@@ -436,25 +449,47 @@ function tick() {
   if (runCount >= 10000 && running) {
     stop();
     announce(
-      "10,000命令に達したため一時停止しました。分岐先を確認するか、連続実行で続けられます。",
+      "10,000命令に達したため一時停止しました。分岐先を確認するか、自動実行で続けられます。",
     );
     renderControls();
   }
   if (running) timer = setTimeout(tick, Number($("speed").value));
 }
-$("run").addEventListener("click", () =>
+$("run").addEventListener("click", () => {
+  if (running) {
+    stop();
+    renderControls();
+    announce("一時停止しました。同じ状態から続けられます。");
+    return;
+  }
   guarded(() => {
     if (machine.halted || machine.error) return;
     running = true;
     runCount = 0;
     tick();
-  }),
-);
+  });
+});
 $("step").addEventListener("click", () => guarded(execute));
-$("pause").addEventListener("click", () => {
-  stop();
-  renderControls();
-  announce("一時停止しました。同じ状態から続けられます。");
+window.addEventListener("keydown", (event) => {
+  if (
+    event.defaultPrevented ||
+    event.repeat ||
+    event.altKey ||
+    event.ctrlKey ||
+    event.metaKey ||
+    ![" ", "Enter"].includes(event.key)
+  )
+    return;
+  if (
+    event.target instanceof HTMLElement &&
+    event.target.closest(
+      'input,select,textarea,button,a,summary,dialog,[contenteditable="true"]',
+    )
+  )
+    return;
+  if (document.querySelector("dialog[open]") || $("step").disabled) return;
+  event.preventDefault();
+  $("step").click();
 });
 $("reset").addEventListener("click", () => guarded(() => reset()));
 for (const id of [
@@ -473,6 +508,7 @@ for (const id of [
 }
 $("experiment-name").addEventListener("input", () => {
   name = $("experiment-name").value;
+  $("setup-name").textContent = name || "名前のないプログラム";
   persist();
 });
 presets.forEach((p) => {
@@ -506,6 +542,7 @@ function addRecord(result, label = name) {
   renderRecords();
 }
 function renderRecords() {
+  $("record-count").textContent = `${records.length}件`;
   const conditions = [];
   $("result-rows").replaceChildren();
   $("comparison-empty").hidden = !!records.length;

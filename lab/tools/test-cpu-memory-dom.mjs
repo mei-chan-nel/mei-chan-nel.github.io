@@ -90,7 +90,7 @@ assert.equal(
 );
 click("reset");
 click("run");
-click("pause");
+click("run");
 const paused = $("steps").textContent;
 await new Promise((r) => setTimeout(r, 80));
 assert.equal($("steps").textContent, paused);
@@ -106,12 +106,8 @@ click("step");
 assert.match($("notice").textContent, /0〜31/);
 assert.equal($("steps").textContent, "0");
 change(operand(0), "16");
-const pad = document.querySelector('tr[data-address="16"] .pad-button');
-pad.click();
-assert.equal(document.querySelector(".tap-dialog").open, true);
-const keys = [...document.querySelectorAll(".tap-dialog button")];
-keys.find((b) => b.getAttribute("aria-label") === "数字 9").click();
-keys.find((b) => b.textContent === "この値を使う").click();
+assert.equal(document.querySelectorAll(".pad-button").length, 0);
+change(operand(16), "9");
 assert.equal(operand(16).value, "9");
 assert.equal($("steps").textContent, "0");
 click("help-toggle");
@@ -161,6 +157,6 @@ assert.equal($("capacity").value, "4");
 assert.equal($("experiment-name").value, "再読込");
 assert.equal($("steps").textContent, "0");
 console.log(
-  "DOM integration passed: editing, cache snapshots, execution, pause, all-op loop, comparison, restore, tap input, persistence, JSON validation.",
+  "DOM integration passed: editing, cache snapshots, execution, pause, all-op loop, comparison, restore, direct input, persistence, JSON validation.",
 );
 dom.window.close();
