@@ -89,7 +89,7 @@ function updateNotes() {
   $('step-number').textContent = item.phase === 'initial' ? `START / ${IMPROVEMENTS.length}つの改善`
     : item.phase === 'complete' ? `FINISH / ${IMPROVEMENTS.length}つの改善を反映` : `工程 ${String(item.number).padStart(2, '0')} / ${String(IMPROVEMENTS.length).padStart(2, '0')} · ${item.short}`;
   $('step-title').textContent = item.title; $('step-question').textContent = item.question;
-  for (const field of ['change', 'benefit', 'remaining', 'sideEffect']) {
+  for (const field of ['change', 'benefit']) {
     $('step-' + field.replace(/[A-Z]/g, c => '-' + c.toLowerCase())).textContent = item[field];
   }
   $('step-tip').textContent = item.tip; $('change-links').replaceChildren();
@@ -183,12 +183,7 @@ async function render() {
     });
     if (currentMode === 'learn') focusRegion(item.phase === 'overview' ? 'all' : item.regions[0] ?? 'all'); else syncPositions();
     grid.setAttribute('aria-busy', 'false');
-    status(currentMode === 'upload' ? uploadDescription : item.phase === 'initial'
-      ? '通常・P・D・T型を2×2で比較。左の「拡大して観察」から始めましょう。'
-      : item.phase === 'complete' ? `${IMPROVEMENTS.length}つの改善を反映した完成品です。「0 ページ全体」と切り替えて最初のデザインと見比べましょう。`
-      : item.phase === 'observe' ? `${REGIONS[item.region].label}を拡大して観察中です。次に同じ番号の「改善する」を選びましょう。`
-      : item.phase === 'overview' ? `工程${item.number}までの改善をページ全体で確認中です。同じ番号の「拡大して観察」で変更前に戻れます。`
-      : `${REGIONS[item.region].label}だけを変更しました。「全体を見る」で、ページ全体の中で効果を確かめましょう。`);
+    status(currentMode === 'upload' ? uploadDescription : '');
   } catch (e) {
     if (id !== renderId) return; grid.setAttribute('aria-busy', 'false'); error(e.message); status('処理を完了できませんでした。');
   }
@@ -324,7 +319,7 @@ $('fullscreen-toggle').addEventListener('click', async () => {
 });
 document.addEventListener('fullscreenchange', () => setFullscreenMode(document.fullscreenElement === workspace));
 document.addEventListener('keydown', e => {
-  if (e.key==='Escape' && fullscreenActive && !document.fullscreenElement && !imageDialog.open && !$('method-dialog').open) { e.preventDefault(); setFullscreenMode(false); }
+  if (e.key==='Escape' && fullscreenActive && !document.fullscreenElement && !imageDialog.open) { e.preventDefault(); setFullscreenMode(false); }
 });
 
 async function readImage(file){
@@ -344,6 +339,7 @@ async function readImage(file){
     const ctx=source.getContext('2d',{colorSpace:'srgb',willReadFrequently:true});ctx.fillStyle='#ffffff';ctx.fillRect(0,0,source.width,source.height);ctx.imageSmoothingQuality='high';ctx.drawImage(image,0,0,source.width,source.height);
     status('P・D・T型をブラウザ内で計算しています…');const set=await makeSet(source);if(id!==uploadId)return;
     uploadSet=set;uploadDescription=`${file.name} · ${source.width} × ${source.height}px${ratio<1?`（元画像 ${w} × ${h}pxを縮小）`:''} · 白背景で確認`;
+    $('image-info').textContent=uploadDescription;$('image-info').hidden=false;
     $('save-image').disabled=false;$('remove-image').disabled=false;reset();if(mode==='upload')render();
   }catch(e){if(id===uploadId){error(e.message.startsWith('4,000')?e.message:'画像を読み込めませんでした。対応形式の別の画像を選んでください。');status('読込を完了できませんでした。');$('save-image').disabled=!uploadSet;}}
   finally{URL.revokeObjectURL(url);$('image-input').value='';}
@@ -377,7 +373,7 @@ window.addEventListener('drop',e=>{
   readImage(e.dataTransfer.files[0]);
 });
 window.addEventListener('dragend',clearDropState);
-$('remove-image').addEventListener('click',()=>{uploadId++;uploadSet=null;uploadDescription='';$('image-input').value='';$('save-image').disabled=true;$('remove-image').disabled=true;error();reset();render();});
+$('remove-image').addEventListener('click',()=>{uploadId++;uploadSet=null;uploadDescription='';$('image-info').textContent='';$('image-info').hidden=true;$('image-input').value='';$('save-image').disabled=true;$('remove-image').disabled=true;error();reset();render();});
 $('save-image').addEventListener('click',async()=>{
   if(!uploadSet)return;const selected=$('save-type').value;const set=uploadSet;$('save-image').disabled=true;error();
   try{
@@ -393,8 +389,8 @@ $('save-image').addEventListener('click',async()=>{
   }catch{error('画像を保存できませんでした。より小さい画像でお試しください。');}
   finally{$('save-image').disabled=!uploadSet;}
 });
-const dialog=$('method-dialog');
-for(const id of ['open-method','note-method'])$(id).addEventListener('click',()=>{if(fullscreenActive)card.append(dialog);dialog.showModal();});
-$('close-method').addEventListener('click',()=>dialog.close());
-dialog.addEventListener('click',(e)=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
+$('open-method').addEventListener('click',()=>{
+  $('learning-points').open=true;$('simulation-method').open=true;
+  $('simulation-method').querySelector('summary').focus({preventScroll:true});
+});
 updateNotes();render();

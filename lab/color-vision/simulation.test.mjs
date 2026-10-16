@@ -73,6 +73,6 @@ test('all lesson steps and regions are complete and lie within the page',()=>{
   });
   assert.equal(STEPS.at(-1).phase,'complete');assert.equal(STEPS.at(-1).state,IMPROVEMENTS.length);
   assert.deepEqual(STEPS.at(-1).regions,[]);
-  for(const step of STEPS){for(const field of ['title','question','change','benefit','remaining','sideEffect','tip'])assert.ok(step[field]);for(const key of step.regions)assert.ok(REGIONS[key]);}
+  for(const step of STEPS){for(const field of ['title','question','change','benefit','tip'])assert.ok(step[field]);for(const key of step.regions)assert.ok(REGIONS[key]);}
   for(const {box:[x,y,w,h]} of Object.values(REGIONS)){assert.ok(x>=0&&y>=0&&x+w<=SIZE.width&&y+h<=SIZE.height);}
 });
