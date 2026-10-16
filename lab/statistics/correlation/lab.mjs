@@ -1,16 +1,5 @@
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
-import {
-  esc,
-  range,
-  number,
-  select,
-  metrics,
-  table,
-  svg,
-  axes,
-  bind,
-  drag,
-} from "../shared/ui.mjs";
+import { esc, metrics, table, svg, drag } from "../shared/ui.mjs";
 import { readDataset } from "../shared/data.mjs";
 
 const basePoints = () =>
@@ -37,7 +26,7 @@ function baseState() {
     manual: false,
     manualSlope: 0.35,
     manualIntercept: 35,
-    showResiduals: true,
+    showResiduals: false,
     showSquares: false,
     excludeSelected: false,
     predictionX: 75,
@@ -118,225 +107,295 @@ function validFit(fit) {
   return Number.isFinite(fit.slope) && Number.isFinite(fit.intercept);
 }
 function equation(a, b) {
-  return `ŷ = ${fmt(a, 3)}x ${b < 0 ? "−" : "+"} ${fmt(Math.abs(b), 2)}`;
+  const coefficient = (v, digits) =>
+    v !== 0 && (Math.abs(v) < 0.001 || Math.abs(v) >= 1e5)
+      ? v.toExponential(3)
+      : fmt(v, digits);
+  return `ŷ = ${coefficient(a, 3)}x ${b < 0 ? "−" : "+"} ${coefficient(Math.abs(b), 2)}`;
+}
+
+const colors = {
+  data: "#207d79",
+  selected: "#d98732",
+  selectedEdge: "#9d4c15",
+  prediction: "#815dab",
+  residual: "#cc7435",
+  reference: "#819090",
+};
+const coordinate = (value, span) => {
+  if (value !== 0 && (Math.abs(value) >= 1e5 || Math.abs(value) < 0.001))
+    return value.toExponential(2);
+  return fmt(
+    value,
+    Math.max(0, Math.min(8, Math.ceil(-Math.log10(Math.abs(span) || 1)) + 3)),
+  );
+};
+const pointId = (id) => `corr-point-${encodeURIComponent(String(id))}`;
+
+export function visiblePrediction(
+  state,
+  slope,
+  intercept,
+  requested = state.predictionX,
+) {
+  if (!Number.isFinite(slope) || !Number.isFinite(intercept)) return null;
+  let low = state.xMin,
+    high = state.xMax;
+  if (slope === 0) {
+    if (intercept < state.yMin || intercept > state.yMax) return null;
+  } else {
+    const ends = [
+      (state.yMin - intercept) / slope,
+      (state.yMax - intercept) / slope,
+    ].sort((a, b) => a - b);
+    low = Math.max(low, ends[0]);
+    high = Math.min(high, ends[1]);
+  }
+  if (low > high) return null;
+  const x = clamp(
+    Number.isFinite(requested) ? requested : (low + high) / 2,
+    low,
+    high,
+  );
+  return { x, y: slope * x + intercept, low, high };
+}
+
+export function normalizeCorrelation(state) {
+  const next = {
+    ...state,
+    mode: "move",
+    excludeSelected: state.points.length >= 3 && state.excludeSelected,
+  };
+  // Old slider-based saved lines have no on-chart handles. Keep the observations,
+  // and start those saved experiments with their fitted regression line.
+  if (next.manual && !next.lineAnchors) next.manual = false;
+  const fit = regression(trainingPoints(next));
+  const prediction = visiblePrediction(
+    next,
+    next.manual ? next.manualSlope : fit.slope,
+    next.manual ? next.manualIntercept : fit.intercept,
+  );
+  if (prediction) next.predictionX = prediction.x;
+  return next;
+}
+
+export function addRandomPoint(state, random = Math.random) {
+  if (state.points.length >= 300) return null;
+  let serial = state.points.length;
+  while (state.points.some((p) => p.id === `added-${serial}`)) serial++;
+  const id = `added-${serial}`;
+  const value = (low, high) =>
+    Number((low + (0.1 + random() * 0.8) * (high - low)).toPrecision(10));
+  return {
+    points: [
+      ...state.points,
+      {
+        id,
+        x: value(Math.max(-1e6, state.xMin), Math.min(1e6, state.xMax)),
+        y: value(Math.max(-1e6, state.yMin), Math.min(1e6, state.yMax)),
+      },
+    ],
+    selectedId: id,
+  };
+}
+
+export function moveLineHandle(state, side, x, y) {
+  const anchors = state.lineAnchors;
+  if (!anchors) return null;
+  const gap =
+    state.lineHandleGap ||
+    Math.max(
+      Math.abs(anchors.right.x - anchors.left.x) * 0.02,
+      Number.EPSILON *
+        Math.max(1, Math.abs(anchors.left.x), Math.abs(anchors.right.x)) *
+        8,
+    );
+  const moved = {
+    x: clamp(
+      x,
+      side === "left" ? state.xMin : anchors.left.x + gap,
+      side === "left" ? anchors.right.x - gap : state.xMax,
+    ),
+    y: clamp(y, state.yMin, state.yMax),
+  };
+  const next = { ...anchors, [side]: moved };
+  const slope = (next.right.y - next.left.y) / (next.right.x - next.left.x);
+  return {
+    lineAnchors: next,
+    manualSlope: slope,
+    manualIntercept: next.left.y - slope * next.left.x,
+  };
 }
 
 function render(root, ctx) {
-  const s = ctx.state;
-  const points = s.points;
+  const s = ctx.state,
+    points = s.points;
   const selected = points.find((p) => p.id === s.selectedId) || points[0];
-  const train = trainingPoints(s);
-  const fit = regression(train);
-  const fitOK = validFit(fit);
+  const train = trainingPoints(s),
+    fit = regression(train),
+    fitOK = validFit(fit);
   const slope = s.manual ? Number(s.manualSlope) : fit.slope;
   const intercept = s.manual ? Number(s.manualIntercept) : fit.intercept;
   const lineOK = Number.isFinite(slope) && Number.isFinite(intercept);
   const residuals = lineOK
     ? residualSummary(train, slope, intercept)
     : { residuals: [], sse: NaN, rmse: NaN };
+  const prediction = visiblePrediction(s, slope, intercept);
   const xSpan = s.xMax - s.xMin,
     ySpan = s.yMax - s.yMin;
-  const a = axes({
-    xmin: s.xMin,
-    xmax: s.xMax,
-    ymin: s.yMin,
-    ymax: s.yMax,
-    w: 720,
-    h: 420,
-    xlabel: s.xLabel,
-    ylabel: s.yLabel,
-  });
-  let drawing = a.markup
-    .replace(/>(-?[\d,]+)\.0<\/text>/g, ">$1</text>")
-    .replace('y="16"', 'y="23"');
+  const w = Math.max(
+    260,
+    root.clientWidth - (window.innerWidth <= 800 ? 30 : 42),
+  );
+  const h = w < 550 ? 340 : 460;
+  const left = w < 550 ? 72 : 86,
+    right = w - 30,
+    top = 30,
+    bottom = h - 58;
+  const a = {
+    x: (v) => left + ((v - s.xMin) / xSpan) * (right - left),
+    y: (v) => bottom - ((v - s.yMin) / ySpan) * (bottom - top),
+    ix: (v) => s.xMin + ((v - left) / (right - left)) * xSpan,
+    iy: (v) => s.yMin + ((bottom - v) / (bottom - top)) * ySpan,
+  };
+  const axisLabel = (text, width) => {
+    let short = "",
+      used = 0;
+    for (const ch of String(text)) {
+      used += /[\u0000-\u007f]/.test(ch) ? 7 : 13;
+      if (used > width - 14) return `<title>${esc(text)}</title>${esc(short)}…`;
+      short += ch;
+    }
+    return esc(short);
+  };
+  let drawing = `<defs><clipPath id="corr-clip"><rect x="${left}" y="${top}" width="${right - left}" height="${bottom - top}"/></clipPath></defs>`;
+  for (let i = 0; i <= 5; i++) {
+    const x = s.xMin + (xSpan * i) / 5,
+      y = s.yMin + (ySpan * i) / 5;
+    drawing += `<line class="gridline" x1="${left}" x2="${right}" y1="${a.y(y)}" y2="${a.y(y)}"/>`;
+    if (!prediction || Math.abs(a.x(x) - a.x(prediction.x)) > 38)
+      drawing += `<text x="${a.x(x)}" y="${bottom + 20}" text-anchor="middle">${coordinate(x, xSpan)}</text>`;
+    if (!prediction || Math.abs(a.y(y) - a.y(prediction.y)) > 17)
+      drawing += `<text x="${left - 10}" y="${a.y(y) + 4}" text-anchor="end">${coordinate(y, ySpan)}</text>`;
+  }
+  drawing += `<path class="axis" d="M${left},${top}V${bottom}H${right}"/><text x="${(left + right) / 2}" y="${h - 5}" text-anchor="middle">${axisLabel(s.xLabel, 2 * Math.min((left + right) / 2, w - (left + right) / 2) - 10)}</text><text x="${left}" y="16">${axisLabel(s.yLabel, w - left - 8)}</text>`;
   if (lineOK) {
-    // Clip the regression to the coordinate area, including residual squares.
-    const top = Math.min(a.y(s.yMin), a.y(s.yMax)),
-      left = a.x(s.xMin);
-    drawing += `<defs><clipPath id="corr-clip"><rect x="${left}" y="${top}" width="${a.x(s.xMax) - left}" height="${Math.abs(a.y(s.yMin) - a.y(s.yMax))}"/></clipPath></defs><g clip-path="url(#corr-clip)">`;
+    drawing += '<g clip-path="url(#corr-clip)">';
     if (s.showResiduals)
       residuals.residuals.forEach((p) => {
-        const py = a.y(p.predicted),
-          yy = a.y(p.y),
-          px = a.x(p.x),
-          size = Math.abs(yy - py);
+        const x = a.x(p.x),
+          y = a.y(p.y),
+          py = a.y(p.predicted),
+          size = Math.abs(y - py);
         if (s.showSquares)
-          drawing += `<rect x="${px}" y="${Math.min(py, yy)}" width="${size}" height="${size}" fill="#d9873218" stroke="#d9873266"><title>残差 ${fmt(p.residual)}、残差の二乗 ${fmt(p.residual ** 2)}。面積は残差の二乗に比例</title></rect>`;
-        drawing += `<line x1="${px}" x2="${px}" y1="${yy}" y2="${py}" stroke="#cc7435" stroke-width="2" stroke-dasharray="4 3"/>`;
+          drawing += `<rect x="${x}" y="${Math.min(y, py)}" width="${size}" height="${size}" fill="#d9873218" stroke="#d9873266"><title>残差² = ${fmt(p.residual ** 2)}</title></rect>`;
+        drawing += `<line data-residual="${esc(p.id)}" x1="${x}" x2="${x}" y1="${y}" y2="${py}" stroke="${colors.residual}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
       });
-    drawing += `<line class="series" x1="${a.x(s.xMin)}" y1="${a.y(slope * s.xMin + intercept)}" x2="${a.x(s.xMax)}" y2="${a.y(slope * s.xMax + intercept)}" stroke-width="3"/>`;
+    const segment = (m, b, attrs) => {
+      const p = visiblePrediction(s, m, b, s.xMin),
+        q = visiblePrediction(s, m, b, s.xMax);
+      return p && q
+        ? `<line ${attrs} x1="${a.x(p.x)}" x2="${a.x(q.x)}" y1="${a.y(p.y)}" y2="${a.y(q.y)}"/>`
+        : "";
+    };
     if (s.manual && fitOK)
-      drawing += `<line x1="${a.x(s.xMin)}" y1="${a.y(fit.slope * s.xMin + fit.intercept)}" x2="${a.x(s.xMax)}" y2="${a.y(fit.slope * s.xMax + fit.intercept)}" stroke="#819090" stroke-width="2" stroke-dasharray="6 5"/>`;
-    const predicted = slope * s.predictionX + intercept;
-    drawing += `<line x1="${a.x(s.predictionX)}" x2="${a.x(s.predictionX)}" y1="${a.y(s.yMin)}" y2="${a.y(predicted)}" stroke="#815dab" stroke-dasharray="5 3"/><circle cx="${a.x(s.predictionX)}" cy="${a.y(predicted)}" r="6" fill="#815dab"><title>予測 ${fmt(predicted)}</title></circle></g>`;
+      drawing += segment(
+        fit.slope,
+        fit.intercept,
+        `data-fit-line stroke="${colors.reference}" stroke-width="2" stroke-dasharray="6 5"`,
+      );
+    drawing +=
+      segment(
+        slope,
+        intercept,
+        `data-current-line stroke="${s.manual ? colors.selectedEdge : colors.data}" stroke-width="2.5"`,
+      ) + "</g>";
   }
   points.forEach((p, i) => {
-    const chosen = p.id === selected?.id;
-    const held = s.excludeSelected && chosen;
-    drawing += `<circle class="point" data-id="${esc(p.id)}" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${chosen ? 9 : 7}" style="fill:${held ? "#fff" : chosen ? "#d98732" : "#207d79"};stroke:${chosen ? "#9d4c15" : "#fff"};stroke-width:${chosen ? 3 : 2};${s.mode === "add" ? "pointer-events:none" : ""}" tabindex="${s.mode === "add" ? -1 : 0}" role="button" aria-label="データ${i + 1}、${esc(s.xLabel)} ${fmt(p.x)}、${esc(s.yLabel)} ${fmt(p.y)}。選択して数値でも編集可能"><title>データ${i + 1}: (${fmt(p.x)}, ${fmt(p.y)})${held ? "・予測検証用" : ""}</title></circle>`;
+    const chosen = p.id === selected?.id,
+      held = s.excludeSelected && chosen;
+    drawing += `<circle id="${esc(pointId(p.id))}" class="point corr-observation" data-id="${esc(p.id)}" data-corr-drag="observation" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${chosen ? 9 : 7}" style="fill:${held ? "#fff" : chosen ? colors.selected : colors.data};stroke:${chosen ? colors.selectedEdge : "#fff"};stroke-width:${chosen ? 3 : 2}" tabindex="0" role="button" aria-pressed="${chosen}" aria-label="データ${i + 1}、x ${coordinate(p.x, xSpan)}、y ${coordinate(p.y, ySpan)}。Deleteキーで削除"><title>データ${i + 1}: (${coordinate(p.x, xSpan)}, ${coordinate(p.y, ySpan)})</title></circle>`;
   });
-  const forecast = lineOK ? slope * s.predictionX + intercept : NaN;
-  const heldPred = selected && lineOK ? slope * selected.x + intercept : NaN;
-  const extrapolation =
-    train.length &&
-    (s.predictionX < Math.min(...train.map((p) => p.x)) ||
-      s.predictionX > Math.max(...train.map((p) => p.x)));
-  const message = !fitOK
-    ? s.excludeSelected && points.length < 3
-      ? "検証用の1点を外すには、元データが3組以上必要です。データタブで別のデータを読み込むか、相関と直線のタブで点を追加してください。"
-      : "x がすべて同じ、または点が足りないため、回帰直線を一意に求められません。x の異なる学習用の点を2つ以上置いてください。"
-    : !Number.isFinite(fit.r)
-      ? "y の値がすべて同じため、相関係数は定義できません。傾き0の回帰直線は求められます。"
-      : `点は ${points.length} 個。${s.manual ? "実線は手動の直線、灰色の破線は最小二乗直線です。" : "実線は残差平方和を最小にする回帰直線です。"}`;
-  root.innerHTML = `
-    ${metrics([
-      [
-        "相関係数 r",
-        Number.isFinite(fit.r) ? fmt(fit.r, 3) : "定義できない",
-        "直線的な関係の強さ",
-      ],
-      [
-        "使用中の直線の残差平方和",
-        lineOK ? fmt(residuals.sse, 1) : "—",
-        "縦方向の誤差を二乗して合計",
-      ],
-      [
-        "最小の残差平方和",
-        fitOK ? fmt(fit.sse, 1) : "—",
-        `学習用 ${train.length} 点`,
-      ],
-      [
-        "学習データのRMSE",
-        lineOK ? fmt(residuals.rmse, 2) : "—",
-        "誤差の典型的な大きさ・yと同じ単位",
-      ],
-    ])}
-    <div class="stat-grid"><section class="panel chart-panel"><h2>点を動かして、関係を変える</h2><p class="muted">${esc(s.source)}。点をドラッグ／タップして選択できます。${s.mode === "add" ? "図の空いている場所を押すと点を追加します。" : s.mode === "delete" ? "点を押すと削除します。" : "数値での編集もできます。"}</p>
-      ${svg(drawing, "直接編集できる散布図と回帰直線", 720, 420).replace("<svg", '<svg id="corr-chart" style="touch-action:none"')}
-      <p class="hint" role="status">${esc(message)}</p><p class="legend">● 青緑：学習用　● 橙：選択中　◯ 橙：検証用　● 紫：指定したxの予測</p>
-    </section><section class="panel controls"><h2>実験の操作</h2>
-      ${select(
-        "point-mode",
-        "図の操作",
-        [
-          ["move", "点を選択・移動"],
-          ["add", "空白に点を追加"],
-          ["delete", "押した点を削除"],
-        ],
-        s.mode,
-      )}
-      ${select(
-        "point-choice",
-        "選択するデータ",
-        points.map((p, i) => [
-          p.id,
-          `データ${i + 1} (${fmt(p.x, 1)}, ${fmt(p.y, 1)})`,
-        ]),
-        selected?.id || "",
-      )}
-      ${selected ? number("point-x", s.xLabel, selected.x, s.xMin, s.xMax, 0.5) + number("point-y", s.yLabel, selected.y, s.yMin, s.yMax, 0.5) : ""}
-      <div class="actions"><button id="corr-outlier" type="button" ${!selected ? "disabled" : ""}>選択点を右下の外れ値へ</button><button id="corr-delete" type="button" ${points.length <= 2 ? "disabled" : ""}>選択点を削除</button></div>
-      <label><input type="checkbox" id="corr-manual" ${s.manual ? "checked" : ""}> 直線を手で調整する</label>
-      ${s.manual ? range("line-slope", "傾き", s.manualSlope, (-2 * ySpan) / xSpan, (2 * ySpan) / xSpan, 0.01) + range("line-intercept", "切片", s.manualIntercept, s.yMin - ySpan / 2, s.yMax + ySpan / 2, 0.5) + '<button id="corr-best" type="button">最小二乗直線と重ねる</button>' : ""}
-      <label><input type="checkbox" id="corr-residuals" ${s.showResiduals ? "checked" : ""}> 残差を縦線で表示</label>
-      <label><input type="checkbox" id="corr-squares" ${s.showSquares ? "checked" : ""}> 残差の二乗を正方形で表示</label>
-      <p class="annotation">${lineOK ? esc(equation(slope, intercept)) : "回帰直線は計算できません"}</p>
-    </section></div>
-    <div class="stat-grid"><section class="panel controls"><h2>予測を、実測で確かめる</h2>
-      ${range("prediction-x", `予測したい ${s.xLabel}`, s.predictionX, s.xMin, s.xMax, 0.5)}
-      <p class="annotation">予測値：<strong>${Number.isFinite(forecast) ? fmt(forecast, 2) : "—"}</strong> ${esc(s.yLabel)}${extrapolation ? "　⚠ 学習したxの範囲外（外挿）です。" : ""}</p>
-      <label><input type="checkbox" id="corr-holdout" ${s.excludeSelected ? "checked" : ""}> 選択中の1点を学習から外し、未知のデータとして検証する</label>
-      ${selected ? `<p>選択点の実測値 <strong>${fmt(selected.y)}</strong> ／ 直線の予測 <strong>${Number.isFinite(heldPred) ? fmt(heldPred) : "—"}</strong> ／ 実測−予測 <strong>${Number.isFinite(heldPred) ? fmt(selected.y - heldPred) : "—"}</strong></p>` : ""}
-      <p class="hint">${s.excludeSelected ? "選択点を変えると、学習に使う点と直線も変わります。複数の点を順に検証して、予測のずれを比較しましょう。" : "同じデータで直線を作り精度を測ると、予測をよく見積もりがちです。チェックを入れて確かめましょう。"} 学習用RMSEは将来の誤差を保証しません。</p>
-    </section><section class="panel"><h2>計算を見てみる</h2><details><summary>実測値・予測値・残差の一覧</summary>
-      ${table(
-        ["データ", "x", "実測 y", "予測 ŷ", "残差 y−ŷ", "残差²"],
-        residuals.residuals.map((p) => [
-          points.findIndex((q) => q.id === p.id) + 1,
-          fmt(p.x),
-          fmt(p.y),
-          fmt(p.predicted),
-          fmt(p.residual),
-          fmt(p.residual ** 2),
-        ]),
-      )}
-      <p>残差平方和 SSE = Σ(yᵢ − ŷᵢ)² = ${fmt(residuals.sse)}。RMSE = √(SSE ÷ ${train.length})。正方形の面積は残差²に比例します。図の縦横の単位は異なるので、点から直線への最短距離を測っているわけではありません。</p></details>
-      <p>r が同じでも、点の並び方や外れ値の影響は異なります。相関係数を見る前に、散布図の形を確かめてください。</p>
-    </section></div>`;
-
-  const updateSelected = (patch) => {
-    if (selected)
-      ctx.update({
-        points: points.map((p) =>
-          p.id === selected.id ? { ...p, ...patch } : p,
-        ),
-      });
-  };
-  bind(root, "point-mode", (mode) => ctx.update({ mode }), "change");
-  bind(
-    root,
-    "point-choice",
-    (selectedId) => ctx.update({ selectedId }),
-    "change",
-  );
-  bind(root, "point-x", (x) => updateSelected({ x: clamp(x, s.xMin, s.xMax) }));
-  bind(root, "point-y", (y) => updateSelected({ y: clamp(y, s.yMin, s.yMax) }));
-  bind(root, "line-slope", (manualSlope) => ctx.update({ manualSlope }));
-  bind(root, "line-intercept", (manualIntercept) =>
-    ctx.update({ manualIntercept }),
-  );
-  bind(root, "prediction-x", (predictionX) => ctx.update({ predictionX }));
-  for (const [id, key] of [
-    ["corr-manual", "manual"],
-    ["corr-residuals", "showResiduals"],
-    ["corr-squares", "showSquares"],
-    ["corr-holdout", "excludeSelected"],
-  ])
-    root
-      .querySelector(`#${id}`)
-      .addEventListener("change", (e) =>
-        ctx.update({ [key]: e.target.checked }),
-      );
-  root.querySelector("#corr-best")?.addEventListener("click", () => {
-    if (fitOK)
-      ctx.update({ manualSlope: fit.slope, manualIntercept: fit.intercept });
-  });
-  root
-    .querySelector("#corr-outlier")
-    .addEventListener("click", () =>
-      updateSelected({ x: s.xMin + xSpan * 0.94, y: s.yMin + ySpan * 0.12 }),
-    );
-  const remove = (id) => {
-    if (points.length > 2)
-      ctx.update({
-        points: points.filter((p) => p.id !== id),
-        selectedId: points.find((p) => p.id !== id)?.id,
-      });
-  };
-  root
-    .querySelector("#corr-delete")
-    .addEventListener("click", () => remove(selected?.id));
-  const addOption = root.querySelector('#point-mode option[value="add"]');
-  if (addOption) {
-    addOption.disabled = points.length >= 300;
-    if (points.length >= 300) addOption.textContent = "追加は300点までです";
+  if (s.manual && s.lineAnchors)
+    for (const [side, p] of Object.entries(s.lineAnchors)) {
+      drawing += `<g id="corr-line-${side}" data-corr-drag="line" data-side="${side}" class="corr-drag-handle" role="slider" tabindex="0" aria-label="調整中の直線の${side === "left" ? "左" : "右"}の取っ手" aria-valuemin="${s.yMin}" aria-valuemax="${s.yMax}" aria-valuenow="${p.y}" aria-valuetext="x ${coordinate(p.x, xSpan)}、y ${coordinate(p.y, ySpan)}"><circle cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="18" fill="transparent"/><rect x="${a.x(p.x) - 6}" y="${a.y(p.y) - 6}" width="12" height="12" rx="2" fill="#fff" stroke="${colors.selectedEdge}" stroke-width="2"/></g>`;
+    }
+  if (prediction) {
+    const x = a.x(prediction.x),
+      y = a.y(prediction.y);
+    drawing += `<g class="corr-projections" pointer-events="none"><line data-prediction-guide="x" x1="${x}" x2="${x}" y1="${y}" y2="${bottom}" stroke="${colors.prediction}" stroke-width="1.5" stroke-dasharray="5 4"/><line data-prediction-guide="y" x1="${left}" x2="${x}" y1="${y}" y2="${y}" stroke="${colors.prediction}" stroke-width="1.5" stroke-dasharray="5 4"/><rect x="${x - 34}" y="${bottom + 6}" width="68" height="22" rx="3" fill="#f3edf9"/><text data-prediction-axis="x" x="${x}" y="${bottom + 22}" text-anchor="middle" style="fill:${colors.prediction};font-weight:700">${coordinate(prediction.x, xSpan)}</text><rect x="${left - 70}" y="${y - 12}" width="64" height="23" rx="3" fill="#f3edf9"/><text data-prediction-axis="y" x="${left - 10}" y="${y + 4}" text-anchor="end" style="fill:${colors.prediction};font-weight:700">${coordinate(prediction.y, ySpan)}</text></g>`;
+    drawing += `<g id="corr-prediction" class="corr-drag-handle" data-corr-drag="prediction" role="slider" tabindex="0" aria-label="予測点。左右に動かしてxを指定" aria-orientation="horizontal" aria-valuemin="${prediction.low}" aria-valuemax="${prediction.high}" aria-valuenow="${prediction.x}" aria-valuetext="x ${coordinate(prediction.x, xSpan)}、予測y ${coordinate(prediction.y, ySpan)}"><circle cx="${x}" cy="${y}" r="19" fill="transparent"/><circle data-prediction-point cx="${x}" cy="${y}" r="8" fill="${colors.prediction}" stroke="#fff" stroke-width="2"/><title>予測点: x ${coordinate(prediction.x, xSpan)}、ŷ ${coordinate(prediction.y, ySpan)}</title></g>`;
   }
+  const key = (label, color, hollow = false, line = false) =>
+    `<li><span class="${line ? "corr-line-key" : "corr-point-key"}" style="${line ? `border-color:${color};border-top-style:${/破線|点線/.test(label) ? "dashed" : "solid"}` : `background:${hollow ? "#fff" : color};border-color:${hollow || color === colors.selected ? colors.selectedEdge : "#fff"}`}" aria-hidden="true"></span>${label}</li>`;
+  const selectedResidual =
+    selected && lineOK ? selected.y - (slope * selected.x + intercept) : null;
+  const error = !lineOK
+    ? "回帰直線を求めるには、xの異なるデータが2点以上必要です。"
+    : "";
+  root.innerHTML = `${metrics([
+    ["相関係数 r", Number.isFinite(fit.r) ? fmt(fit.r, 3) : "定義できない"],
+    [
+      s.manual ? "調整中の直線の方程式" : "回帰直線の方程式",
+      lineOK ? equation(slope, intercept) : "計算できない",
+    ],
+  ]).replace('class="metrics"', 'class="metrics correlation-metrics"')}
+  <section class="panel chart-panel correlation-canvas"><div class="correlation-toolbar"><button id="corr-add" type="button" ${points.length >= 300 ? 'disabled title="300点まで追加できます"' : ""}>点を追加</button><button id="corr-delete" type="button" ${points.length <= 2 ? 'disabled title="データは2点以上必要です"' : 'title="選択した点を削除（Delete）"'}>選択点を削除</button></div>
+    ${svg(drawing, "散布図・直線。データ点と紫の予測点を直接動かせます", w, h).replace("<svg", '<svg id="corr-chart" style="touch-action:none"').replace('role="img"', 'role="group"')}
+    ${error ? `<p class="error" role="status">${error}</p>` : ""}
+    <ul class="corr-legend" aria-label="グラフの凡例">${key(s.excludeSelected ? "学習用データ" : "データ", colors.data)}${key(s.excludeSelected ? "検証用の選択点" : "選択中", colors.selected, s.excludeSelected)}${key("予測点", colors.prediction)}${key(s.manual ? "調整中の直線" : "回帰直線", s.manual ? colors.selectedEdge : colors.data, false, true)}${s.manual && fitOK ? key("回帰直線（破線）", colors.reference, false, true) : ""}${s.showResiduals ? key("残差（点線）", colors.residual, false, true) : ""}</ul>
+    <details id="corr-details" class="corr-details" ${s.correlationDetailsOpen ? "open" : ""}><summary>残差・直線の調整を詳しく調べる</summary><div class="corr-detail-options"><label><input id="corr-manual" type="checkbox" ${s.manual ? "checked" : ""}> 直線を図の取っ手で調整</label><label><input id="corr-residuals" type="checkbox" ${s.showResiduals ? "checked" : ""}> 残差を表示</label><label><input id="corr-squares" type="checkbox" ${s.showSquares ? "checked" : ""}> 残差の二乗を表示</label><label><input id="corr-holdout" type="checkbox" ${s.excludeSelected ? "checked" : ""} ${points.length < 3 ? "disabled" : ""}> 選択点を回帰から外して予測を検証</label>${s.manual ? '<button id="corr-best" type="button">回帰直線に戻す</button>' : ""}</div>
+    <p>残差平方和：<strong>${lineOK ? fmt(residuals.sse, 2) : "—"}</strong> ／ 最小値：${fitOK ? fmt(fit.sse, 2) : "—"} ／ 学習用RMSE：${lineOK ? fmt(residuals.rmse, 2) : "—"}</p>
+    ${selectedResidual !== null ? `<p>選択点の残差：実測 ${coordinate(selected.y, ySpan)} − 予測 ${coordinate(slope * selected.x + intercept, ySpan)} = <strong>${coordinate(selectedResidual, ySpan)}</strong>${s.excludeSelected ? "（検証用のため、残差平方和・RMSEの計算には含めません）" : ""}</p>` : ""}
+    <details class="corr-residual-table"><summary>実測値・予測値・残差の表</summary>${table(
+      ["データ", "x", "実測 y", "予測 ŷ", "残差", "残差²"],
+      residuals.residuals.map((p) => [
+        points.findIndex((q) => q.id === p.id) + 1,
+        coordinate(p.x, xSpan),
+        coordinate(p.y, ySpan),
+        coordinate(p.predicted, ySpan),
+        coordinate(p.residual, ySpan),
+        fmt(p.residual ** 2),
+      ]),
+    )}</details></details>
+  </section>`;
   const chart = root.querySelector("#corr-chart");
-  chart.querySelectorAll("[data-id]").forEach((el) => {
-    el.addEventListener("click", () =>
-      s.mode === "delete"
-        ? remove(el.dataset.id)
-        : ctx.update({ selectedId: el.dataset.id }),
-    );
-    el.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        ctx.update({ selectedId: el.dataset.id });
-      }
+  const focusPoint = (id) =>
+    document.getElementById(pointId(id))?.focus({ preventScroll: true });
+  const remove = (id) => {
+    if (points.length <= 2) return;
+    const index = points.findIndex((p) => p.id === id),
+      remaining = points.filter((p) => p.id !== id);
+    const nextId = remaining[Math.max(0, index - 1)]?.id || remaining[0]?.id;
+    ctx.update({
+      points: remaining,
+      selectedId: nextId,
+      excludeSelected: remaining.length >= 3 && s.excludeSelected,
     });
-  });
-  drag(chart, "[data-id]", (target, sx, sy) => {
-    if (s.mode !== "move") return;
+    focusPoint(nextId);
+  };
+  root.querySelector("#corr-add").onclick = () => {
+    const patch = addRandomPoint(s);
+    if (patch) {
+      ctx.update(patch);
+      focusPoint(patch.selectedId);
+    }
+  };
+  root.querySelector("#corr-delete").onclick = () => remove(selected?.id);
+  const updatePrediction = (x) => {
+    const p = visiblePrediction(s, slope, intercept, x);
+    if (p) ctx.update({ predictionX: p.x });
+  };
+  drag(chart, "[data-corr-drag]", (target, x, y) => {
+    if (target.dataset.corrDrag === "prediction") {
+      updatePrediction(a.ix(x));
+      return;
+    }
+    if (target.dataset.corrDrag === "line") {
+      const patch = moveLineHandle(s, target.dataset.side, a.ix(x), a.iy(y));
+      if (patch) ctx.update(patch);
+      return;
+    }
     const id = target.dataset.id;
     ctx.update({
       selectedId: id,
@@ -344,35 +403,173 @@ function render(root, ctx) {
         p.id === id
           ? {
               ...p,
-              x: Math.round(clamp(a.ix(sx), s.xMin, s.xMax) * 2) / 2,
-              y: Math.round(clamp(a.iy(sy), s.yMin, s.yMax) * 2) / 2,
+              x: Number(
+                clamp(
+                  a.ix(x),
+                  Math.max(-1e6, s.xMin),
+                  Math.min(1e6, s.xMax),
+                ).toPrecision(10),
+              ),
+              y: Number(
+                clamp(
+                  a.iy(y),
+                  Math.max(-1e6, s.yMin),
+                  Math.min(1e6, s.yMax),
+                ).toPrecision(10),
+              ),
             }
           : p,
       ),
     });
   });
-  chart.addEventListener("click", (e) => {
+  chart.addEventListener("pointerdown", (e) => {
+    if (e.button > 0) return;
+    const target = e.target.closest("[data-corr-drag]");
+    if (!target) return;
+    target.focus({ preventScroll: true });
+    if (target.dataset.corrDrag === "observation")
+      ctx.update({ selectedId: target.dataset.id });
+  });
+  chart.addEventListener("keydown", (e) => {
+    const target = e.target.closest("[data-corr-drag]");
+    if (!target) return;
+    const type = target.dataset.corrDrag;
+    if (type === "observation" && ["Delete", "Backspace"].includes(e.key)) {
+      e.preventDefault();
+      remove(target.dataset.id);
+      return;
+    }
+    if (type === "observation" && ["Enter", " "].includes(e.key)) {
+      e.preventDefault();
+      ctx.update({ selectedId: target.dataset.id });
+      return;
+    }
     if (
-      s.mode !== "add" ||
-      points.length >= 300 ||
-      e.target.closest("[data-id]")
+      ![
+        "ArrowLeft",
+        "ArrowRight",
+        "ArrowUp",
+        "ArrowDown",
+        "Home",
+        "End",
+      ].includes(e.key)
     )
       return;
-    const pos = chart.createSVGPoint();
-    pos.x = e.clientX;
-    pos.y = e.clientY;
-    const local = pos.matrixTransform(chart.getScreenCTM().inverse());
-    const x = a.ix(local.x / Number(chart.dataset.scaleX || 1)),
-      y = a.iy(local.y / Number(chart.dataset.scaleY || 1));
-    if (x < s.xMin || x > s.xMax || y < s.yMin || y > s.yMax) return;
-    const id = `new-${Date.now()}-${points.length}`;
+    e.preventDefault();
+    const dx = xSpan * (e.shiftKey ? 0.05 : 0.01),
+      dy = ySpan * (e.shiftKey ? 0.05 : 0.01);
+    if (type === "prediction") {
+      updatePrediction(
+        e.key === "Home"
+          ? prediction.low
+          : e.key === "End"
+            ? prediction.high
+            : prediction.x +
+              (["ArrowLeft", "ArrowDown"].includes(e.key) ? -dx : dx),
+      );
+    } else if (type === "line") {
+      const p = s.lineAnchors[target.dataset.side];
+      const patch = moveLineHandle(
+        s,
+        target.dataset.side,
+        p.x + (e.key === "ArrowLeft" ? -dx : e.key === "ArrowRight" ? dx : 0),
+        e.key === "Home"
+          ? s.yMin
+          : e.key === "End"
+            ? s.yMax
+            : p.y +
+              (e.key === "ArrowUp" ? dy : e.key === "ArrowDown" ? -dy : 0),
+      );
+      if (patch) ctx.update(patch);
+    } else {
+      const id = target.dataset.id;
+      ctx.update({
+        selectedId: id,
+        points: points.map((p) =>
+          p.id === id
+            ? {
+                ...p,
+                x: clamp(
+                  p.x +
+                    (e.key === "ArrowLeft"
+                      ? -dx
+                      : e.key === "ArrowRight"
+                        ? dx
+                        : 0),
+                  Math.max(-1e6, s.xMin),
+                  Math.min(1e6, s.xMax),
+                ),
+                y: clamp(
+                  e.key === "Home"
+                    ? s.yMin
+                    : e.key === "End"
+                      ? s.yMax
+                      : p.y +
+                        (e.key === "ArrowUp"
+                          ? dy
+                          : e.key === "ArrowDown"
+                            ? -dy
+                            : 0),
+                  Math.max(-1e6, s.yMin),
+                  Math.min(1e6, s.yMax),
+                ),
+              }
+            : p,
+        ),
+      });
+    }
+  });
+  root.querySelector("#corr-manual").onchange = (e) => {
+    if (!e.target.checked) {
+      ctx.update({ manual: false });
+      return;
+    }
+    const clipped = visiblePrediction(
+      s,
+      fitOK ? fit.slope : 0,
+      fitOK ? fit.intercept : mean(points.map((p) => p.y)),
+    );
+    if (!clipped) return;
+    const x1 = clipped.low + (clipped.high - clipped.low) * 0.2,
+      x2 = clipped.low + (clipped.high - clipped.low) * 0.8;
+    const m = fitOK ? fit.slope : 0,
+      b = fitOK ? fit.intercept : mean(points.map((p) => p.y));
     ctx.update({
-      points: [
-        ...points,
-        { id, x: Math.round(x * 2) / 2, y: Math.round(y * 2) / 2 },
-      ],
-      selectedId: id,
+      manual: true,
+      manualSlope: m,
+      manualIntercept: b,
+      lineHandleGap: Math.max(
+        (x2 - x1) * 0.02,
+        Number.EPSILON * Math.max(1, Math.abs(x1), Math.abs(x2)) * 8,
+      ),
+      lineAnchors: {
+        left: { x: x1, y: m * x1 + b },
+        right: { x: x2, y: m * x2 + b },
+      },
     });
+  };
+  for (const [id, key] of [
+    ["corr-residuals", "showResiduals"],
+    ["corr-squares", "showSquares"],
+    ["corr-holdout", "excludeSelected"],
+  ])
+    root.querySelector(`#${id}`).onchange = (e) =>
+      ctx.update({
+        [key]: e.target.checked,
+        ...(key === "showSquares" && e.target.checked
+          ? { showResiduals: true }
+          : {}),
+        ...(key === "showResiduals" && !e.target.checked
+          ? { showSquares: false }
+          : {}),
+      });
+  root
+    .querySelector("#corr-best")
+    ?.addEventListener("click", () => ctx.update({ manual: false }));
+  const details = root.querySelector("#corr-details");
+  details.addEventListener("toggle", () => {
+    if (details.open !== Boolean(s.correlationDetailsOpen))
+      ctx.update({ correlationDetailsOpen: details.open });
   });
 }
 
@@ -382,6 +579,7 @@ export default {
   description: "点を動かし、関係の強さ・外れ値・予測の限界を調べる。",
   lead: "復習時間が長い人ほど得点は高い？ まず点を1つ動かしてみましょう。相関の強さと予測の確かさは、同じ意味ではありません。",
   initial,
+  normalize: normalizeCorrelation,
   render,
   explanation: `<h2>相関と回帰で、何がわかる？</h2><p>散布図は2つの量の組を1点で表します。右上がりなら正の相関、右下がりなら負の相関。相関係数 r は −1〜1で、直線的な関係を測ります。r ≈ 0でも曲線の関係があることがあり、因果関係がないことを意味しません。</p><h3>残差を二乗する理由</h3><p>回帰直線 ŷ = ax + b の残差は y − ŷ。正負の残差を足すだけでは打ち消し合います。最小二乗法は二乗の合計を最小にします。傾き a = Σ(x−x̄)(y−ȳ) / Σ(x−x̄)²、切片 b = ȳ − ax̄ です。二乗は大きな誤差を強く重視するため、外れ値、とくにxの端にある点が直線を大きく動かす場合があります。</p><h3>予測と限界</h3><p>回帰は集団としての傾向です。同じ復習時間でも得点が違い、既習知識や睡眠など、この図にない要因もあります。学習に使わなかった点で誤差を確かめることが大切です。1点だけの検証で性能を判断せず、複数の点・別の時期でも比較しましょう。学習した範囲外への外挿や、得点の上限を超える予測には特に注意します。</p><h3>相関があっても、原因とは限らない</h3><p>「復習時間が長い人ほど高得点」は、「時間を増やしたから得点が上がった」という証明ではありません。学習意欲が両方に影響する、苦手な人が長く復習する、といった別の説明があります。原因を調べるには条件をそろえた比較や無作為化などが必要です。この教材は独自に作った架空データで、効果を主張する調査結果ではありません。</p><p>点が2つ未満、またはxがすべて同じなら傾きは定まりません。xかyの標準偏差が0ならrは未定義です。この教材のRMSEは記述用の √(SSE/n) で、回帰誤差の標準偏差の推定に使う √(SSE/(n−2)) とは区別します。</p>`,
   related: ["histogram", "summary", "projects", "hypothesis-test"],

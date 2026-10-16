@@ -2,6 +2,17 @@ import { learningViews } from "./learning.mjs";
 import { esc } from "./shared/ui.mjs";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
+  if (id === "correlation") {
+    const nodes = [...root.children];
+    const shell = document.createElement("div");
+    shell.className = "workbench";
+    shell.innerHTML =
+      '<div class="workbench-body correlation-body"><section class="workbench-display correlation-display" aria-label="散布図と直線"></section></div>';
+    shell.querySelector(".workbench-display").append(...nodes);
+    root.append(shell);
+    ui.view = 0;
+    return [{ label: learningViews(id, ui.state)[0].title, active: true }];
+  }
   const panels = [...root.querySelectorAll(".panel,.chart-panel")].filter(
     (el) => !el.parentElement.closest(".panel,.chart-panel"),
   );
@@ -14,10 +25,6 @@ export function composeWorkbench(root, id, ui, onChange) {
     nodes.filter(Boolean).forEach((n) => div.append(n));
     return div;
   };
-  if (id === "correlation") {
-    main = [panels[0], panels[0], panels[3]];
-    controls = [panels[1], panels[2], panels[1]];
-  }
   if (id === "summary") {
     main = [panels[0], panels[2], panels[3]];
     controls = [panels[1]];
@@ -87,9 +94,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   display.append(main[view]);
   side.append(controls[view] || controls[0]);
   if (main[view].tagName === "DETAILS") main[view].open = true;
-  main[view].querySelectorAll("details").forEach((d) => {
-    if (id === "correlation" && view === 2) d.open = true;
-  });
   // Keep instructions beside the graph they explain. Advanced controls remain optional.
   if (id === "histogram") {
     const old = side.querySelector("#raw-details");
@@ -127,22 +131,6 @@ export function composeWorkbench(root, id, ui, onChange) {
     nodes[0].before(g);
     nodes.forEach((n) => g.append(n));
   };
-  if (id === "correlation") {
-    paired(["point-x", "point-y"]);
-    fold(
-      [
-        "corr-manual",
-        "line-slope",
-        "line-intercept",
-        "corr-best",
-        "corr-residuals",
-        "corr-squares",
-      ],
-      "直線と残差の表示",
-      "regression",
-      true,
-    );
-  }
   if (id === "summary") {
     fold(
       ["summary-sd", "summary-denominator"],

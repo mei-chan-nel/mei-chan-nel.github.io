@@ -20,7 +20,9 @@ export function validateState(value, template, depth = 0, key = "state") {
   }
   if (
     typeof value === "number" &&
-    (!Number.isFinite(value) || Math.abs(value) > 1e12)
+    (!Number.isFinite(value) ||
+      (Math.abs(value) > 1e12 &&
+        !["manualSlope", "manualIntercept"].includes(key)))
   )
     throw Error("数値が正しくありません。");
   if (typeof value === "string" && value.length > 20000)

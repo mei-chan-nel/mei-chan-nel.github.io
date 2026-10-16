@@ -7,7 +7,7 @@ export const experiences = {
     purpose: "2つの数値の関係を調べ、回帰直線で予測する。",
     input: "対応する2列の数値",
     result: "散布図・相関係数・回帰直線",
-    views: ["相関と直線", "予測を確かめる", "残差の表"],
+    views: ["散布図・直線"],
   },
   histogram: {
     intro:

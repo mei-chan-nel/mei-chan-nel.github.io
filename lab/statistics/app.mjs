@@ -11,7 +11,7 @@ import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261016-table`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261016-scatter`)).default;
 const ui = {
   view: 0,
   dataTab: true,
@@ -22,6 +22,7 @@ const key = `study-atlas-statistics-${id}-v1`;
 const project =
   new URLSearchParams(location.search).get("dataset") === "project";
 function prepare(next) {
+  if (id === "correlation") next = config.normalize(next);
   if (id === "sampling") next = normalizeExperiment(next);
   if (!next.dataInfo) {
     const data = currentData(id, next),
@@ -85,18 +86,6 @@ function draw() {
       ui.dataTab = index === 0;
       if (index) {
         ui.view = index - 1;
-        if (id === "correlation" && index <= 2) {
-          state = { ...state, excludeSelected: index === 2 };
-          if (index === 2)
-            state = {
-              ...state,
-              manual: false,
-              predictionX:
-                state.points.find((p) => p.id === state.selectedId)?.x ??
-                state.predictionX,
-            };
-          persist();
-        }
       }
       draw();
       if (scroll) {
@@ -133,10 +122,10 @@ function draw() {
       );
     const lead = document.querySelector("#lab-lead"),
       flow = document.querySelector("#analysis-flow");
-    lead.hidden = false;
+    lead.hidden = !lesson.action;
     lead.textContent = lesson.action;
-    flow.hidden = ui.dataTab;
-    finding.hidden = ui.dataTab;
+    flow.hidden = ui.dataTab || id === "correlation";
+    finding.hidden = ui.dataTab || id === "correlation";
     if (ui.dataTab) {
       renderDataTab(root, {
         id,
@@ -162,9 +151,11 @@ function draw() {
         nextLabel: steps[1].title,
       });
     } else {
-      flow.textContent = "処理：" + currentData(id, state).operation;
-      finding.textContent = insight(id, state);
-      root.querySelector(".workbench-display").append(finding);
+      if (id !== "correlation") {
+        flow.textContent = "処理：" + currentData(id, state).operation;
+        finding.textContent = insight(id, state);
+        root.querySelector(".workbench-display").append(finding);
+      }
       fitWorkspaceCharts(root.querySelector(".workbench-display"));
     }
     if (focus?.id) {

@@ -830,3 +830,107 @@ body[data-statistics]
     max-width: 100%;
   }
 }
+
+/* The scatterplot is directly manipulated, so it has no separate side panel. */
+.workbench-body.correlation-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+.correlation-display > .correlation-metrics {
+  grid-template-columns: minmax(90px, 0.65fr) minmax(0, 1.35fr);
+}
+.correlation-metrics > div:last-child strong {
+  font-size: clamp(1rem, 2.1vw, 1.45rem);
+  overflow-wrap: anywhere;
+}
+.correlation-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.correlation-toolbar button {
+  min-height: 40px;
+  font-size: 0.82rem;
+}
+.correlation-canvas #corr-chart {
+  display: block;
+  min-height: 0;
+  overflow: visible;
+}
+.corr-drag-handle,
+.corr-observation {
+  cursor: grab;
+}
+.corr-drag-handle:active,
+.corr-observation:active {
+  cursor: grabbing;
+}
+.corr-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+  padding: 0;
+  margin: 16px 0 4px;
+  list-style: none;
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+}
+.corr-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.corr-point-key {
+  width: 13px;
+  height: 13px;
+  border: 2px solid;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.corr-line-key {
+  width: 23px;
+  border-top: 2px solid;
+}
+.corr-details {
+  border-top: 1px solid var(--line);
+  margin-top: 24px;
+  padding-top: 14px;
+  font-size: 0.84rem;
+}
+.corr-details > summary,
+.corr-residual-table > summary {
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.corr-detail-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 18px 0;
+}
+.corr-detail-options label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.corr-residual-table {
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  .correlation-display > .correlation-metrics {
+    grid-template-columns: minmax(80px, 0.6fr) minmax(0, 1.4fr);
+  }
+  .correlation-metrics > div {
+    padding: 14px 12px;
+  }
+  .corr-legend {
+    gap: 8px 14px;
+    font-size: 0.76rem;
+  }
+  .corr-detail-options {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
