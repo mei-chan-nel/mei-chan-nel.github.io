@@ -9,13 +9,13 @@
     <title>暗号通信シミュレーター｜Interactive Lab｜情報Ⅰ Study Atlas</title>
     <meta
       name="description"
-      content="攻撃者チャーリーになって、暗号通信に介入。共通鍵・公開鍵・電子署名の役割と、機密性・完全性・認証を実験で発見する学習ラボ。"
+      content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・電子署名の役割を実験する暗号通信クエスト。"
     />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#102f35" />
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-    <link rel="stylesheet" href="./style.css?v=1" />
+    <link rel="stylesheet" href="./style.css?v=2" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -30,8 +30,7 @@
         >
         <nav class="global-nav" aria-label="メインナビゲーション">
           <a href="../">Interactive Lab</a><a href="../../terms/">用語一覧</a
-          ><a href="../../LectureNote/">講義ノート</a
-          ><a href="../../program-trace/">プログラムトレース</a>
+          ><a href="../../LectureNote/">講義ノート</a>
         </nav>
       </div>
     </header>
@@ -41,280 +40,572 @@
         ><a href="../">Interactive Lab</a><span aria-hidden="true">/</span
         ><span>暗号通信</span>
       </nav>
-      <header class="crypto-hero">
+      <header class="page-heading">
         <div>
-          <p class="eyebrow">NETWORK &amp; SECURITY / INTERACTIVE LAB</p>
-          <h1>
-            暗号通信<br class="mobile-break" />シミュレーター<span
-              class="hero-period"
-              >.</span
-            >
-          </h1>
-          <p class="hero-lead">
-            秘密のやりとりに、割り込んでみよう。<br />鍵を変えると、守れるものはどう変わる？
-          </p>
+          <p class="eyebrow">NETWORK &amp; SECURITY</p>
+          <h1>暗号通信シミュレーター<span>.</span></h1>
         </div>
-        <div class="hero-stamp" aria-hidden="true">
-          <span>ALICE</span><b>⌁</b><span>CHARLIE</span><b>⌁</b><span>BOB</span
-          ><small>YOU ARE IN THE MIDDLE</small>
-        </div>
+        <p>通信経路に潜入して、<br />秘密を守る仕組みを解き明かそう。</p>
       </header>
-      <section class="mission" aria-labelledby="mission-title">
-        <div class="mission-label">
-          <span>YOUR MISSION</span>
-          <h2 id="mission-title">あなたはチャーリー。</h2>
-        </div>
-        <p>
-          秘密の本文を盗み見て、<strong lang="en">I hate you.</strong>
-          に書き換え、ボブに受け付けさせよう。
-        </p>
-        <p class="mission-note">
-          元の本文は復号するまで秘密。各地点で通信は一時停止します。操作の順番は、あなた次第。
-        </p>
-      </section>
-      <nav id="rounds" class="round-nav" aria-label="ラウンドを選択">
-        <button type="button" data-round="0" aria-current="step">
-          <span>ROUND 01</span><strong>共通鍵</strong
-          ><small>鍵をどう届ける？</small>
-        </button>
-        <button type="button" data-round="1">
-          <span>ROUND 02</span><strong>公開鍵</strong
-          ><small>誰の鍵を信じる？</small>
-        </button>
-        <button type="button" data-round="2">
-          <span>ROUND 03</span><strong>電子署名</strong
-          ><small>内容を保証できる？</small>
-        </button>
-        <button type="button" data-round="3">
-          <span>EXTRA</span><strong>公開鍵の確認</strong
-          ><small>相手を確かめると？</small>
-        </button>
-      </nav>
-      <section id="experiment" class="experiment" aria-labelledby="round-title">
-        <div class="experiment-heading">
-          <div>
-            <p class="eyebrow" id="round-number">ROUND 01</p>
-            <h2 id="round-title">共通鍵暗号方式</h2>
-            <p id="round-description"></p>
-          </div>
-          <button type="button" id="restart" class="quiet-button">
-            ↻ この通信をやり直す
-          </button>
-        </div>
-        <div id="auth-control" class="auth-control" hidden>
-          <label
-            ><input type="checkbox" id="authenticate" checked />
-            アリスがボブの公開鍵の真正性を確認する</label
-          >
-          <p>
-            信頼済みの指紋：<code>B0B7 · 29AF · 613C</code
-            >（別の信頼できる経路で入手済み）。切り替えると、新しい通信を開始します。
-          </p>
-        </div>
-        <ol id="stages" class="stages" aria-label="通信の進行"></ol>
-        <div class="wire" aria-label="アリス・チャーリー・ボブの通信図">
-          <article class="person alice">
-            <div class="avatar" aria-hidden="true">A</div>
-            <div>
-              <h3>アリス <small>ALICE</small></h3>
-              <p>秘密のメッセージを送る</p>
-              <span id="alice-state">本文はまだ秘密</span>
-            </div>
-          </article>
-          <div class="wire-center">
-            <span id="direction" class="direction">ALICE → BOB</span>
-            <div class="wire-line">
-              <span></span><b aria-hidden="true">↓</b><span></span>
-            </div>
-            <div class="charlie-marker">
-              <span aria-hidden="true">C</span><b>チャーリー</b
-              ><small>あなた・通信経路を操作</small>
-            </div>
-          </div>
-          <article class="person bob">
-            <div class="avatar" aria-hidden="true">B</div>
-            <div>
-              <h3>ボブ <small>BOB</small></h3>
-              <p>メッセージを受け取る</p>
-              <span id="bob-state">受信待ち</span>
-            </div>
-          </article>
-        </div>
-        <div class="intercept" id="intercept">
-          <div class="packet-top">
-            <span class="pause-label" id="pause-label">Ⅱ 通信を一時停止中</span
-            ><span id="packet-route"></span>
-          </div>
-          <div class="packet-body">
-            <div class="packet-icon" aria-hidden="true">▣</div>
-            <div class="packet-copy">
-              <h3 id="packet-title"></h3>
-              <code id="packet-value"></code>
-              <p id="packet-detail"></p>
-            </div>
-            <button type="button" id="capture" class="action-button">
-              ＋ データを捕獲
-            </button>
-          </div>
-          <div class="forward-bar">
-            <p id="outgoing-label">送るデータ：元のまま</p>
-            <div>
-              <button type="button" id="restore" class="quiet-button" hidden>
-                元に戻す</button
-              ><button type="button" id="forward" class="primary-button">
-                この内容で転送 →
-              </button>
-            </div>
-          </div>
-        </div>
-        <p class="operation-guide">
-          捕獲はコピーです。作業台で作ったデータは「通信にセット」してから転送します。
-        </p>
-        <div id="feedback" class="feedback" role="status" aria-live="polite">
-          まずは、止まっているデータを調べてみよう。
-        </div>
-        <div class="lab-grid">
-          <section
-            class="panel inventory-panel"
-            aria-labelledby="inventory-title"
-          >
-            <div class="panel-heading">
-              <span>01 / COLLECTION</span>
-              <h3 id="inventory-title">チャーリーの手元</h3>
-            </div>
-            <h4>鍵置き場 <span id="key-count"></span></h4>
-            <div id="keyring" class="keyring"></div>
-            <h4>捕獲・作成したデータ <span id="data-count"></span></h4>
-            <div id="artifacts" class="artifacts"></div>
-            <p class="small-note">
-              以前に入手した共通鍵は残ります。通信をやり直すたびに、新しい共通鍵に更新されます。
-            </p>
-          </section>
-          <section class="panel workbench" aria-labelledby="workbench-title">
-            <div class="panel-heading">
-              <span>02 / WORKBENCH</span>
-              <h3 id="workbench-title">実験する</h3>
-            </div>
-            <label for="data-select">操作するデータ</label
-            ><select id="data-select"></select>
-            <div class="selected-preview" id="selected-preview"></div>
-            <label for="key-select">使う鍵</label
-            ><select id="key-select"></select>
-            <div class="tool-actions">
-              <button type="button" id="decrypt" class="action-button">
-                復号してみる</button
-              ><button type="button" id="wrap" class="action-button">
-                共通鍵を暗号化</button
-              ><button type="button" id="set-outgoing" class="action-button">
-                通信にセット</button
-              ><button type="button" id="corrupt" class="quiet-button">
-                暗号文を直接編集
-              </button>
-            </div>
-            <p class="small-note">
-              共通鍵の配送：データに共通鍵、使う鍵に配送先の公開鍵を選びます。
-            </p>
-            <div id="decryption" class="decryption">
-              <h4>復号結果</h4>
-              <p id="decrypt-result">まだ復号していません。</p>
-            </div>
-            <label for="draft">平文を編集 / 自分で作る</label
-            ><textarea
-              id="draft"
-              rows="3"
-              maxlength="500"
-              placeholder="復号した本文がここに入ります。自分で文を入力することもできます。"
-              spellcheck="false"
-            ></textarea>
-            <div id="signature-controls" hidden>
-              <label for="signature-choice">再暗号化するときの署名</label
-              ><select id="signature-choice">
-                <option value="keep">復号した元の署名を添える</option>
-                <option value="charlie">チャーリーの秘密鍵で署名する</option>
-                <option value="none">署名を付けない</option>
-              </select>
-              <p id="signature-info" class="small-note"></p>
-            </div>
-            <button
-              type="button"
-              id="encrypt"
-              class="primary-button full-width"
+      <section
+        id="game-console"
+        class="game-console"
+        aria-label="暗号通信クエスト"
+      >
+        <div class="game-inner">
+          <div class="game-toolbar">
+            <span class="game-logo"
+              ><i aria-hidden="true">▣</i> CRYPTO QUEST
+              <small>通信経路のチャーリー</small></span
             >
-              選んだ共通鍵で本文を暗号化
-            </button>
+            <div>
+              <button type="button" id="help-button" class="toolbar-button">
+                ? 遊び方</button
+              ><button
+                type="button"
+                id="fullscreen"
+                class="toolbar-button"
+                aria-pressed="false"
+              >
+                ⛶ 全画面表示
+              </button>
+            </div>
+          </div>
+          <div
+            id="display-status"
+            class="visually-hidden"
+            role="status"
+            aria-live="polite"
+          ></div>
+          <section
+            id="briefing"
+            class="briefing"
+            aria-labelledby="briefing-title"
+          >
+            <p class="pixel-label">MISSION BRIEFING</p>
+            <h2 id="briefing-title">
+              あなたは、<em>通信経路のチャーリー。</em>
+            </h2>
+            <p class="briefing-lead">
+              アリスがボブに、秘密のメッセージを送ろうとしている。
+            </p>
+            <div
+              class="brief-route"
+              aria-label="アリスとボブの間にある中継機をチャーリーが操作します"
+            >
+              <span><b>A</b>アリス</span><i aria-hidden="true">→</i
+              ><span class="you"
+                ><b>C</b>あなたの中継機<small>データはここで止まる</small></span
+              ><i aria-hidden="true">→</i><span><b>B</b>ボブ</span>
+            </div>
+            <div class="briefing-columns">
+              <div>
+                <span class="brief-number">01 / どこにいる？</span>
+                <h3>二人の間の中継機を操作する。</h3>
+                <p>
+                  鍵や暗号文は、あなたの中継機を通って相手に届きます。<strong>届くたびに時間が止まる</strong>ので、何をするか選べます。
+                </p>
+              </div>
+              <div>
+                <span class="brief-number">02 / コピーって？</span>
+                <h3>通ったデータを、手元に記録する。</h3>
+                <p>
+                  「コピーする」は、中継機の記録機能で<strong>同じデータを持ち物に残す</strong>操作です。暗号文をコピーしても、中身が読めるとは限りません。
+                </p>
+              </div>
+              <div>
+                <span class="brief-number">03 / 何を目指す？</span>
+                <h3>秘密を読み、別の言葉を届ける。</h3>
+                <p>
+                  元の本文を読み、<strong lang="en">I hate you.</strong>
+                  に書き換えて、ボブに受け付けさせるのが最初の目標です。守りが増えると、結果はどう変わるでしょう。
+                </p>
+              </div>
+            </div>
+            <div class="briefing-bottom">
+              <p>行動の順番は自由。失敗したら、新しい通信で試し直せます。</p>
+              <button
+                type="button"
+                id="start-game"
+                class="pixel-button primary"
+              >
+                ▶ 通信経路に入る
+              </button>
+            </div>
           </section>
-          <section class="panel result-panel" aria-labelledby="result-title">
-            <div class="panel-heading">
-              <span>03 / OBSERVATION</span>
-              <h3 id="result-title">通信の観測結果</h3>
+          <div id="gameplay" hidden>
+            <nav id="rounds" class="round-nav" aria-label="ラウンドを選択">
+              <button type="button" data-round="0" aria-current="step">
+                <span>ROUND 1</span>共通鍵</button
+              ><button type="button" data-round="1">
+                <span>ROUND 2</span>公開鍵</button
+              ><button type="button" data-round="2">
+                <span>ROUND 3</span>電子署名</button
+              ><button type="button" data-round="3">
+                <span>EXTRA</span>公開鍵の確認
+              </button>
+            </nav>
+            <div class="level-heading">
+              <div>
+                <span class="pixel-label" id="round-number">ROUND 1</span>
+                <h2 id="round-title" tabindex="-1">共通鍵暗号方式</h2>
+                <p id="round-description"></p>
+              </div>
+              <button type="button" id="restart" class="toolbar-button">
+                ↻ やり直す
+              </button>
             </div>
-            <div class="discovery">
-              <span>盗み見た元の本文</span
-              ><strong id="original-message">未解読</strong>
-              <p id="original-note">対応する鍵で復号すると表示されます。</p>
-            </div>
-            <div id="bob-result" class="bob-result" aria-live="polite">
-              <span class="result-symbol" aria-hidden="true">…</span>
-              <h4>ボブは受信待ち</h4>
+            <div id="auth-control" class="auth-control" hidden>
+              <label
+                ><input type="checkbox" id="authenticate" checked />
+                アリスがボブの公開鍵の持ち主を確認する</label
+              >
               <p>
-                転送すると、受信・復号・署名検証の結果がここに表示されます。
+                信頼済みの指紋
+                <code>B0B7 · 29AF · 613C</code>
+                と照合。切り替えると、新しい通信で比較できます。
               </p>
             </div>
-            <div class="objective-list">
-              <p><span id="read-mark">○</span> 元の本文を盗み見た</p>
-              <p><span id="tamper-mark">○</span> 「I hate you.」が受理された</p>
+            <ol id="stages" class="stages" aria-label="通信の進行"></ol>
+            <div class="play-layout">
+              <div class="scene-column">
+                <section
+                  id="scene"
+                  class="scene"
+                  aria-label="通信ケーブルの途中でデータを中継するチャーリー"
+                >
+                  <div class="scene-top">
+                    <span id="scene-status">Ⅱ 通信を一時停止中</span
+                    ><span id="direction">アリス → ボブ</span>
+                  </div>
+                  <div class="network-scene">
+                    <div class="cable" aria-hidden="true"></div>
+                    <article class="actor alice">
+                      <span class="actor-bubble" id="alice-state"
+                        >秘密の本文を送るよ</span
+                      ><svg
+                        class="pixel-character"
+                        viewBox="0 0 24 32"
+                        aria-hidden="true"
+                        shape-rendering="crispEdges"
+                      >
+                        <path
+                          fill="#b2d9e7"
+                          d="M7 1h10v2h3v14h-3V7H7v10H4V3h3z"
+                        />
+                        <path fill="#f3d1a1" d="M7 7h10v10H7z" />
+                        <path fill="#173e43" d="M8 10h2v2H8zm6 0h2v2h-2z" />
+                        <path
+                          fill="#f3d1a1"
+                          d="M10 17h4v3h-4zM3 21h3v7H3zm15 0h3v7h-3z"
+                        />
+                        <path fill="#729fb8" d="M6 19h12v10H6z" />
+                        <path
+                          fill="#d8e6e2"
+                          d="M6 29h5v3H5v-2h1zm7 0h5v1h1v2h-6z"
+                        />
+                      </svg>
+                      <h3>アリス <small>ALICE</small></h3>
+                      <span>送りたい人</span>
+                    </article>
+                    <div class="relay">
+                      <div class="packet-sprite" id="packet-sprite">
+                        <span class="packet-shape" aria-hidden="true">▤</span
+                        ><b id="packet-short">共通鍵</b
+                        ><small id="copy-indicator">到着・ここで停止</small>
+                      </div>
+                      <div class="relay-machine" aria-hidden="true">
+                        <span>RELAY / C</span><b>▣ ▪ ▪</b>
+                      </div>
+                      <svg
+                        class="pixel-character charlie-sprite"
+                        viewBox="0 0 24 32"
+                        aria-hidden="true"
+                        shape-rendering="crispEdges"
+                      >
+                        <path fill="#ceb8f1" d="M7 2h10v2h3v15H4V4h3z" />
+                        <path fill="#173e43" d="M7 8h10v9H7z" />
+                        <path fill="#b2e4bb" d="M7 9h4v3H7zm6 0h4v3h-4z" />
+                        <path
+                          fill="#ceb8f1"
+                          d="M6 19h12v11H6zM3 22h3v6H3zm15 0h3v6h-3z"
+                        />
+                        <path
+                          fill="#d8e6e2"
+                          d="M6 30h5v2H5v-1h1zm7 0h5v1h1v1h-6z"
+                        />
+                      </svg>
+                      <h3>チャーリー <b>YOU</b></h3>
+                      <p>中継機を操作できる</p>
+                    </div>
+                    <article class="actor bob">
+                      <span class="actor-bubble" id="bob-state"
+                        >まだ届いていないよ</span
+                      ><svg
+                        class="pixel-character"
+                        viewBox="0 0 24 32"
+                        aria-hidden="true"
+                        shape-rendering="crispEdges"
+                      >
+                        <path fill="#b1d9af" d="M6 2h12v3h2v5H4V5h2z" />
+                        <path fill="#f3d1a1" d="M7 10h10v8H7z" />
+                        <path fill="#173e43" d="M8 11h2v2H8zm6 0h2v2h-2z" />
+                        <path
+                          fill="#f3d1a1"
+                          d="M10 18h4v2h-4zM3 21h3v7H3zm15 0h3v7h-3z"
+                        />
+                        <path fill="#6caa99" d="M6 19h12v11H6z" />
+                        <path
+                          fill="#d8e6e2"
+                          d="M6 30h5v2H5v-1h1zm7 0h5v1h1v1h-6z"
+                        />
+                      </svg>
+                      <h3>ボブ <small>BOB</small></h3>
+                      <span>受け取りたい人</span>
+                    </article>
+                  </div>
+                  <div class="packet-card">
+                    <span>中継機にあるデータ</span
+                    ><strong id="packet-title"></strong>
+                    <details>
+                      <summary>データの識別番号を見る</summary>
+                      <code id="packet-value"></code>
+                    </details>
+                  </div>
+                </section>
+                <section class="story-box" aria-labelledby="situation-title">
+                  <span class="box-label">いまの状況</span>
+                  <h3 id="situation-title"></h3>
+                  <p id="situation-text"></p>
+                  <div class="goal-line">
+                    <b>このラウンドの目的</b>
+                    <p id="goal-text"></p>
+                  </div>
+                </section>
+              </div>
+              <div class="command-column">
+                <section class="command-box" aria-labelledby="command-title">
+                  <div class="command-heading">
+                    <span class="box-label">行動を選ぶ</span>
+                    <h3 id="command-title">チャーリーは、どうする？</h3>
+                  </div>
+                  <button type="button" id="capture" class="command">
+                    <span class="command-icon" aria-hidden="true">＋</span
+                    ><span
+                      ><strong>届いたデータをコピーする</strong
+                      ><small
+                        >中継機の記録機能で、持ち物に残す。相手にはまだ届けない。</small
+                      ></span
+                    ><i aria-hidden="true">›</i>
+                  </button>
+                  <button type="button" id="open-tools" class="command">
+                    <span class="command-icon" aria-hidden="true">▦</span
+                    ><span
+                      ><strong
+                        >持ち物・道具を開く
+                        <b id="inventory-count">2</b></strong
+                      ><small
+                        >持っているデータと鍵で、復号や編集を試す。</small
+                      ></span
+                    ><i aria-hidden="true">›</i>
+                  </button>
+                  <button type="button" id="open-replace" class="command">
+                    <span class="command-icon" aria-hidden="true">⇄</span
+                    ><span
+                      ><strong>送るデータをすり替える</strong
+                      ><small
+                        >持ち物のデータを、相手に送るものとしてセットする。</small
+                      ></span
+                    ><i aria-hidden="true">›</i>
+                  </button>
+                  <button type="button" id="forward" class="command deliver">
+                    <span class="command-icon" aria-hidden="true">→</span
+                    ><span
+                      ><strong id="forward-label">ボブに届ける</strong
+                      ><small id="forward-description"
+                        >セット中のデータを送り、次の場面へ進める。</small
+                      ></span
+                    ><i aria-hidden="true">›</i>
+                  </button>
+                  <div class="outgoing-card">
+                    <span>次に届けるもの</span
+                    ><strong id="outgoing-label">届いた元のデータ</strong
+                    ><button type="button" id="restore" hidden>
+                      ↶ 元のデータに戻す
+                    </button>
+                  </div>
+                </section>
+                <div class="mission-tracker" aria-label="目標の達成状況">
+                  <span id="read-mark">□</span><span>元の本文を読んだ</span
+                  ><span id="tamper-mark">□</span
+                  ><span>書き換えた本文が受理された</span>
+                </div>
+                <div class="secret-card">
+                  <span>盗み見た元の本文</span
+                  ><strong id="original-message">未解読</strong>
+                </div>
+              </div>
             </div>
-            <button
-              type="button"
-              id="next-round"
-              class="action-button full-width"
-              hidden
+            <section
+              id="action-result"
+              class="action-result"
+              aria-labelledby="result-heading"
             >
-              次の実験へ →
-            </button>
-          </section>
-        </div>
-        <div class="experiment-notes">
-          <details class="hint">
-            <summary>考えるヒント</summary>
-            <p id="hint-text"></p>
-            <details>
-              <summary>もう少し具体的な手がかり</summary>
-              <p id="hint-detail"></p>
-            </details>
-          </details>
-          <details class="log">
-            <summary>操作ログ <span id="log-count"></span></summary>
-            <ol id="log-list"></ol>
-          </details>
+              <span class="box-label">行動の結果</span>
+              <h3 id="result-heading">まだ行動していない。</h3>
+              <p id="feedback" role="status" aria-live="polite">
+                状況と目的を読んで、行動を一つ選んでみよう。
+              </p>
+              <div id="bob-result" class="bob-result"></div>
+              <div class="result-actions">
+                <button
+                  type="button"
+                  id="result-tools"
+                  class="pixel-button secondary"
+                  hidden
+                >
+                  ▦ コピーしたデータを調べる</button
+                ><button
+                  type="button"
+                  id="retry-result"
+                  class="pixel-button secondary"
+                  hidden
+                >
+                  ↻ もう一度挑戦</button
+                ><button
+                  type="button"
+                  id="next-round"
+                  class="pixel-button primary"
+                  hidden
+                >
+                  次のラウンドへ →
+                </button>
+              </div>
+            </section>
+            <div class="game-notes">
+              <details class="hint">
+                <summary>？ 考えるヒント</summary>
+                <p id="hint-text"></p>
+                <details>
+                  <summary>もう少し具体的な手がかり</summary>
+                  <p id="hint-detail"></p>
+                </details>
+              </details>
+              <details class="log">
+                <summary>▤ 行動の記録 <span id="log-count"></span></summary>
+                <ol id="log-list"></ol>
+              </details>
+            </div>
+          </div>
+          <dialog
+            id="tools-dialog"
+            class="tools-dialog"
+            aria-labelledby="tools-title"
+          >
+            <header class="tools-header">
+              <div>
+                <span class="pixel-label">CHARLIE'S INVENTORY</span>
+                <h2 id="tools-title">持ち物・道具</h2>
+              </div>
+              <button
+                type="button"
+                id="close-tools"
+                class="pixel-button secondary"
+              >
+                × 通信画面に戻る
+              </button>
+            </header>
+            <p class="tools-lead">
+              通信は止まったまま。手元のデータを調べても、相手に届くデータは自動では変わりません。
+            </p>
+            <div class="tools-layout">
+              <section
+                class="inventory-panel"
+                aria-labelledby="inventory-title"
+              >
+                <h3 id="inventory-title">持ち物</h3>
+                <p class="inventory-instruction">
+                  押すと、操作するデータに選べます。
+                </p>
+                <h4>手に入れた鍵 <span id="key-count"></span></h4>
+                <div id="keyring" class="item-list"></div>
+                <h4>コピー・作成したデータ <span id="data-count"></span></h4>
+                <div id="artifacts" class="item-list"></div>
+                <p class="small-note">
+                  共通鍵は通信ごとに更新。以前の鍵は、比較のために持ち物に残ります。
+                </p>
+              </section>
+              <section class="workbench" aria-labelledby="workbench-title">
+                <h3 id="workbench-title">何を試す？</h3>
+                <div
+                  id="tool-modes"
+                  class="tool-modes"
+                  role="group"
+                  aria-label="使う道具"
+                >
+                  <button type="button" data-mode="decrypt" aria-pressed="true">
+                    暗号文を開く</button
+                  ><button
+                    type="button"
+                    data-mode="message"
+                    aria-pressed="false"
+                  >
+                    本文を作る</button
+                  ><button type="button" data-mode="wrap" aria-pressed="false">
+                    鍵を包む</button
+                  ><button
+                    type="button"
+                    data-mode="replace"
+                    aria-pressed="false"
+                  >
+                    すり替える
+                  </button>
+                </div>
+                <p id="tool-prompt" class="tool-prompt"></p>
+                <div id="data-field">
+                  <label for="data-select" id="data-label">開けたい暗号文</label
+                  ><select id="data-select"></select>
+                  <p id="selected-description" class="selected-description"></p>
+                  <details class="data-details">
+                    <summary>選んだデータの識別番号</summary>
+                    <code id="selected-preview"></code>
+                  </details>
+                </div>
+                <div id="key-field">
+                  <label for="key-select" id="key-label"
+                    >開けるために試す鍵</label
+                  ><select id="key-select"></select>
+                </div>
+                <div data-tool-panel="decrypt">
+                  <button
+                    type="button"
+                    id="decrypt"
+                    class="pixel-button primary full-width"
+                  >
+                    選んだ鍵で、復号を試す
+                  </button>
+                  <div id="decryption" class="decryption">
+                    <h4>最後に開けた中身</h4>
+                    <p id="decrypt-result">まだ復号していません。</p>
+                    <button
+                      type="button"
+                      id="edit-decrypted"
+                      class="pixel-button secondary"
+                      hidden
+                    >
+                      この本文を書き換える →
+                    </button>
+                  </div>
+                </div>
+                <div data-tool-panel="wrap" hidden>
+                  <button
+                    type="button"
+                    id="wrap"
+                    class="pixel-button primary full-width"
+                  >
+                    共通鍵を公開鍵で包む
+                  </button>
+                </div>
+                <div data-tool-panel="message" hidden>
+                  <label for="draft">ボブに届けたい本文</label
+                  ><textarea
+                    id="draft"
+                    rows="3"
+                    maxlength="500"
+                    placeholder="復号した本文を編集したり、自分で文を書いたりできます。"
+                    spellcheck="false"
+                  ></textarea>
+                  <div id="signature-controls" hidden>
+                    <label for="signature-choice">添える電子署名</label
+                    ><select id="signature-choice">
+                      <option value="keep">復号した元の署名を添える</option>
+                      <option value="charlie">
+                        チャーリーの秘密鍵で署名する
+                      </option>
+                      <option value="none">署名を付けない</option>
+                    </select>
+                    <p id="signature-info" class="small-note"></p>
+                  </div>
+                  <button
+                    type="button"
+                    id="encrypt"
+                    class="pixel-button primary full-width"
+                  >
+                    この本文を、共通鍵で暗号化する
+                  </button>
+                </div>
+                <div data-tool-panel="replace" hidden>
+                  <button
+                    type="button"
+                    id="set-outgoing"
+                    class="pixel-button primary full-width"
+                  >
+                    これを送るデータにする
+                  </button>
+                  <p class="small-note">
+                    セットすると通信画面に戻ります。「相手に届ける」を選ぶまで、まだ送信しません。
+                  </p>
+                  <details class="advanced">
+                    <summary>ほかの実験：暗号文を直接書き換える</summary>
+                    <p>
+                      本文を開かずに暗号文の一部を変える実験です。このモデルでは、有効な暗号文は対応する鍵を使って作ります。
+                    </p>
+                    <button
+                      type="button"
+                      id="corrupt"
+                      class="pixel-button secondary"
+                    >
+                      選んだ暗号文を直接書き換える
+                    </button>
+                  </details>
+                </div>
+                <div id="created-card" class="created-card" hidden>
+                  <span>新しく作ったデータ</span
+                  ><strong id="created-label"></strong
+                  ><button
+                    type="button"
+                    id="use-created"
+                    class="pixel-button secondary"
+                  >
+                    これを送るデータにする →
+                  </button>
+                </div>
+                <div
+                  id="tool-feedback"
+                  class="tool-feedback"
+                  role="status"
+                  aria-live="polite"
+                >
+                  どの道具でも自由に試せます。
+                </div>
+              </section>
+            </div>
+          </dialog>
         </div>
       </section>
-      <section class="learning" aria-labelledby="learning-title">
-        <div>
-          <p class="eyebrow">LOOK BACK</p>
-          <h2 id="learning-title">何を、何で守る？</h2>
-          <p>実験したあとに振り返ってみよう。</p>
-        </div>
+      <section class="learning">
+        <p class="eyebrow">LOOK BACK</p>
+        <h2>何を、何で守る？</h2>
         <div class="learning-cards">
           <article>
             <span>01</span>
             <h3>機密性</h3>
             <p>
-              秘密を、第三者に読ませない。<br />暗号化と、鍵を安全に届ける仕組みが必要。
+              第三者に秘密を読ませない。暗号化と、鍵を安全に届ける仕組みが必要。
             </p>
           </article>
           <article>
             <span>02</span>
             <h3>完全性</h3>
             <p>
-              内容が変わっていないと確かめる。<br />電子署名は、署名後の本文の変更を検出する。
+              内容が変わっていないと確かめる。電子署名は、署名後の本文の変更を検出する。
             </p>
           </article>
           <article>
             <span>03</span>
             <h3>認証</h3>
             <p>
-              誰の鍵・誰からの通信かを確かめる。<br />公開鍵と持ち主の結び付きを信頼できる情報で確認する。
+              誰の鍵・誰からの通信かを確かめる。公開鍵と持ち主の結び付きを、信頼できる情報で確認する。
             </p>
           </article>
         </div>
@@ -322,24 +613,20 @@
       <details class="model-note">
         <summary>この教育用モデルについて</summary>
         <p>
-          暗号計算を省き、正しい鍵でのみ開けられる「封筒」として表現しています。実用の暗号ライブラリや通信保護ツールではありません。暗号文の直接編集による具体的なビット操作・長さの漏えい・再送攻撃は扱いません。
+          チャーリーが二人の間の中継機を操作できる状況を仮定したゲームです。コピーは、経路を通るデータを記録する操作を表します。アリスやボブの端末に入ったり、二人の秘密鍵を盗んだりする操作ではありません。
         </p>
         <p>
-          本文は共通鍵で暗号化し、公開鍵暗号は共通鍵の配送に使います。第1・2ラウンドの本文暗号化には、独立した改ざん検出を仮定しません。実際のシステムでは、認証付き暗号なども使って改ざんを検出します。
+          暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えい・再送攻撃は扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1・2ラウンドでは独立した改ざん検出を仮定しません。実際には認証付き暗号なども使われます。
         </p>
         <p>
-          第3ラウンド以降は、本文に対するアリスの電子署名も暗号化された本文と一緒に送ります。ボブの検証用公開鍵はあらかじめ信頼済みです。署名は暗号化とは別の機能であり、本文を隠しません。アリスとボブの秘密鍵は経路に流れず、チャーリーの操作対象にはなりません。
-        </p>
-        <p>
-          最後の実験の指紋照合は、信頼できる別経路の情報による確認を表します。実際には電子証明書の検証などで公開鍵の真正性を確認します。実験データはこの画面のメモリー内にだけ保持し、外部へ送信しません。
+          第3ラウンド以降は、本文に対するアリスの電子署名を本文と一緒に暗号化して送ります。ボブの検証用公開鍵は信頼済みです。署名自体は本文を隠しません。最後の指紋照合は、信頼できる別経路による公開鍵確認を表します。実際には電子証明書の検証などを使います。実験データはこの画面のメモリー内だけに保持します。
         </p>
       </details>
       <nav class="related" aria-label="関連する用語">
-        <span>理解をつなげる</span
+        <a href="../">← Interactive Labへ</a
         ><a href="../../terms/common-key-encryption/">共通鍵暗号方式 ↗</a
         ><a href="../../terms/public-key-encryption/">公開鍵暗号方式 ↗</a
-        ><a href="../../terms/digital-signature/">電子署名 ↗</a
-        ><a href="../../terms/digital-certificate/">電子証明書 ↗</a>
+        ><a href="../../terms/digital-signature/">電子署名 ↗</a>
       </nav>
     </main>
     <footer class="site-footer">
@@ -350,18 +637,13 @@
         </div>
         <nav aria-label="フッターナビゲーション">
           <a href="../">Interactive Lab</a
-          ><a href="../../study-guide.html">使い方</a
           ><a href="../../about.html">このサイトについて</a>
         </nav>
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <noscript
-      ><p>
-        このシミュレーターにはJavaScriptが必要です。ブラウザの設定で有効にしてください。
-      </p></noscript
-    >
+    <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=1"></script>
+    <script type="module" src="./app.mjs?v=2"></script>
   </body>
 </html>

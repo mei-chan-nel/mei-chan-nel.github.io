@@ -185,7 +185,7 @@ export function createLab() {
   }
   function decrypt(id, keyId) {
     if (!known.has(id) || !known.has(keyId))
-      return event("捕獲したデータと、手元にある鍵を選んでください。", "error");
+      return event("コピーした暗号文と、使う鍵を選んでください。", "error");
     const a = objects.get(id),
       key = objects.get(keyId),
       sealed = secrets.get(id);
@@ -250,7 +250,7 @@ export function createLab() {
     s.lastCreated = id;
     return {
       ...event(
-        "編集内容を暗号化しました。データ置き場から選び、通信にセットできます。",
+        "編集内容を暗号化しました。持ち物に追加しました。送るデータとしてセットできます。",
       ),
       id,
     };

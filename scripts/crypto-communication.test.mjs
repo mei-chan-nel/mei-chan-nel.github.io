@@ -230,3 +230,31 @@ test("captured original can be decrypted after delivery and updates observation"
   assert.equal(lab.snapshot().result.hiddenMessage, false);
   assert.equal(lab.snapshot().result.message, "I love you.");
 });
+
+test("narrative explains the relay, stops and round-specific goals without revealing content", async () => {
+  const { describeSituation, describeItem } =
+    await import("../lab/crypto-communication/presentation.mjs");
+  const lab = createLab();
+  let story = describeSituation(lab.snapshot());
+  assert.match(story.text, /中継機/);
+  assert.match(story.text, /止まっている/);
+  assert.equal(story.recipient, "ボブ");
+  assert.equal(JSON.stringify(story).includes("I love you."), false);
+  assert.match(describeItem(lab.snapshot().incoming), /復号は不要/);
+  lab.start(2);
+  story = describeSituation(lab.snapshot());
+  assert.equal(story.recipient, "アリス");
+  assert.match(story.goal, /盗聴.*改ざん/);
+  lab.start(3, true);
+  capture(lab);
+  lab.setOutgoing(find(lab, "public", "charlie"));
+  lab.forward();
+  story = describeSituation(lab.snapshot());
+  assert.equal(
+    story.packet,
+    "公開鍵",
+    "rejection must not show a message packet that was never sent",
+  );
+  assert.equal(story.recipient, "アリス");
+  assert.equal(JSON.stringify(story).includes("I love you."), false);
+});
