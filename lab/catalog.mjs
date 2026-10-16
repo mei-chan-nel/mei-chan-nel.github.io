@@ -42,6 +42,14 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "cpu-memory",
+    group: "algorithm",
+    styles: ["memory.css?v=1"],
+    scripts: ["app.mjs?v=1"],
+    name: "CPUと記憶装置",
+    description: "RAMの命令を書き換えてCPUを動かす。キャッシュのヒット・ミス、計算結果と実行時間を実験して比べよう。",
+  },
+  {
     id: "color-vision",
     group: "information-design",
     generated: false,

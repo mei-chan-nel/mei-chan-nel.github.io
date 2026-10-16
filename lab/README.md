@@ -4,6 +4,10 @@
 
 ## 現在の教材
 
+### CPUと記憶装置
+
+`/lab/cpu-memory/`：32番地のRAMを直接編集し、8種類の日本語命令を実行します。命令とデータで共有するキャッシュのヒット・ミス、LRU、ライトスルー、仮想時間を観察・比較できます。詳しくは [cpu-memory/README.md](cpu-memory/README.md)。
+
 ### 色覚シミュレーター
 
 `/lab/color-vision/`：文化祭の当日案内を8工程で改善し、通常・P型・D型・T型を2×2で比較します。画像の拡大・移動は同期し、自分の画像の読込・変換・PNG保存はブラウザ内で完結します。手法・内容・検証は [color-vision/README.md](color-vision/README.md)。`generated: false`で個別HTMLを保持します。
