@@ -2,16 +2,18 @@ import { learningViews } from "./learning.mjs";
 import { esc } from "./shared/ui.mjs";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
-  if (id === "correlation") {
+  if (id === "correlation" || id === "histogram") {
     const nodes = [...root.children];
     const shell = document.createElement("div");
     shell.className = "workbench";
-    shell.innerHTML =
-      '<div class="workbench-body correlation-body"><section class="workbench-display correlation-display" aria-label="散布図と直線"></section></div>';
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "度数分布表とヒストグラム" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
-    ui.view = 0;
-    return [{ label: learningViews(id, ui.state)[0].title, active: true }];
+    if (id === "correlation") ui.view = 0;
+    return learningViews(id, ui.state).map((lesson, i) => ({
+      label: lesson.title,
+      active: i === (ui.view || 0),
+    }));
   }
   const panels = [...root.querySelectorAll(".panel,.chart-panel")].filter(
     (el) => !el.parentElement.closest(".panel,.chart-panel"),
@@ -27,10 +29,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   };
   if (id === "summary") {
     main = [panels[0], panels[2], panels[3]];
-    controls = [panels[1]];
-  }
-  if (id === "histogram") {
-    main = [panels[0], panels[2]];
     controls = [panels[1]];
   }
   if (id === "sampling") {
@@ -95,11 +93,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   side.append(controls[view] || controls[0]);
   if (main[view].tagName === "DETAILS") main[view].open = true;
   // Keep instructions beside the graph they explain. Advanced controls remain optional.
-  if (id === "histogram") {
-    const old = side.querySelector("#raw-details");
-    if (old) old.hidden = true;
-    display.classList.add("histogram-display");
-  }
   if (id === "crosstab") {
     const old = side.querySelector("#ct-counts");
     if (old) old.hidden = true;

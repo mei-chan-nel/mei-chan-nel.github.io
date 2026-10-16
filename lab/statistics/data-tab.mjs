@@ -6,6 +6,7 @@ import {
   tableConstraint,
 } from "./shared/table-data.mjs";
 import { mountDataEditor, downloadCSV } from "./data-editor.mjs";
+import { asNumber } from "./shared/csv.mjs";
 export function renderDataTab(root, options) {
   const {
     id,
@@ -37,8 +38,28 @@ export function renderDataTab(root, options) {
     };
   }
   const draft = ui.dataDraft;
-  const pageSize = window.innerWidth <= 600 ? 8 : 20,
+  const fullscreen = document.documentElement.classList.contains(
+    "statistics-immersive",
+  );
+  const preferredSize = ui.dataPageSize || 100;
+  const screenRows = Math.max(
+    1,
+    Math.floor(
+      (window.innerHeight - (window.innerWidth <= 600 ? 370 : 380)) /
+        (window.innerWidth <= 600 ? 155 : 38),
+    ),
+  );
+  const pageSize = fullscreen
+      ? screenRows
+      : preferredSize === "all"
+        ? Math.max(1, draft.rows.length)
+        : Number(preferredSize),
     limit = id === "probability" ? 10000 : 300;
+  if (ui.previousPageSize && ui.previousPageSize !== pageSize)
+    ui.dataPage = Math.floor(
+      ((ui.dataPage || 0) * ui.previousPageSize) / pageSize,
+    );
+  ui.previousPageSize = pageSize;
   const pageCount = Math.max(1, Math.ceil(draft.rows.length / pageSize));
   const page = Math.max(0, Math.min(ui.dataPage || 0, pageCount - 1)),
     from = page * pageSize;
@@ -62,7 +83,21 @@ export function renderDataTab(root, options) {
     }</tbody></table></div>
     <div class="data-edit-actions"><button id="add-data-row" type="button" ${draft.rows.length >= limit ? "disabled" : ""}>＋ 行を追加</button><div class="actions"><button id="discard-data-edits" type="button" ${draft.dirty ? "" : "disabled"}>編集を取り消す</button><button id="apply-data-edits" type="button" ${draft.dirty ? "" : "disabled"}>変更を反映</button></div></div>
     <p id="data-message" class="data-edit-status" role="status" aria-live="polite">${draft.dirty ? "未反映の変更があります。" : esc(ui.dataNotice || "")}</p>
-    ${pageCount > 1 ? `<div class="data-pagination"><button id="data-prev" type="button" ${page ? "" : "disabled"}>前の${pageSize}行</button><span>${from + 1}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span><button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次の${pageSize}行</button></div>` : ""}
+    <div class="data-pagination"><label for="data-page-size">表示行数 <select id="data-page-size" ${fullscreen ? "disabled" : ""}>${
+      fullscreen
+        ? `<option value="screen">画面に合わせる（${pageSize}行）</option>`
+        : [
+            [100, "100行"],
+            [300, "300行"],
+            ["all", "すべて"],
+          ]
+            .map(
+              ([v, label]) =>
+                `<option value="${v}" ${String(v) === String(preferredSize) ? "selected" : ""}>${label}</option>`,
+            )
+            .join("")
+    }</select></label>${pageCount > 1 ? `<button id="data-prev" type="button" ${page ? "" : "disabled"}>前へ</button>` : ""}<span>${draft.rows.length ? from + 1 : 0}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span>${pageCount > 1 ? `<button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次へ</button>` : ""}</div>
+    ${id === "histogram" ? `<details class="data-bulk-edit"><summary>集団の値をまとめて変える</summary><div class="data-bulk-controls"><label for="data-shift-group">集団<select id="data-shift-group">${[...new Set(draft.rows.map((r) => r[1]))].map((g) => `<option>${esc(g)}</option>`).join("")}</select></label><label for="data-shift-amount">各値に足す数<input id="data-shift-amount" type="number" step="any" value="0" inputmode="decimal"></label><button id="data-shift-apply" type="button">表の値を変更</button><span>負の数なら小さくなります。</span></div></details>` : ""}
     <p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button></div><div id="data-upload" hidden></div></section>`;
   const message = root.querySelector("#data-message");
   const mark = () => {
@@ -96,6 +131,41 @@ export function renderDataTab(root, options) {
   };
   // Header tabs use this same guard, so changing tabs cannot silently use stale values.
   ui.commitData = commit;
+  root.querySelector("#data-page-size").onchange = (e) => {
+    ui.dataPageSize = e.target.value === "all" ? "all" : Number(e.target.value);
+    redraw();
+  };
+  root.querySelector("#data-shift-apply")?.addEventListener("click", () => {
+    try {
+      const amount = asNumber(
+        root.querySelector("#data-shift-amount").value,
+        1,
+        "各値に足す数",
+      );
+      const group = root.querySelector("#data-shift-group").value;
+      const next = draft.rows.map((row, i) =>
+        row[1] !== group
+          ? [...row]
+          : [
+              String(
+                asNumber(
+                  String(asNumber(row[0], i + 1, data.headers[0]) + amount),
+                  i + 1,
+                  data.headers[0],
+                ),
+              ),
+              ...row.slice(1),
+            ],
+      );
+      draft.rows = next;
+      mark();
+      redraw();
+    } catch (e) {
+      message.textContent = e.message;
+      message.classList.add("error");
+      message.setAttribute("role", "alert");
+    }
+  });
   root.querySelectorAll(".data-cell").forEach((input) => {
     input.addEventListener("input", () => {
       draft.rows[Number(input.dataset.row)][Number(input.dataset.column)] =

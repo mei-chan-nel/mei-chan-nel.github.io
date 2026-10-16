@@ -1,4 +1,3 @@
-/* Follow the existing portal's spacing and archive cards. Content uses page scrolling. */
 .stat-page {
   width: min(1180px, calc(100% - 40px));
   max-width: 1180px;
@@ -251,13 +250,6 @@
 }
 .control-section .control {
   margin-bottom: 14px;
-}
-.histogram-display > .panel > svg:last-of-type {
-  min-height: 90px;
-}
-.histogram-display h3 {
-  font-size: 0.88rem;
-  margin: 16px 0 8px;
 }
 .experiment-insight {
   font-size: 0.88rem;
@@ -916,5 +908,505 @@ body[data-statistics]
   .corr-detail-options {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+/* Follow the existing portal's spacing and archive cards. Content uses page scrolling. */
+.workspace-screenbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+}
+.workspace-screen-title {
+  display: none;
+}
+.histogram-body {
+  display: block;
+}
+.histogram-display {
+  width: 100%;
+}
+.histogram-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.histogram-heading h2 {
+  margin: 0;
+}
+.histogram-heading h2 small {
+  font-size: 0.8rem;
+  color: #597067;
+  margin-left: 16px;
+  font-weight: 400;
+}
+.histogram-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.histogram-group-toggle input {
+  appearance: none;
+  width: 36px;
+  height: 21px;
+  background: #a6b8b1;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  flex: 0 0 36px;
+}
+.histogram-group-toggle input::after {
+  content: "";
+  position: absolute;
+  background: white;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: transform 0.15s;
+}
+.histogram-group-toggle input:checked {
+  background: #176455;
+}
+.histogram-group-toggle input:checked::after {
+  transform: translateX(15px);
+}
+.histogram-group-toggle input:focus-visible {
+  outline: 2px solid #af632e;
+  outline-offset: 3px;
+}
+.histogram-y-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  margin: 0 0 2px 4px;
+}
+.histogram-y-control select {
+  width: auto;
+  max-width: 230px;
+  font: inherit;
+  padding: 7px 10px;
+}
+.histogram-x-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 12px 0;
+  border-top: 1px solid #dbe2dc;
+}
+.histogram-number {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.83rem;
+}
+.histogram-number input {
+  width: 100px;
+  padding: 8px;
+  border: 1px solid #b6cbc3;
+  border-radius: 6px;
+  background: white;
+  font: inherit;
+}
+.histogram-x-controls p {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.6;
+  color: #597067;
+}
+.histogram-x-controls .error {
+  flex-basis: 100%;
+  color: #a13427;
+}
+.histogram-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px 22px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  margin: 8px 0;
+}
+.histogram-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.histogram-legend i {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: var(--series-color);
+}
+.histogram-legend small {
+  color: #597067;
+}
+.histogram-raw {
+  border-top: 1px solid #e2e8e3;
+  margin-top: 16px;
+  padding-top: 10px;
+}
+.histogram-raw h3 {
+  font-size: 0.84rem;
+  margin: 0 0 4px;
+}
+.histogram-raw .stat-chart {
+  height: 100px;
+  min-height: 0;
+}
+.histogram-selection {
+  font-size: 0.8rem;
+  margin: 4px 0 0;
+  min-height: 1.6em;
+}
+.histogram-frequency-table .stat-table {
+  width: 100%;
+  font-size: 0.87rem;
+  white-space: normal;
+  table-layout: fixed;
+}
+.histogram-frequency-table th,
+.histogram-frequency-table td {
+  overflow-wrap: anywhere;
+  text-align: right;
+  padding: 9px 12px;
+}
+.histogram-frequency-table th:first-child {
+  text-align: left;
+}
+.histogram-frequency-table tr[aria-selected="true"] {
+  background: #e3f1e9;
+}
+.histogram-frequency-table tbody tr {
+  cursor: pointer;
+}
+.histogram-frequency-table tbody tr:hover {
+  background: #f0f6f0;
+}
+.histogram-frequency-table tbody tr:focus-visible {
+  outline: 2px solid #176455;
+  outline-offset: -2px;
+}
+.histogram-frequency-table tfoot {
+  border-top: 2px solid #9eb5ab;
+  font-weight: 650;
+}
+.data-pagination {
+  flex-wrap: wrap;
+}
+.data-pagination label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  margin-right: auto;
+}
+.data-pagination select {
+  width: auto;
+  padding: 7px;
+  font: inherit;
+}
+.data-bulk-edit {
+  margin: 14px 0;
+  font-size: 0.84rem;
+}
+.data-bulk-controls {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 12px 0;
+}
+.data-bulk-controls label {
+  display: grid;
+  gap: 5px;
+}
+.data-bulk-controls :is(input, select) {
+  max-width: 150px;
+  font: inherit;
+  padding: 8px;
+  border: 1px solid #b6cbc3;
+  border-radius: 6px;
+}
+.data-bulk-controls span {
+  font-size: 0.8rem;
+  color: #597067;
+}
+
+html.statistics-immersive,
+html.statistics-immersive body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.statistics-fullscreen details[open]:not(.data-bulk-edit),
+.statistics-fullscreen
+  :is(
+    #data-upload,
+    .data-editor,
+    .data-editor-grid,
+    .data-editor-grid > section,
+    .data-editor-grid > aside,
+    #csv-preview,
+    #csv-columns
+  ):not([hidden]) {
+  display: contents !important;
+}
+.statistics-fullscreen div:has(> table) {
+  display: contents !important;
+}
+.statistics-fullscreen
+  .screen-columns
+  :is(.workbench-display, .workbench-controls) {
+  display: block !important;
+  padding: 8px;
+  min-height: 0;
+}
+.statistics-fullscreen {
+  position: fixed;
+  inset: 0;
+  margin: 0;
+  padding: 12px 18px;
+  width: 100dvw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  box-sizing: border-box;
+  border: 0;
+  background: #f7f6f0;
+  color: #163b3c;
+  overflow: hidden;
+}
+.statistics-fullscreen::backdrop {
+  background: #f7f6f0;
+}
+.statistics-fullscreen > .statistics-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.statistics-fullscreen .workspace-screenbar {
+  margin: 0 0 6px;
+  flex: 0 0 auto;
+  justify-content: space-between;
+}
+.statistics-fullscreen .workspace-screen-title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+.statistics-fullscreen .workspace-screenbar button {
+  padding: 7px 12px;
+  min-height: 36px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.statistics-fullscreen .view-tabs {
+  flex: 0 0 auto;
+  margin: 0 0 8px;
+  padding: 0 0 7px;
+  gap: 6px;
+}
+.statistics-fullscreen .view-tabs button {
+  font-size: 0.8rem;
+  padding: 7px 10px;
+  min-height: 35px;
+}
+.statistics-fullscreen
+  :is(
+    .tab-progress,
+    #lab-lead,
+    #analysis-flow,
+    #experiment-insight,
+    .step-navigation
+  ) {
+  display: none !important;
+}
+.statistics-fullscreen :is(#experiment, #project-root, #project-view) {
+  flex: 1 1 0;
+  min-height: 0;
+  margin: 0;
+}
+.statistics-fullscreen #project-root {
+  display: flex;
+  flex-direction: column;
+}
+.statistics-fullscreen
+  :is(
+    .workbench,
+    .workbench-mode,
+    .workbench-body,
+    .workbench-display,
+    .workbench-controls,
+    .workbench-group,
+    .stat-grid,
+    .panel,
+    .data-view,
+    .data-table,
+    .table-scroll,
+    .histogram-frequency-table
+  ):not([hidden]) {
+  display: contents !important;
+}
+.statistics-fullscreen [data-screen-hidden],
+.statistics-fullscreen [hidden] {
+  display: none !important;
+}
+.statistics-fullscreen :is(#experiment, #project-view) > *,
+.statistics-fullscreen .panel > * {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+.statistics-fullscreen h2 {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin: 0 0 6px;
+}
+.statistics-fullscreen h3 {
+  font-size: 0.88rem;
+  margin: 0 0 6px;
+}
+.statistics-fullscreen p {
+  font-size: 0.8rem;
+  line-height: 1.55;
+  margin: 0 0 7px;
+}
+.statistics-fullscreen .metrics {
+  margin: 0 0 8px;
+  gap: 6px;
+}
+.statistics-fullscreen .metrics > div {
+  padding: 7px 10px;
+  min-height: 0;
+}
+.statistics-fullscreen .metrics strong {
+  font-size: 1.1rem;
+}
+.statistics-fullscreen .stat-chart {
+  width: 100%;
+  height: var(--screen-chart-height, 280px);
+  min-height: 0;
+  max-height: none;
+}
+.statistics-fullscreen .histogram-raw {
+  display: none !important;
+}
+.statistics-fullscreen .histogram-x-controls {
+  padding: 8px 0;
+  gap: 8px 20px;
+}
+.statistics-fullscreen .histogram-x-controls p {
+  font-size: 0.72rem;
+}
+.statistics-fullscreen
+  :is(.data-edit-help, .data-constraint, .data-operation, .data-next) {
+  display: none !important;
+}
+.statistics-fullscreen .data-view-heading {
+  margin: 0 0 8px;
+  padding: 0;
+  gap: 12px;
+}
+.statistics-fullscreen .data-view-heading h2 {
+  font-size: 0.95rem;
+}
+.statistics-fullscreen .data-view-heading p {
+  margin: 3px 0 0;
+}
+.statistics-fullscreen .data-file-actions button {
+  font-size: 0.76rem;
+  padding: 6px 9px;
+  min-height: 34px;
+}
+.statistics-fullscreen .editable-data-table :is(th, td) {
+  padding: 3px 6px;
+}
+.statistics-fullscreen .data-cell {
+  min-height: 29px;
+  padding: 4px 6px;
+}
+.statistics-fullscreen .data-edit-actions {
+  margin: 6px 0;
+}
+.statistics-fullscreen :is(.data-edit-actions, .data-pagination) button {
+  padding: 6px 9px;
+  min-height: 32px;
+  font-size: 0.76rem;
+}
+.statistics-fullscreen .data-pagination {
+  margin: 6px 0;
+  gap: 10px;
+}
+.statistics-fullscreen .stat-table {
+  font-size: 0.8rem;
+}
+.statistics-fullscreen .stat-table :is(th, td) {
+  padding: 6px 9px;
+}
+.statistics-fullscreen .screen-pager {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 40px;
+  padding-top: 6px;
+  border-top: 1px solid #cbd8ce;
+  font-size: 0.8rem;
+  margin: 0;
+}
+.statistics-fullscreen .screen-pager button {
+  padding: 6px 10px;
+  min-height: 32px;
+  font-size: 0.8rem;
+}
+@media (max-width: 600px) {
+  .histogram-x-controls {
+    align-items: start;
+    gap: 10px 16px;
+  }
+  .histogram-number {
+    display: grid;
+    gap: 4px;
+  }
+  .histogram-frequency-table .stat-table {
+    font-size: 0.72rem;
+  }
+  .histogram-frequency-table :is(th, td) {
+    padding: 7px 4px;
+  }
+  .histogram-heading {
+    gap: 8px;
+  }
+  .histogram-heading h2 {
+    font-size: 1rem;
+  }
+  .histogram-group-toggle {
+    font-size: 0.76rem;
+  }
+  .statistics-fullscreen {
+    padding: max(8px, env(safe-area-inset-top)) 10px
+      max(8px, env(safe-area-inset-bottom));
+  }
+  .statistics-fullscreen .workspace-screen-title {
+    font-size: 0.8rem;
+  }
+  .statistics-fullscreen .data-file-actions {
+    gap: 6px;
+  }
+  .statistics-fullscreen .data-view-heading {
+    display: block;
+  }
+  .statistics-fullscreen .editable-data-table tr {
+    padding: 7px;
+    margin-bottom: 5px;
   }
 }

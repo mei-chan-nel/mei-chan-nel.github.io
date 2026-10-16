@@ -3,6 +3,7 @@ import { population } from "../sampling/model.mjs";
 import { createMonthlySeries } from "../time-series/lab.mjs";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
+import { niceWidth } from "../histogram/model.mjs";
 export const dataKinds = {
   correlation: "pairs",
   histogram: "groups",
@@ -34,7 +35,7 @@ export function currentData(id, s) {
       r.value + (r.group === "B" ? Number(s.shiftB || 0) : 0),
       s.groupNames?.[r.group === "B" ? 1 : 0] || r.group,
     ]);
-    operation = `${s.shiftB ? `${s.groupNames?.[1] || "集団B"}を${fmt(s.shiftB, 1)}移動 → ` : ""}幅 ${fmt(s.width, 1)}・基準 ${fmt(s.start, 1)} で階級集計`;
+    operation = `階級幅 ${fmt(s.width, 2)}で集計 → 度数分布表 → ヒストグラム`;
   }
   if (id === "summary") {
     headers = [s.label || "値"];
@@ -235,7 +236,7 @@ export function applyData(
       s.groupNames = [groups[0], groups[1] || "なし"];
       s.width = Math.max(
         0.1,
-        (Math.max(...values) - Math.min(...values)) / 8 || 1,
+        niceWidth(Math.max(...values) - Math.min(...values)),
       );
       s.start = 0;
       s.shiftB = 0;

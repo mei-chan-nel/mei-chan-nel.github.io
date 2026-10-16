@@ -10,8 +10,10 @@ import { dataStep, learningViews, renderStepNavigation } from "./learning.mjs";
 import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
+import { normalizeHistogram } from "./histogram/model.mjs";
+import { setupFullscreen } from "./fullscreen.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261016-cleanup`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261017-histogram`)).default;
 const ui = {
   view: 0,
   dataTab: true,
@@ -22,6 +24,7 @@ const key = `study-atlas-statistics-${id}-v1`;
 const project =
   new URLSearchParams(location.search).get("dataset") === "project";
 function prepare(next) {
+  if (id === "histogram") next = normalizeHistogram(next);
   if (id === "correlation") next = config.normalize(next);
   if (id === "sampling") next = normalizeExperiment(next);
   if (!next.dataInfo) {
@@ -77,7 +80,7 @@ function draw() {
         }
       : null;
   try {
-    config.render(root, { state, update, replace });
+    config.render(root, { state, update, replace, view: ui.view });
     ui.state = state;
     const views = composeWorkbench(root, id, ui, draw) || [];
     const steps = [dataStep(id), ...learningViews(id, state)];
@@ -124,8 +127,8 @@ function draw() {
       flow = document.querySelector("#analysis-flow");
     lead.hidden = !lesson.action;
     lead.textContent = lesson.action;
-    flow.hidden = ui.dataTab || id === "correlation";
-    finding.hidden = ui.dataTab || id === "correlation";
+    flow.hidden = ui.dataTab || ["correlation", "histogram"].includes(id);
+    finding.hidden = ui.dataTab || ["correlation", "histogram"].includes(id);
     if (ui.dataTab) {
       renderDataTab(root, {
         id,
@@ -151,7 +154,7 @@ function draw() {
         nextLabel: steps[1].title,
       });
     } else {
-      if (id !== "correlation") {
+      if (!["correlation", "histogram"].includes(id)) {
         flow.textContent = "処理：" + currentData(id, state).operation;
         finding.textContent = insight(id, state);
         root.querySelector(".workbench-display").append(finding);
@@ -182,6 +185,7 @@ renderAcademicExplanation(
 );
 document.querySelector("#lab-picker").onchange = (e) =>
   (location.href = `../${e.target.value}/`);
+setupFullscreen(document.querySelector("#statistics-workspace"), draw);
 draw();
 if (id === "correlation") {
   document.addEventListener("pointerdown", (e) => {
@@ -196,6 +200,20 @@ if (id === "correlation") {
     if (document.activeElement?.matches(".corr-observation"))
       document.activeElement.blur();
     update({ selectedId: "", excludeSelected: false });
+  });
+}
+if (id === "histogram") {
+  document.addEventListener("pointerdown", (e) => {
+    if (
+      ui.dataTab ||
+      state.selected < 0 ||
+      e.button > 0 ||
+      e.target.closest(
+        "[data-bin], [data-raw], button, a, input, select, textarea, label, summary",
+      )
+    )
+      return;
+    update({ selected: -1 });
   });
 }
 let layoutTimer;

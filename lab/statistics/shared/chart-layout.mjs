@@ -15,10 +15,17 @@ export function fitWorkspaceCharts(container) {
       height = box.height,
       sx = width / original.width,
       sy = height / original.height;
-    if (svg.dataset.layoutWidth) continue;
+    if (
+      Math.abs(Number(svg.dataset.layoutWidth) - width) < 0.5 &&
+      Math.abs(Number(svg.dataset.layoutHeight) - height) < 0.5
+    )
+      continue;
+    const totalX = Number(svg.dataset.scaleX || 1) * sx;
+    const totalY = Number(svg.dataset.scaleY || 1) * sy;
     svg.dataset.layoutWidth = String(width);
-    svg.dataset.scaleX = String(sx);
-    svg.dataset.scaleY = String(sy);
+    svg.dataset.layoutHeight = String(height);
+    svg.dataset.scaleX = String(totalX);
+    svg.dataset.scaleY = String(totalY);
     for (const node of svg.querySelectorAll("*")) {
       if (["title", "desc", "style"].includes(node.tagName)) continue;
       for (const key of ["x", "x1", "x2", "cx", "dx", "width"])
@@ -49,7 +56,7 @@ export function fitWorkspaceCharts(container) {
         );
       }
       if (node.tagName === "path") {
-        node.setAttribute("transform", `scale(${sx} ${sy})`);
+        node.setAttribute("transform", `scale(${totalX} ${totalY})`);
         node.setAttribute("vector-effect", "non-scaling-stroke");
       }
     }
