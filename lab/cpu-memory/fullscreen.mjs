@@ -4,10 +4,59 @@ export function createMemoryFullscreen({
   surface,
   button,
   onChange = () => {},
+  closeSpeed = () => {},
+  speedPanel,
 }) {
   const root = document.documentElement;
   const setup = surface.querySelector("#experiment-setup");
   const records = surface.querySelector("#comparison-records");
+  const speedAnchor = document.createComment("speed panel");
+  speedPanel.before(speedAnchor);
+  const controls = {
+    next: "step",
+    reset: "reset",
+    play: "run",
+    speed: "speed-button",
+    load: "load-program",
+    save: "save-program",
+  };
+  const proxies = new Map(
+    [...surface.querySelectorAll("[data-control]")].map((b) => [
+      b.dataset.control,
+      b,
+    ]),
+  );
+  function sync() {
+    for (const [key, id] of Object.entries(controls)) {
+      const original = document.getElementById(id),
+        proxy = proxies.get(key);
+      proxy.disabled = original.disabled;
+      if (key === "play") {
+        const playing = original.getAttribute("aria-pressed") === "true";
+        proxy.textContent = playing ? "Ⅱ" : "▶";
+        proxy.setAttribute("aria-pressed", String(playing));
+        proxy.setAttribute("aria-label", playing ? "一時停止" : "自動実行");
+        proxy.title = playing ? "一時停止" : "自動実行";
+      }
+      if (key === "speed")
+        proxy.setAttribute(
+          "aria-expanded",
+          original.getAttribute("aria-expanded"),
+        );
+    }
+    proxies.get("records").setAttribute("aria-expanded", String(records.open));
+  }
+  for (const [key, id] of Object.entries(controls))
+    proxies.get(key).onclick = () => {
+      document.getElementById(id).click();
+      sync();
+    };
+  proxies.get("exit").onclick = () => leave();
+  proxies.get("records").onclick = () => {
+    records.open = !records.open;
+    sync();
+  };
+  records.addEventListener("toggle", sync);
   let active = false,
     ownsNative = false,
     requestPending = false;
@@ -22,6 +71,9 @@ export function createMemoryFullscreen({
   function setActive(next) {
     if (next === active) return;
     active = next;
+    closeSpeed();
+    if (next) surface.append(speedPanel);
+    else speedAnchor.after(speedPanel);
     if (next) {
       scroll = [window.scrollX, window.scrollY];
       panelState = [setup.open, records.open];
@@ -59,8 +111,9 @@ export function createMemoryFullscreen({
       "aria-label",
       next ? "全画面表示を終了する" : "実験画面を全画面で表示",
     );
+    sync();
     onChange(next);
-    if (next) button.focus({ preventScroll: true });
+    if (next) proxies.get("next").focus({ preventScroll: true });
     else restoreScroll();
   }
   function leave() {
@@ -104,6 +157,7 @@ export function createMemoryFullscreen({
       event.key !== "Escape" ||
       !active ||
       event.defaultPrevented ||
+      !speedPanel.hidden ||
       document.querySelector("dialog[open]")
     )
       return;
@@ -112,6 +166,7 @@ export function createMemoryFullscreen({
   });
   return {
     leave,
+    sync,
     get active() {
       return active;
     },

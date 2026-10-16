@@ -16,6 +16,8 @@ for (const key of [
   "HTMLElement",
 ])
   globalThis[key] = dom.window[key];
+dom.window.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
+dom.window.HTMLDialogElement.prototype.close=function(){this.open=false;};
 const restored = [];
 window.scrollTo = (options) => restored.push(options);
 await import("../cpu-memory/app.mjs");

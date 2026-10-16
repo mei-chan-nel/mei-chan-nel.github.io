@@ -83,63 +83,189 @@
             autocomplete="off"
         /></label>
         <div class="file-actions">
-          <button id="import-program" type="button">ファイルから読込</button>
-          <button id="export-program" type="button">ファイルに書出</button>
-          <input
-            type="file"
-            id="program-file"
-            accept="application/json,.json"
-            hidden
-          />
+          <button id="load-program" type="button">読込</button
+          ><button id="save-program" type="button">保存</button>
         </div>
       </div>
-      <div class="memory-preset-bar">
-        <label for="preset">プリセット</label
-        ><select id="preset"></select
-        ><button id="load-preset" type="button">適用</button>
-        <p class="experiment-hint" id="preset-hint"></p>
-      </div>
+      <p class="experiment-hint" id="preset-hint"></p>
     </div>
   </details>
-  <div class="execution-bar">
-    <div class="run-buttons">
+  <div class="execution-bar control-panel">
+    <div class="run-buttons action-buttons">
       <button
-        class="primary"
+        class="button button-primary primary"
         id="step"
         type="button"
         title="1命令実行"
         aria-label="次へ（1命令実行）"
       >
-        <span aria-hidden="true">→</span> 次へ
+        <span class="button-icon" aria-hidden="true">→</span> 次へ
       </button>
-      <button id="reset" type="button">
-        <span aria-hidden="true">↺</span> 最初から
+      <button class="button" id="reset" type="button">
+        <span class="button-icon" aria-hidden="true">↺</span> 最初から
       </button>
-      <button class="button-auto" id="run" type="button" aria-pressed="false">
-        <span aria-hidden="true">▶</span> 自動実行
+      <button
+        class="button button-auto"
+        id="run"
+        type="button"
+        aria-pressed="false"
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path id="play-icon" d="m6 3 10 7-10 7Z" /></svg
+        ><span id="play-label">自動実行</span>
+      </button>
+      <div class="speed-control" id="speed-control">
+        <button
+          class="button speed-button"
+          id="speed-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="speed-panel"
+        >
+          実行速度 <span id="speed-value">0.5秒</span
+          ><span aria-hidden="true">⌄</span>
+        </button>
+        <div
+          id="speed-panel"
+          class="speed-panel"
+          role="group"
+          aria-label="実行速度の設定"
+          hidden
+        >
+          <p class="speed-title">1ステップの間隔</p>
+          <div class="speed-adjustment">
+            <button
+              id="speed-decrease"
+              class="button speed-adjust-button"
+              type="button"
+              aria-label="実行間隔を短くする"
+            >
+              −</button
+            ><label class="speed-input-wrap"
+              ><span class="visually-hidden">1ステップの秒数</span
+              ><input
+                id="speed-input"
+                type="number"
+                value="0.5"
+                min="0.001"
+                step="any"
+                required
+                inputmode="decimal"
+                aria-describedby="speed-error"
+              /><span>秒</span></label
+            ><button
+              id="speed-increase"
+              class="button speed-adjust-button"
+              type="button"
+              aria-label="実行間隔を長くする"
+            >
+              ＋
+            </button>
+          </div>
+          <p id="speed-error" class="speed-error" role="alert" hidden>
+            0.001秒以上で入力してください。0.1秒以上は0.1秒刻みです。
+          </p>
+        </div>
+      </div>
+      <button
+        class="button"
+        id="memory-fullscreen"
+        type="button"
+        aria-pressed="false"
+        aria-controls="memory-lab"
+        aria-label="実験画面を全画面で表示"
+      >
+        <span aria-hidden="true">⛶</span> 全画面
       </button>
     </div>
-    <button
-      id="memory-fullscreen"
-      type="button"
-      aria-pressed="false"
-      aria-controls="memory-lab"
-      aria-label="実験画面を全画面で表示"
-    >
-      <span aria-hidden="true">⛶</span> 全画面
-    </button>
-    <label
-      >実行速度<select id="speed">
-        <option value="1000">ゆっくり</option>
-        <option value="450" selected>通常</option>
-        <option value="60">速い</option>
-      </select></label
-    ><span class="state-badge" id="state">実行前</span>
+    <span class="state-badge" id="state">実行前</span>
   </div>
+  <nav class="fullscreen-sidebar" aria-label="全画面の操作">
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-exit"
+      data-control="exit"
+      aria-label="全画面を終了"
+      title="元に戻す"
+    >
+      ×
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-next"
+      data-control="next"
+      aria-label="次へ（1命令実行）"
+      title="次へ"
+    >
+      →
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="reset"
+      aria-label="最初から"
+      title="最初から"
+    >
+      ↺
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="play"
+      aria-label="自動実行"
+      aria-pressed="false"
+      title="自動実行"
+    >
+      ▶
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="speed"
+      aria-label="実行速度"
+      aria-expanded="false"
+      title="実行速度"
+    >
+      ◷
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-text"
+      data-control="load"
+      aria-label="プログラムを読み込む"
+      title="プログラムを読み込む"
+    >
+      読込
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-text"
+      data-control="save"
+      aria-label="プログラムを保存"
+      title="プログラムを保存"
+    >
+      保存
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="records"
+      aria-label="記録と比較"
+      aria-expanded="false"
+      title="記録と比較"
+    >
+      ≡
+    </button>
+  </nav>
   <p id="notice" role="status" aria-live="polite">
     16・17番地の数値を変えて、計算を試してみよう。
   </p>
   <div class="memory-workspace">
+    <svg
+      id="memory-transfers"
+      class="memory-transfers"
+      aria-hidden="true"
+    ></svg>
     <section class="panel cpu-panel" aria-labelledby="cpu-heading">
       <div class="panel-heading">
         <div>
@@ -174,15 +300,6 @@
           value="0"
           step="1"
       /></label>
-      <div
-        role="img"
-        class="transfer-route"
-        id="route"
-        aria-label="直前のデータの移動"
-      >
-        <span>CPU</span><b>↔</b><span>キャッシュ</span><b>↔</b><span>RAM</span>
-      </div>
-      <p class="small-note">命令もデータも、RAMからCPUへ。</p>
       <details class="timing-settings">
         <summary>仮想アクセス時間</summary>
         <label

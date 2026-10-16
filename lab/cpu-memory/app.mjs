@@ -11,6 +11,11 @@ import {
 } from "./model.mjs";
 import { presets } from "./presets.mjs";
 import { createMemoryFullscreen } from "./fullscreen.mjs";
+import { createAutoplay } from "../../program-trace/autoplay.js";
+import { bindStepKeys } from "../../program-trace/step-keys.js";
+import { installSpeed } from "./speed.mjs";
+import { installProgramDocuments } from "./document-ui.mjs";
+import { createTransfers, transferSteps } from "./transfers.mjs";
 import {
   field,
   selection,
@@ -42,12 +47,19 @@ let initial = copy(presets[0].memory),
   records = [],
   machine,
   running = false,
-  timer,
   selectedEvent = -1,
   revision = 0,
   comparing = false,
   runCount = 0;
 const rows = [];
+const transfers = createTransfers(document.querySelector(".memory-workspace"));
+const autoplay = createAutoplay({
+  advance: () => {
+    tick();
+    return running;
+  },
+});
+let speedControls;
 try {
   const stored = JSON.parse(localStorage.getItem(storageKey));
   if (stored?.version === 1) {
@@ -103,7 +115,7 @@ function persist() {
   }
 }
 function stop() {
-  clearTimeout(timer);
+  autoplay.stop();
   running = false;
 }
 function reset(message = "初期RAMに戻し、CPUとキャッシュを初期化しました。") {
@@ -230,11 +242,11 @@ function renderControls() {
   $("run").disabled = comparing || machine.halted || !!machine.error;
   $("run").setAttribute("aria-pressed", String(running));
   $("run").classList.toggle("is-running", running);
-  $("run").replaceChildren(
-    el("span", running ? "Ⅱ" : "▶"),
-    document.createTextNode(running ? " 一時停止" : " 自動実行"),
+  $("play-label").textContent = running ? "一時停止" : "自動実行";
+  $("play-icon").setAttribute(
+    "d",
+    running ? "M5 3h4v14H5zM12 3h4v14h-4z" : "m6 3 10 7-10 7Z",
   );
-  $("run").firstElementChild.setAttribute("aria-hidden", "true");
   $("step").disabled =
     running || comparing || machine.halted || !!machine.error;
   $("save-result").disabled = running || comparing || !machine.steps;
@@ -251,6 +263,7 @@ function renderControls() {
             ? "一時停止"
             : "実行前";
   $("state").classList.toggle("running", running);
+  fullscreen.sync();
   $("cache-enabled").nextElementSibling.textContent = config.enabled
     ? "ON"
     : "OFF";
@@ -276,6 +289,7 @@ function renderCache(event) {
         `cache-line${line.base === event?.base ? " active" : ""}`,
       ),
       header = el("header");
+    card.dataset.base = line.base;
     header.append(
       el("span", `${line.base}・${line.base + 1} 番地`),
       el(
@@ -372,22 +386,15 @@ function render() {
     );
     $("access-events").append(b);
   });
-  $("access-reason").textContent = e
-    ? `${e.reason} 転送内容：${text(e.cell)}。`
-    : "";
-  $("route").className =
-    `transfer-route ${e ? (e.hit === null ? "off" : e.hit ? "hit" : "miss") : ""}`;
-  const arrows = $("route").querySelectorAll("b");
-  arrows.forEach((arrow) => {
-    arrow.textContent = e ? (e.kind === "write" ? "→" : "←") : "↔";
-  });
-  if (e?.hit === true && e.kind !== "write") arrows[1].textContent = "·";
-  $("route").setAttribute(
-    "aria-label",
-    e
-      ? `${e.kind === "write" ? "CPUからRAMへの書き込み" : e.hit ? "キャッシュからCPUへ" : "RAMからCPUへ"}：${text(e.cell)}`
-      : "データの移動",
-  );
+  $("access-reason").replaceChildren();
+  if (e) {
+    const flow = el("ol", undefined, "transfer-steps");
+    transferSteps(e).forEach((step) =>
+      flow.append(el("li", step.label, `flow-${step.kind}`)),
+    );
+    $("access-reason").append(flow, el("p", e.reason));
+  }
+  transfers.update(e);
   const s = machine.stats,
     total = s.cpu + s.wait;
   $("total-time").replaceChildren(
@@ -415,11 +422,14 @@ function revealRam(address) {
   else if (target.bottom > bounds.bottom)
     list.scrollTop += target.bottom - bounds.bottom;
 }
-createMemoryFullscreen({
+const fullscreen = createMemoryFullscreen({
   surface: $("memory-lab"),
   button: $("memory-fullscreen"),
+  closeSpeed: () => speedControls?.close(),
+  speedPanel: $("speed-panel"),
   onChange: () => {
     if (machine?.currentAddress !== null) revealRam(machine?.currentAddress);
+    transfers.draw();
   },
 });
 function execute() {
@@ -453,7 +463,6 @@ function tick() {
     );
     renderControls();
   }
-  if (running) timer = setTimeout(tick, Number($("speed").value));
 }
 $("run").addEventListener("click", () => {
   if (running) {
@@ -466,30 +475,24 @@ $("run").addEventListener("click", () => {
     if (machine.halted || machine.error) return;
     running = true;
     runCount = 0;
-    tick();
+    autoplay.start();
   });
 });
 $("step").addEventListener("click", () => guarded(execute));
-window.addEventListener("keydown", (event) => {
-  if (
-    event.defaultPrevented ||
-    event.repeat ||
-    event.altKey ||
-    event.ctrlKey ||
-    event.metaKey ||
-    ![" ", "Enter"].includes(event.key)
-  )
-    return;
-  if (
-    event.target instanceof HTMLElement &&
-    event.target.closest(
-      'input,select,textarea,button,a,summary,dialog,[contenteditable="true"]',
-    )
-  )
-    return;
-  if (document.querySelector("dialog[open]") || $("step").disabled) return;
-  event.preventDefault();
-  $("step").click();
+bindStepKeys({
+  isActive: () => true,
+  canAdvance: () => !$("step").disabled,
+  advance: () => $("step").click(),
+  nextButton: () =>
+    fullscreen.active
+      ? document.querySelector('[data-control="next"]')
+      : $("step"),
+});
+speedControls = installSpeed({
+  autoplay,
+  changed: () => {
+    if (machine) renderControls();
+  },
 });
 $("reset").addEventListener("click", () => guarded(() => reset()));
 for (const id of [
@@ -510,20 +513,6 @@ $("experiment-name").addEventListener("input", () => {
   name = $("experiment-name").value;
   $("setup-name").textContent = name || "名前のないプログラム";
   persist();
-});
-presets.forEach((p) => {
-  const option = el("option", p.name);
-  option.value = p.id;
-  $("preset").append(option);
-});
-$("load-preset").addEventListener("click", () => {
-  const p = presets.find((item) => item.id === $("preset").value);
-  initial = copy(p.memory);
-  name = p.name;
-  config.start = 0;
-  renderInputs();
-  reset("プリセットを適用しました。命令と数値を自由に変更できます。");
-  $("preset-hint").textContent = p.hint;
 });
 $("help-toggle").addEventListener("click", () => {
   const open = $("lab-guide").hidden;
@@ -661,43 +650,27 @@ $("compare-off").addEventListener("click", () =>
     }
   }),
 );
-$("export-program").addEventListener("click", () =>
-  guarded(() => {
-    const blob = new Blob(
-        [JSON.stringify({ version: 1, name, initial, config }, null, 2)],
-        { type: "application/json" },
-      ),
-      url = URL.createObjectURL(blob),
-      a = el("a");
-    a.href = url;
-    a.download = "cpu-memory-program.json";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    announce("初期RAMと設定をJSON保存しました。");
-  }),
-);
-$("import-program").addEventListener("click", () => $("program-file").click());
-$("program-file").addEventListener("change", async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  try {
-    if (file.size > 100000)
-      throw new Error("100KB以下のプログラムJSONを選んでください。");
-    const data = JSON.parse(await file.text());
-    if (data.version !== 1) throw new Error("対応していないJSON形式です。");
-    validateMemory(data.initial);
-    validateConfig(data.config);
-    initial = copy(data.initial);
-    config = copy(data.config);
-    name = String(data.name || "読み込んだ実験").slice(0, 60);
+installProgramDocuments({
+  read: () => {
+    readDraft();
+    return { version: 1, name, initial: copy(initial), config: copy(config) };
+  },
+  settings: () => copy(config),
+  pause: () => {
+    stop();
+    renderControls();
+  },
+  message: announce,
+  replace: (doc) => {
+    initial = copy(doc.initial);
+    config = copy(doc.config);
+    name = doc.name;
     renderInputs();
-    reset("JSONから初期RAMと設定を読み込みました。");
-    renderRecords();
-    $("preset-hint").textContent = "読み込んだプログラムを実験できます。";
-  } catch (error) {
-    announce(`読込できませんでした：${error.message}`, true);
-  }
-  event.target.value = "";
+    reset("プログラムを読み込み、CPUとキャッシュを初期化しました。");
+    $("preset-hint").textContent =
+      presets.find((p) => JSON.stringify(p.memory) === JSON.stringify(initial))
+        ?.hint ?? "読み込んだプログラムを実験できます。";
+  },
 });
 window.addEventListener("pagehide", () => {
   stop();
@@ -707,6 +680,7 @@ renderInputs();
 machine = new Machine(initial, config);
 render();
 renderRecords();
+speedControls.sync();
 $("preset-hint").textContent =
   presets.find((p) => JSON.stringify(p.memory) === JSON.stringify(initial))
     ?.hint ??
