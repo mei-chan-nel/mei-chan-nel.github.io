@@ -42,6 +42,13 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "color-vision",
+    group: "information-design",
+    generated: false,
+    name: "色覚シミュレーター",
+    description: "文化祭の案内を段階的に改善。通常・P型・D型・T型を比べ、色に頼らない伝え方を見つけよう。自分の画像もブラウザ内で確認できます。",
+  },
+  {
     id: "question-map",
     group: "information-design",
     standalone: false,
