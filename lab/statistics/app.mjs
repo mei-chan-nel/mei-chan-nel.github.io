@@ -11,7 +11,7 @@ import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261016-selection`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261016-cleanup`)).default;
 const ui = {
   view: 0,
   dataTab: true,

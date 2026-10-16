@@ -63,7 +63,7 @@ export function renderDataTab(root, options) {
     <div class="data-edit-actions"><button id="add-data-row" type="button" ${draft.rows.length >= limit ? "disabled" : ""}>＋ 行を追加</button><div class="actions"><button id="discard-data-edits" type="button" ${draft.dirty ? "" : "disabled"}>編集を取り消す</button><button id="apply-data-edits" type="button" ${draft.dirty ? "" : "disabled"}>変更を反映</button></div></div>
     <p id="data-message" class="data-edit-status" role="status" aria-live="polite">${draft.dirty ? "未反映の変更があります。" : esc(ui.dataNotice || "")}</p>
     ${pageCount > 1 ? `<div class="data-pagination"><button id="data-prev" type="button" ${page ? "" : "disabled"}>前の${pageSize}行</button><span>${from + 1}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span><button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次の${pageSize}行</button></div>` : ""}
-    <p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button><button id="paste-data" type="button">表データを貼り付ける・列を選ぶ</button></div><div id="data-upload" hidden></div></section>`;
+    <p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button></div><div id="data-upload" hidden></div></section>`;
   const message = root.querySelector("#data-message");
   const mark = () => {
     draft.dirty =
@@ -146,7 +146,7 @@ export function renderDataTab(root, options) {
   root.querySelector("#download-csv").onclick = () => {
     if (commit()) downloadCSV(`statistics-${id}.csv`, data.headers, draft.rows);
   };
-  const open = (file) => {
+  const open = () => {
     const container = root.querySelector("#data-upload");
     container.hidden = false;
     const editor = mountDataEditor(container, {
@@ -162,11 +162,9 @@ export function renderDataTab(root, options) {
         root.scrollIntoView({ behavior: "smooth", block: "start" });
       },
     });
-    if (file) editor.querySelector("#csv-file").click();
-    else editor.querySelector("#csv-text").focus();
+    editor.querySelector("#csv-file").click();
   };
-  root.querySelector("#upload-csv").onclick = () => open(true);
-  root.querySelector("#paste-data").onclick = () => open(false);
+  root.querySelector("#upload-csv").onclick = open;
   root.querySelector("#analyze-data").onclick = () => {
     if (commit()) analyze();
   };

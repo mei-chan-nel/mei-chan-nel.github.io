@@ -15,7 +15,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"データの分布とヒストグラム","item":"https://mei-chan-nel.com/lab/statistics/histogram/"}]}</script>
 <link rel="stylesheet" href="./../statistics.css" />
 <link rel="stylesheet" href="./../workspace.css" />
-<script type="module" src="./../app.mjs?v=20261016-selection"></script>
+<script type="module" src="./../app.mjs?v=20261016-cleanup"></script>
 <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:type" content="image/png" />
@@ -37,12 +37,11 @@
 <a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
 <main id="main-content" class="lab-shell lab-content-page stat-page">
 <header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>データの分布とヒストグラム</h1><p class="workspace-purpose">データがどこに集まるかを、区切り方や集団を変えて調べる。</p><p class="workspace-intro">数値を一定の区間にまとめると、値が集まる場所や山の数が見えてきます。元の値と棒を対応させ、データを変えた場合と区切り方だけを変えた場合を比べます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="correlation" >散布図と相関・回帰</option><option value="histogram" selected>データの分布とヒストグラム</option><option value="summary" >代表値とばらつき</option><option value="sampling" >標本調査と推定</option><option value="crosstab" >クロス集計とデータの関係</option><option value="time-series" >時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header>
-<nav class="page-anchors" aria-label="ページ内の案内"><a href="#experiment">実験する</a><a href="#academic">統計の解説を読む</a></nav>
 <nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
 <p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"></div>
 <p id="experiment-insight" class="experiment-insight"></p><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p>
 <nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
-<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p><div id="explanation-body"></div><p class="academic-reference">参考：<a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">放送大学「身近な統計」（別タブ）</a>。このラボの題材・データ・図・解説は独自に制作しています。</p></section>
+<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p><div id="explanation-body"></div></section>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>
 </main>
 <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>

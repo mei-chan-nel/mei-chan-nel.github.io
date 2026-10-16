@@ -11,9 +11,8 @@ const selector = (id) =>
   `<label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker">${labs.map(([slug, title]) => `<option value="${slug}" ${id === slug ? "selected" : ""}>${title}</option>`).join("")}<option value="projects" ${id === "projects" ? "selected" : ""}>横断分析課題</option></select></label>`;
 const heading = (name, purpose, id, intro) =>
   `<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>${name}</h1><p class="workspace-purpose">${purpose}</p><p class="workspace-intro">${intro}</p></div>${selector(id)}</header>`;
-const reference = `<p class="academic-reference">参考：<a href="https://www.ouj.ac.jp/mijika/mijika/" target="_blank" rel="noopener">放送大学「身近な統計」（別タブ）</a>。このラボの題材・データ・図・解説は独自に制作しています。</p>`;
 const academic = (body) =>
-  `<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p>${body}${reference}</section>`;
+  `<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p>${body}</section>`;
 async function save(slug, body, scripts = []) {
   const name =
     labs.find((r) => r[0] === slug)?.[1] ||
@@ -66,22 +65,21 @@ for (const [id, title] of labs) {
   await save(
     id,
     `${heading(title, e.purpose, id, e.intro)}
-${id === "correlation" ? "" : '<nav class="page-anchors" aria-label="ページ内の案内"><a href="#experiment">実験する</a><a href="#academic">統計の解説を読む</a></nav>'}
 <nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
 <p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"></div>
 <p id="experiment-insight" class="experiment-insight"></p><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p>
 <nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
 ${academic('<div id="explanation-body"></div>')}
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    ["../app.mjs?v=20261016-selection"],
+    ["../app.mjs?v=20261016-cleanup"],
   );
 }
 await save(
   "projects",
   `${heading("横断分析課題", "同じデータを分布・代表値・相関で眺め、見える特徴の違いを比べる。", "projects", "学習時間が長い人ほど高得点でしょうか。分布・代表値・相関から同じデータを見ると、どんな違いが見つかるか試せます。自分の2列の数値データでも利用できます。")}
-<nav class="page-anchors" aria-label="ページ内の案内"><a href="#project-root">データと分析方法を選ぶ</a><a href="#academic">分析を進めるヒントを読む</a></nav><div id="project-root"></div>
+<div id="project-root"></div>
 ${academic(`<details class="academic-section"><summary>問いに合わせて分析方法を選ぶ</summary><div class="explanation-content"><p>「得点の低い人はどれくらいいるか」には分布、「典型的な得点や個人差はどれくらいか」には代表値とばらつき、「時間と得点に関係があるか」には散布図が役立ちます。すべての方法を使うことより、問いの根拠になる情報を選ぶことが大切です。</p><p>サンプルは学習用に独自制作した架空の24人です。実在する生徒についての結論には使えません。各ラボへは同じ行の対応と列名を引き継ぎ、分布・代表値ではどちらの列を分析するか選べます。</p></div></details><details class="academic-section"><summary>分析結果を結び付け、限界も確かめる</summary><div class="explanation-content"><p>平均が高いことと、全員の得点が高いことは同じではありません。分布に複数の山があれば、集団別にも調べます。相関係数が大きくても、外れ値が直線を動かしていないか、予測範囲が元データから離れすぎていないかを確認しましょう。</p><p>学習時間と得点の関連から、時間を増やせば必ず得点が上がるとは言えません。既習内容、学習方法、対象者の選ばれ方なども関係しえます。どの集団のデータか、条件がそろっているか、他の説明はないかも考えると、数値の意味を読み取りやすくなります。</p></div></details>`)}`,
-  ["../projects.mjs?v=20261016-selection"],
+  ["../projects.mjs?v=20261016-cleanup"],
 );
 console.log(
   "Built statistics index, 9 labs and project with natural page flow",

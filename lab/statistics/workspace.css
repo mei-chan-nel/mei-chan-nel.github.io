@@ -22,7 +22,6 @@
   margin-bottom: 16px;
 }
 .workspace-breadcrumb a,
-.page-anchors a,
 .stat-related a,
 .academic a,
 .text-link {
@@ -62,13 +61,6 @@
 .lab-picker select {
   font-size: 0.82rem;
   max-width: 245px;
-}
-.page-anchors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 24px;
-  font-size: 0.82rem;
-  margin: 18px 0 24px;
 }
 .stat-page :is(#experiment, #academic, #project-root) {
   scroll-margin-top: 24px;
@@ -596,10 +588,6 @@
 .explanation-content :is(p, li) {
   overflow-wrap: anywhere;
 }
-.academic .academic-reference {
-  font-size: 0.76rem;
-  margin-top: 20px;
-}
 .stat-related {
   gap: 20px;
   font-size: 0.85rem;
@@ -647,10 +635,6 @@ body[data-statistics]
   .lab-picker select {
     width: 100%;
     max-width: 100%;
-  }
-  .page-anchors {
-    font-size: 0.8rem;
-    gap: 10px 18px;
   }
   .stat-page .view-tabs button {
     font-size: 0.78rem;

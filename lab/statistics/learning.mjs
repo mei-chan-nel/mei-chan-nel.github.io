@@ -209,14 +209,11 @@ export function dataStep(id) {
   );
 }
 export function renderStepNavigation(container, steps, index, go) {
-  container.innerHTML = `<div class="step-buttons">${index ? `<button id="step-prev" type="button">← ${esc(steps[index - 1].title)}</button>` : ""}<span>${index + 1} / ${steps.length}</span>${index + 1 < steps.length ? `<button id="step-next" class="primary" type="button">次へ：${esc(steps[index + 1].title)} →</button>` : '<button id="step-restart" type="button">データを変えてもう一度 →</button>'}</div>`;
+  container.innerHTML = `<div class="step-buttons">${index ? `<button id="step-prev" type="button">← ${esc(steps[index - 1].title)}</button>` : ""}<span>${index + 1} / ${steps.length}</span>${index + 1 < steps.length ? `<button id="step-next" class="primary" type="button">次へ：${esc(steps[index + 1].title)} →</button>` : ""}</div>`;
   container
     .querySelector("#step-prev")
     ?.addEventListener("click", () => go(index - 1));
   container
     .querySelector("#step-next")
     ?.addEventListener("click", () => go(index + 1));
-  container
-    .querySelector("#step-restart")
-    ?.addEventListener("click", () => go(0));
 }
