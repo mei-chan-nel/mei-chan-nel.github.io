@@ -11,7 +11,7 @@ import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261016-scatter`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261016-selection`)).default;
 const ui = {
   view: 0,
   dataTab: true,
@@ -183,6 +183,21 @@ renderAcademicExplanation(
 document.querySelector("#lab-picker").onchange = (e) =>
   (location.href = `../${e.target.value}/`);
 draw();
+if (id === "correlation") {
+  document.addEventListener("pointerdown", (e) => {
+    if (ui.dataTab || !state.selectedId || e.button > 0) return;
+    // Controls act on the selected observation. Empty plot/page space clears it.
+    if (
+      e.target.closest(
+        "[data-corr-drag], button, a, input, select, textarea, label, summary",
+      )
+    )
+      return;
+    if (document.activeElement?.matches(".corr-observation"))
+      document.activeElement.blur();
+    update({ selectedId: "", excludeSelected: false });
+  });
+}
 let layoutTimer;
 window.addEventListener("resize", () => {
   clearTimeout(layoutTimer);

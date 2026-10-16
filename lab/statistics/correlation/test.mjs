@@ -225,3 +225,27 @@ test("a steep line caused by small x units remains valid when saving and restori
     ),
   );
 });
+
+test("clearing a selection restores all observations to fitting and can be saved without selecting a fallback point", () => {
+  const state = { ...lab.initial(), excludeSelected: true, selectedId: "" };
+  const cleared = normalizeCorrelation(state);
+  assert.equal(cleared.selectedId, "");
+  assert.equal(cleared.excludeSelected, false);
+  assert.deepEqual(trainingPoints(cleared), state.points);
+  validateDocument(
+    { version: 1, id: "correlation", state: cleared },
+    "correlation",
+    lab.initial(),
+  );
+  assert.throws(() =>
+    validateDocument(
+      {
+        version: 1,
+        id: "correlation",
+        state: { ...cleared, selectedId: "not-present" },
+      },
+      "correlation",
+      lab.initial(),
+    ),
+  );
+});

@@ -148,7 +148,8 @@ function domain(s, id) {
   if (id === "correlation" || id === "summary") {
     need(rows(s.points, 2), "データは2〜300点にしてください。");
     need(
-      s.points.some((p) => String(p.id) === String(s.selectedId)),
+      (id === "correlation" && s.selectedId === "") ||
+        s.points.some((p) => String(p.id) === String(s.selectedId)),
       "選択した点がデータにありません。",
     );
     if (id === "summary") {

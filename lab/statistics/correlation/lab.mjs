@@ -26,7 +26,7 @@ function baseState() {
     manual: false,
     manualSlope: 0.35,
     manualIntercept: 35,
-    showResiduals: false,
+    showResiduals: true,
     showSquares: false,
     excludeSelected: false,
     predictionX: 75,
@@ -161,10 +161,16 @@ export function visiblePrediction(
 }
 
 export function normalizeCorrelation(state) {
+  const selected = state.points.find(
+    (p) => String(p.id) === String(state.selectedId),
+  );
   const next = {
     ...state,
     mode: "move",
-    excludeSelected: state.points.length >= 3 && state.excludeSelected,
+    selectedId: selected?.id ?? "",
+    excludeSelected: Boolean(
+      selected && state.points.length >= 3 && state.excludeSelected,
+    ),
   };
   // Old slider-based saved lines have no on-chart handles. Keep the observations,
   // and start those saved experiments with their fitted regression line.
@@ -230,7 +236,7 @@ export function moveLineHandle(state, side, x, y) {
 function render(root, ctx) {
   const s = ctx.state,
     points = s.points;
-  const selected = points.find((p) => p.id === s.selectedId) || points[0];
+  const selected = points.find((p) => p.id === s.selectedId);
   const train = trainingPoints(s),
     fit = regression(train),
     fitOK = validFit(fit);
@@ -340,11 +346,11 @@ function render(root, ctx) {
       lineOK ? equation(slope, intercept) : "計算できない",
     ],
   ]).replace('class="metrics"', 'class="metrics correlation-metrics"')}
-  <section class="panel chart-panel correlation-canvas"><div class="correlation-toolbar"><button id="corr-add" type="button" ${points.length >= 300 ? 'disabled title="300点まで追加できます"' : ""}>点を追加</button><button id="corr-delete" type="button" ${points.length <= 2 ? 'disabled title="データは2点以上必要です"' : 'title="選択した点を削除（Delete）"'}>選択点を削除</button></div>
+  <section class="panel chart-panel correlation-canvas"><div class="correlation-toolbar"><button id="corr-add" type="button" ${points.length >= 300 ? 'disabled title="300点まで追加できます"' : ""}>点を追加</button><button id="corr-delete" type="button" ${!selected ? 'disabled title="削除する点を選んでください"' : points.length <= 2 ? 'disabled title="データは2点以上必要です"' : 'title="選択した点を削除（Delete）"'}>選択点を削除</button></div>
     ${svg(drawing, "散布図・直線。データ点と紫の予測点を直接動かせます", w, h).replace("<svg", '<svg id="corr-chart" style="touch-action:none"').replace('role="img"', 'role="group"')}
     ${error ? `<p class="error" role="status">${error}</p>` : ""}
     <ul class="corr-legend" aria-label="グラフの凡例">${key(s.excludeSelected ? "学習用データ" : "データ", colors.data)}${key(s.excludeSelected ? "検証用の選択点" : "選択中", colors.selected, s.excludeSelected)}${key("予測点", colors.prediction)}${key(s.manual ? "調整中の直線" : "回帰直線", s.manual ? colors.selectedEdge : colors.data, false, true)}${s.manual && fitOK ? key("回帰直線（破線）", colors.reference, false, true) : ""}${s.showResiduals ? key("残差（点線）", colors.residual, false, true) : ""}</ul>
-    <details id="corr-details" class="corr-details" ${s.correlationDetailsOpen ? "open" : ""}><summary>残差・直線の調整を詳しく調べる</summary><div class="corr-detail-options"><label><input id="corr-manual" type="checkbox" ${s.manual ? "checked" : ""}> 直線を図の取っ手で調整</label><label><input id="corr-residuals" type="checkbox" ${s.showResiduals ? "checked" : ""}> 残差を表示</label><label><input id="corr-squares" type="checkbox" ${s.showSquares ? "checked" : ""}> 残差の二乗を表示</label><label><input id="corr-holdout" type="checkbox" ${s.excludeSelected ? "checked" : ""} ${points.length < 3 ? "disabled" : ""}> 選択点を回帰から外して予測を検証</label>${s.manual ? '<button id="corr-best" type="button">回帰直線に戻す</button>' : ""}</div>
+    <details id="corr-details" class="corr-details" ${s.correlationDetailsOpen ? "open" : ""}><summary>残差・直線の調整を詳しく調べる</summary><div class="corr-detail-options"><label><input id="corr-manual" type="checkbox" ${s.manual ? "checked" : ""}> 直線を図の取っ手で調整</label><label><input id="corr-residuals" type="checkbox" ${s.showResiduals ? "checked" : ""}> 残差を表示</label><label><input id="corr-squares" type="checkbox" ${s.showSquares ? "checked" : ""}> 残差の二乗を表示</label><label><input id="corr-holdout" type="checkbox" ${s.excludeSelected ? "checked" : ""} ${!selected || points.length < 3 ? "disabled" : ""}> 選択点を回帰から外して予測を検証</label>${s.manual ? '<button id="corr-best" type="button">回帰直線に戻す</button>' : ""}</div>
     <p>残差平方和：<strong>${lineOK ? fmt(residuals.sse, 2) : "—"}</strong> ／ 最小値：${fitOK ? fmt(fit.sse, 2) : "—"} ／ 学習用RMSE：${lineOK ? fmt(residuals.rmse, 2) : "—"}</p>
     ${selectedResidual !== null ? `<p>選択点の残差：実測 ${coordinate(selected.y, ySpan)} − 予測 ${coordinate(slope * selected.x + intercept, ySpan)} = <strong>${coordinate(selectedResidual, ySpan)}</strong>${s.excludeSelected ? "（検証用のため、残差平方和・RMSEの計算には含めません）" : ""}</p>` : ""}
     <details class="corr-residual-table"><summary>実測値・予測値・残差の表</summary>${table(
@@ -363,7 +369,7 @@ function render(root, ctx) {
   const focusPoint = (id) =>
     document.getElementById(pointId(id))?.focus({ preventScroll: true });
   const remove = (id) => {
-    if (points.length <= 2) return;
+    if (points.length <= 2 || !points.some((p) => p.id === id)) return;
     const index = points.findIndex((p) => p.id === id),
       remaining = points.filter((p) => p.id !== id);
     const nextId = remaining[Math.max(0, index - 1)]?.id || remaining[0]?.id;
