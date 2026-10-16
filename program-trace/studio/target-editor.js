@@ -1,11 +1,11 @@
-import { element } from './dom.js';
-import { nameField, selection, subExpression } from './expression-editor.js';
-import { literal } from './builder-model.js';
+import { element } from './dom.js?v=20261009-function-help3';
+import { nameField, selection, subExpression } from './expression-editor.js?v=20261009-function-help3';
+import { literal } from './builder-model.js?v=20261009-function-help3';
 import { validName, StudioError } from './errors.js';
-import { expressionText } from './expressions.js';
+import { expressionText } from './expressions.js?v=20261009-function-help3';
 import { formatValue } from './values.js';
 import { builtinRegistry } from './builtins.js';
-import { normalizeSymbols } from './lexer.js';
+import { normalizeSymbols } from './lexer.js?v=20261009-function-help3';
 let serial = 0;
 export const targetText = (target) => target.name + (target.indices.length ? `[${target.indices.map(expressionText).join(', ')}]` : '');
 export function targetEditor(initial, context, scalarOnly = false) {
@@ -71,7 +71,7 @@ export function targetEditor(initial, context, scalarOnly = false) {
             if (!validName(targetName) || builtinRegistry.has(targetName) || ['and', 'or', 'not', '真', '偽', 'true', 'false'].includes(targetName))
                 throw new StudioError('名前は文字から始め、空白や記号を含めずに入力してください。関数名・予約語は使えません。');
             const existing = catalog.find(item => item.name === targetName);
-            if (existing && existing.kind !== kind)
+            if (existing && existing.kind !== kind && !context.parameters?.includes(targetName))
                 throw new StudioError(`「${targetName}」はすでに${existing.kind === 'variable' ? '変数' : existing.kind === 'array' ? '一次元配列' : '二次元配列'}として使われています。「作るもの」を合わせるか、別の名前にしてください。`);
             return { target: { name: targetName, indices: positions.map(item => item.read()) }, kind };
         } };

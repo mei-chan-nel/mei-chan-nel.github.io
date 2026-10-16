@@ -1,6 +1,6 @@
 import { LIMITS, StudioError, validName } from './errors.js';
 import { validateValue } from './values.js';
-import { validateBuilder, builderSource } from './builder-model.js';
+import { validateBuilder, builderSource } from './builder-model.js?v=20261009-function-help3';
 export const defaultInput = () => ({ kind: 'number', integer: true, min: -1000000, max: 1000000,
     minLength: 1, maxLength: 100, elementKind: 'number', rows: 2, columns: 3 });
 const object = (value) => typeof value === 'object' && value !== null && !Array.isArray(value);

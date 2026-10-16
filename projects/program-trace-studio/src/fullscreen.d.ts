@@ -1,4 +1,4 @@
-export type ControlKey = 'next' | 'reset' | 'edit' | 'play' | 'speed';
+export type ControlKey = 'previous' | 'next' | 'reset' | 'edit' | 'play' | 'speed';
 export function createFullscreen(options: {
   runner: HTMLElement; surface: HTMLElement; mount: HTMLElement; entryButton: HTMLButtonElement;
   controls: Record<ControlKey, HTMLButtonElement>; speedPanel: HTMLElement;

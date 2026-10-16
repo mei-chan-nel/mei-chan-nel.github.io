@@ -45,9 +45,19 @@ registerBuiltin({ name: '乱数', version: 1, effect: 'value', arities: [0, 3], 
     }
     return numeric(result);
   } });
+// Pure collection/arithmetic helpers shared with the original trace examples.
+// Return new arrays: calls never mutate another variable through an alias.
+const array = (value: Value): Value[] => { if (!Array.isArray(value)) throw new StudioError('配列を指定してください。'); return value; };
+registerBuiltin({ name: '整数', version: 1, effect: 'value', arities: [1], scalarType: 'number', description: '小数点以下を切り下げます。負の数も負の無限大方向へ丸めます。', invoke: args => numeric(Math.floor(numeric(args[0]))) });
+registerBuiltin({ name: 'べき乗', version: 1, effect: 'value', arities: [2], scalarType: 'number', description: '第1引数を第2引数の指数で累乗します。', invoke: args => numeric(numeric(args[0]) ** numeric(args[1])) });
+registerBuiltin({ name: '配列結合', version: 1, effect: 'value', arities: 'any', returnKind: 'array', description: '配列を順につないだ新しい配列を返します。', invoke: args => { if (!args.length) throw new StudioError('配列を1つ以上指定してください。'); const result = args.flatMap(array); if (result.length > LIMITS.arrayCells) throw new StudioError('配列が大きすぎます。'); return structuredClone(result); } });
+registerBuiltin({ name: '逆順', version: 1, effect: 'value', arities: [1], returnKind: 'array', description: '配列の要素を逆順にした新しい配列を返します。', invoke: args => structuredClone(array(args[0])).reverse() });
+registerBuiltin({ name: '含む', version: 1, effect: 'value', arities: [2], scalarType: 'boolean', description: '配列に第2引数と同じ値があれば真を返します。', invoke: args => array(args[0]).some(value => JSON.stringify(value) === JSON.stringify(args[1])) });
+registerBuiltin({ name: 'ランダム整数', version: 1, effect: 'value', arities: [2], scalarType: 'number', description: '両端を含む範囲から整数の乱数を返します。', invoke: (args, context) => { const min = numeric(args[0]), max = numeric(args[1]), span = max - min + 1; if (!Number.isSafeInteger(min) || !Number.isSafeInteger(max) || min > max || !Number.isSafeInteger(span)) throw new StudioError('乱数の整数の範囲を確認してください。'); return numeric(min + Math.floor(context.random() * span)); } });
+registerBuiltin({ name: 'ランダム日付', version: 1, effect: 'value', arities: [0], scalarType: 'string', description: '閏年を除く365日から、月日を等確率で選びます。', invoke: (_, context) => { const date = new Date(Date.UTC(2025, 0, 1 + Math.floor(context.random() * 365))); return `${date.getUTCMonth() + 1}月${date.getUTCDate()}日`; } });
 export function getBuiltin(name: string, count: number, line = 1, column = 1): Builtin {
   const definition = builtinRegistry.get(name);
-  if (!definition) throw new StudioError(`「${name}()」は使えません。表示する()・要素数()・乱数()が使えます。`, line, column);
+  if (!definition) throw new StudioError(`「${name}()」は使えません。組み込み関数または定義した関数を指定してください。`, line, column);
   if (definition.arities !== 'any' && !definition.arities.includes(count)) throw new StudioError(`${name}()の引数の個数を確認してください。${definition.arities.join('または')}個で指定します。`, line, column);
   return definition;
 }

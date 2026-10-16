@@ -16,6 +16,17 @@
   <url><loc>https://mei-chan-nel.com/program-trace/</loc></url>
   <url><loc>https://mei-chan-nel.com/program-trace/studio/</loc></url>
   <url><loc>https://mei-chan-nel.com/program-trace/studio/guide.html</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/color-vision/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/thinking-tools/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/radix-conversion/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/digital-image/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/digital-audio/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/logic-circuit/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/flowchart/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/packet-routing/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/relational-database/</loc></url>
+  <url><loc>https://mei-chan-nel.com/lab/question-map/</loc></url>
   <url><loc>https://mei-chan-nel.com/archive/</loc></url>
   <url><loc>https://mei-chan-nel.com/archive/information-society-morals.html</loc></url>
   <url><loc>https://mei-chan-nel.com/archive/information-society-intellectual-property.html</loc></url>
@@ -44,10 +55,12 @@
   <url><loc>https://mei-chan-nel.com/terms/ai/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/authentication/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/availability/</loc></url>
+  <url><loc>https://mei-chan-nel.com/terms/backup/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/big-data/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/binary/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/bit/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/bps/</loc></url>
+  <url><loc>https://mei-chan-nel.com/terms/byte/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/common-key-encryption/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/compression/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/confidentiality/</loc></url>
@@ -61,11 +74,13 @@
   <url><loc>https://mei-chan-nel.com/terms/digital-divide/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/digital-signature/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/email/</loc></url>
+  <url><loc>https://mei-chan-nel.com/terms/encoding/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/encryption/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/filtering/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/firewall/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/foolproof-failsafe/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/hexadecimal/</loc></url>
+  <url><loc>https://mei-chan-nel.com/terms/html/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/image/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/integrity/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/iot/</loc></url>
@@ -87,6 +102,7 @@
   <url><loc>https://mei-chan-nel.com/terms/protocol/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/public-key-encryption/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/ransomware/</loc></url>
+  <url><loc>https://mei-chan-nel.com/terms/rgb/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/sampling/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/scale/</loc></url>
   <url><loc>https://mei-chan-nel.com/terms/server/</loc></url>

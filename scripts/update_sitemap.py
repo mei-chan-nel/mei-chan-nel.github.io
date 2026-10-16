@@ -45,6 +45,15 @@ def read_portal_urls() -> list[str]:
         "program-trace/index.html",
         "program-trace/studio/index.html",
         "program-trace/studio/guide.html",
+        "lab/index.html",
+        "lab/color-vision/index.html",
+        "lab/thinking-tools/index.html",
+        "lab/radix-conversion/index.html",
+        "lab/digital-image/index.html",
+        "lab/digital-audio/index.html",
+        "lab/logic-circuit/index.html",
+        "lab/flowchart/index.html", "lab/packet-routing/index.html",
+        "lab/relational-database/index.html", "lab/question-map/index.html",
     ]
     report_path = ROOT / "docs" / "video-library-build.json"
     if not report_path.is_file():

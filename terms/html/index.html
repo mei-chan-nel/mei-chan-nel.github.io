@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>HTMLとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="HTMLの基本とタグ・要素・属性、CSS・JavaScriptとの役割、Webのしくみ、アクセシビリティ、電子メール、著作権を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="HTML" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="HTMLとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="HTMLの基本とタグ・要素・属性、CSS・JavaScriptとの役割、Webのしくみ、アクセシビリティ、電子メール、著作権を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/html/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/html/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">HTML</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">HTML</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>HTMLの基本</h2>
+          <p>HTML（HyperText Markup Language：ハイパーテキスト・マークアップ・ランゲージ）は、<strong>Webページの内容や文書構造を記述するためのマークアップ言語</strong>です。</p>
+          <p>Webページには、見出し、文章、画像、リンク、表など、さまざまな要素が含まれています。HTMLは、これらの要素がどのような役割をもつのかを、タグと呼ばれる記号を使って記述します。</p>
+          <p>例えば、次のような内容をHTMLで表すことができます。</p>
+          <blockquote class="term-formula"><pre><code>&lt;h1&gt;情報Ⅰを学ぼう&lt;/h1&gt;
+&lt;p&gt;情報Ⅰでは、情報社会や情報技術について学びます。&lt;/p&gt;
+&lt;a href="https://example.com/"&gt;学習サイトを見る&lt;/a&gt;</code></pre></blockquote>
+          <p>この例では、最初の行が見出し、2行目が段落、3行目がリンクを表しています。</p>
+          <p>HTMLで作成された文書は、通常、<code>.html</code>という拡張子を付けたテキストファイルとして保存されます。WebブラウザはHTMLを読み取り、記述された構造に従って文章や画像などを画面に表示します。</p>
+          <p>HTMLの名前に含まれる「HyperText（ハイパーテキスト）」は、文書内に設けられたリンク（ハイパーリンク）によって、別の文書や情報へ移動できるしくみを指します。「Markup（マークアップ）」は、文章などに印を付けて、その意味や構造を明らかにすることを意味します。</p>
+          <p>HTMLは、一般的なプログラミング言語とは異なり、主に文書の内容や構造を表すために使われます。</p>
+        </section>
+
+        <section>
+          <h2>HTMLのタグ・要素・属性</h2>
+          <p>HTMLでは、<code>&lt;</code>と<code>&gt;</code>で囲まれたタグを用いて、文書の各部分に意味を与えます。</p>
+          <p>例えば、次の記述は一つの段落を表しています。</p>
+          <blockquote class="term-formula"><pre><code>&lt;p&gt;これは段落です。&lt;/p&gt;</code></pre></blockquote>
+          <p><code>&lt;p&gt;</code>を開始タグ、<code>&lt;/p&gt;</code>を終了タグといいます。開始タグと終了タグ、およびその間の内容を合わせたものをHTMLの要素といいます。</p>
+          <p>よく使われるHTMLの要素には、次のようなものがあります。</p>
+          <table>
+            <thead>
+              <tr><th>タグ</th><th>役割</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>&lt;h1&gt;</code>～<code>&lt;h6&gt;</code></td><td>見出しを表す。数字が小さいほど上位の見出し</td></tr>
+              <tr><td><code>&lt;p&gt;</code></td><td>段落を表す</td></tr>
+              <tr><td><code>&lt;a&gt;</code></td><td>ハイパーリンクを作る</td></tr>
+              <tr><td><code>&lt;img&gt;</code></td><td>画像を埋め込む</td></tr>
+              <tr><td><code>&lt;ul&gt;</code></td><td>順序のない箇条書きを表す</td></tr>
+              <tr><td><code>&lt;ol&gt;</code></td><td>番号付きの箇条書きを表す</td></tr>
+              <tr><td><code>&lt;li&gt;</code></td><td>箇条書きの各項目を表す</td></tr>
+              <tr><td><code>&lt;table&gt;</code></td><td>表を表す</td></tr>
+              <tr><td><code>&lt;header&gt;</code></td><td>ページや区画の導入部分を表す</td></tr>
+              <tr><td><code>&lt;main&gt;</code></td><td>ページの主要な内容を表す</td></tr>
+              <tr><td><code>&lt;nav&gt;</code></td><td>ナビゲーション部分を表す</td></tr>
+              <tr><td><code>&lt;footer&gt;</code></td><td>ページや区画の末尾部分を表す</td></tr>
+            </tbody>
+          </table>
+          <p>HTMLでは、タグに<strong>属性</strong>を追加することで、要素に関する情報を指定できます。</p>
+          <p>例えば、次のHTMLは、文字列にリンクを設定したものです。</p>
+          <blockquote class="term-formula"><pre><code>&lt;a href="https://example.com/"&gt;学習サイトを見る&lt;/a&gt;</code></pre></blockquote>
+          <p><code>href</code>は、リンク先のURLを指定する属性です。利用者が「学習サイトを見る」をクリックすると、指定されたページへ移動できます。</p>
+          <p>また、画像を掲載する場合は、次のように記述します。</p>
+          <blockquote class="term-formula"><pre><code>&lt;img src="photo.jpg" alt="校庭に咲いている桜"&gt;</code></pre></blockquote>
+          <p><code>src</code>属性は画像ファイルの場所を指定し、<code>alt</code>属性は画像の代わりとなるテキストを指定します。なお、<code>img</code>要素には終了タグがありません。</p>
+          <p>このように、HTMLはタグと属性を組み合わせることで、Webページの内容とその意味を記述します。</p>
+        </section>
+
+        <section>
+          <h2>HTML・CSS・JavaScriptの役割</h2>
+          <p>Webページを作成するときは、HTMLだけでなく、CSSやJavaScriptもよく利用されます。</p>
+          <p>それぞれの基本的な役割は次のとおりです。</p>
+          <table>
+            <thead>
+              <tr><th>技術</th><th>主な役割</th><th>具体例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>HTML</strong></td><td>内容と構造</td><td>見出し、段落、画像、リンク、表</td></tr>
+              <tr><td><strong>CSS</strong></td><td>見た目と配置</td><td>文字色、文字サイズ、背景色、余白、レイアウト</td></tr>
+              <tr><td><strong>JavaScript</strong></td><td>動作と処理</td><td>ボタン操作への反応、表示の切り替え、入力内容の確認</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、Webページに「学習を始める」という見出しを置き、文字を青色にしたい場合を考えます。</p>
+          <p>まず、HTMLで見出しを記述します。</p>
+          <blockquote class="term-formula"><pre><code>&lt;h1&gt;学習を始める&lt;/h1&gt;</code></pre></blockquote>
+          <p>次に、CSSで文字色や余白を指定します。</p>
+          <blockquote class="term-formula"><pre><code>h1 {
+  color: blue;
+  margin-bottom: 20px;
+}</code></pre></blockquote>
+          <p>HTMLの<code>h1</code>要素は、その文字列が見出しであることを示します。一方、CSSは、その見出しを青色で表示し、下側に余白を設けることを指定しています。</p>
+          <p>さらに、ボタンをクリックしたときに説明文を表示したり、入力した数値に応じて計算結果を変更したりする機能には、主にJavaScriptが使われます。</p>
+          <p>つまり、<strong>HTMLが「何を、どのような意味で配置するか」、CSSが「どのように見せるか」、JavaScriptが「どのように動かすか」</strong>という役割を担っています。</p>
+          <p>ただし、これは基本的な役割分担です。HTMLにも一部の表示や動作に関係する機能があり、CSSでもアニメーションなどを実現できます。</p>
+
+          <h3>CSSによってデザインを共通化する</h3>
+          <p>複数のWebページで同じデザインを使う場合、CSSを独立したファイルとして作成すると便利です。</p>
+          <p>例えば、<code>style.css</code>というファイルを用意し、その中に次のように記述します。</p>
+          <blockquote class="term-formula"><pre><code>h1 {
+  color: navy;
+}
+
+p {
+  line-height: 1.8;
+}</code></pre></blockquote>
+          <p>各HTML文書には、次の記述を加えます。</p>
+          <blockquote class="term-formula"><pre><code>&lt;link rel="stylesheet" href="style.css"&gt;</code></pre></blockquote>
+          <p>これにより、複数のHTML文書で共通のCSSファイルを使用できます。</p>
+          <p>後から見出しの色を変更したい場合も、各HTMLファイルを個別に修正する必要はなく、共通のCSSファイルを変更すればよいです。</p>
+          <p>このように、文書の構造と見た目を分離することには、修正や管理がしやすくなるという利点があります。</p>
+
+          <h3>レスポンシブWebデザイン</h3>
+          <p>パソコンとスマートフォンでは、画面の幅が大きく異なります。そのため、同じ内容でも、画面の幅に応じて配置を変えることが望ましいです。</p>
+          <p>このように、画面の大きさなどに応じて表示方法を調整する設計を、<strong>レスポンシブWebデザイン</strong>といいます。</p>
+          <p>例えば、CSSのメディアクエリを使うと、画面幅に応じて配置を変更できます。</p>
+          <blockquote class="term-formula"><pre><code>.content {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 800px) {
+  .content {
+    grid-template-columns: 1fr 1fr;
+  }
+}</code></pre></blockquote>
+          <p>この例では、通常は1列で表示し、画面幅が800ピクセル以上の場合は2列で表示します。</p>
+          <p>HTMLで記述した文章や見出しの意味構造はそのままに、CSSだけで表示方法を切り替えられます。</p>
+        </section>
+
+        <section>
+          <h2>HTMLとWebのしくみ</h2>
+
+          <h3>WWWとWebページ</h3>
+          <p>WWW（World Wide Web）は、インターネット上の文書や画像などを、ハイパーリンクによって相互に結び付けて利用するしくみです。</p>
+          <p>WWWで利用される個々のページをWebページといい、共通する目的や内容をもち、互いに関連するWebページをまとめたものをWebサイトといいます。</p>
+          <p>例えば、学校のWebサイトには、学校紹介、入学案内、年間行事、問い合わせなど、複数のWebページが含まれています。</p>
+          <p>Webサイトの入口に当たるページはトップページやホームページと呼ばれます。「ホームページ」という言葉は、日常的にはWebサイト全体の意味で使われることもありますが、厳密には区別できます。</p>
+
+          <h3>URLとハイパーリンク</h3>
+          <p>Webページや画像など、インターネット上の情報資源の所在を示すものがURL（Uniform Resource Locator）です。</p>
+          <p>例えば、次のようなURLがあります。</p>
+          <blockquote class="term-formula"><pre><code>https://example.com/guide/index.html</code></pre></blockquote>
+          <p>このURLは、主に次の部分から構成されます。</p>
+          <table>
+            <thead>
+              <tr><th>部分</th><th>例</th><th>意味</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>スキーム</td><td><code>https</code></td><td>情報資源へのアクセス方法</td></tr>
+              <tr><td>ホスト名</td><td><code>example.com</code></td><td>接続先のサーバを識別する名前</td></tr>
+              <tr><td>パス</td><td><code>/guide/index.html</code></td><td>サーバ上で指定する情報資源の場所</td></tr>
+            </tbody>
+          </table>
+          <p>HTMLの<code>a</code>要素では、<code>href</code>属性にURLを指定することでハイパーリンクを作成できます。</p>
+          <p>こうしたリンクによって、利用者は関連するWebページや情報資源へ移動できます。</p>
+
+          <h3>HTTP・HTTPS</h3>
+          <p><strong>HTTPはWebブラウザとWebサーバの間で情報をやり取りするための通信プロトコルです。</strong></p>
+          <p>例えば、WebブラウザでWebページを開くときは、おおむね次のような流れで処理が行われます。</p>
+          <ol>
+            <li>利用者がWebブラウザでURLを指定します。</li>
+            <li>WebブラウザがHTTPまたはHTTPSを使ってWebサーバに情報を要求します。</li>
+            <li>WebサーバがHTML文書などを応答として返します。</li>
+            <li>Webブラウザが受信したHTMLを解釈し、必要に応じてCSSや画像なども取得してWebページを表示します。</li>
+          </ol>
+          <p>HTTPSは、HTTPによる通信をTLSという技術で保護するしくみです。通信内容を暗号化し、盗聴や改ざんなどの危険を減らすために使われます。</p>
+        </section>
+
+        <section>
+          <h2>HTMLとアクセシビリティ</h2>
+          <p>アクセシビリティとは、障害の有無や利用環境などにかかわらず、必要な情報や機能を利用できることをいいます。</p>
+          <p>Webページでは、画面を見ることが難しい人が音声読み上げソフトを利用したり、キーボードだけで操作したりすることがあります。</p>
+          <p>HTMLで内容の意味や構造を適切に記述すると、こうした支援技術にも情報を伝えやすくなります。</p>
+
+          <h3>見出しを適切に設定する</h3>
+          <p>HTMLの見出し要素は、単に文字を大きくするためのものではありません。</p>
+          <p><code>h1</code>は最上位の見出し、<code>h2</code>はその下位の見出し、<code>h3</code>はさらに下位の見出しというように、文書の階層構造を示します。</p>
+          <p>例えば、次のように記述します。</p>
+          <blockquote class="term-formula"><pre><code>&lt;h1&gt;情報Ⅰ&lt;/h1&gt;
+
+&lt;h2&gt;情報社会の問題解決&lt;/h2&gt;
+&lt;h3&gt;情報モラル&lt;/h3&gt;
+&lt;h3&gt;情報セキュリティ&lt;/h3&gt;
+
+&lt;h2&gt;コンピュータとプログラミング&lt;/h2&gt;</code></pre></blockquote>
+          <p>見出し要素を適切に使用すると、音声読み上げソフトなどで見出しの階層を把握したり、見出し単位で移動したりしやすくなります。</p>
+          <p>一方、普通の文章をCSSで大きく表示したり、太字にしたりするだけでは、それが見出しであるという意味を十分に伝えられません。</p>
+          <p>見出しの意味や階層はHTMLで表し、文字の大きさや色はCSSで指定することが基本です。</p>
+
+          <h3>画像の代替テキスト</h3>
+          <p>Webページで画像を使用するときは、<code>img</code>要素の<code>alt</code>属性によって<strong>代替テキスト</strong>を指定できます。</p>
+          <p>代替テキストとは、画像が伝えている情報や役割を、文字で表したものです。</p>
+          <p>例えば、学校紹介のページに校舎の写真を掲載する場合を考えます。</p>
+          <blockquote class="term-formula"><pre><code>&lt;img src="school.jpg" alt="正面玄関から見た学校の校舎"&gt;</code></pre></blockquote>
+          <p>このように記述すれば、画像を見られない利用者にも、画像の内容を文字で伝えられます。</p>
+          <p>代替テキストの書き方は、画像の役割によって異なります。</p>
+          <table>
+            <thead>
+              <tr><th>画像の役割</th><th>代替テキストの例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>情報を伝える写真</td><td><code>alt="正面玄関から見た学校の校舎"</code></td></tr>
+              <tr><td>検索ボタンの画像</td><td><code>alt="検索する"</code></td></tr>
+              <tr><td>リンクになっている画像</td><td><code>alt="学校案内のページへ"</code></td></tr>
+              <tr><td>内容をもたない装飾画像</td><td><code>alt=""</code></td></tr>
+            </tbody>
+          </table>
+          <p>特に注意したいのは、<strong>画像の見た目を機械的に説明するのではなく、その画像がページ内で果たす役割を伝えること</strong>です。</p>
+          <p>例えば、家の形をしたアイコンがトップページへのリンクになっている場合、単に「家のアイコン」と記述するよりも「トップページへ」と記述する方が、操作の目的を理解しやすくなります。</p>
+          <p>また、単に飾りとして配置された画像には、<code>alt=""</code>という空の代替テキストを設定することがあります。これにより、読み上げソフトが不要な説明を読み上げることを避けられます。</p>
+          <p>一方、重要な情報を含む画像には、必要な情報が伝わるようにします。複雑なグラフや図の場合は、短い代替テキストに加えて、本文などに詳しい説明を用意することもあります。</p>
+          <p>これらは、Webアクセシビリティを確保するための基本的な配慮です。</p>
+
+          <h3>情報を画像や色だけに頼らずに伝える</h3>
+          <p>文字を画像として掲載すると、文字として検索したり、音声読み上げソフトで読み上げたり、利用者の設定に合わせて表示を変更したりすることが難しくなります。</p>
+          <p>そのため、本文は基本的にHTMLの文字として記述することが望ましいです。</p>
+          <p>また、情報を色だけで表現しないことも重要です。</p>
+          <p>例えば、入力フォームのエラーを赤色にするだけでは、色の違いを判別しにくい利用者にエラーが伝わらない可能性があります。「入力内容を確認してください」などの文章も併用すると分かりやすくなります。</p>
+          <p>このように、HTMLで意味構造を適切に表し、CSSによる見た目だけに依存しないことが、アクセシビリティの向上につながります。</p>
+        </section>
+
+        <section>
+          <h2>HTML形式の電子メール</h2>
+          <p>HTMLはWebページだけでなく、電子メールの本文にも利用されます。</p>
+          <p>電子メールの本文の形式には、主にプレーンテキスト形式とHTML形式があります。</p>
+
+          <h3>プレーンテキスト形式</h3>
+          <p>プレーンテキスト形式は、基本的に文字と改行によって本文を表す形式です。</p>
+          <p>文字の色や大きさを細かく指定したり、任意の文字列に別のURLを埋め込んだりする機能はありません。</p>
+          <p>ただし、本文にURLをそのまま記述すれば、メールソフトが自動的にリンクとして扱うことはあります。</p>
+
+          <h3>HTML形式</h3>
+          <p>HTML形式では、HTMLを使ってメール本文の内容や構造を記述できます。CSSなどを組み合わせることで、文字の大きさ、色、配置などの書式を指定できます。</p>
+          <p>例えば、次のような本文を作成できます。</p>
+          <blockquote class="term-formula"><pre><code>&lt;p&gt;新しい教材を公開しました。&lt;/p&gt;
+
+&lt;p style="color: blue;"&gt;
+  情報Ⅰの学習に活用してください。
+&lt;/p&gt;
+
+&lt;a href="https://example.com/"&gt;
+  教材を見る
+&lt;/a&gt;</code></pre></blockquote>
+          <p>この例では、一部の文章を青色にし、「教材を見る」という文字列にリンクを設定しています。</p>
+          <p>プレーンテキスト形式ではURL自体を記述するのが基本ですが、HTML形式では、表示する文字列とリンク先のURLを別々に指定できます。</p>
+          <p>ただし、HTML形式で指定した書式が必ずそのまま表示されるとは限りません。使用するメールソフトや受信側の設定によって、対応する書式や表示方法が異なることがあります。</p>
+
+          <h3>HTML形式と添付ファイル・デジタル署名</h3>
+          <p>HTML形式とプレーンテキスト形式の違いは、主にメール本文の表現方法にあります。</p>
+          <p>画像や文書などの<strong>ファイル添付は、どちらの形式でも可能</strong>です。添付ファイルの取り扱いには、MIMEなどのしくみが使われます。</p>
+          <p>また、電子メールの送信者や内容の真正性を確認するためのデジタル署名も、HTML形式であることを必須条件としません。</p>
+          <p>HTML形式だから添付ファイルが利用できる、あるいはデジタル署名が付けられるというわけではありません。</p>
+        </section>
+
+        <section>
+          <h2>HTMLと著作権</h2>
+          <p>Webページを作成する際には、HTMLの記述内容と著作権の関係にも注意が必要です。</p>
+          <p>著作権は、思想や感情を創作的に表現した著作物を保護するものです。文章、画像、プログラムなどが著作物に該当する場合があります。</p>
+          <p>Webページに含まれる文章や画像、プログラムのソースコードなども、創作性が認められる場合には著作権の保護対象になり得ます。</p>
+          <p>例えば、他人が作成したWebページのHTMLソースを無断で複製し、別のWebページに流用すると、著作権侵害に当たる可能性があります。</p>
+          <p>ただし、HTMLで記述されたものがすべて著作権で保護されるわけではありません。</p>
+          <p>例えば、<code>&lt;h1&gt;</code>で見出しを作るというHTMLの一般的な記述方法や、誰でも同じように書くような単純なコードそのものに、必ずしも創作性が認められるわけではありません。</p>
+          <p>重要なのは、<strong>アイデアや技術的なしくみと、具体的で創作的な表現を区別すること</strong>です。</p>
+          <p>他人のWebページを参考にして、使われている機能や構成の考え方を学び、自分で独自に作成するこ場合は著作権の侵害にならないが、他人の創作的な表現を無断で複製し公開すると著作権の侵害になりうる。</p>
+          <p>また、公開された仕様に従って自分でプログラムを作成することも、それだけで他人の著作権を侵害するわけではありません。</p>
+          <p>他人のソースコードを再利用する際は、著作権の有無や利用条件を確認し、必要に応じて許可を得ることが大切です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>HTML · EXAMPLE</span><span>ITパスポートH24春期 問67（改題）</span></div>
+          <h3>HTMLの説明として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>タグを使ってWebページの構造や見出しなどを記述するマークアップ言語</p></li>
+            <li><span>1</span><p>ブラウザとWebサーバとの間で通信を行うためのプロトコル</p></li>
+            <li><span>2</span><p>メールサーバへ電子メールを送るためのプロトコル</p></li>
+            <li><span>3</span><p>画像を圧縮するためだけに使われるファイル形式</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．タグを使ってWebページの構造や見出しなどを記述するマークアップ言語</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>HTMLは、タグを使ってWebページの見出し、段落、リンクなどの構造を記述するマークアップ言語です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH24春期 問67（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：HTML</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">HTMLの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="HTML"
+          data-limit="5"
+          data-exclude-stem="HTMLの説明として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=HTML">HTMLの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"HTMLとは","description":"HTMLの基本とタグ・要素・属性、CSS・JavaScriptとの役割、Webのしくみ、アクセシビリティ、電子メール、著作権を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/html/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"HTML","item":"https://mei-chan-nel.com/terms/html/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026101201"></script>
+  </body>
+</html>

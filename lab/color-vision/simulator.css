@@ -153,12 +153,8 @@ dialog h2 { font: 600 24px/1.5 "Yu Mincho",serif; }dialog h3 { margin: 24px 0 7p
   #interaction-hint { margin: 0; width: 100%; }
   .sim-footer span { display: none; }
 }
-@media (max-width: 680px) {
-  .header-inner { flex-direction: row; align-items: center; padding: 6px 0; min-height: 56px; }
-  .global-nav { width: auto; padding: 0; border: 0; }.global-nav a { min-height: 36px; }
-}
 @media (max-width: 520px) {
-  .header-inner { min-height: 58px; gap: 12px; }.brand strong { font-size: 12px; }.brand small { font-size: 8px; }.brand-mark { width: 28px; height: 28px; font-size: 18px; }.brand { gap: 7px; }.global-nav a { font-size: 10px; }.global-nav a:last-child { display: none; }
+  .brand strong { font-size: 12px; }.brand small { font-size: 8px; }.brand-mark { width: 28px; height: 28px; font-size: 18px; }.brand { gap: 7px; }
   .sim-hero { align-items: start; padding-bottom: 17px; gap: 7px; }.sim-hero h1 { font-size: 24px; }.sim-hero p:last-child { font-size: 10px; }.sim-eyebrow { font-size: 8px; }.sim-eyebrow span { display: none; }.title-mark { margin-left: 12px; }.title-mark i { width: 13px; height: 13px; }
   #open-method { font-size: 9px; max-width: 75px; flex-shrink: 0; text-align: right; }
   .mode-bar { gap: 24px; }.mode-bar button { font-size: 13px; }

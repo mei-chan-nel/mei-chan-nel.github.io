@@ -51,7 +51,7 @@ export function targetEditor(initial: Target | undefined, context: ExpressionCon
     const targetName = chosen || normalizeSymbols(name.input.value).trim(); name.input.value = chosen ? name.input.value : targetName;
     if (!validName(targetName) || builtinRegistry.has(targetName) || ['and', 'or', 'not', '真', '偽', 'true', 'false'].includes(targetName)) throw new StudioError('名前は文字から始め、空白や記号を含めずに入力してください。関数名・予約語は使えません。');
     const existing = catalog.find(item => item.name === targetName);
-    if (existing && existing.kind !== kind) throw new StudioError(`「${targetName}」はすでに${existing.kind === 'variable' ? '変数' : existing.kind === 'array' ? '一次元配列' : '二次元配列'}として使われています。「作るもの」を合わせるか、別の名前にしてください。`);
+    if (existing && existing.kind !== kind && !context.parameters?.includes(targetName)) throw new StudioError(`「${targetName}」はすでに${existing.kind === 'variable' ? '変数' : existing.kind === 'array' ? '一次元配列' : '二次元配列'}として使われています。「作るもの」を合わせるか、別の名前にしてください。`);
     return { target: { name: targetName, indices: positions.map(item => item.read()) }, kind };
   } };
 }

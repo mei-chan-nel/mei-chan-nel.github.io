@@ -15,6 +15,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "CPU": {
     "url": "/terms/cpu/"
   },
+  "HTML": {
+    "url": "/terms/html/"
+  },
   "IPv4": {
     "url": "/terms/ipv4/"
   },
@@ -29,6 +32,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   },
   "OS": {
     "url": "/terms/os/"
+  },
+  "RGB": {
+    "url": "/terms/rgb/"
   },
   "SNS": {
     "url": "/terms/sns/"
@@ -71,6 +77,12 @@ window.StudyAtlasTermGuides = Object.freeze({
   },
   "データ量": {
     "url": "/terms/data-volume/"
+  },
+  "バイト": {
+    "url": "/terms/byte/"
+  },
+  "バックアップ": {
+    "url": "/terms/backup/"
   },
   "パスワード": {
     "url": "/terms/password/"
@@ -170,6 +182,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   },
   "画像": {
     "url": "/terms/image/"
+  },
+  "符号化": {
+    "url": "/terms/encoding/"
   },
   "著作権": {
     "url": "/terms/copyright/"
