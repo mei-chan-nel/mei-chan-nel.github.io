@@ -626,3 +626,53 @@
     line-height: 1.5;
   }
 }
+
+.quest-game .story-box .text-detail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  float: right;
+  min-height: 30px;
+  padding: 4px 8px;
+  margin: 0 0 4px 8px;
+  border: 1px solid #729b94;
+  border-radius: 4px;
+  background: #244b4d;
+  color: #e1f5ec;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #0e252b;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.quest-game .story-box .text-detail:hover {
+  background: #31635e;
+  border-color: #b3e2cd;
+}
+.quest-game .story-box .text-detail:focus-visible {
+  outline: 2px solid var(--game-gold);
+  outline-offset: 3px;
+}
+.quest-game .story-box .text-detail:active {
+  box-shadow: none;
+  transform: translateY(1px);
+}
+.quest-game .text-detail .detail-chevron {
+  font-size: 16px;
+  line-height: 1;
+}
+.quest-game.is-viewport .story-box .text-detail {
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: 10px;
+}
+@media (max-height: 560px) {
+  .quest-game.is-viewport .story-box .text-detail {
+    display: none;
+  }
+}

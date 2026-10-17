@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./viewport.css?v=5" />
-    <link rel="stylesheet" href="./story.css?v=9" />
-    <link rel="stylesheet" href="./quest.css?v=5" />
+    <link rel="stylesheet" href="./story.css?v=10" />
+    <link rel="stylesheet" href="./quest.css?v=6" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -195,19 +195,40 @@
                       <span>受け取りたい人</span>
                     </article>
                     <div class="packet-sprite" id="packet-sprite">
-                      <svg
-                        class="packet-shape"
-                        viewBox="0 0 48 32"
-                        width="42"
-                        height="28"
-                        aria-hidden="true"
-                      >
-                        <use
-                          id="packet-icon"
-                          href="./packets.svg#key"
-                        ></use></svg
-                      ><b id="packet-short">共通鍵</b
-                      ><small id="copy-indicator">到着・ここで停止</small>
+                      <div class="packet-contents">
+                        <div class="packet-body">
+                          <svg
+                            class="packet-shape"
+                            viewBox="0 0 48 32"
+                            width="42"
+                            height="28"
+                            aria-hidden="true"
+                          >
+                            <use
+                              id="packet-icon"
+                              href="./packets.svg#key"
+                            ></use>
+                          </svg>
+                          <b id="packet-short">共通鍵</b>
+                        </div>
+                        <div
+                          id="signature-attachment"
+                          class="signature-attachment"
+                          hidden
+                        >
+                          <svg
+                            viewBox="0 0 48 32"
+                            width="36"
+                            height="24"
+                            aria-hidden="true"
+                          >
+                            <use href="./packets.svg#signature"></use>
+                          </svg>
+                          <b>Aliceの電子署名</b>
+                          <span id="signature-note">本文と一緒に暗号化</span>
+                        </div>
+                      </div>
+                      <small id="copy-indicator">到着・ここで停止</small>
                     </div>
                     <div class="copy-token" aria-hidden="true">COPY ↓</div>
                   </div>
@@ -227,7 +248,22 @@
                     id="situation-details"
                     class="text-detail"
                   >
-                    詳しく
+                    <svg
+                      viewBox="0 0 20 20"
+                      width="16"
+                      height="16"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M10 5C7 3 4 3 2 4v12c3-1 5-1 8 1 3-2 5-2 8-1V4c-2-1-5-1-8 1Zm0 0v12"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <span>詳しく</span
+                    ><span class="detail-chevron" aria-hidden="true">›</span>
                   </button>
                   <h3 id="situation-title"></h3>
                   <p id="situation-text"></p>
@@ -442,6 +478,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=11"></script>
+    <script type="module" src="./app.mjs?v=12"></script>
   </body>
 </html>

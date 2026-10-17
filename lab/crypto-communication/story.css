@@ -427,3 +427,92 @@
     height: 20px;
   }
 }
+
+/* The signature is a distinct attachment in the same encrypted delivery. */
+.story-game .packet-contents {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+.story-game .packet-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  flex: 1;
+}
+.story-game .packet-sprite[data-signed="true"] {
+  width: min(246px, 48%);
+}
+.story-game .signature-attachment {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 86px;
+  padding: 4px;
+  border: 1px dashed #d5c0ff;
+  background: #302b46;
+  color: #eee3ff;
+}
+.story-game .signature-attachment::before {
+  content: "+";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #d5c0ff;
+  font-size: 11px;
+}
+.story-game .signature-attachment b {
+  font-size: 9px;
+  line-height: 1.4;
+}
+.story-game .signature-attachment span {
+  font-size: 8px;
+  line-height: 1.4;
+}
+.story-game.is-viewport .packet-sprite[data-signed="true"] {
+  width: min(236px, 48%);
+}
+.story-game.is-viewport[data-layout="narrow"]
+  .packet-sprite[data-signed="true"] {
+  width: 166px;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-contents {
+  gap: 5px;
+}
+.story-game.is-viewport[data-layout="narrow"] .signature-attachment {
+  flex-basis: 76px;
+  padding: 2px;
+}
+.story-game.is-viewport[data-layout="narrow"] .signature-attachment svg {
+  width: 24px;
+  height: 16px;
+}
+.story-game.is-viewport[data-layout="narrow"] .signature-attachment b {
+  font-size: 8px;
+}
+.story-game.is-viewport[data-layout="narrow"] .signature-attachment span {
+  font-size: 7px;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-shape {
+  display: block;
+  width: 24px;
+  height: 16px;
+}
+@media (max-height: 560px) {
+  .story-game.is-viewport .signature-attachment {
+    flex-basis: 76px;
+    padding: 1px 2px;
+  }
+  .story-game.is-viewport .signature-attachment svg {
+    width: 24px;
+    height: 16px;
+  }
+  .story-game.is-viewport .signature-attachment span {
+    font-size: 7px;
+  }
+}

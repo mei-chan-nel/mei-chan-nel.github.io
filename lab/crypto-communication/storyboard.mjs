@@ -197,6 +197,19 @@ export function forwardFrames(before, after) {
       }),
     );
   } else {
+    if (after.round >= 2)
+      frames.push(
+        frame(
+          "Aliceは、Aliceの秘密鍵を使って、本文に対応する電子署名を作った。",
+          "sign",
+          {
+            at: "alice",
+            kind: "letter",
+            phase: "message",
+            packetLabel: "送信前の本文",
+          },
+        ),
+      );
     frames.push(
       frame(
         after.round >= 2

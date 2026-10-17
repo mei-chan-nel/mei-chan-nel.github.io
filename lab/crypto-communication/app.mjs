@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=6";
+import { createQuest } from "./quest.mjs?v=7";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
@@ -7,7 +7,7 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=9";
+} from "./storyboard.mjs?v=10";
 import { createDisplayController } from "./display.mjs";
 import { explanations } from "./explanations.mjs";
 const $ = (id) => document.getElementById(id);
@@ -153,8 +153,12 @@ function render() {
   const signed =
     s.round >= 2 && (f.kind === "ciphertext" || f.scene === "sign");
   const visualKind =
-    f.scene === "sign" ? "signature" : signed ? "signed-message" : f.kind;
+    f.scene === "sign" ? "letter" : signed ? "signed-message" : f.kind;
   $("packet-sprite").dataset.kind = visualKind;
+  $("packet-sprite").dataset.signed = String(signed);
+  $("signature-attachment").hidden = !signed;
+  $("signature-note").textContent =
+    f.scene === "sign" ? "Aliceの秘密鍵で作成" : "本文と一緒に暗号化";
   const shapes = {
     key: "key",
     public: "public",
@@ -162,7 +166,7 @@ function render() {
     ciphertext: "encrypted",
     letter: "message",
     signature: "signature",
-    "signed-message": "signed",
+    "signed-message": "encrypted",
   };
   $("packet-icon").setAttribute(
     "href",
