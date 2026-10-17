@@ -2,20 +2,6 @@ import { text } from "./model.mjs";
 export function transferSteps(event) {
   if (!event) return [];
   if ("phaseTransfer" in event) {
-    // A lookup resolves the preceding request. Keep that request visible while
-    // showing its outcome; this adds no simulated transfer or waiting time.
-    if (event.phaseStage === "lookup")
-      return [
-        {
-          from: "cpu",
-          to: "cache",
-          kind: event.kind,
-          address: event.address,
-          base: event.base,
-          request: true,
-          label: `CPU → キャッシュ：${event.address}番地のヒット判定`,
-        },
-      ];
     return event.phaseTransfer ? [event.phaseTransfer] : [];
   }
   const value = event.cell ? text(event.cell) : "取得前",

@@ -450,11 +450,12 @@ function focusPhase() {
   if (!focus) return;
   if (focus.device === "ram") revealRam(focus.address);
   if (focus.device === "cache") {
-    const block = ["cache-request", "lookup"].includes(machine.phase.stage)
-      ? $("cache-request")
-      : document.querySelector(
-          `.cache-line[data-base="${Math.floor(focus.address / 2) * 2}"]`,
-        );
+    const block =
+      machine.phase.stage === "lookup"
+        ? $("cache-request")
+        : document.querySelector(
+            `.cache-line[data-base="${Math.floor(focus.address / 2) * 2}"]`,
+          );
     revealIn($("cache-lines"), block);
     if (fullscreen.active)
       revealIn(document.querySelector(".cache-panel"), block, 38);

@@ -89,7 +89,7 @@ assert.match(
   /要求.*命令・データ/s,
 );
 next();
-assert.match(title(), /CPU → キャッシュ.*0番地/);
+assert.match(title(), /命令 0番地.*ミス/);
 assert.equal(target().id, "cache-request");
 assert.equal(
   document
@@ -97,13 +97,14 @@ assert.equal(
     .classList.contains("transfer-request"),
   true,
 );
-assert.match($("access-events").textContent, /要求/);
-assert.equal($("wait-metric").textContent, "0");
+assert.match($("access-events").textContent, /MISS/);
+assert.equal($("wait-metric").textContent, "2");
+assert.equal(popup.hidden, false);
+assert.equal(popup.querySelector("strong").textContent, "キャッシュミス");
 assert.equal($("previous").disabled, false);
 $("previous").click();
 assert.match(title(), /実行前/);
 assert.equal($("previous").disabled, true);
-next();
 next();
 assert.match(title(), /命令 0番地.*ミス/);
 assert.equal(target().id, "cache-request");
@@ -164,11 +165,9 @@ assert.equal($("current-command").classList.contains("is-executing"), true);
 assert.equal($("access-events").children.length, 1);
 const before = list.scrollTop;
 next();
-assert.match(title(), /CPU → キャッシュ.*16番地/);
 assert.equal($("current-command").classList.contains("is-executing"), false);
 assert.equal(target().id, "cache-request");
 assert.equal(list.scrollTop, before);
-next();
 assert.match(title(), /データ 16番地.*ミス/);
 assert.equal(list.scrollTop, before);
 assert.equal(target().id, "cache-request");
@@ -204,8 +203,6 @@ assert.equal($("acc").textContent, "7");
 assert.equal($("steps").textContent, "1");
 assert.equal(target(), null);
 const savedScroll = list.scrollTop;
-next();
-assert.equal(popup.hidden, true);
 next();
 assert.equal(popup.hidden, false);
 assert.equal(popup.querySelector("strong").textContent, "キャッシュヒット");

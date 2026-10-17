@@ -146,24 +146,6 @@ export class Machine {
       s.wait += cost;
     };
     if (c.enabled) {
-      event.reason =
-        "CPUからキャッシュへ番地を送り、該当するブロックがあるか調べます。";
-      yield this.show(
-        "cache-request",
-        `CPU → キャッシュ：${address}番地の${kind === "fetch" ? "命令取得" : kind === "write" ? "書込" : "読出"}要求`,
-        "まだヒット／ミスは判定していません。データもCPUへ渡していません。",
-        event,
-        {
-          from: "cpu",
-          to: "cache",
-          kind,
-          address,
-          base,
-          request: true,
-          label: `CPU → キャッシュ：${address}番地を要求`,
-        },
-        { device: "cache", address },
-      );
       charge(c.cacheTime);
       event.hit = !!line;
       if (line) {
@@ -180,10 +162,20 @@ export class Machine {
         "lookup",
         `${kind === "fetch" ? "命令" : "データ"} ${address}番地：${line ? "キャッシュヒット" : "キャッシュミス"}`,
         line
-          ? "RAMへはアクセスせず、キャッシュの値を使います。"
+          ? kind === "write"
+            ? "キャッシュを更新し、ライトスルーでRAMにも同じ値を書き込みます。"
+            : "RAMへはアクセスせず、キャッシュの値を使います。"
           : "次にRAMから2番地分のブロックを取得します。",
         event,
-        null,
+        {
+          from: "cpu",
+          to: "cache",
+          kind,
+          address,
+          base,
+          request: true,
+          label: `CPU → キャッシュ：${address}番地を要求（${line ? "ヒット" : "ミス"}）`,
+        },
         { device: "cache", address },
       );
       if (!line) {

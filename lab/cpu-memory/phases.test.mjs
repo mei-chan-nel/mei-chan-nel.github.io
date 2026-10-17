@@ -10,14 +10,12 @@ const advance = (m) => {
 test("fetch, decode, operand delivery and calculation are separate observable actions", () => {
   const m = new Machine(presets[0].memory, defaults);
   let p = advance(m);
-  assert.equal(p.stage, "cache-request");
+  assert.equal(p.stage, "lookup");
   assert.deepEqual([p.transfer.from, p.transfer.to], ["cpu", "cache"]);
   assert.equal(p.transfer.request, true);
-  assert.equal(p.event.hit, undefined);
-  assert.equal(m.stats.wait, 0);
-  assert.equal(m.stats.misses, 0);
-  p = advance(m);
-  assert.equal(p.stage, "lookup");
+  assert.equal(p.event.hit, false);
+  assert.equal(m.stats.misses, 1);
+  assert.equal(m.actions, 1);
   assert.equal(m.current, null);
   assert.equal(m.cache.length, 0);
   assert.equal(m.stats.wait, 2);
@@ -45,10 +43,9 @@ test("fetch, decode, operand delivery and calculation are separate observable ac
   assert.equal(m.stats.read, 0);
   assert.equal(m.received, null);
   p = advance(m);
-  assert.equal(p.stage, "cache-request");
-  assert.deepEqual([p.transfer.from, p.transfer.to], ["cpu", "cache"]);
-  p = advance(m);
   assert.equal(p.stage, "lookup");
+  assert.deepEqual([p.transfer.from, p.transfer.to], ["cpu", "cache"]);
+  assert.equal(p.event.hit, false);
   assert.deepEqual(p.focus, { device: "cache", address: 16 });
   assert.equal(m.stats.read, 1);
   assert.equal(m.stats.ramReads, 1);

@@ -59,6 +59,10 @@ assert.equal(document.querySelector(".run-buttons > button").id, "previous");
 assert.equal($("previous").disabled, true);
 assert.equal($("step").classList.contains("primary"), true);
 assert.equal($("run").classList.contains("primary"), false);
+const rail = [...document.querySelectorAll(".fullscreen-sidebar button")].map(
+  (b) => b.dataset.control,
+);
+assert.ok(rail.indexOf("next") < rail.indexOf("previous"));
 click("step");
 const snapshot = {
   ram: $("ram-rows").textContent,
