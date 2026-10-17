@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs";
+import { createQuest } from "./quest.mjs?v=2";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
@@ -7,7 +7,7 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=6";
+} from "./storyboard.mjs?v=7";
 import { createDisplayController } from "./display.mjs";
 import { paginateText } from "./screen-layout.mjs";
 const $ = (id) => document.getElementById(id);
@@ -25,6 +25,7 @@ let previousChoice = null,
   infoPage = 0,
   infoPages = [],
   infoOpener = null;
+let keyPage = 0;
 let shownKey = "未取得",
   shownCount = 0,
   shownOriginal = null;
@@ -40,6 +41,7 @@ function render() {
   const done = s.phase === "done",
     visibleResult = done && (!talking || f.revealOutcome);
   const pending = Boolean(s.pending);
+  const picking = Boolean(s.selectingKey);
   if (s.count !== shownCount) {
     shownCount = s.count;
     shownKey = "未取得";
@@ -57,6 +59,7 @@ function render() {
   Object.assign($("game-console").dataset, {
     talking: String(talking),
     pending: String(pending),
+    pickingKey: String(picking),
   });
   document.querySelectorAll("[data-round]").forEach((button) => {
     if (Number(button.dataset.round) === s.round)
@@ -182,14 +185,17 @@ function render() {
     ? "通信の様子を見よう"
     : pending
       ? "この操作で進める？"
-      : done
-        ? "次に試すこと"
-        : "Charlieの行動";
+      : picking
+        ? s.selectingKey.title
+        : done
+          ? "次に試すこと"
+          : "Charlieの行動";
   $("command-wait").hidden = !talking;
-  $("choice-list").hidden = talking || pending;
+  $("choice-list").hidden = talking || pending || picking;
+  $("key-picker").hidden = talking || pending || !picking;
   $("choice-confirm").hidden = talking || !pending;
   $("choice-list").innerHTML =
-    talking || pending
+    talking || pending || picking
       ? ""
       : s.choices
           .map(
@@ -207,6 +213,45 @@ function render() {
               '</small></span><i aria-hidden="true">›</i></button>',
           )
           .join("");
+  const size =
+    $("game-console").classList.contains("is-viewport") &&
+    ($("game-console").dataset.density === "tiny" ||
+      ($("game-console").dataset.layout === "narrow" &&
+        $("game-console").dataset.density === "compact"))
+      ? 2
+      : 6;
+  const keys = s.selectingKey?.keys || [];
+  const pageCount = Math.max(1, Math.ceil(keys.length / size));
+  if (pending && s.selectingKey?.selectedId)
+    keyPage = Math.floor(
+      keys.findIndex((key) => key.id === s.selectingKey.selectedId) / size,
+    );
+  keyPage = Math.min(keyPage, pageCount - 1);
+  $("key-list").innerHTML =
+    !picking || talking || pending
+      ? ""
+      : keys
+          .slice(keyPage * size, (keyPage + 1) * size)
+          .map(
+            (key) =>
+              '<button type="button" class="key-card" data-key="' +
+              key.id +
+              '" aria-pressed="' +
+              (s.selectingKey.selectedId === key.id) +
+              '"><strong>' +
+              esc(key.label) +
+              "</strong><small>" +
+              esc(key.detail) +
+              "</small></button>",
+          )
+          .join("");
+  $("key-page-count").textContent = keyPage + 1 + " / " + pageCount;
+  $("key-prev").hidden =
+    $("key-next").hidden =
+    $("key-page-count").hidden =
+      pageCount === 1;
+  $("key-prev").disabled = keyPage === 0;
+  $("key-next").disabled = keyPage + 1 >= pageCount;
   $("choice-summary").textContent = s.pending?.summary || "";
   if (recordVisible) shownKey = s.keyLabel;
   $("key-record").textContent = shownKey;
@@ -218,9 +263,10 @@ function render() {
   $("outgoing-label").textContent = talking
     ? "通信の到着を待とう"
     : done
-      ? "この通信は終了"
-      : englishNames((s.outgoing || s.incoming).label) +
-        (s.outgoing ? "（すり替え）" : "");
+      ? s.deliveredKey
+        ? "Bobに届けた暗号文 ← " + s.deliveredKey.label
+        : "この通信は終了"
+      : s.outgoingDescription;
   $("dialogue-label").textContent = talking
     ? "STORY"
     : done
@@ -234,7 +280,9 @@ function render() {
       ? lesson(s)
       : pending
         ? "「決定」で実行。「戻る」で選び直せる。"
-        : s.prompt;
+        : picking
+          ? "どの鍵を使う？ 公開鍵・秘密鍵・共通鍵を比べてみよう。"
+          : s.prompt;
   $("bob-result").hidden = !visibleResult || !s.result.message;
   $("bob-result").textContent =
     visibleResult && s.result.message
@@ -256,8 +304,11 @@ function review(id, trigger = document.activeElement) {
   if (story.active() || !quest.select(id)) return;
   previousChoice = id;
   previousTrigger = trigger;
+  keyPage = 0;
   render();
-  $("choice-back").focus({ preventScroll: true });
+  $(quest.view().pending ? "choice-back" : "key-back").focus({
+    preventScroll: true,
+  });
 }
 $("choice-list").addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
@@ -266,19 +317,48 @@ $("choice-list").addEventListener("click", (event) => {
 function cancel() {
   quest.cancel();
   render();
+  const selected = quest.view().selectingKey?.selectedId;
+  if (quest.view().selectingKey) {
+    (
+      document.querySelector('[data-key="' + selected + '"]') || $("key-back")
+    ).focus({ preventScroll: true });
+    return;
+  }
   (
     document.querySelector('[data-action="' + previousChoice + '"]') ||
     previousTrigger
   )?.focus({ preventScroll: true });
 }
 $("choice-back").addEventListener("click", cancel);
+$("key-back").addEventListener("click", cancel);
+$("key-list").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-key]");
+  if (!button || !quest.selectKey(button.dataset.key)) return;
+  render();
+  $("choice-back").focus({ preventScroll: true });
+});
+$("key-prev").addEventListener("click", () => {
+  if (keyPage > 0) {
+    keyPage--;
+    render();
+    $("key-next").focus({ preventScroll: true });
+  }
+});
+$("key-next").addEventListener("click", () => {
+  keyPage++;
+  render();
+  $("key-prev").focus({ preventScroll: true });
+});
 $("choice-commit").addEventListener("click", (event) => {
   if (event.detail > 1) return;
   const frames = quest.confirm();
   if (frames.length) play(frames);
 });
 $("game-console").addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && quest.view().pending) {
+  if (
+    event.key === "Escape" &&
+    (quest.view().pending || quest.view().selectingKey)
+  ) {
     event.preventDefault();
     event.stopPropagation();
     cancel();

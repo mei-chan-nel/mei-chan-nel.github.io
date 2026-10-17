@@ -182,11 +182,17 @@ export function forwardFrames(before, after) {
     frames.push(outcomeFrame(after));
   } else if (before.phase === "public") {
     frames.push(
-      frame("Aliceは、受け取った公開鍵で共通鍵を暗号化した。", "wrap", {
-        at: "alice",
-        kind: "key",
-        phase: "key",
-      }),
+      frame(
+        "Aliceは、" +
+          englishNames(after.publicForAlice.label) +
+          "で共通鍵を暗号化した。",
+        "wrap",
+        {
+          at: "alice",
+          kind: "key",
+          phase: "key",
+        },
+      ),
       frame("Charlieの中継機が、共通鍵の暗号文を記録した。", "inbound", {
         kind: "wrapped-key",
         phase: "key",

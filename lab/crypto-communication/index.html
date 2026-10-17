@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./viewport.css?v=4" />
     <link rel="stylesheet" href="./story.css?v=6" />
-    <link rel="stylesheet" href="./quest.css?v=1" />
+    <link rel="stylesheet" href="./quest.css?v=2" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -233,6 +233,29 @@
                     <span class="box-label" id="command-label">行動を選ぶ</span>
                   </div>
                   <div id="choice-list" class="choice-list"></div>
+                  <section
+                    id="key-picker"
+                    class="key-picker"
+                    aria-labelledby="command-label"
+                    hidden=""
+                  >
+                    <div
+                      id="key-list"
+                      class="key-list"
+                      role="group"
+                      aria-label="Charlieが持っている鍵"
+                    ></div>
+                    <nav class="key-pagination" aria-label="鍵の選択ページ">
+                      <button type="button" id="key-back">← 戻る</button>
+                      <button type="button" id="key-prev" aria-label="前の鍵">
+                        ◀
+                      </button>
+                      <span id="key-page-count"></span>
+                      <button type="button" id="key-next" aria-label="次の鍵">
+                        ▶
+                      </button>
+                    </nav>
+                  </section>
                   <div id="choice-confirm" class="choice-confirm" hidden="">
                     <p id="choice-summary"></p>
                     <div class="choice-buttons">
@@ -413,6 +436,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=6"></script>
+    <script type="module" src="./app.mjs?v=7"></script>
   </body>
 </html>

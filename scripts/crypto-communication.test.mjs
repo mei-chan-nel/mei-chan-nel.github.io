@@ -242,13 +242,29 @@ import {
   screenLayout,
   paginateText,
 } from "../lab/crypto-communication/screen-layout.mjs";
-function decide(q, action) {
+function decide(q, action, predicate) {
   assert.ok(q.view().choices.length <= 2);
   assert.equal(
     q.select(action),
     true,
     action + " must be offered in this scene",
   );
+  if (q.view().selectingKey) {
+    const keys = q.view().selectingKey.keys;
+    const test =
+      predicate ||
+      ((key) =>
+        action === "open-key"
+          ? key.type === "private"
+          : action === "rewrap"
+            ? key.type === "public" && key.owner === "bob"
+            : key.type === "symmetric" && key.detail === "この通信で入手");
+    const key =
+      keys.find(test) ||
+      (!predicate && keys.find((key) => key.type === "symmetric"));
+    assert.ok(key, "test must select a key explicitly");
+    assert.equal(q.selectKey(key.id), true);
+  }
   return q.confirm();
 }
 function questKey(q, round) {
@@ -350,12 +366,11 @@ test("R2: the previous common key fails, then public-key substitution and rewrap
   const q = createQuest();
   q.start(1);
   decide(q, "forward");
-  assert.match(q.view().choices[0].label, /前の共通鍵/);
-  decide(q, "open-key");
+  decide(q, "open-key", (key) => key.type === "symmetric");
   assert.equal(q.view().state, "blocked");
   assert.equal(q.view().original, null);
   const oldCount = q.view().count;
-  decide(q, "retry");
+  decide(q, "restart");
   assert.ok(q.view().count > oldCount);
   decide(q, "swap");
   decide(q, "forward");
@@ -511,4 +526,166 @@ test("fullscreen composition follows orientation and explanation pages preserve 
     pages = paginateText(text, 64);
   assert.equal(pages.join(""), text);
   assert.ok(pages.every((p) => Array.from(p).length <= 64));
+});
+
+test("opening a key operation never chooses a key or runs it automatically", () => {
+  const q = createQuest();
+  decide(q, "forward");
+  const initial = q.view();
+  q.select("read");
+  assert.equal(q.view().pending, null);
+  assert.equal(q.view().selectingKey.selectedId, null);
+  assert.match(q.view().selectingKey.title, /本文.*復号.*鍵/);
+  assert.deepEqual(q.confirm(), []);
+  assert.equal(q.view().original, null);
+  assert.deepEqual(q.view().log, initial.log);
+  assert.equal(q.selectKey("unknown-key"), false);
+  const key = q.view().selectingKey.keys.find((a) => a.type === "symmetric");
+  q.selectKey(key.id);
+  assert.match(q.view().pending.summary, /共通鍵.*本文.*復号/);
+  assert.equal(q.view().original, null);
+  q.cancel();
+  assert.equal(q.view().pending, null);
+  assert.equal(q.view().selectingKey.selectedId, key.id);
+  q.cancel();
+  assert.equal(q.view().selectingKey, null);
+  assert.deepEqual(q.view(), initial);
+});
+test("public and private keys fail on a symmetric message, then the chosen symmetric key succeeds without restarting", () => {
+  const q = createQuest();
+  decide(q, "forward");
+  const packet = q.view().incoming.id,
+    count = q.view().count;
+  for (const type of ["public", "private"]) {
+    decide(q, "read", (key) => key.type === type);
+    assert.equal(q.view().lastAttempt.ok, false);
+    assert.equal(q.view().lastAttempt.key.type, type);
+    assert.match(q.view().lastAttempt.reason, /共通鍵/);
+    assert.equal(q.view().phase, "message");
+    assert.equal(q.view().incoming.id, packet);
+    assert.equal(q.view().count, count);
+    assert.equal(q.view().original, null);
+  }
+  decide(q, "read", (key) => key.type === "symmetric");
+  assert.equal(q.view().original, "I love you.");
+});
+test("a Charlie-addressed envelope needs Charlie's private key, not either public key or the old shared key", () => {
+  const q = createQuest();
+  q.start(1);
+  decide(q, "swap");
+  decide(q, "forward");
+  for (const predicate of [
+    (key) => key.type === "public" && key.owner === "bob",
+    (key) => key.type === "public" && key.owner === "charlie",
+    (key) => key.type === "symmetric",
+  ]) {
+    decide(q, "open-key", predicate);
+    assert.equal(q.view().lastAttempt.ok, false);
+    assert.match(q.view().lastAttempt.reason, /Charlieの秘密鍵/);
+    assert.equal(
+      q.view().inventory.some((a) => a.type === "symmetric" && a.current),
+      false,
+    );
+  }
+  decide(q, "open-key", (key) => key.type === "private");
+  assert.equal(q.view().lastAttempt.ok, true);
+  assert.equal(
+    q.view().inventory.some((a) => a.type === "symmetric" && a.current),
+    true,
+  );
+});
+test("all held keys fail on Bob's envelope and Bob's private key is never available", () => {
+  const q = createQuest();
+  q.start(1);
+  decide(q, "forward");
+  q.select("open-key");
+  const keys = q.view().selectingKey.keys;
+  assert.equal(
+    keys.some((a) => a.type === "private" && a.owner !== "charlie"),
+    false,
+  );
+  q.cancel();
+  for (const key of keys) {
+    decide(q, "open-key", (a) => a.id === key.id);
+    assert.equal(q.view().lastAttempt.ok, false);
+  }
+  assert.equal(
+    q.view().inventory.some((a) => a.type === "symmetric" && a.current),
+    false,
+  );
+});
+test("wrapping rejects non-public keys, and choosing Charlie's public key produces an envelope Bob cannot open", () => {
+  const q = createQuest();
+  q.start(1);
+  decide(q, "swap");
+  decide(q, "forward");
+  decide(q, "open-key");
+  for (const type of ["private", "symmetric"]) {
+    decide(q, "rewrap", (key) => key.type === type);
+    assert.equal(q.view().lastAttempt.ok, false);
+    assert.equal(q.view().outgoing, null);
+    assert.match(q.view().lastAttempt.reason, /配送先の公開鍵/);
+  }
+  decide(
+    q,
+    "rewrap",
+    (key) => key.type === "public" && key.owner === "charlie",
+  );
+  assert.equal(q.view().lastAttempt.ok, true);
+  assert.equal(q.view().stagedKey.owner, "charlie");
+  assert.match(q.view().outgoingDescription, /Charlieの公開鍵/);
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "bad-key");
+});
+test("a wrong encryption key type leaves the message intact; an old shared key creates ciphertext Bob cannot read", () => {
+  const q = createQuest();
+  questKey(q, 1);
+  decide(q, "read");
+  for (const type of ["public", "private"]) {
+    decide(q, "edit", (key) => key.type === type);
+    assert.equal(q.view().lastAttempt.ok, false);
+    assert.equal(q.view().draft, "I love you.");
+    assert.equal(q.view().outgoing, null);
+  }
+  decide(
+    q,
+    "edit",
+    (key) => key.type === "symmetric" && key.detail === "以前の通信で入手",
+  );
+  assert.equal(q.view().lastAttempt.ok, true);
+  assert.equal(q.view().draft, "I hate you.");
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "bad-message");
+});
+test("Alice's trusted verification key is offered but cannot decrypt a message", () => {
+  const q = createQuest();
+  questKey(q, 2);
+  decide(q, "read", (key) => key.type === "verify");
+  assert.equal(q.view().original, null);
+  assert.equal(q.view().lastAttempt.ok, false);
+  assert.match(q.view().lastAttempt.reason, /Aliceの署名/);
+  decide(q, "read");
+  assert.equal(q.view().original, "I love you.");
+});
+test("the key picker keeps only one previous shared key and never invents unavailable keys", () => {
+  const q = createQuest();
+  q.start(0);
+  q.start(0);
+  q.start(0);
+  questKey(q, 2);
+  q.select("read");
+  const s = q.view(),
+    keys = s.selectingKey.keys;
+  assert.ok(keys.length <= 6);
+  assert.equal(
+    keys.filter(
+      (a) => a.type === "symmetric" && a.detail === "以前の通信で入手",
+    ).length,
+    1,
+  );
+  assert.ok(keys.every((key) => s.inventory.some((a) => a.id === key.id)));
+  assert.deepEqual(
+    keys.filter((a) => a.type === "private").map((a) => a.owner),
+    ["charlie"],
+  );
 });
