@@ -237,13 +237,13 @@ test("narrative explains the relay, stops and round-specific goals without revea
   const lab = createLab();
   let story = describeSituation(lab.snapshot());
   assert.match(story.text, /中継機/);
-  assert.match(story.text, /止まっている/);
-  assert.equal(story.recipient, "ボブ");
+  assert.match(story.text, /止めている/);
+  assert.equal(story.recipient, "Bob");
   assert.equal(JSON.stringify(story).includes("I love you."), false);
   assert.match(describeItem(lab.snapshot().incoming), /復号は不要/);
   lab.start(2);
   story = describeSituation(lab.snapshot());
-  assert.equal(story.recipient, "アリス");
+  assert.equal(story.recipient, "Alice");
   assert.match(story.goal, /盗聴.*改ざん/);
   lab.start(3, true);
   capture(lab);
@@ -255,7 +255,7 @@ test("narrative explains the relay, stops and round-specific goals without revea
     "公開鍵",
     "rejection must not show a message packet that was never sent",
   );
-  assert.equal(story.recipient, "アリス");
+  assert.equal(story.recipient, "Alice");
   assert.equal(JSON.stringify(story).includes("I love you."), false);
 });
 
@@ -306,7 +306,7 @@ test("compact overview keeps the goal and observable result while preserving sec
   lab.start(0);
   lab.forward();
   lab.forward();
-  assert.match(compactOutcome(lab.snapshot(), "deliver"), /ボブ/);
+  assert.match(compactOutcome(lab.snapshot(), "deliver"), /Bob/);
   assert.equal(
     compactOutcome(lab.snapshot(), "deliver").includes("I love you."),
     false,
@@ -403,4 +403,124 @@ test("signature verification and authenticity failure appear at the right receiv
     false,
   );
   assert.match(decisionFrame(lab.snapshot()).route, /Bob.*Alice/);
+});
+
+test("every narrative sentence names the participants and keeps the whole action on a page", async () => {
+  const {
+    introFrames,
+    roundFrames,
+    forwardFrames,
+    decisionFrame,
+    operationFrames,
+    createStoryPlayer,
+  } = await import("../lab/crypto-communication/storyboard.mjs");
+  const frames = [...introFrames()];
+  const lab = createLab();
+  for (let round = 0; round < 4; round++) {
+    lab.start(round);
+    frames.push(...roundFrames(lab.snapshot()), decisionFrame(lab.snapshot()));
+    while (lab.snapshot().phase !== "done") {
+      const before = lab.snapshot();
+      lab.forward();
+      frames.push(
+        ...forwardFrames(before, lab.snapshot()),
+        decisionFrame(lab.snapshot()),
+      );
+    }
+  }
+  // Include all rejection types and a successful substitution attack.
+  for (const kind of [
+    "public",
+    "key",
+    "message",
+    "signature",
+    "authenticated",
+    "attack",
+  ]) {
+    lab.start(
+      kind === "authenticated"
+        ? 3
+        : kind === "signature"
+          ? 2
+          : kind === "public"
+            ? 1
+            : 0,
+    );
+    if (kind === "public") lab.setOutgoing(find(lab, "private"));
+    if (kind === "key") lab.setOutgoing(find(lab, "public"));
+    if (kind === "message") {
+      lab.forward();
+      lab.setOutgoing(find(lab, "public"));
+    }
+    if (kind === "authenticated")
+      lab.setOutgoing(find(lab, "public", "charlie"));
+    if (kind === "signature" || kind === "attack") {
+      const key =
+        kind === "signature" ? interceptKey(lab, 2).key : capture(lab);
+      if (kind === "attack") lab.forward();
+      const message = capture(lab);
+      lab.decrypt(message, key);
+      lab.edit("I hate you.");
+      lab.setOutgoing(lab.encryptMessage(key).id);
+    }
+    const before = lab.snapshot();
+    lab.forward();
+    frames.push(
+      ...forwardFrames(before, lab.snapshot()),
+      decisionFrame(lab.snapshot()),
+    );
+  }
+  for (const mode of ["decrypt", "wrap", "message", "replace"]) {
+    for (const ok of [true, false]) {
+      const before = lab.snapshot();
+      frames.push(
+        ...operationFrames({
+          before,
+          after: before,
+          mode,
+          action: mode === "replace" ? "replace" : "tool",
+          ok,
+          keyLabel: "Aliceの検証用公開鍵（信頼済み）",
+          dataLabel: "共通鍵 K1",
+        }),
+      );
+    }
+  }
+  for (const frame of frames) {
+    for (const sentence of frame.text.match(/[^。！？\n]+[。！？\n]?/gu) ||
+      []) {
+      assert.match(sentence, /Alice|Bob|Charlie/, sentence);
+      assert.ok(Array.from(sentence).length <= 64, sentence);
+    }
+  }
+  const player = createStoryPlayer();
+  player.play(frames);
+  const pages = [];
+  while (player.active()) {
+    const { text } = player.current();
+    assert.ok(Array.from(text).length <= 64);
+    assert.match(
+      text,
+      /[。！？]$/u,
+      "next must not separate the actor and action",
+    );
+    pages.push(text);
+    player.next();
+  }
+  assert.equal(pages.join(""), frames.map((frame) => frame.text).join(""));
+});
+
+test("a short sentence before a long sentence does not orphan a narrative continuation", async () => {
+  const { createStoryPlayer } =
+    await import("../lab/crypto-communication/storyboard.mjs");
+  const first = "Charlieは、暗号文を受け取った。";
+  const second =
+    "Charlieは、AliceからBobへ送られた本文の暗号文を、中継機の記録装置にコピーした。";
+  const player = createStoryPlayer();
+  player.play([{ text: first + second, speaker: "charlie" }]);
+  assert.equal(player.current().text, first);
+  player.next();
+  assert.equal(player.current().text, second);
+  player.next();
+  assert.equal(player.active(), false);
 });

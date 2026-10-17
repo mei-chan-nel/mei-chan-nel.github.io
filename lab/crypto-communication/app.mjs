@@ -80,24 +80,24 @@ const hints = [
 const modeInfo = {
   decrypt: {
     prompt:
-      "復号は、暗号文を鍵で開くこと。手元のデータと鍵を選び、組み合わせを試そう。",
+      "Charlieが、手元の暗号文と鍵を組み合わせて復号を試します。Charlieは、確認画面で決定するまで選び直せます。",
     data: "開けたい暗号文",
     key: "開けるために試す鍵",
   },
   message: {
     prompt:
-      "復号した本文を編集したり、自分で文を作ったりできる。共通鍵で暗号化すると、送れる暗号文が持ち物に増える。",
+      "Charlieが、復号した本文を編集したり、文を自分で作ったりできます。Charlieが暗号化を決定すると、新しい暗号文が持ち物に加わります。",
     key: "本文を暗号化する共通鍵",
   },
   wrap: {
     prompt:
-      "公開鍵暗号は、共通鍵の配送に使う。共通鍵を公開鍵で包むと、対になる秘密鍵だけが開ける封筒になる。",
+      "Charlieが、配送したい共通鍵と配送先の公開鍵を選びます。配送先は、対になる秘密鍵で共通鍵を復号できます。",
     data: "封筒に入れる共通鍵",
     key: "配送先として使う公開鍵",
   },
   replace: {
     prompt:
-      "次に相手へ届けるデータを、持ち物の一つに入れ替える。まだ送信せず、通信画面で確認してから届けられる。",
+      "Charlieが、AliceやBobへ届ける候補を持ち物から選びます。Charlieは、セット後も転送するまで送信候補を戻せます。",
     data: "相手に送るデータ",
   },
 };
@@ -120,7 +120,13 @@ let infoTopic = "situation",
   infoOpener = null;
 const storyPlayer = createStoryPlayer();
 let pendingToolFrames = [],
-  draftEdited = false;
+  pendingCommand = null,
+  confirmPage = 0,
+  editorDraft = "",
+  editorSignature = "keep",
+  editorBaseline = { draft: "", signature: "keep" },
+  lastCommandKind = "";
+const replacementHistory = [];
 const visits = new Set();
 const itemNotes = new Map();
 let createdCount = 0;
@@ -330,9 +336,12 @@ function renderTools(s) {
   $("key-field").hidden = mode === "replace";
   $("data-label").textContent = modeInfo[mode].data || "";
   $("key-label").textContent = modeInfo[mode].key || "";
-  if ($("draft").value !== s.draft) $("draft").value = s.draft;
+  if ($("draft").value !== editorDraft) $("draft").value = editorDraft;
+  $("reset-draft").disabled =
+    editorDraft === editorBaseline.draft &&
+    editorSignature === editorBaseline.signature;
   $("signature-controls").hidden = s.round < 2;
-  $("signature-choice").value = s.signatureChoice;
+  $("signature-choice").value = editorSignature;
   $("signature-info").textContent = s.signature
     ? `手元にある署名：${s.signature.label}。本文を変えても、この署名は変わりません。`
     : "元の署名はまだ取り出していません。署名付きの本文を復号すると、署名も手元に残ります。";
@@ -357,8 +366,10 @@ function renderTools(s) {
   $("decrypt-next").disabled = decryptPage === pages.length - 1;
   $("edit-decrypted").hidden = s.decryptResult?.kind !== "message";
   const made = s.inventory.find((a) => a.id === createdId);
-  $("created-card").hidden = !made;
+  $("created-card").hidden =
+    !made || !["message", "wrap", "corrupt"].includes(lastCommandKind);
   $("created-label").textContent = made ? displayLabel(made) : "";
+  $("tool-result-tab").disabled = !lastTool;
   $("use-created").disabled = s.phase === "done";
   $("set-outgoing").disabled = s.phase === "done";
   $("tool-feedback").textContent = overviewActive
@@ -367,15 +378,22 @@ function renderTools(s) {
       : paginateText(toolFeedback, 90)[0]
     : toolFeedback;
   $("tool-feedback").classList.toggle("error", feedbackError);
+  $("replacement-result").hidden =
+    lastCommandKind !== "replace" || feedbackError;
+  $("replacement-label").textContent = displayLabel(s.outgoing || s.incoming);
+  $("undo-replacement").hidden =
+    !replacementHistory.length || s.phase === "done";
+  renderConfirmation(s);
 }
 function setMode(value) {
+  pendingCommand = null;
   mode = value;
   setToolView("form");
   renderTools(snapshot());
 }
 function showTools(value = "decrypt", source = document.activeElement) {
   opener = source;
-  draftEdited = false;
+  pendingCommand = null;
   mode = value;
   setToolView("form");
   renderTools(snapshot());
@@ -393,25 +411,12 @@ function showTools(value = "decrypt", source = document.activeElement) {
   $("close-tools").focus({ preventScroll: true });
 }
 function closeTools() {
+  pendingCommand = null;
   const dialog = $("tools-dialog");
   if (typeof dialog.close === "function") dialog.close();
   else dialog.removeAttribute("open");
   document.body.classList.remove("tools-open");
   $("feedback").setAttribute("aria-live", "polite");
-  if (
-    draftEdited &&
-    !pendingToolFrames.some((frame) => frame.scene === "edit")
-  ) {
-    const base = decisionFrame(snapshot());
-    pendingToolFrames.push({
-      ...base,
-      speaker: "charlie",
-      text: "作業台の本文を書き換えた。まだ新しい暗号文にはしていない。送るものを変えるかは、これから決める。",
-      scene: "edit",
-      at: "charlie",
-    });
-  }
-  draftEdited = false;
   if (pendingToolFrames.length) {
     storyPlayer.play(pendingToolFrames);
     pendingToolFrames = [];
@@ -434,6 +439,16 @@ function act(
     before.inventory.find((item) => item.id === selected)?.label || "";
   const response = operation(),
     s = snapshot();
+  if (
+    action === "tool" &&
+    mode === "decrypt" &&
+    response?.ok &&
+    s.decryptResult?.kind === "message"
+  ) {
+    editorDraft = s.draft;
+    editorSignature = s.signatureChoice;
+    editorBaseline = { draft: editorDraft, signature: editorSignature };
+  }
   feedbackError = response?.ok === false;
   feedbackText =
     text && !feedbackError ? text : response?.text || s.log.at(-1)?.text || "";
@@ -442,6 +457,7 @@ function act(
     ? "その組み合わせでは、うまくいかなかった。"
     : heading;
   lastAction = action;
+  if (action === "replace") lastCommandKind = "replace";
   if (create && !response?.id) createdId = null;
   if (create && response?.id) {
     createdId = response.id;
@@ -473,7 +489,12 @@ function act(
 function restart(round, authenticate = $("authenticate").checked) {
   lab.start(round, authenticate);
   pendingToolFrames = [];
-  draftEdited = false;
+  pendingCommand = null;
+  editorDraft = "";
+  editorSignature = "keep";
+  editorBaseline = { draft: "", signature: "keep" };
+  replacementHistory.length = 0;
+  lastCommandKind = "";
   storyPlayer.play(roundFrames(snapshot()));
   selected = "";
   selectedKey = "";
@@ -490,22 +511,144 @@ function restart(round, authenticate = $("authenticate").checked) {
   toolFeedback = "どの道具でも自由に試せます。";
   render();
 }
-function stageReplacement(id) {
-  if (!id) {
-    feedbackError = true;
-    toolFeedback = "まず、相手に送るデータを持ち物から選んでください。";
-    setToolView("result");
+function replaceOutgoing(id = null, undo = false) {
+  const previous = snapshot().outgoing?.id || null;
+  const response = lab.setOutgoing(id);
+  if (response.ok && !undo && previous !== id)
+    replacementHistory.push(previous);
+  return response;
+}
+function reviewCommand(kind, data = selected) {
+  pendingCommand = {
+    kind,
+    data,
+    key: selectedKey,
+    draft: editorDraft,
+    signature: editorSignature,
+    returnView: $("tools-dialog").dataset.view,
+    trigger: document.activeElement,
+  };
+  confirmPage = 0;
+  setToolView("confirm");
+  renderTools(snapshot());
+  // A second press of Enter must never commit a newly opened confirmation.
+  $("confirm-cancel").focus({ preventScroll: true });
+}
+function renderConfirmation(s) {
+  const command = pendingCommand;
+  if (!command) return;
+  const item = s.inventory.find((a) => a.id === command.data);
+  const key = s.inventory.find((a) => a.id === command.key);
+  const recipient = s.phase === "public" ? "Alice" : "Bob";
+  const signatureLabel = {
+    keep: "復号した元の署名を添える",
+    charlie: "Charlieの秘密鍵で署名する",
+    none: "署名を付けない",
+  }[command.signature];
+  const titles = {
+    decrypt: "Charlieが復号を試しますか？",
+    wrap: "Charlieが共通鍵を包みますか？",
+    message: "Charlieが本文を暗号化しますか？",
+    corrupt: "Charlieが暗号文を書き換えますか？",
+    replace: "Charlieが送信候補を変えますか？",
+    forward: `Charlieが${recipient}へ届けますか？`,
+  };
+  const rows =
+    command.kind === "forward"
+      ? [
+          ["届け先", recipient],
+          ["届けるデータ", displayLabel(s.outgoing || s.incoming)],
+        ]
+      : command.kind === "message"
+        ? [
+            ["使う共通鍵", key?.label || "未選択"],
+            ...(s.round >= 2 ? [["添える署名", signatureLabel]] : []),
+          ]
+        : command.kind === "replace"
+          ? [
+              ["今の送信候補", displayLabel(s.outgoing || s.incoming)],
+              ["新しい候補", displayLabel(item) || "未選択"],
+            ]
+          : [
+              ["対象のデータ", displayLabel(item) || "未選択"],
+              ...(["decrypt", "wrap"].includes(command.kind)
+                ? [["使う鍵", key?.label || "未選択"]]
+                : []),
+            ];
+  const complete =
+    command.kind === "forward" ||
+    (command.kind === "message"
+      ? Boolean(key)
+      : Boolean(item) &&
+        (!["decrypt", "wrap"].includes(command.kind) || Boolean(key)));
+  $("confirm-title").textContent = titles[command.kind];
+  $("confirm-summary").innerHTML = rows
+    .map(([label, value]) => `<dt>${esc(label)}</dt><dd>${esc(value)}</dd>`)
+    .join("");
+  $("confirm-note").textContent = !complete
+    ? "Charlieの操作に必要な項目が未選択です。Charlieは「選び直す」で選択に戻れます。"
+    : command.kind === "forward"
+      ? `Charlieが決定すると、選んだデータを${recipient}へ転送します。Charlieは、転送後の通信を巻き戻せません。`
+      : command.kind === "replace"
+        ? "Charlieは送信候補をセットします。Charlieは転送前に候補を戻せます。"
+        : "Charlieは手元で操作します。Charlieは、Alice・Bobへデータを転送しません。";
+  $("confirm-execute").textContent =
+    command.kind === "forward"
+      ? "決定して転送"
+      : command.kind === "replace"
+        ? "決定してセット"
+        : "決定して実行";
+  $("confirm-execute").disabled = !complete;
+  $("confirm-preview").hidden = command.kind !== "message";
+  const limit = $("game-console").dataset.layout === "narrow" ? 45 : 120;
+  const pages = paginateText(command.draft || "（空の本文）", limit);
+  confirmPage = Math.min(confirmPage, pages.length - 1);
+  $("confirm-draft").textContent = pages[confirmPage];
+  $("confirm-pagination").hidden = pages.length < 2;
+  $("confirm-page-count").textContent = `${confirmPage + 1} / ${pages.length}`;
+  $("confirm-prev").disabled = confirmPage === 0;
+  $("confirm-next").disabled = confirmPage === pages.length - 1;
+}
+function cancelCommand() {
+  const command = pendingCommand;
+  pendingCommand = null;
+  if (command?.returnView === "close") closeTools();
+  else {
+    setToolView(command?.returnView || "form");
     renderTools(snapshot());
+    command?.trigger?.focus({ preventScroll: true });
+  }
+}
+function executeCommand(event) {
+  const command = pendingCommand;
+  if (!command || $("confirm-execute").disabled || event.detail > 1) return;
+  pendingCommand = null;
+  selected = command.data;
+  selectedKey = command.key;
+  if (command.kind === "forward") {
+    closeTools();
+    replacementHistory.length = 0;
+    act(() => lab.forward(), { action: "deliver" });
+    $("dialogue-next").focus({ preventScroll: true });
     return;
   }
-  const response = act(() => lab.setOutgoing(id), {
-    heading: "送り出すデータを、入れ替えた。",
-    action: "replace",
+  lastCommandKind = command.kind;
+  const operation = {
+    decrypt: () => lab.decrypt(command.data, command.key),
+    wrap: () => lab.wrapKey(command.data, command.key),
+    message: () => {
+      lab.edit(command.draft);
+      lab.chooseSignature(command.signature);
+      return lab.encryptMessage(command.key);
+    },
+    corrupt: () => lab.corrupt(command.data),
+    replace: () => replaceOutgoing(command.data),
+  }[command.kind];
+  act(operation, {
+    action: command.kind === "replace" ? "replace" : "tool",
+    create: ["message", "wrap", "corrupt"].includes(command.kind),
   });
-  if (response?.ok) {
-    closeTools();
-    announceResult();
-  }
+  $("back-tool-form").focus({ preventScroll: true });
 }
 $("help-button").addEventListener("click", () => {
   pendingToolFrames = [];
@@ -513,7 +656,7 @@ $("help-button").addEventListener("click", () => {
     ...introFrames(),
     {
       ...decisionFrame(snapshot()),
-      text: "導入はここまで。実験の状態は変えていない。今の通信に戻ろう。",
+      text: "Charlieは、導入の説明を読み終えた。Charlieは、実験の状態を変えずに今の通信へ戻れる。",
     },
   ]);
   render();
@@ -536,19 +679,16 @@ $("capture").addEventListener("click", () => {
   act(() => lab.capture(), {
     heading: "中継機のデータを、持ち物にコピーした！",
     action: "copy",
-    text: `${before.incoming.label}を記録装置に写した。元のデータは中継機に残っていて、まだ相手には届いていない。「持ち物・道具」で調べられる。`,
+    text: `Charlieは、${before.incoming.label}を記録装置にコピーした。Charlieは、元のデータをまだ転送していない。Charlieは「持ち物・道具」でコピーを調べられる。`,
   });
 });
 $("forward").addEventListener("click", () => {
-  const before = snapshot(),
-    who = describeSituation(before).recipient;
-  act(() => lab.forward(), {
-    heading: `${who}にデータを届けた。`,
-    action: "deliver",
-  });
+  showTools("replace");
+  reviewCommand("forward");
+  pendingCommand.returnView = "close";
 });
 $("restore").addEventListener("click", () =>
-  act(() => lab.setOutgoing(), {
+  act(() => replaceOutgoing(), {
     heading: "送るデータを、元のものに戻した。",
     action: "replace",
   }),
@@ -556,16 +696,20 @@ $("restore").addEventListener("click", () =>
 $("open-tools").addEventListener("click", () => showTools());
 $("result-tools").addEventListener("click", () => showTools());
 $("open-replace").addEventListener("click", () => showTools("replace"));
-$("close-tools").addEventListener("click", closeTools);
+function dismissTools() {
+  if (pendingCommand) cancelCommand();
+  else closeTools();
+}
+$("close-tools").addEventListener("click", dismissTools);
 $("tools-dialog").addEventListener("cancel", (e) => {
   e.preventDefault();
-  closeTools();
+  dismissTools();
 });
 $("tools-dialog").addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     e.preventDefault();
     e.stopPropagation();
-    closeTools();
+    dismissTools();
     return;
   }
   if (e.key !== "Tab") return;
@@ -604,7 +748,6 @@ for (const id of ["keyring", "artifacts"])
       if (itemTarget(item) === "key") selectedKey = item.id;
       else {
         selected = item.id;
-        if (mode === "message") mode = "decrypt";
       }
       render();
     }
@@ -616,49 +759,72 @@ $("data-select").addEventListener("change", (e) => {
 $("key-select").addEventListener("change", (e) => {
   selectedKey = e.target.value;
 });
-$("decrypt").addEventListener("click", () =>
-  act(() => lab.decrypt(selected, selectedKey), {
-    heading: "選んだ鍵で、暗号文を開いてみた。",
-  }),
-);
+$("decrypt").addEventListener("click", () => reviewCommand("decrypt"));
 $("edit-decrypted").addEventListener("click", () => {
   setMode("message");
   $("draft").focus();
 });
-$("wrap").addEventListener("click", () =>
-  act(() => lab.wrapKey(selected, selectedKey), {
-    heading: "共通鍵を包んだ、新しい暗号文を作った。",
-    create: true,
-  }),
+$("wrap").addEventListener("click", () => reviewCommand("wrap"));
+$("encrypt").addEventListener("click", () => reviewCommand("message"));
+$("set-outgoing").addEventListener("click", () => reviewCommand("replace"));
+$("use-created").addEventListener("click", () =>
+  reviewCommand("replace", createdId),
 );
-$("encrypt").addEventListener("click", () =>
-  act(() => lab.encryptMessage(selectedKey), {
-    heading: "編集した本文を、暗号文にした。",
-    create: true,
-  }),
-);
-$("set-outgoing").addEventListener("click", () => stageReplacement(selected));
-$("use-created").addEventListener("click", () => stageReplacement(createdId));
-$("corrupt").addEventListener("click", () =>
-  act(() => lab.corrupt(selected), {
-    heading: "暗号文の一部を、直接書き換えた。",
-    create: true,
-  }),
-);
+$("corrupt").addEventListener("click", () => reviewCommand("corrupt"));
 $("draft").addEventListener("input", (e) => {
-  draftEdited = true;
-  lab.edit(e.target.value);
+  editorDraft = e.target.value;
+  $("reset-draft").disabled =
+    editorDraft === editorBaseline.draft &&
+    editorSignature === editorBaseline.signature;
 });
-$("signature-choice").addEventListener("change", (e) =>
-  lab.chooseSignature(e.target.value),
-);
+$("signature-choice").addEventListener("change", (e) => {
+  editorSignature = e.target.value;
+  renderTools(snapshot());
+});
+$("reset-draft").addEventListener("click", () => {
+  editorDraft = editorBaseline.draft;
+  editorSignature = editorBaseline.signature;
+  renderTools(snapshot());
+});
+$("confirm-cancel").addEventListener("click", cancelCommand);
+$("confirm-execute").addEventListener("click", executeCommand);
+$("confirm-prev").addEventListener("click", () => {
+  confirmPage--;
+  renderConfirmation(snapshot());
+});
+$("confirm-next").addEventListener("click", () => {
+  confirmPage++;
+  renderConfirmation(snapshot());
+});
+$("undo-replacement").addEventListener("click", () => {
+  if (!replacementHistory.length || snapshot().phase === "done") return;
+  const previous = replacementHistory.pop();
+  lastCommandKind = "replace";
+  mode = "replace";
+  act(() => replaceOutgoing(previous, true), { action: "replace" });
+});
 $("next-round").addEventListener("click", () => {
   restart(Math.min(3, snapshot().round + 1), true);
   if (!overviewActive)
     $("round-title").scrollIntoView({ block: "nearest", behavior: "smooth" });
 });
 function setToolView(view) {
+  if (view !== "confirm") pendingCommand = null;
   $("tools-dialog").dataset.view = view;
+  $("tools-dialog").setAttribute(
+    "aria-labelledby",
+    view === "confirm" ? "confirm-title" : "tools-title",
+  );
+  if (view === "confirm")
+    $("tools-dialog").setAttribute("aria-describedby", "confirm-note");
+  else $("tools-dialog").removeAttribute("aria-describedby");
+  $("tool-confirm").hidden = view !== "confirm";
+  $("tool-confirm-step").setAttribute(
+    "aria-current",
+    view === "confirm" ? "step" : "false",
+  );
+  $("close-tools").textContent =
+    view === "confirm" ? "× キャンセル" : "× 通信画面に戻る";
   $("tool-form-tab").setAttribute("aria-pressed", String(view === "form"));
   $("tool-result-tab").setAttribute("aria-pressed", String(view === "result"));
 }

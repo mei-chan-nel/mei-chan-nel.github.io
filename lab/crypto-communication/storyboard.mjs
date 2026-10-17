@@ -44,47 +44,47 @@ export function introFrames() {
         connected: false,
         at: "alice",
         kind: "letter",
-        goal: "二人の通信が、どう始まるか見てみよう。",
+        goal: "AliceがBobへ秘密のメッセージを送る様子を見よう。",
         caption: "AliceからBobへ、秘密の通信",
       },
     ),
     frame(
       "alice",
-      "Bobにだけ読んでもらいたいメッセージがあるの。中身は、まだ秘密。",
+      "Aliceは、Bobにだけ読んでもらいたいメッセージを用意したよ。Aliceは、メッセージの本文を秘密にするよ。",
       "direct",
       {
         connected: false,
         at: "alice",
         kind: "letter",
-        goal: "二人の通信が、どう始まるか見てみよう。",
+        goal: "AliceがBobへ秘密のメッセージを送る様子を見よう。",
       },
     ),
     frame(
       "charlie",
-      "その本文を盗み見て、「I hate you.」にすり替えたい。Bobに本物だと思って受け取らせるぞ。",
+      "Charlieは、Aliceの本文を盗み見て、「I hate you.」にすり替えたい。Charlieは、改ざんした本文をBobに受け付けさせたい。",
       "watch",
       {
         connected: false,
         at: "alice",
         kind: "letter",
-        goal: "本文を盗み見て、書き換えた文をBobに受理させる。",
+        goal: "CharlieがAliceの本文を盗み見て、改ざんした文をBobに受理させる。",
       },
     ),
     frame(
       "narrator",
-      "Charlieは、Aliceの家の外にある通信経路上の中継機を操作できるようにした。ここからは、その状態を仮定した実験だ。",
+      "Charlieは、Aliceの家の外にある通信経路上の中継機を操作できるようにした。この実験では、Charlieが中継機を掌握した状態を仮定する。",
       "setup",
       { at: "none", caption: "Alice側の回線 → 中継機 → Bob側の回線" },
     ),
     frame(
       "charlie",
-      "ここを通るデータなら、記録装置にコピーできる。相手へ送り出すデータを、別のものに入れ替えることもできる。",
+      "Charlieは、中継機を通るデータを記録装置にコピーできる。Charlieは、AliceやBobへ届けるデータを別のデータに入れ替えられる。",
       "relay",
       { at: "none" },
     ),
     frame(
       "narrator",
-      "ただし、AliceやBobの秘密鍵は盗めない。暗号文をコピーしても、中身が読めるとは限らない。",
+      "Charlieは、AliceやBobの秘密鍵を盗めない。Charlieは、暗号文をコピーしても、本文を読めるとは限らない。",
       "relay",
       { at: "none" },
     ),
@@ -95,19 +95,19 @@ export function roundFrames(s) {
     return [
       frame(
         "narrator",
-        "Round 1。Aliceは、同じ鍵で暗号化と復号をする「共通鍵暗号方式」を使う。",
+        "Round 1では、Aliceが同じ鍵で暗号化と復号をする「共通鍵暗号方式」を使う。",
         "alice-key",
         { at: "alice", kind: "key", phase: "key" },
       ),
       frame(
         "alice",
-        "この共通鍵で本文を暗号化するよ。Bobにも同じ鍵が必要だから、まず鍵を届けよう。",
+        "Aliceは、今回の共通鍵で本文を暗号化するよ。Aliceは、本文を復号するための同じ共通鍵を、まずBobへ届けるよ。",
         "alice-key",
         { at: "alice", kind: "key", phase: "key" },
       ),
       frame(
         "narrator",
-        "Aliceは、共通鍵を暗号化せずに送り出した。鍵は通信経路を進み、Charlieの中継機まで来た。",
+        "Aliceは、共通鍵を暗号化せずにBobへ送り出した。Aliceが送った共通鍵は、Charlieの中継機に到着した。",
         "inbound",
         {
           at: "relay",
@@ -118,7 +118,7 @@ export function roundFrames(s) {
       ),
       frame(
         "charlie",
-        "共通鍵が到着した。Bobにはまだ届いていない。ここで時間を止めて、何をするか選ぼう。",
+        "Charlieの中継機が、Aliceの共通鍵を受け取った。Charlieは、Bobへ共通鍵を届ける前に、行動を選べる。",
         "intercept",
         { kind: "key", phase: "key", decision: true },
       ),
@@ -128,7 +128,7 @@ export function roundFrames(s) {
     frames.push(
       frame(
         "narrator",
-        "Round 2。今度はBobの公開鍵で共通鍵を包む。本文そのものは、前と同じく共通鍵で暗号化する。",
+        "Round 2では、AliceがBobの公開鍵で共通鍵を暗号化する。Aliceは、本文を共通鍵で暗号化する。",
         "relay",
         { at: "none", phase: "public" },
       ),
@@ -137,13 +137,13 @@ export function roundFrames(s) {
     frames.push(
       frame(
         "alice",
-        "Round 3。今度は本文に、私の秘密鍵で電子署名を付けるよ。署名と本文を、一緒に共通鍵で暗号化するの。",
+        "Round 3では、Aliceが本文にAliceの秘密鍵で電子署名を付けるよ。Aliceは、署名と本文を共通鍵で暗号化するよ。",
         "sign",
         { at: "alice", kind: "letter", phase: "public" },
       ),
       frame(
         "bob",
-        "署名の検証には、信頼できる経路で確認したAliceの公開鍵を使うよ。共通鍵の届け方は、前のラウンドと同じ。",
+        "Bobは、信頼できる経路で確認したAliceの公開鍵で署名を検証するよ。Aliceは、前のラウンドと同じ方式で共通鍵をBobへ届けるよ。",
         "verify",
         {
           at: "bob",
@@ -159,8 +159,8 @@ export function roundFrames(s) {
       frame(
         "alice",
         s.authenticate
-          ? "追加実験。Bobの公開鍵を使う前に、持ち主も確かめよう。信頼済みの鍵の指紋と照合するよ。"
-          : "追加実験。今回は公開鍵の持ち主の確認をオフにして、結果を比べてみよう。",
+          ? "追加実験では、AliceがBobの公開鍵の持ち主を確かめるよ。Aliceは、受け取った公開鍵の指紋を、信頼済みのBobの指紋と照合するよ。"
+          : "追加実験では、Aliceが公開鍵の持ち主を確認する設定をオフにするよ。Charlieは、確認がある場合と通信の結果を比べてみよう。",
         "authenticate",
         { at: "alice", kind: "public", phase: "public" },
       ),
@@ -168,7 +168,7 @@ export function roundFrames(s) {
   frames.push(
     frame(
       "bob",
-      "まず、僕の公開鍵をAliceに送るね。対になる秘密鍵は、僕の手元から出さない。",
+      "Bobは、Bobの公開鍵をAliceに送るよ。Bobは、対になるBobの秘密鍵をBobの手元で保管するよ。",
       "bob-public",
       {
         at: "bob",
@@ -179,13 +179,13 @@ export function roundFrames(s) {
     ),
     frame(
       "narrator",
-      "Bobが送った公開鍵が、Charlieの中継機に到着した。まだAliceには届いていない。",
+      "Bobが送った公開鍵は、Charlieの中継機に到着した。Charlieは、Aliceへ公開鍵を届ける前に介入できる。",
       "inbound",
       { kind: "public", phase: "public", route: "Bob → 中継機 → Alice" },
     ),
     frame(
       "charlie",
-      "今回は公開鍵から始まるのか。どのデータを残し、どれを届けるか。ここからは自由に試してみよう。",
+      "Charlieは、Bobの公開鍵を中継機で受け取った。Charlieは、Aliceへ届けるデータを自由に選べる。",
       "intercept",
       { kind: "public", phase: "public", decision: true },
     ),
@@ -203,10 +203,10 @@ export function decisionFrame(s) {
     phase === "done"
       ? englishNames(compactOutcome(s, ""))
       : phase === "public"
-        ? "公開鍵が中継機で止まっている。Aliceへ何を届けるか、行動を選ぼう。"
+        ? "Charlieの中継機が、Bobの公開鍵を止めている。Charlieは、Aliceへ届けるデータを選べる。"
         : phase === "key"
-          ? "鍵の配送が中継機で止まっている。手元に記録したり、道具で調べたりしてみよう。"
-          : "本文の暗号文が中継機で止まっている。鍵やデータをどう使うか、自由に試そう。";
+          ? "Charlieの中継機が、Aliceの鍵の配送を止めている。Charlieは、鍵の配送データをコピーしたり、道具で調べたりできる。"
+          : "Charlieの中継機が、Aliceの本文の暗号文を止めている。Charlieは、手元の鍵やデータを自由に使える。";
   return frame(
     phase === "done" ? "narrator" : "charlie",
     text,
@@ -234,7 +234,7 @@ export function forwardFrames(before, after) {
   const frames = [
     frame(
       "narrator",
-      `Charlieが送り出した${englishNames(sent.label)}が、${who}に届いた。`,
+      `Charlieは、${englishNames(sent.label)}を${who}に届けた。`,
       "delivering",
       {
         at: who.toLowerCase(),
@@ -249,7 +249,7 @@ export function forwardFrames(before, after) {
       frames.push(
         frame(
           "alice",
-          "受け取った公開鍵の指紋を、信頼済みのBobの指紋と比べよう。……一致しない！ この鍵は使わないよ。",
+          "Aliceは、受け取った公開鍵の指紋を、信頼済みのBobの指紋と比べたよ。Aliceは、指紋が一致しない公開鍵の使用を拒否するよ。",
           "authenticate",
           { at: "alice", kind, phase: "public" },
         ),
@@ -258,7 +258,7 @@ export function forwardFrames(before, after) {
       frames.push(
         frame(
           "alice",
-          "これは公開鍵として使えない。共通鍵を包めないから、通信を中断するね。",
+          "Aliceは、届いたデータを公開鍵として使えない。Aliceは、共通鍵を暗号化できないため、通信を中断するよ。",
           "reject",
           { at: "alice", kind, phase: "public" },
         ),
@@ -268,8 +268,8 @@ export function forwardFrames(before, after) {
         frame(
           "bob",
           before.round === 0
-            ? "これは共通鍵として使えないデータだ。このままでは本文を開けないよ。"
-            : "届いたデータから共通鍵を取り出せない。僕の秘密鍵では、この封筒を開けられないようだ。",
+            ? "Bobは、届いたデータを共通鍵として使えない。Bobは、共通鍵を取得できないため、通信を中断するよ。"
+            : "Bobは、届いたデータから共通鍵を取り出せない。Bobは、Bobの秘密鍵で共通鍵を復号できないため、通信を中断するよ。",
           "decrypt",
           { at: "bob", kind, phase: "key" },
         ),
@@ -278,7 +278,7 @@ export function forwardFrames(before, after) {
       frames.push(
         frame(
           "bob",
-          "本文の暗号文が届いた。配送された共通鍵で、復号してみよう。",
+          "Bobは、本文の暗号文を受け取ったよ。Bobは、配送された共通鍵で本文の暗号文を復号するよ。",
           "decrypt",
           { at: "bob", kind, phase: "message" },
         ),
@@ -287,7 +287,7 @@ export function forwardFrames(before, after) {
         frames.push(
           frame(
             "bob",
-            "次は署名を確認する。信頼済みのAliceの公開鍵で、この本文と署名が一致するか検証するよ。",
+            "Bobは、信頼済みのAliceの公開鍵で署名を検証するよ。Bobは、届いた署名がAliceの署名であり、本文に対応するか確かめるよ。",
             "verify",
             { at: "bob", kind, phase: "message" },
           ),
@@ -304,14 +304,14 @@ export function forwardFrames(before, after) {
     );
     const lesson =
       after.result.code === "signature-rejected"
-        ? "共通鍵を知っていても、Aliceの秘密鍵で新しい署名を作ることはできない。盗聴と改ざんの結果が分かれた。"
+        ? "Charlieは、共通鍵を知っていても、Aliceの秘密鍵で署名を作れない。Bobは、Aliceの署名に対応しない本文を拒否する。"
         : after.result.code === "authenticated"
-          ? "Aliceは共通鍵を送る前に止まった。通信相手の公開鍵を確かめることで、鍵のすり替えによる盗聴を防げる。"
+          ? "Aliceは、共通鍵を送る前に通信を止めた。AliceがBobの公開鍵の真正性を確かめると、Charlieによる鍵のすり替えを検出できる。"
           : after.result.code === "attack-success"
             ? after.round === 0
-              ? "共通鍵を経路上で知られたため、本文を読むだけでなく、別の本文を暗号化して送ることもできた。"
-              : "暗号化していても、公開鍵の持ち主を確かめないと、別人の鍵にすり替えられることがある。"
-            : "どこまでできたか、結果を見比べよう。同じラウンドをやり直すと、新しい共通鍵で再実験できる。";
+              ? "Charlieは、経路上で共通鍵を取得し、Aliceの本文を読めた。Charlieは、改ざんした本文も共通鍵で暗号化できた。"
+              : "Aliceが公開鍵の持ち主を確かめないと、CharlieはBobの公開鍵をすり替えられる。Charlieは、すり替えによって共通鍵を取得できた。"
+            : "Charlieは、盗聴と改ざんの結果を見比べよう。Charlieが同じラウンドをやり直すと、Aliceは新しい共通鍵を使う。";
     frames.push(
       frame("narrator", lesson, after.result.accepted ? "accept" : "reject", {
         at: who.toLowerCase(),
@@ -327,7 +327,7 @@ export function forwardFrames(before, after) {
     frames.push(
       frame(
         "alice",
-        "公開鍵を受け取った。この鍵で、今回の共通鍵を暗号化してBobへ送ろう。",
+        `Aliceは、${englishNames(after.publicForAlice.label)}を受け取ったよ。Aliceは、受け取った公開鍵で今回の共通鍵を暗号化してBobへ送るよ。`,
         "wrap",
         {
           at: "alice",
@@ -338,13 +338,13 @@ export function forwardFrames(before, after) {
       ),
       frame(
         "narrator",
-        "Aliceは、共通鍵を公開鍵で包んだ。その暗号文が、Charlieの中継機まで来た。",
+        "Aliceは、受け取った公開鍵で共通鍵を暗号化した。Aliceが送った共通鍵の暗号文は、Charlieの中継機に到着した。",
         "inbound",
         { kind: "wrapped-key", phase: "key", route: "Alice → 中継機 → Bob" },
       ),
       frame(
         "charlie",
-        "今度は共通鍵が暗号化されている。コピーするだけでは読めない。手元の鍵で何ができるか、試してみよう。",
+        "Charlieは、共通鍵の暗号文をコピーするだけでは、共通鍵を読めない。Charlieは、手元の鍵で共通鍵の復号を試せる。",
         "intercept",
         { kind: "wrapped-key", phase: "key", decision: true },
       ),
@@ -353,7 +353,7 @@ export function forwardFrames(before, after) {
     frames.push(
       frame(
         "bob",
-        "配送された共通鍵を受け取ったよ。これで届いた本文を復号するつもりだ。",
+        "Bobは、配送された共通鍵を取得したよ。Bobは、取得した共通鍵で、次に届く本文の暗号文を復号するよ。",
         "bob-key",
         { at: "bob", kind: "key", phase: "message" },
       ),
@@ -362,7 +362,7 @@ export function forwardFrames(before, after) {
       frames.push(
         frame(
           "alice",
-          "本文に私の秘密鍵で電子署名を付ける。これで、署名した後に本文が変わっていないか確かめられるよ。",
+          "Aliceは、本文にAliceの秘密鍵で電子署名を付けるよ。Bobは、Aliceの署名を使って、本文が変更されたか検証できるよ。",
           "sign",
           { at: "alice", kind: "letter", phase: "message" },
         ),
@@ -371,20 +371,20 @@ export function forwardFrames(before, after) {
       frame(
         "alice",
         after.round >= 2
-          ? "本文と署名を、共通鍵で暗号化した。これをBobへ送ろう。"
-          : "本文を共通鍵で暗号化したよ。次は、本文の暗号文をBobへ送るね。",
+          ? "Aliceは、本文とAliceの署名を共通鍵で暗号化したよ。Aliceは、署名を含む本文の暗号文をBobへ送るよ。"
+          : "Aliceは、本文を共通鍵で暗号化したよ。Aliceは、本文の暗号文をBobへ送るよ。",
         "encrypt",
         { at: "alice", kind: "ciphertext", phase: "message" },
       ),
       frame(
         "narrator",
-        "本文の暗号文が、Charlieの中継機に到着した。Bobにはまだ届いていない。",
+        "Aliceが送った本文の暗号文は、Charlieの中継機に到着した。Charlieは、Bobへ本文の暗号文を届ける前に介入できる。",
         "inbound",
         { kind: "ciphertext", phase: "message" },
       ),
       frame(
         "charlie",
-        "本文の暗号文を受け取った。中身は、復号に成功するまで秘密。さて、どうする？",
+        "Charlieは、Aliceの本文の暗号文を受け取った。Charlieは、復号に成功するまで、Aliceの本文を読めない。",
         "intercept",
         { kind: "ciphertext", phase: "message", decision: true },
       ),
@@ -413,7 +413,7 @@ export function operationFrames({
     return [
       frame(
         "charlie",
-        `${englishNames(before.incoming.label)}を、中継機の記録装置でコピーした。手元に同じデータが残ったぞ。`,
+        `Charlieは、${englishNames(before.incoming.label)}を中継機の記録装置でコピーした。Charlieの持ち物に、コピーしたデータが加わった。`,
         "copy",
         {
           ...common,
@@ -425,7 +425,7 @@ export function operationFrames({
       ),
       frame(
         "narrator",
-        "元のデータは中継機に残ったまま。コピーすることと、相手へ届けることは別の操作だ。",
+        "Charlieは、元のデータを中継機に残している。Charlieがデータをコピーする操作と、AliceやBobへ届ける操作は別の操作だ。",
         "copy",
         {
           ...common,
@@ -442,8 +442,8 @@ export function operationFrames({
       frame(
         "charlie",
         after.outgoing
-          ? `次に送るものを、${englishNames(after.outgoing.label)}に入れ替えた。まだ相手には届いていない。`
-          : "送るデータを、元のものに戻した。",
+          ? `Charlieは、送信候補を${englishNames(after.outgoing.label)}に変更した。Charlieは、送信候補をまだ${after.phase === "public" ? "Alice" : "Bob"}へ転送していない。`
+          : "Charlieは、送信候補を中継機に届いた元のデータに戻した。Charlieは、送信候補をまだ転送していない。",
         "replace",
         { ...common, scene: "replace", at: "relay", decision: true },
       ),
@@ -453,8 +453,8 @@ export function operationFrames({
       frame(
         "charlie",
         mode === "decrypt"
-          ? `このデータは、${englishNames(keyLabel) || "選んだ鍵"}では開けなかった。別の組み合わせも試してみよう。`
-          : "この組み合わせでは、操作できなかった。どのデータに、どの鍵を使うか見直そう。",
+          ? `Charlieは、${englishNames(keyLabel) || "選んだ鍵"}で選択したデータを復号できなかった。Charlieは、別のデータや鍵も試せる。`
+          : "Charlieは、選択したデータと鍵の組み合わせでは操作できなかった。Charlieは、データと鍵を選び直せる。",
         "question",
         { ...common, scene: "question", decision: true },
       ),
@@ -464,8 +464,8 @@ export function operationFrames({
       frame(
         "charlie",
         after.decryptResult?.kind === "key"
-          ? `${englishNames(keyLabel)}で封筒を開けると、共通鍵が出てきた。手元の鍵に加えたぞ。`
-          : "選んだ共通鍵で暗号文を復号した。本文が読めた！ 編集することもできそうだ。",
+          ? `Charlieは、${englishNames(keyLabel)}で共通鍵の暗号文を復号した。Charlieは、復号した共通鍵を持ち物に加えた。`
+          : "Charlieは、選んだ共通鍵で本文の暗号文を復号した。Charlieは、復号した本文を読んだり、編集したりできる。",
         "decrypt",
         { ...common, scene: "decrypt", decision: true },
       ),
@@ -474,7 +474,7 @@ export function operationFrames({
     return [
       frame(
         "charlie",
-        `${englishNames(dataLabel)}を、${englishNames(keyLabel)}で包み直した。新しい暗号文は、まだ手元にある。`,
+        `Charlieは、${englishNames(dataLabel)}を${englishNames(keyLabel)}で暗号化した。Charlieは、新しい共通鍵の暗号文をまだ転送していない。`,
         "wrap",
         { ...common, scene: "wrap", kind: "wrapped-key", decision: true },
       ),
@@ -483,7 +483,7 @@ export function operationFrames({
     return [
       frame(
         "charlie",
-        `作業台の本文を、${englishNames(keyLabel)}で暗号化した。これを送るものに選ぶか、考えよう。`,
+        `Charlieは、作業台の本文を${englishNames(keyLabel)}で暗号化した。Charlieは、新しい本文の暗号文を送信候補に選べる。`,
         "edit",
         { ...common, scene: "edit", kind: "ciphertext", decision: true },
       ),
@@ -491,7 +491,7 @@ export function operationFrames({
   return [
     frame(
       "charlie",
-      "手元の暗号文の一部を書き換えた。これを届けたら、相手はどう受け取るだろう？",
+      "Charlieは、手元の暗号文の一部を書き換えた。Charlieは、書き換えた暗号文を送信候補に選べる。",
       "edit",
       { ...common, scene: "edit", decision: true },
     ),
@@ -503,9 +503,20 @@ export function createStoryPlayer() {
     active = false;
   return {
     play(value) {
-      frames = value.flatMap((frame) =>
-        paginateText(frame.text, 64).map((text) => ({ ...frame, text })),
-      );
+      // Keep a subject with its predicate even when the next sentence is long.
+      frames = value.flatMap((frame) => {
+        const sentences = frame.text.match(/[^。！？\n]+[。！？\n]?/gu) || [
+          frame.text,
+        ];
+        const pages = [];
+        for (const sentence of sentences) {
+          const previous = pages.at(-1);
+          if (previous && Array.from(previous + sentence).length <= 64)
+            pages[pages.length - 1] += sentence;
+          else pages.push(...paginateText(sentence, 64));
+        }
+        return pages.map((text) => ({ ...frame, text }));
+      });
       index = 0;
       active = frames.length > 0;
     },

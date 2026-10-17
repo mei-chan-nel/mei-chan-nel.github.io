@@ -18,19 +18,19 @@ export function compactStory(s) {
   };
   const text =
     s.phase === "done"
-      ? "結果を確かめ、もう一度試せます。"
+      ? "Charlieは、通信の結果を確かめ、もう一度試せます。"
       : s.phase === "public"
-        ? "ボブからアリスへの公開鍵が中継機で停止中。"
+        ? "Charlieの中継機が、BobからAliceへの公開鍵を止めています。"
         : s.phase === "key" && s.round === 0
-          ? "共通鍵がむき出しで停止中。ボブにはまだ未配達。"
+          ? "Charlieの中継機が、AliceからBobへの共通鍵を平文のまま止めています。"
           : s.phase === "key"
-            ? "共通鍵入りの暗号文が停止中。対応する秘密鍵で開けます。"
-            : "本文の暗号文が停止中。相手に届く前に介入できます。";
+            ? "Charlieの中継機が、AliceからBobへの共通鍵の暗号文を止めています。"
+            : "Charlieの中継機が、AliceからBobへの本文の暗号文を止めています。";
   const goals = [
-    "本文を読み、「I hate you.」をボブに受理させよう。",
-    "新しい鍵の配送でも、盗聴・改ざんを試そう。",
-    "署名があると、盗聴と改ざんはどう変わる？",
-    "鍵の持ち主を確認する場合としない場合を比べよう。",
+    "CharlieがAliceの本文を読み、「I hate you.」をBobに受理させよう。",
+    "Charlieが、新しい鍵の配送方式でも盗聴・改ざんを試そう。",
+    "Charlieが、Aliceの署名によって盗聴と改ざんの結果がどう変わるか確かめよう。",
+    "Charlieが、AliceによるBobの公開鍵の確認の有無を比べよう。",
   ];
   return { title: titles[s.phase], text, goal: goals[s.round] };
 }
@@ -39,32 +39,36 @@ export function compactOutcome(s, action, failed = false) {
     return (
       {
         "attack-success": s.read
-          ? "盗聴し、書き換えた本文をボブが受理した。"
-          : "書き換えた本文は受理。元の本文の復号は未達成。",
+          ? "CharlieはAliceの本文を盗聴し、BobはCharlieが改ざんした本文を受理した。"
+          : "BobはCharlieが改ざんした本文を受理した。CharlieはAliceの元の本文をまだ復号していない。",
         "original-accepted":
           s.round >= 2
-            ? "ボブは署名を検証し、本文を受理した。"
-            : "ボブは本文を受理した。狙った改ざんには至らなかった。",
-        "bad-public": "アリスが公開鍵として使えず、通信を中断した。",
-        "bad-key": "ボブは届いたデータから共通鍵を取得できなかった。",
-        "bad-message": "ボブの持つ共通鍵では、届いた本文を復号できなかった。",
+            ? "BobはAliceの署名を検証し、本文を受理した。"
+            : "Bobは本文を受理した。Charlieは目的の改ざんを達成できなかった。",
+        "bad-public":
+          "Aliceは届いたデータを公開鍵として使えず、通信を中断した。",
+        "bad-key": "Bobは届いたデータから共通鍵を取得できなかった。",
+        "bad-message":
+          "Bobは、Bobの共通鍵では届いた本文の暗号文を復号できなかった。",
         "signature-rejected": s.read
-          ? "盗聴はできたが、署名が一致せず改ざんは拒否された。"
-          : "アリスの署名を検証できず、ボブは受理しなかった。",
+          ? "CharlieはAliceの本文を盗聴できた。BobはAliceの署名を検証できず、改ざんした本文を拒否した。"
+          : "BobはAliceの署名を検証できず、届いた本文を拒否した。",
         authenticated:
-          "鍵の指紋が一致しないため、アリスは共通鍵を送らなかった。",
+          "Aliceは、届いた公開鍵の指紋とBobの指紋が一致しないため、共通鍵を送らなかった。",
       }[s.result.code] || "結果の説明から、仕組みを確認できます。"
     );
   }
   if (failed)
-    return "この組み合わせでは操作できなかった。道具でデータと鍵を見直そう。";
+    return "Charlieは選んだ組み合わせで操作できなかった。Charlieはデータと鍵を選び直せる。";
   return (
     {
-      copy: "持ち物に記録した。相手へは未配達。道具で調べられる。",
-      replace: "次に送るデータを変更した。「届ける」まで送信されない。",
-      deliver: "相手に届いた。次のデータが中継機で止まっている。",
-      tool: "道具を使った。結果は「持ち物・道具」で確認できる。",
-    }[action] || "状況と目的を確かめて、行動を選ぼう。"
+      copy: "Charlieは経路上のデータを持ち物にコピーした。Charlieは転送をまだ行っていない。",
+      replace:
+        "Charlieは送信候補を変更した。Charlieは「届ける」から転送を決定できる。",
+      deliver:
+        "Charlieはデータを届けた。Charlieの中継機は次のデータを止めている。",
+      tool: "Charlieは道具を使った。Charlieは道具の結果画面で結果を確認できる。",
+    }[action] || "Charlieは、状況と目的を確かめて行動を選べる。"
   );
 }
 export function paginateText(text, limit = 130) {

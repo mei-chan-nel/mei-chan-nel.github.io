@@ -5,25 +5,26 @@ export const rounds = [
   {
     title: "共通鍵暗号方式",
     short: "共通鍵",
-    description: "共通鍵を、そのまま通信経路で届ける。",
+    description: "Aliceが共通鍵を平文でBobへ届ける。",
     stages: ["共通鍵の配送", "暗号文の送信"],
   },
   {
     title: "公開鍵暗号方式の導入",
     short: "公開鍵",
-    description: "公開鍵で共通鍵を包み、本文は共通鍵で暗号化する。",
+    description: "Aliceが公開鍵で共通鍵を暗号化し、共通鍵で本文を暗号化する。",
     stages: ["公開鍵の配送", "共通鍵の配送", "暗号文の送信"],
   },
   {
     title: "電子署名の導入",
     short: "電子署名",
-    description: "本文にアリスの署名を付け、ボブが信頼済みの公開鍵で検証する。",
+    description:
+      "Aliceが本文に署名を付け、Bobが信頼済みのAliceの公開鍵で検証する。",
     stages: ["公開鍵の配送", "共通鍵の配送", "署名付き暗号文の送信"],
   },
   {
     title: "公開鍵の真正性も確かめる",
     short: "追加実験",
-    description: "アリスも、ボブの公開鍵を信頼済みの情報と照合する。",
+    description: "Aliceが、Bobの公開鍵を信頼済みの情報と照合する。",
     stages: ["公開鍵の確認", "共通鍵の配送", "署名付き暗号文の送信"],
   },
 ];
@@ -175,29 +176,35 @@ export function createLab() {
   function capture() {
     if (s.phase === "done")
       return event(
-        "通信は終了しています。新しい通信で再実験できます。",
+        "Charlieは、終了した通信には介入できません。Charlieは、新しい通信で再実験できます。",
         "error",
       );
     known.add(s.incoming);
     return event(
-      `${objects.get(s.incoming).label}を手元にコピーしました。通信はまだ止まっています。`,
+      `Charlieは、${objects.get(s.incoming).label}を持ち物にコピーしました。Charlieは、データをまだ転送していません。`,
     );
   }
   function decrypt(id, keyId) {
     if (!known.has(id) || !known.has(keyId))
-      return event("コピーした暗号文と、使う鍵を選んでください。", "error");
+      return event(
+        "Charlieが復号を試す暗号文と、Charlieが使う鍵を選んでください。",
+        "error",
+      );
     const a = objects.get(id),
       key = objects.get(keyId),
       sealed = secrets.get(id);
     if (!sealed || !["envelope", "ciphertext"].includes(a.type))
-      return event("選んだデータは復号できる暗号文ではありません。", "error");
+      return event(
+        "Charlieは、選んだデータを暗号文として復号できません。",
+        "error",
+      );
     if (a.type === "envelope") {
       if (
         key.type !== "private" ||
         objects.get(sealed.key)?.owner !== key.owner
       ) {
         return event(
-          "復号失敗。この暗号文を開けるには、暗号化に使われた公開鍵と対になる秘密鍵が必要です。公開鍵だけでは開けません。",
+          "Charlieは、選んだ鍵で共通鍵を復号できません。Charlieには、暗号化に使われた公開鍵と対になる秘密鍵が必要です。",
           "error",
         );
       }
@@ -206,11 +213,13 @@ export function createLab() {
         kind: "key",
         label: objects.get(sealed.payload).label,
       };
-      return event("復号成功。共通鍵を鍵置き場に追加しました。");
+      return event(
+        "Charlieは、共通鍵の復号に成功しました。Charlieは、共通鍵を持ち物に加えました。",
+      );
     }
     if (key.type !== "symmetric" || sealed.key !== keyId) {
       return event(
-        "復号失敗。本文を暗号化した共通鍵と一致しません。前の通信の鍵も使えません。",
+        "Charlieは、選んだ共通鍵で本文を復号できません。Charlieには、本文の暗号化に使われた共通鍵が必要です。",
         "error",
       );
     }
@@ -222,7 +231,7 @@ export function createLab() {
     if (id === s.originalCipher) s.read = true;
     s.decryptResult = { kind: "message", label: sealed.payload.text };
     return event(
-      "復号成功。平文を作業台に開きました。編集して、別の暗号文を作れます。",
+      "Charlieは、本文の復号に成功しました。Charlieは、作業台の本文を編集し、別の暗号文を作れます。",
     );
   }
   function edit(text) {
@@ -233,10 +242,13 @@ export function createLab() {
   }
   function encryptMessage(keyId) {
     if (!known.has(keyId) || objects.get(keyId)?.type !== "symmetric")
-      return event("本文の暗号化には、手元の共通鍵を選んでください。", "error");
+      return event(
+        "Charlieが本文を暗号化するための共通鍵を選んでください。",
+        "error",
+      );
     if (!s.draft.trim())
       return event(
-        "暗号化する平文を入力してください。復号前でも、自分で文を作れます。",
+        "Charlieが暗号化する本文を入力してください。Charlieは、復号前でも本文を自分で作れます。",
         "error",
       );
     const sig =
@@ -250,21 +262,24 @@ export function createLab() {
     s.lastCreated = id;
     return {
       ...event(
-        "編集内容を暗号化しました。持ち物に追加しました。送るデータとしてセットできます。",
+        "Charlieは、作業台の本文を暗号化し、持ち物に加えました。Charlieは、新しい暗号文を送信候補に選べます。",
       ),
       id,
     };
   }
   function wrapKey(keyId, publicId) {
     if (!known.has(keyId) || objects.get(keyId)?.type !== "symmetric")
-      return event("包み直す共通鍵を選んでください。", "error");
+      return event("Charlieが包み直す共通鍵を選んでください。", "error");
     if (!known.has(publicId) || objects.get(publicId)?.type !== "public")
-      return event("配送先の公開鍵を選んでください。", "error");
+      return event(
+        "Charlieが共通鍵の暗号化に使う、配送先の公開鍵を選んでください。",
+        "error",
+      );
     const id = envelope(keyId, publicId);
     known.add(id);
     return {
       ...event(
-        "共通鍵を公開鍵で暗号化しました。通信へのセットと転送は別の操作です。",
+        "Charlieは、共通鍵を公開鍵で暗号化しました。Charlieは、新しい共通鍵の暗号文をまだ転送していません。",
       ),
       id,
     };
@@ -274,7 +289,7 @@ export function createLab() {
       !known.has(id) ||
       !["ciphertext", "envelope"].includes(objects.get(id)?.type)
     )
-      return event("編集する暗号文を選んでください。", "error");
+      return event("Charlieが直接書き換える暗号文を選んでください。", "error");
     const a = objects.get(id);
     const broken = make(a.type, "直接編集した暗号文", {
       token: `${a.token.slice(0, -2)} FF ⟧`,
@@ -282,7 +297,7 @@ export function createLab() {
     known.add(broken);
     return {
       ...event(
-        "暗号文の一部を直接書き換えました。このモデルでは有効な暗号文を作るには対応する鍵が必要です。",
+        "Charlieは、暗号文の一部を直接書き換えました。Charlieは、このモデルで有効な暗号文を作るには対応する鍵を使う必要があります。",
       ),
       id: broken,
     };
@@ -290,12 +305,12 @@ export function createLab() {
   function setOutgoing(id = null) {
     if (s.phase === "done") return event("通信は終了しています。", "error");
     if (id && !known.has(id))
-      return event("手元のデータを選んでください。", "error");
+      return event("Charlieが持っているデータを選んでください。", "error");
     s.outgoing = id;
     return event(
       id
-        ? `${objects.get(id).label}を送信内容にセットしました。まだ転送していません。`
-        : "送信内容を元のデータに戻しました。",
+        ? `Charlieは、${objects.get(id).label}を送信候補にセットしました。Charlieは、候補をまだ転送していません。`
+        : "Charlieは、送信候補を中継機に届いた元のデータに戻しました。",
     );
   }
   function finish(code, title, text, accepted = false, message = null) {
@@ -339,7 +354,7 @@ export function createLab() {
       s.phase = "key";
       s.step++;
       event(
-        "アリスが受け取った公開鍵で共通鍵を暗号化しました。暗号化された共通鍵が経路上で停止中。",
+        "Aliceは、受け取った公開鍵で共通鍵を暗号化しました。Charlieの中継機は、共通鍵の暗号文を止めています。",
       );
     } else if (s.phase === "key") {
       const deliveredKey =
@@ -365,7 +380,7 @@ export function createLab() {
       s.phase = "message";
       s.step++;
       event(
-        "ボブが共通鍵を取得。アリスが本文を共通鍵で暗号化して送りました。本文の送信前で停止中。",
+        "Bobは、共通鍵を取得しました。Aliceは、本文を共通鍵で暗号化して送りました。Charlieの中継機は、本文の暗号文を止めています。",
       );
     } else {
       if (a.type !== "ciphertext" || !sealed || sealed.key !== s.bobKey) {

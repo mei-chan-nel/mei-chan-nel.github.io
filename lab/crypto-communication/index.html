@@ -17,7 +17,8 @@
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./viewport.css?v=3" />
-    <link rel="stylesheet" href="./story.css?v=4" />
+    <link rel="stylesheet" href="./story.css?v=5" />
+    <link rel="stylesheet" href="./commands.css?v=1" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -409,13 +410,14 @@
             </header>
             <nav class="tool-view-tabs" aria-label="道具の画面">
               <button type="button" id="tool-form-tab" aria-pressed="true">
-                操作</button
+                1 選択</button
+              ><span id="tool-confirm-step" aria-current="false">2 確認</span
               ><button type="button" id="tool-result-tab" aria-pressed="false">
-                直前の結果</button
+                3 結果</button
               ><button type="button" id="tool-details">道具の説明</button>
             </nav>
             <p class="tools-lead">
-              通信は止まったまま。手元のデータを調べても、相手に届くデータは自動では変わりません。
+              Charlieは、道具・データ・鍵を選んだ後に、確認画面で「決定」を押して操作します。通信の転送は別の操作です。
             </p>
             <div class="tools-layout">
               <section
@@ -495,7 +497,7 @@
                       id="decrypt"
                       class="pixel-button primary full-width"
                     >
-                      選んだ鍵で、復号を試す
+                      復号の内容を確認 ▶
                     </button>
                   </div>
                   <div data-tool-panel="wrap" hidden="">
@@ -504,12 +506,17 @@
                       id="wrap"
                       class="pixel-button primary full-width"
                     >
-                      共通鍵を公開鍵で包む
+                      鍵を包む内容を確認 ▶
                     </button>
                   </div>
                   <div data-tool-panel="message" hidden="">
-                    <label for="draft">ボブに届けたい本文</label
-                    ><textarea
+                    <div class="draft-heading">
+                      <label for="draft">Bobに届けたい本文（下書き）</label>
+                      <button type="button" id="reset-draft">
+                        ↶ 編集を戻す
+                      </button>
+                    </div>
+                    <textarea
                       id="draft"
                       rows="3"
                       maxlength="500"
@@ -521,7 +528,7 @@
                       ><select id="signature-choice">
                         <option value="keep">復号した元の署名を添える</option>
                         <option value="charlie">
-                          チャーリーの秘密鍵で署名する
+                          Charlieの秘密鍵で署名する
                         </option>
                         <option value="none">署名を付けない</option>
                       </select>
@@ -532,7 +539,7 @@
                       id="encrypt"
                       class="pixel-button primary full-width"
                     >
-                      この本文を、共通鍵で暗号化する
+                      暗号化の内容を確認 ▶
                     </button>
                   </div>
                   <div data-tool-panel="replace" hidden="">
@@ -541,10 +548,10 @@
                       id="set-outgoing"
                       class="pixel-button primary full-width"
                     >
-                      これを送るデータにする
+                      送信候補を確認 ▶
                     </button>
                     <p class="small-note">
-                      セットすると通信画面に戻ります。「相手に届ける」を選ぶまで、まだ送信しません。
+                      Charlieは確認後に送信候補をセットします。Charlieは転送するまで、候補を選び直せます。
                     </p>
                     <details class="advanced">
                       <summary>ほかの実験：暗号文を直接書き換える</summary>
@@ -556,11 +563,53 @@
                         id="corrupt"
                         class="pixel-button secondary"
                       >
-                        選んだ暗号文を直接書き換える
+                        直接書き換える内容を確認 ▶
                       </button>
                     </details>
                   </div>
                 </div>
+                <section
+                  id="tool-confirm"
+                  class="tool-confirm"
+                  hidden=""
+                  aria-labelledby="confirm-title"
+                >
+                  <div class="confirm-heading">
+                    <span class="pixel-label">COMMAND CHECK · 未実行</span>
+                    <h3 id="confirm-title">この操作でよいですか？</h3>
+                  </div>
+                  <dl id="confirm-summary"></dl>
+                  <div id="confirm-preview" class="confirm-preview" hidden="">
+                    <p id="confirm-draft"></p>
+                    <nav
+                      class="decrypt-pagination"
+                      id="confirm-pagination"
+                      aria-label="下書きの確認ページ"
+                      hidden=""
+                    >
+                      <button type="button" id="confirm-prev">←</button
+                      ><span id="confirm-page-count"></span
+                      ><button type="button" id="confirm-next">→</button>
+                    </nav>
+                  </div>
+                  <p id="confirm-note" class="confirm-note"></p>
+                  <div class="confirm-actions">
+                    <button
+                      type="button"
+                      id="confirm-cancel"
+                      class="pixel-button secondary"
+                    >
+                      ← 選び直す
+                    </button>
+                    <button
+                      type="button"
+                      id="confirm-execute"
+                      class="pixel-button primary"
+                    >
+                      決定して実行
+                    </button>
+                  </div>
+                </section>
                 <section
                   id="tool-outcome"
                   class="tool-outcome"
@@ -604,16 +653,35 @@
                       id="use-created"
                       class="pixel-button secondary"
                     >
-                      これを送るデータにする →
+                      送信候補として確認 ▶
                     </button>
                   </div>
-                  <button
-                    type="button"
-                    id="back-tool-form"
-                    class="pixel-button secondary"
+                  <div
+                    id="replacement-result"
+                    class="replacement-result"
+                    hidden=""
                   >
-                    ← 道具に戻る
-                  </button>
+                    <span>Charlieが次に届ける候補 · 未転送</span>
+                    <strong id="replacement-label"></strong>
+                    <p>Charlieは、通信画面の「届ける」から転送を決定します。</p>
+                  </div>
+                  <div class="tool-result-actions">
+                    <button
+                      type="button"
+                      id="undo-replacement"
+                      class="pixel-button secondary"
+                      hidden=""
+                    >
+                      ↶ 送信候補を1つ戻す
+                    </button>
+                    <button
+                      type="button"
+                      id="back-tool-form"
+                      class="pixel-button secondary"
+                    >
+                      ← 選択に戻る
+                    </button>
+                  </div>
                 </section>
               </section>
             </div>
@@ -720,6 +788,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=4"></script>
+    <script type="module" src="./app.mjs?v=5"></script>
   </body>
 </html>

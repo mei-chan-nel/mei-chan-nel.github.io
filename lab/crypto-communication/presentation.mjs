@@ -4,37 +4,37 @@ export function describeSituation(s) {
   const publicDelivery =
     s.phase === "public" ||
     (s.phase === "done" && s.incoming.type === "public");
-  const recipient = publicDelivery ? "アリス" : "ボブ";
-  const sender = publicDelivery ? "ボブ" : "アリス";
+  const recipient = publicDelivery ? "Alice" : "Bob";
+  const sender = publicDelivery ? "Bob" : "Alice";
   const goals = [
-    "秘密の本文を読み、「I hate you.」に変えて、ボブに受け付けさせよう。",
-    "新しい鍵の届け方でも、秘密の本文を読み、「I hate you.」を受け付けさせられるか試そう。",
-    "電子署名が加わった。同じ作戦で「盗聴」と「改ざん」がそれぞれ通用するか確かめよう。",
-    "公開鍵のすり替えを試そう。持ち主を確認する場合としない場合で、どこまで通信が進むか比べよう。",
+    "CharlieがAliceの本文を読み、「I hate you.」に変えて、Bobに受け付けさせよう。",
+    "Charlieが、新しい鍵の配送でもAliceの本文を読み、Bobに「I hate you.」を受け付けさせられるか試そう。",
+    "Charlieが、Aliceの電子署名によって盗聴と改ざんの結果がどう変わるか確かめよう。",
+    "Charlieが、Bobの公開鍵をすり替えてみよう。Charlieが、Aliceによる公開鍵の確認の有無を比べよう。",
   ];
   let title, text;
   if (s.phase === "done") {
     title = "この通信の結果が出た。";
     text =
-      "下の結果を見て、何ができたか確かめよう。持ち物は引き続き調べられる。同じラウンドをやり直すと、共通鍵が新しくなる。";
+      "Charlieは、通信の結果と持ち物を調べられる。Charlieが同じラウンドをやり直すと、Aliceは新しい共通鍵を使う。";
   } else if (s.phase === "public") {
-    title = "ボブの公開鍵が、中継機に到着！";
+    title = "Bobの公開鍵が、Charlieの中継機に到着！";
     text =
-      "アリスは、共通鍵を安全に届けるためにボブの公開鍵を待っている。その公開鍵が、あなたの中継機まで来た。アリスにはまだ届いていない。";
+      "Aliceは、共通鍵をBobへ届けるためにBobの公開鍵を待っている。Charlieの中継機は、BobからAliceへの公開鍵を止めている。";
   } else if (s.phase === "key" && s.round === 0) {
-    title = "アリスが、共通鍵を送ってきた！";
+    title = "Aliceが、共通鍵をBobへ送った！";
     text =
-      "アリスは、この鍵で秘密の本文を暗号化するつもりだ。同じ鍵をボブにも届けようとしている。鍵は今、あなたの中継機で止まっている。";
+      "Aliceは、今回の共通鍵で秘密の本文を暗号化する。Aliceは、同じ共通鍵をBobへ送った。Charlieの中継機は、その共通鍵を止めている。";
   } else if (s.phase === "key") {
     title = "暗号化された共通鍵が、到着！";
     text =
-      "アリスは、受け取った公開鍵で共通鍵を包んだ。その暗号文が、あなたの中継機に到着した。コピーしても、それだけでは中の鍵は読めない。";
+      "Aliceは、受け取った公開鍵で共通鍵を暗号化した。Charlieの中継機は、共通鍵の暗号文を止めている。Charlieは、コピーするだけでは共通鍵を読めない。";
   } else {
     title =
       s.round >= 2
         ? "署名を添えた、秘密の本文が到着！"
         : "秘密の本文が、暗号文で到着！";
-    text = `アリスが本文を共通鍵で暗号化して送ってきた。ボブは、先ほど配送された鍵を持って待っている。${s.round >= 2 ? "今回は、本文に結び付いたアリスの電子署名も同封されている。" : "暗号文はコピーできるが、中身は対応する鍵で復号するまで秘密だ。"}`;
+    text = `Aliceは、本文を共通鍵で暗号化してBobへ送った。Bobは、配送された共通鍵を持っている。Charlieの中継機は、本文の暗号文を止めている。${s.round >= 2 ? "Aliceは、本文に対応するAliceの署名も暗号文に含めている。" : "Charlieは、対応する共通鍵で復号するまで本文を読めない。"}`;
   }
   return {
     title,
@@ -42,7 +42,7 @@ export function describeSituation(s) {
     goal: goals[s.round],
     recipient,
     sender,
-    route: `${sender} → あなたの中継機 → ${recipient}`,
+    route: `${sender} → Charlieの中継機 → ${recipient}`,
     packet:
       s.incoming.type === "public"
         ? "公開鍵"
@@ -62,9 +62,9 @@ export function describeItem(a) {
   if (a.type === "public")
     return "公開してよい鍵です。共通鍵をこの鍵で包むと、対になる秘密鍵だけが開けられます。公開鍵そのものでは復号できません。";
   if (a.type === "private")
-    return "あなた自身の秘密鍵です。自分の公開鍵で包まれた共通鍵を開けられます。アリスとボブの秘密鍵は、あなたの持ち物にはありません。";
+    return "Charlieの秘密鍵です。Charlieは、Charlieの公開鍵で暗号化された共通鍵を復号できます。Charlieは、AliceやBobの秘密鍵を持っていません。";
   if (a.type === "verify")
-    return "ボブがアリスの署名を確かめるために使う、信頼済みの公開鍵です。署名を作る秘密鍵とは別のものです。";
+    return "BobがAliceの署名を検証するための、信頼済みのAliceの公開鍵です。Charlieは、この公開鍵でAliceの署名を作ることはできません。";
   if (a.type === "envelope")
     return "共通鍵が入った暗号文です。包むときに使った公開鍵と対になる秘密鍵で、復号を試せます。";
   if (a.type === "ciphertext")
