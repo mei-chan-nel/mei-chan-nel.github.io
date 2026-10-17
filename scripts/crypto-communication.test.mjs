@@ -287,6 +287,7 @@ test("arriving data is automatically recorded in every phase without capture cho
         s.choices.some((a) => a.id === "capture"),
         false,
       );
+      if (s.phase === "message") break;
       decide(q, "forward");
     }
   }
@@ -434,8 +435,12 @@ test("genuine public key plus the old symmetric key cannot expose this round's m
     q.view().choices.some((a) => a.id === "edit"),
     false,
   );
-  decide(q, "forward");
-  assert.equal(q.view().result.message, null);
+  assert.equal(q.select("forward"), false);
+  assert.equal(q.view().phase, "message");
+  assert.equal(q.view().result, null);
+  assert.ok(q.view().choices.some((action) => action.id === "retry"));
+  decide(q, "retry");
+  assert.equal(q.view().phase, "public");
 });
 test("authenticating Bob's key stops before sharing a key; toggling the check permits eavesdropping", () => {
   const q = createQuest();
@@ -688,4 +693,36 @@ test("the key picker keeps only one previous shared key and never invents unavai
     keys.filter((a) => a.type === "private").map((a) => a.owner),
     ["charlie"],
   );
+});
+
+test("message choices focus on choosing a key and cannot skip decryption into a no-read outcome", () => {
+  const q = createQuest();
+  for (const round of [0, 1, 2, 3]) {
+    if (round === 0) q.start(0);
+    else {
+      q.start(round, false);
+      decide(q, "swap");
+      decide(q, "forward");
+      decide(q, "open-key");
+      decide(q, "rewrap");
+    }
+    decide(q, "forward");
+    assert.equal(q.view().phase, "message");
+    assert.deepEqual(
+      q.view().choices.map((a) => a.id),
+      ["read"],
+    );
+    const original = q.view();
+    assert.equal(q.select("forward"), false);
+    assert.deepEqual(q.confirm(), []);
+    assert.deepEqual(q.view(), original);
+    decide(q, "read", (key) => key.type === "public");
+    assert.equal(q.view().original, null);
+    assert.equal(q.select("forward"), false);
+    assert.ok(q.view().choices.every((a) => a.id !== "forward"));
+    decide(q, "read");
+    assert.equal(q.view().read, true);
+    assert.ok(q.view().choices.some((a) => a.id === "edit"));
+    assert.ok(q.view().choices.some((a) => a.id === "forward"));
+  }
 });

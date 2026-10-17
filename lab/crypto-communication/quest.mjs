@@ -140,14 +140,10 @@ export function createQuest() {
           detail: "元の暗号文をBobへ送る",
         },
       ];
-    return [
-      choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ", ""),
-      {
-        ...send,
-        label: "本文を読まずに届ける",
-        detail: "元の暗号文をBobへ送る",
-      },
-    ];
+    const read = choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ", "");
+    // The learner's decision is which key opens this message. Merely skipping
+    // decryption must not lead to an unsurprising "you did not read it" result.
+    return !shared(s) && lastAttempt?.ok === false ? [read, retry] : [read];
   }
   function view() {
     const s = lab.snapshot();
@@ -187,7 +183,10 @@ export function createQuest() {
       message: "本文を開く鍵を選ぼう。",
       idea: "書き換えるか、そのまま届けるか選ぼう。",
       ready: "このデータを届ける？ 元に戻す？",
-      blocked: "別の鍵で、もう一度試せる。",
+      blocked:
+        s.phase === "message" && !key
+          ? "共通鍵の配送から見直すこともできる。"
+          : "別の鍵で、もう一度試せる。",
       result:
         s.result?.code === "signature-rejected"
           ? "盗聴は成功。署名が改ざんを検出。"
