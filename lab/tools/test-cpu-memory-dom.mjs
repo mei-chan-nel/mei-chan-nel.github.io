@@ -25,7 +25,18 @@ dom.window.HTMLDialogElement.prototype.close = function () {
 };
 await import("../cpu-memory/app.mjs");
 const $ = (id) => document.getElementById(id),
-  click = (id) => $(id).click(),
+  click = (id) => {
+    if (id !== "step") return $(id).click();
+    const before = Number($("steps").textContent);
+    for (
+      let n = 0;
+      n < 30 &&
+      Number($("steps").textContent) === before &&
+      !["終了", "エラー"].includes($("state").textContent);
+      n++
+    )
+      $(id).click();
+  },
   change = (node, value) => {
     node.value = value;
     node.dispatchEvent(new Event("input", { bubbles: true }));
@@ -79,9 +90,9 @@ assert.match($("notice").textContent, /同じ初期条件/);
 assert.match($("result-rows").textContent, /284 ns/);
 assert.match($("result-rows").textContent, /218 ns/);
 click("load-program");
-assert.equal($("program-load-dialog").open,true);
+assert.equal($("program-load-dialog").open, true);
 document.querySelector('[data-preset="loop"]').click();
-$("program-confirm-dialog").querySelector('.document-primary').click();
+$("program-confirm-dialog").querySelector(".document-primary").click();
 assert.equal(operand(16).value, "5");
 for (let i = 0; i < 25; i++) click("step");
 assert.equal($("state").textContent, "終了");

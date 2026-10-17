@@ -1566,3 +1566,76 @@ html.memory-fullscreen body {
     grid-template-columns: minmax(110px, 0.85fr) minmax(130px, 1.15fr);
   }
 }
+.phase-panel {
+  margin: 12px 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+}
+.phase-panel #phase-kind {
+  font-size: 0.59rem;
+  color: var(--muted);
+  margin: 0 0 5px;
+}
+.phase-panel h3 {
+  font-size: 0.78rem;
+  line-height: 1.65;
+  margin: 0;
+  color: var(--ink);
+}
+.phase-panel #phase-detail {
+  font-size: 0.65rem;
+  line-height: 1.7;
+  margin: 5px 0 0;
+  color: var(--ink-soft);
+}
+#received-field {
+  background: var(--mint-pale);
+  padding: 8px;
+  border-radius: 7px;
+}
+#received-value {
+  min-height: 1.4em;
+}
+.ram-table tr.requested {
+  outline: 2px dashed var(--blue-strong);
+  outline-offset: -2px;
+}
+.transfer-source {
+  outline: 1px dashed var(--transfer-color);
+  outline-offset: -1px;
+}
+.transfer-target {
+  position: relative;
+  outline: 3px solid var(--transfer-color);
+  outline-offset: -3px;
+  box-shadow: inset 0 0 0 5px var(--white);
+  padding-left: 14px !important;
+}
+.transfer-halo {
+  fill: none;
+  stroke: var(--white);
+  stroke-width: 7;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.transfer-path {
+  stroke-width: 2.8;
+  stroke-linejoin: round;
+}
+.transfer-endpoint {
+  fill: none;
+  stroke-width: 2.5;
+}
+.transfer-origin {
+  stroke: var(--white);
+  stroke-width: 1.5;
+}
+.is-fullscreen .phase-panel {
+  margin: 8px;
+  padding: 8px;
+}
+.is-fullscreen .phase-panel #phase-detail {
+  font-size: 0.61rem;
+}

@@ -16,13 +16,28 @@ for (const key of [
   "HTMLElement",
 ])
   globalThis[key] = dom.window[key];
-dom.window.HTMLDialogElement.prototype.showModal=function(){this.open=true;};
-dom.window.HTMLDialogElement.prototype.close=function(){this.open=false;};
+dom.window.HTMLDialogElement.prototype.showModal = function () {
+  this.open = true;
+};
+dom.window.HTMLDialogElement.prototype.close = function () {
+  this.open = false;
+};
 const restored = [];
 window.scrollTo = (options) => restored.push(options);
 await import("../cpu-memory/app.mjs");
 const $ = (id) => document.getElementById(id),
-  click = (id) => $(id).click(),
+  click = (id) => {
+    if (id !== "step") return $(id).click();
+    const before = Number($("steps").textContent);
+    for (
+      let n = 0;
+      n < 30 &&
+      Number($("steps").textContent) === before &&
+      !["終了", "エラー"].includes($("state").textContent);
+      n++
+    )
+      $(id).click();
+  },
   root = document.documentElement;
 const surface = $("memory-lab"),
   row = document.querySelector("#ram-rows tr"),
@@ -164,7 +179,7 @@ document.body.dispatchEvent(
     cancelable: true,
   }),
 );
-assert.equal(Number($("steps").textContent), before + 1);
+assert.equal(Number($("steps").textContent), before);
 operand.dispatchEvent(
   new dom.window.KeyboardEvent("keydown", {
     key: "Enter",
@@ -172,7 +187,7 @@ operand.dispatchEvent(
     cancelable: true,
   }),
 );
-assert.equal(Number($("steps").textContent), before + 1);
+assert.equal(Number($("steps").textContent), before);
 click("reset");
 click("memory-fullscreen");
 click("run");
@@ -180,7 +195,7 @@ assert.equal($("run").getAttribute("aria-pressed"), "true");
 click("memory-fullscreen");
 click("run");
 assert.equal($("run").getAttribute("aria-pressed"), "false");
-assert.equal($("steps").textContent, "1");
+assert.equal($("steps").textContent, "0");
 console.log(
   "Fullscreen integration passed: CPU/cache/RAM order, primary stepping, fallback and native fullscreen, editing, records, Escape, focus/inert restoration, pending-request races, keyboard input, automatic run/pause.",
 );

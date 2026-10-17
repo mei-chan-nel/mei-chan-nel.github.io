@@ -249,7 +249,7 @@ function renderControls() {
   );
   $("step").disabled =
     running || comparing || machine.halted || !!machine.error;
-  $("save-result").disabled = running || comparing || !machine.steps;
+  $("save-result").disabled = running || comparing || !machine.actions;
   $("compare-off").disabled = running || comparing;
   $("state").textContent = comparing
     ? "比較中"
@@ -259,7 +259,7 @@ function renderControls() {
         ? "エラー"
         : machine.halted
           ? "終了"
-          : machine.steps
+          : machine.actions
             ? "一時停止"
             : "実行前";
   $("state").classList.toggle("running", running);
@@ -274,7 +274,9 @@ function renderCache(event) {
   $("cache-caption").textContent = !config.enabled
     ? "OFF · RAMへ直接アクセス"
     : event
-      ? `選択したアクセス直後 · 新しい参照順`
+      ? selectedEvent >= 0
+        ? `選択したアクセスの記録`
+        : `現在の段階 · 新しい参照順`
       : "最新の状態 · 新しい参照順";
   $("cache-lines").replaceChildren();
   for (let i = 0; i < config.blocks; i++) {
@@ -303,7 +305,8 @@ function renderCache(event) {
     );
     const cells = el("div", undefined, "cache-cells");
     line.cells.forEach((cell, j) => {
-      const content = el("div");
+      const content = el("div", undefined, "cache-cell");
+      content.dataset.address = line.base + j;
       content.append(
         el("small", `${line.base + j}番地`),
         el("span", text(cell)),
@@ -328,6 +331,16 @@ function render() {
     ? text(machine.current)
     : "—";
   $("steps").textContent = machine.steps;
+  $("phase-kind").textContent = machine.phase
+    ? `動作 ${machine.actions} · ${{ lookup: "参照先を確認", "ram-request": "参照先を確認", "block-fill": "ブロック取得", "cpu-receive": "CPUへ取込", decode: "命令を実行", "cache-write": "キャッシュへ書込", "ram-write": "RAMへ書込", complete: "命令完了", error: "エラー" }[machine.phase.stage]}`
+    : "実行前";
+  $("phase-title").textContent = machine.phase?.title ?? "「次へ」で命令を取得";
+  $("phase-detail").textContent =
+    machine.phase?.detail ?? "命令の取得から計算まで、1つの動作ずつ進みます。";
+  $("received-field").hidden = !machine.received;
+  $("received-value").textContent = machine.received
+    ? text(machine.received)
+    : "—";
   const e = machine.events[selectedEvent] ?? machine.events.at(-1);
   rows.forEach(({ row, live }, address) => {
     live.textContent = text(machine.ram[address]);
@@ -335,14 +348,24 @@ function render() {
       "next",
       !machine.halted && !machine.error && address === machine.pc,
     );
-    row.classList.toggle("current", address === machine.currentAddress);
     row.classList.toggle(
-      "accessed",
-      e?.kind !== "fetch" && e?.address === address,
+      "current",
+      address === machine.currentAddress && !!machine.current,
     );
+    const transfer = machine.phase?.transfer,
+      usesRam = transfer && (transfer.from === "ram" || transfer.to === "ram");
+    const addressed =
+      usesRam &&
+      (transfer.block
+        ? address === transfer.base || address === transfer.base + 1
+        : address === transfer.address);
+    row.classList.toggle("accessed", !!addressed);
+    row.classList.toggle("write-target", !!addressed && transfer.to === "ram");
     row.classList.toggle(
-      "write-target",
-      e?.kind === "write" && e?.address === address,
+      "requested",
+      !transfer &&
+        machine.phase?.focus?.device === "ram" &&
+        machine.phase.focus.address === address,
     );
     row.classList.toggle(
       "written",
@@ -351,7 +374,7 @@ function render() {
           JSON.stringify(initial[address]),
     );
   });
-  renderCache(e);
+  renderCache(selectedEvent >= 0 ? e : machine.phase?.event);
   $("access-events").replaceChildren();
   if (!machine.events.length) {
     const p = el(
@@ -367,7 +390,8 @@ function render() {
       () => {
         selectedEvent = i;
         render();
-        revealRam(event.address);
+        if (event.hit === null || !event.hit) revealRam(event.address);
+        transfers.draw();
       },
       "access-event",
     );
@@ -389,12 +413,20 @@ function render() {
   $("access-reason").replaceChildren();
   if (e) {
     const flow = el("ol", undefined, "transfer-steps");
-    transferSteps(e).forEach((step) =>
-      flow.append(el("li", step.label, `flow-${step.kind}`)),
-    );
+    transferSteps(
+      selectedEvent >= 0 && e.complete
+        ? e
+        : { ...e, phaseTransfer: machine.phase?.transfer ?? null },
+    ).forEach((step) => flow.append(el("li", step.label, `flow-${step.kind}`)));
     $("access-reason").append(flow, el("p", e.reason));
   }
-  transfers.update(e);
+  transfers.update(
+    e
+      ? selectedEvent >= 0 && e.complete
+        ? e
+        : { ...e, phaseTransfer: machine.phase?.transfer ?? null }
+      : null,
+  );
   const s = machine.stats,
     total = s.cpu + s.wait;
   $("total-time").replaceChildren(
@@ -410,17 +442,57 @@ function render() {
   $("access-summary").textContent =
     `命令取得 ${s.fetch} · 読出 ${s.read} · 書込 ${s.write}　 /　ヒット ${s.hits} · ミス ${s.misses}　 /　RAM転送 ${s.ramReads + s.ramWrites}（取得 ${s.ramReads}・書込 ${s.ramWrites}）`;
 }
-function revealRam(address) {
-  const row = rows[address]?.row,
-    list = document.querySelector(".ram-scroll");
-  if (!row || !list) return;
+function revealIn(list, target, header = 0) {
+  if (!list || !target) return;
   const bounds = list.getBoundingClientRect(),
-    target = row.getBoundingClientRect();
-  const header = list.querySelector("thead").getBoundingClientRect().height;
-  if (target.top < bounds.top + header)
-    list.scrollTop += target.top - bounds.top - header;
-  else if (target.bottom > bounds.bottom)
-    list.scrollTop += target.bottom - bounds.bottom;
+    r = target.getBoundingClientRect();
+  if (!bounds.height) return;
+  if (r.top < bounds.top + header || r.bottom > bounds.bottom)
+    list.scrollTop +=
+      (r.top + r.bottom) / 2 - (bounds.top + header + bounds.bottom) / 2;
+}
+function revealRam(address) {
+  const list = document.querySelector(".ram-scroll");
+  revealIn(
+    list,
+    rows[address]?.row,
+    list?.querySelector("thead").getBoundingClientRect().height ?? 0,
+  );
+}
+function focusPhase() {
+  const focus = machine.phase?.focus;
+  if (!focus) return;
+  if (focus.device === "ram") revealRam(focus.address);
+  if (focus.device === "cache") {
+    const block = document.querySelector(
+      `.cache-line[data-base="${Math.floor(focus.address / 2) * 2}"]`,
+    );
+    revealIn($("cache-lines"), block);
+    if (fullscreen.active)
+      revealIn(document.querySelector(".cache-panel"), block, 38);
+  }
+  const t = machine.phase?.transfer;
+  if (t) {
+    if (t.from === "ram" || t.to === "ram") revealRam(t.address);
+    if (t.from === "cache" || t.to === "cache") {
+      const card = document.querySelector(`.cache-line[data-base="${t.base}"]`);
+      revealIn($("cache-lines"), card);
+      if (fullscreen.active)
+        revealIn(document.querySelector(".cache-panel"), card, 38);
+    }
+    if (fullscreen.active && (t.to === "cpu" || t.from === "cpu"))
+      revealIn(
+        document.querySelector(".cpu-panel"),
+        t.to === "cpu"
+          ? t.kind === "fetch"
+            ? $("current-command")
+            : $("received-value")
+          : document.querySelector(".cpu-value"),
+        38,
+      );
+  } else if (focus.device === "cpu" && fullscreen.active)
+    revealIn(document.querySelector(".cpu-panel"), $("phase-title"), 38);
+  transfers.draw();
 }
 const fullscreen = createMemoryFullscreen({
   surface: $("memory-lab"),
@@ -428,15 +500,15 @@ const fullscreen = createMemoryFullscreen({
   closeSpeed: () => speedControls?.close(),
   speedPanel: $("speed-panel"),
   onChange: () => {
-    if (machine?.currentAddress !== null) revealRam(machine?.currentAddress);
+    if (machine) focusPhase();
     transfers.draw();
   },
 });
 function execute() {
-  machine.step();
+  machine.advance();
   selectedEvent = -1;
   render();
-  revealRam(machine.currentAddress);
+  focusPhase();
   if (machine.error) {
     stop();
     announce(machine.error, true);
@@ -447,15 +519,13 @@ function execute() {
       `終了しました。計算中の値は ${format(machine.acc)}、合計時間は ${format(machine.stats.cpu + machine.stats.wait)} ns です。`,
     );
     renderControls();
-  } else
-    announce(
-      `${machine.currentAddress}番地を実行。次は${machine.pc}番地です。`,
-    );
+  } else announce(`${machine.phase.title}。${machine.phase.detail}`);
 }
 function tick() {
   if (!running) return;
+  const before = machine.steps;
   execute();
-  runCount++;
+  runCount += machine.steps - before;
   if (runCount >= 10000 && running) {
     stop();
     announce(
@@ -551,7 +621,13 @@ function renderRecords() {
         same ? "" : "different",
       ),
     );
-    const status = result.error ? "エラー" : result.halted ? "終了" : "途中";
+    const status = result.error
+      ? "エラー"
+      : result.halted
+        ? "終了"
+        : result.inProgress
+          ? "命令の途中"
+          : "途中";
     tr.append(
       title,
       el("td", c.enabled ? `ON · ${c.blocks}個` : "OFF"),

@@ -138,7 +138,7 @@ for (let n = 0; n < 100 && $("state").textContent !== "終了"; n++)
 assert.equal($("state").textContent, "終了");
 assert.equal($("total-time").textContent, "218ns");
 assert.equal($("acc").textContent, "12");
-assert.match($("access-reason").textContent, /キャッシュ 3番地 → CPU/);
+assert.match($("phase-title").textContent, /終了/);
 document.querySelector('[data-control="exit"]').click();
 console.log(
   "Document/speed integration passed: browser save/copy/overwrite/load, five presets, JSON export/import confirmation, numeric speed and fullscreen rail actions.",

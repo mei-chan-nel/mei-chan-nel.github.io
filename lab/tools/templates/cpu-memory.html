@@ -13,7 +13,7 @@
   <ol>
     <li>RAMの種類と値・番地を直接変更します。数値欄に直接入力できます。</li>
     <li>
-      「次へ」で命令取得とデータ参照を確認。「自動実行」で最後まで進めます。「全画面」でCPU
+      「次へ」で命令の取得・CPUへの取り込み・データ参照・計算を1動作ずつ確認。「自動実行」で最後まで進めます。「全画面」でCPU
       → キャッシュ → RAMを広く表示できます。
     </li>
     <li>
@@ -56,8 +56,8 @@
         class="button button-primary primary"
         id="step"
         type="button"
-        title="1命令実行"
-        aria-label="次へ（1命令実行）"
+        title="1動作ずつ実行"
+        aria-label="次へ（1動作ずつ実行）"
       >
         <span class="button-icon" aria-hidden="true">→</span> 次へ
       </button>
@@ -154,7 +154,7 @@
       type="button"
       class="fullscreen-action fullscreen-next"
       data-control="next"
-      aria-label="次へ（1命令実行）"
+      aria-label="次へ（1動作ずつ実行）"
       title="次へ"
     >
       →
@@ -234,10 +234,19 @@
         </div>
         <span class="tiny-label">命令を実行</span>
       </div>
+      <div class="phase-panel" aria-live="polite" aria-atomic="true">
+        <p id="phase-kind">実行前</p>
+        <h3 id="phase-title">「次へ」で命令を取得</h3>
+        <p id="phase-detail">命令の取得から計算まで、1つの動作ずつ進みます。</p>
+      </div>
       <div class="cpu-value">
         <span>計算中の値</span><strong id="acc">0</strong>
       </div>
       <dl class="cpu-registers">
+        <div id="received-field" hidden>
+          <dt>CPUが受け取った値</dt>
+          <dd id="received-value">—</dd>
+        </div>
         <div>
           <dt>次に実行する番地</dt>
           <dd id="pc">0</dd>
@@ -247,7 +256,7 @@
           <dd id="current-command">—</dd>
         </div>
         <div>
-          <dt>実行した命令数</dt>
+          <dt>完了した命令数</dt>
           <dd id="steps">0</dd>
         </div>
       </dl>
@@ -263,7 +272,7 @@
       <details class="timing-settings">
         <summary>仮想アクセス時間</summary>
         <label
-          >CPU処理 / 命令<input
+          >CPU処理 / 命令完了<input
             id="cpu-time"
             type="number"
             value="1"
@@ -437,7 +446,9 @@
     命令と数値は同じRAM（0〜31番地）に置きます。命令取得とデータ読み書きは1つのキャッシュを共有し、2番地単位のブロックをどの枠にも保持できます。最近使われていないブロックから置き換えます（LRU）。書込ミスでもブロックを取得し（ライトアロケート）、RAMにもその都度書き込みます（ライトスルー）。書き込みによって命令が数値に変わる場合もあります。
   </p>
   <p>
-    ヒット＝キャッシュ時間。読出ミス＝キャッシュ時間＋RAM転送時間。書込ヒット＝キャッシュ時間＋RAM転送時間。書込ミス＝キャッシュ時間＋RAM転送時間×2（ブロック取得と書込）。OFF時は1参照につきRAM転送時間。ブロック取得は2番地まとめて1転送と数えます。合計＝命令数×CPU処理時間＋全アクセスの待ち時間。重なり処理・先読み・実機のバスやクロックは省いた教材用モデルです。表示の速さは仮想時間に影響しません。
+    ヒット＝キャッシュ時間。読出ミス＝キャッシュ時間＋RAM転送時間。書込ヒット＝キャッシュ時間＋RAM転送時間。書込ミス＝キャッシュ時間＋RAM転送時間×2（ブロック取得と書込）。OFF時は1参照につきRAM転送時間。ブロック取得は2番地まとめて1転送と数えます。合計＝命令数×CPU処理時間＋全アクセスの待ち時間。表示は動作ごとに分けますが、CPU処理時間は命令完了時に1回だけ計上します。読み出しは、ヒット時はキャッシュ
+    → CPU、ミス時はRAM → キャッシュ →
+    CPU。RAMからの取得を2回数えているわけではありません。実機では、必要な値をブロック取得中に先にCPUへ返す場合もあります。書き込みは同じCPUの値をキャッシュとRAMへ反映するライトスルーです。実機のコントローラ・書込バッファ・並行処理は省き、教材では順番に表示して時間を加算します。表示の速さは仮想時間に影響しません。
   </p>
   <p>
     値は安全な整数の範囲で扱います。自動実行は10,000命令ごとに一時停止。一括比較は10,000命令以内で終了するプログラムが対象です。RAM・設定の変更後はキャッシュを空にし、計算中の値を0に戻します。保存済みの比較記録は保持します。

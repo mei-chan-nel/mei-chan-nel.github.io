@@ -90,7 +90,7 @@ test("directional transfer phases reflect cache hits, fills, write allocate and 
     [
       ["ram", "cache"],
       ["cpu", "cache"],
-      ["cache", "ram"],
+      ["cpu", "ram"],
     ],
   );
   assert.deepEqual(
@@ -100,7 +100,7 @@ test("directional transfer phases reflect cache hits, fills, write allocate and 
     ]),
     [
       ["cpu", "cache"],
-      ["cache", "ram"],
+      ["cpu", "ram"],
     ],
   );
   assert.deepEqual(
