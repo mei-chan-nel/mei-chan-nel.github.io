@@ -1,0 +1,835 @@
+/* One persistent stage and one persistent dialogue window, from the first line
+   of the story to the final reception. Characters never become letter icons. */
+.story-game {
+  --alice-color: #a9d9ed;
+  --bob-color: #b7dfb1;
+  --charlie-color: #d2bfef;
+}
+.story-game .network-scene {
+  min-height: 290px;
+  padding: 76px 20px 12px;
+  align-items: end;
+  gap: 18px;
+}
+.story-game .pixel-character {
+  display: block !important;
+  width: 80px;
+  height: 100px;
+  margin: 4px auto 5px;
+  filter: drop-shadow(5px 5px 0 #071d2166);
+}
+.story-game .charlie-sprite {
+  width: 72px;
+  height: 90px;
+}
+.story-game .character-name {
+  font:
+    700 20px/1.2 Georgia,
+    serif;
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+.story-game .character-name > span {
+  font-size: 1.17em;
+}
+.story-game .name-alice > span {
+  color: var(--alice-color);
+}
+.story-game .name-bob > span {
+  color: var(--bob-color);
+}
+.story-game .name-charlie > span {
+  color: var(--charlie-color);
+}
+.story-game .character-name small {
+  display: inline-block;
+  vertical-align: middle;
+  font:
+    700 9px/1.4 Consolas,
+    monospace;
+  color: var(--game-bg);
+  background: var(--charlie-color);
+  padding: 1px 4px;
+  margin-left: 5px;
+}
+.story-game .relay h3 b {
+  display: none;
+}
+.story-game .actor-bubble {
+  display: block;
+  min-height: 25px;
+  padding: 4px 0;
+  font-size: 10px;
+}
+.story-game .relay-location {
+  display: block;
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--game-soft);
+  line-height: 1.4;
+}
+.story-game .relay > p {
+  display: none;
+}
+.story-game .packet-sprite {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(175px, 35%);
+  max-width: none;
+  padding: 8px 6px;
+  margin: 0;
+  z-index: 4;
+  transition:
+    left 0.25s ease,
+    background 0.25s ease;
+}
+.story-game #scene[data-at="alice"] .packet-sprite {
+  left: 17%;
+}
+.story-game #scene[data-at="bob"] .packet-sprite {
+  left: 83%;
+}
+.story-game #scene[data-at="charlie"] .packet-sprite {
+  top: auto;
+  bottom: 18%;
+}
+.story-game #scene[data-at="none"] .packet-sprite {
+  visibility: hidden;
+}
+.story-game .packet-sprite b {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.story-game .packet-sprite small {
+  font-size: 9px;
+}
+.story-game .packet-shape {
+  font-size: 22px;
+}
+.story-game .packet-sprite[data-kind="public"] {
+  color: var(--bob-color);
+  border-color: var(--bob-color);
+}
+.story-game .packet-sprite[data-kind="key"] {
+  color: var(--game-gold);
+  border-color: var(--game-gold);
+}
+.story-game .packet-sprite[data-kind="ciphertext"],
+.story-game .packet-sprite[data-kind="wrapped-key"] {
+  color: #a9d9ed;
+  border-color: #a9d9ed;
+}
+.story-game .packet-sprite[data-kind="ciphertext"] .packet-shape::after,
+.story-game .packet-sprite[data-kind="wrapped-key"] .packet-shape::after {
+  content: "▣";
+  margin-left: 4px;
+  font-size: 0.75em;
+}
+.story-game .relay-machine {
+  margin-bottom: 4px;
+  max-width: 120px;
+}
+.story-game .cable {
+  top: 44%;
+  left: 17%;
+  right: 17%;
+  transition: opacity 0.2s ease;
+}
+.story-game .cable::before,
+.story-game .cable::after {
+  color: var(--game-gold);
+}
+.story-game .relay::before {
+  content: "";
+  position: absolute;
+  height: 25px;
+  width: 3px;
+  background: var(--game-gold);
+  top: -26px;
+  left: 50%;
+  opacity: 0.75;
+}
+.story-game #scene[data-connected="false"] .relay-machine,
+.story-game #scene[data-connected="false"] .relay-location,
+.story-game #scene[data-connected="false"] .relay::before {
+  visibility: hidden;
+}
+.story-game #scene[data-connected="false"] .relay {
+  opacity: 0.5;
+}
+.story-game #scene[data-speaker="charlie"] .relay {
+  opacity: 1;
+}
+.story-game #scene[data-speaker="alice"] .alice .pixel-character {
+  filter: drop-shadow(0 0 6px #a9d9ed88);
+}
+.story-game #scene[data-speaker="bob"] .bob .pixel-character {
+  filter: drop-shadow(0 0 6px #b7dfb188);
+}
+.story-game #scene[data-speaker="charlie"] .relay .pixel-character {
+  filter: drop-shadow(0 0 6px #d2bfef88);
+}
+.story-game #scene[data-frame="accept"] {
+  border-color: var(--bob-color);
+}
+.story-game #scene[data-frame="reject"] {
+  border-color: #f4bba0;
+}
+.story-game .copy-token {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  top: 34%;
+  transform: translateX(-50%);
+  font:
+    700 10px/1.5 Consolas,
+    monospace;
+  color: var(--charlie-color);
+  background: var(--game-bg);
+  padding: 2px 6px;
+  visibility: hidden;
+}
+.story-game #scene[data-frame="copy"] .copy-token {
+  visibility: visible;
+}
+.story-game .story-box > p {
+  display: none;
+}
+.story-game .story-box {
+  padding: 12px 16px;
+}
+.story-game .story-box h3 {
+  font-size: 14px;
+  margin: 4px 0;
+}
+.story-game .goal-line {
+  padding-top: 6px;
+  margin-top: 6px;
+}
+.story-game .goal-line p {
+  font-size: 13px;
+}
+.story-game .dialogue-box {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 150px;
+  gap: 16px;
+  align-items: start;
+  position: relative;
+  min-height: 184px;
+  padding: 18px;
+  border: 3px double #8ea69a;
+  background: #102b31;
+}
+.story-game .dialogue-portrait {
+  align-self: center;
+  border: 1px solid var(--game-line);
+  background: #183e42;
+  padding: 6px;
+}
+.story-game .dialogue-portrait svg {
+  display: block;
+  width: 100%;
+  height: 82px;
+  image-rendering: pixelated;
+}
+.story-game .dialogue-content {
+  min-width: 0;
+}
+.story-game #dialogue-label {
+  font:
+    700 9px/1.4 Consolas,
+    monospace;
+  letter-spacing: 0.1em;
+  color: var(--game-soft);
+}
+.story-game #result-heading {
+  font-size: 17px;
+  margin: 0 0 6px;
+  line-height: 1.3;
+  font-family: Georgia, "Yu Mincho", serif;
+}
+.story-game #result-heading .name-initial {
+  font-size: 1.15em;
+}
+.story-game #result-heading[data-speaker="alice"] .name-initial {
+  color: var(--alice-color);
+}
+.story-game #result-heading[data-speaker="bob"] .name-initial {
+  color: var(--bob-color);
+}
+.story-game #result-heading[data-speaker="charlie"] .name-initial {
+  color: var(--charlie-color);
+}
+.story-game #feedback {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.8;
+  color: var(--game-paper);
+  overflow-wrap: anywhere;
+}
+.story-game #bob-result {
+  font-size: 12px;
+}
+.story-game #bob-result .received {
+  font-size: 15px;
+  margin: 5px 0 0;
+  padding: 0 0 0 6px;
+}
+.story-game .dialogue-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+  align-self: center;
+}
+.story-game #dialogue-position {
+  text-align: center;
+  font:
+    600 10px/1.3 Consolas,
+    monospace;
+  color: var(--game-soft);
+}
+.story-game #dialogue-next {
+  min-height: 44px;
+  padding: 8px 10px;
+  font-size: 13px;
+}
+.story-game .dialogue-options {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}
+.story-game .dialogue-options button {
+  border: 0;
+  background: transparent;
+  color: var(--game-soft);
+  padding: 4px 0;
+  font-size: 10px;
+  min-height: 24px;
+}
+.story-game .dialogue-box .result-actions {
+  position: static;
+  transform: none;
+  grid-column: 2/4;
+  margin: 0;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.story-game .result-actions .pixel-button {
+  min-height: 36px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.story-game #dialogue-retry,
+.story-game #dialogue-next-round {
+  display: inline-flex;
+}
+.story-game .result-actions #result-tools,
+.story-game .result-actions #retry-result,
+.story-game .result-actions #next-round {
+  display: none;
+}
+.story-game #result-details {
+  min-height: 32px;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+.story-game[data-talking="true"] .command {
+  opacity: 0.35;
+}
+.story-game[data-talking="true"] .command-heading .box-label {
+  color: var(--game-soft);
+}
+.story-game #situation-title {
+  overflow-wrap: anywhere;
+}
+/* Keep the fixed-height dashboard. The dialogue takes the lower track and never
+   changes the locations of the stage, goal, or action pad. */
+.story-game.is-viewport #gameplay {
+  grid-template-rows: 34px 24px minmax(0, 1fr) 170px;
+}
+.story-game.is-viewport .scene-column {
+  grid-template-rows: minmax(100px, 1fr) 86px !important;
+}
+.story-game.is-viewport .scene {
+  grid-template-rows: 22px minmax(0, 1fr) 28px;
+}
+.story-game.is-viewport .network-scene {
+  min-height: 0;
+  padding: 60px 10px 7px;
+}
+.story-game.is-viewport .pixel-character {
+  width: 64px;
+  height: 80px;
+  margin: 0 auto 4px;
+}
+.story-game.is-viewport .charlie-sprite {
+  width: 56px;
+  height: 70px;
+}
+.story-game.is-viewport .character-name {
+  font-size: 16px;
+}
+.story-game.is-viewport .actor-bubble {
+  min-height: 18px;
+  font-size: 9px;
+  padding: 2px 0;
+}
+.story-game.is-viewport .relay-location {
+  font-size: 8px;
+  margin-top: 2px;
+}
+.story-game.is-viewport .relay-machine {
+  padding: 2px 5px;
+  max-width: 95px;
+}
+.story-game.is-viewport .packet-sprite {
+  top: 5px;
+  padding: 3px 5px;
+  width: 160px;
+}
+.story-game.is-viewport .packet-sprite b {
+  font-size: 10px;
+}
+.story-game.is-viewport .packet-sprite small {
+  font-size: 8px;
+}
+.story-game.is-viewport .packet-shape {
+  font-size: 17px;
+}
+.story-game.is-viewport .story-box {
+  padding: 6px 10px;
+}
+.story-game.is-viewport .story-box > .box-label {
+  font-size: 9px;
+}
+.story-game.is-viewport .story-box h3 {
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.3;
+}
+.story-game.is-viewport .goal-line {
+  padding-top: 2px;
+  margin-top: 3px;
+}
+.story-game.is-viewport .goal-line b {
+  font-size: 9px;
+}
+.story-game.is-viewport .goal-line p {
+  font-size: 12px;
+  line-height: 1.35;
+}
+.story-game.is-viewport .dialogue-box {
+  min-height: 0;
+  grid-template-columns: 54px minmax(0, 1fr) 130px;
+  gap: 12px;
+  padding: 10px 12px;
+}
+.story-game.is-viewport .dialogue-portrait {
+  padding: 3px;
+}
+.story-game.is-viewport .dialogue-portrait svg {
+  height: 65px;
+}
+.story-game.is-viewport #result-heading {
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.story-game.is-viewport #feedback {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.story-game.is-viewport #dialogue-next {
+  font-size: 12px;
+  min-height: 40px;
+}
+.story-game.is-viewport .dialogue-controls {
+  gap: 4px;
+}
+.story-game.is-viewport .dialogue-box .result-actions {
+  align-self: end;
+}
+.story-game.is-viewport #result-details {
+  min-height: 28px;
+}
+.story-game.is-viewport[data-density="compact"] #gameplay {
+  grid-template-rows: 30px 20px minmax(0, 1fr) 146px;
+}
+.story-game.is-viewport[data-density="compact"] .scene-column {
+  grid-template-rows: minmax(90px, 1fr) 78px !important;
+}
+.story-game.is-viewport[data-density="compact"] .network-scene {
+  padding-top: 47px;
+}
+.story-game.is-viewport[data-density="compact"] .pixel-character {
+  width: 44px;
+  height: 55px;
+}
+.story-game.is-viewport[data-density="compact"] .charlie-sprite {
+  width: 40px;
+  height: 50px;
+}
+.story-game.is-viewport[data-density="compact"] .actor-bubble {
+  display: none;
+}
+.story-game.is-viewport[data-density="compact"] .relay-machine {
+  display: block;
+  padding: 0 4px;
+}
+.story-game.is-viewport[data-density="compact"] .relay-machine b {
+  font-size: 10px;
+}
+.story-game.is-viewport[data-density="compact"] .relay-location {
+  display: none;
+}
+.story-game.is-viewport[data-density="compact"] #feedback {
+  font-size: 13px;
+  line-height: 1.5;
+}
+.story-game.is-viewport[data-density="compact"] .dialogue-box {
+  grid-template-columns: 46px minmax(0, 1fr) 116px;
+  padding: 7px 10px;
+  gap: 9px;
+}
+.story-game.is-viewport[data-density="compact"] .dialogue-portrait svg {
+  height: 55px;
+}
+.story-game.is-viewport[data-layout="narrow"] .scene-column {
+  display: contents;
+}
+.story-game.is-viewport[data-layout="narrow"] .play-layout {
+  grid-template-rows: minmax(105px, 1fr) 76px minmax(128px, 1fr) 28px;
+}
+.story-game.is-viewport[data-layout="narrow"] .scene {
+  grid-template-rows: 20px minmax(0, 1fr);
+}
+.story-game.is-viewport[data-layout="narrow"] .network-scene {
+  padding-top: 32px;
+  gap: 8px;
+  align-items: end;
+}
+.story-game.is-viewport[data-layout="narrow"] .pixel-character {
+  width: 30px;
+  height: 38px;
+  margin: 0 auto 2px;
+}
+.story-game.is-viewport[data-layout="narrow"] .charlie-sprite {
+  width: 28px;
+  height: 35px;
+}
+.story-game.is-viewport[data-layout="narrow"] .character-name {
+  font-size: 12px;
+}
+.story-game.is-viewport[data-layout="narrow"] .character-name small {
+  font-size: 7px;
+  padding: 0 2px;
+  margin-left: 2px;
+}
+.story-game.is-viewport[data-layout="narrow"] .actor-bubble,
+.story-game.is-viewport[data-layout="narrow"] .relay-machine,
+.story-game.is-viewport[data-layout="narrow"] .relay-location,
+.story-game.is-viewport[data-layout="narrow"] .relay::before {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-sprite {
+  top: 2px;
+  width: 130px;
+  padding: 2px;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-sprite b {
+  font-size: 9px;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-sprite small,
+.story-game.is-viewport[data-layout="narrow"] .packet-shape {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"] .story-box {
+  padding: 4px 7px;
+}
+.story-game.is-viewport[data-layout="narrow"] .goal-line p {
+  font-size: 11px;
+}
+.story-game.is-viewport[data-layout="narrow"] .story-box > .box-label,
+.story-game.is-viewport[data-layout="narrow"] .goal-line b {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"] .dialogue-box {
+  grid-template-columns: 34px minmax(0, 1fr) 78px;
+  gap: 6px;
+  padding: 7px;
+}
+.story-game.is-viewport[data-layout="narrow"] .dialogue-portrait {
+  padding: 1px;
+}
+.story-game.is-viewport[data-layout="narrow"] .dialogue-portrait svg {
+  height: 42px;
+}
+.story-game.is-viewport[data-layout="narrow"] #feedback {
+  font-size: 12px;
+  line-height: 1.55;
+}
+.story-game.is-viewport[data-layout="narrow"] #result-heading {
+  font-size: 13px;
+}
+.story-game.is-viewport[data-layout="narrow"] #dialogue-next {
+  padding: 6px 4px;
+  font-size: 10px;
+  min-height: 38px;
+}
+.story-game.is-viewport[data-layout="narrow"] #dialogue-position {
+  font-size: 8px;
+}
+.story-game.is-viewport[data-layout="narrow"] .dialogue-options {
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.story-game.is-viewport[data-layout="narrow"] .dialogue-options button {
+  font-size: 8px;
+  min-height: 20px;
+  padding: 0;
+}
+.story-game.is-viewport[data-layout="narrow"] .result-actions .pixel-button {
+  min-height: 28px;
+  font-size: 10px;
+  padding: 3px 6px;
+}
+.story-game.is-viewport[data-layout="narrow"] #result-details {
+  min-height: 24px;
+  font-size: 9px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="compact"]
+  .play-layout {
+  grid-template-rows: minmax(88px, 1fr) 64px minmax(128px, 1fr) 26px;
+}
+.story-game.is-viewport[data-density="tiny"] #gameplay {
+  grid-template-rows: 24px 16px minmax(0, 1fr) 110px;
+}
+.story-game.is-viewport[data-density="tiny"] .scene-column {
+  grid-template-rows: minmax(48px, 1fr) 64px !important;
+}
+.story-game.is-viewport[data-density="tiny"] .network-scene {
+  padding: 24px 5px 1px;
+  gap: 3px;
+}
+.story-game.is-viewport[data-density="tiny"] .pixel-character {
+  width: 24px;
+  height: 30px;
+  margin: 0 auto;
+}
+.story-game.is-viewport[data-density="tiny"] .charlie-sprite {
+  width: 22px;
+  height: 28px;
+}
+.story-game.is-viewport[data-density="tiny"] .character-name {
+  font-size: 10px;
+}
+.story-game.is-viewport[data-density="tiny"] .actor-bubble,
+.story-game.is-viewport[data-density="tiny"] .relay-machine,
+.story-game.is-viewport[data-density="tiny"] .relay-location,
+.story-game.is-viewport[data-density="tiny"] .relay::before {
+  display: none;
+}
+.story-game.is-viewport[data-density="tiny"] .packet-sprite {
+  top: 1px;
+  padding: 1px;
+  width: 120px;
+}
+.story-game.is-viewport[data-density="tiny"] .packet-sprite small,
+.story-game.is-viewport[data-density="tiny"] .packet-shape {
+  display: none;
+}
+.story-game.is-viewport[data-density="tiny"] .packet-sprite b {
+  font-size: 9px;
+}
+.story-game.is-viewport[data-density="tiny"] .dialogue-box {
+  grid-template-columns: 30px minmax(0, 1fr) 94px;
+  gap: 6px;
+  padding: 5px 7px;
+}
+.story-game.is-viewport[data-density="tiny"] .dialogue-portrait svg {
+  height: 36px;
+}
+.story-game.is-viewport[data-density="tiny"] #dialogue-label {
+  display: none;
+}
+.story-game.is-viewport[data-density="tiny"] #result-heading {
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.story-game.is-viewport[data-density="tiny"] #feedback {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.story-game.is-viewport[data-density="tiny"] #dialogue-next {
+  min-height: 32px;
+  font-size: 10px;
+  padding: 4px;
+}
+.story-game.is-viewport[data-density="tiny"] .dialogue-options button {
+  font-size: 8px;
+  min-height: 18px;
+}
+.story-game.is-viewport[data-density="tiny"] #dialogue-position {
+  font-size: 8px;
+}
+.story-game.is-viewport[data-density="tiny"] .dialogue-box .result-actions {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .play-layout {
+  grid-template-rows: 54px 48px minmax(106px, 1fr) 20px;
+  gap: 3px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"] .scene {
+  grid-template-rows: 1fr;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .network-scene {
+  padding-top: 18px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .pixel-character {
+  width: 18px;
+  height: 23px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .charlie-sprite {
+  width: 18px;
+  height: 23px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .packet-sprite {
+  width: 110px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .story-box
+  h3 {
+  font-size: 10px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .goal-line
+  p {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .dialogue-box {
+  grid-template-columns: 24px minmax(0, 1fr) 70px;
+  gap: 4px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .dialogue-portrait
+  svg {
+  height: 30px;
+}
+@media (max-width: 740px) {
+  .story-game:not(.is-viewport) .network-scene {
+    min-height: 230px;
+    padding: 58px 10px 8px;
+    gap: 8px;
+  }
+  .story-game:not(.is-viewport) .pixel-character {
+    width: 56px;
+    height: 70px;
+  }
+  .story-game:not(.is-viewport) .charlie-sprite {
+    width: 48px;
+    height: 60px;
+  }
+  .story-game:not(.is-viewport) .character-name {
+    font-size: 16px;
+  }
+  .story-game:not(.is-viewport) .actor-bubble {
+    font-size: 9px;
+  }
+  .story-game:not(.is-viewport) .relay-location {
+    font-size: 8px;
+  }
+  .story-game:not(.is-viewport) .dialogue-box {
+    grid-template-columns: 40px minmax(0, 1fr) 86px;
+    gap: 8px;
+    padding: 10px;
+  }
+  .story-game:not(.is-viewport) .dialogue-portrait svg {
+    height: 48px;
+  }
+  .story-game:not(.is-viewport) #feedback {
+    font-size: 13px;
+  }
+  .story-game:not(.is-viewport) .dialogue-options {
+    flex-direction: column;
+  }
+  .story-game:not(.is-viewport) #dialogue-next {
+    font-size: 11px;
+    padding: 6px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-game .packet-sprite,
+  .story-game .cable {
+    transition: none;
+  }
+}
+.story-game #scene[data-at="charlie"] .packet-sprite {
+  top: 12px;
+  bottom: auto;
+}
+.story-game.is-viewport #scene[data-at="charlie"] .packet-sprite {
+  top: 5px;
+  bottom: auto;
+}
+.story-game.is-viewport[data-density="tiny"]
+  #scene[data-at="charlie"]
+  .packet-sprite {
+  top: 1px;
+}
+.story-game[data-talking="true"] .dialogue-box .result-actions {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .play-layout {
+  grid-template-rows: 60px 48px minmax(106px, 1fr) 20px;
+}
+.story-game.is-viewport .story-box > .box-label {
+  display: none;
+}
+.story-game.is-viewport[data-density="tiny"] .story-box {
+  padding: 3px 6px;
+}
+.story-game.is-viewport[data-density="tiny"] .goal-line b {
+  display: none;
+}
+.story-game.is-viewport[data-density="tiny"] .goal-line {
+  margin-top: 2px;
+  padding-top: 2px;
+}
+.story-game.is-viewport[data-density="tiny"] .goal-line p {
+  font-size: 11px;
+  line-height: 1.25;
+}
+.story-game.is-viewport[data-density="tiny"] .story-box h3 {
+  font-size: 11px;
+  line-height: 1.25;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .play-layout {
+  grid-template-rows: 60px 54px minmax(106px, 1fr) 20px;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .goal-line
+  p {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .story-box
+  h3 {
+  font-size: 10px;
+}
+/* The route already crosses the relay device; avoid an unrelated vertical wire. */
+.story-game .relay::before {
+  display: none;
+}

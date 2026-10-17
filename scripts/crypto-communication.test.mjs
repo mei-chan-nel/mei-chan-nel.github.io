@@ -312,3 +312,95 @@ test("compact overview keeps the goal and observable result while preserving sec
     false,
   );
 });
+
+test("intro story connects the relay only after explaining Alice, Bob and Charlie", async () => {
+  const { introFrames, roundFrames, createStoryPlayer } =
+    await import("../lab/crypto-communication/storyboard.mjs");
+  const lab = createLab(),
+    initial = lab.snapshot(),
+    frames = introFrames();
+  assert.equal(frames[0].connected, false);
+  assert.equal(frames[1].speaker, "alice");
+  assert.equal(frames[2].speaker, "charlie");
+  assert.match(frames[2].text, /I hate you\./);
+  assert.match(frames[3].text, /Aliceの家の外/);
+  assert.equal(frames[3].connected, true);
+  const player = createStoryPlayer();
+  player.play([...frames, ...roundFrames(initial)]);
+  let turns = 0;
+  while (player.active()) {
+    assert.equal(player.current().text.includes("I love you."), false);
+    assert.ok(Array.from(player.current().text).length <= 64);
+    player.next();
+    assert.ok(++turns < 50);
+  }
+  assert.deepEqual(
+    lab.snapshot(),
+    initial,
+    "reading a story never sends a packet or changes a key",
+  );
+});
+test("narrated forward shows Alice encrypting before Charlie receives the ciphertext", async () => {
+  const { forwardFrames } =
+    await import("../lab/crypto-communication/storyboard.mjs");
+  const lab = createLab(),
+    before = lab.snapshot();
+  lab.forward();
+  const after = lab.snapshot(),
+    frames = forwardFrames(before, after);
+  assert.equal(frames[0].at, "bob");
+  const encrypted = frames.findIndex((frame) => frame.scene === "encrypt");
+  const arrived = frames.findIndex((frame) => frame.scene === "inbound");
+  assert.ok(encrypted > 0 && arrived > encrypted);
+  assert.equal(frames[encrypted].speaker, "alice");
+  assert.equal(frames[arrived].at, "relay");
+  assert.equal(JSON.stringify(frames).includes("I love you."), false);
+});
+test("Charlies operation dialogue records the operation instead of a generic decision prompt", async () => {
+  const { operationFrames } =
+    await import("../lab/crypto-communication/storyboard.mjs");
+  const lab = createLab(),
+    before = lab.snapshot();
+  lab.capture();
+  const frames = operationFrames({
+    before,
+    after: lab.snapshot(),
+    action: "copy",
+    mode: "decrypt",
+    ok: true,
+  });
+  assert.equal(frames[0].speaker, "charlie");
+  assert.match(frames[0].text, /記録装置でコピー/);
+  assert.equal(
+    frames[0].at,
+    "relay",
+    "copying keeps the original on the route",
+  );
+  assert.match(frames[1].text, /別の操作/);
+});
+test("signature verification and authenticity failure appear at the right receiver", async () => {
+  const { forwardFrames, decisionFrame } =
+    await import("../lab/crypto-communication/storyboard.mjs");
+  const lab = createLab();
+  lab.start(2);
+  lab.forward();
+  lab.forward();
+  const before = lab.snapshot();
+  lab.forward();
+  const frames = forwardFrames(before, lab.snapshot());
+  assert.ok(
+    frames.findIndex((frame) => frame.scene === "verify") >
+      frames.findIndex((frame) => frame.scene === "decrypt"),
+  );
+  lab.start(3, true);
+  lab.setOutgoing(find(lab, "public", "charlie"));
+  const publicBefore = lab.snapshot();
+  lab.forward();
+  const stopped = forwardFrames(publicBefore, lab.snapshot());
+  assert.equal(stopped.at(-1).at, "alice");
+  assert.equal(
+    stopped.some((frame) => frame.kind === "ciphertext"),
+    false,
+  );
+  assert.match(decisionFrame(lab.snapshot()).route, /Bob.*Alice/);
+});

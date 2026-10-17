@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./viewport.css?v=3" />
+    <link rel="stylesheet" href="./story.css?v=4" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -50,14 +51,14 @@
       </header>
       <section
         id="game-console"
-        class="game-console"
+        class="game-console story-game"
         aria-label="暗号通信クエスト"
       >
         <div class="game-inner">
           <div class="game-toolbar">
             <span class="game-logo"
               ><i aria-hidden="true">▣</i> CRYPTO QUEST
-              <small>通信経路のチャーリー</small></span
+              <small>通信経路のCharlie</small></span
             >
             <div>
               <button type="button" id="restart" class="toolbar-button">
@@ -66,7 +67,7 @@
               <button type="button" id="open-info" class="toolbar-button">
                 詳しく</button
               ><button type="button" id="help-button" class="toolbar-button">
-                ? 遊び方</button
+                導入を再生</button
               ><button
                 type="button"
                 id="fullscreen"
@@ -83,72 +84,8 @@
             role="status"
             aria-live="polite"
           ></div>
-          <section
-            id="briefing"
-            class="briefing"
-            aria-labelledby="briefing-title"
-          >
-            <p class="pixel-label">MISSION BRIEFING</p>
-            <h2 id="briefing-title">
-              あなたは、<em>通信経路のチャーリー。</em>
-            </h2>
-            <p class="briefing-lead">
-              アリスがボブに、秘密のメッセージを送ろうとしている。
-            </p>
-            <div
-              class="brief-route"
-              aria-label="アリスとボブの間にある中継機をチャーリーが操作します"
-            >
-              <span><b>A</b>アリス</span><i aria-hidden="true">→</i
-              ><span class="you"
-                ><b>C</b>あなたの中継機<small>データはここで止まる</small></span
-              ><i aria-hidden="true">→</i><span><b>B</b>ボブ</span>
-            </div>
-            <nav id="brief-tabs" class="brief-tabs" aria-label="遊び方の説明">
-              <button type="button" data-brief="0" aria-pressed="true">
-                1 場所</button
-              ><button type="button" data-brief="1" aria-pressed="false">
-                2 コピー</button
-              ><button type="button" data-brief="2" aria-pressed="false">
-                3 目的
-              </button>
-            </nav>
-            <div class="briefing-columns">
-              <div data-brief-page="0">
-                <span class="brief-number">01 / どこにいる？</span>
-                <h3>二人の間の中継機を操作する。</h3>
-                <p>
-                  鍵や暗号文は、あなたの中継機を通って相手に届きます。<strong>届くたびに時間が止まる</strong>ので、何をするか選べます。
-                </p>
-              </div>
-              <div data-brief-page="1">
-                <span class="brief-number">02 / コピーって？</span>
-                <h3>通ったデータを、手元に記録する。</h3>
-                <p>
-                  「コピーする」は、中継機の記録機能で<strong>同じデータを持ち物に残す</strong>操作です。暗号文をコピーしても、中身が読めるとは限りません。
-                </p>
-              </div>
-              <div data-brief-page="2">
-                <span class="brief-number">03 / 何を目指す？</span>
-                <h3>秘密を読み、別の言葉を届ける。</h3>
-                <p>
-                  元の本文を読み、<strong lang="en">I hate you.</strong>
-                  に書き換えて、ボブに受け付けさせるのが最初の目標です。守りが増えると、結果はどう変わるでしょう。
-                </p>
-              </div>
-            </div>
-            <div class="briefing-bottom">
-              <p>行動の順番は自由。失敗したら、新しい通信で試し直せます。</p>
-              <button
-                type="button"
-                id="start-game"
-                class="pixel-button primary"
-              >
-                ▶ 通信経路に入る
-              </button>
-            </div>
-          </section>
-          <div id="gameplay" hidden="">
+
+          <div id="gameplay">
             <nav id="rounds" class="round-nav" aria-label="ラウンドを選択">
               <button type="button" data-round="0" aria-current="step">
                 <span>ROUND 1</span>共通鍵</button
@@ -173,7 +110,7 @@
               <div id="auth-control" class="auth-control" hidden="">
                 <label
                   ><input type="checkbox" id="authenticate" checked="" />
-                  アリスがボブの公開鍵の持ち主を確認する</label
+                  AliceがBobの公開鍵の持ち主を確認する</label
                 >
                 <p>
                   信頼済みの指紋
@@ -200,90 +137,69 @@
                         >秘密の本文を送るよ</span
                       ><svg
                         class="pixel-character"
-                        viewBox="0 0 24 32"
-                        aria-hidden="true"
+                        viewBox="0 0 32 40"
+                        role="img"
+                        aria-label="Aliceのドット絵"
                         shape-rendering="crispEdges"
                       >
-                        <path
-                          fill="#b2d9e7"
-                          d="M7 1h10v2h3v14h-3V7H7v10H4V3h3z"
-                        ></path>
-                        <path fill="#f3d1a1" d="M7 7h10v10H7z"></path>
-                        <path
-                          fill="#173e43"
-                          d="M8 10h2v2H8zm6 0h2v2h-2z"
-                        ></path>
-                        <path
-                          fill="#f3d1a1"
-                          d="M10 17h4v3h-4zM3 21h3v7H3zm15 0h3v7h-3z"
-                        ></path>
-                        <path fill="#729fb8" d="M6 19h12v10H6z"></path>
-                        <path
-                          fill="#d8e6e2"
-                          d="M6 29h5v3H5v-2h1zm7 0h5v1h1v2h-6z"
-                        ></path>
+                        <use href="./characters.svg#alice"></use>
                       </svg>
-                      <h3>アリス <small>ALICE</small></h3>
+                      <h3 class="character-name name-alice" lang="en">
+                        <span>A</span>lice
+                      </h3>
                       <span>送りたい人</span>
                     </article>
                     <div class="relay">
-                      <div class="packet-sprite" id="packet-sprite">
-                        <span class="packet-shape" aria-hidden="true">▤</span
-                        ><b id="packet-short">共通鍵</b
-                        ><small id="copy-indicator">到着・ここで停止</small>
-                      </div>
-                      <div class="relay-machine" aria-hidden="true">
+                      <span class="actor-bubble" id="charlie-state"
+                        >通信経路を見ている</span
+                      >
+
+                      <div
+                        class="relay-machine"
+                        aria-label="Charlieが操作する中継機"
+                      >
                         <span>RELAY / C</span><b>▣ ▪ ▪</b>
                       </div>
                       <svg
                         class="pixel-character charlie-sprite"
-                        viewBox="0 0 24 32"
-                        aria-hidden="true"
+                        viewBox="0 0 32 40"
+                        role="img"
+                        aria-label="Charlieのドット絵"
                         shape-rendering="crispEdges"
                       >
-                        <path fill="#ceb8f1" d="M7 2h10v2h3v15H4V4h3z"></path>
-                        <path fill="#173e43" d="M7 8h10v9H7z"></path>
-                        <path fill="#b2e4bb" d="M7 9h4v3H7zm6 0h4v3h-4z"></path>
-                        <path
-                          fill="#ceb8f1"
-                          d="M6 19h12v11H6zM3 22h3v6H3zm15 0h3v6h-3z"
-                        ></path>
-                        <path
-                          fill="#d8e6e2"
-                          d="M6 30h5v2H5v-1h1zm7 0h5v1h1v1h-6z"
-                        ></path>
+                        <use href="./characters.svg#charlie"></use>
                       </svg>
-                      <h3>チャーリー <b>YOU</b></h3>
+                      <h3 class="character-name name-charlie" lang="en">
+                        <span>C</span>harlie<small>YOU</small>
+                      </h3>
                       <p>中継機を操作できる</p>
+                      <span id="relay-location" class="relay-location"
+                        >通信経路上の中継機</span
+                      >
                     </div>
                     <article class="actor bob">
                       <span class="actor-bubble" id="bob-state"
                         >まだ届いていないよ</span
                       ><svg
                         class="pixel-character"
-                        viewBox="0 0 24 32"
-                        aria-hidden="true"
+                        viewBox="0 0 32 40"
+                        role="img"
+                        aria-label="Bobのドット絵"
                         shape-rendering="crispEdges"
                       >
-                        <path fill="#b1d9af" d="M6 2h12v3h2v5H4V5h2z"></path>
-                        <path fill="#f3d1a1" d="M7 10h10v8H7z"></path>
-                        <path
-                          fill="#173e43"
-                          d="M8 11h2v2H8zm6 0h2v2h-2z"
-                        ></path>
-                        <path
-                          fill="#f3d1a1"
-                          d="M10 18h4v2h-4zM3 21h3v7H3zm15 0h3v7h-3z"
-                        ></path>
-                        <path fill="#6caa99" d="M6 19h12v11H6z"></path>
-                        <path
-                          fill="#d8e6e2"
-                          d="M6 30h5v2H5v-1h1zm7 0h5v1h1v1h-6z"
-                        ></path>
+                        <use href="./characters.svg#bob"></use>
                       </svg>
-                      <h3>ボブ <small>BOB</small></h3>
+                      <h3 class="character-name name-bob" lang="en">
+                        <span>B</span>ob
+                      </h3>
                       <span>受け取りたい人</span>
                     </article>
+                    <div class="packet-sprite" id="packet-sprite">
+                      <span class="packet-shape" aria-hidden="true">▤</span
+                      ><b id="packet-short">共通鍵</b
+                      ><small id="copy-indicator">到着・ここで停止</small>
+                    </div>
+                    <div class="copy-token" aria-hidden="true">COPY ↓</div>
                   </div>
                   <div class="packet-card">
                     <span>中継機にあるデータ</span
@@ -295,7 +211,7 @@
                   </div>
                 </section>
                 <section class="story-box" aria-labelledby="situation-title">
-                  <span class="box-label">いまの状況</span
+                  <span class="box-label">いまの場面</span
                   ><button
                     type="button"
                     id="situation-details"
@@ -306,7 +222,7 @@
                   <h3 id="situation-title"></h3>
                   <p id="situation-text"></p>
                   <div class="goal-line">
-                    <b>このラウンドの目的</b>
+                    <b>Charlieの作戦</b>
                     <p id="goal-text"></p>
                   </div>
                 </section>
@@ -314,8 +230,8 @@
               <div class="command-column">
                 <section class="command-box" aria-labelledby="command-title">
                   <div class="command-heading">
-                    <span class="box-label">行動を選ぶ</span>
-                    <h3 id="command-title">チャーリーは、どうする？</h3>
+                    <span class="box-label" id="command-label">行動を選ぶ</span>
+                    <h3 id="command-title">Charlieは、どうする？</h3>
                   </div>
                   <button type="button" id="capture" class="command">
                     <span class="command-icon" aria-hidden="true">＋</span
@@ -376,15 +292,40 @@
             </div>
             <section
               id="action-result"
-              class="action-result"
+              class="action-result dialogue-box"
               aria-labelledby="result-heading"
             >
-              <span class="box-label">行動の結果</span>
-              <h3 id="result-heading">まだ行動していない。</h3>
-              <p id="feedback" role="status" aria-live="polite">
-                状況と目的を読んで、行動を一つ選んでみよう。
-              </p>
-              <div id="bob-result" class="bob-result"></div>
+              <div class="dialogue-portrait" aria-hidden="true">
+                <svg viewBox="0 0 32 40" shape-rendering="crispEdges">
+                  <use
+                    id="speaker-sprite"
+                    href="./characters.svg#narrator"
+                  ></use>
+                </svg>
+              </div>
+              <div class="dialogue-content">
+                <span class="box-label" id="dialogue-label">STORY</span>
+                <h3 id="result-heading">まだ行動していない。</h3>
+                <p id="feedback" role="status" aria-live="polite">
+                  状況と目的を読んで、行動を一つ選んでみよう。
+                </p>
+                <div id="bob-result" class="bob-result"></div>
+              </div>
+              <div class="dialogue-controls">
+                <span id="dialogue-position">1 / 1</span
+                ><button
+                  type="button"
+                  id="dialogue-next"
+                  class="pixel-button primary"
+                >
+                  次へ ▶
+                </button>
+                <div class="dialogue-options">
+                  <button type="button" id="dialogue-previous">
+                    ← 前の会話</button
+                  ><button type="button" id="skip-story">会話を省略</button>
+                </div>
+              </div>
               <div class="result-actions">
                 <button
                   type="button"
@@ -414,6 +355,21 @@
                   class="pixel-button secondary"
                 >
                   結果の説明
+                </button>
+                <button
+                  type="button"
+                  id="dialogue-retry"
+                  class="pixel-button secondary"
+                  hidden=""
+                >
+                  ↻ 再挑戦</button
+                ><button
+                  type="button"
+                  id="dialogue-next-round"
+                  class="pixel-button primary"
+                  hidden=""
+                >
+                  次のラウンドへ →
                 </button>
               </div>
             </section>
@@ -764,6 +720,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=3"></script>
+    <script type="module" src="./app.mjs?v=4"></script>
   </body>
 </html>
