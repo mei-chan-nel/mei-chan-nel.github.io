@@ -1411,3 +1411,33 @@ html.statistics-immersive body {
     margin-bottom: 5px;
   }
 }
+
+/* The data tab shows complete records in one continuous browser-contained page. */
+.statistics-fullscreen.statistics-data-fullscreen {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.statistics-data-fullscreen > .statistics-workspace {
+  display: block;
+  height: auto;
+  min-height: 100%;
+}
+.statistics-fullscreen.statistics-data-fullscreen :is(#experiment, #project-root, #project-view) {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 0;
+  overflow: visible;
+}
+.statistics-data-fullscreen .workspace-screenbar,
+.statistics-data-fullscreen .view-tabs {
+  position: sticky;
+  z-index: 5;
+  background: #f7f6f0;
+}
+.statistics-data-fullscreen .workspace-screenbar {
+  top: 0;
+  min-height: 36px;
+}
+.statistics-data-fullscreen .view-tabs {
+  top: 42px;
+}

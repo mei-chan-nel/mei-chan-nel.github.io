@@ -45,6 +45,8 @@ export function setupFullscreen(workspace, redraw) {
         workspace.querySelector("#project-view") ||
         workspace.querySelector("#experiment");
       if (!root) return;
+      const dataView = root.querySelector(".data-view");
+      dialog.classList.toggle("statistics-data-fullscreen", !!dataView);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);
       const nextKey =
@@ -59,8 +61,15 @@ export function setupFullscreen(workspace, redraw) {
       if (key !== nextKey) {
         page = 0;
         key = nextKey;
+        dialog.scrollTop = 0;
       }
       pager.hidden = false;
+      if (dataView) {
+        // Keep every rendered person visible. The dialog supplies the single
+        // page scrollbar; generic analysis pagination must not hide data rows.
+        pager.hidden = true;
+        return;
+      }
       if (frequency) {
         // Keep the heading and controls in place. The table owns the remaining
         // viewport height; only its body rows change when paging.
