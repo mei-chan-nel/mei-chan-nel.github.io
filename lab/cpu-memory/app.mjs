@@ -294,13 +294,11 @@ function render() {
   $("current-command").textContent = machine.current
     ? text(machine.current)
     : "—";
+  $("current-command").classList.toggle(
+    "is-executing",
+    machine.phase?.stage === "decode",
+  );
   $("steps").textContent = machine.steps;
-  $("phase-kind").textContent = machine.phase
-    ? `動作 ${machine.actions} · ${{ "cache-request": "キャッシュへ要求", lookup: "ヒット判定", "ram-request": "RAMへ要求", "block-fill": "ブロック取得", "cpu-receive": "CPUへ取込", decode: "命令を実行", "cache-write": "キャッシュへ書込", "ram-write": "RAMへ書込", complete: "命令完了", error: "エラー" }[machine.phase.stage]}`
-    : "実行前";
-  $("phase-title").textContent = machine.phase?.title ?? "「次へ」で命令を取得";
-  $("phase-detail").textContent =
-    machine.phase?.detail ?? "命令の取得から計算まで、1つの動作ずつ進みます。";
   $("received-field").hidden = !machine.received;
   $("received-value").textContent = machine.received
     ? text(machine.received)
@@ -396,22 +394,25 @@ function render() {
     $("access-events").append(b);
   });
   $("access-reason").replaceChildren();
+  const displayedAccess = e
+    ? selectedEvent >= 0 && e.complete
+      ? e
+      : {
+          ...e,
+          phaseStage: machine.phase?.stage,
+          phaseTransfer: machine.phase?.transfer ?? null,
+        }
+    : null;
   if (e) {
     const flow = el("ol", undefined, "transfer-steps");
-    transferSteps(
-      selectedEvent >= 0 && e.complete
-        ? e
-        : { ...e, phaseTransfer: machine.phase?.transfer ?? null },
-    ).forEach((step) => flow.append(el("li", step.label, `flow-${step.kind}`)));
+    transferSteps(displayedAccess).forEach((step) =>
+      flow.append(
+        el("li", step.label, step.request ? "flow-request" : "flow-value"),
+      ),
+    );
     $("access-reason").append(flow, el("p", e.reason));
   }
-  transfers.update(
-    e
-      ? selectedEvent >= 0 && e.complete
-        ? e
-        : { ...e, phaseTransfer: machine.phase?.transfer ?? null }
-      : null,
-  );
+  transfers.update(displayedAccess);
   const s = machine.stats,
     total = s.cpu + s.wait;
   $("total-time").replaceChildren(
@@ -458,7 +459,11 @@ function focusPhase() {
     if (fullscreen.active)
       revealIn(document.querySelector(".cache-panel"), block, 38);
   }
-  const t = machine.phase?.transfer;
+  const t = transferSteps({
+    ...machine.phase?.event,
+    phaseStage: machine.phase?.stage,
+    phaseTransfer: machine.phase?.transfer ?? null,
+  })[0];
   if (t) {
     if (t.from === "ram" || t.to === "ram") revealRam(t.address);
     if (t.from === "cache" || t.to === "cache") {
@@ -484,7 +489,13 @@ function focusPhase() {
         38,
       );
   } else if (focus.device === "cpu" && fullscreen.active)
-    revealIn(document.querySelector(".cpu-panel"), $("phase-title"), 38);
+    revealIn(
+      document.querySelector(".cpu-panel"),
+      machine.phase.stage === "complete"
+        ? document.querySelector(".cpu-value")
+        : $("current-command"),
+      38,
+    );
   transfers.draw();
 }
 const fullscreen = createMemoryFullscreen({

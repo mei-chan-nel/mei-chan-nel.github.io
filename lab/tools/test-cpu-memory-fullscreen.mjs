@@ -185,7 +185,7 @@ document.body.dispatchEvent(
 assert.equal(Number($("steps").textContent), before);
 openRam(16);
 const operand = $("ram-edit-operand");
-const action = $("phase-kind").textContent;
+const action = $("notice").textContent;
 operand.dispatchEvent(
   new dom.window.KeyboardEvent("keydown", {
     key: "Enter",
@@ -194,7 +194,7 @@ operand.dispatchEvent(
   }),
 );
 assert.equal(Number($("steps").textContent), before);
-assert.equal($("phase-kind").textContent, action);
+assert.equal($("notice").textContent, action);
 $("ram-edit-dialog").querySelector("[data-cancel]").click();
 click("reset");
 click("memory-fullscreen");
