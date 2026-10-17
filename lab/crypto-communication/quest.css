@@ -542,3 +542,44 @@
 .quest-game.is-viewport[data-density="tiny"] .command-heading .box-label {
   font-size: 9px;
 }
+/* Use the learning app's answer palette, with text as well as color. */
+.quest-game .command-box[data-tone="correct"],
+.quest-game #action-result[data-tone="correct"] {
+  background: #e7f5ea;
+  color: #137333;
+  border-color: #137333;
+}
+.quest-game .command-box[data-tone="wrong"],
+.quest-game #action-result[data-tone="wrong"] {
+  background: #fcebea;
+  color: #b42318;
+  border-color: #b42318;
+}
+.quest-game [data-tone="correct"] #command-label,
+.quest-game [data-tone="correct"] #result-heading,
+.quest-game [data-tone="correct"] #feedback {
+  color: #137333;
+}
+.quest-game [data-tone="wrong"] #command-label,
+.quest-game [data-tone="wrong"] #result-heading,
+.quest-game [data-tone="wrong"] #feedback {
+  color: #b42318;
+}
+.quest-game [data-tone="correct"] .dialogue-label,
+.quest-game [data-tone="wrong"] .dialogue-label {
+  color: inherit;
+}
+.quest-game [data-tone="correct"] #dialogue-label,
+.quest-game [data-tone="correct"] #dialogue-position,
+.quest-game [data-tone="correct"] #bob-result,
+.quest-game [data-tone="correct"] .dialogue-options button,
+.quest-game [data-tone="correct"] .command-wait {
+  color: #137333;
+}
+.quest-game [data-tone="wrong"] #dialogue-label,
+.quest-game [data-tone="wrong"] #dialogue-position,
+.quest-game [data-tone="wrong"] #bob-result,
+.quest-game [data-tone="wrong"] .dialogue-options button,
+.quest-game [data-tone="wrong"] .command-wait {
+  color: #b42318;
+}

@@ -16,9 +16,9 @@
     <link rel="icon" href="../icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./style.css?v=3" />
-    <link rel="stylesheet" href="./viewport.css?v=4" />
-    <link rel="stylesheet" href="./story.css?v=6" />
-    <link rel="stylesheet" href="./quest.css?v=2" />
+    <link rel="stylesheet" href="./viewport.css?v=5" />
+    <link rel="stylesheet" href="./story.css?v=9" />
+    <link rel="stylesheet" href="./quest.css?v=3" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -195,7 +195,17 @@
                       <span>受け取りたい人</span>
                     </article>
                     <div class="packet-sprite" id="packet-sprite">
-                      <span class="packet-shape" aria-hidden="true">▤</span
+                      <svg
+                        class="packet-shape"
+                        viewBox="0 0 48 32"
+                        width="42"
+                        height="28"
+                        aria-hidden="true"
+                      >
+                        <use
+                          id="packet-icon"
+                          href="./packets.svg#key"
+                        ></use></svg
                       ><b id="packet-short">共通鍵</b
                       ><small id="copy-indicator">到着・ここで停止</small>
                     </div>
@@ -243,7 +253,7 @@
                       id="key-list"
                       class="key-list"
                       role="group"
-                      aria-label="Charlieが持っている鍵"
+                      aria-label="使う鍵、またはそのまま送る"
                     ></div>
                     <nav class="key-pagination" aria-label="鍵の選択ページ">
                       <button type="button" id="key-back">← 戻る</button>
@@ -355,23 +365,14 @@
                 通信の記録
               </button>
             </nav>
-            <article class="info-page"><p id="info-text"></p></article>
-            <footer class="info-pagination">
-              <button
-                type="button"
-                id="info-prev"
-                class="pixel-button secondary"
-              >
-                ← 前</button
-              ><span id="info-count"></span
-              ><button
-                type="button"
-                id="info-next"
-                class="pixel-button secondary"
-              >
-                次 →
-              </button>
-            </footer>
+            <article
+              class="info-page"
+              id="info-scroll"
+              tabindex="0"
+              aria-label="解説全文・スクロールできます"
+            >
+              <div id="info-text"></div>
+            </article>
           </dialog>
         </div>
       </section>
@@ -436,6 +437,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=8"></script>
+    <script type="module" src="./app.mjs?v=9"></script>
   </body>
 </html>

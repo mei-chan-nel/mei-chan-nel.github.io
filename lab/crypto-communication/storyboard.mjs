@@ -64,43 +64,33 @@ export function roundFrames(s) {
         phase: "key",
       }),
     ];
-  const frames = [];
-  if (s.round === 1)
-    frames.push(
-      frame(
-        "Aliceは、Bobの公開鍵で共通鍵を暗号化して送ることにした。",
-        "wrap",
-        { at: "alice", phase: "public" },
-      ),
-    );
-  if (s.round === 2)
-    frames.push(
-      frame(
-        "Aliceは、Aliceの秘密鍵で本文に署名を付ける。Bobは、信頼済みのAliceの公開鍵で署名を検証する。",
-        "verify",
-        {
-          at: "bob",
-          kind: "public",
-          packetLabel: "Aliceの検証用公開鍵",
-          phase: "public",
-        },
-      ),
-    );
-  if (s.round === 3)
-    frames.push(
-      frame(
-        s.authenticate
-          ? "Aliceは、届いた公開鍵が本当にBobの鍵か、信頼済みの指紋と照合する。"
-          : "今回は、AliceによるBobの公開鍵の確認を外して比べる。",
-        "authenticate",
-        { at: "alice", phase: "public" },
-      ),
-    );
+  const text =
+    s.round === 1
+      ? "Bobは、Bobの公開鍵をAliceへ送る。Aliceは、受け取った公開鍵で共通鍵を暗号化する。"
+      : s.round === 2
+        ? "Bobは、Bobの公開鍵をAliceへ送る。今回、Aliceは本文に電子署名を付ける。"
+        : s.authenticate
+          ? "Bobは、Bobの公開鍵をAliceへ送る。Aliceは、その公開鍵を信頼済みの指紋と照合する。"
+          : "Bobは、Bobの公開鍵をAliceへ送る。今回は、Aliceによる公開鍵の確認を外して比べる。";
+  const frames = [
+    frame(text, "bob-public", {
+      at: "bob",
+      kind: "public",
+      packetLabel: "Bobの公開鍵",
+      phase: "public",
+      route: "Bob → 中継機 → Alice",
+    }),
+  ];
   frames.push(
     frame(
       "Bobは、Bobの公開鍵をAliceへ送った。Charlieの中継機が公開鍵を記録した。",
       "inbound",
-      { kind: "public", phase: "public", route: "Bob → 中継機 → Alice" },
+      {
+        kind: "public",
+        packetLabel: "Bobの公開鍵",
+        phase: "public",
+        route: "Bob → 中継機 → Alice",
+      },
     ),
   );
   return frames;
@@ -112,7 +102,7 @@ export function outcomeFrame(s) {
       "attack-success": "Bobは、Charlieが書き換えた本文を受け付けた。",
       "original-accepted": s.read
         ? "Bobは、元の本文を受け付けた。Charlieは書き換えを行わなかった。"
-        : "Bobは本文を受け付けた。Charlieは本文を読めなかった。",
+        : "Bobは、Bobが持つ共通鍵で本文を復号し、受け付けた。",
       "bad-public": "Aliceは、届いたデータを公開鍵として使えず、通信を止めた。",
       "bad-key": "Bobは、届いた暗号文から共通鍵を取り出せず、通信を止めた。",
       "bad-message": "Bobは、届いた本文の暗号文を復号できなかった。",
@@ -139,7 +129,7 @@ export function lesson(s) {
           : "Aliceが公開鍵の持ち主を確認しなかったため、Charlieは共通鍵を手に入れられた。",
       "original-accepted": s.read
         ? "Charlieは盗聴に成功した。次は、本文を書き換えた場合と比べよう。"
-        : "暗号文を持っていても、Charlieは対応する共通鍵なしでは本文を読めない。",
+        : "Bobは正しい共通鍵を持っている。Charlieの手元の鍵で開けないことと、Bobが受信できることは別。",
       "bad-public": "Aliceが共通鍵を暗号化するには、配送先の公開鍵が必要。",
       "bad-key":
         "Bobが共通鍵を取り出せるのは、Bobの公開鍵で暗号化された暗号文。",
@@ -163,6 +153,14 @@ export function forwardFrames(before, after) {
         at: recipient,
         phase: before.phase,
         kind: packetKind(before.outgoing || before.incoming),
+        ...(before.phase === "public"
+          ? {
+              packetLabel: englishNames(
+                (before.outgoing || before.incoming).label,
+              ),
+              route: "Bob → 中継機 → Alice",
+            }
+          : {}),
       },
     ),
   ];
@@ -238,6 +236,16 @@ export function createStoryPlayer() {
     current: () => (active ? frames[index] : null),
     active: () => active,
     position: () => ({ index, total: frames.length }),
+    checkpoint: () => ({
+      frames: frames.map((f) => ({ ...f })),
+      index,
+      active,
+    }),
+    restore(value) {
+      frames = value.frames.map((f) => ({ ...f }));
+      index = value.index;
+      active = value.active;
+    },
     next() {
       if (active && index + 1 < frames.length) index++;
       else active = false;

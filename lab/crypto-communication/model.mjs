@@ -430,7 +430,32 @@ export function createLab() {
     s.outgoing = null;
   }
   start();
+  // Learning-only time travel. The returned closure keeps sealed payloads
+  // inside the model; neither checkpoints nor snapshots reveal their values.
+  function checkpoint() {
+    const clone = (value) => JSON.parse(JSON.stringify(value));
+    const saved = {
+      objects: clone([...objects]),
+      secrets: clone([...secrets]),
+      known: [...known],
+      history: clone(history),
+      state: clone(s),
+      counter,
+    };
+    return () => {
+      objects.clear();
+      secrets.clear();
+      known.clear();
+      for (const [id, item] of clone(saved.objects)) objects.set(id, item);
+      for (const [id, item] of clone(saved.secrets)) secrets.set(id, item);
+      for (const id of saved.known) known.add(id);
+      history.splice(0, history.length, ...clone(saved.history));
+      s = clone(saved.state);
+      counter = saved.counter;
+    };
+  }
   return {
+    checkpoint,
     snapshot,
     start,
     capture,

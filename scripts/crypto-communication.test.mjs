@@ -233,496 +233,237 @@ test("captured original can be decrypted after delivery and updates observation"
 
 import { createQuest } from "../lab/crypto-communication/quest.mjs";
 import {
-  introFrames,
   roundFrames,
   createStoryPlayer,
-  forwardFrames,
 } from "../lab/crypto-communication/storyboard.mjs";
-import {
-  screenLayout,
-  paginateText,
-} from "../lab/crypto-communication/screen-layout.mjs";
-function decide(q, action, predicate) {
+import { explanations } from "../lab/crypto-communication/explanations.mjs";
+function choose(q, id, predicate) {
   assert.ok(q.view().choices.length <= 2);
-  assert.equal(
-    q.select(action),
-    true,
-    action + " must be offered in this scene",
-  );
+  assert.ok(q.select(id), `available: ${id}`);
   if (q.view().selectingKey) {
-    const keys = q.view().selectingKey.keys;
-    const test =
-      predicate ||
-      ((key) =>
-        action === "open-key"
-          ? key.type === "private"
-          : action === "rewrap"
-            ? key.type === "public" && key.owner === "bob"
-            : key.type === "symmetric" && key.detail === "この通信で入手");
-    const key =
-      keys.find(test) ||
-      (!predicate && keys.find((key) => key.type === "symmetric"));
-    assert.ok(key, "test must select a key explicitly");
-    assert.equal(q.selectKey(key.id), true);
+    const key = q
+      .view()
+      .selectingKey.keys.find(
+        predicate ||
+          ((key) =>
+            id === "open-key"
+              ? key.type === "private"
+              : id === "rewrap"
+                ? key.owner === "bob"
+                : key.type === "symmetric"),
+      );
+    assert.ok(key);
+    assert.ok(q.selectKey(key.id));
   }
   return q.confirm();
 }
-function questKey(q, round) {
-  q.start(round);
-  decide(q, "swap");
-  decide(q, "forward");
-  decide(q, "open-key");
-  decide(q, "rewrap");
-  decide(q, "forward");
+function correct(q, id, predicate) {
+  choose(q, id, predicate);
+  assert.equal(q.view().feedback.correct, true, id);
+  assert.equal(q.view().tone, "correct");
+  return choose(q, "continue");
 }
-test("arriving data is automatically recorded in every phase without capture choices", () => {
-  const q = createQuest();
-  for (const round of [0, 1, 2, 3]) {
-    q.start(round);
-    for (let i = 0; i < 3 && q.view().phase !== "done"; i++) {
-      const s = q.view();
-      assert.equal(s.recorded, true);
-      assert.ok(s.inventory.some((a) => a.id === s.incoming.id));
-      assert.equal(
-        s.choices.some((a) => a.id === "capture"),
-        false,
-      );
-      if (s.phase === "message") break;
-      decide(q, "forward");
-    }
+function body(q, round) {
+  q.start(round);
+  if (round) {
+    correct(q, "swap");
+    choose(q, "forward");
+    correct(q, "open-key");
+    correct(q, "rewrap");
+  }
+  choose(q, "forward");
+}
+test("all rounds retain hybrid cryptography and require a prediction after reading", () => {
+  for (const round of [0, 1, 2]) {
+    const q = createQuest();
+    body(q, round);
+    assert.equal(q.view().original, null);
+    correct(q, "read");
+    assert.equal(q.view().original, "I love you.");
+    assert.deepEqual(
+      q.view().choices.map((x) => x.id),
+      ["predict-safe", "predict-detected"],
+    );
+    correct(q, round === 2 ? "predict-detected" : "predict-safe");
+    correct(q, "edit");
+    choose(q, "forward");
+    assert.equal(
+      q.view().result.code,
+      round === 2 ? "signature-rejected" : "attack-success",
+    );
+    assert.equal(q.view().tone, "correct");
   }
 });
-test("choosing and canceling is inert, and unavailable operations cannot be confirmed", () => {
+test("wrong decryption is immediate red and retries at the same key question", () => {
   const q = createQuest();
-  q.start(1);
+  body(q, 1);
   const before = q.view();
-  assert.equal(q.select("edit"), false);
-  assert.deepEqual(q.confirm(), []);
-  assert.deepEqual(q.view(), before);
-  q.select("swap");
-  assert.equal(q.view().outgoing, null);
-  q.cancel();
-  assert.deepEqual(q.view(), before);
-  decide(q, "swap");
-  assert.equal(q.view().outgoing.owner, "charlie");
-  decide(q, "undo");
-  assert.equal(q.view().outgoing, null);
+  choose(q, "read", (k) => k.type === "public");
+  assert.equal(q.view().tone, "wrong");
+  assert.equal(q.view().read, false);
+  choose(q, "retry-here");
   const after = q.view();
-  assert.deepEqual(q.confirm(), []);
-  assert.deepEqual(q.view(), after);
-});
-test("the idea to reverse the message appears only after successful decryption", () => {
-  const q = createQuest();
-  assert.equal(JSON.stringify(introFrames()).includes("hate"), false);
-  assert.equal(JSON.stringify(introFrames()).includes("I love you."), false);
-  assert.equal(JSON.stringify(q.view()).includes("I hate you."), false);
-  assert.equal(
-    q.view().choices.some((a) => a.id === "edit"),
-    false,
-  );
-  decide(q, "forward");
-  assert.equal(JSON.stringify(q.view()).includes("I love you."), false);
-  assert.equal(JSON.stringify(q.view()).includes("hate"), false);
-  q.select("read");
-  assert.equal(q.view().original, null);
-  q.cancel();
-  const frames = decide(q, "read");
-  assert.equal(q.view().original, "I love you.");
-  assert.equal(q.view().state, "idea");
+  assert.equal(after.incoming.id, before.incoming.id);
+  assert.equal(after.count, before.count);
+  assert.equal(after.original, null);
+  assert.equal(after.selectingKey.action, "read");
   assert.ok(
-    frames.findIndex((f) => f.scene === "idea") >
-      frames.findIndex((f) => f.scene === "decrypt"),
+    q.selectKey(after.selectingKey.keys.find((k) => k.type === "symmetric").id),
   );
-  assert.match(frames.at(-1).text, /Charlie.*love.*hate.*思いついた/);
-  assert.deepEqual(
-    q.view().choices.map((a) => a.id),
-    ["edit", "forward"],
-  );
+  q.confirm();
+  assert.equal(q.view().feedback.correct, true);
 });
-test("guided R1 groups edit, re-encryption and replacement and allows undo before delivery", () => {
-  const q = createQuest();
-  decide(q, "forward");
-  decide(q, "read");
-  const first = q
-    .view()
-    .inventory.find((a) => a.type === "symmetric" && a.current).id;
-  decide(q, "edit");
-  assert.equal(q.view().draft, "I hate you.");
-  assert.equal(q.view().outgoing.type, "ciphertext");
-  assert.equal(q.view().result, null);
-  decide(q, "undo");
-  assert.equal(q.view().outgoing, null);
-  assert.equal(q.view().draft, "I love you.");
-  decide(q, "edit");
-  decide(q, "forward");
-  assert.equal(q.view().result.code, "attack-success");
-  assert.equal(q.view().result.message, "I hate you.");
-  q.start(0);
-  assert.notEqual(
-    q.view().inventory.find((a) => a.type === "symmetric" && a.current).id,
-    first,
-  );
+test("wrong prediction can demonstrate real Bob outcome then retry exact question", () => {
+  for (const round of [0, 2]) {
+    const q = createQuest();
+    body(q, round);
+    correct(q, "read");
+    const before = q.view();
+    choose(q, round === 2 ? "predict-safe" : "predict-detected");
+    assert.equal(q.view().tone, "wrong");
+    const frames = choose(q, "show-consequence");
+    assert.ok(frames.every((f) => f.tone === "wrong"));
+    assert.equal(
+      q.view().result.code,
+      round === 2 ? "signature-rejected" : "attack-success",
+    );
+    choose(q, "retry-here");
+    assert.equal(q.view().phase, "message");
+    assert.equal(q.view().draft, "I love you.");
+    assert.equal(q.view().incoming.id, before.incoming.id);
+    assert.equal(q.view().count, before.count);
+    assert.equal(q.view().state, "predict");
+  }
 });
-test("R2: the previous common key fails, then public-key substitution and rewrapping work", () => {
+test("forward unchanged is available inside key picker, and Bob can read what Charlie did not read", () => {
   const q = createQuest();
-  q.start(1);
-  decide(q, "forward");
-  decide(q, "open-key", (key) => key.type === "symmetric");
-  assert.equal(q.view().state, "blocked");
+  body(q, 0);
+  const before = q.view();
+  q.select("read");
+  assert.equal(q.view().selectingKey.allowPass, true);
+  q.selectPass();
+  q.confirm();
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().read, false);
   assert.equal(q.view().original, null);
-  const oldCount = q.view().count;
-  decide(q, "restart");
-  assert.ok(q.view().count > oldCount);
-  decide(q, "swap");
-  decide(q, "forward");
-  decide(q, "open-key");
-  assert.match(q.view().keyLabel, /^共通鍵/);
-  decide(q, "rewrap");
-  assert.equal(q.view().outgoing.type, "envelope");
-  decide(q, "forward");
-  decide(q, "read");
-  decide(q, "edit");
-  decide(q, "forward");
-  assert.equal(q.view().result.code, "attack-success");
+  choose(q, "retry-here");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().selectingKey.action, "read");
 });
-test("sending the Charlie-addressed envelope without rewrapping still fails at Bob", () => {
+test("wrong recipient wrapping is valid encryption but fails for Bob and can be retried", () => {
   const q = createQuest();
   q.start(1);
-  decide(q, "swap");
-  decide(q, "forward");
-  decide(q, "open-key");
-  decide(q, "forward");
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  choose(q, "rewrap", (k) => k.type === "public" && k.owner === "charlie");
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "bad-key");
+  choose(q, "retry-here");
+  assert.equal(q.view().phase, "key");
+  assert.equal(q.view().selectingKey.action, "rewrap");
+});
+test("passing Charlie-wrapped key without rewrapping prevents Bob from opening it", () => {
+  const q = createQuest();
+  q.start(1);
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  q.select("rewrap");
+  q.selectPass();
+  q.confirm();
+  choose(q, "show-consequence");
   assert.equal(q.view().result.code, "bad-key");
 });
-test("R3: the same guided attack reads the message but the trusted signature rejects edits", () => {
-  const q = createQuest();
-  questKey(q, 2);
-  decide(q, "read");
-  assert.equal(q.view().read, true);
-  const signature = q.view().signature.id;
-  decide(q, "edit");
-  assert.equal(q.view().signature.id, signature);
-  const before = q.view();
-  const frames = decide(q, "forward");
-  assert.equal(q.view().result.code, "signature-rejected");
-  assert.equal(q.view().result.accepted, false);
-  assert.ok(
-    frames.findIndex((f) => f.scene === "verify") <
-      frames.findIndex((f) => f.revealOutcome),
-  );
-  assert.deepEqual(
-    before.inventory.filter((a) => a.type === "private").map((a) => a.owner),
-    ["charlie"],
-  );
-});
-test("the learner can forward the unchanged signed message after reading it", () => {
-  const q = createQuest();
-  questKey(q, 2);
-  decide(q, "read");
-  decide(q, "forward");
-  assert.equal(q.view().result.code, "original-accepted");
-  assert.equal(q.view().read, true);
-});
-test("genuine public key plus the old symmetric key cannot expose this round's message", () => {
+test("leaving authentic Bob key stops Charlie reading, without inventing Bob failure", () => {
   const q = createQuest();
   q.start(1);
-  decide(q, "forward");
-  decide(q, "forward");
-  decide(q, "read");
-  assert.equal(q.view().original, null);
+  choose(q, "send-public");
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "original-accepted");
   assert.equal(q.view().read, false);
-  assert.equal(
-    q.view().choices.some((a) => a.id === "edit"),
-    false,
-  );
-  assert.equal(q.select("forward"), false);
-  assert.equal(q.view().phase, "message");
-  assert.equal(q.view().result, null);
-  assert.ok(q.view().choices.some((action) => action.id === "retry"));
-  decide(q, "retry");
+  choose(q, "retry-here");
   assert.equal(q.view().phase, "public");
+  assert.equal(q.view().outgoing, null);
 });
-test("authenticating Bob's key stops before sharing a key; toggling the check permits eavesdropping", () => {
+test("checkpoint restores real protocol state across forwarding, reading, and new rounds", () => {
   const q = createQuest();
-  q.start(3);
-  decide(q, "swap");
-  decide(q, "forward");
-  assert.equal(q.view().result.code, "authenticated");
+  q.start(0);
+  const before = q.view();
+  const undo = q.checkpoint();
+  choose(q, "forward");
+  const unread = q.checkpoint();
+  correct(q, "read");
+  q.start(2);
+  unread();
+  assert.equal(q.view().phase, "message");
+  assert.equal(q.view().original, null);
   assert.equal(q.view().read, false);
-  assert.equal(
-    q.view().inventory.some((a) => a.type === "symmetric" && a.current),
-    false,
-  );
-  decide(q, "compare");
-  assert.equal(q.view().authenticate, false);
-  decide(q, "swap");
-  decide(q, "forward");
-  decide(q, "open-key");
-  decide(q, "rewrap");
-  decide(q, "forward");
-  decide(q, "read");
-  decide(q, "forward");
-  assert.equal(q.view().read, true);
-  assert.equal(q.view().result.code, "original-accepted");
+  correct(q, "read");
+  undo();
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().phase, "key");
+  assert.equal(q.view().result, null);
 });
-test("round restart clears a pending choice and all revealed text", () => {
+test("no previous symmetric keys or private Alice/Bob keys enter picker", () => {
   const q = createQuest();
-  decide(q, "forward");
-  decide(q, "read");
-  q.select("edit");
-  q.start(1);
-  assert.equal(q.view().pending, null);
-  assert.equal(q.view().original, null);
-  assert.equal(JSON.stringify(q.view()).includes("I love you."), false);
-  assert.equal(JSON.stringify(q.view()).includes("I hate you."), false);
-});
-test("short narration keeps the same stage, explains recording once and preserves secrecy", () => {
-  const frames = introFrames();
-  assert.equal(frames.length, 4);
-  assert.equal(frames[0].connected, false);
-  assert.equal(frames[2].connected, true);
-  assert.match(frames[3].text, /自動で記録/);
-  for (const round of [0, 1, 2, 3]) {
-    const q = createQuest();
-    q.start(round);
-    assert.ok(roundFrames(q.view()).length <= 2);
-    const player = createStoryPlayer();
-    const source = [...frames, ...roundFrames(q.view())];
-    player.play(source);
-    const pages = [];
-    while (player.active()) {
-      assert.ok(Array.from(player.current().text).length <= 64);
-      pages.push(player.current().text);
-      player.next();
-    }
-    assert.equal(pages.join(""), source.map((f) => f.text).join(""));
-    assert.equal(pages.join("").includes("hate"), false);
-  }
-});
-test("a short sentence before a long sentence never orphans the actor or action", () => {
-  const a = "Charlieは、暗号文を受け取った。",
-    b =
-      "Charlieは、AliceからBobへ送られた本文の暗号文を、中継機の記録装置にコピーした。";
-  const player = createStoryPlayer();
-  player.play([{ text: a + b }]);
-  assert.equal(player.current().text, a);
-  player.next();
-  assert.equal(player.current().text, b);
-});
-test("fullscreen composition follows orientation and explanation pages preserve all characters", () => {
-  assert.deepEqual(screenLayout(1366, 768), {
-    layout: "wide",
-    density: "comfortable",
-  });
-  assert.deepEqual(screenLayout(390, 844), {
-    layout: "narrow",
-    density: "comfortable",
-  });
-  assert.deepEqual(screenLayout(375, 667), {
-    layout: "narrow",
-    density: "compact",
-  });
-  assert.deepEqual(screenLayout(844, 390), { layout: "wide", density: "tiny" });
-  assert.deepEqual(screenLayout(320, 480), {
-    layout: "narrow",
-    density: "tiny",
-  });
-  const text = "公開鍵と秘密鍵。🙂署名も確認。".repeat(30),
-    pages = paginateText(text, 64);
-  assert.equal(pages.join(""), text);
-  assert.ok(pages.every((p) => Array.from(p).length <= 64));
-});
-
-test("opening a key operation never chooses a key or runs it automatically", () => {
-  const q = createQuest();
-  decide(q, "forward");
-  const initial = q.view();
+  body(q, 0);
+  correct(q, "read");
+  const old = q
+    .view()
+    .inventory.find((k) => k.type === "symmetric" && k.current).id;
+  body(q, 1);
   q.select("read");
-  assert.equal(q.view().pending, null);
-  assert.equal(q.view().selectingKey.selectedId, null);
-  assert.match(q.view().selectingKey.title, /本文.*復号.*鍵/);
-  assert.deepEqual(q.confirm(), []);
-  assert.equal(q.view().original, null);
-  assert.deepEqual(q.view().log, initial.log);
-  assert.equal(q.selectKey("unknown-key"), false);
-  const key = q.view().selectingKey.keys.find((a) => a.type === "symmetric");
-  q.selectKey(key.id);
-  assert.match(q.view().pending.summary, /共通鍵.*本文.*復号/);
-  assert.equal(q.view().original, null);
-  q.cancel();
-  assert.equal(q.view().pending, null);
-  assert.equal(q.view().selectingKey.selectedId, key.id);
-  q.cancel();
-  assert.equal(q.view().selectingKey, null);
-  assert.deepEqual(q.view(), initial);
-});
-test("public and private keys fail on a symmetric message, then the chosen symmetric key succeeds without restarting", () => {
-  const q = createQuest();
-  decide(q, "forward");
-  const packet = q.view().incoming.id,
-    count = q.view().count;
-  for (const type of ["public", "private"]) {
-    decide(q, "read", (key) => key.type === type);
-    assert.equal(q.view().lastAttempt.ok, false);
-    assert.equal(q.view().lastAttempt.key.type, type);
-    assert.match(q.view().lastAttempt.reason, /共通鍵/);
-    assert.equal(q.view().phase, "message");
-    assert.equal(q.view().incoming.id, packet);
-    assert.equal(q.view().count, count);
-    assert.equal(q.view().original, null);
-  }
-  decide(q, "read", (key) => key.type === "symmetric");
-  assert.equal(q.view().original, "I love you.");
-});
-test("a Charlie-addressed envelope needs Charlie's private key, not either public key or the old shared key", () => {
-  const q = createQuest();
-  q.start(1);
-  decide(q, "swap");
-  decide(q, "forward");
-  for (const predicate of [
-    (key) => key.type === "public" && key.owner === "bob",
-    (key) => key.type === "public" && key.owner === "charlie",
-    (key) => key.type === "symmetric",
-  ]) {
-    decide(q, "open-key", predicate);
-    assert.equal(q.view().lastAttempt.ok, false);
-    assert.match(q.view().lastAttempt.reason, /Charlieの秘密鍵/);
-    assert.equal(
-      q.view().inventory.some((a) => a.type === "symmetric" && a.current),
-      false,
-    );
-  }
-  decide(q, "open-key", (key) => key.type === "private");
-  assert.equal(q.view().lastAttempt.ok, true);
-  assert.equal(
-    q.view().inventory.some((a) => a.type === "symmetric" && a.current),
-    true,
-  );
-});
-test("all held keys fail on Bob's envelope and Bob's private key is never available", () => {
-  const q = createQuest();
-  q.start(1);
-  decide(q, "forward");
-  q.select("open-key");
   const keys = q.view().selectingKey.keys;
   assert.equal(
-    keys.some((a) => a.type === "private" && a.owner !== "charlie"),
+    keys.some((k) => k.id === old),
     false,
   );
-  q.cancel();
-  for (const key of keys) {
-    decide(q, "open-key", (a) => a.id === key.id);
-    assert.equal(q.view().lastAttempt.ok, false);
-  }
+  assert.equal(keys.filter((k) => k.type === "symmetric").length, 1);
   assert.equal(
-    q.view().inventory.some((a) => a.type === "symmetric" && a.current),
+    keys.some((k) => k.type === "private" && k.owner !== "charlie"),
     false,
   );
 });
-test("wrapping rejects non-public keys, and choosing Charlie's public key produces an envelope Bob cannot open", () => {
+test("authenticated public-key check blocks theft before key delivery", () => {
+  const q = createQuest();
+  q.start(3);
+  correct(q, "swap");
+  choose(q, "forward");
+  assert.equal(q.view().result.code, "authenticated");
+  assert.equal(q.view().original, null);
+  choose(q, "compare");
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  assert.equal(q.view().phase, "key");
+});
+test("public key starts at Bob and crosses relay before Alice; storyboard restores frames", () => {
   const q = createQuest();
   q.start(1);
-  decide(q, "swap");
-  decide(q, "forward");
-  decide(q, "open-key");
-  for (const type of ["private", "symmetric"]) {
-    decide(q, "rewrap", (key) => key.type === type);
-    assert.equal(q.view().lastAttempt.ok, false);
-    assert.equal(q.view().outgoing, null);
-    assert.match(q.view().lastAttempt.reason, /配送先の公開鍵/);
-  }
-  decide(
-    q,
-    "rewrap",
-    (key) => key.type === "public" && key.owner === "charlie",
-  );
-  assert.equal(q.view().lastAttempt.ok, true);
-  assert.equal(q.view().stagedKey.owner, "charlie");
-  assert.match(q.view().outgoingDescription, /Charlieの公開鍵/);
-  decide(q, "forward");
-  assert.equal(q.view().result.code, "bad-key");
+  const frames = roundFrames(q.view());
+  assert.equal(frames[0].at, "bob");
+  assert.equal(frames[0].kind, "public");
+  assert.ok(frames.some((f) => f.at === "relay"));
+  assert.ok(frames.every((f) => f.route === "Bob → 中継機 → Alice"));
+  const story = createStoryPlayer();
+  story.play(frames);
+  const saved = story.checkpoint();
+  story.next();
+  story.restore(saved);
+  assert.equal(story.current().at, "bob");
 });
-test("a wrong encryption key type leaves the message intact; an old shared key creates ciphertext Bob cannot read", () => {
-  const q = createQuest();
-  questKey(q, 1);
-  decide(q, "read");
-  for (const type of ["public", "private"]) {
-    decide(q, "edit", (key) => key.type === type);
-    assert.equal(q.view().lastAttempt.ok, false);
-    assert.equal(q.view().draft, "I love you.");
-    assert.equal(q.view().outgoing, null);
-  }
-  decide(
-    q,
-    "edit",
-    (key) => key.type === "symmetric" && key.detail === "以前の通信で入手",
-  );
-  assert.equal(q.view().lastAttempt.ok, true);
-  assert.equal(q.view().draft, "I hate you.");
-  decide(q, "forward");
-  assert.equal(q.view().result.code, "bad-message");
-});
-test("Alice's trusted verification key is offered but cannot decrypt a message", () => {
-  const q = createQuest();
-  questKey(q, 2);
-  decide(q, "read", (key) => key.type === "verify");
-  assert.equal(q.view().original, null);
-  assert.equal(q.view().lastAttempt.ok, false);
-  assert.match(q.view().lastAttempt.reason, /Aliceの署名/);
-  decide(q, "read");
-  assert.equal(q.view().original, "I love you.");
-});
-test("the key picker keeps only one previous shared key and never invents unavailable keys", () => {
-  const q = createQuest();
-  q.start(0);
-  q.start(0);
-  q.start(0);
-  questKey(q, 2);
-  q.select("read");
-  const s = q.view(),
-    keys = s.selectingKey.keys;
-  assert.ok(keys.length <= 6);
-  assert.equal(
-    keys.filter(
-      (a) => a.type === "symmetric" && a.detail === "以前の通信で入手",
-    ).length,
-    1,
-  );
-  assert.ok(keys.every((key) => s.inventory.some((a) => a.id === key.id)));
-  assert.deepEqual(
-    keys.filter((a) => a.type === "private").map((a) => a.owner),
-    ["charlie"],
-  );
-});
-
-test("message choices focus on choosing a key and cannot skip decryption into a no-read outcome", () => {
+test("explanations show full sections without revealing unread plaintext", () => {
   const q = createQuest();
   for (const round of [0, 1, 2, 3]) {
-    if (round === 0) q.start(0);
-    else {
-      q.start(round, false);
-      decide(q, "swap");
-      decide(q, "forward");
-      decide(q, "open-key");
-      decide(q, "rewrap");
-    }
-    decide(q, "forward");
-    assert.equal(q.view().phase, "message");
-    assert.deepEqual(
-      q.view().choices.map((a) => a.id),
-      ["read"],
-    );
-    const original = q.view();
-    assert.equal(q.select("forward"), false);
-    assert.deepEqual(q.confirm(), []);
-    assert.deepEqual(q.view(), original);
-    decide(q, "read", (key) => key.type === "public");
-    assert.equal(q.view().original, null);
-    assert.equal(q.select("forward"), false);
-    assert.ok(q.view().choices.every((a) => a.id !== "forward"));
-    decide(q, "read");
-    assert.equal(q.view().read, true);
-    assert.ok(q.view().choices.some((a) => a.id === "edit"));
-    assert.ok(q.view().choices.some((a) => a.id === "forward"));
+    q.start(round);
+    const full = explanations(q.view());
+    assert.ok(full.length >= 5);
+    assert.ok(full.map((x) => x.text).join("").length > 800);
+    assert.equal(JSON.stringify(full).includes("I love you."), false);
   }
 });

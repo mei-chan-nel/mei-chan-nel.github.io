@@ -396,3 +396,26 @@
   > span:last-child {
   display: none;
 }
+.info-dialog[open] {
+  grid-template-rows: 40px 36px minmax(0, 1fr);
+}
+.info-page {
+  display: block;
+  overflow: auto;
+  overscroll-behavior: contain;
+  align-content: start;
+}
+.info-page h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+  color: var(--game-gold);
+}
+.info-page section + section {
+  margin-top: 24px;
+}
+@media (max-height: 600px) {
+  .info-dialog[open] {
+    grid-template-rows: 30px 30px minmax(0, 1fr);
+  }
+}

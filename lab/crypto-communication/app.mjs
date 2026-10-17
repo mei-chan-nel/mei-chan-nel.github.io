@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=3";
+import { createQuest } from "./quest.mjs?v=4";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=7";
+} from "./storyboard.mjs?v=9";
 import { createDisplayController } from "./display.mjs";
-import { paginateText } from "./screen-layout.mjs";
+import { explanations } from "./explanations.mjs";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -22,13 +22,35 @@ const esc = (value) =>
 let previousChoice = null,
   previousTrigger = null,
   infoTopic = "mechanism",
-  infoPage = 0,
-  infoPages = [],
   infoOpener = null;
 let keyPage = 0;
 let shownKey = "未取得",
   shownCount = 0,
   shownOriginal = null;
+const history = [];
+function remember() {
+  history.push({
+    restore: quest.checkpoint(),
+    story: story.checkpoint(),
+    keyPage,
+    shownKey,
+    shownCount,
+    shownOriginal,
+  });
+}
+function goBack() {
+  const last = history.pop();
+  if (!last) return;
+  last.restore();
+  story.restore(last.story);
+  ({ keyPage, shownKey, shownCount, shownOriginal } = last);
+  render();
+}
+function execute() {
+  const frames = quest.confirm();
+  if (frames.length) play(frames);
+  else render();
+}
 function play(frames) {
   story.play(frames);
   render();
@@ -55,7 +77,11 @@ function render() {
       f.at !== "alice");
   if (s.read && (!talking || f.showPlaintext || f.revealOutcome))
     shownOriginal = s.original;
+  if (!s.read) shownOriginal = null;
   const plaintextVisible = Boolean(shownOriginal);
+  const tone = talking ? f.tone || "" : s.tone;
+  $("action-result").dataset.tone = tone;
+  document.querySelector(".command-box").dataset.tone = tone;
   Object.assign($("game-console").dataset, {
     talking: String(talking),
     pending: String(pending),
@@ -117,7 +143,29 @@ function render() {
     : done
       ? "■ 通信終了"
       : "Ⅱ 転送前で停止";
-  $("packet-sprite").dataset.kind = f.kind;
+  const signed =
+    s.round >= 2 && (f.kind === "ciphertext" || f.scene === "sign");
+  const visualKind =
+    f.scene === "sign" ? "signature" : signed ? "signed-message" : f.kind;
+  $("packet-sprite").dataset.kind = visualKind;
+  const shapes = {
+    key: "key",
+    public: "public",
+    "wrapped-key": "wrapped",
+    ciphertext: "encrypted",
+    letter: "message",
+    signature: "signature",
+    "signed-message": "signed",
+  };
+  $("packet-icon").setAttribute(
+    "href",
+    "./packets.svg#" + (shapes[visualKind] || "message"),
+  );
+  $("packet-sprite").setAttribute(
+    "aria-label",
+    (signed ? "署名付き・" : "") + (f.packetLabel || packetName(f.kind)),
+  );
+
   $("packet-short").textContent = f.packetLabel || packetName(f.kind);
   $("packet-title").textContent =
     f.packetLabel || packetName(f.kind) || "通信の準備中";
@@ -181,15 +229,20 @@ function render() {
   $("goal-text").textContent = talking
     ? "下の「次へ」で続きを見よう。"
     : s.goal;
-  $("command-label").textContent = talking
-    ? "通信の様子を見よう"
-    : pending
-      ? "この操作で進める？"
-      : picking
-        ? s.selectingKey.title
-        : done
-          ? "次に試すこと"
-          : "Charlieの行動";
+  $("command-label").textContent =
+    !talking && s.feedback
+      ? s.feedback.correct
+        ? "○ 正解"
+        : "× 誤答"
+      : talking
+        ? "通信の様子を見よう"
+        : pending
+          ? "この操作で進める？"
+          : picking
+            ? s.selectingKey.title
+            : done
+              ? "次に試すこと"
+              : "Charlieの行動";
   $("command-wait").hidden = !talking;
   $("choice-list").hidden = talking || pending || picking;
   $("key-picker").hidden = talking || pending || !picking;
@@ -220,7 +273,18 @@ function render() {
         $("game-console").dataset.density === "compact"))
       ? 2
       : 6;
-  const keys = s.selectingKey?.keys || [];
+  const keys = [
+    ...(s.selectingKey?.keys || []),
+    ...(s.selectingKey?.allowPass
+      ? [
+          {
+            id: "pass",
+            label: "そのまま送る",
+            detail: "届いた元のデータを転送",
+          },
+        ]
+      : []),
+  ];
   const pageCount = Math.max(1, Math.ceil(keys.length / size));
   if (pending && s.selectingKey?.selectedId)
     keyPage = Math.floor(
@@ -272,28 +336,37 @@ function render() {
     : done
       ? "RESULT"
       : "YOUR TURN";
-  $("result-heading").textContent = "ナレーション";
+  $("result-heading").textContent = tone
+    ? tone === "correct"
+      ? "○ 正解"
+      : "× 誤答とその結果"
+    : "ナレーション";
   $("speaker-sprite").setAttribute("href", "./characters.svg#narrator");
   $("feedback").textContent = talking
     ? f.text
-    : done
-      ? lesson(s)
-      : pending
-        ? "「決定」で実行。「戻る」で選び直せる。"
-        : picking
-          ? "どの鍵を使う？ 公開鍵・秘密鍵・共通鍵を比べてみよう。"
-          : s.prompt;
+    : s.feedback
+      ? s.feedback.explanation
+      : done
+        ? lesson(s)
+        : pending
+          ? "「決定」で実行。「戻る」で選び直せる。"
+          : picking
+            ? "どの鍵を使う？ 公開鍵・秘密鍵・共通鍵を比べてみよう。"
+            : s.prompt;
   $("bob-result").hidden = !visibleResult || !s.result.message;
   $("bob-result").textContent =
     visibleResult && s.result.message
-      ? "Bobが受け取った本文：" + s.result.message
+      ? plaintextVisible
+        ? "Bobが受け取った本文：" + s.result.message
+        : "Bobは共通鍵で復号し、本文を受け付けた。"
       : "";
   const position = story.position();
   $("dialogue-next").hidden = !talking;
   $("dialogue-next").textContent =
     position.index + 1 < position.total ? "次へ ▶" : "行動を選ぶ ▶";
-  $("dialogue-previous").hidden = !talking;
-  $("dialogue-previous").disabled = position.index === 0;
+  $("dialogue-previous").hidden = false;
+  $("dialogue-previous").textContent = "← 一つ前へ";
+  $("dialogue-previous").disabled = history.length === 0;
   $("dialogue-position").textContent = talking
     ? position.index + 1 + " / " + position.total
     : done
@@ -301,7 +374,17 @@ function render() {
       : "行動を選ぶ";
 }
 function review(id, trigger = document.activeElement) {
-  if (story.active() || !quest.select(id)) return;
+  if (story.active()) return;
+  const direct = quest.view().choices.find((a) => a.id === id)?.direct;
+  remember();
+  if (!quest.select(id)) {
+    history.pop();
+    return;
+  }
+  if (direct) {
+    execute();
+    return;
+  }
   previousChoice = id;
   previousTrigger = trigger;
   keyPage = 0;
@@ -315,6 +398,7 @@ $("choice-list").addEventListener("click", (event) => {
   if (button) review(button.dataset.action);
 });
 function cancel() {
+  remember();
   quest.cancel();
   render();
   const selected = quest.view().selectingKey?.selectedId;
@@ -333,7 +417,16 @@ $("choice-back").addEventListener("click", cancel);
 $("key-back").addEventListener("click", cancel);
 $("key-list").addEventListener("click", (event) => {
   const button = event.target.closest("[data-key]");
-  if (!button || !quest.selectKey(button.dataset.key)) return;
+  if (!button) return;
+  remember();
+  const selected =
+    button.dataset.key === "pass"
+      ? quest.selectPass()
+      : quest.selectKey(button.dataset.key);
+  if (!selected) {
+    history.pop();
+    return;
+  }
   render();
   $("choice-back").focus({ preventScroll: true });
 });
@@ -351,8 +444,8 @@ $("key-next").addEventListener("click", () => {
 });
 $("choice-commit").addEventListener("click", (event) => {
   if (event.detail > 1) return;
-  const frames = quest.confirm();
-  if (frames.length) play(frames);
+  remember();
+  execute();
 });
 $("game-console").addEventListener("keydown", (event) => {
   if (
@@ -365,61 +458,61 @@ $("game-console").addEventListener("keydown", (event) => {
   }
 });
 $("dialogue-next").addEventListener("click", () => {
+  remember();
   story.next();
   render();
   if (!story.active())
     document.querySelector("[data-action]")?.focus({ preventScroll: true });
 });
 $("dialogue-previous").addEventListener("click", () => {
-  story.previous();
-  render();
+  goBack();
 });
 $("rounds").addEventListener("click", (event) => {
   const button = event.target.closest("[data-round]");
-  if (button) play(quest.start(Number(button.dataset.round)));
+  if (button) {
+    remember();
+    play(quest.start(Number(button.dataset.round)));
+  }
 });
 $("restart").addEventListener("click", () => {
   if (story.active()) {
     const s = quest.view();
+    remember();
     play(quest.start(s.round, s.authenticate));
   } else review("restart");
 });
-$("authenticate").addEventListener("change", () =>
-  play(quest.start(3, $("authenticate").checked)),
-);
-const mechanisms = [
-  "AliceとBobは、同じ共通鍵で本文を暗号化・復号する。Charlieも共通鍵を持つと、本文を読んだり書き換えたりできる。",
-  "Aliceは、公開鍵で共通鍵を暗号化する。対応する秘密鍵だけが共通鍵を取り出せる。本文は、引き続き共通鍵で暗号化する。",
-  "Aliceは、Aliceの秘密鍵で本文に署名を付ける。Bobは信頼済みのAliceの公開鍵で検証する。Charlieが共通鍵を知っていても、Aliceの署名は作れない。",
-  "Aliceは、受け取ったBobの公開鍵を、信頼できる別経路で確認済みの指紋と照合する。Charlieの鍵へのすり替えを、共通鍵を送る前に検出できる。",
-];
+$("authenticate").addEventListener("change", () => {
+  remember();
+  play(quest.start(3, $("authenticate").checked));
+});
 function buildInfo() {
   const s = quest.view();
-  const text =
+  const sections =
     infoTopic === "log"
-      ? story.active()
-        ? ["会話の後に、ここで通信の記録を確認できます。"]
-        : s.log.map((entry, i) => i + 1 + ". " + englishNames(entry.text))
-      : [
-          mechanisms[s.round],
-          "この実験では、中継機を通るデータは自動でCharlieの手元に残る。CharlieはAliceやBobの秘密鍵を盗めない。",
-        ];
-  const limit = Math.max(
-    45,
-    Math.min(
-      140,
-      Math.floor((document.defaultView.innerWidth - 85) / 14) *
-        Math.max(2, Math.floor((document.defaultView.innerHeight - 240) / 24)),
-    ),
-  );
-  infoPages = text.flatMap((value) => paginateText(value, limit));
-  infoPage = Math.min(infoPage, infoPages.length - 1);
+      ? [
+          {
+            title: "通信の記録",
+            text: story.active()
+              ? "通信の会話を終えると記録を確認できます。"
+              : s.log
+                  .map((entry, i) => i + 1 + ". " + englishNames(entry.text))
+                  .join("\n"),
+          },
+        ]
+      : explanations(s);
   $("info-title").textContent =
     infoTopic === "log" ? "通信の記録" : "このラウンドの仕組み";
-  $("info-text").textContent = infoPages[infoPage];
-  $("info-count").textContent = infoPage + 1 + " / " + infoPages.length;
-  $("info-prev").disabled = infoPage === 0;
-  $("info-next").disabled = infoPage === infoPages.length - 1;
+  $("info-text").innerHTML = sections
+    .map(
+      (part) =>
+        "<section><h3>" +
+        esc(part.title) +
+        "</h3><p>" +
+        esc(part.text) +
+        "</p></section>",
+    )
+    .join("");
+  $("info-scroll").scrollTop = 0;
   document
     .querySelectorAll("[data-info]")
     .forEach((b) =>
@@ -428,7 +521,6 @@ function buildInfo() {
 }
 function openInfo() {
   infoOpener = document.activeElement;
-  infoPage = 0;
   infoTopic = "mechanism";
   buildInfo();
   const dialog = $("info-dialog");
@@ -461,9 +553,9 @@ $("info-dialog").addEventListener("keydown", (event) => {
     closeInfo();
   }
   if (event.key === "Tab") {
-    const buttons = [...$("info-dialog").querySelectorAll("button")].filter(
-      (b) => !b.disabled,
-    );
+    const buttons = [
+      ...$("info-dialog").querySelectorAll('button, [tabindex="0"]'),
+    ].filter((b) => !b.disabled);
     if (event.shiftKey && document.activeElement === buttons[0]) {
       event.preventDefault();
       buttons.at(-1)?.focus();
@@ -477,17 +569,8 @@ $("info-topics").addEventListener("click", (event) => {
   const button = event.target.closest("[data-info]");
   if (button) {
     infoTopic = button.dataset.info;
-    infoPage = 0;
     buildInfo();
   }
-});
-$("info-prev").addEventListener("click", () => {
-  infoPage--;
-  buildInfo();
-});
-$("info-next").addEventListener("click", () => {
-  infoPage++;
-  buildInfo();
 });
 story.play([...introFrames(), ...roundFrames(quest.view())]);
 createDisplayController({

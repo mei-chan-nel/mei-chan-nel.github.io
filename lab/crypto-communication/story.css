@@ -401,3 +401,29 @@
 .story-game .relay::before {
   display: none;
 }
+.story-game .packet-shape {
+  display: block;
+  flex-shrink: 0;
+  width: 42px;
+  height: 28px;
+  color: inherit;
+  overflow: visible;
+}
+.story-game .packet-shape::after {
+  content: none !important;
+}
+.story-game .packet-sprite[data-kind="signature"],
+.story-game .packet-sprite[data-kind="signed-message"] {
+  color: #d5c0ff;
+  border-color: #d5c0ff;
+}
+.story-game.is-viewport .packet-shape {
+  width: 36px;
+  height: 24px;
+}
+@media (max-height: 500px) {
+  .story-game.is-viewport .packet-shape {
+    width: 28px;
+    height: 20px;
+  }
+}

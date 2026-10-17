@@ -6,21 +6,39 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=7";
-// The protocol stays in model.mjs. This layer limits each scene to two relevant
-// decisions. Key operations always require an explicit learner-selected key.
+} from "./storyboard.mjs?v=9";
+const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
-  let pending = null,
-    selectingKey = null,
-    lastAttempt = null,
-    stagedKey = null,
-    deliveredKey = null,
-    records = new Set();
+  const initial = () => ({
+    pending: null,
+    selectingKey: null,
+    feedback: null,
+    feedbackFrames: [],
+    stagedKey: null,
+    deliveredKey: null,
+    predictionAnswered: false,
+    consequence: false,
+  });
+  let x = initial(),
+    records = new Set(),
+    retryPoint = null;
   const find = (s, type, owner) =>
     s.inventory.find((a) => a.type === type && (!owner || a.owner === owner));
   const shared = (s) =>
     s.inventory.find((a) => a.type === "symmetric" && a.current);
+  function checkpoint() {
+    const restoreModel = lab.checkpoint(),
+      saved = copy(x),
+      savedRecords = [...records],
+      savedRetry = retryPoint;
+    return () => {
+      restoreModel();
+      x = copy(saved);
+      records = new Set(savedRecords);
+      retryPoint = savedRetry;
+    };
+  }
   function record() {
     const s = lab.snapshot();
     if (s.phase !== "done" && !records.has(s.incoming.id)) {
@@ -30,225 +48,19 @@ export function createQuest() {
   }
   function start(round = 0, authenticate = true) {
     lab.start(round, authenticate);
-    pending = null;
-    selectingKey = null;
-    lastAttempt = null;
-    stagedKey = null;
-    deliveredKey = null;
+    x = initial();
     records = new Set();
+    retryPoint = null;
     record();
     return roundFrames(lab.snapshot());
   }
-  const choice = (id, label, detail, summary) => ({
+  const choice = (id, label, detail = "", summary = "", direct = false) => ({
     id,
     label,
     detail,
     summary,
+    direct,
   });
-  function choices(s = lab.snapshot()) {
-    const send = choice(
-      "forward",
-      s.phase === "public" ? "Aliceへ届ける" : "Bobへ届ける",
-      s.outgoing ? "すり替えたデータを送る" : "記録した元のデータを送る",
-      "Charlieが、" +
-        englishNames((s.outgoing || s.incoming).label) +
-        "を" +
-        (s.phase === "public" ? "Alice" : "Bob") +
-        "へ送る。",
-    );
-    const retry = choice(
-      "retry",
-      s.phase === "public" || s.round === 0
-        ? "このラウンドをやり直す"
-        : "公開鍵の場面からやり直す",
-      "新しい共通鍵で再挑戦",
-      "このラウンドを最初からやり直す。",
-    );
-    const undo = choice(
-      "undo",
-      s.phase === "message" ? "元の本文に戻す" : "すり替えを取り消す",
-      "転送前なので戻せる",
-      "Charlieが、送信するデータを元に戻す。",
-    );
-    if (stagedKey && s.outgoing)
-      send.summary =
-        "Charlieが、" + stagedKey.label + "を使って作った暗号文をBobへ送る。";
-    if (s.phase === "done")
-      return [
-        s.round < 3
-          ? choice(
-              "next",
-              s.round === 2 ? "公開鍵の確認を試す" : "次のラウンドへ",
-              "別の仕組みでも試す",
-              "次のラウンドを始める。",
-            )
-          : choice(
-              "compare",
-              s.authenticate ? "確認を外して比べる" : "確認ありで比べる",
-              "公開鍵の確認だけを変える",
-              "AliceによるBobの公開鍵の確認を切り替えて、再実験する。",
-            ),
-        retry,
-      ];
-    if (s.outgoing) return [send, undo];
-    if (s.phase === "public")
-      return [
-        choice(
-          "swap",
-          "Charlieの公開鍵にすり替える",
-          "Bobの公開鍵は記録に残る",
-          "Charlieが、Aliceに渡す公開鍵をCharlieの公開鍵に替える。",
-        ),
-        {
-          ...send,
-          label: "Bobの公開鍵をそのまま届ける",
-          detail: "すり替えずに進む",
-        },
-      ];
-    if (s.phase === "key") {
-      if (s.round === 0) return [send];
-      if (shared(s))
-        return [
-          choice(
-            "rewrap",
-            "入手した共通鍵を包み直す",
-            "暗号化に使う鍵を選ぶ",
-            "",
-          ),
-          {
-            ...send,
-            label: "届いた暗号文をそのまま送る",
-            detail: "Bobが開けるか確かめる",
-          },
-        ];
-      return [
-        choice("open-key", "共通鍵の暗号文を開く", "復号に使う鍵を選ぶ", ""),
-        send,
-      ];
-    }
-    if (s.read)
-      return [
-        choice(
-          "edit",
-          "「love」を「hate」に書き換える",
-          "書き換えた本文を暗号化する鍵を選ぶ",
-          "",
-        ),
-        {
-          ...send,
-          label: "本文を書き換えずに届ける",
-          detail: "元の暗号文をBobへ送る",
-        },
-      ];
-    const read = choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ", "");
-    // The learner's decision is which key opens this message. Merely skipping
-    // decryption must not lead to an unsurprising "you did not read it" result.
-    return !shared(s) && lastAttempt?.ok === false ? [read, retry] : [read];
-  }
-  function view() {
-    const s = lab.snapshot();
-    const key = shared(s);
-    const state =
-      s.phase === "done"
-        ? "result"
-        : s.outgoing
-          ? "ready"
-          : lastAttempt?.ok === false
-            ? "blocked"
-            : s.phase === "message" && s.read
-              ? "idea"
-              : s.phase;
-    const titles = {
-      public: "Aliceに渡す公開鍵を選ぶ",
-      key:
-        s.round === 0
-          ? "共通鍵を手に入れた"
-          : key
-            ? "Bobに共通鍵を届けるには？"
-            : "共通鍵の暗号文が届いた",
-      message: "本文を読むには？",
-      idea: "反対の内容に変えてみよう",
-      ready: "届ける前に確認しよう",
-      blocked: "この鍵では操作できなかった",
-      result: "この通信の結果",
-    };
-    const goals = {
-      public: "公開鍵をすり替えると、どうなる？",
-      key:
-        s.round === 0
-          ? "鍵を届けて、次の暗号文を待とう。"
-          : key
-            ? "Bobが開ける形にして届けよう。"
-            : "まず、共通鍵を取り出そう。",
-      message: "本文を開く鍵を選ぼう。",
-      idea: "書き換えるか、そのまま届けるか選ぼう。",
-      ready: "このデータを届ける？ 元に戻す？",
-      blocked:
-        s.phase === "message" && !key
-          ? "共通鍵の配送から見直すこともできる。"
-          : "別の鍵で、もう一度試せる。",
-      result:
-        s.result?.code === "signature-rejected"
-          ? "盗聴は成功。署名が改ざんを検出。"
-          : s.result?.code === "authenticated"
-            ? "公開鍵の確認が、盗聴も防いだ。"
-            : s.result?.code === "attack-success"
-              ? "盗聴も、書き換えも成功。"
-              : "別の選択で結果を比べてみよう。",
-    };
-    const prompts = {
-      public: "Bobの公開鍵が届いた。Aliceに渡す鍵を選ぼう。",
-      key:
-        s.round === 0
-          ? "Charlieは共通鍵を入手した。次は、本文の暗号文を待とう。"
-          : key
-            ? "Charlieは共通鍵を入手した。Bobにも同じ共通鍵を届けたい。"
-            : "共通鍵は暗号化されている。手元の鍵で開けるだろうか。",
-      message: "本文の暗号文が届いた。Charlieの手元のどの鍵で開けるだろうか。",
-      idea: "Charlieは「love」を「hate」に変えてみたくなった。",
-      ready: stagedKey
-        ? "Charlieは、" +
-          stagedKey.label +
-          "で暗号文を作った。Bobへ届ける前なら選び直せる。"
-        : s.phase === "public"
-          ? "Aliceが受け取るのは、Charlieの公開鍵だ。"
-          : s.phase === "key"
-            ? "Charlieは、Bobの公開鍵で包み直した共通鍵を送れる。"
-            : "Charlieが書き換えた本文は、まだBobには届いていない。",
-      blocked:
-        "Charlieの手元の鍵では開けない。公開鍵の渡し方を見直してみよう。",
-    };
-    return {
-      ...s,
-      state,
-      title: titles[state],
-      goal: goals[state],
-      prompt: lastAttempt?.ok === false ? lastAttempt.reason : prompts[state],
-      choices: choices(s),
-      pending: pending ? { ...pending } : null,
-      selectingKey: selectingKey
-        ? { ...selectingKey, keys: availableKeys(s) }
-        : null,
-      lastAttempt: lastAttempt ? { ...lastAttempt } : null,
-      stagedKey: stagedKey ? { ...stagedKey } : null,
-      deliveredKey: deliveredKey ? { ...deliveredKey } : null,
-      outgoingDescription: stagedKey
-        ? (s.phase === "key" ? "共通鍵の暗号文 ← " : "本文の暗号文 ← ") +
-          stagedKey.label
-        : englishNames((s.outgoing || s.incoming).label) +
-          (s.outgoing ? "（すり替え）" : ""),
-      recorded: records.has(s.incoming.id),
-      keyLabel: key ? englishNames(key.label) : "今回の共通鍵は未取得",
-      displayFrame:
-        s.phase === "done"
-          ? outcomeFrame(s)
-          : frame("", "intercept", {
-              phase: s.phase,
-              kind: packetKind(s.outgoing || s.incoming),
-            }),
-      rewritten: s.read && s.draft !== s.original,
-    };
-  }
   const keyOperations = {
     "open-key": {
       title: "共通鍵の暗号文を復号する鍵",
@@ -271,16 +83,127 @@ export function createQuest() {
       verb: "暗号化",
     },
   };
+  function choices(s = lab.snapshot()) {
+    if (x.feedback)
+      return x.feedback.correct
+        ? [choice("continue", "次へ", "理由を確認して進む", "", true)]
+        : [
+            choice(
+              "retry-here",
+              "この問題をやり直す",
+              "誤答を選ぶ前の状態に戻る",
+              "",
+              true,
+            ),
+            choice(
+              "show-consequence",
+              "このまま進むとどうなる？",
+              "実際の通信で確かめる",
+              "",
+              true,
+            ),
+          ];
+    if (s.phase === "done") {
+      const next =
+        s.round < 3
+          ? choice(
+              "next",
+              s.round === 2 ? "公開鍵の確認を試す" : "次のラウンドへ",
+              "",
+              "",
+              true,
+            )
+          : choice(
+              "compare",
+              s.authenticate ? "確認を外して比べる" : "確認ありで比べる",
+              "",
+              "",
+              true,
+            );
+      return x.consequence
+        ? [
+            choice(
+              "retry-here",
+              "誤答した問題からやり直す",
+              "鍵や予想を選び直せる",
+              "",
+              true,
+            ),
+            next,
+          ]
+        : [
+            next,
+            choice(
+              "retry-round",
+              "このラウンドをもう一度",
+              "新しい共通鍵で実験",
+              "",
+              true,
+            ),
+          ];
+    }
+    if (s.outgoing || (s.phase === "key" && s.round === 0))
+      return [
+        choice(
+          "forward",
+          s.phase === "public" ? "Aliceへ転送する" : "Bobへ転送する",
+          "選んだデータで通信を進める",
+          "",
+          true,
+        ),
+      ];
+    if (s.phase === "public")
+      return [
+        choice(
+          "swap",
+          "Charlieの公開鍵にすり替える",
+          "Aliceに渡す鍵を選ぶ",
+          "Charlieの公開鍵をAliceへ渡すデータにする。",
+        ),
+        choice(
+          "send-public",
+          "Bobの公開鍵をそのまま送る",
+          "Aliceに渡す鍵を選ぶ",
+          "Bobの公開鍵をそのままAliceへ送る。",
+        ),
+      ];
+    if (s.phase === "key")
+      return [
+        shared(s)
+          ? choice(
+              "rewrap",
+              "共通鍵を包み直す",
+              "Bobが開けるようにする鍵を選ぶ",
+            )
+          : choice("open-key", "共通鍵の暗号文を開く", "復号に使う鍵を選ぶ"),
+      ];
+    if (!s.read)
+      return [choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ")];
+    if (!x.predictionAnswered)
+      return [
+        choice(
+          "predict-safe",
+          "書き換えてもBobにバレない",
+          "改ざんした本文は受理される？",
+          "本文を書き換えてもBobは受け付ける、と予想する。",
+        ),
+        choice(
+          "predict-detected",
+          "書き換えるとBobにバレる",
+          "改ざんした本文は拒否される？",
+          "Bobが本文の書き換えを検出する、と予想する。",
+        ),
+      ];
+    return [
+      choice("edit", "「love」を「hate」に書き換える", "暗号化し直す鍵を選ぶ"),
+    ];
+  }
   function availableKeys(s) {
-    const previous = s.inventory
-      .filter((a) => a.type === "symmetric" && !a.current)
-      .at(-1);
     return [
       shared(s),
       find(s, "public", "bob"),
       find(s, "public", "charlie"),
       find(s, "private", "charlie"),
-      previous,
       find(s, "verify", "alice"),
     ]
       .filter(Boolean)
@@ -291,9 +214,7 @@ export function createQuest() {
         label: englishNames(a.label).replace("（信頼済み）", ""),
         detail:
           a.type === "symmetric"
-            ? a.current
-              ? "この通信で入手"
-              : "以前の通信で入手"
+            ? "この通信の共通鍵"
             : a.type === "private"
               ? "Charlieだけが持つ鍵"
               : a.type === "verify"
@@ -301,11 +222,115 @@ export function createQuest() {
                 : "公開してよい鍵",
       }));
   }
+  function view() {
+    const s = lab.snapshot(),
+      key = shared(s);
+    const state =
+      s.phase === "done"
+        ? "result"
+        : x.feedback
+          ? "feedback"
+          : s.outgoing
+            ? "ready"
+            : s.phase === "message" && s.read
+              ? x.predictionAnswered
+                ? "edit"
+                : "predict"
+              : s.phase;
+    const titles = {
+      public: "Aliceに渡す公開鍵を選ぶ",
+      key: key ? "共通鍵をBobに届けよう" : "共通鍵の暗号文が届いた",
+      message: "本文を開く鍵は？",
+      predict: "書き換えはBobにバレる？",
+      edit: "予想を実際に試そう",
+      ready: "このデータで通信を進めよう",
+      feedback: x.feedback?.correct ? "正解" : "誤答",
+      result: "通信の結果",
+    };
+    const goals = {
+      public: "Charlieが共通鍵を取り出せるようにする。",
+      key:
+        s.round === 0
+          ? "鍵を届けて、本文の暗号文を待とう。"
+          : key
+            ? "Bobが取り出せる形に暗号化し直そう。"
+            : "どの鍵で共通鍵を取り出せる？",
+      message: "この本文を復号する鍵を選ぼう。",
+      predict: "暗号化と改ざん検出の違いを考えよう。",
+      edit: "本文を変えて、予想を確かめよう。",
+      ready: "BobやAliceの反応を見よう。",
+      feedback: x.feedback?.correct
+        ? "理由を確認して次へ。"
+        : "この地点で選び直せる。",
+      result: x.consequence
+        ? "誤答したまま進んだ結果を確認しよう。"
+        : "予想と実際の結果を比べよう。",
+    };
+    const prompt = {
+      public: "Bobの公開鍵が中継機に届いた。Aliceに渡す公開鍵を選ぼう。",
+      key: key
+        ? "Charlieは共通鍵を手に入れた。Bobにも同じ共通鍵を届けたい。"
+        : "Aliceが送った共通鍵は暗号化されている。",
+      message: "本文の暗号文が届いた。どの鍵で開けるだろうか。",
+      predict:
+        "Charlieは「love」を「hate」に変えたい。Bobはその変更に気づくだろうか。",
+      edit: "Charlieが考えた書き換えを、実際の暗号文にしてみよう。",
+      ready: "選んだデータを相手に届けてみよう。",
+    };
+    const shown =
+      s.phase === "done"
+        ? outcomeFrame(s)
+        : frame("", "intercept", {
+            phase: s.phase,
+            kind: packetKind(s.outgoing || s.incoming),
+            ...(s.phase === "public"
+              ? {
+                  packetLabel: englishNames((s.outgoing || s.incoming).label),
+                  route: "Bob → 中継機 → Alice",
+                }
+              : {}),
+          });
+    return {
+      ...s,
+      state,
+      title: titles[state],
+      goal: goals[state],
+      prompt: x.feedback?.explanation || prompt[state],
+      choices: choices(s),
+      pending: x.pending ? copy(x.pending) : null,
+      selectingKey: x.selectingKey
+        ? { ...x.selectingKey, keys: availableKeys(s), allowPass: true }
+        : null,
+      feedback: x.feedback ? copy(x.feedback) : null,
+      consequence: x.consequence,
+      canRetryHere: Boolean(retryPoint),
+      predictionAnswered: x.predictionAnswered,
+      stagedKey: x.stagedKey ? { ...x.stagedKey } : null,
+      deliveredKey: x.deliveredKey ? { ...x.deliveredKey } : null,
+      outgoingDescription: x.stagedKey
+        ? (s.phase === "key" ? "共通鍵の暗号文 ← " : "本文の暗号文 ← ") +
+          x.stagedKey.label
+        : englishNames((s.outgoing || s.incoming).label),
+      recorded: records.has(s.incoming.id),
+      keyLabel: key ? englishNames(key.label) : "今回の共通鍵は未取得",
+      displayFrame: shown,
+      rewritten: s.read && s.draft !== s.original,
+      tone: x.feedback
+        ? x.feedback.correct
+          ? "correct"
+          : "wrong"
+        : s.phase === "done"
+          ? x.consequence
+            ? "wrong"
+            : "correct"
+          : "",
+    };
+  }
   function select(id) {
     const action =
       id === "restart"
         ? choice(
-            "retry",
+            "retry-round",
             "このラウンドをやり直す",
             "",
             "新しい共通鍵で、このラウンドを最初からやり直す。",
@@ -313,70 +338,160 @@ export function createQuest() {
         : choices().find((a) => a.id === id);
     if (!action) return false;
     if (keyOperations[id]) {
-      selectingKey = { action: id, ...keyOperations[id], selectedId: null };
-      pending = null;
+      x.selectingKey = { action: id, ...keyOperations[id], selectedId: null };
+      x.pending = null;
     } else {
-      selectingKey = null;
-      pending = { ...action };
+      x.pending = { ...action };
+      x.selectingKey = null;
     }
     return true;
   }
   function selectKey(id) {
-    if (!selectingKey) return false;
+    if (!x.selectingKey) return false;
     const key = availableKeys(lab.snapshot()).find((a) => a.id === id);
     if (!key) return false;
-    selectingKey.selectedId = id;
-    pending = {
-      id: selectingKey.action,
+    x.selectingKey.selectedId = id;
+    x.pending = {
+      id: x.selectingKey.action,
       key,
       summary:
         "Charlieが、" +
         key.label +
         "で" +
-        selectingKey.target +
+        x.selectingKey.target +
         "を" +
-        selectingKey.verb +
+        x.selectingKey.verb +
         "する。",
     };
     return true;
   }
-  function failedReason(action, key, before) {
-    if (key.type === "verify")
-      return "Aliceの検証用公開鍵は、Aliceの署名を確かめる鍵。暗号文の復号や暗号化には使わない。";
+  function selectPass() {
+    if (!x.selectingKey) return false;
+    x.selectingKey.selectedId = "pass";
+    x.pending = {
+      id: "pass",
+      operation: x.selectingKey.action,
+      summary: "Charlieが、届いた元のデータをそのままBobへ転送する。",
+    };
+    return true;
+  }
+  function reason(action, key, s) {
+    if (key?.type === "verify")
+      return "Aliceの検証用公開鍵は、Aliceの署名を確かめる鍵。本文や共通鍵を復号する鍵ではない。";
     if (action === "open-key")
-      return before.publicForAlice?.owner === "bob"
-        ? "Bob宛ての共通鍵を開けるのは、Bobの秘密鍵。Charlieはその秘密鍵を持っていない。"
-        : "Charlieの公開鍵に対応するのはCharlieの秘密鍵。公開鍵や共通鍵では開けない。";
+      return s.publicForAlice?.owner === "bob"
+        ? "Bobの公開鍵に対応するのはBobの秘密鍵。CharlieはBobの秘密鍵を持っていない。"
+        : "Charlieの公開鍵で包まれた共通鍵には、Charlieの秘密鍵が必要。公開鍵では開けない。";
     if (action === "read")
-      return key.type === "symmetric"
-        ? "前の通信と今回の通信では共通鍵が違う。本文の暗号化と同じ共通鍵が必要。"
-        : "この本文は共通鍵で暗号化されている。公開鍵や秘密鍵では復号できない。";
+      return "本文は共通鍵で暗号化されている。暗号化に使われた同じ共通鍵で復号しよう。";
     if (action === "rewrap")
-      return "共通鍵を送るには、配送先の公開鍵で暗号化する。秘密鍵や共通鍵は使わない。";
-    return "この通信の本文は共通鍵で暗号化する。公開鍵や秘密鍵は使わない。";
+      return key?.type === "public"
+        ? "暗号化はできたが、Charlie宛てのまま。Bobが開くにはBobの公開鍵で包む必要がある。"
+        : "共通鍵の配送には、配送先の公開鍵を使う。Bobは、対になるBobの秘密鍵で取り出す。";
+    return "この通信の本文は共通鍵で暗号化する。公開鍵や秘密鍵は、本文の暗号化には使わない。";
+  }
+  function evaluate(correct, explanation, frames, origin, kind) {
+    retryPoint = origin;
+    x.feedback = { correct, explanation, kind };
+    x.feedbackFrames = frames.map((f) => ({
+      ...f,
+      tone: correct ? "correct" : "wrong",
+    }));
+    return [];
+  }
+  function forward() {
+    const before = lab.snapshot();
+    x.deliveredKey = x.stagedKey;
+    x.stagedKey = null;
+    lab.forward();
+    record();
+    const frames = forwardFrames(before, lab.snapshot());
+    if (x.deliveredKey)
+      frames[0].text =
+        "Charlieは、" + x.deliveredKey.label + "で作った暗号文をBobへ届けた。";
+    return frames;
+  }
+  function showConsequence() {
+    const feedback = x.feedback;
+    x.feedback = null;
+    x.feedbackFrames = [];
+    x.pending = null;
+    x.selectingKey = null;
+    x.consequence = true;
+    const frames = [
+      frame(
+        "選んだ操作のまま通信を進めると、相手にはどう届くか見てみよう。",
+        "question",
+        { phase: lab.snapshot().phase },
+      ),
+    ];
+    if (feedback?.kind === "prediction") {
+      const s = lab.snapshot(),
+        key = shared(s);
+      lab.edit("I hate you.");
+      lab.chooseSignature("keep");
+      const made = lab.encryptMessage(key.id);
+      lab.setOutgoing(made.id);
+      x.stagedKey = {
+        label: englishNames(key.label),
+        id: key.id,
+        type: "symmetric",
+      };
+      frames.push(
+        frame(
+          "Charlieは、本文を「I hate you.」に変え、同じ共通鍵で暗号化した。",
+          "edit",
+          {
+            phase: "message",
+            at: "charlie",
+            kind: "ciphertext",
+            showPlaintext: true,
+          },
+        ),
+      );
+    }
+    for (let i = 0; i < 3 && lab.snapshot().phase !== "done"; i++)
+      frames.push(...forward());
+    return frames.map((f) => ({ ...f, tone: "wrong" }));
   }
   function confirm() {
-    if (!pending) return [];
-    const action = pending.id,
-      key = pending.key,
-      before = lab.snapshot();
-    pending = null;
-    selectingKey = null;
-    lastAttempt = null;
-    if (action === "retry") return start(before.round, before.authenticate);
-    if (action === "next") return start(Math.min(3, before.round + 1));
-    if (action === "compare") return start(3, !before.authenticate);
-    if (action === "forward") {
-      deliveredKey = stagedKey;
-      stagedKey = null;
-      lab.forward();
-      record();
-      const frames = forwardFrames(before, lab.snapshot());
-      if (deliveredKey)
-        frames[0].text =
-          "Charlieは、" + deliveredKey.label + "で作った暗号文をBobへ届けた。";
+    if (!x.pending) return [];
+    const pending = copy(x.pending),
+      action = pending.id;
+    if (action === "retry-here") {
+      const point = retryPoint;
+      if (!point) return [];
+      point();
+      x.pending = null;
+      x.feedback = null;
+      x.feedbackFrames = [];
+      x.consequence = false;
+      retryPoint = point;
+      return [];
+    }
+    if (action === "continue") {
+      const frames = copy(x.feedbackFrames);
+      x.pending = null;
+      x.feedback = null;
+      x.feedbackFrames = [];
       return frames;
     }
+    if (action === "show-consequence") return showConsequence();
+    if (action === "retry-round")
+      return start(lab.snapshot().round, lab.snapshot().authenticate);
+    if (action === "next") return start(Math.min(3, lab.snapshot().round + 1));
+    if (action === "compare") return start(3, !lab.snapshot().authenticate);
+    if (action === "forward") {
+      x.pending = null;
+      return forward();
+    }
+    const origin = checkpoint(),
+      before = lab.snapshot(),
+      key = pending.key;
+    x.pending = null;
+    x.selectingKey = null;
+    x.feedback = null;
+    x.feedbackFrames = [];
     const base = {
       phase: before.phase,
       at: "charlie",
@@ -384,28 +499,63 @@ export function createQuest() {
     };
     if (action === "swap") {
       lab.setOutgoing(find(before, "public", "charlie").id);
-      return [
-        frame(
-          "Charlieは、Bobの公開鍵をCharlieの公開鍵にすり替えた。",
-          "replace",
-          { ...base, at: "relay", kind: "public" },
-        ),
-      ];
+      return evaluate(
+        true,
+        before.round === 3 && before.authenticate
+          ? "Charlieの鍵へのすり替えを準備できた。今回はAliceの真正性確認がすり替えを止めるか確かめよう。"
+          : "AliceがCharlieの公開鍵を使えば、Charlieは対になる秘密鍵で共通鍵を取り出せる。",
+        [
+          frame(
+            "Charlieは、Bobの公開鍵をCharlieの公開鍵にすり替えた。",
+            "replace",
+            {
+              ...base,
+              at: "relay",
+              kind: "public",
+              packetLabel: "Charlieの公開鍵",
+            },
+          ),
+        ],
+        origin,
+        "public",
+      );
     }
-    if (action === "undo") {
-      stagedKey = null;
-      lab.setOutgoing();
-      if (before.phase === "message") lab.edit(before.original);
-      return [
-        frame("Charlieは、送るデータを元に戻した。", "replace", {
-          ...base,
-          at: "relay",
-        }),
-      ];
+    if (action === "send-public")
+      return evaluate(
+        false,
+        "Bobの公開鍵で包まれた共通鍵を開けるのはBobの秘密鍵。Charlieが読むには、渡す公開鍵を考え直そう。",
+        [],
+        origin,
+        "public",
+      );
+    if (action === "pass")
+      return evaluate(
+        false,
+        pending.operation === "rewrap"
+          ? "届いた暗号文はCharlie宛て。Bobへそのまま送っても、Bobの秘密鍵では共通鍵を取り出せない。"
+          : pending.operation === "edit"
+            ? "元の暗号文には元の本文が入っている。書き換えた本文を届けるには、暗号文を作り直す必要がある。"
+            : "Bobは共通鍵で本文を読める。Charlieも本文を読むには、暗号化に使われた同じ共通鍵を選ぼう。",
+        [],
+        origin,
+        "pass",
+      );
+    if (action.startsWith("predict-")) {
+      const correct = (action === "predict-detected") === before.round >= 2;
+      if (correct) x.predictionAnswered = true;
+      return evaluate(
+        correct,
+        before.round >= 2
+          ? "Aliceの署名は本文と結び付いている。Charlieが共通鍵で暗号化し直しても、Bobは本文の変更を検出できる。"
+          : "この通信には署名などの改ざん検出がない。Charlieが同じ共通鍵で暗号化し直すと、Bobは変更に気づけない。",
+        [],
+        origin,
+        "prediction",
+      );
     }
     if (!key || !availableKeys(before).some((a) => a.id === key.id)) return [];
     let response;
-    if (action === "open-key" || action === "read")
+    if (action === "read" || action === "open-key")
       response = lab.decrypt(before.incoming.id, key.id);
     if (action === "rewrap") response = lab.wrapKey(shared(before).id, key.id);
     if (action === "edit") {
@@ -416,66 +566,75 @@ export function createQuest() {
       response = lab.encryptMessage(key.id);
     }
     if (!response) return [];
-    lastAttempt = {
-      action,
-      key: { ...key },
-      ok: response.ok,
-      reason: response.ok ? "" : failedReason(action, key, before),
-    };
     if (!response.ok)
-      return [
-        frame(
-          "Charlieは、" +
-            key.label +
-            "では" +
-            keyOperations[action].target +
-            "を" +
-            keyOperations[action].verb +
-            "できなかった。",
-          "question",
-          base,
-        ),
-      ];
+      return evaluate(false, reason(action, key, before), [], origin, action);
     if (action === "open-key")
-      return [
-        frame(
-          "Charlieは、" + key.label + "で共通鍵を取り出した。",
-          "decrypt",
-          base,
-        ),
-      ];
+      return evaluate(
+        true,
+        "Charlieの公開鍵と対になるのがCharlieの秘密鍵。この組み合わせで共通鍵を取り出せる。",
+        [
+          frame(
+            "Charlieは、" + key.label + "で共通鍵を取り出した。",
+            "decrypt",
+            base,
+          ),
+        ],
+        origin,
+        action,
+      );
     if (action === "read")
-      return [
-        frame("Charlieは、" + key.label + "で本文を復号した。", "decrypt", {
+      return evaluate(
+        true,
+        "本文の暗号化と同じ共通鍵を使ったため、Charlieは本文を復号できた。",
+        [
+          frame("Charlieは、" + key.label + "で本文を復号した。", "decrypt", {
+            ...base,
+            showPlaintext: true,
+          }),
+          frame(
+            "Charlieは「love」を「hate」に変えて、Bobに届けることを思いついた。",
+            "idea",
+            { ...base, showPlaintext: true },
+          ),
+        ],
+        origin,
+        action,
+      );
+    lab.setOutgoing(response.id);
+    x.stagedKey = key;
+    if (action === "rewrap")
+      return evaluate(
+        key.owner === "bob",
+        key.owner === "bob"
+          ? "Bobの公開鍵で包み直したので、BobはBobの秘密鍵で同じ共通鍵を取り出せる。"
+          : reason(action, key, before),
+        [
+          frame(
+            "Charlieは、共通鍵を" + key.label + "で暗号化し直した。",
+            "wrap",
+            { ...base, kind: "wrapped-key" },
+          ),
+        ],
+        origin,
+        action,
+      );
+    return evaluate(
+      true,
+      "本文の暗号化には、AliceとBobが使う同じ共通鍵を選べた。予想とBobの反応を比べてみよう。",
+      [
+        frame("Charlieは、本文を「I hate you.」に書き換えた。", "edit", {
           ...base,
           showPlaintext: true,
         }),
         frame(
-          "Charlieは「love」を「hate」に変えて、Bobに届けることを思いついた。",
-          "idea",
+          "Charlieは、" + key.label + "で本文を暗号化し直した。",
+          "encrypt",
           { ...base, showPlaintext: true },
         ),
-      ];
-    lab.setOutgoing(response.id);
-    stagedKey = { ...key };
-    if (action === "rewrap")
-      return [
-        frame(
-          "Charlieは、共通鍵を" + key.label + "で暗号化し直した。",
-          "wrap",
-          { ...base, kind: "wrapped-key" },
-        ),
-      ];
-    return [
-      frame("Charlieは、本文を「I hate you.」に書き換えた。", "edit", {
-        ...base,
-        showPlaintext: true,
-      }),
-      frame("Charlieは、" + key.label + "で本文を暗号化し直した。", "encrypt", {
-        ...base,
-        showPlaintext: true,
-      }),
-    ];
+      ],
+      origin,
+      action,
+    );
   }
   record();
   return {
@@ -483,12 +642,14 @@ export function createQuest() {
     start,
     select,
     selectKey,
+    selectPass,
     confirm,
-    cancel: () => {
-      if (pending && selectingKey) pending = null;
+    checkpoint,
+    cancel() {
+      if (x.pending && x.selectingKey) x.pending = null;
       else {
-        pending = null;
-        selectingKey = null;
+        x.pending = null;
+        x.selectingKey = null;
       }
     },
   };
