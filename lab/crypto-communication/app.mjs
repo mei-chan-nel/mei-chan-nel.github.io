@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=5";
+import { createQuest } from "./quest.mjs?v=6";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
@@ -49,7 +49,13 @@ function goBack() {
 function execute() {
   const frames = quest.confirm();
   if (frames.length) play(frames);
-  else render();
+  else {
+    render();
+    const target = quest.view().feedback?.correct
+      ? $("dialogue-next")
+      : document.querySelector("[data-action]");
+    target?.focus({ preventScroll: true });
+  }
 }
 function play(frames) {
   story.play(frames);
@@ -59,7 +65,8 @@ function play(frames) {
 function render() {
   const s = quest.view(),
     talking = story.active(),
-    f = story.current() || s.displayFrame;
+    correctAnswer = !talking && Boolean(s.feedback?.correct),
+    f = story.current() || s.feedbackFrame || s.displayFrame;
   const done = s.phase === "done",
     visibleResult = done && (!talking || f.revealOutcome);
   const pending = Boolean(s.pending);
@@ -80,7 +87,7 @@ function render() {
   if (!s.read) shownOriginal = null;
   const plaintextVisible = Boolean(shownOriginal);
   const tone = talking ? f.tone || "" : s.tone;
-  $("action-result").dataset.tone = tone;
+  $("action-result").dataset.tone = tone === "correct" ? "" : tone;
   document.querySelector(".command-box").dataset.tone = tone;
   Object.assign($("game-console").dataset, {
     talking: String(talking),
@@ -243,12 +250,16 @@ function render() {
             : done
               ? "次に試すこと"
               : "Charlieの行動";
+  $("answer-explanation").hidden = !correctAnswer;
+  $("answer-explanation").textContent = correctAnswer
+    ? s.feedback.explanation
+    : "";
   $("command-wait").hidden = !talking;
-  $("choice-list").hidden = talking || pending || picking;
+  $("choice-list").hidden = talking || pending || picking || correctAnswer;
   $("key-picker").hidden = talking || pending || !picking;
   $("choice-confirm").hidden = talking || !pending;
   $("choice-list").innerHTML =
-    talking || pending || picking
+    talking || pending || picking || correctAnswer
       ? ""
       : s.choices
           .map(
@@ -336,23 +347,23 @@ function render() {
     : done
       ? "RESULT"
       : "YOUR TURN";
-  $("result-heading").textContent = tone
-    ? tone === "correct"
-      ? "○ 正解"
-      : "× 誤答とその結果"
-    : "ナレーション";
+  $("result-heading").textContent =
+    tone === "wrong" ? "× 誤答とその結果" : "ナレーション";
   $("speaker-sprite").setAttribute("href", "./characters.svg#narrator");
   $("feedback").textContent = talking
     ? f.text
-    : s.feedback
-      ? s.feedback.explanation
-      : done
-        ? lesson(s)
-        : pending
-          ? "「決定」で実行。「戻る」で選び直せる。"
-          : picking
-            ? "どの鍵を使う？ 公開鍵・秘密鍵・共通鍵を比べてみよう。"
-            : s.prompt;
+    : correctAnswer
+      ? s.feedbackFrame?.text ||
+        "Charlieは、本文を書き換えてBobに届けようとしている。"
+      : s.feedback
+        ? s.feedback.explanation
+        : done
+          ? lesson(s)
+          : pending
+            ? "「決定」で実行。「戻る」で選び直せる。"
+            : picking
+              ? "どの鍵を使う？ 公開鍵・秘密鍵・共通鍵を比べてみよう。"
+              : s.prompt;
   $("bob-result").hidden = !visibleResult || !s.result.message;
   $("bob-result").textContent =
     visibleResult && s.result.message
@@ -361,17 +372,21 @@ function render() {
         : "Bobは共通鍵で復号し、本文を受け付けた。"
       : "";
   const position = story.position();
-  $("dialogue-next").hidden = !talking;
+  $("dialogue-next").hidden = !talking && !correctAnswer;
   $("dialogue-next").textContent =
-    position.index + 1 < position.total ? "次へ ▶" : "行動を選ぶ ▶";
+    correctAnswer || position.index + 1 < position.total
+      ? "次へ ▶"
+      : "行動を選ぶ ▶";
   $("dialogue-previous").hidden = false;
   $("dialogue-previous").textContent = "← 一つ前へ";
   $("dialogue-previous").disabled = history.length === 0;
   $("dialogue-position").textContent = talking
     ? position.index + 1 + " / " + position.total
-    : done
-      ? "結果"
-      : "行動を選ぶ";
+    : correctAnswer
+      ? ""
+      : done
+        ? "結果"
+        : "行動を選ぶ";
 }
 function review(id, trigger = document.activeElement) {
   if (story.active()) return;
@@ -458,6 +473,11 @@ $("game-console").addEventListener("keydown", (event) => {
   }
 });
 $("dialogue-next").addEventListener("click", () => {
+  if (!story.active() && quest.view().feedback?.correct) {
+    review("continue");
+    return;
+  }
+  if (!story.active()) return;
   remember();
   story.next();
   render();

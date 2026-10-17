@@ -300,6 +300,10 @@ export function createQuest() {
         ? { ...x.selectingKey, keys: availableKeys(s), allowPass: true }
         : null,
       feedback: x.feedback ? copy(x.feedback) : null,
+      feedbackFrame:
+        x.feedback?.correct && x.feedbackFrames.length
+          ? copy(x.feedbackFrames[0])
+          : null,
       consequence: x.consequence,
       canRetryHere: Boolean(retryPoint),
       predictionAnswered: x.predictionAnswered,
@@ -468,7 +472,7 @@ export function createQuest() {
       return [];
     }
     if (action === "continue") {
-      const frames = copy(x.feedbackFrames);
+      const frames = copy(x.feedbackFrames.slice(1));
       x.pending = null;
       x.feedback = null;
       x.feedbackFrames = [];

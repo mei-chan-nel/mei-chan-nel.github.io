@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="./style.css?v=3" />
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=9" />
-    <link rel="stylesheet" href="./quest.css?v=4" />
+    <link rel="stylesheet" href="./quest.css?v=5" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -243,6 +243,11 @@
                     <span class="box-label" id="command-label">行動を選ぶ</span>
                   </div>
                   <div id="choice-list" class="choice-list"></div>
+                  <p
+                    id="answer-explanation"
+                    class="answer-explanation"
+                    hidden
+                  ></p>
                   <section
                     id="key-picker"
                     class="key-picker"
@@ -437,6 +442,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=10"></script>
+    <script type="module" src="./app.mjs?v=11"></script>
   </body>
 </html>

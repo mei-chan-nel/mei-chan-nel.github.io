@@ -467,3 +467,21 @@ test("explanations show full sections without revealing unread plaintext", () =>
     assert.equal(JSON.stringify(full).includes("I love you."), false);
   }
 });
+test("success exposes first narration with explanation, then advances without repeating it", () => {
+  const q = createQuest();
+  body(q, 0);
+  choose(q, "read");
+  const success = q.view();
+  assert.equal(success.feedback.correct, true);
+  assert.equal(success.feedbackFrame.scene, "decrypt");
+  assert.match(success.feedbackFrame.text, /Charlie.*復号/);
+  const rest = choose(q, "continue");
+  assert.equal(rest.length, 1);
+  assert.equal(rest[0].scene, "idea");
+  assert.notEqual(rest[0].text, success.feedbackFrame.text);
+  assert.equal(q.view().feedbackFrame, null);
+  choose(q, "predict-safe");
+  assert.equal(q.view().feedbackFrame, null);
+  assert.deepEqual(choose(q, "continue"), []);
+  assert.equal(q.view().choices[0].id, "edit");
+});

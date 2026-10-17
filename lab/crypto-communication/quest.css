@@ -608,3 +608,21 @@
 .quest-game .command small:empty {
   display: none;
 }
+
+.quest-game .answer-explanation {
+  align-self: stretch;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: inherit;
+}
+@media (max-height: 560px) {
+  .quest-game.is-viewport .answer-explanation {
+    padding: 6px 8px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+}
