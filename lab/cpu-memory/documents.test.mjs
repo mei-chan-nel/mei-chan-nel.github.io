@@ -70,7 +70,10 @@ test("directional transfer phases reflect cache hits, fills, write allocate and 
   const e = { address: 18, base: 18, cell: { op: "data", arg: 12 } };
   assert.deepEqual(
     transferSteps({ ...e, kind: "read", hit: true }).map((s) => [s.from, s.to]),
-    [["cache", "cpu"]],
+    [
+      ["cpu", "cache"],
+      ["cache", "cpu"],
+    ],
   );
   assert.deepEqual(
     transferSteps({ ...e, kind: "fetch", hit: false }).map((s) => [
@@ -78,6 +81,8 @@ test("directional transfer phases reflect cache hits, fills, write allocate and 
       s.to,
     ]),
     [
+      ["cpu", "cache"],
+      ["cache", "ram"],
       ["ram", "cache"],
       ["cache", "cpu"],
     ],
@@ -88,6 +93,8 @@ test("directional transfer phases reflect cache hits, fills, write allocate and 
       s.to,
     ]),
     [
+      ["cpu", "cache"],
+      ["cache", "ram"],
       ["ram", "cache"],
       ["cpu", "cache"],
       ["cpu", "ram"],
@@ -100,22 +107,29 @@ test("directional transfer phases reflect cache hits, fills, write allocate and 
     ]),
     [
       ["cpu", "cache"],
+      ["cpu", "cache"],
       ["cpu", "ram"],
     ],
   );
   assert.deepEqual(
     transferSteps({ ...e, kind: "read", hit: null }).map((s) => [s.from, s.to]),
-    [["ram", "cpu"]],
+    [
+      ["cpu", "ram"],
+      ["ram", "cpu"],
+    ],
   );
   assert.deepEqual(
     transferSteps({ ...e, kind: "write", hit: null }).map((s) => [
       s.from,
       s.to,
     ]),
-    [["cpu", "ram"]],
+    [
+      ["cpu", "ram"],
+      ["cpu", "ram"],
+    ],
   );
   assert.match(
-    transferSteps({ ...e, kind: "write", hit: true })[1].label,
+    transferSteps({ ...e, kind: "write", hit: true })[2].label,
     /18番地：12/,
   );
 });

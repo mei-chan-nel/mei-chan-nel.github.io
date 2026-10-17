@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
+import { openRam, editRam } from "./cpu-memory-test-ui.mjs";
 const require = createRequire(import.meta.url),
   { JSDOM } = require(process.env.LAB_JSDOM_MODULE || "jsdom");
 const dom = new JSDOM(
@@ -20,6 +21,7 @@ dom.window.HTMLDialogElement.prototype.showModal = function () {
 };
 dom.window.HTMLDialogElement.prototype.close = function () {
   this.open = false;
+  this.dispatchEvent(new Event("close"));
 };
 window.scrollTo = () => {};
 const $ = (id) => document.getElementById(id),
@@ -57,6 +59,8 @@ dom.window.HTMLElement.prototype.getBoundingClientRect = function () {
     );
   if (this.matches(".cpu-value")) return rect(25, 150, 170, 60);
   if (this.id === "current-command") return rect(25, 280, 170, 35);
+  if (this.id === "pc") return rect(25, 250, 170, 25);
+  if (this.id === "cache-request") return rect(265, 75, 270, 35);
   if (this.id === "received-value") return rect(25, 340, 170, 35);
   if (this.matches(".cache-line,.cache-cell")) {
     const card = this.closest(".cache-line"),
@@ -77,10 +81,31 @@ const next = () => $("step").click(),
   title = () => $("phase-title").textContent,
   target = () => document.querySelector(".transfer-target");
 next();
+assert.match(title(), /CPU → キャッシュ.*0番地/);
+assert.equal(target().id, "cache-request");
+assert.equal(
+  document
+    .querySelector(".transfer-path")
+    .classList.contains("transfer-request"),
+  true,
+);
+assert.match($("access-events").textContent, /要求/);
+assert.equal($("wait-metric").textContent, "0");
+assert.equal($("previous").disabled, false);
+$("previous").click();
+assert.equal($("phase-kind").textContent, "実行前");
+assert.equal($("previous").disabled, true);
+next();
+next();
 assert.match(title(), /命令 0番地.*ミス/);
+assert.equal(target(), null);
 assert.equal($("current-command").textContent, "—");
 assert.equal($("acc").textContent, "0");
 assert.equal(document.querySelectorAll(".cache-line").length, 0);
+next();
+assert.match(title(), /RAM 0番地へ読出要求/);
+assert.equal(target().parentElement.dataset.address, "0");
+assert.equal(document.querySelector(".transfer-source").id, "cache-request");
 next();
 assert.match(title(), /RAM 0・1番地/);
 assert.equal(target().dataset.base, "0");
@@ -96,7 +121,15 @@ assert.equal(target(), null);
 assert.equal($("access-events").children.length, 1);
 const before = list.scrollTop;
 next();
+assert.match(title(), /CPU → キャッシュ.*16番地/);
+assert.equal(target().id, "cache-request");
+assert.equal(list.scrollTop, before);
+next();
 assert.match(title(), /データ 16番地.*ミス/);
+assert.equal(list.scrollTop, before);
+assert.equal(target(), null);
+next();
+assert.match(title(), /RAM 16番地へ読出要求/);
 assert.ok(list.scrollTop > before + 400);
 assert.equal(
   document
@@ -104,7 +137,7 @@ assert.equal(
     .classList.contains("requested"),
   true,
 );
-assert.equal(target(), null);
+assert.equal(target().parentElement.dataset.address, "16");
 next();
 assert.equal(target().dataset.base, "16");
 assert.equal($("received-field").hidden, true);
@@ -129,7 +162,8 @@ for (let n = 0; n < 20 && $("steps").textContent !== "2"; n++) next();
 assert.equal(list.scrollTop, savedScroll);
 assert.equal($("acc").textContent, "12");
 assert.equal($("steps").textContent, "2");
-for (let n = 0; n < 20 && !title().startsWith("CPU → キャッシュ"); n++) next();
+for (let n = 0; n < 30 && !title().startsWith("CPU → キャッシュ 18番地"); n++)
+  next();
 assert.match(title(), /CPU → キャッシュ 18番地/);
 assert.equal(
   document.querySelector('tr[data-address="18"] .live-cell').textContent,
@@ -152,11 +186,59 @@ assert.match(
   /L [^ ]+ 8 L/,
 );
 assert.equal($("steps").textContent, "2");
+const writeTime = $("total-time").textContent;
+$("previous").click();
+assert.match(title(), /CPU → キャッシュ 18番地/);
+assert.equal(
+  document.querySelector('tr[data-address="18"] .live-cell').textContent,
+  "0",
+);
+assert.equal(
+  document.querySelector('.cache-cell[data-address="18"] span').textContent,
+  "12",
+);
+assert.equal($("wait-metric").textContent, "172");
+next();
+assert.equal(
+  document.querySelector('tr[data-address="18"] .live-cell').textContent,
+  "12",
+);
+assert.equal($("total-time").textContent, writeTime);
 next();
 assert.equal($("steps").textContent, "3");
 $("memory-fullscreen").click();
 assert.equal($("memory-lab").classList.contains("is-fullscreen"), true);
 assert.match($("phase-title").textContent, /書き込み完了/);
+document.querySelector('[data-control="previous"]').click();
+assert.match(title(), /CPU → RAM 18番地/);
+document.querySelector('[data-control="next"]').click();
+assert.match(title(), /書き込み完了/);
+openRam(18);
+assert.equal($("ram-edit-dialog").open, true);
+assert.match($("ram-edit-current").textContent, /12/);
+assert.equal($("ram-edit-operand").value, "0");
+$("ram-edit-operand").value = "99";
+$("ram-edit-dialog").querySelector("[data-cancel]").click();
+assert.equal(
+  document.activeElement,
+  document.querySelector('tr[data-address="18"] .ram-row-edit'),
+);
+assert.equal(
+  document.querySelector('tr[data-address="18"] .live-cell').textContent,
+  "12",
+);
+assert.equal($("steps").textContent, "3");
+editRam(18, { arg: 19 });
+assert.equal(
+  document.querySelector('tr[data-address="18"] .live-cell').textContent,
+  "19",
+);
+assert.equal($("steps").textContent, "0");
+assert.equal($("memory-lab").classList.contains("is-fullscreen"), true);
+assert.equal(
+  document.querySelector('[data-control="previous"]').disabled,
+  true,
+);
 $("reset").click();
 assert.equal($("steps").textContent, "0");
 assert.equal($("phase-kind").textContent, "実行前");

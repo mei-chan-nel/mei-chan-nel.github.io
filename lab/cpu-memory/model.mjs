@@ -91,6 +91,7 @@ export class Machine {
     this.received = null;
     this.phase = null;
     this.sequence = null;
+    this.checkpoints = [];
     this.atBoundary = true;
     this.cache = [];
     this.seen = new Set();
@@ -131,7 +132,7 @@ export class Machine {
       address,
       base,
       kind,
-      hit: c.enabled ? !!line : null,
+      hit: c.enabled ? undefined : null,
       evicted: null,
       cost: 0,
       reason: "",
@@ -145,7 +146,26 @@ export class Machine {
       s.wait += cost;
     };
     if (c.enabled) {
+      event.reason =
+        "CPUからキャッシュへ番地を送り、該当するブロックがあるか調べます。";
+      yield this.show(
+        "cache-request",
+        `CPU → キャッシュ：${address}番地の${kind === "fetch" ? "命令取得" : kind === "write" ? "書込" : "読出"}要求`,
+        "まだヒット／ミスは判定していません。データもCPUへ渡していません。",
+        event,
+        {
+          from: "cpu",
+          to: "cache",
+          kind,
+          address,
+          base,
+          request: true,
+          label: `CPU → キャッシュ：${address}番地を要求`,
+        },
+        { device: "cache", address },
+      );
       charge(c.cacheTime);
+      event.hit = !!line;
       if (line) {
         s.hits++;
         line.used = this.clock;
@@ -164,9 +184,25 @@ export class Machine {
           : "次にRAMから2番地分のブロックを取得します。",
         event,
         null,
-        { device: line ? "cache" : "ram", address },
+        { device: "cache", address },
       );
       if (!line) {
+        yield this.show(
+          "ram-request",
+          `キャッシュミス → RAM ${address}番地へ読出要求`,
+          `メモリ側へ要求し、${base}・${base + 1}番地のブロックを読み出します。`,
+          event,
+          {
+            from: "cache",
+            to: "ram",
+            kind: kind === "fetch" ? "fetch" : "read",
+            address,
+            base,
+            request: true,
+            label: `キャッシュ → RAM：${base}・${base + 1}番地のブロックを要求`,
+          },
+          { device: "ram", address },
+        );
         if (this.cache.length >= c.blocks) {
           const oldest = this.cache.reduce((a, b) => (a.used < b.used ? a : b));
           event.evicted = oldest.base;
@@ -207,7 +243,15 @@ export class Machine {
         `RAM ${address}番地へ${kind === "write" ? "書込" : "読出"}要求`,
         event.reason,
         event,
-        null,
+        {
+          from: "cpu",
+          to: "ram",
+          kind,
+          address,
+          base,
+          request: true,
+          label: `CPU → RAM：${address}番地へ${kind === "write" ? "書込" : "読出"}要求`,
+        },
         { device: "ram", address },
       );
     }
@@ -370,6 +414,18 @@ export class Machine {
   }
   advance() {
     if (this.halted || this.error) return;
+    // Checkpoint only at instruction boundaries: generators cannot be cloned.
+    // Recent undo replays at most one instruction. Older undo can replay from
+    // the initial state, so the bounded checkpoint cache does not limit undo.
+    if (
+      !this.sequence &&
+      this.atBoundary &&
+      this.checkpoints.at(-1)?.actions !== this.actions
+    ) {
+      const { sequence, checkpoints, ...state } = this;
+      this.checkpoints.push({ actions: this.actions, state: copy(state) });
+      if (this.checkpoints.length > 64) this.checkpoints.shift();
+    }
     this.actions++;
     try {
       this.sequence ??= this.instructionStages();
@@ -381,6 +437,20 @@ export class Machine {
       this.show("error", "実行できません", this.error);
     }
     return this.phase;
+  }
+  back() {
+    if (!this.actions) return this;
+    const target = this.actions - 1,
+      restored = new Machine(this.initial, this.config),
+      checkpoint = this.checkpoints.findLast((item) => item.actions <= target);
+    if (checkpoint) {
+      Object.assign(restored, copy(checkpoint.state));
+      restored.checkpoints = this.checkpoints.filter(
+        (item) => item.actions <= checkpoint.actions,
+      );
+    }
+    while (restored.actions < target) restored.advance();
+    return restored;
   }
   step() {
     const target = this.steps + 1;

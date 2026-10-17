@@ -13,6 +13,7 @@ export function createMemoryFullscreen({
   const speedAnchor = document.createComment("speed panel");
   speedPanel.before(speedAnchor);
   const controls = {
+    previous: "previous",
     next: "step",
     reset: "reset",
     play: "run",

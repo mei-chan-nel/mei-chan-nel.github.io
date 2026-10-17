@@ -10,6 +10,15 @@ export function transferSteps(event) {
   if (event.hit === null)
     return [
       {
+        from: "cpu",
+        to: "ram",
+        kind: event.kind,
+        address,
+        base,
+        request: true,
+        label: `CPU → RAM：${address}番地へ要求`,
+      },
+      {
         from: event.kind === "write" ? "cpu" : "ram",
         to: event.kind === "write" ? "ram" : "cpu",
         kind: event.kind,
@@ -21,16 +30,36 @@ export function transferSteps(event) {
             : `RAM ${address}番地 → CPU：${value}`,
       },
     ];
-  if (!event.hit)
-    steps.push({
-      from: "ram",
-      to: "cache",
-      kind: event.kind === "fetch" ? "fetch" : "read",
-      address,
-      base,
-      block: true,
-      label: `RAM ${base}・${base + 1}番地 → キャッシュ（ブロック取得）`,
-    });
+  steps.push({
+    from: "cpu",
+    to: "cache",
+    kind: event.kind,
+    address,
+    base,
+    request: true,
+    label: `CPU → キャッシュ：${address}番地へ要求`,
+  });
+  if (event.hit === false)
+    steps.push(
+      {
+        from: "cache",
+        to: "ram",
+        kind: event.kind === "fetch" ? "fetch" : "read",
+        address,
+        base,
+        request: true,
+        label: `キャッシュミス → RAM：${base}・${base + 1}番地を要求`,
+      },
+      {
+        from: "ram",
+        to: "cache",
+        kind: event.kind === "fetch" ? "fetch" : "read",
+        address,
+        base,
+        block: true,
+        label: `RAM ${base}・${base + 1}番地 → キャッシュ（ブロック取得）`,
+      },
+    );
   if (event.kind === "write")
     steps.push(
       {
@@ -134,17 +163,23 @@ export function createTransfers(workspace) {
       const locate = (device) =>
         device === "cpu"
           ? workspace.querySelector(
-              step.kind === "fetch"
-                ? "#current-command"
-                : step.to === "cpu"
-                  ? "#received-value"
-                  : ".cpu-value",
+              step.request
+                ? step.kind === "fetch"
+                  ? "#pc"
+                  : "#current-command"
+                : step.kind === "fetch"
+                  ? "#current-command"
+                  : step.to === "cpu"
+                    ? "#received-value"
+                    : ".cpu-value",
             )
           : device === "cache"
             ? workspace.querySelector(
-                step.block
-                  ? `.cache-line[data-base="${step.base}"]`
-                  : `.cache-cell[data-address="${step.address}"]`,
+                step.request
+                  ? "#cache-request"
+                  : step.block
+                    ? `.cache-line[data-base="${step.base}"]`
+                    : `.cache-cell[data-address="${step.address}"]`,
               )
             : workspace.querySelector(
                 `tr[data-address="${step.address}"] .live-cell`,
@@ -178,7 +213,7 @@ export function createTransfers(workspace) {
         node("path", { d, class: "transfer-halo" }),
         node("path", {
           d,
-          class: `transfer-path transfer-${step.kind}`,
+          class: `transfer-path transfer-${step.kind}${step.request ? " transfer-request" : ""}`,
           "marker-end": `url(#transfer-${step.kind})`,
         }),
         node("circle", {

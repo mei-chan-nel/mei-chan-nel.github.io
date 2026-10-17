@@ -10,10 +10,21 @@ const advance = (m) => {
 test("fetch, decode, operand delivery and calculation are separate observable actions", () => {
   const m = new Machine(presets[0].memory, defaults);
   let p = advance(m);
+  assert.equal(p.stage, "cache-request");
+  assert.deepEqual([p.transfer.from, p.transfer.to], ["cpu", "cache"]);
+  assert.equal(p.transfer.request, true);
+  assert.equal(p.event.hit, undefined);
+  assert.equal(m.stats.wait, 0);
+  assert.equal(m.stats.misses, 0);
+  p = advance(m);
   assert.equal(p.stage, "lookup");
   assert.equal(m.current, null);
   assert.equal(m.cache.length, 0);
   assert.equal(m.stats.wait, 2);
+  assert.equal(m.stats.ramReads, 0);
+  p = advance(m);
+  assert.equal(p.stage, "ram-request");
+  assert.deepEqual([p.transfer.from, p.transfer.to], ["cache", "ram"]);
   assert.equal(m.stats.ramReads, 0);
   p = advance(m);
   assert.equal(p.stage, "block-fill");
@@ -34,11 +45,17 @@ test("fetch, decode, operand delivery and calculation are separate observable ac
   assert.equal(m.stats.read, 0);
   assert.equal(m.received, null);
   p = advance(m);
+  assert.equal(p.stage, "cache-request");
+  assert.deepEqual([p.transfer.from, p.transfer.to], ["cpu", "cache"]);
+  p = advance(m);
   assert.equal(p.stage, "lookup");
-  assert.deepEqual(p.focus, { device: "ram", address: 16 });
+  assert.deepEqual(p.focus, { device: "cache", address: 16 });
   assert.equal(m.stats.read, 1);
   assert.equal(m.stats.ramReads, 1);
   assert.equal(m.cache.length, 1);
+  p = advance(m);
+  assert.equal(p.stage, "ram-request");
+  assert.deepEqual(p.focus, { device: "ram", address: 16 });
   p = advance(m);
   assert.equal(p.stage, "block-fill");
   assert.equal(m.stats.ramReads, 2);
@@ -60,6 +77,45 @@ test("fetch, decode, operand delivery and calculation are separate observable ac
   assert.equal(m.steps, 1);
   assert.equal(m.stats.cpu, 1);
   assert.equal(m.result().inProgress, false);
+});
+const snapshot = (machine) => {
+  const { sequence, checkpoints, ...state } = machine;
+  return copy(state);
+};
+test("back restores every observable state and replay resumes exactly, including partial writes, LRU, halt and errors", () => {
+  const invalid = copy(presets[0].memory);
+  invalid[0] = { op: "data", arg: 3 };
+  for (const memory of [...presets.map((p) => p.memory), invalid]) {
+    for (const config of [
+      { ...defaults, blocks: 1 },
+      { ...defaults, enabled: false },
+    ]) {
+      let machine = new Machine(memory, config);
+      const states = [snapshot(machine)];
+      while (!machine.halted && !machine.error) {
+        machine.advance();
+        states.push(snapshot(machine));
+      }
+      for (let i = states.length - 1; i > 0; i--) {
+        machine = machine.back();
+        assert.deepEqual(snapshot(machine), states[i - 1]);
+        machine.advance();
+        assert.deepEqual(snapshot(machine), states[i]);
+        machine = machine.back();
+      }
+      assert.equal(machine.actions, 0);
+      assert.equal(machine.back(), machine);
+    }
+  }
+});
+test("bounded checkpoint storage still allows undo all the way to the initial state", () => {
+  const memory = copy(presets[0].memory);
+  memory[0] = { op: "jump", arg: 0 };
+  let machine = new Machine(memory, defaults);
+  for (let i = 0; i < 70; i++) machine.step();
+  assert.equal(machine.checkpoints.length, 64);
+  while (machine.actions) machine = machine.back();
+  assert.deepEqual(snapshot(machine), snapshot(new Machine(memory, defaults)));
 });
 test("a cache hit supplies the CPU without a RAM read or a RAM focus", () => {
   const m = new Machine(presets[0].memory, defaults);

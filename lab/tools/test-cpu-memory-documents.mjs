@@ -1,6 +1,7 @@
 import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
+import { editRam, ramContent } from "./cpu-memory-test-ui.mjs";
 const require = createRequire(import.meta.url),
   { JSDOM } = require(process.env.LAB_JSDOM_MODULE || "jsdom");
 const dom = new JSDOM(
@@ -46,21 +47,20 @@ const $ = (id) => document.getElementById(id),
       .dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 const confirmLoad = () =>
   $("program-confirm-dialog").querySelector(".document-primary").click();
-const operand = () => document.querySelector('tr[data-address="16"] input');
-change(operand(), "9");
+editRam(16, { arg: 9 });
 click("save-program");
 assert.equal($("program-save-dialog").open, true);
 change($("program-save-name"), "加算A");
 submit("program-save-dialog");
 assert.equal(readPrograms(localStorage).length, 1);
 assert.equal(readPrograms(localStorage)[0].document.initial[16].arg, 9);
-change(operand(), "77");
+editRam(16, { arg: 77 });
 click("load-program");
 assert.equal(document.querySelectorAll("[data-preset]").length, 5);
 $("saved-programs").querySelector("button").click();
-assert.equal(operand().value, "77");
+assert.equal(ramContent(16), "77");
 confirmLoad();
-assert.equal(operand().value, "9");
+assert.equal(ramContent(16), "9");
 assert.equal($("steps").textContent, "0");
 assert.equal($("cache-lines").querySelectorAll(".cache-line").length, 0);
 click("save-program");
@@ -82,7 +82,7 @@ const json = await blob.text(),
   saved = JSON.parse(json);
 assert.equal(saved.initial[16].arg, 9);
 assert.equal(saved.format, "interactive-lab-cpu-memory");
-change(operand(), "88");
+editRam(16, { arg: 88 });
 click("load-program");
 Object.defineProperty($("program-file"), "files", {
   configurable: true,
@@ -90,13 +90,13 @@ Object.defineProperty($("program-file"), "files", {
 });
 $("program-file").dispatchEvent(new Event("change"));
 await new Promise((r) => setTimeout(r, 0));
-assert.equal(operand().value, "88");
+assert.equal(ramContent(16), "88");
 confirmLoad();
-assert.equal(operand().value, "9");
+assert.equal(ramContent(16), "9");
 click("load-program");
 document.querySelector('[data-preset="loop"]').click();
 confirmLoad();
-assert.equal(operand().value, "5");
+assert.equal(ramContent(16), "5");
 assert.equal($("experiment-name").value, "繰り返し処理");
 // Speed controls use the same interval model as Program Trace.
 click("speed-button");

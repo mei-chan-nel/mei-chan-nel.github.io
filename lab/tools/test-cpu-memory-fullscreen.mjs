@@ -2,6 +2,7 @@
 import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
+import { editRam, openRam } from "./cpu-memory-test-ui.mjs";
 const require = createRequire(import.meta.url),
   { JSDOM } = require(process.env.LAB_JSDOM_MODULE || "jsdom");
 const dom = new JSDOM(
@@ -49,13 +50,13 @@ assert.deepEqual(
   ),
   ["cpu-heading", "cache-heading", "ram-heading"],
 );
-assert.equal(row.querySelector("select").value, "load");
 assert.equal(
-  row.querySelector("select").selectedOptions[0].textContent,
-  "読み出し",
+  row.querySelector(".ram-row-edit").textContent,
+  "16 番地を読み出す",
 );
 assert.equal(document.querySelectorAll(".pad-button").length, 0);
-assert.equal(document.querySelector(".run-buttons > button").id, "step");
+assert.equal(document.querySelector(".run-buttons > button").id, "previous");
+assert.equal($("previous").disabled, true);
 assert.equal($("step").classList.contains("primary"), true);
 assert.equal($("run").classList.contains("primary"), false);
 click("step");
@@ -95,11 +96,13 @@ click("save-result");
 assert.equal($("record-count").textContent, "1件");
 $("comparison-records").open = true;
 $("experiment-setup").open = true;
-const operand = document.querySelector('tr[data-address="16"] input');
-operand.value = "9";
-operand.dispatchEvent(new Event("change"));
+editRam(16, { arg: 9 });
 assert.equal($("steps").textContent, "0");
 assert.equal(surface.classList.contains("is-fullscreen"), true);
+assert.equal(
+  document.querySelector('[data-control="previous"]').disabled,
+  true,
+);
 click("step");
 assert.equal($("acc").textContent, "9");
 const dialog = document.createElement("dialog");
@@ -180,6 +183,9 @@ document.body.dispatchEvent(
   }),
 );
 assert.equal(Number($("steps").textContent), before);
+openRam(16);
+const operand = $("ram-edit-operand");
+const action = $("phase-kind").textContent;
 operand.dispatchEvent(
   new dom.window.KeyboardEvent("keydown", {
     key: "Enter",
@@ -188,6 +194,8 @@ operand.dispatchEvent(
   }),
 );
 assert.equal(Number($("steps").textContent), before);
+assert.equal($("phase-kind").textContent, action);
+$("ram-edit-dialog").querySelector("[data-cancel]").click();
 click("reset");
 click("memory-fullscreen");
 click("run");

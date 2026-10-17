@@ -2,6 +2,7 @@
 import { createRequire } from "node:module";
 import { readFile } from "node:fs/promises";
 import assert from "node:assert/strict";
+import { editRam, ramContent } from "./cpu-memory-test-ui.mjs";
 const require = createRequire(import.meta.url);
 const { JSDOM } = require(process.env.LAB_JSDOM_MODULE || "jsdom");
 const html = await readFile(
@@ -42,9 +43,12 @@ const $ = (id) => document.getElementById(id),
     node.dispatchEvent(new Event("input", { bubbles: true }));
     node.dispatchEvent(new Event("change", { bubbles: true }));
   };
-const command = (i) => document.querySelector(`tr[data-address="${i}"] select`),
-  operand = (i) => document.querySelector(`tr[data-address="${i}"] input`);
 assert.equal($("ram-rows").children.length, 32);
+assert.equal(document.querySelectorAll(".ram-table thead th").length, 2);
+assert.equal(
+  document.querySelectorAll("#ram-rows input,#ram-rows select").length,
+  0,
+);
 assert.equal($("instruction-guide").children.length, 8);
 click("step");
 assert.equal($("acc").textContent, "7");
@@ -66,7 +70,7 @@ assert.equal($("state").textContent, "終了");
 assert.equal($("total-time").textContent, "218ns");
 click("save-result");
 assert.equal($("result-rows").children.length, 1);
-change(operand(16), "9");
+editRam(16, { arg: 9 });
 assert.equal($("state").textContent, "実行前");
 assert.equal($("acc").textContent, "0");
 assert.equal($("cache-lines").querySelectorAll(".cache-line").length, 0);
@@ -74,7 +78,7 @@ assert.match($("result-rows").textContent, /異なる初期RAM/);
 click("step");
 assert.equal($("acc").textContent, "9");
 $("result-rows").querySelector("button").click();
-assert.equal(operand(16).value, "7");
+assert.equal(ramContent(16), "7");
 assert.equal($("acc").textContent, "0");
 $("cache-enabled").checked = false;
 $("cache-enabled").dispatchEvent(new Event("change"));
@@ -93,7 +97,7 @@ click("load-program");
 assert.equal($("program-load-dialog").open, true);
 document.querySelector('[data-preset="loop"]').click();
 $("program-confirm-dialog").querySelector(".document-primary").click();
-assert.equal(operand(16).value, "5");
+assert.equal(ramContent(16), "5");
 for (let i = 0; i < 25; i++) click("step");
 assert.equal($("state").textContent, "終了");
 assert.equal($("acc").textContent, "0");
@@ -108,20 +112,21 @@ const paused = $("steps").textContent;
 await new Promise((r) => setTimeout(r, 80));
 assert.equal($("steps").textContent, paused);
 assert.equal($("state").textContent, "一時停止");
-change(command(0), "data");
+editRam(0, { op: "data" });
 click("step");
 assert.equal($("state").textContent, "エラー");
 assert.match($("notice").textContent, /数値/);
-change(command(0), "load");
+editRam(0, { op: "load" });
 assert.equal($("state").textContent, "実行前");
-change(operand(0), "32");
-click("step");
-assert.match($("notice").textContent, /0〜31/);
+editRam(0, { arg: 32 });
+assert.equal($("ram-edit-dialog").open, true);
+assert.match($("ram-edit-error").textContent, /0〜31/);
 assert.equal($("steps").textContent, "0");
-change(operand(0), "16");
+$("ram-edit-dialog").querySelector("[data-cancel]").click();
+editRam(0, { arg: 16 });
 assert.equal(document.querySelectorAll(".pad-button").length, 0);
-change(operand(16), "9");
-assert.equal(operand(16).value, "9");
+editRam(16, { arg: 9 });
+assert.equal(ramContent(16), "9");
 assert.equal($("steps").textContent, "0");
 click("help-toggle");
 assert.equal($("lab-guide").hidden, false);
@@ -140,7 +145,7 @@ Object.defineProperty($("program-file"), "files", {
 $("program-file").dispatchEvent(new Event("change"));
 await new Promise((r) => setTimeout(r, 10));
 assert.match($("notice").textContent, /読込できません/);
-assert.equal(operand(16).value, "9");
+assert.equal(ramContent(16), "9");
 Object.defineProperty($("program-file"), "files", {
   configurable: true,
   value: [

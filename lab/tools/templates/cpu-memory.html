@@ -53,6 +53,15 @@
   <div class="execution-bar control-panel">
     <div class="run-buttons action-buttons">
       <button
+        class="button"
+        id="previous"
+        type="button"
+        disabled
+        title="1動作戻る"
+      >
+        <span class="button-icon" aria-hidden="true">←</span> 一つ戻る
+      </button>
+      <button
         class="button button-primary primary"
         id="step"
         type="button"
@@ -149,6 +158,16 @@
       title="元に戻す"
     >
       ×
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="previous"
+      aria-label="一つ戻る（1動作戻る）"
+      title="一つ戻る"
+      disabled
+    >
+      ←
     </button>
     <button
       type="button"
@@ -327,6 +346,7 @@
       <div class="cache-policy">
         <span>全相連</span><span>LRU</span><span>ライトスルー</span>
       </div>
+      <p id="cache-request" class="cache-request">CPUからの要求待ち</p>
       <p class="small-note" id="cache-caption">
         実行するとブロックが入ります。
       </p>
@@ -348,7 +368,7 @@
           <span class="panel-index">03</span>
           <h2 id="ram-heading">主記憶装置 <small>RAM</small></h2>
         </div>
-        <span class="tiny-label">32番地 · 直接編集</span>
+        <span class="tiny-label">32番地 · 行を押して編集</span>
       </div>
       <div class="ram-legend">
         <span><i class="legend-next"></i>次の命令</span
@@ -366,8 +386,6 @@
           <thead>
             <tr>
               <th scope="col">番地</th>
-              <th scope="col">種類</th>
-              <th scope="col">初期値 / 対象番地</th>
               <th scope="col">現在の内容</th>
             </tr>
           </thead>
@@ -375,7 +393,7 @@
         </table>
       </div>
       <p class="ram-note">
-        2番地で1ブロック。左側を編集すると初期RAMからやり直します。書き込み結果は右側に表示。
+        行を押して初期内容を編集。反映すると初期RAMからやり直します。2番地で1ブロック。
       </p>
     </section>
   </div>
@@ -442,6 +460,9 @@
 </div>
 <details class="model-notes">
   <summary>この実験のしくみ・時間の数え方</summary>
+  <p>
+    RAMの行を押すと、現在の内容を確認しながら初期内容を編集できます。「次へ」で1動作ずつ進み、「一つ戻る」でCPU・RAM・キャッシュ・計測値を直前の段階へ戻します。矢印の破線は番地の要求、実線は命令やデータの転送です。キャッシュミスの場合も、まずCPUからキャッシュへ要求し、ミス判定後にRAMへブロックを要求します。キャッシュの枠には要求を処理する制御を含めて表しています。
+  </p>
   <p>
     命令と数値は同じRAM（0〜31番地）に置きます。命令取得とデータ読み書きは1つのキャッシュを共有し、2番地単位のブロックをどの枠にも保持できます。最近使われていないブロックから置き換えます（LRU）。書込ミスでもブロックを取得し（ライトアロケート）、RAMにもその都度書き込みます（ライトスルー）。書き込みによって命令が数値に変わる場合もあります。
   </p>

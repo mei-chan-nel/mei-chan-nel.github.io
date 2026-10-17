@@ -1,7 +1,6 @@
 import {
   Machine,
   OPS,
-  SIZE,
   defaults,
   copy,
   text,
@@ -16,10 +15,7 @@ import { bindStepKeys } from "../../program-trace/step-keys.js";
 import { installSpeed } from "./speed.mjs";
 import { installProgramDocuments } from "./document-ui.mjs";
 import { createTransfers, transferSteps } from "./transfers.mjs";
-import {
-  field,
-  selection,
-} from "../../program-trace/studio/expression-editor.js?v=20261009-function-help3";
+import { createRamEditor } from "./ram-editor.mjs";
 const $ = (id) => document.getElementById(id);
 const el = (tag, value, className = "") => {
   const item = document.createElement(tag);
@@ -52,6 +48,15 @@ let initial = copy(presets[0].memory),
   comparing = false,
   runCount = 0;
 const rows = [];
+const ramEditor = createRamEditor({
+  apply(address, cell) {
+    if (JSON.stringify(initial[address]) === JSON.stringify(cell)) return;
+    initial[address] = copy(cell);
+    reset(
+      `${address}番地の編集を反映し、実行状態とキャッシュを初期化しました。`,
+    );
+  },
+});
 const transfers = createTransfers(document.querySelector(".memory-workspace"));
 const autoplay = createAutoplay({
   advance: () => {
@@ -135,10 +140,6 @@ function integer(value) {
   return Number(value);
 }
 function readDraft() {
-  const next = rows.map(({ kind, operand }) => ({
-    op: kind.input.value,
-    arg: kind.input.value === "halt" ? 0 : integer(operand.input.value),
-  }));
   const nextConfig = {
     enabled: $("cache-enabled").checked,
     blocks: integer($("capacity").value),
@@ -150,13 +151,8 @@ function readDraft() {
   for (const id of ["cache-time", "ram-time", "cpu-time"])
     if (!$(id).value.trim())
       throw new Error("仮想アクセス時間を入力してください。");
-  validateMemory(next);
   validateConfig(nextConfig);
-  if (
-    JSON.stringify(next) !== JSON.stringify(initial) ||
-    JSON.stringify(nextConfig) !== JSON.stringify(config)
-  ) {
-    initial = next;
+  if (JSON.stringify(nextConfig) !== JSON.stringify(config)) {
     config = nextConfig;
     reset("編集を反映し、実行状態とキャッシュを初期化しました。");
   }
@@ -191,51 +187,18 @@ function renderInputs() {
     row.dataset.address = address;
     const index = el("th", String(address).padStart(2, "0"));
     index.scope = "row";
-    const kind = selection(
-      `${address}番地の種類`,
-      OPS.map(([op, label]) => [op, label]),
-      cell.op,
-    );
-    kind.input.setAttribute("aria-label", `${address}番地の種類`);
-    const operand = field(
-      `${address}番地の値または対象番地`,
-      String(cell.arg),
-      "number",
-    );
-    operand.input.setAttribute(
-      "aria-label",
-      `${address}番地の値または対象番地`,
-    );
-    operand.input.step = "1";
-    const kindCell = el("td"),
-      operandCell = el("td"),
-      live = el("td", "", "live-cell"),
-      wrap = el("div", undefined, "operand-wrap");
-    function updateOperand() {
-      const noArg = kind.input.value === "halt",
-        value = ["data", "set"].includes(kind.input.value);
-      operand.input.disabled = noArg;
-      operand.input.min = value ? String(Number.MIN_SAFE_INTEGER) : "0";
-      operand.input.max = value
-        ? String(Number.MAX_SAFE_INTEGER)
-        : String(SIZE - 1);
-    }
-    kind.input.addEventListener("change", () => {
-      updateOperand();
-      guarded(() => {});
-    });
-    operand.input.addEventListener("input", () => {
+    const live = el("td", "", "live-cell"),
+      edit = button(text(cell), () => {}, "ram-row-edit");
+    live.append(edit);
+    row.append(index, live);
+    row.addEventListener("click", () => {
+      if (comparing) return;
       stop();
       renderControls();
+      ramEditor.open(address, initial[address], machine.ram[address], edit);
     });
-    operand.input.addEventListener("change", () => guarded(() => {}));
-    kindCell.append(kind.input);
-    wrap.append(operand.input);
-    operandCell.append(wrap);
-    row.append(index, kindCell, operandCell, live);
     $("ram-rows").append(row);
-    rows.push({ row, kind, operand, live });
-    updateOperand();
+    rows.push({ row, live, edit });
   });
 }
 function renderControls() {
@@ -249,6 +212,7 @@ function renderControls() {
   );
   $("step").disabled =
     running || comparing || machine.halted || !!machine.error;
+  $("previous").disabled = comparing || !machine.actions;
   $("save-result").disabled = running || comparing || !machine.actions;
   $("compare-off").disabled = running || comparing;
   $("state").textContent = comparing
@@ -332,7 +296,7 @@ function render() {
     : "—";
   $("steps").textContent = machine.steps;
   $("phase-kind").textContent = machine.phase
-    ? `動作 ${machine.actions} · ${{ lookup: "参照先を確認", "ram-request": "参照先を確認", "block-fill": "ブロック取得", "cpu-receive": "CPUへ取込", decode: "命令を実行", "cache-write": "キャッシュへ書込", "ram-write": "RAMへ書込", complete: "命令完了", error: "エラー" }[machine.phase.stage]}`
+    ? `動作 ${machine.actions} · ${{ "cache-request": "キャッシュへ要求", lookup: "ヒット判定", "ram-request": "RAMへ要求", "block-fill": "ブロック取得", "cpu-receive": "CPUへ取込", decode: "命令を実行", "cache-write": "キャッシュへ書込", "ram-write": "RAMへ書込", complete: "命令完了", error: "エラー" }[machine.phase.stage]}`
     : "実行前";
   $("phase-title").textContent = machine.phase?.title ?? "「次へ」で命令を取得";
   $("phase-detail").textContent =
@@ -342,8 +306,13 @@ function render() {
     ? text(machine.received)
     : "—";
   const e = machine.events[selectedEvent] ?? machine.events.at(-1);
-  rows.forEach(({ row, live }, address) => {
-    live.textContent = text(machine.ram[address]);
+  rows.forEach(({ row, edit }, address) => {
+    edit.textContent = text(machine.ram[address]);
+    edit.setAttribute(
+      "aria-label",
+      `${address}番地、${edit.textContent}、初期内容を編集`,
+    );
+    edit.disabled = comparing;
     row.classList.toggle(
       "next",
       !machine.halted && !machine.error && address === machine.pc,
@@ -360,12 +329,15 @@ function render() {
         ? address === transfer.base || address === transfer.base + 1
         : address === transfer.address);
     row.classList.toggle("accessed", !!addressed);
-    row.classList.toggle("write-target", !!addressed && transfer.to === "ram");
+    row.classList.toggle(
+      "write-target",
+      !!addressed && transfer.to === "ram" && !transfer.request,
+    );
     row.classList.toggle(
       "requested",
-      !transfer &&
-        machine.phase?.focus?.device === "ram" &&
-        machine.phase.focus.address === address,
+      !!transfer?.request &&
+        transfer.to === "ram" &&
+        transfer.address === address,
     );
     row.classList.toggle(
       "written",
@@ -375,6 +347,13 @@ function render() {
     );
   });
   renderCache(selectedEvent >= 0 ? e : machine.phase?.event);
+  const activeEvent = selectedEvent >= 0 ? e : machine.phase?.event;
+  $("cache-request").textContent =
+    config.enabled && activeEvent
+      ? `${activeEvent.address}番地 · ${{ fetch: "命令取得", read: "データ読出", write: "データ書込" }[activeEvent.kind]} · ${activeEvent.hit === undefined ? "判定前" : activeEvent.hit ? "HIT" : "MISS"}`
+      : config.enabled
+        ? "CPUからの要求待ち"
+        : "OFF · RAMへ直接要求";
   $("access-events").replaceChildren();
   if (!machine.events.length) {
     const p = el(
@@ -390,7 +369,7 @@ function render() {
       () => {
         selectedEvent = i;
         render();
-        if (event.hit === null || !event.hit) revealRam(event.address);
+        if (event.hit === null || event.hit === false) revealRam(event.address);
         transfers.draw();
       },
       "access-event",
@@ -403,7 +382,13 @@ function render() {
       ),
       el(
         "b",
-        event.hit === null ? "直接" : event.hit ? "HIT" : "MISS",
+        event.hit === undefined
+          ? "要求"
+          : event.hit === null
+            ? "直接"
+            : event.hit
+              ? "HIT"
+              : "MISS",
         event.hit === false ? "miss" : "",
       ),
       el("small", `${format(event.cost)} ns`),
@@ -464,9 +449,11 @@ function focusPhase() {
   if (!focus) return;
   if (focus.device === "ram") revealRam(focus.address);
   if (focus.device === "cache") {
-    const block = document.querySelector(
-      `.cache-line[data-base="${Math.floor(focus.address / 2) * 2}"]`,
-    );
+    const block = ["cache-request", "lookup"].includes(machine.phase.stage)
+      ? $("cache-request")
+      : document.querySelector(
+          `.cache-line[data-base="${Math.floor(focus.address / 2) * 2}"]`,
+        );
     revealIn($("cache-lines"), block);
     if (fullscreen.active)
       revealIn(document.querySelector(".cache-panel"), block, 38);
@@ -475,19 +462,25 @@ function focusPhase() {
   if (t) {
     if (t.from === "ram" || t.to === "ram") revealRam(t.address);
     if (t.from === "cache" || t.to === "cache") {
-      const card = document.querySelector(`.cache-line[data-base="${t.base}"]`);
-      revealIn($("cache-lines"), card);
+      const card = t.request
+        ? $("cache-request")
+        : document.querySelector(`.cache-line[data-base="${t.base}"]`);
+      if (!t.request) revealIn($("cache-lines"), card);
       if (fullscreen.active)
         revealIn(document.querySelector(".cache-panel"), card, 38);
     }
     if (fullscreen.active && (t.to === "cpu" || t.from === "cpu"))
       revealIn(
         document.querySelector(".cpu-panel"),
-        t.to === "cpu"
+        t.request
           ? t.kind === "fetch"
-            ? $("current-command")
-            : $("received-value")
-          : document.querySelector(".cpu-value"),
+            ? $("pc")
+            : $("current-command")
+          : t.to === "cpu"
+            ? t.kind === "fetch"
+              ? $("current-command")
+              : $("received-value")
+            : document.querySelector(".cpu-value"),
         38,
       );
   } else if (focus.device === "cpu" && fullscreen.active)
@@ -549,6 +542,19 @@ $("run").addEventListener("click", () => {
   });
 });
 $("step").addEventListener("click", () => guarded(execute));
+$("previous").addEventListener("click", () => {
+  stop();
+  machine = machine.back();
+  selectedEvent = -1;
+  runCount = 0;
+  render();
+  focusPhase();
+  announce(
+    machine.phase
+      ? `一つ戻りました。${machine.phase.title}`
+      : "実行前に戻りました。",
+  );
+});
 bindStepKeys({
   isActive: () => true,
   canAdvance: () => !$("step").disabled,
