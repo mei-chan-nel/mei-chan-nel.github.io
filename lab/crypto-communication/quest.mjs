@@ -86,7 +86,7 @@ export function createQuest() {
   function choices(s = lab.snapshot()) {
     if (x.feedback)
       return x.feedback.correct
-        ? [choice("continue", "次へ", "理由を確認して進む", "", true)]
+        ? [choice("continue", "次へ", "", "", true)]
         : [
             choice(
               "retry-here",
@@ -259,9 +259,7 @@ export function createQuest() {
       predict: "暗号化と改ざん検出の違いを考えよう。",
       edit: "本文を変えて、予想を確かめよう。",
       ready: "BobやAliceの反応を見よう。",
-      feedback: x.feedback?.correct
-        ? "理由を確認して次へ。"
-        : "この地点で選び直せる。",
+      feedback: x.feedback?.correct ? "" : "この地点で選び直せる。",
       result: x.consequence
         ? "誤答したまま進んだ結果を確認しよう。"
         : "予想と実際の結果を比べよう。",

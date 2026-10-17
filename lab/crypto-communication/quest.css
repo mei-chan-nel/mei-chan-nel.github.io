@@ -583,3 +583,28 @@
 .quest-game [data-tone="wrong"] .command-wait {
   color: #b42318;
 }
+
+/* Answer panels have pale backgrounds; all action text uses the panel ink. */
+.quest-game .command-box[data-tone="correct"] .command,
+.quest-game .command-box[data-tone="wrong"] .command,
+.quest-game
+  .command-box[data-tone="correct"]
+  .command
+  :is(strong, small, .command-icon, i),
+.quest-game
+  .command-box[data-tone="wrong"]
+  .command
+  :is(strong, small, .command-icon, i) {
+  color: inherit;
+}
+.quest-game .command-box[data-tone="correct"] .command-icon,
+.quest-game .command-box[data-tone="wrong"] .command-icon {
+  border-color: currentColor;
+}
+.quest-game .command-box[data-tone="correct"] .command:hover:not(:disabled),
+.quest-game .command-box[data-tone="wrong"] .command:hover:not(:disabled) {
+  background: #0000000a;
+}
+.quest-game .command small:empty {
+  display: none;
+}

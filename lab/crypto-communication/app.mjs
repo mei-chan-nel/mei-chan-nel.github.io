@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=4";
+import { createQuest } from "./quest.mjs?v=5";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
