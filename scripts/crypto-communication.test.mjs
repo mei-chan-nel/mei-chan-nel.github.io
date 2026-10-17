@@ -205,7 +205,7 @@ test("page preserves initial secrecy and accessible responsive controls", async 
   );
   assert.equal(html.includes("I love you."), false);
   assert.match(html, /aria-live="polite"/);
-  assert.match(html, /label for="draft"/);
+  assert.match(html, /id="choice-commit"/);
   assert.match(html, /viewport/);
   assert.match(html, /noindex, nofollow/);
 });
@@ -231,44 +231,268 @@ test("captured original can be decrypted after delivery and updates observation"
   assert.equal(lab.snapshot().result.message, "I love you.");
 });
 
-test("narrative explains the relay, stops and round-specific goals without revealing content", async () => {
-  const { describeSituation, describeItem } =
-    await import("../lab/crypto-communication/presentation.mjs");
-  const lab = createLab();
-  let story = describeSituation(lab.snapshot());
-  assert.match(story.text, /中継機/);
-  assert.match(story.text, /止めている/);
-  assert.equal(story.recipient, "Bob");
-  assert.equal(JSON.stringify(story).includes("I love you."), false);
-  assert.match(describeItem(lab.snapshot().incoming), /復号は不要/);
-  lab.start(2);
-  story = describeSituation(lab.snapshot());
-  assert.equal(story.recipient, "Alice");
-  assert.match(story.goal, /盗聴.*改ざん/);
-  lab.start(3, true);
-  capture(lab);
-  lab.setOutgoing(find(lab, "public", "charlie"));
-  lab.forward();
-  story = describeSituation(lab.snapshot());
+import { createQuest } from "../lab/crypto-communication/quest.mjs";
+import {
+  introFrames,
+  roundFrames,
+  createStoryPlayer,
+  forwardFrames,
+} from "../lab/crypto-communication/storyboard.mjs";
+import {
+  screenLayout,
+  paginateText,
+} from "../lab/crypto-communication/screen-layout.mjs";
+function decide(q, action) {
+  assert.ok(q.view().choices.length <= 2);
   assert.equal(
-    story.packet,
-    "公開鍵",
-    "rejection must not show a message packet that was never sent",
+    q.select(action),
+    true,
+    action + " must be offered in this scene",
   );
-  assert.equal(story.recipient, "Alice");
-  assert.equal(JSON.stringify(story).includes("I love you."), false);
+  return q.confirm();
+}
+function questKey(q, round) {
+  q.start(round);
+  decide(q, "swap");
+  decide(q, "forward");
+  decide(q, "open-key");
+  decide(q, "rewrap");
+  decide(q, "forward");
+}
+test("arriving data is automatically recorded in every phase without capture choices", () => {
+  const q = createQuest();
+  for (const round of [0, 1, 2, 3]) {
+    q.start(round);
+    for (let i = 0; i < 3 && q.view().phase !== "done"; i++) {
+      const s = q.view();
+      assert.equal(s.recorded, true);
+      assert.ok(s.inventory.some((a) => a.id === s.incoming.id));
+      assert.equal(
+        s.choices.some((a) => a.id === "capture"),
+        false,
+      );
+      decide(q, "forward");
+    }
+  }
 });
-
-test("fullscreen composition follows width, height and orientation without scaling text", async () => {
-  const { screenLayout } =
-    await import("../lab/crypto-communication/screen-layout.mjs");
+test("choosing and canceling is inert, and unavailable operations cannot be confirmed", () => {
+  const q = createQuest();
+  q.start(1);
+  const before = q.view();
+  assert.equal(q.select("edit"), false);
+  assert.deepEqual(q.confirm(), []);
+  assert.deepEqual(q.view(), before);
+  q.select("swap");
+  assert.equal(q.view().outgoing, null);
+  q.cancel();
+  assert.deepEqual(q.view(), before);
+  decide(q, "swap");
+  assert.equal(q.view().outgoing.owner, "charlie");
+  decide(q, "undo");
+  assert.equal(q.view().outgoing, null);
+  const after = q.view();
+  assert.deepEqual(q.confirm(), []);
+  assert.deepEqual(q.view(), after);
+});
+test("the idea to reverse the message appears only after successful decryption", () => {
+  const q = createQuest();
+  assert.equal(JSON.stringify(introFrames()).includes("hate"), false);
+  assert.equal(JSON.stringify(introFrames()).includes("I love you."), false);
+  assert.equal(JSON.stringify(q.view()).includes("I hate you."), false);
+  assert.equal(
+    q.view().choices.some((a) => a.id === "edit"),
+    false,
+  );
+  decide(q, "forward");
+  assert.equal(JSON.stringify(q.view()).includes("I love you."), false);
+  assert.equal(JSON.stringify(q.view()).includes("hate"), false);
+  q.select("read");
+  assert.equal(q.view().original, null);
+  q.cancel();
+  const frames = decide(q, "read");
+  assert.equal(q.view().original, "I love you.");
+  assert.equal(q.view().state, "idea");
+  assert.ok(
+    frames.findIndex((f) => f.scene === "idea") >
+      frames.findIndex((f) => f.scene === "decrypt"),
+  );
+  assert.match(frames.at(-1).text, /Charlie.*love.*hate.*思いついた/);
+  assert.deepEqual(
+    q.view().choices.map((a) => a.id),
+    ["edit", "forward"],
+  );
+});
+test("guided R1 groups edit, re-encryption and replacement and allows undo before delivery", () => {
+  const q = createQuest();
+  decide(q, "forward");
+  decide(q, "read");
+  const first = q
+    .view()
+    .inventory.find((a) => a.type === "symmetric" && a.current).id;
+  decide(q, "edit");
+  assert.equal(q.view().draft, "I hate you.");
+  assert.equal(q.view().outgoing.type, "ciphertext");
+  assert.equal(q.view().result, null);
+  decide(q, "undo");
+  assert.equal(q.view().outgoing, null);
+  assert.equal(q.view().draft, "I love you.");
+  decide(q, "edit");
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "attack-success");
+  assert.equal(q.view().result.message, "I hate you.");
+  q.start(0);
+  assert.notEqual(
+    q.view().inventory.find((a) => a.type === "symmetric" && a.current).id,
+    first,
+  );
+});
+test("R2: the previous common key fails, then public-key substitution and rewrapping work", () => {
+  const q = createQuest();
+  q.start(1);
+  decide(q, "forward");
+  assert.match(q.view().choices[0].label, /前の共通鍵/);
+  decide(q, "open-key");
+  assert.equal(q.view().state, "blocked");
+  assert.equal(q.view().original, null);
+  const oldCount = q.view().count;
+  decide(q, "retry");
+  assert.ok(q.view().count > oldCount);
+  decide(q, "swap");
+  decide(q, "forward");
+  decide(q, "open-key");
+  assert.match(q.view().keyLabel, /^共通鍵/);
+  decide(q, "rewrap");
+  assert.equal(q.view().outgoing.type, "envelope");
+  decide(q, "forward");
+  decide(q, "read");
+  decide(q, "edit");
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "attack-success");
+});
+test("sending the Charlie-addressed envelope without rewrapping still fails at Bob", () => {
+  const q = createQuest();
+  q.start(1);
+  decide(q, "swap");
+  decide(q, "forward");
+  decide(q, "open-key");
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "bad-key");
+});
+test("R3: the same guided attack reads the message but the trusted signature rejects edits", () => {
+  const q = createQuest();
+  questKey(q, 2);
+  decide(q, "read");
+  assert.equal(q.view().read, true);
+  const signature = q.view().signature.id;
+  decide(q, "edit");
+  assert.equal(q.view().signature.id, signature);
+  const before = q.view();
+  const frames = decide(q, "forward");
+  assert.equal(q.view().result.code, "signature-rejected");
+  assert.equal(q.view().result.accepted, false);
+  assert.ok(
+    frames.findIndex((f) => f.scene === "verify") <
+      frames.findIndex((f) => f.revealOutcome),
+  );
+  assert.deepEqual(
+    before.inventory.filter((a) => a.type === "private").map((a) => a.owner),
+    ["charlie"],
+  );
+});
+test("the learner can forward the unchanged signed message after reading it", () => {
+  const q = createQuest();
+  questKey(q, 2);
+  decide(q, "read");
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().read, true);
+});
+test("genuine public key plus the old symmetric key cannot expose this round's message", () => {
+  const q = createQuest();
+  q.start(1);
+  decide(q, "forward");
+  decide(q, "forward");
+  decide(q, "read");
+  assert.equal(q.view().original, null);
+  assert.equal(q.view().read, false);
+  assert.equal(
+    q.view().choices.some((a) => a.id === "edit"),
+    false,
+  );
+  decide(q, "forward");
+  assert.equal(q.view().result.message, null);
+});
+test("authenticating Bob's key stops before sharing a key; toggling the check permits eavesdropping", () => {
+  const q = createQuest();
+  q.start(3);
+  decide(q, "swap");
+  decide(q, "forward");
+  assert.equal(q.view().result.code, "authenticated");
+  assert.equal(q.view().read, false);
+  assert.equal(
+    q.view().inventory.some((a) => a.type === "symmetric" && a.current),
+    false,
+  );
+  decide(q, "compare");
+  assert.equal(q.view().authenticate, false);
+  decide(q, "swap");
+  decide(q, "forward");
+  decide(q, "open-key");
+  decide(q, "rewrap");
+  decide(q, "forward");
+  decide(q, "read");
+  decide(q, "forward");
+  assert.equal(q.view().read, true);
+  assert.equal(q.view().result.code, "original-accepted");
+});
+test("round restart clears a pending choice and all revealed text", () => {
+  const q = createQuest();
+  decide(q, "forward");
+  decide(q, "read");
+  q.select("edit");
+  q.start(1);
+  assert.equal(q.view().pending, null);
+  assert.equal(q.view().original, null);
+  assert.equal(JSON.stringify(q.view()).includes("I love you."), false);
+  assert.equal(JSON.stringify(q.view()).includes("I hate you."), false);
+});
+test("short narration keeps the same stage, explains recording once and preserves secrecy", () => {
+  const frames = introFrames();
+  assert.equal(frames.length, 4);
+  assert.equal(frames[0].connected, false);
+  assert.equal(frames[2].connected, true);
+  assert.match(frames[3].text, /自動で記録/);
+  for (const round of [0, 1, 2, 3]) {
+    const q = createQuest();
+    q.start(round);
+    assert.ok(roundFrames(q.view()).length <= 2);
+    const player = createStoryPlayer();
+    const source = [...frames, ...roundFrames(q.view())];
+    player.play(source);
+    const pages = [];
+    while (player.active()) {
+      assert.ok(Array.from(player.current().text).length <= 64);
+      pages.push(player.current().text);
+      player.next();
+    }
+    assert.equal(pages.join(""), source.map((f) => f.text).join(""));
+    assert.equal(pages.join("").includes("hate"), false);
+  }
+});
+test("a short sentence before a long sentence never orphans the actor or action", () => {
+  const a = "Charlieは、暗号文を受け取った。",
+    b =
+      "Charlieは、AliceからBobへ送られた本文の暗号文を、中継機の記録装置にコピーした。";
+  const player = createStoryPlayer();
+  player.play([{ text: a + b }]);
+  assert.equal(player.current().text, a);
+  player.next();
+  assert.equal(player.current().text, b);
+});
+test("fullscreen composition follows orientation and explanation pages preserve all characters", () => {
   assert.deepEqual(screenLayout(1366, 768), {
     layout: "wide",
     density: "comfortable",
-  });
-  assert.deepEqual(screenLayout(1280, 600), {
-    layout: "wide",
-    density: "compact",
   });
   assert.deepEqual(screenLayout(390, 844), {
     layout: "narrow",
@@ -283,244 +507,8 @@ test("fullscreen composition follows width, height and orientation without scali
     layout: "narrow",
     density: "tiny",
   });
-});
-test("paged explanations preserve all characters including non-BMP characters", async () => {
-  const { paginateText } =
-    await import("../lab/crypto-communication/screen-layout.mjs");
-  const text = "公開鍵と秘密鍵を比べよう。🙂署名も確かめよう！".repeat(20);
-  const pages = paginateText(text, 65);
-  assert.ok(pages.length > 1);
+  const text = "公開鍵と秘密鍵。🙂署名も確認。".repeat(30),
+    pages = paginateText(text, 64);
   assert.equal(pages.join(""), text);
-  assert.ok(pages.every((page) => Array.from(page).length <= 65));
-});
-test("compact overview keeps the goal and observable result while preserving secrecy", async () => {
-  const { compactStory, compactOutcome } =
-    await import("../lab/crypto-communication/screen-layout.mjs");
-  const lab = createLab();
-  for (let round = 0; round < 4; round++) {
-    lab.start(round);
-    const text = JSON.stringify(compactStory(lab.snapshot()));
-    assert.equal(text.includes("I love you."), false);
-    assert.ok(compactStory(lab.snapshot()).goal.length > 0);
-  }
-  lab.start(0);
-  lab.forward();
-  lab.forward();
-  assert.match(compactOutcome(lab.snapshot(), "deliver"), /Bob/);
-  assert.equal(
-    compactOutcome(lab.snapshot(), "deliver").includes("I love you."),
-    false,
-  );
-});
-
-test("intro story connects the relay only after explaining Alice, Bob and Charlie", async () => {
-  const { introFrames, roundFrames, createStoryPlayer } =
-    await import("../lab/crypto-communication/storyboard.mjs");
-  const lab = createLab(),
-    initial = lab.snapshot(),
-    frames = introFrames();
-  assert.equal(frames[0].connected, false);
-  assert.equal(frames[1].speaker, "alice");
-  assert.equal(frames[2].speaker, "charlie");
-  assert.match(frames[2].text, /I hate you\./);
-  assert.match(frames[3].text, /Aliceの家の外/);
-  assert.equal(frames[3].connected, true);
-  const player = createStoryPlayer();
-  player.play([...frames, ...roundFrames(initial)]);
-  let turns = 0;
-  while (player.active()) {
-    assert.equal(player.current().text.includes("I love you."), false);
-    assert.ok(Array.from(player.current().text).length <= 64);
-    player.next();
-    assert.ok(++turns < 50);
-  }
-  assert.deepEqual(
-    lab.snapshot(),
-    initial,
-    "reading a story never sends a packet or changes a key",
-  );
-});
-test("narrated forward shows Alice encrypting before Charlie receives the ciphertext", async () => {
-  const { forwardFrames } =
-    await import("../lab/crypto-communication/storyboard.mjs");
-  const lab = createLab(),
-    before = lab.snapshot();
-  lab.forward();
-  const after = lab.snapshot(),
-    frames = forwardFrames(before, after);
-  assert.equal(frames[0].at, "bob");
-  const encrypted = frames.findIndex((frame) => frame.scene === "encrypt");
-  const arrived = frames.findIndex((frame) => frame.scene === "inbound");
-  assert.ok(encrypted > 0 && arrived > encrypted);
-  assert.equal(frames[encrypted].speaker, "alice");
-  assert.equal(frames[arrived].at, "relay");
-  assert.equal(JSON.stringify(frames).includes("I love you."), false);
-});
-test("Charlies operation dialogue records the operation instead of a generic decision prompt", async () => {
-  const { operationFrames } =
-    await import("../lab/crypto-communication/storyboard.mjs");
-  const lab = createLab(),
-    before = lab.snapshot();
-  lab.capture();
-  const frames = operationFrames({
-    before,
-    after: lab.snapshot(),
-    action: "copy",
-    mode: "decrypt",
-    ok: true,
-  });
-  assert.equal(frames[0].speaker, "charlie");
-  assert.match(frames[0].text, /記録装置でコピー/);
-  assert.equal(
-    frames[0].at,
-    "relay",
-    "copying keeps the original on the route",
-  );
-  assert.match(frames[1].text, /別の操作/);
-});
-test("signature verification and authenticity failure appear at the right receiver", async () => {
-  const { forwardFrames, decisionFrame } =
-    await import("../lab/crypto-communication/storyboard.mjs");
-  const lab = createLab();
-  lab.start(2);
-  lab.forward();
-  lab.forward();
-  const before = lab.snapshot();
-  lab.forward();
-  const frames = forwardFrames(before, lab.snapshot());
-  assert.ok(
-    frames.findIndex((frame) => frame.scene === "verify") >
-      frames.findIndex((frame) => frame.scene === "decrypt"),
-  );
-  lab.start(3, true);
-  lab.setOutgoing(find(lab, "public", "charlie"));
-  const publicBefore = lab.snapshot();
-  lab.forward();
-  const stopped = forwardFrames(publicBefore, lab.snapshot());
-  assert.equal(stopped.at(-1).at, "alice");
-  assert.equal(
-    stopped.some((frame) => frame.kind === "ciphertext"),
-    false,
-  );
-  assert.match(decisionFrame(lab.snapshot()).route, /Bob.*Alice/);
-});
-
-test("every narrative sentence names the participants and keeps the whole action on a page", async () => {
-  const {
-    introFrames,
-    roundFrames,
-    forwardFrames,
-    decisionFrame,
-    operationFrames,
-    createStoryPlayer,
-  } = await import("../lab/crypto-communication/storyboard.mjs");
-  const frames = [...introFrames()];
-  const lab = createLab();
-  for (let round = 0; round < 4; round++) {
-    lab.start(round);
-    frames.push(...roundFrames(lab.snapshot()), decisionFrame(lab.snapshot()));
-    while (lab.snapshot().phase !== "done") {
-      const before = lab.snapshot();
-      lab.forward();
-      frames.push(
-        ...forwardFrames(before, lab.snapshot()),
-        decisionFrame(lab.snapshot()),
-      );
-    }
-  }
-  // Include all rejection types and a successful substitution attack.
-  for (const kind of [
-    "public",
-    "key",
-    "message",
-    "signature",
-    "authenticated",
-    "attack",
-  ]) {
-    lab.start(
-      kind === "authenticated"
-        ? 3
-        : kind === "signature"
-          ? 2
-          : kind === "public"
-            ? 1
-            : 0,
-    );
-    if (kind === "public") lab.setOutgoing(find(lab, "private"));
-    if (kind === "key") lab.setOutgoing(find(lab, "public"));
-    if (kind === "message") {
-      lab.forward();
-      lab.setOutgoing(find(lab, "public"));
-    }
-    if (kind === "authenticated")
-      lab.setOutgoing(find(lab, "public", "charlie"));
-    if (kind === "signature" || kind === "attack") {
-      const key =
-        kind === "signature" ? interceptKey(lab, 2).key : capture(lab);
-      if (kind === "attack") lab.forward();
-      const message = capture(lab);
-      lab.decrypt(message, key);
-      lab.edit("I hate you.");
-      lab.setOutgoing(lab.encryptMessage(key).id);
-    }
-    const before = lab.snapshot();
-    lab.forward();
-    frames.push(
-      ...forwardFrames(before, lab.snapshot()),
-      decisionFrame(lab.snapshot()),
-    );
-  }
-  for (const mode of ["decrypt", "wrap", "message", "replace"]) {
-    for (const ok of [true, false]) {
-      const before = lab.snapshot();
-      frames.push(
-        ...operationFrames({
-          before,
-          after: before,
-          mode,
-          action: mode === "replace" ? "replace" : "tool",
-          ok,
-          keyLabel: "Aliceの検証用公開鍵（信頼済み）",
-          dataLabel: "共通鍵 K1",
-        }),
-      );
-    }
-  }
-  for (const frame of frames) {
-    for (const sentence of frame.text.match(/[^。！？\n]+[。！？\n]?/gu) ||
-      []) {
-      assert.match(sentence, /Alice|Bob|Charlie/, sentence);
-      assert.ok(Array.from(sentence).length <= 64, sentence);
-    }
-  }
-  const player = createStoryPlayer();
-  player.play(frames);
-  const pages = [];
-  while (player.active()) {
-    const { text } = player.current();
-    assert.ok(Array.from(text).length <= 64);
-    assert.match(
-      text,
-      /[。！？]$/u,
-      "next must not separate the actor and action",
-    );
-    pages.push(text);
-    player.next();
-  }
-  assert.equal(pages.join(""), frames.map((frame) => frame.text).join(""));
-});
-
-test("a short sentence before a long sentence does not orphan a narrative continuation", async () => {
-  const { createStoryPlayer } =
-    await import("../lab/crypto-communication/storyboard.mjs");
-  const first = "Charlieは、暗号文を受け取った。";
-  const second =
-    "Charlieは、AliceからBobへ送られた本文の暗号文を、中継機の記録装置にコピーした。";
-  const player = createStoryPlayer();
-  player.play([{ text: first + second, speaker: "charlie" }]);
-  assert.equal(player.current().text, first);
-  player.next();
-  assert.equal(player.current().text, second);
-  player.next();
-  assert.equal(player.active(), false);
+  assert.ok(pages.every((p) => Array.from(p).length <= 64));
 });
