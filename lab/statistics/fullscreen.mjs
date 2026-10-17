@@ -45,16 +45,55 @@ export function setupFullscreen(workspace, redraw) {
         workspace.querySelector("#project-view") ||
         workspace.querySelector("#experiment");
       if (!root) return;
-      const nextKey = [
-        ...workspace.querySelectorAll('.view-tabs button[aria-pressed="true"]'),
-      ]
-        .map((el) => el.textContent)
-        .join("|");
+      const frequency = root.querySelector(".histogram-frequency-table");
+      root.classList.toggle("histogram-table-screen", !!frequency);
+      const nextKey =
+        [
+          ...workspace.querySelectorAll(
+            '.view-tabs button[aria-pressed="true"]',
+          ),
+        ]
+          .map((el) => el.textContent)
+          .join("|") +
+        (frequency ? "|" + root.querySelector("#bin-width").value : "");
       if (key !== nextKey) {
         page = 0;
         key = nextKey;
       }
       pager.hidden = false;
+      if (frequency) {
+        // Keep the heading and controls in place. The table owns the remaining
+        // viewport height; only its body rows change when paging.
+        const table = frequency.querySelector("table");
+        const rows = [...table.tBodies[0].rows];
+        const fixedHeight =
+          table.tHead.getBoundingClientRect().height +
+          table.tFoot.getBoundingClientRect().height;
+        const capacity = () =>
+          Math.max(
+            1,
+            Math.floor(
+              (frequency.getBoundingClientRect().height - fixedHeight) / 32,
+            ),
+          );
+        pager.hidden = true;
+        if (rows.length > capacity()) pager.hidden = false;
+        const rowCount = capacity();
+        const pageCount = Math.max(1, Math.ceil(rows.length / rowCount));
+        page = Math.min(page, pageCount - 1);
+        const first = page * rowCount;
+        rows.forEach((row, i) => {
+          if (i < first || i >= first + rowCount)
+            row.setAttribute("data-screen-hidden", "");
+        });
+        pager.querySelector("[data-screen-prev]").disabled = page === 0;
+        pager.querySelector("[data-screen-next]").disabled =
+          page === pageCount - 1;
+        pager.querySelector("span").textContent =
+          `${first + 1}〜${Math.min(rows.length, first + rowCount)}階級 / ${rows.length}階級`;
+        pager.hidden = pageCount === 1;
+        return;
+      }
       const available = Math.max(
         110,
         dialog.getBoundingClientRect().bottom -

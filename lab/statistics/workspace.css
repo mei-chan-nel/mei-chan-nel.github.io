@@ -983,50 +983,38 @@ body[data-statistics]
   outline: 2px solid #af632e;
   outline-offset: 3px;
 }
-.histogram-y-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  margin: 0 0 2px 4px;
-}
-.histogram-y-control select {
-  width: auto;
-  max-width: 230px;
-  font: inherit;
-  padding: 7px 10px;
-}
-.histogram-x-controls {
+.histogram-axis-controls {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 12px 24px;
-  padding: 12px 0;
-  border-top: 1px solid #dbe2dc;
+  margin: 0 0 12px;
 }
-.histogram-number {
+.histogram-axis-control {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.83rem;
+  font-size: 0.8rem;
 }
-.histogram-number input {
-  width: 100px;
-  padding: 8px;
+.histogram-axis-control :is(input, select) {
+  box-sizing: border-box;
+  height: 38px;
+  padding: 7px 10px;
   border: 1px solid #b6cbc3;
   border-radius: 6px;
   background: white;
+  color: inherit;
   font: inherit;
 }
-.histogram-x-controls p {
-  margin: 0;
-  font-size: 0.76rem;
-  line-height: 1.6;
-  color: #597067;
+.histogram-axis-control input {
+  width: 100px;
 }
-.histogram-x-controls .error {
+.histogram-axis-control select {
+  width: 148px;
+}
+.histogram-axis-controls .error {
   flex-basis: 100%;
-  color: #a13427;
+  margin: 0;
 }
 .histogram-legend {
   display: flex;
@@ -1300,12 +1288,24 @@ html.statistics-immersive body {
 .statistics-fullscreen .histogram-raw {
   display: none !important;
 }
-.statistics-fullscreen .histogram-x-controls {
-  padding: 8px 0;
-  gap: 8px 20px;
+.statistics-fullscreen #experiment.histogram-table-screen {
+  display: flex;
+  flex-direction: column;
 }
-.statistics-fullscreen .histogram-x-controls p {
-  font-size: 0.72rem;
+.statistics-fullscreen .histogram-table-screen .histogram-frequency-table {
+  display: block !important;
+  flex: 1 1 0;
+  min-height: 0;
+}
+.statistics-fullscreen .histogram-table-screen table {
+  height: 100%;
+  line-height: 1.4;
+}
+.statistics-fullscreen .histogram-table-screen :is(thead tr, tfoot tr) {
+  height: 1px;
+}
+.statistics-fullscreen .histogram-table-screen tbody tr {
+  height: 32px;
 }
 .statistics-fullscreen
   :is(.data-edit-help, .data-constraint, .data-operation, .data-next) {
@@ -1369,13 +1369,14 @@ html.statistics-immersive body {
   font-size: 0.8rem;
 }
 @media (max-width: 600px) {
-  .histogram-x-controls {
-    align-items: start;
-    gap: 10px 16px;
+  .histogram-axis-controls {
+    gap: 10px 12px;
   }
-  .histogram-number {
-    display: grid;
-    gap: 4px;
+  .histogram-axis-control input {
+    width: 76px;
+  }
+  .histogram-axis-control select {
+    width: 132px;
   }
   .histogram-frequency-table .stat-table {
     font-size: 0.72rem;

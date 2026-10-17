@@ -107,3 +107,27 @@ test("legacy group offsets become actual editable observations exactly once", ()
     "combined",
   );
 });
+
+test("automatic class boundaries align to the width and retain negative and decimal observations", () => {
+  const base = { rows: parseRows("-3,A\n0,B\n12,A"), width: 5, start: 3 };
+  const first = normalizeHistogram(base);
+  assert.equal(first.start, -5);
+  assert.equal(normalizeHistogram({ ...first, width: 10 }).start, -10);
+  const bins = distribution(first.rows, first.width, first.start);
+  assert.equal(
+    bins.reduce((sum, b) => sum + b.count, 0),
+    3,
+  );
+  const decimal = normalizeHistogram({
+    ...base,
+    rows: parseRows("0.3,A\n0.4,B"),
+    width: 0.1,
+  });
+  assert.ok(Math.abs(decimal.start - 0.3) < 1e-12);
+  assert.deepEqual(
+    distribution(decimal.rows, decimal.width, decimal.start).map(
+      (b) => b.count,
+    ),
+    [1, 1],
+  );
+});

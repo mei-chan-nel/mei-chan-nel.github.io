@@ -77,7 +77,7 @@ export function normalizeHistogram(state) {
       state.mode === "split" && rows.some((row) => row.group === "B")
         ? "split"
         : "combined",
-    start: Number.isFinite(state.start) ? state.start : 0,
+    start: binIndex(Math.min(...values), width, 0) * width,
     measure: state.measure === "relative" ? "relative" : "count",
     selected: Number.isInteger(state.selected) ? state.selected : -1,
   };

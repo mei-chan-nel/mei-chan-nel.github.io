@@ -13,7 +13,8 @@ import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 import { normalizeHistogram } from "./histogram/model.mjs";
 import { setupFullscreen } from "./fullscreen.mjs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261017-histogram`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261017-histogram-controls`))
+  .default;
 const ui = {
   view: 0,
   dataTab: true,

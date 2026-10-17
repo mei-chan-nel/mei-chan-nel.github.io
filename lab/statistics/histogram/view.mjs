@@ -11,11 +11,10 @@ const value = (v) =>
       : v.toLocaleString("ja-JP", { maximumFractionDigits: 4 });
 const interval = (b) => `${value(b.lo)}以上 ${value(b.hi)}未満`;
 
-function settings(s, bins, minimum) {
-  return `<div class="histogram-x-controls" data-screen-group>
-    <label class="histogram-number" for="bin-width"><span>階級幅</span><input id="bin-width" type="number" min="0.1" step="any" value="${s.width}" inputmode="decimal"></label>
-    <label class="histogram-number" for="bin-start"><span>最初の階級の下端</span><input id="bin-start" type="number" step="any" max="${minimum}" value="${bins[0].lo}" inputmode="decimal" aria-describedby="bin-start-help"></label>
-    <p id="bin-start-help">区切り：<strong>${value(bins[0].lo)} → ${value(bins[0].hi)} → ${value(bins[0].hi + s.width)}</strong><br>下端を変えると、区切りが左右にずれます。</p>
+function settings(s, tableView) {
+  return `<div class="histogram-axis-controls" data-screen-group>
+    ${!tableView ? `<label class="histogram-axis-control" for="measure"><span>縦軸</span><select id="measure"><option value="count" ${s.measure === "count" ? "selected" : ""}>度数（件数）</option><option value="relative" ${s.measure === "relative" ? "selected" : ""}>相対度数（%）</option></select></label>` : ""}
+    <label class="histogram-axis-control" for="bin-width"><span>階級幅</span><input id="bin-width" type="number" min="0.1" step="any" value="${s.width}" inputmode="decimal"></label>
     <p id="bin-error" class="error" role="status" hidden></p>
   </div>`;
 }
@@ -114,8 +113,8 @@ export function render(root, ctx) {
   root.innerHTML = `<section class="panel histogram-panel" data-screen-group>
     <header class="histogram-heading"><h2>${tableView ? "度数分布表" : "ヒストグラム"}<small>${n}件</small></h2>
     ${multiple ? `<label class="histogram-group-toggle"><input id="display-mode" type="checkbox" role="switch" ${s.mode === "split" ? "checked" : ""}><span>集団別に色分け</span></label>` : ""}</header>
-    ${tableView ? `<div class="histogram-frequency-table"><table class="stat-table"><thead><tr><th scope="col">階級<br>以上〜未満</th>${s.mode === "split" ? `<th scope="col">${esc(names[0])}</th><th scope="col">${esc(names[1])}</th>` : ""}<th scope="col">度数</th><th scope="col">相対度数</th><th scope="col">累積相対度数</th></tr></thead><tbody>${bins.map((b, i) => `<tr data-bin="${i}" tabindex="0" role="button" aria-label="${interval(b)}、${b.count}件" aria-selected="${i === s.selected}"><th scope="row">${value(b.lo)}〜${value(b.hi)}</th>${s.mode === "split" ? `<td>${b.a}</td><td>${b.b}</td>` : ""}<td>${b.count}</td><td>${fmt(b.relative * 100, 1)}%</td><td>${fmt(b.cumulative * 100, 1)}%</td></tr>`).join("")}</tbody><tfoot><tr><th>合計</th>${s.mode === "split" ? `<td>${rows.filter((r) => r.group === "A").length}</td><td>${rows.filter((r) => r.group === "B").length}</td>` : ""}<td>${n}</td><td>100%</td><td>—</td></tr></tfoot></table></div>` : `<label class="histogram-y-control" for="measure"><span>縦軸</span><select id="measure"><option value="count" ${s.measure === "count" ? "selected" : ""}>度数（件数）</option><option value="relative" ${s.measure === "relative" ? "selected" : ""}>相対度数（%）</option></select></label>${chart(s, bins, n)}`}
-    ${settings(s, bins, Math.min(...rows.map((r) => r.value)))}
+    ${settings(s, tableView)}
+    ${tableView ? `<div class="histogram-frequency-table"><table class="stat-table"><thead><tr><th scope="col">階級<br>以上〜未満</th>${s.mode === "split" ? `<th scope="col">${esc(names[0])}</th><th scope="col">${esc(names[1])}</th>` : ""}<th scope="col">度数</th><th scope="col">相対度数</th><th scope="col">累積相対度数</th></tr></thead><tbody>${bins.map((b, i) => `<tr data-bin="${i}" tabindex="0" role="button" aria-label="${interval(b)}、${b.count}件" aria-selected="${i === s.selected}"><th scope="row">${value(b.lo)}〜${value(b.hi)}</th>${s.mode === "split" ? `<td>${b.a}</td><td>${b.b}</td>` : ""}<td>${b.count}</td><td>${fmt(b.relative * 100, 1)}%</td><td>${fmt(b.cumulative * 100, 1)}%</td></tr>`).join("")}</tbody><tfoot><tr><th>合計</th>${s.mode === "split" ? `<td>${rows.filter((r) => r.group === "A").length}</td><td>${rows.filter((r) => r.group === "B").length}</td>` : ""}<td>${n}</td><td>100%</td><td>—</td></tr></tfoot></table></div>` : chart(s, bins, n)}
     ${s.mode === "split" ? `<div class="histogram-legend"><span><i style="--series-color:${colors.A}"></i>${esc(names[0])}</span><span><i style="--series-color:${colors.B}"></i>${esc(names[1])}</span>${!tableView ? `<small>同じ階級で積み上げ（割合の分母は全${n}件）</small>` : ""}</div>` : ""}
     ${rawDots(s, bins, s.width, selected, n)}
   </section>`;
@@ -143,26 +142,6 @@ export function render(root, ctx) {
         return;
       }
       ctx.update({ width, selected: -1 });
-    },
-    "change",
-  );
-  bind(
-    root,
-    "bin-start",
-    (start) => {
-      const minimum = Math.min(...rows.map((r) => r.value));
-      if (
-        !root.querySelector("#bin-start").value.trim() ||
-        !Number.isFinite(start) ||
-        start > minimum ||
-        start <= minimum - s.width
-      ) {
-        invalid(
-          `最初の階級に最小値${value(minimum)}が入るよう、${value(minimum - s.width)}より大きく、${value(minimum)}以下にしてください。`,
-        );
-        return;
-      }
-      ctx.update({ start, selected: -1 });
     },
     "change",
   );
