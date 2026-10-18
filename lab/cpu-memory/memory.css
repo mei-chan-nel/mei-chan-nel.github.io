@@ -285,7 +285,7 @@
       0.9fr
     );
   gap: 36px;
-  align-items: start;
+  align-items: stretch;
   padding: 12px 12px 0;
 }
 .panel {
