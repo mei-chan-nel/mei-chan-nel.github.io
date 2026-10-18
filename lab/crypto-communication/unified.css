@@ -1213,3 +1213,22 @@
     line-height: 1.1;
   }
 }
+
+#game-console .key-operation-context {
+  margin: 0;
+  padding: 6px 8px;
+  border-left: 2px solid var(--game-gold);
+  background: #214449;
+  color: var(--game-paper);
+  font-size: 12px;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+#game-console.is-viewport[data-density="tiny"] .key-operation-context {
+  padding: 3px 5px;
+  font-size: 10px;
+}
+
+#game-console.is-viewport[data-density="tiny"] .key-operation-context {
+  display: none;
+}

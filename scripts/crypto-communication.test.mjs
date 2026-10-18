@@ -52,6 +52,14 @@ function choose(q, id, predicate) {
   assert.ok(q.view().choices.length <= 2);
   assert.ok(q.select(id), "available action " + id);
   if (q.view().selectingKey) {
+    if (q.view().selectingKey.stage === "payload") {
+      const payload = q
+        .view()
+        .selectingKey.keys.find((k) => k.type === "symmetric");
+      q.selectKey(payload.id);
+      q.confirm();
+      assert.equal(q.view().feedback.inline, true);
+    }
     const k = q
       .view()
       .selectingKey.keys.find(
@@ -72,7 +80,7 @@ function correct(q, id, predicate) {
   choose(q, id, predicate);
   assert.equal(q.view().feedback?.correct, true, id);
   assert.equal(q.view().tone, "correct");
-  return choose(q, "continue");
+  return q.view().feedback.inline ? [] : choose(q, "continue");
 }
 function reading(q) {
   if (!q.view().choices.some((c) => c.id === "can-read")) return;
@@ -99,6 +107,11 @@ function reachMessage(q, round) {
   if (!round) q.start(0);
   else {
     reachKey(q, round);
+    if (round === 3) {
+      correct(q, "pass");
+      reading(q);
+      return;
+    }
     if (round >= 2) correct(q, "inject-key");
     else {
       correct(q, "open-key");
@@ -112,7 +125,10 @@ function complete(q, round) {
   reachMessage(q, round);
   if (round < 2) correct(q, "read");
   correct(q, round === 3 ? "predict-detected" : "predict-safe");
-  if (round === 3) correct(q, "sign");
+  if (round === 3) {
+    choose(q, "pass");
+    return;
+  }
   correct(q, "edit");
   choose(q, "forward");
 }
@@ -126,7 +142,7 @@ test("four rounds progress from common key to public key, CA, and signature", ()
     complete(q, r);
     assert.equal(
       q.view().result.code,
-      r === 3 ? "signature-rejected" : "attack-success",
+      r === 3 ? "original-accepted" : "attack-success",
     );
     assert.equal(q.view().read, r < 2);
     if (r < 3) {
@@ -813,4 +829,189 @@ test("current and documented signature model stays message-based with linked sta
     ),
   );
   assert.match(section.text, /ハンドシェイク/);
+});
+
+test("readable correct answers give an inline verdict without revealing the key for the next action", () => {
+  const q = createQuest();
+  q.start(0);
+  choose(q, "forward");
+  choose(q, "can-read");
+  assert.equal(q.view().feedback.correct, true);
+  assert.equal(q.view().feedback.inline, true);
+  assert.equal(q.view().feedback.explanation, "");
+  assert.equal(q.view().original, null);
+  assert.ok(q.view().choices.some((c) => c.id === "read"));
+  assert.equal(
+    q.view().choices.some((c) => c.id === "continue"),
+    false,
+  );
+  const r = createQuest();
+  reachPublic(r, 1);
+  correct(r, "swap");
+  choose(r, "forward");
+  choose(r, "can-read");
+  assert.equal(r.view().feedback.explanation, "");
+  assert.equal(r.view().feedback.inline, true);
+  assert.ok(r.view().choices.some((c) => c.id === "open-key"));
+  assert.equal(
+    r.view().inventory.some((k) => k.type === "symmetric"),
+    false,
+  );
+});
+test("key delivery selects the common key first and the encryption key second, with exact retry", () => {
+  const q = createQuest();
+  reachKey(q, 2);
+  q.select("inject-key");
+  const before = q.view();
+  assert.equal(before.selectingKey.stage, "payload");
+  assert.equal(before.outgoing, null);
+  q.selectKey(before.selectingKey.keys.find((k) => k.type === "private").id);
+  q.confirm();
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "retry-here");
+  assert.equal(q.view().selectingKey.stage, "payload");
+  const payload = q
+    .view()
+    .selectingKey.keys.find((k) => k.type === "symmetric");
+  q.selectKey(payload.id);
+  q.confirm();
+  assert.equal(q.view().feedback.inline, true);
+  assert.equal(q.view().feedback.explanation, "");
+  assert.equal(q.view().selectingKey.stage, "wrapping");
+  assert.match(q.view().selectingKey.context, new RegExp(payload.label));
+  assert.equal(q.view().outgoing, null);
+  const saved = q.checkpoint();
+  q.selectKey(
+    q
+      .view()
+      .selectingKey.keys.find(
+        (k) => k.type === "public" && k.owner === "charlie",
+      ).id,
+  );
+  q.confirm();
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "bad-key");
+  choose(q, "retry-here");
+  assert.equal(q.view().selectingKey.stage, "wrapping");
+  assert.match(q.view().selectingKey.context, new RegExp(payload.label));
+  saved();
+  q.selectKey(
+    q
+      .view()
+      .selectingKey.keys.find((k) => k.type === "public" && k.owner === "bob")
+      .id,
+  );
+  q.confirm();
+  assert.equal(q.view().feedback.correct, true);
+  choose(q, "continue");
+  choose(q, "forward");
+  assert.equal(q.view().impersonating, true);
+  assert.equal(q.view().attackerKey.id, payload.id);
+  assert.equal(q.view().original, null);
+});
+test("back from encryption-key selection returns to common-key selection without a new attempt", () => {
+  const q = createQuest();
+  reachKey(q, 1);
+  correct(q, "open-key");
+  q.select("rewrap");
+  const count = q.view().count;
+  const key = q.view().selectingKey.keys.find((k) => k.type === "symmetric");
+  q.selectKey(key.id);
+  q.confirm();
+  assert.equal(q.view().selectingKey.stage, "wrapping");
+  q.cancel();
+  assert.equal(q.view().selectingKey.stage, "payload");
+  assert.equal(q.view().count, count);
+  assert.equal(q.view().feedback, null);
+  q.cancel();
+  assert.equal(q.view().selectingKey, null);
+  assert.equal(q.view().outgoing, null);
+});
+test("R3 forwarding the original key is incorrect for the stated forgery goal, rather than another correct strategy", () => {
+  const q = createQuest();
+  reachKey(q, 2);
+  const before = q.view();
+  choose(q, "pass");
+  assert.equal(q.view().feedback.correct, false);
+  assert.equal(q.view().attackerKey, null);
+  assert.equal(q.view().phase, "message");
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().original, null);
+  choose(q, "retry-here");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().bobHasKey, false);
+  correct(q, "inject-key");
+});
+test("R4 replacing only the common key is rejected as a strategy and actually breaks Alice message decryption", () => {
+  const q = createQuest();
+  reachKey(q, 3);
+  const before = q.view();
+  choose(q, "inject-key");
+  assert.equal(q.view().feedback.correct, false);
+  assert.equal(q.view().selectingKey, null);
+  assert.equal(q.view().attackerKey, null);
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "bad-message");
+  assert.equal(q.view().result.accepted, false);
+  assert.equal(q.view().impersonating, true);
+  choose(q, "retry-here");
+  assert.equal(q.view().phase, "key");
+  assert.equal(q.view().attackerKey, null);
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  correct(q, "pass");
+  assert.equal(q.view().bobHasKey, true);
+  assert.equal(q.view().impersonating, false);
+});
+test("R4 correct detection stops the attack and preserves the original key, ciphertext and Alice signature", () => {
+  const q = createQuest();
+  reachMessage(q, 3);
+  const before = q.view();
+  assert.equal(before.attackerKey, null);
+  assert.equal(before.impersonating, false);
+  correct(q, "predict-detected");
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["pass"],
+  );
+  assert.equal(q.select("edit"), false);
+  assert.equal(q.select("sign"), false);
+  assert.equal(q.select("inject-key"), false);
+  assert.equal(q.view().outgoing, null);
+  assert.equal(q.view().draft, "");
+  choose(q, "pass");
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().deliveredSignature.owner, "alice");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().attackerKey, null);
+  assert.equal(q.view().original, null);
+});
+test("R4 wrong forgery prediction replays both-key-and-body attack from delivery and restores the exact original question", () => {
+  const q = createQuest();
+  reachMessage(q, 3);
+  const before = q.view();
+  choose(q, "predict-safe");
+  assert.equal(q.view().feedback.correct, false);
+  const frames = choose(q, "show-consequence");
+  assert.equal(frames[0].phase, "key");
+  assert.equal(q.view().result.code, "signature-rejected");
+  assert.equal(q.view().deliveredSignature.owner, "charlie");
+  assert.equal(q.view().original, null);
+  assert.ok(q.view().attackerKey);
+  choose(q, "retry-here");
+  assert.equal(q.view().phase, "message");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().attackerKey, null);
+  assert.equal(q.view().impersonating, false);
+  assert.equal(q.view().draft, "");
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["predict-safe", "predict-detected"],
+  );
+  correct(q, "predict-detected");
+  choose(q, "pass");
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().deliveredSignature.owner, "alice");
 });

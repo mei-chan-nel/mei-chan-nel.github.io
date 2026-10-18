@@ -279,7 +279,7 @@ export function lesson(s) {
             : "Aliceが公開鍵の持ち主を確認しなかったため、Charlieは共通鍵を手に入れられた。",
       "original-accepted":
         s.round === 3
-          ? "BobはCAで確認したAliceの公開鍵で署名を検証し、Aliceの本文を受け付けた。"
+          ? "Charlieは改ざんをあきらめ、元の暗号文を転送した。BobはCAで確認したAliceの公開鍵で署名を検証し、元の本文を受け付けた。"
           : "Bobは正しい共通鍵でAliceの本文を復号した。Charlieは元の暗号文をそのまま送った。",
       "bad-public": "Aliceが共通鍵を暗号化するには、配送先の公開鍵が必要だ。",
       "bad-verification-key":

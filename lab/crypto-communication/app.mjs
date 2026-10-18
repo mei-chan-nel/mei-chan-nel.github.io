@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=13";
+import { createQuest } from "./quest.mjs?v=14";
 import { rounds } from "./model.mjs?v=19";
 import {
   introFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=15";
+} from "./storyboard.mjs?v=16";
 import { createDisplayController } from "./display.mjs";
-import { explanations } from "./explanations.mjs?v=5";
+import { explanations } from "./explanations.mjs?v=6";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -67,7 +67,8 @@ function play(frames) {
 function render() {
   const s = quest.view(),
     talking = story.active(),
-    correctAnswer = !talking && Boolean(s.feedback?.correct),
+    correctAnswer =
+      !talking && Boolean(s.feedback?.correct && !s.feedback?.inline),
     f = story.current() || s.feedbackFrame || s.displayFrame;
   const done = s.phase === "done",
     visibleResult = done && (!talking || f.revealOutcome);
@@ -237,23 +238,30 @@ function render() {
     visiblePacket?.fingerprint ||
     (f.kind === "letter" ? "本文は未解読" : packetLabel || "通信の準備中");
   $("packet-sprite").dataset.packetId = visiblePacket?.id || "";
-  $("command-label").textContent =
-    !talking && s.feedback
-      ? s.feedback.correct
-        ? "○ 正解"
-        : "× 誤答"
-      : talking
-        ? "ナレーション"
-        : pending
-          ? "この操作で進める？"
-          : picking
-            ? s.selectingKey.title
-            : done
-              ? "通信の結果"
-              : "Charlieの行動";
-  $("answer-explanation").hidden = talking || !s.feedback;
+  const actionHeading = picking
+    ? s.selectingKey.title
+    : done
+      ? "通信の結果"
+      : "Charlieの行動";
+  $("command-label").textContent = talking
+    ? "ナレーション"
+    : s.feedback?.inline
+      ? "○ 正解 · " + actionHeading
+      : s.feedback
+        ? s.feedback.correct
+          ? "○ 正解"
+          : "× 誤答"
+        : actionHeading;
+  $("answer-explanation").hidden = talking || !s.feedback?.explanation;
   $("answer-explanation").textContent =
     !talking && s.feedback ? s.feedback.explanation : "";
+  $("key-operation-context").hidden =
+    talking || !picking || !s.selectingKey.context;
+  $("key-operation-context").textContent = picking
+    ? s.selectingKey.context
+    : "";
+  $("key-back").textContent =
+    s.selectingKey?.stage === "wrapping" ? "← 共通鍵を選び直す" : "← 戻る";
   $("choice-list").hidden = talking || pending || picking || correctAnswer;
   $("key-picker").hidden = talking || pending || !picking;
   $("choice-list").innerHTML =
@@ -311,7 +319,10 @@ function render() {
   $("key-prev").disabled = keyPage === 0;
   $("key-next").disabled = keyPage + 1 >= pageCount;
   if (recordVisible) shownKey = s.keyLabel;
-  $("key-record").textContent = shownKey;
+  $("key-record-label").textContent =
+    s.selectingKey?.stage === "wrapping" ? "送る共通鍵" : "共通鍵";
+  $("key-record").textContent =
+    s.selectingKey?.stage === "wrapping" ? s.payloadKey.label : shownKey;
   $("original-message").textContent = shownOriginal || "未解読";
   const draftVisible = s.rewritten && (plaintextVisible || s.impersonating);
   $("edited-message").hidden = $("rewrite-arrow").hidden = !draftVisible;
@@ -325,13 +336,14 @@ function render() {
         : "この通信は終了"
       : s.outgoingDescription;
   $("action-result").hidden =
-    !talking && (Boolean(s.feedback) || pending || picking);
+    !talking &&
+    (Boolean(s.feedback && !s.feedback.inline) || pending || picking);
   $("feedback").textContent = talking
     ? f.text
     : correctAnswer
       ? s.feedbackFrame?.text ||
         "Charlieは、予想を実際の通信で確かめようとしている。"
-      : s.feedback
+      : s.feedback && !s.feedback.inline
         ? s.feedback.explanation
         : done
           ? lesson(s)
@@ -436,7 +448,11 @@ $("game-console").addEventListener("keydown", (event) => {
   }
 });
 $("dialogue-next").addEventListener("click", () => {
-  if (!story.active() && quest.view().feedback?.correct) {
+  if (
+    !story.active() &&
+    quest.view().feedback?.correct &&
+    !quest.view().feedback?.inline
+  ) {
     review("continue");
     return;
   }

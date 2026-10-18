@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=10" />
     <link rel="stylesheet" href="./quest.css?v=6" />
-    <link rel="stylesheet" href="./unified.css?v=6" />
+    <link rel="stylesheet" href="./unified.css?v=7" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -303,10 +303,16 @@
                       class="answer-explanation"
                       hidden
                     ></p>
+                    <p
+                      id="key-operation-context"
+                      class="key-operation-context"
+                      hidden
+                    ></p>
                     <section
                       id="key-picker"
                       class="key-picker"
                       aria-labelledby="command-label"
+                      aria-describedby="key-record"
                       hidden=""
                     >
                       <div
@@ -343,7 +349,8 @@
                 </section>
                 <section class="record-card" aria-label="Charlieの記録">
                   <div>
-                    <span>共通鍵</span><strong id="key-record">未取得</strong>
+                    <span id="key-record-label">共通鍵</span
+                    ><strong id="key-record">未取得</strong>
                   </div>
                   <div>
                     <span>本文</span
@@ -454,6 +461,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=19"></script>
+    <script type="module" src="./app.mjs?v=20"></script>
   </body>
 </html>
