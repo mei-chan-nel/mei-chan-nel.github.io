@@ -4,8 +4,11 @@
  * All devices, buffers, work and allocation share that clock. Actual operating
  * systems have much shorter quanta, many threads, hardware interrupts/DMA,
  * virtual memory and more elaborate scheduling. This model has one process per
- * app, fixed memory allocations and periodic resident tasks. Device completions
- * and resident wakeups use the same clock; no real network/audio runs here.
+ * app, fixed memory allocations and periodic resident tasks. Residents start
+ * with the OS and keep their memory. Allocation requests wait until enough
+ * memory is available; the OS allocates the oldest request that currently fits.
+ * Device completions and resident wakeups use the same clock; no real
+ * network/audio runs here.
  */
 export const APP_CONFIG = Object.freeze({
   web: Object.freeze({ label: 'Webブラウザ', memory: 200, color: '#2f6597' }),
@@ -59,6 +62,11 @@ export class OSSimulation {
     this.time = 0;
     this.visible = 'web';
     this._apps = Object.fromEntries(IDS.map((id) => [id, freshApp(id)]));
+    for (const id of BACKGROUND_IDS) {
+      this._apps[id].running = true;
+      this._apps[id].background.phase = 'waiting';
+      this._apps[id].background.nextEventAt = BACKGROUND_CONFIG[id].period;
+    }
     this._inputs = [];
     this._interrupts = [];
     this._ready = [];
@@ -73,11 +81,18 @@ export class OSSimulation {
     this._events = [];
     this._lastFailure = null;
     this._failures = {};
+    this._memoryWaits = [];
     return this.snapshot();
   }
 
-  launch(id) { return this._queue('launch', id); }
-  close(id) { return this._queue('close', id); }
+  launch(id) {
+    this._checkId(id);
+    return APP_CONFIG[id].background ? this.snapshot() : this._queue('launch', id);
+  }
+  close(id) {
+    this._checkId(id);
+    return APP_CONFIG[id].background ? this.snapshot() : this._queue('close', id);
+  }
 
   // Selecting the visible window neither launches it nor gives it CPU time.
   view(id) {
@@ -96,7 +111,15 @@ export class OSSimulation {
     if (this._apps.music.music.track === track && !pendingTrackChange) return this.snapshot();
     return this._queue('selectTrack', 'music', { track });
   }
-  startPhoto(filter = 'warm') { return this._queue('startPhoto', 'photo', { filter: String(filter) }); }
+  startPhoto(filter = 'warm') {
+    const lifecycleIndex = this._inputs.findLastIndex((input) => input.id === 'photo'
+      && ['launch', 'close'].includes(input.type));
+    const willCancel = this._inputs.some((input) => input.id === 'photo' && input.type === 'close');
+    const alreadyWaiting = this._memoryWaits.some((wait) => wait.id === 'photo' && wait.operation === 'workspace');
+    if ((alreadyWaiting && !willCancel)
+      || this._inputs.slice(lifecycleIndex + 1).some((input) => input.type === 'startPhoto')) return this.snapshot();
+    return this._queue('startPhoto', 'photo', { filter: String(filter) });
+  }
 
   _checkId(id) {
     if (!Object.hasOwn(APP_CONFIG, id)) throw new RangeError(`Unknown app: ${id}`);
@@ -104,6 +127,8 @@ export class OSSimulation {
 
   _queue(type, id, data = {}) {
     this._checkId(id);
+    if (type === 'launch' && this._memoryWaits.some((wait) => wait.id === id && wait.operation === 'launch')
+      && !this._inputs.some((input) => input.id === id && input.type === 'close')) return this.snapshot();
     // A double click on launch/close does not create duplicate lifecycle events.
     const lastLifecycle = this._inputs.findLast((entry) => entry.id === id && ['launch', 'close'].includes(entry.type));
     if (!['launch', 'close'].includes(type) || lastLifecycle?.type !== type) {
@@ -112,7 +137,10 @@ export class OSSimulation {
     return this.snapshot();
   }
 
-  _runnable(id) { return this._apps[id].running && this._apps[id].work > 0; }
+  _runnable(id) {
+    return this._apps[id].running && this._apps[id].work > 0
+      && !this._memoryWaits.some((wait) => wait.id === id);
+  }
 
   _enqueue(id, first = false) {
     if (!this._runnable(id) || this._current === id || this._ready.includes(id)) return;
@@ -152,9 +180,10 @@ export class OSSimulation {
     }[input.type];
   }
 
-  _allocationFailure(id, operation, required, available) {
+  _allocationFailure(id, operation, required, available, data = {}) {
     const purpose = operation === 'launch' ? `${APP_CONFIG[id].label}の起動` : '写真加工の作業';
-    const message = `${purpose}には${required} MBの空きメモリが必要ですが、空きは${available} MBです。メモリを確保できないため開始できません。不要なアプリを終了して再試行してください。`;
+    const message = `${purpose}には${required} MBの空きメモリが必要ですが、空きは${available} MBです。操作を保留し、メモリの空きが増えたらOSが自動で再開します。`;
+    this._memoryWaits.push({ id, operation, required, requestedAt: this.time, ...data });
     const failure = { id, operation, required, available, time: this.time, message };
     this._lastFailure = failure;
     this._failures[id] = failure;
@@ -171,6 +200,35 @@ export class OSSimulation {
     }
   }
 
+  _allocateLaunch(id) {
+    const label = APP_CONFIG[id].label;
+    this._apps[id] = freshApp(id);
+    this._apps[id].running = true;
+    this._memoryWaits = this._memoryWaits.filter((wait) => !(wait.id === id && wait.operation === 'launch'));
+    this._clearFailure(id, 'launch');
+    this._event(`${label}を起動し、${APP_CONFIG[id].memory} MBのメモリを確保。`);
+    return `${label}を起動。${APP_CONFIG[id].memory} MBのメモリを確保しました。`;
+  }
+
+  _allocateWorkspace(filter) {
+    const app = this._apps.photo;
+    this._memoryWaits = this._memoryWaits.filter((wait) => !(wait.id === 'photo' && wait.operation === 'workspace'));
+    this._clearFailure('photo', 'workspace');
+    app.photo.processing = true;
+    app.photo.progress = 0;
+    app.photo.completed = 0;
+    app.photo.filter = filter;
+    app.work = PHOTO_WORK;
+    this._enqueue('photo');
+    this._event(`写真加工を開始。作業用メモリ${PHOTO_MEMORY} MBを追加確保。`);
+    return '作業用メモリを確保し、写真加工が実行待ちになりました。';
+  }
+
+  _memoryWaitSnapshot() {
+    const available = this._memory().free;
+    return this._memoryWaits.map((wait) => ({ ...wait, available }));
+  }
+
   _applyInput(input) {
     const { id, type } = input;
     const app = this._apps[id];
@@ -178,19 +236,14 @@ export class OSSimulation {
     if (type === 'launch') {
       if (app.running) return `${label}はすでに起動しています。`;
       const available = this._memory().free;
+      if (this._memoryWaits.some((wait) => wait.id === id && wait.operation === 'launch')) return `${label}の起動はメモリの空き待ちです。`;
       if (APP_CONFIG[id].memory > available) return this._allocationFailure(id, 'launch', APP_CONFIG[id].memory, available);
-      this._apps[id] = freshApp(id);
-      this._apps[id].running = true;
-      if (APP_CONFIG[id].background) {
-        this._apps[id].background.phase = 'waiting';
-        this._apps[id].background.nextEventAt = this.time + BACKGROUND_CONFIG[id].period;
-      }
-      this._clearFailure(id, 'launch');
-      this._event(`${label}を起動し、${APP_CONFIG[id].memory} MBのメモリを確保。`);
-      return `入力イベントを処理し、${label}を起動。メモリを確保しました。`;
+      return `入力イベントを処理し、${this._allocateLaunch(id)}`;
     }
     if (type === 'close') {
+      const canceledWait = this._memoryWaits.find((wait) => wait.id === id);
       this._apps[id] = freshApp(id);
+      this._memoryWaits = this._memoryWaits.filter((wait) => wait.id !== id);
       this._ready = this._ready.filter((entry) => entry !== id);
       this._interrupts = this._interrupts.filter((entry) => entry.id !== id);
       if (this._timerOwner === id) {
@@ -206,6 +259,10 @@ export class OSSimulation {
         if (entry.type === 'launch') nextLaunch = true;
         return nextLaunch || entry.type === 'close';
       });
+      if (!app.running && canceledWait) {
+        this._event(`${label}の起動の保留を取り消しました。メモリは確保していません。`);
+        return `取消の入力を処理し、${label}の起動待ちを取り消しました。空きが増えても自動起動しません。`;
+      }
       this._event(`${label}を終了し、使用していたメモリと未完了の処理を解放。`);
       return `終了イベントを処理し、${label}のメモリを解放しました。`;
     }
@@ -250,16 +307,8 @@ export class OSSimulation {
     if (type === 'startPhoto') {
       if (app.photo.processing) return '写真は加工中です。CPUが割り当てられるのを待ちます。';
       const available = this._memory().free;
-      if (PHOTO_MEMORY > available) return this._allocationFailure(id, 'workspace', PHOTO_MEMORY, available);
-      this._clearFailure(id, 'workspace');
-      app.photo.processing = true;
-      app.photo.progress = 0;
-      app.photo.completed = 0;
-      app.photo.filter = input.filter;
-      app.work = PHOTO_WORK;
-      this._enqueue(id);
-      this._event(`写真加工を開始。作業用メモリ${PHOTO_MEMORY} MBを追加確保。`);
-      return '加工の入力を処理し、作業用メモリを確保。写真加工が実行待ちになりました。';
+      if (PHOTO_MEMORY > available) return this._allocationFailure(id, 'workspace', PHOTO_MEMORY, available, { filter: input.filter });
+      return `加工の入力を処理し、${this._allocateWorkspace(input.filter)}`;
     }
     return '入力イベントを処理しました。';
   }
@@ -419,6 +468,22 @@ export class OSSimulation {
       return this._record('os', `入力イベント：${this._inputLabel(input)}`, reason);
     }
 
+    // Input events, including cancellation, take precedence. Among retained
+    // requests, service the oldest one that currently fits; a larger request
+    // must not prevent a smaller eligible request from being allocated.
+    const available = this._memory().free;
+    const memoryWait = this._memoryWaits.find((wait) => wait.required <= available);
+    if (memoryWait) {
+      this._interruptCurrent();
+      const result = memoryWait.operation === 'launch'
+        ? this._allocateLaunch(memoryWait.id)
+        : this._allocateWorkspace(memoryWait.filter);
+      const reason = `空きメモリが${available} MBになったため、${memoryWait.requestedAt} tickから保留していた操作をOSが自動で再開。${result}`;
+      this._event(reason);
+      this._transition = 'メモリを確保した後、実行待ちのプロセスを選びます。';
+      return this._record('os', `メモリ確保・自動再開：${APP_CONFIG[memoryWait.id].label}`, reason);
+    }
+
     if (this._interrupts.length) {
       this._interruptCurrent();
       const interrupt = this._interrupts.shift();
@@ -489,14 +554,17 @@ export class OSSimulation {
   }
 
   _describeApps() {
+    const memoryWaits = this._memoryWaitSnapshot();
     return Object.fromEntries(IDS.map((id) => {
       const app = this._apps[id];
-      const state = !app.running ? 'stopped' : this._cpu.owner === id ? 'running'
+      const memoryWait = memoryWaits.find((wait) => wait.id === id) || null;
+      const state = memoryWait ? 'memory-wait' : !app.running ? 'stopped' : this._cpu.owner === id ? 'running'
         : this._runnable(id) ? 'ready' : 'waiting';
       return [id, {
-        running: app.running, state,
+        running: app.running, state, memoryWait,
         memory: app.running ? APP_CONFIG[id].memory + (id === 'photo' && app.photo.processing ? PHOTO_MEMORY : 0) : 0,
-        task: state === 'running' ? this._cpu.task : this._appTask(id),
+        task: memoryWait ? `メモリの空き待ち（${memoryWait.operation === 'launch' ? '起動' : '写真加工'}）`
+          : state === 'running' ? this._cpu.task : this._appTask(id),
         ...(app.web ? { web: app.web } : {}),
         ...(app.music ? { music: app.music } : {}),
         ...(app.photo ? { photo: app.photo } : {}),
@@ -508,6 +576,9 @@ export class OSSimulation {
   _explain() {
     const owner = this._cpu.owner;
     if (owner === 'idle') {
+      if (this._memoryWaits.length) {
+        return '保留中の操作はメモリの空きを待っています。CPUに空きがあっても、必要なメモリを確保するまでは始まりません。';
+      }
       const music = this._apps.music;
       if (music.running && music.music.playing && music.music.buffer > 0) {
         return 'CPUがアイドルでも、準備済みの音声バッファから音楽は流れ続けます。アプリのメモリも保持されています。';
@@ -551,6 +622,7 @@ export class OSSimulation {
       apps: this._describeApps(), memory: this._memory(),
       history: this._history, events: this._events, explain: this._explain(),
       lastFailure: this._lastFailure, failures: this._failures,
+      memoryWaits: this._memoryWaitSnapshot(),
       pendingInterrupts: this._interrupts.map((entry) => ({ ...entry, label: APP_CONFIG[entry.id].label })),
       pendingInputs: this._inputs.map((input) => ({
         type: input.type, id: input.id, label: this._inputLabel(input),

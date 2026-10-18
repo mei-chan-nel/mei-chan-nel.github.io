@@ -19,16 +19,12 @@ const names = {
   idle: "アイドル",
 };
 const icons = { web: "◎", music: "♫", photo: "▧" };
-const backgroundHints = {
-  notify: "模擬通知を受信すると短く処理",
-  sync: "CPU処理と通信待ちで同期",
-  security: "定期的に自動スキャン",
-};
 const states = {
   running: "CPUで実行中",
   ready: "実行待ち",
   waiting: "イベント待ち",
   stopped: "未起動",
+  "memory-wait": "メモリの空き待ち",
 };
 const topics = {
   nature: [
@@ -65,8 +61,6 @@ const TICK_MS = 450;
 let playing = false;
 let lastFrame = null;
 let accumulator = 0;
-let selectedHistory = null;
-let historyInfoKey = null;
 let lastHistoryTime = -1;
 let snapshot = simulation.snapshot();
 let currentAudioTrackId = tracks[0].id;
@@ -103,7 +97,6 @@ $("play").addEventListener("click", () => {
 });
 $("reset").addEventListener("click", () => {
   playing = false;
-  selectedHistory = null;
   $("web-topic").value = "nature";
   $("photo-filter").value = "warm";
   soundtrack.reset();
@@ -121,9 +114,14 @@ function makeLauncher() {
   ).join("");
 }
 function makeBackgroundLauncher() {
+  const compactNames = {
+    notify: "通知",
+    sync: "クラウド同期",
+    security: "セキュリティ",
+  };
   $("background-launcher").innerHTML = BACKGROUND_IDS.map(
     (id) =>
-      `<div class="background-row" data-owner="${id}" data-background-row="${id}"><div class="background-copy"><div class="background-name"><strong>${names[id]}</strong><span class="background-memory"></span></div><p><strong class="background-state"></strong><span class="background-task"></span></p></div><button type="button" data-action="lifecycle" data-app="${id}">起動</button></div>`,
+      `<div class="background-row" data-owner="${id}" data-background-row="${id}"><strong class="background-name">${compactNames[id]}</strong><span class="background-state"></span></div>`,
   ).join("");
 }
 function makeAppViews() {
@@ -155,6 +153,7 @@ function handleLauncherClick(event) {
   const button = event.target.closest("button[data-action]");
   if (!button || button.disabled) return;
   const { action, app } = button.dataset;
+  if (!FOREGROUND_IDS.includes(app)) return;
   if (action === "view") safeAction(() => simulation.view(app));
   else if (action === "lifecycle" && (event.detail || 0) < 2) {
     if (
@@ -164,14 +163,13 @@ function handleLauncherClick(event) {
     )
       return;
     safeAction(() =>
-      snapshot.apps[app].running
+      snapshot.apps[app].running || snapshot.apps[app].memoryWait
         ? simulation.close(app)
         : simulation.launch(app),
     );
   }
 }
 $("app-launcher").addEventListener("click", handleLauncherClick);
-$("background-launcher").addEventListener("click", handleLauncherClick);
 $("app-content").addEventListener("change", (event) => {
   if (event.target.id !== "music-track") return;
   const track = tracks.find((entry) => entry.id === event.target.value);
@@ -215,20 +213,6 @@ $("app-content").addEventListener("click", (event) => {
   }
   if (action === "audio-retry") void soundtrack.unlock();
 });
-$("cpu-history").addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-time]");
-  if (!button) return;
-  selectedHistory = snapshot.history.find(
-    (entry) => entry.time === Number(button.dataset.time),
-  );
-  renderHistory();
-});
-$("history-info").addEventListener("click", (event) => {
-  if (event.target.closest("button")) {
-    selectedHistory = null;
-    renderHistory();
-  }
-});
 $("state-details").addEventListener("toggle", () => {
   if ($("state-details").open) renderDetails();
 });
@@ -239,19 +223,20 @@ function renderLauncher() {
   for (const id of FOREGROUND_IDS) {
     const app = snapshot.apps[id];
     const row = $("app-launcher").querySelector(`[data-app-row="${id}"]`);
-    const pending = pendingFor(id).some((input) =>
+    const lifecycleRequest = pendingFor(id).find((input) =>
       ["launch", "close"].includes(input.type),
     );
+    const pending = Boolean(lifecycleRequest);
     row.dataset.visible = String(snapshot.visible === id);
-    const failure = snapshot.failures?.[id];
-    row.dataset.state = pending ? "pending" : failure ? "failed" : app.state;
+    const memoryWait = app.memoryWait;
+    row.dataset.state = pending ? "pending" : app.state;
     row.querySelector(".app-state-dot").classList.toggle("on", app.running);
     row.querySelector(".app-state-label").textContent = pending
       ? "OSが操作を受け付けました"
-      : failure
+      : memoryWait
         ? app.running
-          ? "起動中 · 作業メモリ不足"
-          : "メモリ不足 · 未起動"
+          ? "起動中 · メモリの空き待ち"
+          : "メモリの空き待ち · 起動前"
         : app.running
           ? `起動中 · ${states[app.state]}`
           : "未起動";
@@ -260,18 +245,22 @@ function renderLauncher() {
     view.setAttribute("aria-pressed", String(snapshot.visible === id));
     const lifecycle = row.querySelector('[data-action="lifecycle"]');
     lifecycle.textContent = pending
-      ? app.running
-        ? "終了待ち"
+      ? lifecycleRequest.type === "close"
+        ? app.running
+          ? "終了待ち"
+          : "取消待ち"
         : "起動待ち"
       : app.running
         ? "終了"
-        : failure
-          ? "再試行"
+        : memoryWait
+          ? "取消"
           : "起動";
     lifecycle.disabled = pending;
     lifecycle.setAttribute(
       "aria-label",
-      `${names[id]}を${app.running ? "終了" : "起動"}`,
+      memoryWait && !app.running
+        ? `${names[id]}の起動待ちを取り消す`
+        : `${names[id]}を${app.running ? "終了" : "起動"}`,
     );
     const buffer = row.querySelector(".launcher-buffer");
     buffer.hidden = !(id === "music" && app.running && app.music.playing);
@@ -294,87 +283,51 @@ function renderBackgroundLauncher() {
     const row = $("background-launcher").querySelector(
       `[data-background-row="${id}"]`,
     );
-    const pending = pendingFor(id).some((input) =>
-      ["launch", "close"].includes(input.type),
-    );
-    const failure = snapshot.failures?.[id];
-    row.dataset.state = pending ? "pending" : failure ? "failed" : app.state;
-    row.querySelector(".background-memory").textContent =
-      `${app.running ? app.memory : APP_CONFIG[id].memory} MB${app.running ? " 保持" : " 必要"}`;
-    row.querySelector(".background-state").textContent = pending
-      ? "OSの処理待ち"
-      : failure
-        ? "メモリ不足 · 未起動"
-        : app.state === "running"
-          ? "● CPU割り当て中"
-          : app.state === "ready"
-            ? "◷ CPUの順番待ち"
-            : app.running
-              ? "Ⅱ イベント待ち · CPU未使用"
-              : "未起動";
-    let task = backgroundHints[id];
-    if (pending)
-      task = playing ? "操作を受け付けました" : "OSの「再生」で進みます";
-    else if (failure)
-      task = `必要 ${failure.required} MB／失敗時の空き ${failure.available} MB`;
-    else if (app.running) {
-      if (!playing) task = "OS一時停止中";
-      else if (app.state === "running" || app.state === "ready")
-        task = app.task;
-      else if (background.pendingEvent)
-        task = "イベント発生 · OSの割り込み待ち";
-      else if (background.phase === "network")
-        task = `通信の完了まで ${background.networkRemaining} tick`;
-      else
-        task = `次の${id === "notify" ? "通知" : id === "sync" ? "同期" : "スキャン"}まで ${Math.max(0, background.nextEventAt - snapshot.time)} tick`;
-    }
-    row.querySelector(".background-task").textContent = ` · ${task}`;
-    const button = row.querySelector("button");
-    button.disabled = pending;
-    button.textContent = pending
-      ? app.running
-        ? "終了待ち"
-        : "起動待ち"
-      : app.running
-        ? "終了"
-        : failure
-          ? "再試行"
-          : "起動";
-    button.setAttribute(
-      "aria-label",
-      `${names[id]}を${app.running ? "終了" : "起動"}`,
-    );
+    row.dataset.state = app.state;
+    const state =
+      app.state === "running"
+        ? "CPU実行中"
+        : app.state === "ready"
+          ? "CPU待ち"
+          : background.pendingEvent
+            ? "割り込み待ち"
+            : background.phase === "network"
+              ? "通信待ち"
+              : "イベント待ち";
+    row.querySelector(".background-state").textContent = state;
+    const next =
+      background.nextEventAt === null
+        ? app.task
+        : `次の処理まで ${Math.max(0, background.nextEventAt - snapshot.time)} tick`;
+    row.title = `${names[id]}：${state}。${next}。${app.memory} MB 保持。${playing ? "" : "OS一時停止中。"}`;
+    row.setAttribute("aria-label", row.title);
   }
 }
-function allocationFeedback(failure) {
-  return `${failure.time} tick の操作では ${failure.required} MB 必要でしたが、空きは ${failure.available} MB でした。現在の空きは ${snapshot.memory.free} MB。${snapshot.memory.free >= failure.required ? "現在は必要な空きがあります。同じ操作を再試行できます。" : "ほかのアプリを終了するか、加工の完了を待ってから再試行してください。"}`;
+function memoryWaitMessage(wait) {
+  return `必要 ${wait.required} MB／空き ${snapshot.memory.free} MB。${snapshot.memory.free >= wait.required ? "OSが自動でメモリを確保して再開します。" : "空きができると自動で再開します。"}${playing ? "" : "OSは一時停止中です。"}`;
 }
 function renderProcessStatus() {
   const id = snapshot.visible;
   const app = snapshot.apps[id];
   const pending = pendingFor(id);
-  const failure = snapshot.failures?.[id];
+  const memoryWait = app.memoryWait;
   const status = $("window-process-status");
   status.dataset.owner = id;
   status.dataset.paused = String(!playing);
-  status.dataset.state = pending.length
-    ? "pending"
-    : failure
-      ? "failed"
-      : app.state;
+  status.dataset.state = pending.length ? "pending" : app.state;
   const label = {
     running: "● CPU割り当て中",
     ready: "◷ CPUの順番待ち",
     waiting: "Ⅱ イベント待ち · CPU未使用",
     stopped: "未起動",
+    "memory-wait": "メモリの空き待ち",
   };
   let detail;
   if (pending.length)
     detail = playing
       ? "入力を受け付けました。OSが順番に処理します。"
       : "OSは一時停止中です。「再生」で受け付けた操作を進めます。";
-  else if (failure)
-    detail = `${allocationFeedback(failure)} CPUの順番待ちとは異なる、メモリ確保の失敗です。`;
+  else if (memoryWait) detail = memoryWaitMessage(memoryWait);
   else if (!app.running)
     detail = "起動するとメモリに読み込まれ、操作できるようになります。";
   else if (!playing)
@@ -388,10 +341,8 @@ function renderProcessStatus() {
   else detail = `${app.task}。メモリと画面は保持しています。`;
   $("window-process-label").textContent = pending.length
     ? "入力を受け付けました"
-    : failure
-      ? failure.operation === "workspace"
-        ? "作業用メモリの確保に失敗"
-        : "メモリ不足で起動できません"
+    : memoryWait
+      ? "メモリの空き待ち"
       : `${!playing && app.running ? "一時停止中 · " : ""}${label[app.state]}`;
   $("window-process-detail").textContent = detail;
 }
@@ -405,18 +356,20 @@ function renderAppViews() {
     $("app-content").querySelector(`[data-live="${id}"]`).hidden = !app.running;
     const pending = pendingFor(id);
     $("app-content").querySelector(`[data-empty="${id}"] button`).disabled =
-      pending.length > 0;
+      pending.length > 0 || Boolean(app.memoryWait);
     $("app-content").querySelector(`[data-launch-status="${id}"]`).textContent =
       pending.length
-        ? playing
-          ? "OSが起動を処理しています。"
-          : "起動を受け付けました。「再生」でOSを動かしてください。"
-        : snapshot.failures?.[id]?.operation === "launch"
-          ? allocationFeedback(snapshot.failures[id])
+        ? pending.some((input) => input.type === "close")
+          ? "起動待ちの取り消しを受け付けました。"
+          : playing
+            ? "OSが起動を処理しています。"
+            : "起動を受け付けました。「再生」でOSを動かしてください。"
+        : app.memoryWait?.operation === "launch"
+          ? memoryWaitMessage(app.memoryWait)
           : "";
     $("app-content").querySelector(`[data-empty="${id}"] button`).textContent =
-      snapshot.failures?.[id]?.operation === "launch"
-        ? "起動を再試行"
+      app.memoryWait?.operation === "launch"
+        ? "メモリの空き待ち"
         : "このアプリを起動";
   }
   const web = snapshot.apps.web.web;
@@ -491,10 +444,7 @@ function renderAppViews() {
             : "準備済みの音を再生中。別のアプリを表示しても音は続きます。";
   const photo = snapshot.apps.photo.photo;
   const photoPending = pendingFor("photo").length > 0;
-  const photoFailure =
-    snapshot.failures?.photo?.operation === "workspace"
-      ? snapshot.failures.photo
-      : null;
+  const photoWait = snapshot.apps.photo.memoryWait;
   const visibleFilter = photo.processing ? photo.filter : photo.completedFilter;
   const progress = photo.processing
     ? photo.progress
@@ -504,16 +454,18 @@ function renderAppViews() {
   $("photo-overlay").style.filter = filters[visibleFilter]?.[1] || "none";
   $("photo-overlay").style.clipPath = `inset(0 ${100 - progress}% 0 0)`;
   $("photo-progress").textContent = `${Math.round(progress)}%`;
-  $("photo-start").disabled = photo.processing || photoPending;
-  $("photo-filter").disabled = photo.processing || photoPending;
+  $("photo-start").disabled =
+    photo.processing || photoPending || Boolean(photoWait);
+  $("photo-filter").disabled =
+    photo.processing || photoPending || Boolean(photoWait);
   $("photo-caption").textContent =
     `CPUで処理した量 ${photo.completed} / ${photo.required} tick${photo.processing ? " · 作業用メモリ +200 MB" : ""}`;
   $("photo-status").textContent = photoPending
     ? playing
       ? "加工の入力を受け付けました。"
       : "入力を受け付けました。OSの「再生」で加工を進めます。"
-    : photoFailure
-      ? `メモリ不足で加工を開始できません。作業用に ${photoFailure.required} MB 必要です。${snapshot.memory.free >= photoFailure.required ? "現在は空きがあります。「加工する」で再試行できます。" : "ほかのアプリを終了してから再試行してください。"}`
+    : photoWait
+      ? `作業用メモリを待っています。${memoryWaitMessage(photoWait)}`
       : photo.processing
         ? !playing
           ? "OSを一時停止中。加工の進捗と作業用メモリを保持します。"
@@ -557,9 +509,9 @@ function renderHistory() {
   }
   lastHistoryTime = snapshot.time;
   const allowed = new Set(entries.map((entry) => entry.time));
-  for (const [time, button] of historyButtons)
+  for (const [time, cell] of historyButtons)
     if (!allowed.has(time)) {
-      button.remove();
+      cell.remove();
       historyButtons.delete(time);
     }
   const placeholders = [...history.querySelectorAll(".history-placeholder")];
@@ -571,75 +523,62 @@ function renderHistory() {
     placeholder.setAttribute("aria-hidden", "true");
     history.prepend(placeholder);
   }
-  for (const entry of entries) {
-    let button = historyButtons.get(entry.time);
-    if (!button) {
-      button = document.createElement("button");
-      button.type = "button";
-      button.dataset.time = entry.time;
-      button.dataset.owner = entry.owner;
-      button.setAttribute(
-        "aria-label",
-        `${entry.time} tick：${names[entry.owner]}。${entry.task}`,
-      );
-      button.title = `${entry.time} tick：${names[entry.owner]}`;
-      history.append(button);
-      historyButtons.set(entry.time, button);
+  for (const entry of entries)
+    if (!historyButtons.has(entry.time)) {
+      const cell = document.createElement("span");
+      cell.className = "history-cell";
+      cell.dataset.time = entry.time;
+      cell.dataset.owner = entry.owner;
+      cell.setAttribute("role", "img");
+      cell.title = `${entry.time} tick：${names[entry.owner]}。${entry.task}。${entry.reason}`;
+      cell.setAttribute("aria-label", cell.title);
+      history.append(cell);
+      historyButtons.set(entry.time, cell);
     }
-    button.setAttribute(
-      "aria-pressed",
-      String(selectedHistory?.time === entry.time),
-    );
-  }
-  if (follow && !selectedHistory && !history.contains(document.activeElement))
-    history.scrollLeft = history.scrollWidth;
+  if (follow) history.scrollLeft = history.scrollWidth;
   $("history-range").textContent = entries.length
     ? `${entries[0].time} → ${entries.at(-1).time} tick`
     : "過去 → 現在";
-  const key = selectedHistory?.time ?? "none";
-  if (historyInfoKey !== key) {
-    historyInfoKey = key;
-    if (selectedHistory) {
-      const entry = selectedHistory;
-      $("history-info").innerHTML =
-        `<strong>${entry.time} tick · ${names[entry.owner]}：${esc(entry.task)}</strong><p>${esc(entry.reason)} メモリ使用量 ${entry.memory.used} MB。</p><button type="button" class="history-unselect">選択を解除</button>`;
-    } else
-      $("history-info").innerHTML =
-        "<p>履歴のマスを選ぶと、処理内容と切り替え理由が分かります。</p>";
-  }
 }
 function renderMemory() {
   const memory = snapshot.memory;
   const owner = (segment) =>
     segment.id.includes("work") ? "workspace" : segment.id;
   $("memory-total").textContent = `${memory.used} / ${memory.total} MB 使用中`;
+  const shortLabels = {
+    os: "OS",
+    web: "Web",
+    music: "音楽",
+    photo: "写真",
+    "photo-work": "写真の作業用",
+    notify: "通知",
+    sync: "同期",
+    security: "セキュリティ",
+    free: "空き",
+  };
   $("memory-band").innerHTML = memory.segments
     .filter((segment) => segment.size > 0)
-    .map(
-      (segment) =>
-        `<div class="memory-segment" data-owner="${owner(segment)}" style="width:${(segment.size / memory.total) * 100}%" title="${esc(segment.label)} ${segment.size} MB">${segment.size / memory.total > 0.12 ? esc(segment.label) : ""}</div>`,
-    )
+    .map((segment) => {
+      const name = shortLabels[segment.id] || segment.label;
+      const size = `${segment.size} MB`;
+      return `<div class="memory-segment" data-owner="${owner(segment)}" style="width:${(segment.size / memory.total) * 100}%;--name-width:${name.length + 0.6};--size-width:${size.length * 0.7 + 0.6}" title="${esc(segment.label)} ${size}"><span class="memory-label-name">${esc(name)}</span><span class="memory-label-size">${size}</span></div>`;
+    })
     .join("");
-  $("memory-labels").innerHTML = memory.segments
-    .filter((segment) => segment.size > 0)
-    .map(
-      (segment) =>
-        `<span data-owner="${owner(segment)}">${esc(segment.label)} ${segment.size} MB</span>`,
-    )
-    .join("");
+  $("memory-labels").hidden = true;
   $("memory-band").setAttribute(
     "aria-label",
     memory.segments
       .map((segment) => `${segment.label} ${segment.size} MB`)
       .join("、"),
   );
-  const failure = snapshot.lastFailure;
-  $("allocation-notice").hidden = !failure;
-  if (failure) {
+  const waits = snapshot.memoryWaits || [];
+  $("allocation-notice").hidden = !waits.length;
+  if (waits.length) {
     $("allocation-title").textContent =
-      `メモリ不足：${names[failure.id]}の${failure.operation === "workspace" ? "作業領域を確保できません" : "起動に失敗"}`;
+      `メモリの空き待ち：${waits.map((wait) => names[wait.id]).join("、")}`;
     $("allocation-message").textContent =
-      `${failure.time} tick の操作：${failure.required} MB 必要でしたが、空きは ${failure.available} MB でした。現在の空きは ${memory.free} MB。${memory.free >= failure.required ? "必要な空きができたので、同じ操作をもう一度試せます。" : "ほかのアプリを終了するか、加工の完了を待ってから再試行してください。"} メモリ不足によるアプリの自動終了はありません。CPUの競合は順番待ち、メモリ不足は処理開始の失敗です。`;
+      waits.map((wait) => `${names[wait.id]} ${wait.required} MB`).join("／") +
+      `。空き ${memory.free} MB。空きができると自動で再開します。`;
   }
 }
 function renderDetails() {
