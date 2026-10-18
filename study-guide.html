@@ -4,13 +4,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>情報Ⅰ Study Atlas｜使い方</title>
-    <meta name="description" content="学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。" />
+    <meta name="description" content="学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、Interactive Lab、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。" />
     <meta name="theme-color" content="#102f35" />
     <meta property="og:type" content="article" />
     <meta property="og:locale" content="ja_JP" />
     <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
     <meta property="og:title" content="情報Ⅰ Study Atlas｜使い方" />
-    <meta property="og:description" content="学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。" />
+    <meta property="og:description" content="学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、Interactive Lab、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。" />
     <meta property="og:url" content="https://mei-chan-nel.com/study-guide.html" />
     <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -32,7 +32,7 @@
       <header class="page-hero compact-hero">
         <p class="eyebrow">HOW TO USE</p>
         <h1>このサイトの使い方</h1>
-        <p>問題を解く、用語を調べる、動画を見る、プログラムを動かす・作る、講義ノートを読む。各教材の基本操作と、学習記録やプログラムの保存・共有について紹介します。</p>
+        <p>問題を解く、用語を調べる、動画を見る、プログラムを動かす・作る、しくみを実験する、講義ノートを読む。各教材の基本操作と、学習記録やプログラムの保存・共有について紹介します。</p>
       </header>
 
       <article class="prose-content">
@@ -45,6 +45,7 @@
             <li><a href="#resources">解説動画を見る</a></li>
             <li><a href="#trace">プログラムを1行ずつ実行する</a></li>
             <li><a href="#studio">Studioでプログラムを作る・共有する</a></li>
+            <li><a href="#lab">Interactive Labでしくみを実験する</a></li>
             <li><a href="#lecture">講義ノートを読む</a></li>
             <li><a href="#books">書籍案内を見る</a></li>
             <li><a href="#routine">記録・保存データについて</a></li>
@@ -143,8 +144,24 @@
           <p>共有URLが長くて送れない場合は、書き出したファイルを共有できます。</p>
         </section>
 
+        <section id="lab">
+          <h2>7．Interactive Labでしくみを実験する</h2>
+          <p><a href="./lab/">Interactive Lab</a>では、操作と可視化を通して情報Ⅰのしくみを確かめられます。<a href="./lab/os-work/">「OSの仕事」</a>では、3つのアプリとCPU・メモリの動きを観察します。</p>
+          <h3>アプリを操作して比べる</h3>
+          <ol>
+            <li>Webブラウザ・音楽再生・写真加工を起動し、「再生」または「1ステップ」で仮想時間を進めます。表示するアプリを切り替えても、ほかのアプリは起動したままです。</li>
+            <li>Webのページ読み込み、音楽の再生、写真の加工を試します。CPUの現在の実行対象と履歴、メモリの帯が連動して変わります。</li>
+            <li>音楽は「音をオン」で教材用の音を出せます。音楽を流しながら写真を加工し、CPUが写真加工やOSを処理している間も音声バッファから音楽が流れる様子を確かめます。写真加工はCPUが割り当てられた時間だけ進み、加工中には作業用メモリも使います。</li>
+            <li>アプリを終了するとメモリが解放されます。CPUを使わず待っている間も、起動中のアプリのメモリは残ります。</li>
+          </ol>
+          <h3>時間を止めて観察する</h3>
+          <p>一時停止・1ステップ実行・速度変更で変化を追えます。CPUの履歴を選ぶと、その時点の処理と切り替え理由を確認できます。詳しい状態やイベントログは、必要なときだけ開いてください。リセットで初期状態から試し直せます。</p>
+          <p><strong>「表示中」は画面に見えていること、「起動中」は終了していないこと、「CPUで実行中」は今CPUが処理していることです。</strong>表示中のWebも通常は入力待ちです。画面の表示や、用意済みの音声の再生は、アプリがCPUを使っていない間も続きます。</p>
+          <p class="small-note">実際のOSの動きを学ぶためのモデルです。1コアCPUを仮定し、処理時間を引き延ばしています。メモリ量や音声バッファも観察しやすい値で、実機の性能測定を表すものではありません。</p>
+        </section>
+
         <section id="lecture">
-          <h2>7．講義ノートを読む</h2>
+          <h2>8．講義ノートを読む</h2>
           <p><a href="./LectureNote/">講義ノート</a>の一覧から分野を選び、見出しや「重要キーワード」から読みたい部分へ進みます。</p>
           <ul>
             <li><strong>しおりを挟む：</strong>読んでいる見出しにしおりを設定できます。次回は「しおりから読む」で、その位置から再開できます。</li>
@@ -153,15 +170,15 @@
         </section>
 
         <section id="books">
-          <h2>8．書籍案内を見る</h2>
+          <h2>9．書籍案内を見る</h2>
           <p><a href="./books/">書籍案内</a>から分野別の問題集を選び、「Amazonで詳細を見る」で販売ページへ進めます。</p>
         </section>
 
         <section id="routine">
-          <h2>9．記録・保存データについて</h2>
+          <h2>10．記録・保存データについて</h2>
           <p>学習アプリの記録・保存した問題、講義ノートのしおり、Studioの下書き・ブラウザ内に保存したプログラムは、利用中のブラウザに保存されます。別の端末・ブラウザには自動で引き継がれず、ブラウザのサイトデータを削除すると消えます。</p>
           <p>Studioのプログラムを別の端末で使う場合や、手元に残す場合は「ファイルに書出」を利用できます。</p>
-          <p class="small-note">最終更新日：<time datetime="2026-10-05">2026年10月5日</time></p>
+          <p class="small-note">最終更新日：<time datetime="2026-10-18">2026年10月18日</time></p>
         </section>
       </article>
     </main>
@@ -169,7 +186,7 @@
       <div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./program-trace/">プログラムトレース</a><a href="./books/">書籍案内</a><a href="./study-guide.html">使い方</a><a href="./about.html">このサイトについて</a><a href="./privacy.html">プライバシーポリシー</a><a href="./sitemap.html">サイトマップ</a></nav></div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-10-05","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、Interactive Lab、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-10-18","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"トップページ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"使い方","item":"https://mei-chan-nel.com/study-guide.html"}]}</script>
     <script src="./assets/site-header.js?v=2026100501"></script>
   </body>

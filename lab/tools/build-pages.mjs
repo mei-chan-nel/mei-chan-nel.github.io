@@ -38,7 +38,7 @@ const html = `<!doctype html>
 <header class="site-header"><div class="header-inner"><a class="brand" href="../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション">${links(nav)}</nav></div></header>
 <main id="main-content" class="lab-shell">
 <nav class="breadcrumb" aria-label="パンくず"><a href="../">Study Atlas</a><span aria-hidden="true">/</span><span>Interactive Lab</span></nav>
-<header class="lab-hero"><h1 id="lab-title">Interactive <em>Lab.</em></h1><p class="lab-tagline">触って、変えて、仕組みが見えてくる。</p></header>
+<header class="lab-hero"><h1 id="lab-title">Interactive <em>Lab.</em></h1><p class="lab-tagline">触って、変えて、仕組みが見えてくる。</p><p class="editorial-note"><a href="../study-guide.html#lab">Interactive Labの使い方</a></p></header>
 ${groups.map((g, i) => `<section class="lab-category" id="${g.id}" aria-labelledby="heading-${g.id}" style="--lab-accent:var(--${g.color}-strong)"><div class="section-heading lab-category-heading"><div class="category-title"><span class="category-number" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><h2 id="heading-${g.id}">${g.name}</h2></div><p>${g.hint}</p></div><div class="archive-field-grid lab-content-grid">${cards(g)}</div></section>`).join("\n")}
 </main>
 <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション">${links(footer)}</nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
@@ -50,4 +50,4 @@ if (check) {
 } else {
   await writeFile(target, html);
 }
-console.log(`${check ? "Checked" : "Built"} Interactive Lab shell (6 fields, no individual exhibits)`);
+console.log(`${check ? "Checked" : "Built"} Interactive Lab (${groups.length} fields, ${contents.length} exhibits)`);
