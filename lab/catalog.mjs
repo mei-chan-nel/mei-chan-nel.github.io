@@ -92,6 +92,15 @@ export const contents = [
       "メッセージを送り、回線を切り、ネットワークをつなぎ変える。ルータの判断と経路の更新を観察しよう。",
   },
   {
+    id: "image-compression",
+    group: "digital-representation",
+    standalone: false,
+    styles: ["compression.css?v=4"],
+    scripts: ["app.mjs?v=4"],
+    name: "画像圧縮",
+    description: "同じ画像を6形式で圧縮。サイズ・画質・処理時間を比べ、拡大と差分で圧縮の違いを探ろう。",
+  },
+  {
     id: "digital-image",
     group: "digital-representation",
     styles: ["image.css?v=4"],

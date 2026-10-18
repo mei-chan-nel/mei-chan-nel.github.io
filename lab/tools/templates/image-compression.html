@@ -1,0 +1,60 @@
+<header class="compression-heading">
+  <div><p class="compression-eyebrow">DIGITAL REPRESENTATION / INTERACTIVE LAB</p><h1>画像圧縮</h1><p>小さくしたら、何が変わる？ 同じ画像を6つの形式で比べよう。</p></div>
+  <a href="../digital-image/" class="related-link">画素数・色の実験へ ↗</a>
+</header>
+<section class="source-panel" aria-labelledby="source-heading" id="drop-zone">
+  <div class="source-preview checker"><canvas id="source-preview" width="512" height="512" aria-label="圧縮前の元画像"></canvas></div>
+  <div class="source-options">
+    <h2 id="source-heading"><span class="step-number">01</span> 画像を選ぶ</h2>
+    <div id="presets" class="preset-buttons" role="group" aria-label="画像のプリセット"></div>
+    <div class="source-toolbar"><label class="file-label" for="image-input">自分の画像を読み込む ↑</label><input type="file" id="image-input" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif" class="file-input" /><label for="max-edge">長辺の上限 <select id="max-edge"><option value="256">256 px</option><option value="512" selected>512 px</option><option value="1024">1,024 px</option></select></label><button id="reset" type="button" class="quiet-button">設定をリセット</button></div>
+    <p id="experiment-hint" class="experiment-hint"></p>
+    <p class="source-meta" id="source-meta">画像を準備しています…</p>
+    <p class="privacy-note">画像は端末内だけで処理します。ここにドロップもできます。最大20 MB・4,000万画素、アニメーションは1フレームを使用。</p>
+  </div>
+</section>
+<p id="error" class="error-message" role="alert" hidden></p>
+<section class="results-section" aria-labelledby="results-heading">
+  <div class="section-toolbar"><h2 id="results-heading"><span class="step-number">02</span> 圧縮して、比べる</h2><p id="run-status" role="status">準備中</p></div>
+  <p class="section-note">設定を変えると、その形式だけを再変換。品質の数値は形式ごとに意味が異なります。</p>
+  <div class="compression-key"><span class="format-kind" data-kind="lossless">可逆圧縮</span><span>画素を元に戻せる</span><span class="format-kind" data-kind="lossy">非可逆圧縮</span><span>情報を減らして小さくする</span></div>
+  <p class="section-note">圧縮の強さは右ほど強く、画質よりサイズを優先。可逆では画質は変わりません。圧縮の努力量は右ほど時間をかけます。</p>
+  <div id="results" class="results-grid"></div>
+  <p class="metric-key">圧縮率 ＝ ファイルサイズ ÷（幅 × 高さ × RGBA 4バイト）× 100。小さいほどコンパクト。100%を超える場合もあります。1 kB = 1,000 B。</p>
+</section>
+<section id="comparison-workspace" class="detail-section" aria-labelledby="detail-heading">
+  <div class="section-toolbar"><h2 id="detail-heading"><span class="step-number">03</span> 拡大して、違いを探す</h2></div>
+  <div class="comparison-toolbar"><label for="zoom">連動拡大 <input id="zoom" type="range" min="1" max="16" value="1" step=".25" /><output id="zoom-value">全体</output></label><label class="toggle"><input type="checkbox" id="show-diff" />差分を表示</label><button id="fullscreen-toggle" type="button" aria-pressed="false" aria-controls="comparison-workspace">全画面</button></div>
+  <p id="comparison-metrics" class="comparison-metrics" role="status">結果が出ると選択できます。</p>
+  <div id="comparison-grid" class="comparison-grid">
+    <figure class="original-comparison"><figcaption><strong id="caption-a">元画像</strong><span class="fixed-label">左側に固定</span></figcaption><canvas id="view-a" class="compare-view checker" tabindex="0" role="img" aria-label="元画像。左側に固定。ドラッグまたは矢印キーで連動移動。プラス・マイナスで拡大縮小。"></canvas></figure>
+    <figure class="target-comparison"><figcaption><label for="compare-b">比較対象 <select id="compare-b"></select></label></figcaption><canvas id="view-b" class="compare-view checker" tabindex="0" role="img" aria-label="選択した形式の比較画像。ドラッグまたは矢印キーで連動移動。プラス・マイナスで拡大縮小。"></canvas><p id="caption-b" class="picture-caption">JPEG</p></figure>
+    <section id="detail-controls" class="format-card detail-controls" aria-label="比較対象の設定"></section>
+    <figure id="diff-figure" hidden><figcaption>元画像との差分 <label for="diff-gain">強調 <select id="diff-gain"><option value="1">1倍</option><option value="4" selected>4倍</option><option value="16">16倍</option></select></label></figcaption><canvas id="view-diff" class="compare-view" tabindex="0" role="img" aria-label="元画像との差分。黒は差がない画素、明るいほど差が大きい画素です。"></canvas></figure>
+  </div>
+  <p class="section-note comparison-hint">どの画像からでもドラッグ・ピンチで連動移動と拡大。キーボードは矢印・＋・−・Home。差分は黒ほど一致し、透明度の差も含みます。</p>
+  <details class="small-details"><summary>PSNR・画素一致・透過誤差の読み方</summary><p>PSNRは白背景に合成したsRGBのRGB誤差から算出。大きいほど元に近く、∞は見える色の誤差が0です。画素の完全一致はRGBA全成分で判定し、α誤差は透明度の平均絶対誤差（0〜255）です。PSNRだけで見た目の良さは決まりません。拡大して文字・輪郭・グラデーションも確かめましょう。</p></details>
+</section>
+<section class="target-section" aria-labelledby="target-heading">
+  <div><p class="compression-eyebrow">もう一歩 / FAIR SIZE COMPARISON</p><h2 id="target-heading">同じくらいのサイズなら？</h2><p>目標の±10%を目安に、実際に圧縮しながら品質・色数を探します。</p></div>
+  <div class="target-controls"><label for="target-kb">目標サイズ <span><input id="target-kb" type="number" min="0.1" max="10000" step="0.1" value="20" /> kB</span></label><button id="match-size" type="button" class="primary-button">サイズをそろえて比較</button><button id="cancel-jobs" type="button">処理を中止</button></div>
+  <p id="target-status" role="status">JPEG・GIF・非可逆モードのWebP / AVIFが対象。BMPは固定長、PNGと可逆モードは画質を変えてサイズを合わせられません。</p>
+</section>
+<details class="learning-notes"><summary>この実験のヒントと、計測のしくみ</summary><div class="notes-body">
+  <dl><div><dt>元に戻せる？</dt><dd>PNGと可逆モードは画素を保ったまま符号化。JPEGなどの非可逆モードは情報を捨てて小さくします。GIFのLZW圧縮は可逆ですが、その前の減色と透明度の変換で情報が失われます。</dd></div><div><dt>どの画像が得意？</dt><dd>写真ではJPEG・WebP・AVIF、色の少ないイラストや文字ではPNG・GIFも試しましょう。品質設定を下げて、サイズと輪郭の変化を確かめてください。</dd></div><div><dt>処理時間は何を測る？</dt><dd>圧縮は入力の準備後から実際のエンコード終了まで。各カードで、同時実行制限による待機、Worker起動、コーデック読込・準備、復号と指標計算、全体の経過時間を確認できます。サイズ調整時の圧縮時間は全試行の合計です。端末の負荷・キャッシュでも変わり、形式の速さの厳密な順位ではありません。</dd></div><div><dt>共通の元データ</dt><dd>読み込んだ画像を上限の長辺まで縮小し、ブラウザのCanvasでRGBA各8ビットのsRGB画素に統一します。全形式に同じ画素を渡します。JPEG・24bit BMPは白背景に合成、GIFは1段階の透明度へ変換します。色プロファイル・メタデータ・アニメーションは比較対象に含めません。</dd></div></dl>
+  <p>JPEG: MozJPEG、WebP: libwebp、AVIF: libavif / AOM（WebAssembly）。PNG: フィルタ＋DEFLATE、GIF: パレット＋LZW、BMP: 非圧縮。コーデックはこのサイトから読み込み、画像を外部へ送信しません。<a href="./vendor/LICENSES.txt">コーデックの出典とライセンス</a>。写真はNASAの宇宙飛行士Eileen Collins（Public domain、scikit-image収録）。ほかのプリセットは本教材のオリジナルです。</p>
+  <p><a href="../digital-image/">画素数・量子化ビット数も変えてみる →</a>　<a href="../">Interactive Labへ戻る →</a></p>
+</div></details>
+<details class="learning-notes format-guide"><summary>6つの画像形式の特徴・得意なこと・苦手なこと</summary>
+  <p class="section-note">可逆は画素を保ち、非可逆は情報を減らして小さくします。向き不向きは画像と設定で変わるので、プリセットを切り替えて確かめましょう。</p>
+  <div class="format-guide-grid">
+    <section aria-labelledby="guide-bmp"><h3 id="guide-bmp">BMP <span class="format-kind" data-kind="uncompressed">この実験では非圧縮</span></h3><p>画素をほぼそのまま並べて保存。32bitは色と透明度を保持し、24bitは透過を白に合成します。</p><dl><dt>得意なこと</dt><dd>非圧縮データ量の観察。圧縮によるサイズの違いを比べる基準。</dd><dt>苦手なこと</dt><dd>写真でも単色の画像でも大きくなりやすく、Webで小さく配信する用途には不向き。</dd></dl></section>
+    <section aria-labelledby="guide-png"><h3 id="guide-png">PNG <span class="format-kind" data-kind="lossless">可逆圧縮</span></h3><p>画素を変えずに圧縮し、半透明も保持。圧縮レベルを上げても画質は変わりません。</p><dl><dt>得意なこと</dt><dd>文字、図、スクリーンショット、ドット絵。輪郭や透過を正確に残すこと。</dd><dt>苦手なこと</dt><dd>色や模様の細かい写真は大きくなりがち。画質を下げて目標サイズへ近づけることはできません。</dd></dl></section>
+    <section aria-labelledby="guide-gif"><h3 id="guide-gif">GIF <span class="format-kind" data-kind="lossy">減色で非可逆になりうる</span></h3><p>最大256色と「透明／不透明」で表現。LZW圧縮自体は可逆でも、その前の減色や半透明の変換では情報が失われます。</p><dl><dt>得意なこと</dt><dd>色数の少ない図やドット絵。色を減らしたときのサイズと見た目の変化を観察すること。</dd><dt>苦手なこと</dt><dd>写真、なめらかなグラデーション、半透明。形式はアニメーションにも対応しますが、この実験は1フレームだけを比較します。</dd></dl></section>
+    <section aria-labelledby="guide-jpeg"><h3 id="guide-jpeg">JPEG <span class="format-kind" data-kind="lossy">非可逆圧縮</span></h3><p>細部や色の情報を減らして圧縮。品質100でも完全な画素の復元は保証されず、透過は保存できません。</p><dl><dt>得意なこと</dt><dd>写真など、色や明るさが連続的に変わる画像。品質とサイズの折り合いをつけること。</dd><dt>苦手なこと</dt><dd>小さな文字、細線、ドット絵。強い圧縮では輪郭のにじみやブロック状の模様が目立ちます。</dd></dl></section>
+    <section aria-labelledby="guide-webp"><h3 id="guide-webp">WebP <span class="format-kind" data-kind="lossless">可逆</span><span class="format-kind" data-kind="lossy">非可逆</span></h3><p>可逆・非可逆を選べ、どちらも半透明に対応。同じ形式で画素の保持と小ささの優先を切り替えられます。</p><dl><dt>得意なこと</dt><dd>写真の小型化、透過イラスト。画像に合わせて可逆と非可逆を試すこと。</dd><dt>苦手なこと</dt><dd>非可逆では細い線や文字が変化する場合があります。可逆で写真を保存すると十分小さくならないこともあります。</dd></dl></section>
+    <section aria-labelledby="guide-avif"><h3 id="guide-avif">AVIF <span class="format-kind" data-kind="lossless">可逆</span><span class="format-kind" data-kind="lossy">非可逆</span></h3><p>AV1の圧縮技術を使い、半透明と可逆・非可逆に対応。この実験では共通の8bit sRGB画素を比較します。</p><dl><dt>得意なこと</dt><dd>写真やグラデーションを小さく保存すること。同程度のサイズで細部がどう残るか比べること。</dd><dt>苦手なこと</dt><dd>圧縮に時間がかかりやすく、特にスマートフォンでは待つ場合があります。強い非可逆圧縮では文字や細部が崩れることもあります。</dd></dl></section>
+  </div>
+  <p class="section-note">新しい形式ほど必ず小さくなるわけではありません。品質の数値は形式間で比較せず、実測サイズと拡大画像・差分を合わせて判断しましょう。</p>
+</details>
+<noscript><p>画像の変換と比較にはJavaScriptを有効にしてください。</p></noscript>
