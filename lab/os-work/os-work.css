@@ -16,3 +16,5 @@
 /* Each history item remains a usable touch target at narrow widths. */
 .cpu-history{grid-template-columns:repeat(24,28px);overflow-x:auto;overflow-y:hidden;padding:4px 3px;height:44px;scrollbar-width:thin;scroll-snap-type:x proximity}
 .cpu-history button{scroll-snap-align:start;min-width:28px}
+
+.launcher-buffer{display:flex;align-items:center;gap:5px;font-size:.58rem;line-height:1.5;color:var(--music);margin-top:2px}.launcher-buffer-track{width:36px;height:4px;flex-shrink:0;background:var(--paper-deep);border-radius:2px;overflow:hidden}.launcher-buffer-track i{display:block;height:100%;background:var(--music)}
