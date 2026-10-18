@@ -1013,6 +1013,7 @@
 /* The CA occupies its own row above the packets and the three characters. */
 #game-console #scene[data-ca="true"] .network-scene {
   --ca-height: 48px;
+  --ca-connector-inset: 20px;
   --packet-lane: 80px;
   grid-template-rows: var(--ca-height) var(--packet-lane) max-content;
 }
@@ -1049,16 +1050,26 @@
 #game-console #scene[data-ca="true"] .cable {
   grid-row: 3 / 4;
 }
-#game-console #scene[data-ca="true"][data-at="ca"] .network-scene::after {
+/* Link the authority to the item beside it without crossing either card. */
+#game-console #scene[data-at="ca-alice"] .network-scene::after,
+#game-console #scene[data-at="ca-bob"] .network-scene::after {
   content: "";
   position: absolute;
-  grid-row: 2 / 3;
-  grid-column: 2 / 3;
-  top: 0;
-  left: 50%;
-  height: 18px;
-  border-left: 2px dashed #b8d0a4;
+  grid-row: 1 / 2;
+  grid-column: 1 / -1;
+  top: 50%;
+  height: 0;
+  border-top: 2px dashed #d4e8b5;
   pointer-events: none;
+  z-index: 1;
+}
+#game-console #scene[data-at="ca-alice"] .network-scene::after {
+  left: calc(22% + min(79px, 18%) + 2px);
+  right: calc(50% + var(--ca-connector-inset));
+}
+#game-console #scene[data-at="ca-bob"] .network-scene::after {
+  left: calc(50% + var(--ca-connector-inset));
+  right: calc(22% + min(79px, 18%) + 2px);
 }
 #game-console .browser-trust {
   display: inline-flex;
@@ -1181,6 +1192,7 @@
   #scene[data-ca="true"]
   .network-scene {
   --ca-height: 40px;
+  --ca-connector-inset: 13px;
 }
 #game-console.is-viewport[data-layout="narrow"]
   #scene[data-at^="ca-"]
@@ -1193,11 +1205,13 @@
     #scene[data-ca="true"]
     .network-scene {
     --ca-height: 44px;
+    --ca-connector-inset: 16px;
   }
   #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
     #scene[data-ca="true"]
     .network-scene {
     --ca-height: 32px;
+    --ca-connector-inset: 10px;
   }
   #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
     #scene[data-at^="ca-"]
