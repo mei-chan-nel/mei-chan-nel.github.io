@@ -1149,3 +1149,67 @@
     width: 14px;
   }
 }
+
+/* CA work stays beside the authority, on the key owner's side. */
+#game-console #scene[data-at="ca-alice"] .packet-sprite,
+#game-console #scene[data-at="ca-bob"] .packet-sprite {
+  grid-row: 1 / 2;
+  top: 50%;
+  bottom: auto;
+  width: min(158px, 36%);
+  padding: 2px;
+  transform: translate(-50%, -50%);
+}
+#game-console #scene[data-at="ca-alice"] .packet-sprite {
+  left: 22%;
+}
+#game-console #scene[data-at="ca-bob"] .packet-sprite {
+  left: 78%;
+}
+#game-console #scene[data-at^="ca-"] .packet-shape {
+  width: 28px;
+  height: 18px;
+}
+#game-console #scene[data-at^="ca-"] .packet-sprite b {
+  font-size: 8px;
+  line-height: 1.2;
+}
+#game-console #packet-short {
+  white-space: pre-line;
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene[data-ca="true"]
+  .network-scene {
+  --ca-height: 40px;
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene[data-at^="ca-"]
+  .packet-shape {
+  width: 24px;
+  height: 16px;
+}
+@media (max-height: 600px) {
+  #game-console.is-viewport[data-layout="wide"]
+    #scene[data-ca="true"]
+    .network-scene {
+    --ca-height: 44px;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    #scene[data-ca="true"]
+    .network-scene {
+    --ca-height: 32px;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    #scene[data-at^="ca-"]
+    .packet-shape {
+    width: 18px;
+    height: 12px;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    #scene[data-at^="ca-"]
+    .packet-sprite
+    b {
+    font-size: 6px;
+    line-height: 1.1;
+  }
+}

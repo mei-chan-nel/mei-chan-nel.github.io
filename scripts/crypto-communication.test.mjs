@@ -35,7 +35,7 @@ function intercept(lab) {
 }
 function caKey(lab, round) {
   lab.start(round);
-  if (round === 3) {
+  if (round >= 2) {
     capture(lab);
     lab.forward();
   }
@@ -74,15 +74,31 @@ function correct(q, id, predicate) {
   assert.equal(q.view().tone, "correct");
   return choose(q, "continue");
 }
-function reachMessage(q, round) {
+function reading(q) {
+  if (!q.view().choices.some((c) => c.id === "can-read")) return;
+  const readable =
+    q.view().round < 2 &&
+    (q.view().phase === "message" ||
+      q.view().publicForAlice?.owner === "charlie");
+  correct(q, readable ? "can-read" : "cannot-read");
+}
+function reachPublic(q, round) {
   q.start(round);
-  if (round === 3) {
-    correct(q, "send-signing-key");
+  if (round >= 2) correct(q, "send-signing-key");
+}
+function reachKey(q, round) {
+  reachPublic(q, round);
+  if (round >= 2) correct(q, "send-public");
+  else {
+    correct(q, "swap");
     choose(q, "forward");
   }
-  if (round) {
-    correct(q, round >= 2 ? "send-public" : "swap");
-    choose(q, "forward");
+  reading(q);
+}
+function reachMessage(q, round) {
+  if (!round) q.start(0);
+  else {
+    reachKey(q, round);
     if (round >= 2) correct(q, "inject-key");
     else {
       correct(q, "open-key");
@@ -90,6 +106,7 @@ function reachMessage(q, round) {
     }
   }
   choose(q, "forward");
+  reading(q);
 }
 function complete(q, round) {
   reachMessage(q, round);
@@ -200,7 +217,7 @@ for (const round of [2, 3]) {
   test(`R${round + 1}: CA rejects forged Bob certificate before key leakage`, () => {
     const lab = createLab();
     lab.start(round);
-    if (round === 3) {
+    if (round >= 2) {
       capture(lab);
       lab.forward();
     }
@@ -217,7 +234,7 @@ for (const round of [2, 3]) {
   test(`R${round + 1}: genuine Charlie certificate fails expected Bob identity`, () => {
     const lab = createLab();
     lab.start(round);
-    if (round === 3) {
+    if (round >= 2) {
       capture(lab);
       lab.forward();
     }
@@ -399,6 +416,7 @@ for (const [round, action, result] of [
   test(`R${round + 1}: failed certificate substitution can be demonstrated and retried in place`, () => {
     const q = createQuest();
     q.start(round);
+    if (action === "swap") correct(q, "send-signing-key");
     const before = q.view();
     choose(q, action);
     assert.equal(q.view().feedback.correct, false);
@@ -408,13 +426,14 @@ for (const [round, action, result] of [
     assert.equal(q.view().phase, before.phase);
     assert.equal(q.view().outgoing, null);
     assert.equal(q.view().incoming.id, before.incoming.id);
-    assert.equal(q.view().verificationForBob, null);
+    assert.equal(
+      q.view().verificationForBob?.id,
+      before.verificationForBob?.id,
+    );
   });
 test("wrong key-injection recipient fails at Bob and retries that key picker", () => {
   const q = createQuest();
-  q.start(2);
-  correct(q, "send-public");
-  choose(q, "forward");
+  reachKey(q, 2);
   choose(q, "inject-key", (k) => k.type === "public" && k.owner === "charlie");
   assert.equal(q.view().feedback.correct, false);
   const own = q.view().attackerKey.id;
@@ -424,36 +443,44 @@ test("wrong key-injection recipient fails at Bob and retries that key picker", (
   assert.equal(q.view().selectingKey.action, "inject-key");
   assert.equal(q.view().attackerKey.id, own);
 });
-test("unavailable Bob private key is never suggested as a fake decryption solution", () => {
+test("CA key readability question rejects impossible Bob-private-key decryption before actions", () => {
   const q = createQuest();
-  q.start(2);
+  reachPublic(q, 2);
   correct(q, "send-public");
-  choose(q, "forward");
-  choose(q, "open-key");
+  const before = q.view();
+  assert.deepEqual(
+    before.choices.map((c) => c.id),
+    ["can-read", "cannot-read"],
+  );
+  choose(q, "can-read");
   assert.equal(q.view().feedback.correct, false);
   assert.match(q.view().feedback.explanation, /Bobの秘密鍵/);
-  choose(q, "retry-here");
-  assert.equal(
-    q
-      .view()
-      .selectingKey.keys.some(
-        (k) => k.type === "private" && k.owner !== "charlie",
-      ),
-    false,
-  );
-});
-test("pass remains in normal key picker and forwards actual original data on consequence", () => {
-  const q = createQuest();
-  reachMessage(q, 0);
-  q.select("read");
-  assert.equal(q.view().selectingKey.allowPass, true);
-  q.selectPass();
-  q.confirm();
-  choose(q, "show-consequence");
+  const frames = choose(q, "show-consequence");
+  assert.ok(frames.some((f) => f.scene === "decrypt-failed"));
   assert.equal(q.view().result.code, "original-accepted");
   assert.equal(q.view().original, null);
   choose(q, "retry-here");
-  assert.equal(q.view().selectingKey.action, "read");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  correct(q, "cannot-read");
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["inject-key", "pass"],
+  );
+});
+test("pass is an outer action and forwards real data immediately without a key picker", () => {
+  const q = createQuest();
+  reachMessage(q, 0);
+  assert.ok(q.view().choices.some((c) => c.id === "pass"));
+  const frames = choose(q, "pass");
+  assert.ok(frames.length);
+  assert.equal(q.view().selectingKey, null);
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().original, null);
+  const r = createQuest();
+  reachKey(r, 1);
+  r.select("open-key");
+  assert.equal(r.view().selectingKey.allowPass, false);
+  assert.equal(typeof r.selectPass, "undefined");
 });
 test("key-picker candidates exclude old keys and other people private keys", () => {
   const q = createQuest();
@@ -488,7 +515,6 @@ test("checkpoint restores protocol, unread original and keys across actions and 
   ca.start(3);
   const saved = ca.checkpoint();
   correct(ca, "send-signing-key");
-  choose(ca, "forward");
   assert.equal(ca.view().verificationForBob.owner, "alice");
   saved();
   assert.equal(ca.view().verificationForBob, null);
@@ -496,9 +522,7 @@ test("checkpoint restores protocol, unread original and keys across actions and 
 });
 test("CA key generation and Bob key injection can be fully rewound", () => {
   const q = createQuest();
-  q.start(2);
-  correct(q, "send-public");
-  choose(q, "forward");
+  reachKey(q, 2);
   const undo = q.checkpoint();
   correct(q, "inject-key");
   choose(q, "forward");
@@ -518,21 +542,19 @@ test("correct feedback uses first frame only once, with Next reserved for narrat
   assert.equal(rest[0].scene, "idea");
   assert.notEqual(first.text, rest[0].text);
 });
-test("singleton forwarding remains an explicit Charlie action", () => {
+test("new ciphertext forwarding remains a singleton action, unchanged forwarding happens only once", () => {
   const q = createQuest();
   q.start(0);
   assert.deepEqual(
     q.view().choices.map((c) => c.id),
     ["forward"],
   );
-  q.start(2);
+  reachPublic(q, 2);
+  assert.equal(q.view().phase, "public");
   correct(q, "send-public");
-  assert.deepEqual(
-    q.view().choices.map((c) => c.id),
-    ["forward"],
-  );
-  assert.match(q.view().choices[0].label, /Alice/);
-  choose(q, "forward");
+  assert.equal(q.view().phase, "key");
+  assert.ok(q.view().choices.some((c) => c.id === "cannot-read"));
+  reading(q);
   correct(q, "inject-key");
   assert.deepEqual(
     q.view().choices.map((c) => c.id),
@@ -567,6 +589,8 @@ test("CA narration shows requests, signed certificate returns, and fixed browser
     all = [];
   for (const r of [2, 3]) {
     q.start(r);
+    all.push(...roundFrames(q.view()));
+    correct(q, "send-signing-key");
     all.push(...roundFrames(q.view()));
   }
   for (const route of ["Alice → CA", "CA → Alice", "Bob → CA", "CA → Bob"])
@@ -619,4 +643,174 @@ test("page offers four rounds, single shared panel and no confirmation or CA byp
   assert.match(html, /aria-live="polite"/);
   assert.match(html, /noindex, nofollow/);
   assert.match(html, /id="fullscreen"/);
+});
+
+for (const round of [2, 3])
+  test(`R${round + 1} intercepts Alice registered key and rejects substitution before Bob registers it`, () => {
+    const q = createQuest();
+    q.start(round);
+    assert.equal(q.view().phase, "signing-public");
+    assert.equal(q.view().verificationForBob, null);
+    assert.equal(q.view().incoming.label, "AliceのCA登録済の公開鍵");
+    const undo = q.checkpoint();
+    choose(q, "swap-signing-key");
+    assert.equal(q.view().result.code, "bad-verification-key");
+    assert.equal(q.view().feedback.correct, false);
+    choose(q, "show-consequence");
+    choose(q, "retry-here");
+    assert.equal(q.view().verificationForBob, null);
+    correct(q, "send-signing-key");
+    assert.equal(q.view().phase, "public");
+    assert.equal(q.view().verificationForBob.owner, "alice");
+    assert.equal(
+      q.view().choices.some((c) => c.id === "forward"),
+      false,
+    );
+    undo();
+    assert.equal(q.view().phase, "signing-public");
+    assert.equal(q.view().verificationForBob, null);
+  });
+test("CA frames place issued keys beside the CA on their owner side, with trust root staying in browser", () => {
+  const q = createQuest();
+  q.start(2);
+  const alice = roundFrames(q.view());
+  correct(q, "send-signing-key");
+  const bob = roundFrames(q.view());
+  for (const [owner, frames] of [
+    ["alice", alice],
+    ["bob", bob],
+  ]) {
+    for (const f of frames.filter((f) =>
+      ["ca-issue", "ca-response"].includes(f.scene),
+    )) {
+      assert.equal(f.at, "ca-" + owner);
+      assert.equal(f.packet.owner, owner);
+      assert.equal(f.kind, "certificate");
+    }
+  }
+  for (const f of alice.filter((f) => f.scene === "trust-root")) {
+    assert.equal(f.at, "none");
+    assert.equal(f.kind, "none");
+    assert.equal(f.packet.type, "trust");
+  }
+  const sent = bob.find((f) => f.scene === "bob-public");
+  assert.equal(sent.at, "bob");
+  assert.equal(sent.packet.label, "BobのCA登録済の公開鍵");
+  assert.equal(sent.packet.id, q.view().incoming.id);
+  assert.equal(alice.at(-1).at, "relay");
+  assert.equal(alice.at(-1).packet.label, "AliceのCA登録済の公開鍵");
+});
+test("forward narration keeps the delivered object while next-stage packet has already changed", () => {
+  const lab = createLab();
+  lab.start(2);
+  const alice = lab.snapshot();
+  lab.forward();
+  let frames = forwardFrames(alice, lab.snapshot());
+  assert.equal(frames[0].packet.id, alice.incoming.id);
+  assert.equal(frames[0].packet.owner, "alice");
+  assert.notEqual(frames[0].packet.id, lab.snapshot().incoming.id);
+  lab.capture();
+  const before = lab.snapshot();
+  lab.forward();
+  const after = lab.snapshot();
+  frames = forwardFrames(before, after);
+  const delivered = frames[0],
+    wrapped = frames.find((f) => f.scene === "wrap");
+  assert.equal(delivered.packet.id, before.incoming.id);
+  assert.equal(delivered.kind, "certificate");
+  assert.equal(delivered.at, "alice");
+  assert.equal(wrapped.packet.id, after.incoming.id);
+  assert.equal(wrapped.kind, "wrapped-key");
+  assert.notEqual(delivered.packet.fingerprint, wrapped.packet.token);
+});
+test("CA asks about both key access and message readability, then separately about substitution", () => {
+  const q = createQuest();
+  reachPublic(q, 2);
+  correct(q, "send-public");
+  const keyPacket = q.view().incoming.id;
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["can-read", "cannot-read"],
+  );
+  assert.equal(q.view().original, null);
+  correct(q, "cannot-read");
+  correct(q, "inject-key");
+  choose(q, "forward");
+  assert.notEqual(q.view().incoming.id, keyPacket);
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["can-read", "cannot-read"],
+  );
+  assert.equal(q.view().original, null);
+  choose(q, "can-read");
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "retry-here");
+  correct(q, "cannot-read");
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["predict-safe", "predict-detected"],
+  );
+  correct(q, "predict-safe");
+  correct(q, "edit");
+  choose(q, "forward");
+  assert.equal(q.view().result.code, "attack-success");
+  assert.equal(q.view().original, null);
+});
+test("readability answer alone does not reveal original in either vulnerable round", () => {
+  for (const round of [0, 1]) {
+    const q = createQuest();
+    if (round === 0) {
+      q.start(0);
+      choose(q, "forward");
+    } else {
+      reachKey(q, 1);
+      correct(q, "open-key");
+      correct(q, "rewrap");
+      choose(q, "forward");
+    }
+    assert.deepEqual(
+      q.view().choices.map((c) => c.id),
+      ["can-read", "cannot-read"],
+    );
+    correct(q, "can-read");
+    assert.equal(q.view().original, null);
+    correct(q, "read");
+    assert.equal(q.view().original, "I love you.");
+  }
+});
+test("one unchanged key forwarding advances immediately and can be rewound without generating a new round", () => {
+  const q = createQuest();
+  reachPublic(q, 2);
+  const before = q.view(),
+    undo = q.checkpoint();
+  correct(q, "send-public");
+  assert.equal(q.view().phase, "key");
+  assert.equal(q.view().publicForAlice.owner, "bob");
+  assert.equal(q.view().feedback, null);
+  assert.equal(
+    q.view().choices.some((c) => c.id === "forward"),
+    false,
+  );
+  undo();
+  assert.equal(q.view().phase, "public");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().publicForAlice, null);
+});
+test("current and documented signature model stays message-based with linked standards", () => {
+  const q = createQuest();
+  q.start(3);
+  const info = explanations(q.view());
+  const section = info.find((p) => p.links?.length);
+  assert.ok(section);
+  assert.ok(
+    section.links.some(
+      (l) => l.url === "https://www.rfc-editor.org/rfc/rfc5652.html",
+    ),
+  );
+  assert.ok(
+    section.links.some(
+      (l) => l.url === "https://www.rfc-editor.org/rfc/rfc8446.html",
+    ),
+  );
+  assert.match(section.text, /ハンドシェイク/);
 });

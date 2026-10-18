@@ -19,7 +19,12 @@ export const rounds = [
     short: "認証局 CA",
     description:
       "AliceがBobの公開鍵を確認する。Bobは送信者も確認できるだろうか。",
-    stages: ["CAと証明書", "Bobの鍵を確認", "共通鍵の配送", "本文の差し替え"],
+    stages: [
+      "Aliceの鍵を確認",
+      "Bobの鍵を確認",
+      "共通鍵の配送",
+      "本文の差し替え",
+    ],
   },
   {
     title: "電子署名の導入",
@@ -71,7 +76,7 @@ export function createLab() {
   const certify = (subject, publicId, signer = caRoot) => {
     const id = make(
       "certificate",
-      `${signer !== caRoot ? "偽の" : ""}${subject === "alice" ? "Alice" : subject === "bob" ? "Bob" : "Charlie"}の公開鍵証明書`,
+      `${signer !== caRoot ? "偽の" : ""}${subject === "alice" ? "Alice" : subject === "bob" ? "Bob" : "Charlie"}のCA登録済の公開鍵`,
       {
         owner: subject,
         publicId,
@@ -190,7 +195,7 @@ export function createLab() {
       authenticate: round >= 2,
       authenticateSigner: round === 3,
       verificationPublic: null,
-      phase: round === 0 ? "key" : round === 3 ? "signing-public" : "public",
+      phase: round === 0 ? "key" : round >= 2 ? "signing-public" : "public",
       step: 0,
       count: counter,
       key: make("symmetric", `共通鍵 K${counter}`, {
@@ -214,7 +219,7 @@ export function createLab() {
       decryptResult: null,
     };
     if (round >= 2) known.add(certC);
-    if (round === 3) known.add(verifyC);
+    if (round >= 2) known.add(verifyC);
     s.incoming =
       round === 0
         ? s.key
@@ -240,7 +245,7 @@ export function createLab() {
       round: s.round,
       authenticate: s.authenticate,
       authenticateSigner: s.authenticateSigner,
-      verificationForBob: s.round === 3 ? view(s.verificationPublic) : null,
+      verificationForBob: s.round >= 2 ? view(s.verificationPublic) : null,
       attackerKey: view(s.attackerKey),
       impersonating: Boolean(s.attackerKey && s.bobKey === s.attackerKey),
       signingPublic: view(pubA),
@@ -490,7 +495,7 @@ export function createLab() {
       s.outgoing = null;
       s.phase = "public";
       event(
-        "Bobは、証明書のCA署名とAliceという相手名を検証し、Aliceの検証用公開鍵を登録しました。BobはBobの証明書をAliceへ送ります。",
+        "Bobは、証明書のCA署名とAliceという相手名を検証し、Aliceの公開鍵を登録しました。BobはBobのCA登録済の公開鍵をAliceへ送ります。",
       );
       return;
     }
@@ -551,7 +556,10 @@ export function createLab() {
       s.phase = "message";
       s.step++;
       event(
-        "Bobは、共通鍵を取得しました。Aliceは、本文を共通鍵で暗号化して送りました。Charlieの中継機は、本文の暗号文を止めています。",
+        (s.attackerKey && s.bobKey === s.attackerKey
+          ? "Bobは、Charlieが用意した共通鍵を取得しました。"
+          : "Bobは、Aliceの共通鍵を取得しました。") +
+          "Aliceは、本文をAliceの共通鍵で暗号化して送りました。Charlieの中継機は、本文の暗号文を止めています。",
       );
     } else {
       if (a.type !== "ciphertext" || !sealed || sealed.key !== s.bobKey) {

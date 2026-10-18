@@ -1,5 +1,5 @@
-import { createQuest } from "./quest.mjs?v=12";
-import { rounds } from "./model.mjs?v=18";
+import { createQuest } from "./quest.mjs?v=13";
+import { rounds } from "./model.mjs?v=19";
 import {
   introFrames,
   roundFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=14";
+} from "./storyboard.mjs?v=15";
 import { createDisplayController } from "./display.mjs";
-import { explanations } from "./explanations.mjs?v=4";
+import { explanations } from "./explanations.mjs?v=5";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -115,7 +115,8 @@ function render() {
   const phase = f.phase || s.phase;
   const stages = rounds[s.round].stages;
   const step =
-    phase === "done"
+    f.stage ??
+    (phase === "done"
       ? stages.length
       : ["signing-public", "signing-setup", "ca-setup"].includes(phase)
         ? 0
@@ -128,7 +129,7 @@ function render() {
               ? 0
               : phase === "key"
                 ? 1
-                : 2);
+                : 2));
   $("stages").innerHTML = stages
     .map(
       (text, index) =>
@@ -152,7 +153,7 @@ function render() {
     f.route ||
     (f.connected === false
       ? "Alice → Bob"
-      : phase === "public" || (done && f.at === "alice")
+      : phase === "public"
         ? "Bob → 中継機 → Alice"
         : "Alice → 中継機 → Bob");
   $("direction").textContent = route;
@@ -162,9 +163,17 @@ function render() {
     : done
       ? "■ 通信終了"
       : "Ⅱ 転送前で停止";
+  const signatureOwner = Object.hasOwn(f, "signatureOwner")
+    ? f.signatureOwner
+    : s.round === 3 && f.kind === "ciphertext"
+      ? f.packet?.id === s.outgoing?.id
+        ? s.outgoingSignature?.owner
+        : "alice"
+      : null;
   const signed =
     s.round === 3 &&
-    (f.kind === "ciphertext" || ["sign", "sign-charlie"].includes(f.scene));
+    ((f.kind === "ciphertext" && Boolean(signatureOwner)) ||
+      ["sign", "sign-charlie"].includes(f.scene));
   const visualKind = ["sign", "sign-charlie"].includes(f.scene)
     ? "letter"
     : signed
@@ -174,18 +183,15 @@ function render() {
   $("packet-sprite").dataset.signed = String(signed);
   $("signature-attachment").hidden = !signed;
   $("signature-note").textContent =
-    f.scene === "sign" ? "Aliceの秘密鍵で作成" : "本文と一緒に暗号化";
-  const charlieSignature =
-    f.scene === "sign-charlie" ||
-    (s.outgoingSignature?.owner === "charlie" && f.scene !== "sign") ||
-    (["done", "message"].includes(phase) &&
-      (visibleResult || ["verify", "delivering"].includes(f.scene)) &&
-      s.deliveredSignature?.owner === "charlie");
-  $("signature-owner").textContent = charlieSignature
-    ? "Charlieの電子署名"
-    : "Aliceの電子署名";
-  if (f.scene === "sign-charlie")
-    $("signature-note").textContent = "Charlieの秘密鍵で作成";
+    f.scene === "sign"
+      ? "Aliceの秘密鍵で作成"
+      : f.scene === "sign-charlie"
+        ? "Charlieの秘密鍵で作成"
+        : "本文と一緒に暗号化";
+  $("signature-owner").textContent =
+    signatureOwner === "charlie" || f.scene === "sign-charlie"
+      ? "Charlieの電子署名"
+      : "Aliceの電子署名";
   const shapes = {
     key: "key",
     public: "public",
@@ -207,25 +213,30 @@ function render() {
     (signed ? "署名付き・" : "") + (f.packetLabel || packetName(f.kind)),
   );
 
-  $("packet-short").textContent = f.packetLabel || packetName(f.kind);
-  $("packet-title").textContent =
-    f.packetLabel || packetName(f.kind) || "通信の準備中";
+  const visiblePacket =
+    f.packet || (!talking ? s.outgoing || s.incoming : null);
+  const packetLabel =
+    f.packetLabel || englishNames(visiblePacket?.label) || packetName(f.kind);
+  $("packet-short").textContent = packetLabel.replace(
+    "のCA登録済の公開鍵",
+    "\nCA登録済の公開鍵",
+  );
+  $("packet-title").textContent = packetLabel || "通信の準備中";
+  $("packet-sprite").setAttribute("aria-label", packetLabel || "通信の準備中");
+  $("packet-context").textContent = f.at?.startsWith("ca-")
+    ? "認証局 CAでの手続き"
+    : f.at === "none" && f.scene === "trust-root"
+      ? "ブラウザ内の信頼設定"
+      : f.at === "alice"
+        ? "Aliceの手元"
+        : f.at === "bob"
+          ? "Bobの手元"
+          : "Charlieの中継機";
   $("packet-value").textContent =
-    phase === "ca-setup"
-      ? f.kind === "root-key"
-        ? s.ca.root.fingerprint
-        : (f.packetLabel || "").includes("Alice")
-          ? s.ca.aliceCertificate.fingerprint
-          : s.ca.bobCertificate.fingerprint
-      : ["signing-public", "signing-setup"].includes(phase)
-        ? (f.packetLabel || "").startsWith("Charlie")
-          ? s.substituteSigningPublic.fingerprint
-          : s.signingPublic.fingerprint
-        : recordVisible
-          ? s.incoming.token ||
-            s.incoming.fingerprint ||
-            englishNames(s.incoming.label)
-          : "通信の到着待ち";
+    visiblePacket?.token ||
+    visiblePacket?.fingerprint ||
+    (f.kind === "letter" ? "本文は未解読" : packetLabel || "通信の準備中");
+  $("packet-sprite").dataset.packetId = visiblePacket?.id || "";
   $("command-label").textContent =
     !talking && s.feedback
       ? s.feedback.correct
@@ -269,18 +280,7 @@ function render() {
         $("game-console").dataset.density === "compact"))
       ? 2
       : 6;
-  const keys = [
-    ...(s.selectingKey?.keys || []),
-    ...(s.selectingKey?.allowPass
-      ? [
-          {
-            id: "pass",
-            label: "そのまま送る",
-            detail: "届いた元のデータを転送",
-          },
-        ]
-      : []),
-  ];
+  const keys = s.selectingKey?.keys || [];
   const pageCount = Math.max(1, Math.ceil(keys.length / size));
   if (pending && s.selectingKey?.selectedId)
     keyPage = Math.floor(
@@ -318,7 +318,7 @@ function render() {
   $("rewrite-arrow").textContent = s.impersonating ? "／ 偽の本文：" : "→";
   $("edited-message").textContent = draftVisible ? s.draft : "";
   $("outgoing-label").textContent = talking
-    ? "通信の到着を待とう"
+    ? "通信の様子を確認中"
     : done
       ? s.deliveredKey
         ? "Bobに届けた暗号文 ← " + s.deliveredKey.label
@@ -406,10 +406,7 @@ $("key-list").addEventListener("click", (event) => {
   const button = event.target.closest("[data-key]");
   if (!button) return;
   remember();
-  const selected =
-    button.dataset.key === "pass"
-      ? quest.selectPass()
-      : quest.selectKey(button.dataset.key);
+  const selected = quest.selectKey(button.dataset.key);
   if (!selected) {
     history.pop();
     return;
@@ -491,7 +488,18 @@ function buildInfo() {
         esc(part.title) +
         "</h3><p>" +
         esc(part.text) +
-        "</p></section>",
+        "</p>" +
+        (part.links || [])
+          .map(
+            (link) =>
+              '<a href="' +
+              esc(link.url) +
+              '" target="_blank" rel="noopener noreferrer">' +
+              esc(link.label) +
+              " ↗</a>",
+          )
+          .join(" · ") +
+        "</section>",
     )
     .join("");
   $("info-scroll").scrollTop = 0;

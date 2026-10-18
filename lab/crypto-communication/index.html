@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=10" />
     <link rel="stylesheet" href="./quest.css?v=6" />
-    <link rel="stylesheet" href="./unified.css?v=5" />
+    <link rel="stylesheet" href="./unified.css?v=6" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -234,7 +234,7 @@
                     </div>
                   </div>
                   <div class="packet-card">
-                    <span>中継機にあるデータ</span
+                    <span id="packet-context">Charlieの中継機</span
                     ><strong id="packet-title"></strong
                     ><span
                       id="browser-trust"
@@ -313,7 +313,7 @@
                         id="key-list"
                         class="key-list"
                         role="group"
-                        aria-label="使う鍵、またはそのまま送る"
+                        aria-label="操作に使う鍵"
                       ></div>
                       <nav class="key-pagination" aria-label="鍵の選択ページ">
                         <button type="button" id="key-back">← 戻る</button>
@@ -429,7 +429,7 @@
           暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えい・再送攻撃は扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1〜3ラウンドでは送信者を確かめる仕組みを設けていません。実際には認証付き暗号なども使われます。
         </p>
         <p>
-          第3ラウンドでは、認証局の証明書とブラウザに事前登録されたCA公開鍵でBobの鍵を確認します。Aliceの共通鍵は漏れなくなりますが、Charlieが自作の共通鍵と本文を送るなりすましは残ります。第4ラウンドでは、BobもCAでAliceの鍵を確認し、本文の電子署名を検証して偽の本文を拒否します。署名自体は本文を隠しません。実験データはこの画面のメモリー内だけに保持します。
+          第3ラウンドでは、認証局の証明書とブラウザ内のCA公開鍵でAlice・Bobの鍵を確認します。Aliceの共通鍵は漏れなくなりますが、Charlieが自作の共通鍵と本文を送るなりすましは残ります。第4ラウンドでは、BobがCAで確認したAliceの公開鍵を使って本文の電子署名も検証し、偽の本文を拒否します。署名自体は本文を隠しません。実験データはこの画面のメモリー内だけに保持します。
         </p>
       </details>
       <nav class="related" aria-label="関連する用語">
@@ -454,6 +454,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=18"></script>
+    <script type="module" src="./app.mjs?v=19"></script>
   </body>
 </html>
