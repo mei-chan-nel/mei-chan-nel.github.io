@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#102f35" />
 <link rel="icon" href="../icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-<link rel="stylesheet" href="./os-work.css?v=4" />
+<link rel="stylesheet" href="./os-work.css?v=5" />
 </head>
 <body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -49,11 +49,29 @@
 </section>
 <div class="insight" role="status" aria-live="polite" aria-atomic="true"><span aria-hidden="true">↳</span><p id="explanation">起動するとメモリを確保。CPUが必要なときだけ、OSが順番に時間を割り当てます。</p></div>
 <details class="details-panel" id="state-details"><summary>プロセスの状態・イベントログを見る</summary><div class="details-body"><p class="state-key"><strong>実行中</strong>＝CPUを使用　 <strong>実行待ち</strong>＝CPUの順番待ち　 <strong>イベント待ち</strong>＝入力・通信・音声出力などを待つ　 <strong>メモリ待ち</strong>＝必要な空き領域を待つ</p><div class="table-scroll"><table><caption class="visually-hidden">現在の各プロセス</caption><thead><tr><th>プロセス</th><th>起動</th><th>表示</th><th>状態</th><th>メモリ</th></tr></thead><tbody id="process-table"></tbody></table></div><p id="pending-inputs"></p><h3>イベントログ <small>新しい順 / 直近80件</small></h3><ol id="event-log" class="event-log"></ol></div></details>
-<details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes"><ol><li>Webを起動してページを読み込む。通信待ちと、表示が続く間のCPUを観察する。</li><li>音楽を再生してから写真加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li><li>通知アプリ・クラウド同期・セキュリティ対策は、最初から起動していて終了できない。ふだんのイベント待ちと、定期的にCPUを使う時間を比べる。</li><li>一時停止してCPUの履歴やイベントログを確認する。起動中でもCPUを使わない時間があること、操作するアプリの終了でメモリが戻ることを確かめる。</li></ol><p>CPUの順番待ちでは、処理が進むまでメモリを保持します。必要なメモリが足りない操作は「メモリ待ち」になり、空きができると自動で進みます。一時停止中は、OSの再生後に進みます。</p><h3>メモリ待ちを試す</h3><ul><li>初期状態ではOSと常駐アプリで448 MBを使用。Web・音楽・写真を起動すると1008 MB・空き16 MBになり、写真加工の作業用200 MBは確保待ちになります。Webを終了すると空き216 MBになり、加工が自動で始まります。</li><li>リセット後、写真と音楽を起動して加工を始めると1008 MBを使用。Webの起動はメモリ待ちになります。加工が完了すると200 MBが解放され、Webが自動で起動します。</li></ul><p>1 tickはこの教材の仮想時間です。観察のため処理やOSの仕事を引き延ばしています。1コア・最大3 tickのラウンドロビン方式を使い、各アプリを1プロセスとして扱います。実際のOSは優先度、複数コア、複数スレッドなども扱います。</p><p>通知・同期・スキャンは仮想的な動作で、実際の通信・ファイル同期・セキュリティ検査は行いません。メモリ総量は1024 MB、アプリの使用量は固定の教材用値です。写真加工中だけ作業用200 MBを追加確保し、完了時に解放します。空きができるまで要求を保留する動作も教材用の単純化で、仮想メモリや断片化は扱いません。</p><p>画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。音楽はパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音声バッファは教材用のモデルで、実際のデコード処理を計測するものではありません。OSの一時停止やバッファ残量に合わせて音も停止し、ブラウザのタブを離れると自動で一時停止します。</p></div></details>
+<details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes">
+<ol>
+<li>Webを起動してページを読み込む。「受付 → 通信待ち → 描画 → 完了」とCPUの動きを比べ、完了後も表示が続くことを確かめる。</li>
+<li>音楽を再生してから写真加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li>
+<li>最初から起動している通知アプリ・クラウド同期・セキュリティ対策を見る。通知の到着、ファイルの変更、予約スキャンをきっかけに、待機からCPUの順番待ちへ変わる様子を比べる。</li>
+<li>一時停止してCPUの履歴やイベントログを確認する。起動中でもCPUを使わない時間があること、操作するアプリの終了でメモリが戻ることを確かめる。</li>
+</ol>
+<p>CPUの順番待ちでは、処理が進むまでメモリを保持します。必要なメモリが足りない操作は「メモリ待ち」になり、空きができると自動で進みます。一時停止中は、OSの再生後に進みます。</p>
+<h3>メモリ待ちを試す</h3>
+<ul><li>初期状態ではOSと常駐アプリで448 MBを使用。Web・音楽・写真を起動すると1008 MB・空き16 MBになり、写真加工の作業用200 MBは確保待ちになります。Webを終了すると空き216 MBになり、加工が自動で始まります。</li><li>リセット後、写真と音楽を起動して加工を始めると1008 MBを使用。Webの起動はメモリ待ちになります。加工が完了すると200 MBが解放され、Webが自動で起動します。</li></ul>
+<h3>実際のしくみとの違い</h3>
+<p>1 tickは教材の仮想時間で、実際の1秒ではありません。観察のため処理やOSの仕事を引き延ばしています。1コア・最大3 tickのラウンドロビン方式を使い、各アプリを1プロセスとして扱います。実際のOSは優先度、複数コア、複数スレッドなども扱います。</p>
+<p>通知やクラウド側の変更は、不規則に届く様子を再現します。同じ条件で繰り返し観察できるよう、到着順と時刻はあらかじめ用意しています。クラウド同期は、写真加工後の保存や仮想のクラウド側の変更を受け、変わったファイルの準備・通信待ち・結果保存を行います。変更がなければ、ファイル全体を繰り返し同期しません。</p>
+<p>セキュリティ対策は、予約されたクイックスキャンの例です。実際の製品はファイルを開くときなどのリアルタイム保護も行いますが、この教材では扱いません。通知も、実際にはOSの通知サービスや短時間のバックグラウンド処理を利用できます。比較のため、ここでは3種類をそれぞれ起動し続ける1プロセスにまとめ、終了できないようにしています。実際の通信・ファイル同期・セキュリティ検査は行いません。</p>
+<p>メモリ総量は1024 MB、アプリの使用量は固定の教材用値です。写真加工中だけ作業用200 MBを追加確保し、完了時に解放します。空きができるまで要求を保留する動作も教材用の単純化で、仮想メモリや断片化は扱いません。</p>
+<p>画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。音楽はパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音声バッファは教材用のモデルで、実際のデコード処理を計測するものではありません。OSの一時停止やバッファ残量に合わせて音も停止し、ブラウザのタブを離れると自動で一時停止します。</p>
+<h3>実際のしくみを調べる</h3>
+<ul><li><a href="https://learn.microsoft.com/en-us/windows/apps/develop/notifications/push-notifications/raw-notification-overview">Microsoft：WNSによる通知とバックグラウンド処理</a></li><li><a href="https://learn.microsoft.com/en-us/sharepoint/sync-process">Microsoft：OneDriveの同期プロセス</a></li><li><a href="https://learn.microsoft.com/en-us/defender-endpoint/schedule-antivirus-scans">Microsoft：Defenderの予約スキャン</a></li></ul>
+</div></details>
 <p class="lab-back"><a href="../">← Lab一覧へ</a><a href="../../study-guide.html#lab">使い方</a></p>
 <noscript><p>この教材はJavaScriptを有効にして利用してください。</p></noscript>
 </main>
 <footer class="os-footer">情報Ⅰ Study Atlas <span>知識を、ひろげ、つなげる</span></footer>
 <script type="module" src="../navigation.mjs?v=1"></script>
-<script type="module" src="./app.mjs?v=4"></script>
+<script type="module" src="./app.mjs?v=5"></script>
 </body></html>

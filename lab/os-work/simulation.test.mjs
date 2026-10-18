@@ -19,6 +19,23 @@ const until = (sim, condition, limit = 600) => {
 
 const waitFor = (snapshot, id) => snapshot.memoryWaits.find((wait) => wait.id === id);
 
+const externalSchedule = (time, intervals) => {
+  const arrivals = [];
+  let next = intervals[0];
+  let index = 1;
+  while (next <= time) {
+    arrivals.push(next);
+    next += intervals[index % intervals.length];
+    index += 1;
+  }
+  return { arrivals, next };
+};
+
+const EXTERNAL = {
+  notify: { intervals: [12, 23, 17, 31], source: '通知の受信' },
+  sync: { intervals: [18, 29, 41, 23], source: '別の端末のファイル更新' },
+};
+
 function invariant(snapshot) {
   const { memory, apps, cpu } = snapshot;
   assert.equal(memory.used + memory.free, memory.total);
@@ -42,6 +59,13 @@ function invariant(snapshot) {
     }
   }
   for (const id of BACKGROUND_IDS) assert.equal(apps[id].running, true);
+  for (const id of ['notify', 'sync']) {
+    const background = apps[id].background;
+    assert.equal(background.receivedEvents, background.processedEvents + background.activeEvents + background.pendingEvents,
+      `${id} must account for every received event exactly once`);
+    assert.ok(snapshot.pendingInterrupts.filter((event) => event.id === id && event.type === 'wake').length <= 1,
+      `${id} must not queue duplicate wake interrupts`);
+  }
 }
 
 test('residents start at virtual time zero with memory, fixed deadlines and protected lifecycles', () => {
@@ -369,29 +393,32 @@ test('close discards stale queued photo operations but preserves an explicit lat
   invariant(snapshot);
 });
 
-for (const [id, period, cpuTicks] of [['notify', 12, 2], ['sync', 18, 5], ['security', 26, 9]]) {
-  test(`${id} wakes from its reset deadline, runs its exact work, then schedules its next cycle after completion`, () => {
+for (const [id, firstArrival, secondArrival, cpuTicks] of [['notify', 12, 35, 2], ['sync', 18, 47, 5]]) {
+  test(`${id} handles an external arrival with exact batch work, then waits for the next absolute arrival`, () => {
     const sim = new OSSimulation();
-    let snapshot = ticks(sim, period - 1);
+    let snapshot = ticks(sim, firstArrival - 1);
     assert.equal(snapshot.apps[id].background.cpuTicks, 0);
     assert.equal(snapshot.apps[id].background.wakeups, 0);
     snapshot = sim.step();
-    assert.equal(snapshot.time, period);
+    assert.equal(snapshot.time, firstArrival);
     assert.notEqual(snapshot.cpu.owner, id);
     snapshot = until(sim, (s) => s.apps[id].background.wakeups === 1);
     assert.equal(snapshot.cpu.owner, 'os', 'Wakeup becomes runnable through an OS interrupt');
     assert.equal(snapshot.apps[id].state, 'ready');
     assert.equal(snapshot.apps[id].background.phase, 'work');
     assert.equal(snapshot.apps[id].background.cpuTicks, 0);
-    assert.equal(snapshot.apps[id].background.nextEventAt, null);
+    assert.equal(snapshot.apps[id].background.nextEventAt, secondArrival);
+    assert.equal(snapshot.apps[id].background.activeEvents, 1);
+    assert.equal(snapshot.apps[id].background.lastSource, EXTERNAL[id].source);
     const memory = snapshot.apps[id].memory;
     snapshot = until(sim, (s) => s.apps[id].background.cycles === 1);
-    const completedAt = snapshot.time;
+    assert.ok(snapshot.time < secondArrival);
     assert.equal(snapshot.apps[id].background.cpuTicks, cpuTicks);
+    assert.equal(snapshot.apps[id].background.processedEvents, 1);
     assert.equal(snapshot.apps[id].background.phase, 'waiting');
-    assert.equal(snapshot.apps[id].background.nextEventAt, completedAt + period);
+    assert.equal(snapshot.apps[id].background.nextEventAt, secondArrival, 'Completion must not shift an external source clock');
     assert.equal(snapshot.apps[id].memory, memory);
-    snapshot = ticks(sim, period - 1);
+    snapshot = ticks(sim, secondArrival - snapshot.time - 1);
     assert.equal(snapshot.apps[id].background.wakeups, 1);
     assert.equal(snapshot.apps[id].background.cpuTicks, cpuTicks);
     snapshot = until(sim, (s) => s.apps[id].background.wakeups === 2);
@@ -399,6 +426,28 @@ for (const [id, period, cpuTicks] of [['notify', 12, 2], ['sync', 18, 5], ['secu
     invariant(snapshot);
   });
 }
+
+test('security runs a periodic quick scan and schedules its next cycle after completion', () => {
+  const sim = new OSSimulation();
+  let snapshot = ticks(sim, 25);
+  assert.equal(snapshot.apps.security.background.cpuTicks, 0);
+  snapshot = until(sim, (s) => s.apps.security.background.wakeups === 1);
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.equal(snapshot.apps.security.state, 'ready');
+  assert.equal(snapshot.apps.security.background.nextEventAt, null);
+  assert.equal(snapshot.apps.security.background.lastSource, '定期スキャン');
+  snapshot = until(sim, (s) => s.apps.security.background.cycles === 1);
+  const completedAt = snapshot.time;
+  assert.equal(snapshot.apps.security.background.cpuTicks, 9);
+  assert.equal(snapshot.apps.security.background.nextEventAt, completedAt + 26);
+  assert.ok(snapshot.history.some((entry) => entry.owner === 'security' && /定期クイックスキャン/.test(entry.task)));
+  snapshot = ticks(sim, 25);
+  assert.equal(snapshot.apps.security.background.wakeups, 1);
+  assert.equal(snapshot.apps.security.background.cpuTicks, 9);
+  snapshot = until(sim, (s) => s.apps.security.background.wakeups === 2);
+  assert.equal(snapshot.cpu.owner, 'os');
+  invariant(snapshot);
+});
 
 test('sync network wait lasts six shared ticks, lets photo run, and needs an OS completion interrupt before finishing', () => {
   const sim = new OSSimulation();
@@ -678,4 +727,224 @@ test('identical inputs, resident timers and memory waits remain deterministic; s
   for (const id of FOREGROUND_IDS) assert.equal(snapshot.apps[id].running, false);
   for (const id of BACKGROUND_IDS) assert.ok(snapshot.apps[id].background.cpuTicks > 0);
   invariant(snapshot);
+});
+
+test('irregular external arrivals use absolute shared-time schedules under both idle and heavy foreground input', () => {
+  const idle = new OSSimulation();
+  const loaded = new OSSimulation();
+  loaded.launch('web');
+  for (let time = 1; time <= 170; time += 1) {
+    if (time > 1) loaded.webLoad(time % 2 ? 'space' : 'city');
+    const idleSnapshot = idle.step();
+    const loadedSnapshot = loaded.step();
+    for (const [id, { intervals, source }] of Object.entries(EXTERNAL)) {
+      const { arrivals, next } = externalSchedule(time, intervals);
+      for (const snapshot of [idleSnapshot, loadedSnapshot]) {
+        const background = snapshot.apps[id].background;
+        assert.equal(background.receivedEvents, arrivals.length, `${id} arrival count at time ${time}`);
+        assert.equal(background.nextEventAt, next, `${id} source clock must not depend on CPU completion`);
+        assert.equal(background.lastEventAt, arrivals.at(-1) ?? null);
+        if (arrivals.length) assert.equal(background.lastSource, source);
+        invariant(snapshot);
+      }
+    }
+  }
+  assert.ok(idle.snapshot().apps.sync.background.processedEvents > loaded.snapshot().apps.sync.background.processedEvents,
+    'The same arrivals should occur even when application work cannot yet run');
+  assert.deepEqual(externalSchedule(95, EXTERNAL.notify.intervals).arrivals, [12, 35, 52, 83, 95]);
+  assert.deepEqual(externalSchedule(129, EXTERNAL.sync.intervals).arrivals, [18, 47, 88, 111, 129]);
+  const reset = loaded.reset();
+  assert.deepEqual(reset, new OSSimulation().snapshot());
+  const replay = new OSSimulation();
+  for (let i = 0; i < 170; i += 1) assert.deepEqual(loaded.step(), replay.step());
+});
+
+test('sync performs no extra full cycles between remote changes when no photo has been saved', () => {
+  const sim = new OSSimulation();
+  let snapshot = ticks(sim, 17);
+  assert.equal(snapshot.apps.sync.background.cycles, 0);
+  assert.equal(snapshot.apps.sync.background.cpuTicks, 0);
+  for (let cycle = 1; cycle <= 2; cycle += 1) {
+    snapshot = until(sim, (s) => s.apps.sync.background.cycles === cycle);
+    const nextArrival = snapshot.apps.sync.background.nextEventAt;
+    const cpuTicks = snapshot.apps.sync.background.cpuTicks;
+    assert.equal(snapshot.apps.sync.background.receivedEvents, cycle);
+    assert.equal(snapshot.apps.sync.background.processedEvents, cycle);
+    assert.equal(snapshot.apps.sync.background.phase, 'waiting');
+    while (snapshot.time < nextArrival - 1) {
+      snapshot = sim.step();
+      assert.equal(snapshot.apps.sync.background.cycles, cycle);
+      assert.equal(snapshot.apps.sync.background.cpuTicks, cpuTicks);
+      assert.equal(snapshot.apps.sync.background.phase, 'waiting');
+      assert.notEqual(snapshot.cpu.owner, 'sync');
+      invariant(snapshot);
+    }
+    snapshot = sim.step();
+    assert.equal(snapshot.apps.sync.background.receivedEvents, cycle + 1);
+    assert.equal(snapshot.apps.sync.background.cycles, cycle);
+  }
+});
+
+for (const [id, heldUntil, minimumPending, workPerBatch] of [['notify', 84, 3, 2], ['sync', 112, 3, 5]]) {
+  test(`${id} batches arrivals received while busy without losing events or queuing duplicate wakes`, () => {
+    const sim = new OSSimulation();
+    sim.launch('web');
+    let snapshot = until(sim, (s) => s.apps[id].background.wakeups === 1);
+    assert.equal(snapshot.apps[id].background.activeEvents, 1);
+    assert.equal(snapshot.apps[id].background.cpuTicks, 0);
+    while (snapshot.time < heldUntil) {
+      sim.webLoad('space');
+      snapshot = sim.step();
+      assert.equal(snapshot.cpu.owner, 'os');
+      assert.equal(snapshot.apps[id].background.cpuTicks, 0);
+      assert.equal(snapshot.apps[id].background.activeEvents, 1);
+      assert.equal(snapshot.apps[id].background.cycles, 0);
+      assert.equal(snapshot.pendingInterrupts.filter((event) => event.id === id && event.type === 'wake').length, 0,
+        'Busy arrivals stay pending instead of creating redundant wake entries');
+      invariant(snapshot);
+    }
+    assert.ok(snapshot.apps[id].background.pendingEvents >= minimumPending);
+    assert.equal(snapshot.apps[id].background.receivedEvents,
+      externalSchedule(snapshot.time, EXTERNAL[id].intervals).arrivals.length);
+    assert.equal(snapshot.apps[id].background.lastSource, EXTERNAL[id].source);
+    snapshot = until(sim, (s) => s.apps[id].background.cycles === 1);
+    assert.equal(snapshot.apps[id].background.processedEvents, 1);
+    assert.equal(snapshot.apps[id].background.cpuTicks, workPerBatch);
+    assert.equal(snapshot.apps[id].background.activeEvents, 0);
+    assert.ok(snapshot.apps[id].background.pendingEvents >= minimumPending);
+    const pendingWake = snapshot.pendingInterrupts.filter((event) => event.id === id && event.type === 'wake');
+    assert.equal(pendingWake.length, 1, 'Finishing the active batch queues exactly one wake for all pending arrivals');
+    assert.equal(pendingWake[0].source, EXTERNAL[id].source);
+    snapshot = until(sim, (s) => s.apps[id].background.wakeups === 2);
+    assert.equal(snapshot.cpu.owner, 'os');
+    const batchSize = snapshot.apps[id].background.activeEvents;
+    assert.ok(batchSize >= minimumPending);
+    assert.equal(snapshot.apps[id].background.pendingEvents, 0);
+    snapshot = until(sim, (s) => s.apps[id].background.cycles === 2);
+    assert.equal(snapshot.apps[id].background.processedEvents, 1 + batchSize);
+    assert.equal(snapshot.apps[id].background.cpuTicks, workPerBatch * 2,
+      'A coalesced batch uses fixed work rather than replaying the full work for each arrival');
+    invariant(snapshot);
+    for (let i = 0; i < 120; i += 1) invariant(sim.step());
+    snapshot = until(sim, (s) => s.apps[id].background.receivedEvents === s.apps[id].background.processedEvents);
+    assert.equal(snapshot.apps[id].background.activeEvents, 0);
+    assert.equal(snapshot.apps[id].background.pendingEvents, 0);
+    invariant(snapshot);
+  });
+}
+
+test('only the final photo CPU tick saves a file and adds a local sync event; paused or memory-blocked work adds none', () => {
+  const blocked = new OSSimulation();
+  for (const id of FOREGROUND_IDS) blocked.launch(id);
+  ticks(blocked, 3);
+  blocked.startPhoto('warm');
+  let snapshot = blocked.step();
+  assert.equal(snapshot.apps.photo.state, 'memory-wait');
+  for (let i = 0; i < 65; i += 1) {
+    snapshot = blocked.step();
+    assert.equal(snapshot.apps.photo.photo.progress, 0);
+    assert.equal(snapshot.apps.sync.background.receivedEvents,
+      externalSchedule(snapshot.time, EXTERNAL.sync.intervals).arrivals.length);
+    assert.ok(snapshot.events.every((event) => !/写真の保存/.test(event.message)));
+  }
+  const sim = new OSSimulation();
+  sim.launch('photo');
+  sim.startPhoto('mono');
+  snapshot = ticks(sim, 2);
+  const start = snapshot;
+  for (let i = 0; i < 15; i += 1) assert.deepEqual(sim.snapshot(), start);
+  assert.equal(snapshot.apps.sync.background.receivedEvents, 0);
+  while (!snapshot.apps.photo.photo.completedFilter) {
+    const before = snapshot;
+    snapshot = sim.step();
+    const remoteCount = externalSchedule(snapshot.time, EXTERNAL.sync.intervals).arrivals.length;
+    if (!snapshot.apps.photo.photo.completedFilter) {
+      assert.equal(snapshot.apps.sync.background.receivedEvents, remoteCount);
+      assert.ok(snapshot.events.every((event) => !/写真の保存/.test(event.message)));
+    } else {
+      assert.equal(snapshot.cpu.owner, 'photo');
+      assert.equal(before.apps.photo.photo.completed, 29);
+      assert.equal(snapshot.apps.photo.photo.completed, 30);
+      assert.equal(snapshot.apps.sync.background.receivedEvents, remoteCount + 1);
+      assert.equal(snapshot.apps.sync.background.lastSource, '写真の保存');
+      assert.equal(snapshot.apps.sync.background.lastEventAt, snapshot.time);
+      assert.ok(snapshot.events.some((event) => event.time === snapshot.time && /写真の保存/.test(event.message)));
+    }
+    invariant(snapshot);
+  }
+  const saved = snapshot;
+  for (let i = 0; i < 15; i += 1) assert.deepEqual(sim.snapshot(), saved);
+  for (let i = 0; i < 70; i += 1) {
+    snapshot = sim.step();
+    assert.equal(snapshot.apps.sync.background.receivedEvents,
+      externalSchedule(snapshot.time, EXTERNAL.sync.intervals).arrivals.length + 1,
+      'Displaying a completed image must not save it again');
+    invariant(snapshot);
+  }
+});
+
+test('Web progress follows request CPU work, shared network time and render CPU work, with 100 only on completion', () => {
+  const sim = new OSSimulation();
+  assert.equal(sim.snapshot().apps.web.web.progress, 0);
+  assert.equal(sim.snapshot().apps.web.web.completedLoads, 0);
+  sim.launch('web');
+  sim.webLoad('space');
+  let snapshot = ticks(sim, 2);
+  assert.equal(snapshot.apps.web.web.progress, 0);
+  snapshot = until(sim, (s) => s.cpu.owner === 'web');
+  assert.ok(Math.abs(snapshot.apps.web.web.progress - 20 / 3) < 1e-9);
+  const requestProgress = snapshot.apps.web.web.progress;
+  sim.launch('music');
+  snapshot = sim.step();
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.equal(snapshot.apps.web.web.progress, requestProgress, 'An input interrupt must stall CPU-bound request work');
+  snapshot = until(sim, (s) => s.apps.web.web.phase === 'network');
+  assert.equal(snapshot.apps.web.web.progress, 20);
+  const networkAt = snapshot.time;
+  for (let remaining = 5; remaining > 0; remaining -= 1) {
+    snapshot = sim.step();
+    assert.equal(snapshot.apps.web.web.networkRemaining, remaining);
+    assert.ok(Math.abs(snapshot.apps.web.web.progress - (20 + (6 - remaining) * 50 / 6)) < 1e-9);
+    assert.equal(snapshot.apps.web.web.page, null);
+    assert.equal(snapshot.apps.web.web.completedLoads, 0);
+  }
+  snapshot = sim.step();
+  assert.equal(snapshot.time, networkAt + 6);
+  assert.equal(snapshot.apps.web.web.progress, 70);
+  assert.equal(snapshot.apps.web.web.completedLoads, 0);
+  snapshot = until(sim, (s) => s.cpu.owner === 'web' && s.apps.web.web.phase === 'render');
+  assert.equal(snapshot.apps.web.web.progress, 80);
+  sim.close('music');
+  snapshot = sim.step();
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.equal(snapshot.apps.web.web.progress, 80, 'An OS tick must stall CPU-bound rendering');
+  while (snapshot.apps.web.web.page !== 'space') {
+    const before = snapshot;
+    snapshot = sim.step();
+    if (snapshot.cpu.owner !== 'web') assert.equal(snapshot.apps.web.web.progress, before.apps.web.web.progress);
+    if (snapshot.apps.web.web.page !== 'space') {
+      assert.ok(snapshot.apps.web.web.progress < 100);
+      assert.equal(snapshot.apps.web.web.completedLoads, 0);
+    }
+  }
+  assert.equal(snapshot.cpu.owner, 'web');
+  assert.equal(snapshot.apps.web.web.progress, 100);
+  assert.equal(snapshot.apps.web.web.completedLoads, 1);
+  sim.webLoad('city');
+  snapshot = sim.step();
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.equal(snapshot.apps.web.web.progress, 0);
+  assert.equal(snapshot.apps.web.web.page, 'space');
+  assert.equal(snapshot.apps.web.web.completedLoads, 1);
+  while (snapshot.apps.web.web.page !== 'city') {
+    snapshot = sim.step();
+    if (snapshot.apps.web.web.page !== 'city') {
+      assert.ok(snapshot.apps.web.web.progress < 100);
+      assert.equal(snapshot.apps.web.web.completedLoads, 1);
+    }
+    invariant(snapshot);
+  }
+  assert.equal(snapshot.cpu.owner, 'web');
+  assert.equal(snapshot.apps.web.web.progress, 100);
+  assert.equal(snapshot.apps.web.web.completedLoads, 2);
 });

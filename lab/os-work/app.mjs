@@ -27,22 +27,56 @@ const states = {
   "memory-wait": "メモリの空き待ち",
 };
 const topics = {
-  nature: [
-    "森の小さな図書館",
-    "木々は光を受けて育ち、季節ごとに姿を変えます。読み終わるまで、このページの表示は続きます。",
-    "FOREST / FIELD NOTES",
-  ],
-  space: [
-    "星空の向こうへ",
-    "夜空に見える光の多くは、はるか遠くから届いたもの。ページを読んでいる間、Webのプロセスは次の操作を待ちます。",
-    "SPACE / FIELD NOTES",
-  ],
-  city: [
-    "まちを歩いてみよう",
-    "通りの形や標識には、暮らしを支える工夫があります。別のアプリを表示しても、このページはメモリに残ります。",
-    "CITY / FIELD NOTES",
-  ],
+  nature: {
+    title: "森の小さな図書館",
+    kicker: "FOREST JOURNAL",
+    lead: "週末は、森で深呼吸。",
+    description: "木漏れ日の道で、季節の色を見つけよう。",
+    cards: [
+      ["朝の散策", "ゆっくり歩く、緑の小道"],
+      ["森のひみつ", "木々と水のつながり"],
+    ],
+  },
+  space: {
+    title: "星空の向こうへ",
+    kicker: "NIGHT SKY MAGAZINE",
+    lead: "今夜、遠い宇宙を見上げよう。",
+    description: "月の向こうに広がる、光と惑星の世界。",
+    cards: [
+      ["今月の星空", "見つけたい星と星座"],
+      ["惑星をめぐる", "太陽系の小さな旅"],
+    ],
+  },
+  city: {
+    title: "まちを歩いてみよう",
+    kicker: "CITY WALK GUIDE",
+    lead: "いつもの通りに、新しい発見。",
+    description: "橋や広場をめぐり、まちの工夫を探そう。",
+    cards: [
+      ["川沿いの道", "水辺をつなぐ散歩ルート"],
+      ["まちのサイン", "案内に隠れたデザイン"],
+    ],
+  },
 };
+function webScene(topic) {
+  const frame = (contents) =>
+    `<svg viewBox="0 0 640 180" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${contents}</svg>`;
+  if (topic === "space")
+    return frame(
+      '<path fill="#182641" d="M0 0h640v180H0z"/><g fill="#f6e8bd"><circle cx="56" cy="32" r="2"/><circle cx="160" cy="63" r="3"/><circle cx="230" cy="23" r="2"/><circle cx="523" cy="35" r="2"/><circle cx="586" cy="123" r="3"/><circle cx="85" cy="143" r="2"/><circle cx="273" cy="141" r="2"/></g><circle fill="#cea277" cx="402" cy="90" r="56"/><path fill="#c17e69" d="M350 70q55 24 106 1l2 12q-52 25-110 1zm-1 30q56 25 108 1l-5 14q-50 21-96-1z"/><ellipse cx="402" cy="90" rx="111" ry="20" fill="none" stroke="#ecdbb8" stroke-width="9" transform="rotate(-18 402 90)"/><circle cx="211" cy="94" r="17" fill="#809daa"/>',
+    );
+  if (topic === "city")
+    return frame(
+      '<path fill="#f0d8b8" d="M0 0h640v180H0z"/><circle fill="#e7a55d" cx="500" cy="44" r="31"/><path fill="#a4a797" d="M0 88h45V53h51v67h27V29h49v82h32V65h66v49h33V39h42v75h39V79h68v35h48V53h54v45h32V69h54v111H0z"/><path fill="#355f67" d="M0 127h55V88h39v39h43V65h40v62h54v-27h46v27h42V80h45v47h37v-25h65v25h55V86h46v41h83v53H0z"/><path fill="#7ca6aa" d="M0 151h640v29H0z"/><path fill="none" stroke="#faf1dc" stroke-width="5" d="M0 158q105-43 210 0t210 0 220 0"/><g fill="#edd69e"><path d="M63 100h10v11H63zm83-19h9v11h-9zm94 33h10v10h-10zm91-20h10v12h-10zm169 7h10v11h-10z"/></g>',
+    );
+  return frame(
+    '<path fill="#d8e5c9" d="M0 0h640v180H0z"/><circle fill="#f3e2a3" cx="482" cy="46" r="30"/><path fill="#9db69a" d="M0 118 122 43 245 120 391 55 520 124 640 76v104H0z"/><path fill="#518276" d="M0 142 123 101 244 143 384 98 529 148 640 102v78H0z"/><path fill="#d5d5a7" d="M286 180q70-26 21-64 104 28 57 64z"/><g fill="#285c50"><path d="m54 5 42 89H79l28 47H12l28-47H20zm518 11 37 83h-14l23 43h-85l25-43h-14z"/><path d="M53 132h10v48H53zm517 0h9v48h-9z"/></g><g fill="#3f7564"><path d="m135 49 29 64h-11l18 34h-71l19-34h-12zm365 20 24 51h-10l16 28h-60l17-28h-10z"/></g>',
+  );
+}
+function webPageMarkup(topic) {
+  const content = topics[topic];
+  return `<article class="web-page"><div class="web-page-hero">${webScene(topic)}</div><div class="web-page-body"><p class="web-page-meta">${content.kicker}</p><h3>${content.title}</h3><p class="web-page-lead">${content.lead}</p><div class="web-page-grid">${content.cards.map(([title, copy]) => `<div><strong>${title}</strong><span>${copy}</span></div>`).join("")}</div></div></article>`;
+}
 const filters = {
   warm: ["夏色", "saturate(1.9) contrast(1.08)"],
   mono: ["モノクロ", "grayscale(1)"],
@@ -130,10 +164,10 @@ function makeAppViews() {
   const web = `<div class="app-toolbar"><select id="web-topic" aria-label="読み込むページ">${Object.entries(
     topics,
   )
-    .map(([id, content]) => `<option value="${id}">${content[0]}</option>`)
+    .map(([id, content]) => `<option value="${id}">${content.title}</option>`)
     .join(
       "",
-    )}</select><button type="button" data-action="web-load">読み込む</button></div><div class="web-article" id="web-article"></div><p class="app-status" id="web-status"></p>`;
+    )}</select><button type="button" data-action="web-load" id="web-load">読み込む</button></div><div class="web-load-state" id="web-load-state" data-phase="idle" role="status" aria-live="polite"><strong id="web-load-label">ページを選んで読み込む</strong><span id="web-load-detail"></span></div><div class="web-load-track" id="web-load-track" role="progressbar" aria-label="ページ読み込みの進行" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="web-load-fill"></i></div><div class="web-article" id="web-article"></div><p class="app-status" id="web-status"></p>`;
   const music = `<div class="music-top"><div class="album-art" aria-hidden="true">♫</div><div class="song-title"><h3 id="song-title">DURU Roomscene Lofi</h3><p id="song-artist">DURU-AI / CC0</p></div></div><div class="music-track-select"><label for="music-track">曲</label><select id="music-track">${tracks.map((track) => `<option value="${track.id}">${esc(track.title)}</option>`).join("")}</select></div><div class="music-controls"><button type="button" class="primary" data-action="music-play" id="music-play">▶ 音楽を再生</button><span class="elapsed" id="music-elapsed">00:00</span></div><div class="volume-controls"><button type="button" data-action="mute" id="mute-toggle" aria-pressed="false">消音</button><label for="volume">音量</label><input type="range" id="volume" min="0" max="100" value="45" step="1" /><output id="volume-value" for="volume">45%</output></div><p class="audio-feedback" id="audio-feedback" role="status"></p><div class="buffer-heading"><span>音声バッファ <small>（再生待ちの音）</small></span><strong id="buffer-count">0 / 24</strong></div><div id="buffer-track" class="buffer-track" role="progressbar" aria-label="音声バッファ残量" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0"><span id="buffer-fill"></span></div><p class="app-status" id="music-status"></p><details class="music-credit"><summary>音源について</summary><p><a href="https://github.com/uncle-sheepsky/duru-ai-cc0-bgm#license--please-read" target="_blank" rel="noopener noreferrer">DURU-AI / uncle-sheepsky</a> が作曲・録音ともに<a href="./audio/CC0-1.0.txt">CC0</a>で提供した音源です。音声バッファの量は教材用のモデルです。</p><ul>${tracks.map((track) => `<li><a href="${esc(track.source)}" target="_blank" rel="noopener noreferrer">${esc(track.title)} の配布元</a></li>`).join("")}</ul><p>配信用にMP3を再圧縮しています。<a href="./audio/tracks.json">3曲の出典・加工内容</a></p></details>`;
   const photo = `<div class="app-toolbar"><select id="photo-filter" aria-label="写真の加工効果">${Object.entries(
     filters,
@@ -293,13 +327,17 @@ function renderBackgroundLauncher() {
             ? "割り込み待ち"
             : background.phase === "network"
               ? "通信待ち"
-              : "イベント待ち";
+              : id === "notify"
+                ? "通知待ち"
+                : id === "sync"
+                  ? "変更待ち"
+                  : "予定待ち";
     row.querySelector(".background-state").textContent = state;
     const next =
       background.nextEventAt === null
         ? app.task
-        : `次の処理まで ${Math.max(0, background.nextEventAt - snapshot.time)} tick`;
-    row.title = `${names[id]}：${state}。${next}。${app.memory} MB 保持。${playing ? "" : "OS一時停止中。"}`;
+        : `次の${id === "notify" ? "模擬通知" : id === "sync" ? "模擬の外部変更" : "定期スキャン"}まで ${Math.max(0, background.nextEventAt - snapshot.time)} tick`;
+    row.title = `${names[id]}：${state}。${app.task}。${background.source ? `きっかけ：${background.source}。` : ""}${next}。${app.memory} MB 保持。${playing ? "" : "OS一時停止中。"}`;
     row.setAttribute("aria-label", row.title);
   }
 }
@@ -373,30 +411,75 @@ function renderAppViews() {
         : "このアプリを起動";
   }
   const web = snapshot.apps.web.web;
-  const webPending = pendingFor("web").length > 0;
-  const content = topics[web.page] || null;
-  const articleKey = web.page || "empty";
-  if ($("web-article").dataset.page !== articleKey) {
-    $("web-article").dataset.page = articleKey;
-    $("web-article").className = `web-article ${esc(web.page || "")}`;
-    $("web-article").innerHTML = content
-      ? `<div class="article-banner">${content[2]}</div><h3>${content[0]}</h3><p>${content[1]}</p>`
-      : '<div class="article-banner">WEB BROWSER</div><h3>気になるページを開いてみよう</h3><p>ページを選んで「読み込む」。CPUの仕事と通信待ちが交互に現れます。</p>';
-  }
-  const webStatus = {
-    idle: "操作を待っています。画面表示だけならCPUは使い続けません。",
-    request: "読み込みの準備中。CPUの割り当てを待ちます。",
-    network: "通信待ち。CPUを使わずデータの到着を待っています。",
-    render: "CPUが割り当てられた時間だけ、ページの描画が進みます。",
-    loaded: "読み込み完了。画面を表示したまま次の操作を待っています。",
-  };
-  $("web-status").textContent = webPending
-    ? playing
-      ? "読み込みの入力を受け付けました。"
-      : "入力を受け付けました。OSの「再生」で進みます。"
-    : webStatus[web.phase];
-  $("app-content").querySelector('[data-action="web-load"]').disabled =
+  const webPending = pendingFor("web").some(
+    (input) => input.type === "webLoad",
+  );
+  const busy =
     webPending || ["request", "network", "render"].includes(web.phase);
+  const stage = busy ? "loading" : web.page ? "complete" : "idle";
+  const articleKey = `${stage}:${web.page || "empty"}:${web.completedLoads || 0}`;
+  const article = $("web-article");
+  if (article.dataset.page !== articleKey) {
+    article.dataset.page = articleKey;
+    article.dataset.stage = stage;
+    article.className = `web-article ${stage === "complete" ? web.page : ""}`;
+    article.innerHTML =
+      stage === "complete"
+        ? webPageMarkup(web.page)
+        : stage === "loading"
+          ? '<div class="web-skeleton" aria-hidden="true"><div class="web-skeleton-art"></div><div class="web-skeleton-lines"><i></i><i></i><i></i></div><p>ページのデータを読み込んでいます</p></div>'
+          : '<div class="web-start-card"><span aria-hidden="true">◎</span><h3>どんなページを開こう？</h3><p>森・宇宙・まち。上のメニューから選んで<br />「読み込む」を押してください。</p></div>';
+  }
+  article.setAttribute("aria-busy", String(busy));
+  const webProgress = webPending
+    ? 0
+    : busy
+      ? Math.min(99, web.progress || 0)
+      : web.page
+        ? 100
+        : 0;
+  $("web-load-track").setAttribute("aria-valuenow", String(webProgress));
+  $("web-load-fill").style.width = `${webProgress}%`;
+  const loadPhase = webPending ? "queued" : web.phase;
+  $("web-load-state").dataset.phase =
+    stage === "complete" ? "complete" : loadPhase;
+  const loadMessages = {
+    queued: [
+      "読み込みを受け付けました",
+      playing
+        ? "OSが入力を処理するのを待っています"
+        : "OSの「再生」で読み込みが進みます",
+    ],
+    idle: ["ページを選んで読み込む", "通信待ちとCPU処理を観察しましょう"],
+    request: [
+      "1 / 3 読み込みの準備中",
+      "CPUが割り当てられると要求の準備が進みます",
+    ],
+    network: [
+      "2 / 3 ページを受信中",
+      "通信待ち。WebはCPUを使わずに待っています",
+    ],
+    render: [
+      "3 / 3 ページを描画中",
+      "CPUが割り当てられた時間だけ表示を作ります",
+    ],
+    loaded: ["✓ 読み込み完了", "100% · ページの表示はこのまま続きます"],
+  };
+  const message = loadMessages[loadPhase] || loadMessages.idle;
+  $("web-load-label").textContent = message[0];
+  $("web-load-detail").textContent = message[1];
+  $("web-status").textContent =
+    stage === "complete"
+      ? `「${topics[web.page].title}」を表示中。次の操作があるまで、Webは通常CPUを使いません。`
+      : busy
+        ? "まだ読み込み中です。完了すると、イラスト付きのページに切り替わります。"
+        : "このWebページは教材内の模擬ページです。";
+  $("web-load").disabled = busy;
+  $("web-load").textContent = busy
+    ? "読み込み中…"
+    : web.page
+      ? "再読み込み"
+      : "読み込む";
   const music = snapshot.apps.music.music;
   const musicPending = pendingFor("music").length > 0;
   if (!musicPending && currentAudioTrackId !== music.track) {
@@ -572,7 +655,7 @@ function renderMemory() {
       .join("、"),
   );
   const waits = snapshot.memoryWaits || [];
-  $("allocation-notice").hidden = !waits.length;
+  $("allocation-notice").hidden = true;
   if (waits.length) {
     $("allocation-title").textContent =
       `メモリの空き待ち：${waits.map((wait) => names[wait.id]).join("、")}`;
@@ -637,7 +720,9 @@ function render() {
     : "なし";
   renderHistory();
   renderMemory();
-  $("explanation").textContent = snapshot.explain;
+  $("explanation").textContent = snapshot.memoryWaits.length
+    ? `メモリの空き待ち：${snapshot.memoryWaits.map((wait) => `${names[wait.id]} ${wait.required} MB`).join("、")}。空き ${snapshot.memory.free} MB。空きができると自動で再開します。`
+    : snapshot.explain;
   $("first-hint").textContent =
     snapshot.pendingInputs.length && !playing
       ? "操作を受け付けました。「再生」でOSを動かすと処理が進みます。"

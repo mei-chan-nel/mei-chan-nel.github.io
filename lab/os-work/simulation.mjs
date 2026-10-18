@@ -4,8 +4,11 @@
  * All devices, buffers, work and allocation share that clock. Actual operating
  * systems have much shorter quanta, many threads, hardware interrupts/DMA,
  * virtual memory and more elaborate scheduling. This model has one process per
- * app, fixed memory allocations and periodic resident tasks. Residents start
- * with the OS and keep their memory. Allocation requests wait until enough
+ * app, fixed memory allocations and resident tasks. Notifications and remote
+ * file changes follow a deterministic arrival trace, independent of CPU work.
+ * Photo saves also trigger sync. Security models scheduled quick scans only,
+ * omitting real-time file checks. Residents start with the OS and keep their
+ * memory. Allocation requests wait until enough
  * memory is available; the OS allocates the oldest request that currently fits.
  * Device completions and resident wakeups use the same clock; no real
  * network/audio runs here.
@@ -23,8 +26,8 @@ export const FOREGROUND_IDS = Object.freeze(['web', 'music', 'photo']);
 export const BACKGROUND_IDS = Object.freeze(['notify', 'sync', 'security']);
 const IDS = Object.keys(APP_CONFIG);
 const BACKGROUND_CONFIG = Object.freeze({
-  notify: Object.freeze({ period: 12, work: 2 }),
-  sync: Object.freeze({ period: 18, work: 3 }),
+  notify: Object.freeze({ arrivalIntervals: Object.freeze([12, 23, 17, 31]), work: 2 }),
+  sync: Object.freeze({ arrivalIntervals: Object.freeze([18, 29, 41, 23]), work: 3 }),
   security: Object.freeze({ period: 26, work: 9 }),
 });
 const QUANTUM = 3;
@@ -39,7 +42,10 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 const freshApp = (id) => ({
   running: false,
   work: 0,
-  web: id === 'web' ? { phase: 'idle', topic: 'nature', page: null, networkRemaining: 0 } : undefined,
+  web: id === 'web' ? {
+    phase: 'idle', topic: 'nature', page: null, networkRemaining: 0,
+    progress: 0, completedLoads: 0,
+  } : undefined,
   music: id === 'music' ? {
     track: 'roomscene-lofi',
     playing: false, buffer: 0, capacity: MUSIC_CAPACITY, elapsed: 0,
@@ -52,6 +58,8 @@ const freshApp = (id) => ({
   background: APP_CONFIG[id].background ? {
     phase: 'stopped', nextEventAt: null, networkRemaining: 0,
     cycles: 0, wakeups: 0, cpuTicks: 0, pendingEvent: false,
+    receivedEvents: 0, pendingEvents: 0, activeEvents: 0, processedEvents: 0,
+    lastEventAt: null, lastSource: null, source: null,
   } : undefined,
 });
 
@@ -65,8 +73,10 @@ export class OSSimulation {
     for (const id of BACKGROUND_IDS) {
       this._apps[id].running = true;
       this._apps[id].background.phase = 'waiting';
-      this._apps[id].background.nextEventAt = BACKGROUND_CONFIG[id].period;
+      this._apps[id].background.nextEventAt = BACKGROUND_CONFIG[id].arrivalIntervals?.[0]
+        ?? BACKGROUND_CONFIG[id].period;
     }
+    this._externalTraceIndex = { notify: 0, sync: 0 };
     this._inputs = [];
     this._interrupts = [];
     this._ready = [];
@@ -269,6 +279,7 @@ export class OSSimulation {
     if (!app.running) return `${label}が終了しているため、入力は処理されません。`;
     if (type === 'webLoad') {
       app.web.phase = 'request';
+      app.web.progress = 0;
       app.web.topic = input.topic;
       app.web.networkRemaining = 0;
       app.work = 3;
@@ -318,6 +329,7 @@ export class OSSimulation {
     const web = this._apps.web;
     if (web.running && web.web.phase === 'network') {
       web.web.networkRemaining -= 1;
+      web.web.progress = 20 + (6 - web.web.networkRemaining) / 6 * 50;
       if (web.web.networkRemaining <= 0) {
         web.web.networkRemaining = 0;
         web.web.phase = 'render';
@@ -356,11 +368,17 @@ export class OSSimulation {
       const app = this._apps[id];
       if (!app.running) continue;
       const background = app.background;
-      if (background.phase === 'waiting' && background.nextEventAt !== null && this.time >= background.nextEventAt) {
+      const intervals = BACKGROUND_CONFIG[id].arrivalIntervals;
+      if (intervals && this.time >= background.nextEventAt) {
+        this._externalTraceIndex[id] = (this._externalTraceIndex[id] + 1) % intervals.length;
+        background.nextEventAt += intervals[this._externalTraceIndex[id]];
+        this._receiveBackgroundEvent(id, id === 'notify' ? '通知の受信' : '別の端末のファイル更新');
+      } else if (!intervals && background.phase === 'waiting'
+        && background.nextEventAt !== null && this.time >= background.nextEventAt) {
         background.nextEventAt = null;
-        background.pendingEvent = true;
-        this._interrupts.push({ id, type: 'wake', time: this.time });
-      } else if (background.phase === 'network' && background.networkRemaining > 0) {
+        this._receiveBackgroundEvent(id, '定期スキャン');
+      }
+      if (background.phase === 'network' && background.networkRemaining > 0) {
         background.networkRemaining -= 1;
         if (background.networkRemaining === 0) {
           background.pendingEvent = true;
@@ -368,6 +386,23 @@ export class OSSimulation {
         }
       }
     }
+  }
+
+  _receiveBackgroundEvent(id, source) {
+    const background = this._apps[id].background;
+    background.receivedEvents += 1;
+    background.pendingEvents += 1;
+    background.lastEventAt = this.time;
+    background.lastSource = source;
+    this._event(`${APP_CONFIG[id].label}：${source}。${background.phase === 'waiting' ? 'OSによる受け付けを待ちます。' : '進行中の処理の後に、未処理のイベントをまとめて扱います。'}`);
+    this._queueBackgroundWake(id);
+  }
+
+  _queueBackgroundWake(id) {
+    const background = this._apps[id].background;
+    if (background.phase !== 'waiting' || background.pendingEvent || background.pendingEvents === 0) return;
+    background.pendingEvent = true;
+    this._interrupts.push({ id, type: 'wake', time: this.time, source: background.lastSource });
   }
 
   _applyBackgroundInterrupt(interrupt) {
@@ -378,23 +413,29 @@ export class OSSimulation {
     if (type === 'wake') {
       app.background.phase = 'work';
       app.background.wakeups += 1;
+      app.background.activeEvents = app.background.pendingEvents;
+      app.background.pendingEvents = 0;
+      app.background.source = app.background.lastSource;
       app.work = BACKGROUND_CONFIG[id].work;
-      this._event(`${label}の定期イベントが発生。OSが割り込みを処理し、実行待ちへ。`);
+      this._event(`${label}の${app.background.source}をOSが受け付け、${app.background.activeEvents}件をまとめて実行待ちへ。`);
     } else {
       app.background.phase = 'finish';
       app.work = 2;
       this._event(`${label}の通信が完了。OSが割り込みを処理し、仕上げの処理が実行待ちへ。`);
     }
     this._enqueue(id);
-    return `${label}の${type === 'wake' ? '定期イベント' : '通信完了'}をOSが受け取り、必要な処理を実行待ちにしました。常駐アプリも、処理が必要なときだけCPUを使います。`;
+    return `${label}の${type === 'wake' ? app.background.source : '通信完了'}をOSが受け取り、必要な処理を実行待ちにしました。常駐アプリも、処理が必要なときだけCPUを使います。`;
   }
 
   _finishBackgroundCycle(id) {
     const background = this._apps[id].background;
     background.phase = 'waiting';
     background.cycles += 1;
-    background.nextEventAt = this.time + BACKGROUND_CONFIG[id].period;
-    this._event(`${APP_CONFIG[id].label}の処理が完了。メモリを保持したまま、次の定期イベント待ちへ。`);
+    background.processedEvents += background.activeEvents;
+    background.activeEvents = 0;
+    if (id === 'security') background.nextEventAt = this.time + BACKGROUND_CONFIG[id].period;
+    this._event(`${APP_CONFIG[id].label}の処理が完了。メモリを保持したまま、${id === 'notify' ? '次の通知' : id === 'sync' ? '次のファイル変更' : '次の定期スキャン'}を待ちます。`);
+    this._queueBackgroundWake(id);
   }
 
   _appTask(id) {
@@ -411,10 +452,11 @@ export class OSSimulation {
     if (app.background) {
       if (app.background.pendingEvent) return 'OSのイベント割り込み待ち';
       if (app.background.phase === 'network') return '同期通信の完了待ち';
-      if (app.background.phase === 'waiting') return '次の定期イベント待ち';
-      if (id === 'notify') return '新しい通知を確認';
+      if (app.background.phase === 'waiting') return id === 'notify' ? '通知の受信待ち'
+        : id === 'sync' ? 'ファイルの変更待ち' : '次の定期スキャン待ち';
+      if (id === 'notify') return '届いた通知を処理';
       if (id === 'sync') return app.background.phase === 'finish' ? '同期結果を保存' : '同期データを準備';
-      return 'ファイルの安全性を確認';
+      return '定期クイックスキャン';
     }
     return app.photo.processing ? '写真の画素を加工' : '加工操作待ち';
   }
@@ -434,6 +476,7 @@ export class OSSimulation {
         app.photo.progress = 100;
         app.photo.completedFilter = app.photo.filter;
         this._event('写真加工が完了。作業用メモリを解放し、操作イベント待ちへ。');
+        this._receiveBackgroundEvent('sync', '写真の保存');
       }
     } else if (app.background) {
       app.background.cpuTicks += 1;
@@ -444,14 +487,21 @@ export class OSSimulation {
           this._event('クラウド同期のデータ準備が完了。通信を待つ間はCPUを使いません。');
         } else this._finishBackgroundCycle(id);
       }
-    } else if (app.work === 0 && app.web.phase === 'request') {
-      app.web.phase = 'network';
-      app.web.networkRemaining = 6;
-      this._event('ページ要求の準備が完了。通信待ちに入り、CPUをほかの処理へ渡します。');
-    } else if (app.work === 0 && app.web.phase === 'render') {
-      app.web.phase = 'loaded';
-      app.web.page = app.web.topic;
-      this._event('ページの描画が完了。画面を表示したまま操作イベント待ちへ。');
+    } else if (app.web.phase === 'request') {
+      app.web.progress = (3 - app.work) / 3 * 20;
+      if (app.work === 0) {
+        app.web.phase = 'network';
+        app.web.networkRemaining = 6;
+        this._event('ページ要求の準備が完了。通信待ちに入り、CPUをほかの処理へ渡します。');
+      }
+    } else if (app.web.phase === 'render') {
+      app.web.progress = 70 + (3 - app.work) / 3 * 30;
+      if (app.work === 0) {
+        app.web.phase = 'loaded';
+        app.web.page = app.web.topic;
+        app.web.completedLoads += 1;
+        this._event('ページの描画が完了。画面を表示したまま操作イベント待ちへ。');
+      }
     }
   }
 
@@ -489,7 +539,8 @@ export class OSSimulation {
       const interrupt = this._interrupts.shift();
       const reason = this._applyBackgroundInterrupt(interrupt);
       this._transition = 'イベント割り込みを処理した後、実行待ちの順番にCPUを割り当てます。';
-      return this._record('os', `イベント割り込み：${APP_CONFIG[interrupt.id].label}の${interrupt.type === 'wake' ? '定期イベント' : '通信完了'}`, reason);
+      const source = interrupt.type === 'wake' ? this._apps[interrupt.id].background.source : '通信完了';
+      return this._record('os', `イベント割り込み：${APP_CONFIG[interrupt.id].label}の${source}`, reason);
     }
 
     if (this._timerPending) {
