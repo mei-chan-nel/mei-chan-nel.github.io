@@ -674,7 +674,11 @@ export function createQuest() {
       );
     return evaluate(
       true,
-      "本文の暗号化には、AliceとBobが使う同じ共通鍵を選べた。予想とBobの反応を比べてみよう。",
+      before.round >= 2
+        ? before.authenticateSigner
+          ? "Bobは復号できても、本文がAliceの署名と一致しないため、改ざんに気づく。"
+          : "BobがCharlieの公開鍵をAliceの鍵だと信じているため、Charlieの署名でも検証が通り、改ざんに気づかない。"
+        : "Bobは同じ共通鍵で復号でき、本文の変更を確かめる署名もないため、改ざんに気づかない。",
       [
         frame("Charlieは、本文を「I hate you.」に書き換えた。", "edit", {
           ...base,
