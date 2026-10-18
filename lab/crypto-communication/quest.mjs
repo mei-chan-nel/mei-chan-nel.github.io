@@ -6,7 +6,7 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=11";
+} from "./storyboard.mjs?v=12";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
@@ -48,7 +48,11 @@ export function createQuest() {
       lab.capture();
     }
   }
-  function start(round = 0, authenticate = true, authenticateSigner = true) {
+  function start(
+    round = 0,
+    authenticate = true,
+    authenticateSigner = round !== 2,
+  ) {
     lab.start(round, authenticate, authenticateSigner);
     x = initial();
     records = new Set();
@@ -158,13 +162,21 @@ export function createQuest() {
       return [
         choice(
           "swap",
-          "Charlieの公開鍵にすり替える",
-          "Aliceに渡す鍵を選ぶ",
-          "Charlieの公開鍵をAliceへ渡すデータにする。",
+          s.round === 3
+            ? "偽のBobの証明書にすり替える"
+            : "Charlieの公開鍵にすり替える",
+          s.round === 3
+            ? "Charlieの公開鍵をBobの鍵と偽る"
+            : "Aliceに渡す鍵を選ぶ",
+          s.round === 3
+            ? "Charlieの公開鍵に、Bobを名乗る偽の証明書を付けて渡す。"
+            : "Charlieの公開鍵をAliceへ渡すデータにする。",
         ),
         choice(
           "send-public",
-          "Bobの公開鍵をそのまま送る",
+          s.round === 3
+            ? "Bobの証明書をそのまま送る"
+            : "Bobの公開鍵をそのまま送る",
           "Aliceに渡す鍵を選ぶ",
           "Bobの公開鍵をそのままAliceへ送る。",
         ),
@@ -235,7 +247,7 @@ export function createQuest() {
             : a.type === "private"
               ? "Charlieだけが持つ鍵"
               : a.type === "verify"
-                ? "信頼済みの検証用公開鍵"
+                ? "署名を検証する公開鍵"
                 : "公開してよい鍵",
       }));
   }
@@ -257,7 +269,8 @@ export function createQuest() {
                   : "predict"
               : s.phase;
     const titles = {
-      public: "Aliceに渡す公開鍵を選ぶ",
+      public:
+        s.round === 3 ? "Aliceに渡す証明書を選ぶ" : "Aliceに渡す公開鍵を選ぶ",
       key: key ? "共通鍵をBobに届けよう" : "共通鍵の暗号文が届いた",
       message: "本文を開く鍵は？",
       signature: "署名に使う鍵を考えよう",
@@ -286,7 +299,10 @@ export function createQuest() {
         : "予想と実際の結果を比べよう。",
     };
     const prompt = {
-      public: "Bobの公開鍵が中継機に届いた。Aliceに渡す公開鍵を選ぼう。",
+      public:
+        s.round === 3
+          ? "BobのCA署名付き証明書が届いた。Aliceはブラウザ内のCA公開鍵で署名と相手名を検証する。"
+          : "Bobの公開鍵が中継機に届いた。Aliceに渡す公開鍵を選ぼう。",
       key: key
         ? "Charlieは共通鍵を手に入れた。Bobにも同じ共通鍵を届けたい。"
         : "Aliceが送った共通鍵は暗号化されている。",
@@ -529,21 +545,29 @@ export function createQuest() {
       kind: packetKind(before.incoming),
     };
     if (action === "swap") {
-      lab.setOutgoing(find(before, "public", "charlie").id);
+      const charlieKey = find(before, "public", "charlie").id;
+      lab.setOutgoing(
+        before.round === 3
+          ? lab.forgeCertificate(charlieKey, "bob").id
+          : charlieKey,
+      );
       return evaluate(
         true,
         before.round === 3 && before.authenticate
-          ? "Charlieの鍵へのすり替えを準備できた。今回はAliceの真正性確認がすり替えを止めるか確かめよう。"
+          ? "Bobの名前とCharlieの鍵を載せても、CAの正しい署名は作れない。Aliceはブラウザ内のCA公開鍵で偽の証明書を検出できる。"
           : "AliceがCharlieの公開鍵を使えば、Charlieは対になる秘密鍵で共通鍵を取り出せる。",
         [
           frame(
-            "Charlieは、Bobの公開鍵をCharlieの公開鍵にすり替えた。",
+            before.round === 3
+              ? "Charlieは、Bobの証明書を、Charlieの鍵を載せた偽の証明書にすり替えた。"
+              : "Charlieは、Bobの公開鍵をCharlieの公開鍵にすり替えた。",
             "replace",
             {
               ...base,
               at: "relay",
-              kind: "public",
-              packetLabel: "Charlieの公開鍵",
+              kind: before.round === 3 ? "certificate" : "public",
+              packetLabel:
+                before.round === 3 ? "偽のBobの証明書" : "Charlieの公開鍵",
             },
           ),
         ],

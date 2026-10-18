@@ -1022,3 +1022,111 @@
     padding: 1px;
   }
 }
+/* CA is a visible participant; the trusted root stays inside the browser. */
+#game-console #scene[data-ca="true"] .scene-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 6px;
+}
+#game-console #scene[data-ca="true"] #direction {
+  text-align: right;
+  font-size: 9px;
+  white-space: normal;
+  line-height: 1.25;
+}
+#game-console .ca-authority {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 5px;
+  border: 1px solid #9fb89d;
+  background: #24483f;
+  color: #e2efcf;
+  font-size: 9px;
+  line-height: 1;
+  white-space: nowrap;
+}
+#game-console .ca-authority svg {
+  width: 22px;
+  height: 22px;
+}
+#game-console .ca-authority[data-active="true"] {
+  border-color: #f3d88a;
+  background: #46513a;
+  box-shadow: 0 0 0 1px #f3d88a55;
+}
+#game-console .browser-trust {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding: 1px 4px;
+  color: #c3e4f2;
+  background: #1b4248;
+  border: 1px solid #63848a;
+  font-size: 8px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+#game-console .browser-trust[data-active="true"] {
+  color: #ffe5a1;
+  border-color: #e9cf89;
+}
+#game-console #scene .packet-sprite[data-kind="certificate"],
+#game-console #scene .packet-sprite[data-kind="root-key"] {
+  color: #d4e8b5;
+  border-color: #b7ce99;
+}
+@media (max-height: 600px) {
+  #game-console .ca-authority {
+    padding: 0 3px;
+    font-size: 8px;
+  }
+  #game-console .ca-authority svg {
+    width: 17px;
+    height: 17px;
+  }
+  #game-console #scene[data-ca="true"] #scene-status {
+    font-size: 8px;
+  }
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene[data-ca="true"]
+  .scene-top {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene[data-ca="true"]
+  #scene-status {
+  display: none;
+}
+#game-console.is-viewport[data-layout="narrow"] .browser-trust span {
+  display: none;
+}
+#game-console #scene[data-ca="true"] .scene-top {
+  padding: 1px 5px;
+}
+#game-console .ca-authority svg {
+  width: 18px;
+  height: 18px;
+}
+#game-console.is-viewport[data-layout="narrow"] .browser-trust {
+  padding: 0 2px;
+}
+#game-console.is-viewport[data-layout="narrow"] .browser-trust svg {
+  height: 12px;
+  width: 18px;
+}
+@media (max-height: 600px) {
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    .ca-authority
+    svg {
+    height: 12px;
+    width: 12px;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    .ca-authority {
+    font-size: 7px;
+  }
+}

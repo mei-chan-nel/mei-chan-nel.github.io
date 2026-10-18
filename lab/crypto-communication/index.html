@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=10" />
     <link rel="stylesheet" href="./quest.css?v=6" />
-    <link rel="stylesheet" href="./unified.css?v=3" />
+    <link rel="stylesheet" href="./unified.css?v=4" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -108,24 +108,13 @@
 
             <div class="phase-row">
               <ol id="stages" class="stages" aria-label="通信の進行"></ol>
-              <div id="signer-control" class="auth-control" hidden>
-                <label
-                  ><input
-                    type="checkbox"
-                    id="authenticate-signer"
-                    checked
-                  />BobがAliceの検証用公開鍵の持ち主を確認する</label
-                >
-              </div>
               <div id="auth-control" class="auth-control" hidden="">
                 <label
                   ><input type="checkbox" id="authenticate" checked="" />
-                  AliceがBobの公開鍵の持ち主を確認する</label
+                  AliceがBobの証明書を検証する</label
                 >
                 <p>
-                  信頼済みの指紋
-                  <code>B0B7 · 29AF · 613C</code>
-                  と照合。切り替えると、新しい通信で比較できます。
+                  ブラウザ内のCA公開鍵でCA署名と相手名を検証。切り替えると、新しい通信で比較できます。
                 </p>
               </div>
             </div>
@@ -138,6 +127,20 @@
                 >
                   <div class="scene-top">
                     <span id="scene-status">Ⅱ 通信を一時停止中</span
+                    ><span
+                      id="ca-authority"
+                      class="ca-authority"
+                      hidden
+                      role="img"
+                      aria-label="認証局 CA。本人確認を行い公開鍵証明書に署名する。"
+                      ><svg
+                        viewBox="0 0 32 32"
+                        width="28"
+                        height="28"
+                        aria-hidden="true"
+                      >
+                        <use href="./authority.svg#ca"></use></svg
+                      ><span>認証局 CA</span></span
                     ><span id="direction">アリス → ボブ</span>
                   </div>
                   <div class="network-scene">
@@ -240,7 +243,21 @@
                   </div>
                   <div class="packet-card">
                     <span>中継機にあるデータ</span
-                    ><strong id="packet-title"></strong>
+                    ><strong id="packet-title"></strong
+                    ><span
+                      id="browser-trust"
+                      class="browser-trust"
+                      hidden
+                      title="ブラウザに事前登録されたCA公開鍵。通信経路から上書きしません。"
+                      ><svg
+                        viewBox="0 0 48 32"
+                        width="22"
+                        height="16"
+                        aria-hidden="true"
+                      >
+                        <use href="./packets.svg#browser-root"></use></svg
+                      ><span>CA鍵は事前登録</span></span
+                    >
                     <details>
                       <summary>データの識別番号を見る</summary>
                       <code id="packet-value"></code>
@@ -279,7 +296,7 @@
                   </div>
                   <div class="interaction-body">
                     <p id="comparison-note" class="comparison-note" hidden>
-                      比較実験：Bobは検証用公開鍵の持ち主を確認しない
+                      認証局は未導入：検証用公開鍵の持ち主は未確認
                     </p>
                     <section
                       id="action-result"
@@ -442,7 +459,7 @@
           暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えい・再送攻撃は扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1・2ラウンドでは独立した改ざん検出を仮定しません。実際には認証付き暗号なども使われます。
         </p>
         <p>
-          第3ラウンド以降は、本文に対するアリスの電子署名を本文と一緒に暗号化して送ります。ボブの検証用公開鍵は信頼済みです。署名自体は本文を隠しません。最後の指紋照合は、信頼できる別経路による公開鍵確認を表します。実際には電子証明書の検証などを使います。実験データはこの画面のメモリー内だけに保持します。
+          第3ラウンドでは、電子署名を付けても検証用公開鍵の持ち主を確認しないと、すり替えによるなりすましを防げないことを試します。最後に、認証局の証明書とブラウザに事前登録されたCA公開鍵で、相手の鍵を確認します。署名自体は本文を隠しません。実験データはこの画面のメモリー内だけに保持します。
         </p>
       </details>
       <nav class="related" aria-label="関連する用語">
@@ -467,6 +484,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=15"></script>
+    <script type="module" src="./app.mjs?v=16"></script>
   </body>
 </html>

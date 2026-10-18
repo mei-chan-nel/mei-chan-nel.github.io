@@ -16,6 +16,7 @@ export const frame = (text, scene = "intercept", extra = {}) => ({
 export const packetKind = (item) =>
   ({
     public: "public",
+    certificate: "certificate",
     verify: "verify-key",
     symmetric: "key",
     envelope: "wrapped-key",
@@ -24,6 +25,8 @@ export const packetKind = (item) =>
 export const packetName = (kind) =>
   ({
     public: "公開鍵",
+    certificate: "公開鍵証明書",
+    "root-key": "ブラウザ内のCA公開鍵",
     "verify-key": "署名の検証用公開鍵",
     key: "共通鍵",
     "wrapped-key": "共通鍵の暗号文",
@@ -53,6 +56,106 @@ export function introFrames() {
     }),
   ];
 }
+export function caPreparationFrames(s) {
+  const setup = (text, scene, at, kind, label, route) =>
+    frame(text, scene, {
+      at,
+      kind,
+      packetLabel: label,
+      route,
+      phase: "ca-setup",
+    });
+  return [
+    setup(
+      "AliceとBobのブラウザは、信頼済みのCA公開鍵を最初から持っている。",
+      "trust-root",
+      "alice",
+      "root-key",
+      "事前登録：CA公開鍵",
+      "ブラウザに事前登録",
+    ),
+    setup(
+      "CharlieはCAとの通信にも割り込める。しかし、Charlieはブラウザ内のCA公開鍵を変更できない。",
+      "trust-root",
+      "alice",
+      "root-key",
+      "事前登録：CA公開鍵",
+      "ブラウザ内の鍵は変更不可",
+    ),
+    setup(
+      "Aliceは、Aliceの検証用公開鍵を添えて、CAに証明書の発行を申請した。",
+      "ca-request",
+      "alice",
+      "verify-key",
+      "Aliceの検証用公開鍵",
+      "Alice → CA",
+    ),
+    setup(
+      "CAはAliceの本人確認を行い、Aliceの名前と公開鍵にCAの署名を付けた。",
+      "ca-issue",
+      "ca",
+      "certificate",
+      "Aliceの証明書",
+      "Alice → CA",
+    ),
+    setup(
+      "CAは、CA署名付きのAliceの証明書をAliceに返した。",
+      "ca-response",
+      "alice",
+      "certificate",
+      "Aliceの証明書",
+      "CA → Alice",
+    ),
+    setup(
+      "Aliceは、Aliceの証明書をBobへ送った。",
+      "ca-response",
+      "bob",
+      "certificate",
+      "Aliceの証明書",
+      "Alice → Bob",
+    ),
+    setup(
+      "Bobのブラウザは、事前登録のCA公開鍵でCA署名を検証し、証明書の相手名がAliceかも確認した。",
+      "ca-verify",
+      "bob",
+      "certificate",
+      "確認済み：Aliceの証明書",
+      "Bobのブラウザで検証",
+    ),
+    setup(
+      "Bobも、Bobの公開鍵を添えて、CAに証明書の発行を申請した。",
+      "ca-request",
+      "bob",
+      "public",
+      "Bobの公開鍵",
+      "Bob → CA",
+    ),
+    setup(
+      "CAはBobの本人確認を行い、Bobの名前と公開鍵にCAの署名を付けた。",
+      "ca-issue",
+      "ca",
+      "certificate",
+      "Bobの証明書",
+      "Bob → CA",
+    ),
+    setup(
+      "CAは、CA署名付きのBobの証明書をBobに返した。",
+      "ca-response",
+      "bob",
+      "certificate",
+      "Bobの証明書",
+      "CA → Bob",
+    ),
+    setup(
+      "CharlieはCAの秘密鍵を持たないため、Charlieの偽証明書はCA署名の検証を通せない。",
+      "ca-issue",
+      "ca",
+      "certificate",
+      "CAの署名で保証",
+      "証明書の発行は通信前の準備",
+    ),
+  ];
+}
 export function roundFrames(s) {
   if (s.round === 0)
     return [
@@ -72,86 +175,90 @@ export function roundFrames(s) {
       : s.round === 2
         ? "Bobは、Bobの公開鍵をAliceへ送る。今回、Aliceは本文に電子署名を付ける。"
         : s.authenticate
-          ? "Bobは、Bobの公開鍵をAliceへ送る。Aliceは、その公開鍵を信頼済みの指紋と照合する。"
-          : "Bobは、Bobの公開鍵をAliceへ送る。今回は、Aliceによる公開鍵の確認を外して比べる。";
+          ? "Bobは、CA署名付きのBobの証明書をAliceへ送る。Aliceは、CA署名と証明書の相手名を検証する。"
+          : "Bobは、Bobの証明書をAliceへ送る。今回は、Aliceによる証明書の検証を外して比べる。";
   const verification =
-    s.round >= 2
-      ? [
-          frame(
-            "Aliceは、Aliceの署名をBobが確かめるために、検証用公開鍵をBobへ送る。",
-            "signing-key",
-            {
-              at: "alice",
-              kind: "verify-key",
-              packetLabel: "Aliceの検証用公開鍵",
-              phase: "signing-setup",
-              route: "Alice → 中継機 → Bob",
-            },
-          ),
-          frame(
-            s.authenticateSigner
-              ? "Charlieの中継機が、Aliceの検証用公開鍵を記録した。"
-              : "Charlieは、Aliceの検証用公開鍵をCharlieの検証用公開鍵にすり替えた。",
-            "signing-key",
-            {
-              at: "relay",
-              kind: "verify-key",
-              packetLabel: s.authenticateSigner
-                ? "Aliceの検証用公開鍵"
-                : "Charlieの検証用公開鍵",
-              phase: "signing-setup",
-              route: "Alice → 中継機 → Bob",
-            },
-          ),
-          frame(
-            s.authenticateSigner
-              ? "Bobは、届いた鍵を、別の信頼できる経路で確認済みのAliceの鍵の指紋と照合した。"
-              : "Bobは、持ち主を確かめずに、Charlieの公開鍵をAliceの検証用公開鍵として登録した。",
-            "trust-signing-key",
-            {
-              at: "bob",
-              kind: "verify-key",
-              packetLabel: s.authenticateSigner
-                ? "Aliceの検証用公開鍵"
-                : "Charlieの検証用公開鍵",
-              phase: "signing-setup",
-              route: "Alice → 中継機 → Bob",
-            },
-          ),
-          ...(s.authenticateSigner
-            ? [
-                frame(
-                  "Bobは、指紋が一致したAliceの検証用公開鍵を登録した。すり替えた鍵なら指紋が一致しない。",
-                  "trust-signing-key",
-                  {
-                    at: "bob",
-                    kind: "verify-key",
-                    packetLabel: "確認済み：Aliceの鍵",
-                    phase: "signing-setup",
-                    route: "Alice → 中継機 → Bob",
-                  },
-                ),
-              ]
-            : []),
-        ]
-      : [];
+    s.round === 3
+      ? caPreparationFrames(s)
+      : s.round >= 2
+        ? [
+            frame(
+              "Aliceは、Aliceの署名をBobが確かめるために、検証用公開鍵をBobへ送る。",
+              "signing-key",
+              {
+                at: "alice",
+                kind: "verify-key",
+                packetLabel: "Aliceの検証用公開鍵",
+                phase: "signing-setup",
+                route: "Alice → 中継機 → Bob",
+              },
+            ),
+            frame(
+              s.authenticateSigner
+                ? "Charlieの中継機が、Aliceの検証用公開鍵を記録した。"
+                : "Charlieは、Aliceの検証用公開鍵をCharlieの検証用公開鍵にすり替えた。",
+              "signing-key",
+              {
+                at: "relay",
+                kind: "verify-key",
+                packetLabel: s.authenticateSigner
+                  ? "Aliceの検証用公開鍵"
+                  : "Charlieの検証用公開鍵",
+                phase: "signing-setup",
+                route: "Alice → 中継機 → Bob",
+              },
+            ),
+            frame(
+              s.authenticateSigner
+                ? "Bobは、届いた鍵を、別の信頼できる経路で確認済みのAliceの鍵の指紋と照合した。"
+                : "Bobは、持ち主を確かめずに、Charlieの公開鍵をAliceの検証用公開鍵として登録した。",
+              "trust-signing-key",
+              {
+                at: "bob",
+                kind: "verify-key",
+                packetLabel: s.authenticateSigner
+                  ? "Aliceの検証用公開鍵"
+                  : "Charlieの検証用公開鍵",
+                phase: "signing-setup",
+                route: "Alice → 中継機 → Bob",
+              },
+            ),
+            ...(s.authenticateSigner
+              ? [
+                  frame(
+                    "Bobは、指紋が一致したAliceの検証用公開鍵を登録した。すり替えた鍵なら指紋が一致しない。",
+                    "trust-signing-key",
+                    {
+                      at: "bob",
+                      kind: "verify-key",
+                      packetLabel: "確認済み：Aliceの鍵",
+                      phase: "signing-setup",
+                      route: "Alice → 中継機 → Bob",
+                    },
+                  ),
+                ]
+              : []),
+          ]
+        : [];
   const frames = [
     ...verification,
     frame(text, "bob-public", {
       at: "bob",
-      kind: "public",
-      packetLabel: "Bobの公開鍵",
+      kind: s.round === 3 ? "certificate" : "public",
+      packetLabel: s.round === 3 ? "Bobの証明書" : "Bobの公開鍵",
       phase: "public",
       route: "Bob → 中継機 → Alice",
     }),
   ];
   frames.push(
     frame(
-      "Bobは、Bobの公開鍵をAliceへ送った。Charlieの中継機が公開鍵を記録した。",
+      s.round === 3
+        ? "Bobは、Bobの証明書をAliceへ送った。Charlieの中継機が証明書を記録した。"
+        : "Bobは、Bobの公開鍵をAliceへ送った。Charlieの中継機が公開鍵を記録した。",
       "inbound",
       {
-        kind: "public",
-        packetLabel: "Bobの公開鍵",
+        kind: s.round === 3 ? "certificate" : "public",
+        packetLabel: s.round === 3 ? "Bobの証明書" : "Bobの公開鍵",
         phase: "public",
         route: "Bob → 中継機 → Alice",
       },
@@ -173,7 +280,7 @@ export function outcomeFrame(s) {
       "signature-rejected":
         "Bobは、署名の検証に失敗し、書き換えられた本文を拒否した。",
       authenticated:
-        "Aliceは、公開鍵のすり替えを検出し、共通鍵を送らなかった。",
+        "Aliceは、CA署名や相手名が正しくない証明書を検出し、共通鍵を送らなかった。",
     }[result?.code] || "通信の結果を確認しよう。";
   return frame(text, result?.accepted ? "accept" : "reject", {
     at: ["authenticated", "bad-public"].includes(result?.code)
@@ -204,7 +311,7 @@ export function lesson(s) {
         ? "Aliceの元の署名は新しい本文に対応しない。Bobが登録したCharlieの公開鍵と対になる秘密鍵で、新しい署名が必要。"
         : "Charlieは本文を読めても、Aliceの署名を作り直せない。電子署名が本文の変更を検出した。",
       authenticated:
-        "AliceがBobの公開鍵を確認すると、Charlieへの共通鍵の漏えいも防げる。",
+        "Aliceが証明書のCA署名とBobという相手名を確認すると、Charlieへの共通鍵の漏えいも防げる。",
     }[s.result?.code] || ""
   );
 }
@@ -232,6 +339,19 @@ export function forwardFrames(before, after) {
     ),
   ];
   if (after.result) {
+    if (after.result.code === "authenticated")
+      frames.push(
+        frame(
+          "Aliceのブラウザは、事前登録のCA公開鍵でCA署名を検証し、証明書の相手名がBobかも確かめた。",
+          "ca-verify",
+          {
+            at: "alice",
+            phase: "public",
+            kind: "certificate",
+            packetLabel: "証明書の検証に失敗",
+          },
+        ),
+      );
     if (
       after.round >= 2 &&
       before.phase === "message" &&

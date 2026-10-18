@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=9";
+import { createQuest } from "./quest.mjs?v=10";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=11";
+} from "./storyboard.mjs?v=12";
 import { createDisplayController } from "./display.mjs";
-import { explanations } from "./explanations.mjs";
+import { explanations } from "./explanations.mjs?v=2";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -107,19 +107,27 @@ function render() {
   $("round-title").textContent = rounds[s.round].title;
   $("round-description").textContent = rounds[s.round].description;
   $("auth-control").hidden = s.round !== 3;
-  $("signer-control").hidden = s.round !== 2;
-  $("authenticate-signer").checked = s.authenticateSigner;
-  $("comparison-note").hidden = s.round !== 2 || s.authenticateSigner;
+  $("comparison-note").hidden = s.round !== 2;
+  $("ca-authority").hidden = $("browser-trust").hidden = s.round !== 3;
+  $("ca-authority").dataset.active = String(
+    ["ca-request", "ca-issue", "ca-response"].includes(f.scene),
+  );
+  $("browser-trust").dataset.active = String(
+    ["trust-root", "ca-verify"].includes(f.scene),
+  );
   $("authenticate").checked = s.authenticate;
   const phase = f.phase || s.phase;
   const stages =
     s.round >= 2
-      ? ["検証用公開鍵の確認", ...rounds[s.round].stages]
+      ? [
+          s.round === 3 ? "CA証明書の準備" : "検証用公開鍵の配送",
+          ...rounds[s.round].stages,
+        ]
       : rounds[s.round].stages;
   const step =
     phase === "done"
       ? stages.length
-      : phase === "signing-setup"
+      : ["signing-setup", "ca-setup"].includes(phase)
         ? 0
         : (s.round >= 2 ? 1 : 0) +
           (s.round === 0
@@ -148,6 +156,7 @@ function render() {
     at: f.at,
     connected: String(f.connected !== false),
     speaker: f.speaker,
+    ca: String(s.round === 3),
   });
   const route =
     f.route ||
@@ -190,6 +199,8 @@ function render() {
   const shapes = {
     key: "key",
     public: "public",
+    certificate: "certificate",
+    "root-key": "browser-root",
     "verify-key": "public",
     "wrapped-key": "wrapped",
     ciphertext: "encrypted",
@@ -210,15 +221,21 @@ function render() {
   $("packet-title").textContent =
     f.packetLabel || packetName(f.kind) || "通信の準備中";
   $("packet-value").textContent =
-    phase === "signing-setup"
-      ? (f.packetLabel || "").startsWith("Charlie")
-        ? s.substituteSigningPublic.fingerprint
-        : s.signingPublic.fingerprint
-      : recordVisible
-        ? s.incoming.token ||
-          s.incoming.fingerprint ||
-          englishNames(s.incoming.label)
-        : "通信の到着待ち";
+    phase === "ca-setup"
+      ? f.kind === "root-key"
+        ? s.ca.root.fingerprint
+        : (f.packetLabel || "").includes("Alice")
+          ? s.ca.aliceCertificate.fingerprint
+          : s.ca.bobCertificate.fingerprint
+      : phase === "signing-setup"
+        ? (f.packetLabel || "").startsWith("Charlie")
+          ? s.substituteSigningPublic.fingerprint
+          : s.signingPublic.fingerprint
+        : recordVisible
+          ? s.incoming.token ||
+            s.incoming.fingerprint ||
+            englishNames(s.incoming.label)
+          : "通信の到着待ち";
   $("command-label").textContent =
     !talking && s.feedback
       ? s.feedback.correct
@@ -479,10 +496,6 @@ $("restart").addEventListener("click", () => {
 $("authenticate").addEventListener("change", () => {
   remember();
   play(quest.start(3, $("authenticate").checked));
-});
-$("authenticate-signer").addEventListener("change", () => {
-  remember();
-  play(quest.start(2, true, $("authenticate-signer").checked));
 });
 function buildInfo() {
   const s = quest.view();

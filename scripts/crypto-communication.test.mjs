@@ -13,8 +13,9 @@ function capture(lab) {
   return id;
 }
 function interceptKey(lab, round) {
-  lab.start(round, round !== 3);
-  const bob = capture(lab),
+  lab.start(round, round !== 3, true);
+  capture(lab);
+  const bob = find(lab, "public", "bob"),
     charlie = find(lab, "public", "charlie");
   lab.setOutgoing(charlie);
   lab.forward();
@@ -120,7 +121,7 @@ test("R2: forwarding Charlie-addressed key ciphertext directly fails at Bob", ()
   assert.equal(lab.snapshot().result.code, "bad-key");
 });
 for (const sig of ["keep", "charlie", "none"])
-  test(`R3: eavesdropping succeeds but tampering with signature=${sig} is rejected`, () => {
+  test(`Trusted Alice key: eavesdropping succeeds but tampering with signature=${sig} is rejected`, () => {
     const lab = createLab(),
       { key } = interceptKey(lab, 2);
     tamper(lab, key, sig);
@@ -135,7 +136,7 @@ for (const sig of ["keep", "charlie", "none"])
       ["charlie"],
     );
   });
-test("R3: original signature remains valid after re-encryption of unchanged content", () => {
+test("Trusted Alice key: original signature remains valid after re-encryption of unchanged content", () => {
   const lab = createLab(),
     { key } = interceptKey(lab, 2);
   tamper(lab, key, "keep", "I love you.");
@@ -169,7 +170,7 @@ test("EXTRA: trusted Bob key check detects substitution before disclosing any ke
   assert.equal(lab.snapshot().read, false);
   assert.equal(lab.snapshot().bobHasKey, false);
   assert.equal(find(lab, "symmetric"), undefined);
-  assert.equal(lab.snapshot().incoming.type, "public");
+  assert.equal(lab.snapshot().incoming.type, "certificate");
 });
 test("EXTRA: turning authenticity check off permits eavesdropping again", () => {
   const lab = createLab(),
@@ -264,7 +265,7 @@ function correct(q, id, predicate) {
   return choose(q, "continue");
 }
 function body(q, round) {
-  q.start(round);
+  q.start(round, true, true);
   if (round) {
     correct(q, "swap");
     choose(q, "forward");
@@ -273,7 +274,7 @@ function body(q, round) {
   }
   choose(q, "forward");
 }
-test("all rounds retain hybrid cryptography and require a prediction after reading", () => {
+test("hybrid cryptography and prediction remain valid when verification key is trusted", () => {
   for (const round of [0, 1, 2]) {
     const q = createQuest();
     body(q, round);
@@ -513,9 +514,9 @@ test("replacing signing key does not make unchanged Alice signature valid over c
   tamper(lab, key, "keep");
   assert.equal(lab.snapshot().result.code, "signature-rejected");
 });
-test("key delivery and trusted fingerprint check precede Bob encryption public key in signed round", () => {
+test("explicit out-of-band key trust can authenticate a signature without a CA", () => {
   const q = createQuest();
-  q.start(2);
+  q.start(2, true, true);
   let frames = roundFrames(q.view());
   assert.equal(frames[0].at, "alice");
   assert.equal(frames[0].kind, "verify-key");
@@ -574,4 +575,122 @@ test("rejected prediction in unchecked-key comparison demonstrates actual accept
   choose(q, "retry-here");
   assert.equal(q.view().state, "predict");
   assert.equal(q.view().authenticateSigner, false);
+});
+test("signed round defaults to unauthenticated verification key; CA stage authenticates it", () => {
+  const lab = createLab();
+  lab.start(2);
+  assert.equal(lab.snapshot().authenticateSigner, false);
+  assert.equal(lab.snapshot().ca, null);
+  assert.equal(lab.snapshot().verificationForBob.owner, "charlie");
+  lab.start(3);
+  assert.equal(lab.snapshot().verificationForBob.owner, "alice");
+  assert.ok(lab.snapshot().ca.root);
+  assert.equal(lab.snapshot().incoming.type, "certificate");
+});
+test("real certificates bind Alice and Bob identities to keys under browser trusted CA", () => {
+  const lab = createLab();
+  lab.start(3);
+  const ca = lab.snapshot().ca;
+  assert.equal(
+    lab.validateCertificate(ca.aliceCertificate.id, "alice").key.owner,
+    "alice",
+  );
+  assert.equal(
+    lab.validateCertificate(ca.bobCertificate.id, "bob").key.owner,
+    "bob",
+  );
+  assert.equal(
+    lab
+      .snapshot()
+      .inventory.some((k) => k.type === "private" && k.owner === "ca"),
+    false,
+  );
+  const fake = lab.forgeCertificate(find(lab, "public", "charlie"), "bob");
+  assert.equal(fake.ok, true);
+  assert.equal(lab.validateCertificate(fake.id, "bob").reason, "ca-signature");
+  assert.equal(lab.snapshot().ca.root.id, ca.root.id);
+});
+test("forged Bob certificate is rejected before common key or plaintext can leak", () => {
+  const lab = createLab();
+  lab.start(3);
+  lab.capture();
+  const fake = lab.forgeCertificate(find(lab, "public", "charlie"), "bob").id;
+  lab.setOutgoing(fake);
+  lab.forward();
+  assert.equal(lab.snapshot().result.code, "authenticated");
+  assert.equal(lab.snapshot().bobHasKey, false);
+  assert.equal(lab.snapshot().original, null);
+  assert.equal(find(lab, "symmetric"), undefined);
+});
+test("a genuine CA signature on Charlie certificate is insufficient for Bob identity", () => {
+  const lab = createLab();
+  lab.start(3);
+  const cert = lab.snapshot().ca.charlieCertificate;
+  assert.equal(lab.validateCertificate(cert.id, "charlie").ok, true);
+  assert.equal(lab.validateCertificate(cert.id, "bob").reason, "identity");
+  lab.setOutgoing(cert.id);
+  lab.forward();
+  assert.equal(lab.snapshot().result.code, "authenticated");
+  assert.match(lab.snapshot().result.text, /相手名/);
+});
+test("certificate check disabled accepts forged key and permits interception, but trusted Alice signature still protects content", () => {
+  const q = createQuest();
+  q.start(3, false);
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  correct(q, "rewrap");
+  choose(q, "forward");
+  correct(q, "read");
+  correct(q, "predict-detected");
+  correct(q, "edit");
+  choose(q, "forward");
+  assert.equal(q.view().result.code, "signature-rejected");
+});
+test("CA issuance and returned certificates are distinct from preinstalled root trust", () => {
+  const q = createQuest();
+  q.start(3);
+  const frames = roundFrames(q.view());
+  assert.equal(frames[0].kind, "root-key");
+  assert.match(frames[0].text, /最初から/);
+  assert.ok(
+    frames.some((f) => f.scene === "ca-request" && f.route === "Alice → CA"),
+  );
+  assert.ok(
+    frames.some((f) => f.scene === "ca-response" && f.route === "CA → Alice"),
+  );
+  assert.ok(
+    frames.some((f) => f.scene === "ca-request" && f.route === "Bob → CA"),
+  );
+  assert.ok(
+    frames.some((f) => f.scene === "ca-response" && f.route === "CA → Bob"),
+  );
+  assert.ok(
+    frames.some(
+      (f) => f.scene === "ca-verify" && f.at === "bob" && /相手名/.test(f.text),
+    ),
+  );
+  assert.ok(
+    frames.some((f) => /CharlieはCAとの通信にも割り込める/.test(f.text)),
+  );
+});
+test("default signature round can be completed with Charlie key substitution and Charlie signature", () => {
+  const q = createQuest();
+  q.start(2);
+  assert.equal(q.view().authenticateSigner, false);
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  correct(q, "rewrap");
+  choose(q, "forward");
+  correct(q, "read");
+  correct(q, "forge-signature");
+  correct(q, "predict-safe");
+  correct(q, "edit");
+  choose(q, "forward");
+  assert.equal(q.view().result.code, "attack-success");
+  choose(q, "next");
+  assert.equal(q.view().round, 3);
+  assert.ok(q.view().ca);
+  assert.equal(q.view().authenticateSigner, true);
 });

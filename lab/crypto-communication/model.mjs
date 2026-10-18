@@ -18,14 +18,15 @@ export const rounds = [
     title: "電子署名の導入",
     short: "電子署名",
     description:
-      "Aliceが本文に署名を付け、Bobが信頼済みのAliceの公開鍵で検証する。",
+      "Aliceが署名を付けるが、検証用公開鍵の持ち主はまだ確認していない。",
     stages: ["公開鍵の配送", "共通鍵の配送", "署名付き暗号文の送信"],
   },
   {
     title: "公開鍵の真正性も確かめる",
     short: "追加実験",
-    description: "Aliceが、Bobの公開鍵を信頼済みの情報と照合する。",
-    stages: ["公開鍵の確認", "共通鍵の配送", "署名付き暗号文の送信"],
+    description:
+      "認証局の証明書と、ブラウザ内の信頼済みCA公開鍵で相手の鍵を確認する。",
+    stages: ["Bobの証明書の検証", "共通鍵の配送", "署名付き暗号文の送信"],
   },
 ];
 export function createLab() {
@@ -49,7 +50,7 @@ export function createLab() {
     fingerprint: "C4A1 · 7E82 · 0D95",
   });
   const privC = make("private", "チャーリーの秘密鍵", { owner: "charlie" });
-  const pubA = make("verify", "アリスの検証用公開鍵（信頼済み）", {
+  const pubA = make("verify", "アリスの検証用公開鍵", {
     owner: "alice",
     fingerprint: "A11C · 58E2 · 9D30",
   });
@@ -57,6 +58,73 @@ export function createLab() {
     owner: "charlie",
     fingerprint: "C519 · 84B7 · 2E61",
   });
+  // Trust anchor is provisioned with the browser, never imported from a packet.
+  const caRoot = make("trust", "ブラウザに事前登録されたCA公開鍵", {
+    owner: "ca",
+    fingerprint: "CA01 · 73D8 · 5A20",
+  });
+  const certify = (subject, publicId, signer = caRoot) => {
+    const id = make(
+      "certificate",
+      `${signer !== caRoot ? "偽の" : ""}${subject === "alice" ? "Alice" : subject === "bob" ? "Bob" : "Charlie"}の公開鍵証明書`,
+      {
+        owner: subject,
+        publicId,
+        issuer: "認証局 CA",
+        fingerprint: objects.get(publicId).fingerprint,
+      },
+    );
+    secrets.set(id, { certificate: { subject, publicId, signer } });
+    return id;
+  };
+  const certA = certify("alice", pubA),
+    certB = certify("bob", pubB),
+    certC = certify("charlie", pubC);
+  function validateCertificate(id, expectedOwner) {
+    const item = objects.get(id),
+      proof = secrets.get(id)?.certificate;
+    if (
+      !item ||
+      item.type !== "certificate" ||
+      !proof ||
+      proof.signer !== caRoot ||
+      proof.subject !== item.owner ||
+      proof.publicId !== item.publicId
+    )
+      return {
+        ok: false,
+        reason: "ca-signature",
+        text: "ブラウザに事前登録されたCA公開鍵では、証明書のCA署名を検証できない。",
+      };
+    if (proof.subject !== expectedOwner)
+      return {
+        ok: false,
+        reason: "identity",
+        text: "CA署名は正しいが、証明書の相手名が通信相手と一致しない。",
+      };
+    return {
+      ok: true,
+      keyId: proof.publicId,
+      key: { ...objects.get(proof.publicId) },
+      reason: "verified",
+    };
+  }
+  function forgeCertificate(publicId, claimedOwner = "bob") {
+    if (
+      !known.has(publicId) ||
+      !["public", "verify"].includes(objects.get(publicId)?.type)
+    )
+      return event("Charlieが持つ公開鍵を選んでください。", "error");
+    // Charlie can sign a certificate, but cannot sign as the trusted CA.
+    const id = certify(claimedOwner, publicId, pubC);
+    known.add(id);
+    return {
+      ...event(
+        "Charlieは、自分の公開鍵を相手の鍵と偽る証明書を作りました。CAの正しい署名はありません。",
+      ),
+      id,
+    };
+  }
   known.add(pubC);
   known.add(privC);
   const event = (text, kind = "info") => {
@@ -99,7 +167,11 @@ export function createLab() {
     return { ...a, current: a.type === "symmetric" ? id === s.key : undefined };
   }
   const inventory = () => [...known].map(view);
-  function start(round = 0, authenticate = true, authenticateSigner = true) {
+  function start(
+    round = 0,
+    authenticate = true,
+    authenticateSigner = round !== 2,
+  ) {
     if (s)
       history.push({ round: s.round, result: s.result?.code ?? "restart" });
     // Keep learned keys, but clear working data between independent attempts.
@@ -115,7 +187,11 @@ export function createLab() {
       round,
       authenticate,
       authenticateSigner,
-      verificationPublic: authenticateSigner ? pubA : verifyC,
+      verificationPublic: authenticateSigner
+        ? round === 3
+          ? validateCertificate(certA, "alice").keyId
+          : pubA
+        : verifyC,
       phase: round === 0 ? "key" : "public",
       step: 0,
       count: counter,
@@ -140,13 +216,23 @@ export function createLab() {
     if (round >= 2) {
       known.add(pubA);
       if (!authenticateSigner) known.add(verifyC);
+      if (round === 3) known.add(certC);
     }
-    s.incoming = round === 0 ? s.key : pubB;
+    s.incoming = round === 0 ? s.key : round === 3 ? certB : pubB;
     event(`${rounds[round].title}を開始。共通鍵は新しく生成されました。`);
     return snapshot();
   }
   function snapshot() {
     return {
+      ca:
+        s.round === 3
+          ? {
+              root: view(caRoot),
+              aliceCertificate: view(certA),
+              bobCertificate: view(certB),
+              charlieCertificate: view(certC),
+            }
+          : null,
       round: s.round,
       authenticate: s.authenticate,
       authenticateSigner: s.authenticateSigner,
@@ -187,7 +273,7 @@ export function createLab() {
       bobHasKey: Boolean(s.bobKey),
       publicForAlice: view(s.alicePublic),
       original: s.read ? "I love you." : null,
-      trustedFingerprint: s.round === 3 ? objects.get(pubB).fingerprint : null,
+      trustedFingerprint: null,
     };
   }
   function capture() {
@@ -197,6 +283,8 @@ export function createLab() {
         "error",
       );
     known.add(s.incoming);
+    if (objects.get(s.incoming)?.type === "certificate")
+      known.add(secrets.get(s.incoming).certificate.publicId);
     return event(
       `Charlieは、${objects.get(s.incoming).label}を持ち物にコピーしました。Charlieは、データをまだ転送していません。`,
     );
@@ -350,24 +438,33 @@ export function createLab() {
       a = objects.get(id),
       sealed = secrets.get(id);
     if (s.phase === "public") {
-      if (a.type !== "public") {
+      const certificateKey =
+        a.type === "certificate"
+          ? secrets.get(id)?.certificate?.publicId
+          : null;
+      const publicId = certificateKey || (a.type === "public" ? id : null);
+      if (s.round === 3 && s.authenticate) {
+        const checked = validateCertificate(id, "bob");
+        if (!checked.ok) {
+          finish(
+            "authenticated",
+            "証明書のすり替えを検出。共通鍵の配送前に停止",
+            checked.text +
+              "Aliceは共通鍵を送らないため、Charlieは本文を読めません。",
+          );
+          return;
+        }
+      }
+      if (!publicId) {
         finish(
           "bad-public",
-          "アリスが鍵を受け付けませんでした",
-          "公開鍵として使えないデータです。通信は中断され、本文は送られません。",
+          "Aliceが鍵を受け付けなかった",
+          "公開鍵を取り出せないデータです。本文は送られません。",
         );
         return;
       }
-      if (s.round === 3 && s.authenticate && id !== pubB) {
-        finish(
-          "authenticated",
-          "すり替えを検出。鍵配送の前に停止",
-          "受け取った公開鍵の指紋が、信頼済みのボブの指紋と一致しません。アリスは共通鍵を送らないので、チャーリーは本文を盗み見られません。署名による改ざん検出と、通信相手の公開鍵の確認を組み合わせます。",
-        );
-        return;
-      }
-      s.alicePublic = id;
-      s.incoming = envelope(s.key, id);
+      s.alicePublic = publicId;
+      s.incoming = envelope(s.key, publicId);
       s.phase = "key";
       s.step++;
       event(
@@ -482,6 +579,8 @@ export function createLab() {
   }
   return {
     checkpoint,
+    validateCertificate,
+    forgeCertificate,
     snapshot,
     start,
     capture,
