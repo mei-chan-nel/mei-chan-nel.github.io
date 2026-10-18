@@ -94,7 +94,7 @@ export function transferSteps(event) {
 // Endpoints are inside the receiving field, rather than on a panel's outer edge.
 export function transferGeometry(a, b, source, target, rect, bypass = false) {
   const horizontal = a.right <= b.left || b.right <= a.left;
-  let sx, sy, tx, ty, d, anchorX, anchorY;
+  let sx, sy, tx, ty, d;
   if (horizontal) {
     const forward = a.left < b.left;
     sx = (forward ? source.right - 3 : source.left + 3) - rect.left;
@@ -105,13 +105,9 @@ export function transferGeometry(a, b, source, target, rect, bypass = false) {
       entry = (forward ? b.left - 10 : b.right + 10) - rect.left;
     if (bypass) {
       const top = 8;
-      anchorX = (exit + entry) / 2;
-      anchorY = top;
       d = `M ${sx} ${sy} L ${exit} ${sy} L ${exit} ${top} L ${entry} ${top} L ${entry} ${ty} L ${tx} ${ty}`;
     } else {
       const cx = (exit + entry) / 2;
-      anchorX = cx;
-      anchorY = (sy + ty) / 2;
       d = `M ${sx} ${sy} L ${exit} ${sy} C ${cx} ${sy}, ${cx} ${ty}, ${entry} ${ty} L ${tx} ${ty}`;
     }
   } else {
@@ -121,11 +117,9 @@ export function transferGeometry(a, b, source, target, rect, bypass = false) {
     tx = (target.left + target.right) / 2 - rect.left;
     ty = (down ? target.top + 5 : target.bottom - 5) - rect.top;
     const cy = (down ? a.bottom + b.top : a.top + b.bottom) / 2 - rect.top;
-    anchorX = (sx + tx) / 2;
-    anchorY = cy;
     d = `M ${sx} ${sy} L ${sx} ${cy} L ${tx} ${cy} L ${tx} ${ty}`;
   }
-  return { d, sx, sy, tx, ty, anchorX, anchorY };
+  return { d, sx, sy, tx, ty };
 }
 export function createTransfers(workspace) {
   const svg = workspace.querySelector("svg"),
@@ -138,7 +132,7 @@ export function createTransfers(workspace) {
   // The same result is announced by the execution status and access log.
   callout.setAttribute("aria-hidden", "true");
   callout.append(heading, detail);
-  workspace.append(callout);
+  workspace.querySelector(".cache-request-content").append(callout);
   let event;
   const node = (tag, attrs) => {
     const n = document.createElementNS(NS, tag);
@@ -147,7 +141,6 @@ export function createTransfers(workspace) {
   };
   function draw() {
     svg.replaceChildren();
-    callout.hidden = true;
     workspace
       .querySelectorAll(".transfer-source,.transfer-target")
       .forEach((n) => {
@@ -155,6 +148,19 @@ export function createTransfers(workspace) {
         n.style.removeProperty("--transfer-color");
       });
     const steps = transferSteps(event);
+    const resolvedRequest =
+      typeof event?.hit === "boolean" &&
+      (event.phaseStage === "lookup" || !("phaseTransfer" in event)) &&
+      steps.some(
+        (step) => step.request && step.from === "cpu" && step.to === "cache",
+      );
+    callout.hidden = !resolvedRequest;
+    if (resolvedRequest) {
+      heading.textContent = event.hit ? "キャッシュヒット" : "キャッシュミス";
+      detail.textContent = `${event.address}番地 · ${event.hit ? "保持あり" : "ブロックなし"}`;
+      callout.classList.toggle("is-hit", event.hit);
+      callout.classList.toggle("is-miss", !event.hit);
+    }
     if (!steps.length) return;
     const rect = workspace.getBoundingClientRect();
     const defs = node("defs", {});
@@ -193,7 +199,9 @@ export function createTransfers(workspace) {
           : device === "cache"
             ? workspace.querySelector(
                 step.request
-                  ? "#cache-request"
+                  ? step.from === "ram" || step.to === "ram"
+                    ? "#cache-ram-port"
+                    : "#cache-request-port"
                   : step.block
                     ? `.cache-line[data-base="${step.base}"]`
                     : `.cache-cell[data-address="${step.address}"]`,
@@ -247,51 +255,6 @@ export function createTransfers(workspace) {
           class: `transfer-endpoint transfer-${purpose}`,
         }),
       );
-      const resolvedRequest =
-        step.request &&
-        step.from === "cpu" &&
-        step.to === "cache" &&
-        typeof event.hit === "boolean" &&
-        (event.phaseStage === "lookup" || !("phaseTransfer" in event));
-      if (resolvedRequest) {
-        heading.textContent = event.hit ? "キャッシュヒット" : "キャッシュミス";
-        detail.textContent = `${event.address}番地 · ${event.hit ? "保持あり" : "ブロックなし"}`;
-        callout.classList.toggle("is-hit", event.hit);
-        callout.classList.toggle("is-miss", !event.hit);
-        callout.hidden = false;
-        const width = callout.offsetWidth || 156,
-          height = callout.offsetHeight || 56,
-          { anchorX, anchorY } = geometry,
-          minLeft = Math.max(6, 6 - rect.left),
-          maxLeft = Math.max(
-            minLeft,
-            Math.min(
-              rect.width - width - 6,
-              window.innerWidth - rect.left - width - 6,
-            ),
-          ),
-          minTop = Math.max(6, 6 - rect.top),
-          maxTop = Math.max(
-            minTop,
-            Math.min(
-              rect.height - height - 6,
-              window.innerHeight - rect.top - height - 6,
-            ),
-          ),
-          above = anchorY - height - 8 >= minTop,
-          left = Math.min(maxLeft, Math.max(minLeft, anchorX - width / 2)),
-          top = Math.min(
-            maxTop,
-            Math.max(minTop, above ? anchorY - height - 8 : anchorY + 8),
-          );
-        callout.dataset.side = above ? "above" : "below";
-        callout.style.left = `${left}px`;
-        callout.style.top = `${top}px`;
-        callout.style.setProperty(
-          "--tail-left",
-          `${Math.max(10, Math.min(width - 10, anchorX - left))}px`,
-        );
-      }
     }
   }
   workspace.addEventListener("scroll", draw, true);

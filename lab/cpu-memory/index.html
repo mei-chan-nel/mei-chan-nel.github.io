@@ -99,7 +99,7 @@
         disabled
         title="1動作戻る"
       >
-        <span class="button-icon" aria-hidden="true">←</span> 一つ戻る
+        <span class="button-icon" aria-hidden="true">←</span> 前へ
       </button>
       <button
         class="button button-primary primary"
@@ -212,8 +212,8 @@
       type="button"
       class="fullscreen-action"
       data-control="previous"
-      aria-label="一つ戻る（1動作戻る）"
-      title="一つ戻る"
+      aria-label="前へ（1動作戻る）"
+      title="前へ"
       disabled
     >
       ←
@@ -395,7 +395,21 @@
           ></span
         >
       </div>
-      <p id="cache-request" class="cache-request">CPUからの要求待ち</p>
+      <div class="cache-request-panel">
+        <span
+          id="cache-request-port"
+          class="cache-request-port"
+          aria-hidden="true"
+        ></span>
+        <span
+          id="cache-ram-port"
+          class="cache-request-port cache-ram-port"
+          aria-hidden="true"
+        ></span>
+        <div class="cache-request-content">
+          <p id="cache-request" class="cache-request">CPUからの要求待ち</p>
+        </div>
+      </div>
       <p class="small-note" id="cache-caption">
         実行するとブロックが入ります。
       </p>
@@ -510,7 +524,7 @@
 <details class="model-notes">
   <summary>この実験のしくみ・時間の数え方</summary>
   <p>
-    RAMの行を押すと、現在の内容を確認しながら初期内容を編集できます。「次へ」で1動作ずつ進み、「一つ戻る」でCPU・RAM・キャッシュ・計測値を直前の段階へ戻します。青い破線は番地の要求、緑の実線は命令やデータの転送です。命令取得・読み出し・書き込みで色の意味は変わりません。キャッシュのヒット／ミスは要求の矢印のそばに吹き出しで表示します。ミスの場合も、まずCPUからキャッシュへ要求し、ミス判定後にRAMへブロックを要求します。キャッシュの枠には要求を処理する制御を含めて表しています。
+    RAMの行を押すと、現在の内容を確認しながら初期内容を編集できます。「次へ」で1動作ずつ進み、「前へ」でCPU・RAM・キャッシュ・計測値を直前の段階へ戻します。青い破線は番地の要求、緑の実線は命令やデータの転送です。命令取得・読み出し・書き込みで色の意味は変わりません。キャッシュのヒット／ミスは要求の矢印のそばに吹き出しで表示します。ミスの場合も、まずCPUからキャッシュへ要求し、ミス判定後にRAMへブロックを要求します。キャッシュの枠には要求を処理する制御を含めて表しています。
   </p>
   <p>
     命令と数値は同じRAM（0〜31番地）に置きます。命令取得とデータ読み書きは1つのキャッシュを共有し、2番地単位のブロックをどの枠にも保持できます。最近使われていないブロックから置き換えます（LRU）。書込ミスでもブロックを取得し（ライトアロケート）、RAMにもその都度書き込みます（ライトスルー）。書き込みによって命令が数値に変わる場合もあります。

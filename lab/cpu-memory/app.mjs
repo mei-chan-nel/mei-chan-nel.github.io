@@ -452,11 +452,11 @@ function focusPhase() {
   if (focus.device === "cache") {
     const block =
       machine.phase.stage === "lookup"
-        ? $("cache-request")
+        ? document.querySelector(".cache-request-panel")
         : document.querySelector(
             `.cache-line[data-base="${Math.floor(focus.address / 2) * 2}"]`,
           );
-    revealIn($("cache-lines"), block);
+    if (machine.phase.stage !== "lookup") revealIn($("cache-lines"), block);
     if (fullscreen.active)
       revealIn(document.querySelector(".cache-panel"), block, 38);
   }
@@ -469,7 +469,7 @@ function focusPhase() {
     if (t.from === "ram" || t.to === "ram") revealRam(t.address);
     if (t.from === "cache" || t.to === "cache") {
       const card = t.request
-        ? $("cache-request")
+        ? document.querySelector(".cache-request-panel")
         : document.querySelector(`.cache-line[data-base="${t.base}"]`);
       if (!t.request) revealIn($("cache-lines"), card);
       if (fullscreen.active)

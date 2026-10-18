@@ -61,7 +61,9 @@ dom.window.HTMLElement.prototype.getBoundingClientRect = function () {
   if (this.matches(".cpu-value")) return rect(25, 150, 170, 60);
   if (this.id === "current-command") return rect(25, 280, 170, 35);
   if (this.id === "pc") return rect(25, 250, 170, 25);
-  if (this.id === "cache-request") return rect(265, cacheRequestTop, 270, 35);
+  if (this.id === "cache-request-port")
+    return rect(265, cacheRequestTop, 14, 14);
+  if (this.id === "cache-ram-port") return rect(520, cacheRequestTop, 14, 14);
   if (this.id === "received-value") return rect(25, 340, 170, 35);
   if (this.matches(".cache-line,.cache-cell")) {
     const card = this.closest(".cache-line"),
@@ -83,6 +85,11 @@ const next = () => $("step").click(),
   target = () => document.querySelector(".transfer-target"),
   popup = document.querySelector(".transfer-callout");
 assert.equal(document.querySelector(".phase-panel"), null);
+assert.equal(
+  popup.parentElement,
+  document.querySelector(".cache-request-content"),
+);
+assert.match($("previous").textContent, /←\s*前へ/);
 assert.equal(popup.hidden, true);
 assert.match(
   document.querySelector(".transfer-legend").textContent,
@@ -90,7 +97,7 @@ assert.match(
 );
 next();
 assert.match(title(), /命令 0番地.*ミス/);
-assert.equal(target().id, "cache-request");
+assert.equal(target().id, "cache-request-port");
 assert.equal(
   document
     .querySelector(".transfer-path")
@@ -107,7 +114,7 @@ assert.match(title(), /実行前/);
 assert.equal($("previous").disabled, true);
 next();
 assert.match(title(), /命令 0番地.*ミス/);
-assert.equal(target().id, "cache-request");
+assert.equal(target().id, "cache-request-port");
 assert.equal(popup.hidden, false);
 assert.equal(popup.querySelector("strong").textContent, "キャッシュミス");
 assert.match(popup.textContent, /0番地.*ブロックなし/);
@@ -116,11 +123,16 @@ assert.equal(
   target().style.getPropertyValue("--transfer-color"),
   "var(--request-color)",
 );
-const popupTop = popup.style.top,
+const requestPath = document.querySelector(".transfer-path").getAttribute("d"),
   lookupWait = $("wait-metric").textContent;
 cacheRequestTop = 100;
 window.dispatchEvent(new Event("resize"));
-assert.notEqual(popup.style.top, popupTop);
+assert.notEqual(
+  document.querySelector(".transfer-path").getAttribute("d"),
+  requestPath,
+);
+assert.equal(popup.style.top, "");
+assert.equal(popup.style.left, "");
 assert.equal($("wait-metric").textContent, lookupWait);
 cacheRequestTop = 75;
 window.dispatchEvent(new Event("resize"));
@@ -140,7 +152,7 @@ next();
 assert.match(title(), /RAM 0番地へ読出要求/);
 assert.equal(popup.hidden, true);
 assert.equal(target().parentElement.dataset.address, "0");
-assert.equal(document.querySelector(".transfer-source").id, "cache-request");
+assert.equal(document.querySelector(".transfer-source").id, "cache-ram-port");
 next();
 assert.match(title(), /RAM 0・1番地/);
 assert.equal(target().dataset.base, "0");
@@ -166,11 +178,11 @@ assert.equal($("access-events").children.length, 1);
 const before = list.scrollTop;
 next();
 assert.equal($("current-command").classList.contains("is-executing"), false);
-assert.equal(target().id, "cache-request");
+assert.equal(target().id, "cache-request-port");
 assert.equal(list.scrollTop, before);
 assert.match(title(), /データ 16番地.*ミス/);
 assert.equal(list.scrollTop, before);
-assert.equal(target().id, "cache-request");
+assert.equal(target().id, "cache-request-port");
 assert.equal(popup.hidden, false);
 assert.match(popup.textContent, /キャッシュミス.*16番地/s);
 next();
