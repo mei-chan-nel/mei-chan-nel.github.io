@@ -95,7 +95,7 @@ export const contents = [
     id: "image-compression",
     group: "digital-representation",
     standalone: false,
-    styles: ["compression.css?v=5"],
+    styles: ["compression.css?v=6"],
     scripts: ["app.mjs?v=5"],
     name: "画像圧縮",
     description: "同じ画像を6形式で圧縮。サイズ・画質・処理時間を比べ、拡大と差分で圧縮の違いを探ろう。",

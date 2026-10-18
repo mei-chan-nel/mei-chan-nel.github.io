@@ -436,8 +436,8 @@ input[type="number"] {
 .detail-controls .format-metrics {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-.detail-controls [data-metric="original"],
-.detail-controls [data-metric="size"] {
+.detail-controls .format-metrics [data-metric="original"],
+.detail-controls .format-metrics [data-metric="size"] {
   font-size: 18px;
 }
 .quality-result {
