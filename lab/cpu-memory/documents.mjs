@@ -1,5 +1,21 @@
-import { copy, validateMemory, validateConfig } from "./model.mjs";
+import {
+  copy,
+  validateMemory,
+  validateConfig,
+  defaults,
+  SIZE,
+} from "./model.mjs";
 export const SAVED_KEY = "study-atlas-cpu-memory:saved:v1";
+export function newProgram() {
+  const initial = Array.from({ length: SIZE }, () => ({ op: "data", arg: 0 }));
+  initial[0] = { op: "halt", arg: 0 };
+  return programDocument({
+    version: 1,
+    name: "新しいプログラム",
+    initial,
+    config: { ...defaults },
+  });
+}
 export function programDocument(value) {
   if (
     !value ||

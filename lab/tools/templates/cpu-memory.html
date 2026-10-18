@@ -32,7 +32,7 @@
       <div
         class="memory-document-bar"
         role="group"
-        aria-label="プログラムの保存と読み込み"
+        aria-label="プログラムの作成・保存・共有"
       >
         <label class="experiment-name" for="experiment-name"
           ><span>プログラム名</span
@@ -43,8 +43,10 @@
             autocomplete="off"
         /></label>
         <div class="file-actions">
-          <button id="load-program" type="button">読込</button
+          <button id="new-program" type="button">新規作成</button
+          ><button id="load-program" type="button">読込</button
           ><button id="save-program" type="button">保存</button>
+          <button id="share-program" type="button">共有</button>
         </div>
       </div>
       <p class="experiment-hint" id="preset-hint"></p>

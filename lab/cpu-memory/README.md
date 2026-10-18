@@ -13,6 +13,7 @@ RAMの初期内容を書き換え、「次へ」で1動作ずつ進め、必要�
 - CPU・キャッシュ参照・RAM転送の実測仮想時間を別々に保持。メーターは青の無地・オレンジの斜線・紫の点模様で3区分に分け、同じ模様の凡例にラベルとns値を常時表示する。キャッシュにはミスの確認時間、RAMにはライトスルーの書込とOFF時の直接アクセスも含む。メーターの読み上げにも各時間と合計を含め、全画面でも凡例を表示する。比較表もCPU／キャッシュ／RAMの内訳を表示し、旧記録は参照回数と当時のアクセス時間から内訳を復元する。
 - 合計時間 = 命令数 × CPU処理時間 + メモリ待ち。ヒットはcache、読出ミスはcache+RAM、書込ヒットはcache+RAM、書込ミスはcache+RAM×2。OFFは各アクセスRAMのみ。表示速度は仮想時間と独立。
 - 上部の「読込」「保存」は論理回路ラボと同じ選択式メニュー。「読込」は5種類のプリセット・名前を付けてブラウザ内に保存したプログラム・JSONを選択。「保存」はブラウザ内保存（上書き／別名）・JSON書出を選択。名前付き保存は自動保存や比較記録とは独立し、初期RAMと設定を保存する。以前のversion 1 JSONも読込可能。
+- 「新規作成」は保存・破棄・キャンセルを選んでから、0番地に終了、残りに数値0を置いたRAMと標準設定を作成する。CPU・キャッシュ・計測・戻る履歴を初期化し、名前付き保存と比較結果は保持する。「共有」は初期RAM・プログラム名・設定をURLのフラグメントに格納し、URLコピー・対応端末の共有・JSON書出に対応する。共有URLを開く場合と「読込」に貼り付ける場合のどちらも、確認後に置き換える。実行途中の状態・比較記録・保存先IDは共有しない。
 - 同じ初期条件からのON/OFF一括比較、最大12件の結果保存・削除・条件復元。作業中のプログラムと比較記録はブラウザ内に自動保存。
 - 比較の条件番号は初期RAMと開始番地でグループ化。各記録には全設定・初期RAM・最終RAM・計測値を保存。途中の結果には「途中」を明示。
 - 不正な番地・命令位置・非数値データ参照・整数の範囲超過を検知。自動実行は10,000命令ごとに停止、一括比較は10,000命令で終了しなければ記録せず理由を表示。
@@ -49,11 +50,12 @@ CPUの進行説明パネル・ヒット／ミスのポップアップは設け�
 
 ```sh
 node lab/tools/build-pages.mjs
-node --test lab/cpu-memory/model.test.mjs lab/cpu-memory/documents.test.mjs lab/cpu-memory/phases.test.mjs
+node --test lab/cpu-memory/model.test.mjs lab/cpu-memory/documents.test.mjs lab/cpu-memory/phases.test.mjs lab/cpu-memory/sharing.test.mjs
 node lab/tools/build-pages.mjs --check
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-dom.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-fullscreen.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-documents.mjs
+LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-sharing.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-phases.mjs
 ```
 

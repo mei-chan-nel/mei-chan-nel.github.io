@@ -804,7 +804,7 @@ $("compare-off").addEventListener("click", () =>
     }
   }),
 );
-installProgramDocuments({
+const programDocuments = installProgramDocuments({
   read: () => {
     readDraft();
     return { version: 1, name, initial: copy(initial), config: copy(config) };
@@ -839,3 +839,4 @@ $("preset-hint").textContent =
   presets.find((p) => JSON.stringify(p.memory) === JSON.stringify(initial))
     ?.hint ??
   "保存したプログラムを復元しました。命令と値を自由に変更できます。";
+programDocuments.receiveLocation();
