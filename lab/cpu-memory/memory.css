@@ -7,6 +7,9 @@
   --target-pale: #ddebf7;
   --request-color: var(--blue-strong);
   --value-color: var(--mint);
+  --time-cpu: #0072b2;
+  --time-cache: #b36500;
+  --time-ram: #7a5195;
   --muted: #627674;
   --mono: "Cascadia Code", "Consolas", "Hiragino Sans", "Meiryo", monospace;
   --serif: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
@@ -925,17 +928,72 @@
   margin-left: 4px;
 }
 .time-track {
-  height: 5px;
+  height: 12px;
   display: flex;
   background: var(--paper-deep);
   border-radius: 5px;
   overflow: hidden;
 }
-#cpu-track {
-  background: var(--mint);
+.time-track > span {
+  flex: 0 0 auto;
+  min-width: 0;
 }
-#wait-track {
-  background: var(--coral);
+.time-track > span + span {
+  box-shadow: inset 1px 0 rgb(255 255 255 / 90%);
+}
+.time-cpu {
+  background-color: var(--time-cpu);
+}
+.time-cache {
+  background-color: var(--time-cache);
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 4px,
+    rgb(255 255 255 / 65%) 4px 6px
+  );
+}
+.time-ram {
+  background-color: var(--time-ram);
+  background-image: radial-gradient(
+    circle,
+    rgb(255 255 255 / 80%) 1px,
+    transparent 1.4px
+  );
+  background-size: 6px 6px;
+}
+.time-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 22px;
+  padding: 0;
+  margin: 9px 0 0;
+  list-style: none;
+  color: var(--ink);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+.time-legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.time-key {
+  flex: 0 0 20px;
+  height: 12px;
+  border: 1px solid #43535b;
+  border-radius: 2px;
+}
+.time-legend strong {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.is-fullscreen .time-legend {
+  margin-top: 5px;
+  gap: 3px 16px;
+  font-size: 0.65rem;
+}
+.is-fullscreen .time-key {
+  height: 10px;
 }
 .measurement-panel > p {
   font-size: 0.63rem;
@@ -1419,7 +1477,7 @@ html.memory-fullscreen body {
   font-size: 0.58rem;
 }
 .is-fullscreen .time-track {
-  height: 3px;
+  height: 9px;
   margin-top: 5px;
 }
 .is-fullscreen #access-summary {

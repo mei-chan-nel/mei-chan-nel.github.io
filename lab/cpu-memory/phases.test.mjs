@@ -19,6 +19,8 @@ test("fetch, decode, operand delivery and calculation are separate observable ac
   assert.equal(m.current, null);
   assert.equal(m.cache.length, 0);
   assert.equal(m.stats.wait, 2);
+  assert.equal(m.stats.cache, 2);
+  assert.equal(m.stats.ram, 0);
   assert.equal(m.stats.ramReads, 0);
   p = advance(m);
   assert.equal(p.stage, "ram-request");
@@ -30,6 +32,8 @@ test("fetch, decode, operand delivery and calculation are separate observable ac
   assert.equal(m.current, null);
   assert.equal(m.stats.ramReads, 1);
   assert.equal(m.stats.wait, 42);
+  assert.equal(m.stats.cache, 2);
+  assert.equal(m.stats.ram, 40);
   assert.deepEqual([p.transfer.from, p.transfer.to], ["ram", "cache"]);
   p = advance(m);
   assert.equal(p.stage, "cpu-receive");
@@ -155,12 +159,15 @@ test("write allocate fetches the old block, then updates cache, then mirrors the
   assert.equal(m.ram[18].arg, 0);
   assert.equal(m.stats.ramWrites, 0);
   assert.equal(m.stats.wait, 172);
+  assert.equal(m.stats.cache, 12);
+  assert.equal(m.stats.ram, 160);
   p = advance(m);
   assert.equal(p.stage, "ram-write");
   assert.deepEqual([p.transfer.from, p.transfer.to], ["cpu", "ram"]);
   assert.equal(m.ram[18].arg, 12);
   assert.equal(m.stats.ramWrites, 1);
   assert.equal(m.stats.wait, 212);
+  assert.equal(m.stats.ram, 200);
   assert.equal(m.steps, 2);
   p = advance(m);
   assert.equal(p.stage, "complete");

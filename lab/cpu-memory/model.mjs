@@ -109,6 +109,8 @@ export class Machine {
       ramReads: 0,
       ramWrites: 0,
       cpu: 0,
+      cache: 0,
+      ram: 0,
       wait: 0,
     };
     this.events = [];
@@ -141,12 +143,13 @@ export class Machine {
       complete: false,
     };
     this.events.push(event);
-    const charge = (cost) => {
+    const charge = (cost, device) => {
       event.cost += cost;
+      s[device] += cost;
       s.wait += cost;
     };
     if (c.enabled) {
-      charge(c.cacheTime);
+      charge(c.cacheTime, "cache");
       event.hit = !!line;
       if (line) {
         s.hits++;
@@ -209,7 +212,7 @@ export class Machine {
         this.cache.push(line);
         this.seen.add(base);
         s.ramReads++;
-        charge(c.ramTime);
+        charge(c.ramTime, "ram");
         event.reason += ` RAMから${base}・${base + 1}番地をまとめて取得。`;
         yield this.show(
           "block-fill",
@@ -269,7 +272,7 @@ export class Machine {
       }
       this.ram[address] = copy(event.cell);
       s.ramWrites++;
-      charge(c.ramTime);
+      charge(c.ramTime, "ram");
       event.reason += c.enabled
         ? " ライトスルーで同じ書込値をRAMにも反映。"
         : " RAMに書き込み。";
@@ -294,7 +297,7 @@ export class Machine {
     } else {
       if (!c.enabled) {
         s.ramReads++;
-        charge(c.ramTime);
+        charge(c.ramTime, "ram");
       }
       event.cell = copy(
         c.enabled ? line.cells[address - base] : this.ram[address],
@@ -462,5 +465,14 @@ export class Machine {
       phase: this.phase?.stage ?? null,
     };
   }
+}
+// Older comparison records stored the aggregate wait and access counts only.
+// Reconstruct their device times without replacing or discarding the record.
+export function timeBreakdown({ stats, config }) {
+  return {
+    cpu: stats.cpu,
+    cache: stats.cache ?? (stats.hits + stats.misses) * config.cacheTime,
+    ram: stats.ram ?? (stats.ramReads + stats.ramWrites) * config.ramTime,
+  };
 }
 export const conditionKey = (memory, start) => JSON.stringify([memory, start]);

@@ -50,8 +50,15 @@ assert.equal(
   0,
 );
 assert.equal($("instruction-guide").children.length, 8);
+assert.equal(document.querySelectorAll(".time-track > span").length, 3);
+assert.equal(document.querySelectorAll(".time-legend li").length, 3);
+assert.equal($("cache-legend-value").textContent, "0 ns");
+assert.equal($("ram-legend-value").textContent, "0 ns");
 click("step");
 assert.equal($("acc").textContent, "7");
+assert.equal($("cpu-legend-value").textContent, "1 ns");
+assert.equal($("cache-legend-value").textContent, "4 ns");
+assert.equal($("ram-legend-value").textContent, "80 ns");
 assert.equal($("access-events").children.length, 2);
 assert.match($("access-reason").textContent, /16・17/);
 $("access-events").children[0].click();
@@ -68,8 +75,23 @@ assert.equal(
 click("step");
 assert.equal($("state").textContent, "終了");
 assert.equal($("total-time").textContent, "218ns");
+assert.equal($("cpu-legend-value").textContent, "4 ns");
+assert.equal($("cache-legend-value").textContent, "14 ns");
+assert.equal($("ram-legend-value").textContent, "200 ns");
+assert.match(
+  $("time-track").getAttribute("aria-label"),
+  /CPU処理 4 ns、キャッシュ参照 14 ns、RAM転送 200 ns/,
+);
+const widths = ["cpu", "cache", "ram"].map((part) =>
+  parseFloat($(`${part}-track`).style.width),
+);
+assert.ok(Math.abs(widths.reduce((a, b) => a + b, 0) - 100) < 1e-9);
 click("save-result");
 assert.equal($("result-rows").children.length, 1);
+assert.equal(
+  $("result-rows").children[0].children[4].textContent,
+  "4 / 14 / 200",
+);
 editRam(16, { arg: 9 });
 assert.equal($("state").textContent, "実行前");
 assert.equal($("acc").textContent, "0");
@@ -84,6 +106,8 @@ $("cache-enabled").checked = false;
 $("cache-enabled").dispatchEvent(new Event("change"));
 click("step");
 assert.equal($("wait-metric").textContent, "80");
+assert.equal($("cache-legend-value").textContent, "0 ns");
+assert.equal($("ram-legend-value").textContent, "80 ns");
 assert.match($("access-reason").textContent, /OFF/);
 click("reset");
 click("compare-off");

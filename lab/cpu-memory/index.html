@@ -465,9 +465,31 @@
       <div><span>ヒット率</span><strong id="hit-rate">—</strong></div>
       <div><span>アクセス回数</span><strong id="access-count">0</strong></div>
     </div>
-    <div role="img" class="time-track" aria-label="CPU処理とメモリ待ちの割合">
-      <span id="cpu-track"></span><span id="wait-track"></span>
+    <div
+      id="time-track"
+      role="img"
+      class="time-track"
+      aria-label="時間の内訳：CPU処理 0 ns、キャッシュ参照 0 ns、RAM転送 0 ns。"
+    >
+      <span id="cpu-track" class="time-cpu"></span
+      ><span id="cache-track" class="time-cache"></span
+      ><span id="ram-track" class="time-ram"></span>
     </div>
+    <ul class="time-legend" role="list" aria-label="時間の内訳の凡例">
+      <li>
+        <i class="time-key time-cpu" aria-hidden="true"></i><span>CPU処理</span
+        ><strong id="cpu-legend-value">0 ns</strong>
+      </li>
+      <li>
+        <i class="time-key time-cache" aria-hidden="true"></i
+        ><span>キャッシュ参照</span
+        ><strong id="cache-legend-value">0 ns</strong>
+      </li>
+      <li>
+        <i class="time-key time-ram" aria-hidden="true"></i><span>RAM転送</span
+        ><strong id="ram-legend-value">0 ns</strong>
+      </li>
+    </ul>
     <p id="access-summary">命令取得 0 · 読出 0 · 書込 0　 /　RAM転送 0</p>
   </section>
   <details class="memory-records" id="comparison-records" open>
@@ -496,7 +518,7 @@
                 <th>キャッシュ</th>
                 <th>結果 / 命令数</th>
                 <th>合計時間</th>
-                <th>CPU / 待ち</th>
+                <th>CPU / キャッシュ / RAM（ns）</th>
                 <th>ヒット率</th>
                 <th>アクセス / RAM転送</th>
                 <th><span class="visually-hidden">操作</span></th>
@@ -524,6 +546,9 @@
     ヒット＝キャッシュ時間。読出ミス＝キャッシュ時間＋RAM転送時間。書込ヒット＝キャッシュ時間＋RAM転送時間。書込ミス＝キャッシュ時間＋RAM転送時間×2（ブロック取得と書込）。OFF時は1参照につきRAM転送時間。ブロック取得は2番地まとめて1転送と数えます。合計＝命令数×CPU処理時間＋全アクセスの待ち時間。表示は動作ごとに分けますが、CPU処理時間は命令完了時に1回だけ計上します。読み出しは、ヒット時はキャッシュ
     → CPU、ミス時はRAM → キャッシュ →
     CPU。RAMからの取得を2回数えているわけではありません。実機では、必要な値をブロック取得中に先にCPUへ返す場合もあります。書き込みは同じCPUの値をキャッシュとRAMへ反映するライトスルーです。実機のコントローラ・書込バッファ・並行処理は省き、教材では順番に表示して時間を加算します。表示の速さは仮想時間に影響しません。
+  </p>
+  <p>
+    実行状況のメーターは、CPU処理・キャッシュ参照・RAM転送にかかった時間の割合です。凡例の数値はそれぞれの仮想時間を表します。キャッシュ参照にはミスを調べた時間も含みます。RAM転送にはミス時のブロック取得、ライトスルーの書き込み、キャッシュOFF時の直接アクセスを含みます。青の無地・オレンジの斜線・紫の点模様を使い、色だけでなく模様と文字でも区別できます。
   </p>
   <p>
     値は安全な整数の範囲で扱います。自動実行は10,000命令ごとに一時停止。一括比較は10,000命令以内で終了するプログラムが対象です。RAM・設定の変更後はキャッシュを空にし、計算中の値を0に戻します。保存済みの比較記録は保持します。

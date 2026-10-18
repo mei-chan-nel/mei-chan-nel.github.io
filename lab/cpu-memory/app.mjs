@@ -7,6 +7,7 @@ import {
   validateMemory,
   validateConfig,
   conditionKey,
+  timeBreakdown,
 } from "./model.mjs";
 import { presets } from "./presets.mjs";
 import { createMemoryFullscreen } from "./fullscreen.mjs";
@@ -91,6 +92,11 @@ try {
             "ramReads",
             "ramWrites",
           ].every((k) => Number.isFinite(r.stats[k]) && r.stats[k] >= 0) &&
+          ["cache", "ram"].every(
+            (k) =>
+              r.stats[k] === undefined ||
+              (Number.isFinite(r.stats[k]) && r.stats[k] >= 0),
+          ) &&
           Number.isSafeInteger(r.acc) &&
           Number.isInteger(r.steps) &&
           typeof r.name === "string"
@@ -433,7 +439,8 @@ function render() {
   }
   transfers.update(displayedAccess);
   const s = machine.stats,
-    total = s.cpu + s.wait;
+    total = s.cpu + s.wait,
+    times = timeBreakdown(machine);
   $("total-time").replaceChildren(
     document.createTextNode(format(total)),
     el("small", "ns"),
@@ -442,8 +449,15 @@ function render() {
   $("wait-metric").textContent = format(s.wait);
   $("hit-rate").textContent = rate(machine);
   $("access-count").textContent = s.fetch + s.read + s.write;
-  $("cpu-track").style.width = `${total ? (s.cpu / total) * 100 : 0}%`;
-  $("wait-track").style.width = `${total ? (s.wait / total) * 100 : 0}%`;
+  for (const part of ["cpu", "cache", "ram"]) {
+    $(`${part}-track`).style.width =
+      `${total ? (times[part] / total) * 100 : 0}%`;
+    $(`${part}-legend-value`).textContent = `${format(times[part])} ns`;
+  }
+  $("time-track").setAttribute(
+    "aria-label",
+    `時間の内訳：CPU処理 ${format(times.cpu)} ns、キャッシュ参照 ${format(times.cache)} ns、RAM転送 ${format(times.ram)} ns。合計 ${format(total)} ns。`,
+  );
   $("access-summary").textContent =
     `命令取得 ${s.fetch} · 読出 ${s.read} · 書込 ${s.write}　 /　ヒット ${s.hits} · ミス ${s.misses}　 /　RAM転送 ${s.ramReads + s.ramWrites}（取得 ${s.ramReads}・書込 ${s.ramWrites}）`;
 }
@@ -672,7 +686,8 @@ function renderRecords() {
       tr = el("tr"),
       title = el("td"),
       c = result.config,
-      s = result.stats;
+      s = result.stats,
+      times = timeBreakdown(result);
     title.append(
       el("strong", result.name),
       el(
@@ -693,7 +708,10 @@ function renderRecords() {
       el("td", c.enabled ? `ON · ${c.blocks}個` : "OFF"),
       el("td", `${format(result.acc)} / ${result.steps}命令（${status}）`),
       el("td", `${format(s.cpu + s.wait)} ns`),
-      el("td", `${format(s.cpu)} / ${format(s.wait)}`),
+      el(
+        "td",
+        `${format(times.cpu)} / ${format(times.cache)} / ${format(times.ram)}`,
+      ),
       el("td", rate(result)),
       el("td", `${s.fetch + s.read + s.write} / ${s.ramReads + s.ramWrites}`),
     );

@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { Machine, defaults, copy, conditionKey } from "./model.mjs";
+import {
+  Machine,
+  defaults,
+  copy,
+  conditionKey,
+  timeBreakdown,
+} from "./model.mjs";
 import { presets } from "./presets.mjs";
 const run = (memory, config = {}) => {
   const m = new Machine(memory, { ...defaults, ...config });
@@ -49,12 +55,37 @@ test("two-address fills, instruction sharing and explicit timing", () => {
   m.step();
   assert.equal(m.stats.wait, 214);
   assert.equal(m.stats.cpu, 4);
+  assert.deepEqual(timeBreakdown(m), { cpu: 4, cache: 14, ram: 200 });
   assert.equal(m.stats.hits, 3);
   assert.equal(m.stats.misses, 4);
   const off = run(presets[0].memory, { enabled: false });
   assert.equal(off.stats.wait, 280);
   assert.equal(off.stats.cpu, 4);
   assert.equal(off.stats.hits, 0);
+  assert.deepEqual(timeBreakdown(off), { cpu: 4, cache: 0, ram: 280 });
+  const legacy = m.result();
+  delete legacy.stats.cache;
+  delete legacy.stats.ram;
+  assert.deepEqual(timeBreakdown(legacy), timeBreakdown(m));
+});
+test("cache lookup time includes misses and a write hit still charges RAM for write through", () => {
+  const m = new Machine(blank(), { ...defaults, cacheTime: 3, ramTime: 11 });
+  m.advance();
+  assert.deepEqual(timeBreakdown(m), { cpu: 0, cache: 3, ram: 0 });
+  assert.equal(m.stats.misses, 1);
+  const access = new Machine(blank(), {
+    ...defaults,
+    cacheTime: 3,
+    ramTime: 11,
+  });
+  access.access(16, "read");
+  assert.deepEqual(timeBreakdown(access), { cpu: 0, cache: 3, ram: 11 });
+  access.access(16, "write", 9);
+  assert.equal(access.events.at(-1).hit, true);
+  assert.deepEqual(timeBreakdown(access), { cpu: 0, cache: 6, ram: 22 });
+  assert.equal(access.stats.wait, access.stats.cache + access.stats.ram);
+  assert.equal(access.stats.ramReads, 1);
+  assert.equal(access.stats.ramWrites, 1);
 });
 test("LRU uses every access, evicts the least recently used block, distinguishes first and capacity misses", () => {
   const m = new Machine(blank(), defaults);
