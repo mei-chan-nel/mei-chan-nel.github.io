@@ -49,7 +49,7 @@ def read_portal_urls() -> list[str]:
         "lab/color-vision/index.html",
         "lab/thinking-tools/index.html",
         "lab/radix-conversion/index.html",
-        "lab/digital-image/index.html",
+        "lab/digital-image/index.html", "lab/image-compression/index.html",
         "lab/digital-audio/index.html",
         "lab/logic-circuit/index.html",
         "lab/flowchart/index.html", "lab/packet-routing/index.html",
