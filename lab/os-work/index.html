@@ -4,12 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>OSの仕事｜Interactive Lab｜情報Ⅰ Study Atlas</title>
-<meta name="description" content="3つのアプリを操作しながら、OSのCPU時間分割・プロセス管理・メモリ管理を体験する情報Ⅰの教材。" />
+<meta name="description" content="3つのアプリとバックグラウンドアプリを操作しながら、OSのCPU時間分割・プロセス管理・メモリ管理を体験する情報Ⅰの教材。" />
 <meta name="robots" content="noindex, nofollow" />
 <meta name="theme-color" content="#102f35" />
 <link rel="icon" href="../icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-<link rel="stylesheet" href="./os-work.css?v=2" />
+<link rel="stylesheet" href="./os-work.css?v=3" />
 </head>
 <body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -38,21 +38,23 @@
 <div class="queue-line"><span>実行待ち</span><div id="ready-queue">なし</div></div>
 <div class="timeline-heading"><h3>CPUの実行履歴</h3><span id="history-range">過去 → 現在</span></div>
 <div id="cpu-history" class="cpu-history" role="group" aria-label="CPU履歴。各マスを選ぶとその時点を説明します。"></div>
-<div class="legend"><span data-owner="web">Web</span><span data-owner="music">音楽</span><span data-owner="photo">写真</span><span data-owner="os">OS</span><span data-owner="idle">空き</span></div>
+<div class="legend"><span data-owner="web">Web</span><span data-owner="music">音楽</span><span data-owner="photo">写真</span><span data-owner="notify">通知</span><span data-owner="sync">同期</span><span data-owner="security">セキュリティ</span><span data-owner="os">OS</span><span data-owner="idle">空き</span></div>
 <div id="history-info" class="history-info"><p>履歴のマスを選ぶと、処理内容と切り替え理由が分かります。</p></div>
+<section class="background-apps" aria-labelledby="background-heading"><h3 id="background-heading">バックグラウンドで動くアプリ</h3><p class="background-hint">ふだんは待機し、ときどきCPUを使います。画面を開かずに動き、待機中もメモリを保持します。</p><div id="background-launcher"></div></section>
 </section>
 </div>
 <section class="panel memory-panel" aria-labelledby="memory-heading">
 <div class="panel-heading"><h2 id="memory-heading"><span class="section-index">03</span> メモリを見る</h2><span id="memory-total" class="quiet">160 / 1024 MB 使用中</span></div>
 <div class="memory-band" id="memory-band" role="img" aria-label="メモリ使用状況"></div><div class="memory-labels" id="memory-labels"></div>
+<div id="allocation-notice" class="allocation-notice" role="status" aria-live="polite" hidden><strong id="allocation-title"></strong><p id="allocation-message"></p></div>
 </section>
 <div class="insight" role="status" aria-live="polite" aria-atomic="true"><span aria-hidden="true">↳</span><p id="explanation">起動するとメモリを確保。CPUが必要なときだけ、OSが順番に時間を割り当てます。</p></div>
 <details class="details-panel" id="state-details"><summary>プロセスの状態・イベントログを見る</summary><div class="details-body"><p class="state-key"><strong>実行中</strong>＝CPUを使用　 <strong>実行待ち</strong>＝CPUの順番待ち　 <strong>イベント待ち</strong>＝入力・通信・音声出力などを待つ</p><div class="table-scroll"><table><caption class="visually-hidden">現在の各プロセス</caption><thead><tr><th>プロセス</th><th>起動</th><th>表示</th><th>CPUの状態</th><th>メモリ</th></tr></thead><tbody id="process-table"></tbody></table></div><p id="pending-inputs"></p><h3>イベントログ <small>新しい順 / 直近80件</small></h3><ol id="event-log" class="event-log"></ol></div></details>
-<details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes"><ol><li>Webを起動してページを読み込む。通信待ちと、表示が続く間のCPUを観察する。</li><li>音楽を再生してから写真加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li><li>アプリの状態表示で「CPUで実行中」「CPUの順番待ち」「イベント待ち」を比べる。一時停止して履歴を選び、起動中でもCPUを使わない時間があること、終了でメモリが戻ることを確かめる。</li></ol><p>1 tickはこの教材の仮想時間です。観察のため処理やOSの仕事を大きく引き延ばしています。1コア・最大3 tickのラウンドロビン方式を使い、各アプリを1プロセスとして扱います。実際のOSは優先度、複数コア、複数スレッドなども扱い、時間配分は状況により変わります。</p><p>通信は仮想的な待ち時間、メモリ量は固定の教材用値です。写真加工中のみ作業用200 MBを追加確保し、加工完了時に解放します。仮想メモリや断片化は扱いません。画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。</p><p>音楽アプリではパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。シミュレーションの一時停止や音声バッファ残量に合わせて音も停止します。音声バッファはOSの働きを観察するためのモデルで、録音の実際のデコード処理を計測するものではありません。ブラウザのタブを離れると自動で一時停止します。</p></div></details>
+<details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes"><ol><li>Webを起動してページを読み込む。通信待ちと、表示が続く間のCPUを観察する。</li><li>音楽を再生してから写真加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li><li>通知アプリ・クラウド同期・セキュリティ対策を起動する。ふだんはイベント待ちでも、ときどきCPUの仕事が発生する。写真加工と重なったときに、実行待ちのアプリが順番を待つことを確かめる。</li><li>アプリの状態表示で「CPUで実行中」「CPUの順番待ち」「イベント待ち」を比べる。一時停止して履歴を選び、起動中でもCPUを使わない時間があること、終了でメモリが戻ることを確かめる。</li></ol><p>CPUの順番待ちは、実行する仕事があっても、ほかの処理への割り当てが終わるまで待っている状態です。処理が止まっている間もメモリを保持します。一方、空きメモリが足りないと、新しいアプリの起動や写真加工の作業用200 MBの確保は失敗します。ほかのアプリは自動終了しません。不要なアプリを終了し、空きを作ってからもう一度操作してください。</p><h3>メモリ不足を試す</h3><ul><li>OSと3つのアプリで720 MBを使用。通知64 MB・同期96 MB・セキュリティ128 MBも起動すると1008 MBになり、空き16 MBでは写真加工の200 MBを確保できません。同期とセキュリティを終了すると784 MB・空き240 MBになり、加工を再試行できます。</li><li>リセット後、3つのアプリを起動して写真を加工すると920 MBを使用。通知を起動すると984 MBになり、空き40 MBでは同期96 MBの起動が失敗します。写真加工の完了かアプリの終了で空きを作り、同期の起動を試し直してください。</li></ul><p>1 tickはこの教材の仮想時間です。観察のため処理やOSの仕事を大きく引き延ばしています。1コア・最大3 tickのラウンドロビン方式を使い、各アプリを1プロセスとして扱います。通知アプリ・クラウド同期・セキュリティ対策の定期的な仕事も仮想時間で発生し、実際の通信・ファイル同期・セキュリティ検査は行いません。実際のOSは優先度、複数コア、複数スレッドなども扱い、時間配分は状況により変わります。</p><p>通信は仮想的な待ち時間、メモリ量は固定の教材用値です。写真加工中のみ作業用200 MBを追加確保し、加工完了時に解放します。仮想メモリや断片化は扱いません。画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。</p><p>音楽アプリではパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。シミュレーションの一時停止や音声バッファ残量に合わせて音も停止します。音声バッファはOSの働きを観察するためのモデルで、録音の実際のデコード処理を計測するものではありません。ブラウザのタブを離れると自動で一時停止します。</p></div></details>
 <p class="lab-back"><a href="../">← Lab一覧へ</a><a href="../../study-guide.html#lab">使い方</a></p>
 <noscript><p>この教材はJavaScriptを有効にして利用してください。</p></noscript>
 </main>
 <footer class="os-footer">情報Ⅰ Study Atlas <span>知識を、ひろげ、つなげる</span></footer>
 <script type="module" src="../navigation.mjs?v=1"></script>
-<script type="module" src="./app.mjs?v=2"></script>
+<script type="module" src="./app.mjs?v=3"></script>
 </body></html>

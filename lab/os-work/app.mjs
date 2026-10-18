@@ -1,17 +1,29 @@
-import { OSSimulation } from "./simulation.mjs";
+import {
+  OSSimulation,
+  APP_CONFIG,
+  FOREGROUND_IDS,
+  BACKGROUND_IDS,
+} from "./simulation.mjs";
 import { RecordedAudioController } from "./audio-controller.mjs";
 import { tracks } from "./audio/tracks.mjs";
 
 const simulation = new OSSimulation();
+for (const [id, config] of Object.entries(APP_CONFIG))
+  document.querySelector(".os-lab").style.setProperty(`--${id}`, config.color);
 const $ = (id) => document.getElementById(id);
 const names = {
-  web: "Webブラウザ",
-  music: "音楽再生",
-  photo: "写真加工",
+  ...Object.fromEntries(
+    Object.entries(APP_CONFIG).map(([id, app]) => [id, app.label]),
+  ),
   os: "OS",
   idle: "アイドル",
 };
 const icons = { web: "◎", music: "♫", photo: "▧" };
+const backgroundHints = {
+  notify: "模擬通知を受信すると短く処理",
+  sync: "CPU処理と通信待ちで同期",
+  security: "定期的に自動スキャン",
+};
 const states = {
   running: "CPUで実行中",
   ready: "実行待ち",
@@ -103,12 +115,16 @@ document.addEventListener("visibilitychange", () => {
 });
 
 function makeLauncher() {
-  $("app-launcher").innerHTML = Object.keys(snapshot.apps)
-    .map(
-      (id) =>
-        `<div class="app-row" data-owner="${id}" data-app-row="${id}"><div class="app-name"><span class="app-icon" aria-hidden="true">${icons[id]}</span><div><strong>${names[id]}</strong><small><span class="app-state-dot"></span><span class="app-state-label"></span></small><span class="launcher-buffer" hidden><span class="launcher-buffer-track" aria-hidden="true"><i></i></span><span class="launcher-buffer-text"></span></span></div></div><button type="button" data-action="view" data-app="${id}" aria-label="${names[id]}を表示">表示</button><button type="button" data-action="lifecycle" data-app="${id}">起動</button></div>`,
-    )
-    .join("");
+  $("app-launcher").innerHTML = FOREGROUND_IDS.map(
+    (id) =>
+      `<div class="app-row" data-owner="${id}" data-app-row="${id}"><div class="app-name"><span class="app-icon" aria-hidden="true">${icons[id]}</span><div><strong>${names[id]}</strong><small><span class="app-state-dot"></span><span class="app-state-label"></span></small><span class="launcher-buffer" hidden><span class="launcher-buffer-track" aria-hidden="true"><i></i></span><span class="launcher-buffer-text"></span></span></div></div><button type="button" data-action="view" data-app="${id}" aria-label="${names[id]}を表示">表示</button><button type="button" data-action="lifecycle" data-app="${id}">起動</button></div>`,
+  ).join("");
+}
+function makeBackgroundLauncher() {
+  $("background-launcher").innerHTML = BACKGROUND_IDS.map(
+    (id) =>
+      `<div class="background-row" data-owner="${id}" data-background-row="${id}"><div class="background-copy"><div class="background-name"><strong>${names[id]}</strong><span class="background-memory"></span></div><p><strong class="background-state"></strong><span class="background-task"></span></p></div><button type="button" data-action="lifecycle" data-app="${id}">起動</button></div>`,
+  ).join("");
 }
 function makeAppViews() {
   const empty = (id) =>
@@ -135,7 +151,7 @@ function makeAppViews() {
     )
     .join("");
 }
-$("app-launcher").addEventListener("click", (event) => {
+function handleLauncherClick(event) {
   const button = event.target.closest("button[data-action]");
   if (!button || button.disabled) return;
   const { action, app } = button.dataset;
@@ -153,7 +169,9 @@ $("app-launcher").addEventListener("click", (event) => {
         : simulation.launch(app),
     );
   }
-});
+}
+$("app-launcher").addEventListener("click", handleLauncherClick);
+$("background-launcher").addEventListener("click", handleLauncherClick);
 $("app-content").addEventListener("change", (event) => {
   if (event.target.id !== "music-track") return;
   const track = tracks.find((entry) => entry.id === event.target.value);
@@ -218,19 +236,25 @@ $("state-details").addEventListener("toggle", () => {
 const pendingFor = (id) =>
   snapshot.pendingInputs.filter((input) => input.id === id);
 function renderLauncher() {
-  for (const [id, app] of Object.entries(snapshot.apps)) {
+  for (const id of FOREGROUND_IDS) {
+    const app = snapshot.apps[id];
     const row = $("app-launcher").querySelector(`[data-app-row="${id}"]`);
     const pending = pendingFor(id).some((input) =>
       ["launch", "close"].includes(input.type),
     );
     row.dataset.visible = String(snapshot.visible === id);
-    row.dataset.state = pending ? "pending" : app.state;
+    const failure = snapshot.failures?.[id];
+    row.dataset.state = pending ? "pending" : failure ? "failed" : app.state;
     row.querySelector(".app-state-dot").classList.toggle("on", app.running);
     row.querySelector(".app-state-label").textContent = pending
       ? "OSが操作を受け付けました"
-      : app.running
-        ? `起動中 · ${states[app.state]}`
-        : "未起動";
+      : failure
+        ? app.running
+          ? "起動中 · 作業メモリ不足"
+          : "メモリ不足 · 未起動"
+        : app.running
+          ? `起動中 · ${states[app.state]}`
+          : "未起動";
     const view = row.querySelector('[data-action="view"]');
     view.textContent = snapshot.visible === id ? "表示中" : "表示";
     view.setAttribute("aria-pressed", String(snapshot.visible === id));
@@ -241,7 +265,9 @@ function renderLauncher() {
         : "起動待ち"
       : app.running
         ? "終了"
-        : "起動";
+        : failure
+          ? "再試行"
+          : "起動";
     lifecycle.disabled = pending;
     lifecycle.setAttribute(
       "aria-label",
@@ -261,14 +287,81 @@ function renderLauncher() {
     }
   }
 }
+function renderBackgroundLauncher() {
+  for (const id of BACKGROUND_IDS) {
+    const app = snapshot.apps[id];
+    const background = app.background;
+    const row = $("background-launcher").querySelector(
+      `[data-background-row="${id}"]`,
+    );
+    const pending = pendingFor(id).some((input) =>
+      ["launch", "close"].includes(input.type),
+    );
+    const failure = snapshot.failures?.[id];
+    row.dataset.state = pending ? "pending" : failure ? "failed" : app.state;
+    row.querySelector(".background-memory").textContent =
+      `${app.running ? app.memory : APP_CONFIG[id].memory} MB${app.running ? " 保持" : " 必要"}`;
+    row.querySelector(".background-state").textContent = pending
+      ? "OSの処理待ち"
+      : failure
+        ? "メモリ不足 · 未起動"
+        : app.state === "running"
+          ? "● CPU割り当て中"
+          : app.state === "ready"
+            ? "◷ CPUの順番待ち"
+            : app.running
+              ? "Ⅱ イベント待ち · CPU未使用"
+              : "未起動";
+    let task = backgroundHints[id];
+    if (pending)
+      task = playing ? "操作を受け付けました" : "OSの「再生」で進みます";
+    else if (failure)
+      task = `必要 ${failure.required} MB／失敗時の空き ${failure.available} MB`;
+    else if (app.running) {
+      if (!playing) task = "OS一時停止中";
+      else if (app.state === "running" || app.state === "ready")
+        task = app.task;
+      else if (background.pendingEvent)
+        task = "イベント発生 · OSの割り込み待ち";
+      else if (background.phase === "network")
+        task = `通信の完了まで ${background.networkRemaining} tick`;
+      else
+        task = `次の${id === "notify" ? "通知" : id === "sync" ? "同期" : "スキャン"}まで ${Math.max(0, background.nextEventAt - snapshot.time)} tick`;
+    }
+    row.querySelector(".background-task").textContent = ` · ${task}`;
+    const button = row.querySelector("button");
+    button.disabled = pending;
+    button.textContent = pending
+      ? app.running
+        ? "終了待ち"
+        : "起動待ち"
+      : app.running
+        ? "終了"
+        : failure
+          ? "再試行"
+          : "起動";
+    button.setAttribute(
+      "aria-label",
+      `${names[id]}を${app.running ? "終了" : "起動"}`,
+    );
+  }
+}
+function allocationFeedback(failure) {
+  return `${failure.time} tick の操作では ${failure.required} MB 必要でしたが、空きは ${failure.available} MB でした。現在の空きは ${snapshot.memory.free} MB。${snapshot.memory.free >= failure.required ? "現在は必要な空きがあります。同じ操作を再試行できます。" : "ほかのアプリを終了するか、加工の完了を待ってから再試行してください。"}`;
+}
 function renderProcessStatus() {
   const id = snapshot.visible;
   const app = snapshot.apps[id];
   const pending = pendingFor(id);
+  const failure = snapshot.failures?.[id];
   const status = $("window-process-status");
   status.dataset.owner = id;
   status.dataset.paused = String(!playing);
-  status.dataset.state = pending.length ? "pending" : app.state;
+  status.dataset.state = pending.length
+    ? "pending"
+    : failure
+      ? "failed"
+      : app.state;
   const label = {
     running: "● CPU割り当て中",
     ready: "◷ CPUの順番待ち",
@@ -280,6 +373,8 @@ function renderProcessStatus() {
     detail = playing
       ? "入力を受け付けました。OSが順番に処理します。"
       : "OSは一時停止中です。「再生」で受け付けた操作を進めます。";
+  else if (failure)
+    detail = `${allocationFeedback(failure)} CPUの順番待ちとは異なる、メモリ確保の失敗です。`;
   else if (!app.running)
     detail = "起動するとメモリに読み込まれ、操作できるようになります。";
   else if (!playing)
@@ -293,12 +388,17 @@ function renderProcessStatus() {
   else detail = `${app.task}。メモリと画面は保持しています。`;
   $("window-process-label").textContent = pending.length
     ? "入力を受け付けました"
-    : `${!playing && app.running ? "一時停止中 · " : ""}${label[app.state]}`;
+    : failure
+      ? failure.operation === "workspace"
+        ? "作業用メモリの確保に失敗"
+        : "メモリ不足で起動できません"
+      : `${!playing && app.running ? "一時停止中 · " : ""}${label[app.state]}`;
   $("window-process-detail").textContent = detail;
 }
 function renderAppViews() {
   $("window-title").textContent = names[snapshot.visible];
-  for (const [id, app] of Object.entries(snapshot.apps)) {
+  for (const id of FOREGROUND_IDS) {
+    const app = snapshot.apps[id];
     $("app-content").querySelector(`[data-app-view="${id}"]`).hidden =
       snapshot.visible !== id;
     $("app-content").querySelector(`[data-empty="${id}"]`).hidden = app.running;
@@ -311,7 +411,13 @@ function renderAppViews() {
         ? playing
           ? "OSが起動を処理しています。"
           : "起動を受け付けました。「再生」でOSを動かしてください。"
-        : "";
+        : snapshot.failures?.[id]?.operation === "launch"
+          ? allocationFeedback(snapshot.failures[id])
+          : "";
+    $("app-content").querySelector(`[data-empty="${id}"] button`).textContent =
+      snapshot.failures?.[id]?.operation === "launch"
+        ? "起動を再試行"
+        : "このアプリを起動";
   }
   const web = snapshot.apps.web.web;
   const webPending = pendingFor("web").length > 0;
@@ -385,6 +491,10 @@ function renderAppViews() {
             : "準備済みの音を再生中。別のアプリを表示しても音は続きます。";
   const photo = snapshot.apps.photo.photo;
   const photoPending = pendingFor("photo").length > 0;
+  const photoFailure =
+    snapshot.failures?.photo?.operation === "workspace"
+      ? snapshot.failures.photo
+      : null;
   const visibleFilter = photo.processing ? photo.filter : photo.completedFilter;
   const progress = photo.processing
     ? photo.progress
@@ -402,15 +512,17 @@ function renderAppViews() {
     ? playing
       ? "加工の入力を受け付けました。"
       : "入力を受け付けました。OSの「再生」で加工を進めます。"
-    : photo.processing
-      ? !playing
-        ? "OSを一時停止中。加工の進捗と作業用メモリを保持します。"
-        : snapshot.cpu.owner === "photo"
-          ? "CPU割り当て中。この時間だけ加工が進みます。"
-          : "CPUの順番待ち。加工は止まり、作業用メモリは保持します。"
-      : photo.completedFilter
-        ? `「${filters[photo.completedFilter]?.[0] || photo.completedFilter}」の加工完了。作業用メモリを解放しました。`
-        : "効果を選んで加工。CPUの割り当てと進捗を見比べましょう。";
+    : photoFailure
+      ? `メモリ不足で加工を開始できません。作業用に ${photoFailure.required} MB 必要です。${snapshot.memory.free >= photoFailure.required ? "現在は空きがあります。「加工する」で再試行できます。" : "ほかのアプリを終了してから再試行してください。"}`
+      : photo.processing
+        ? !playing
+          ? "OSを一時停止中。加工の進捗と作業用メモリを保持します。"
+          : snapshot.cpu.owner === "photo"
+            ? "CPU割り当て中。この時間だけ加工が進みます。"
+            : "CPUの順番待ち。加工は止まり、作業用メモリは保持します。"
+        : photo.completedFilter
+          ? `「${filters[photo.completedFilter]?.[0] || photo.completedFilter}」の加工完了。作業用メモリを解放しました。`
+          : "効果を選んで加工。CPUの割り当てと進捗を見比べましょう。";
   renderProcessStatus();
 }
 function renderAudioControls() {
@@ -521,6 +633,14 @@ function renderMemory() {
       .map((segment) => `${segment.label} ${segment.size} MB`)
       .join("、"),
   );
+  const failure = snapshot.lastFailure;
+  $("allocation-notice").hidden = !failure;
+  if (failure) {
+    $("allocation-title").textContent =
+      `メモリ不足：${names[failure.id]}の${failure.operation === "workspace" ? "作業領域を確保できません" : "起動に失敗"}`;
+    $("allocation-message").textContent =
+      `${failure.time} tick の操作：${failure.required} MB 必要でしたが、空きは ${failure.available} MB でした。現在の空きは ${memory.free} MB。${memory.free >= failure.required ? "必要な空きができたので、同じ操作をもう一度試せます。" : "ほかのアプリを終了するか、加工の完了を待ってから再試行してください。"} メモリ不足によるアプリの自動終了はありません。CPUの競合は順番待ち、メモリ不足は処理開始の失敗です。`;
+  }
 }
 function renderDetails() {
   $("process-table").innerHTML = Object.entries(snapshot.apps)
@@ -545,6 +665,7 @@ function renderDetails() {
 function render() {
   $("time").textContent = snapshot.time;
   renderLauncher();
+  renderBackgroundLauncher();
   renderAppViews();
   const cpu = snapshot.cpu;
   $("cpu-current").dataset.owner = cpu.owner;
@@ -602,6 +723,7 @@ function animate(timestamp) {
   requestAnimationFrame(animate);
 }
 makeLauncher();
+makeBackgroundLauncher();
 makeAppViews();
 setPlaying(false);
 requestAnimationFrame(animate);

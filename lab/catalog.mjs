@@ -44,6 +44,6 @@ export const contents = [
     id: "os-work",
     group: "algorithm",
     name: "OSの仕事",
-    description: "3つのアプリを操作して、CPUの時間分割とメモリの管理を観察。起動中と実行中の違いを体験します。",
+    description: "アプリと常駐アプリを動かし、CPUの順番待ちとメモリ不足を比較。起動中と実行中の違いを体験します。",
   },
 ];

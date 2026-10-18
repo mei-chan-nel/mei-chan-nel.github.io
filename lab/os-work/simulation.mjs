@@ -4,15 +4,26 @@
  * All devices, buffers, work and allocation share that clock. Actual operating
  * systems have much shorter quanta, many threads, hardware interrupts/DMA,
  * virtual memory and more elaborate scheduling. This model has one process per
- * app, fixed memory allocations, one network delay and no real network/audio.
+ * app, fixed memory allocations and periodic resident tasks. Device completions
+ * and resident wakeups use the same clock; no real network/audio runs here.
  */
 export const APP_CONFIG = Object.freeze({
   web: Object.freeze({ label: 'Webブラウザ', memory: 200, color: '#2f6597' }),
   music: Object.freeze({ label: '音楽再生', memory: 120, color: '#267765' }),
   photo: Object.freeze({ label: '写真加工', memory: 240, color: '#b94732' }),
+  notify: Object.freeze({ label: '通知アプリ', memory: 64, color: '#805000', background: true }),
+  sync: Object.freeze({ label: 'クラウド同期', memory: 96, color: '#287c86', background: true }),
+  security: Object.freeze({ label: 'セキュリティ対策', memory: 128, color: '#93415f', background: true }),
 });
 
+export const FOREGROUND_IDS = Object.freeze(['web', 'music', 'photo']);
+export const BACKGROUND_IDS = Object.freeze(['notify', 'sync', 'security']);
 const IDS = Object.keys(APP_CONFIG);
+const BACKGROUND_CONFIG = Object.freeze({
+  notify: Object.freeze({ period: 12, work: 2 }),
+  sync: Object.freeze({ period: 18, work: 3 }),
+  security: Object.freeze({ period: 26, work: 9 }),
+});
 const QUANTUM = 3;
 const OS_MEMORY = 160;
 const TOTAL_MEMORY = 1024;
@@ -35,6 +46,10 @@ const freshApp = (id) => ({
     processing: false, progress: 0, filter: 'warm', completedFilter: null,
     completed: 0, required: PHOTO_WORK,
   } : undefined,
+  background: APP_CONFIG[id].background ? {
+    phase: 'stopped', nextEventAt: null, networkRemaining: 0,
+    cycles: 0, wakeups: 0, cpuTicks: 0, pendingEvent: false,
+  } : undefined,
 });
 
 export class OSSimulation {
@@ -45,15 +60,19 @@ export class OSSimulation {
     this.visible = 'web';
     this._apps = Object.fromEntries(IDS.map((id) => [id, freshApp(id)]));
     this._inputs = [];
+    this._interrupts = [];
     this._ready = [];
     this._current = null;
     this._slice = 0;
     this._displaySlice = 0;
     this._timerPending = false;
+    this._timerOwner = null;
     this._transition = '';
     this._cpu = { owner: 'idle', task: 'CPUアイドル', reason: '操作を待っています。' };
     this._history = [];
     this._events = [];
+    this._lastFailure = null;
+    this._failures = {};
     return this.snapshot();
   }
 
@@ -63,6 +82,7 @@ export class OSSimulation {
   // Selecting the visible window neither launches it nor gives it CPU time.
   view(id) {
     this._checkId(id);
+    if (APP_CONFIG[id].background) throw new RangeError('常駐アプリには表示するウィンドウがありません。');
     this.visible = id;
     return this.snapshot();
   }
@@ -108,6 +128,15 @@ export class OSSimulation {
     return null;
   }
 
+  _interruptCurrent() {
+    if (this._current) {
+      const interrupted = this._current;
+      this._current = null;
+      this._enqueue(interrupted, true);
+    }
+    this._slice = 0;
+  }
+
   _event(message) {
     this._events.push({ time: this.time, message });
     if (this._events.length > 160) this._events.shift();
@@ -123,20 +152,52 @@ export class OSSimulation {
     }[input.type];
   }
 
+  _allocationFailure(id, operation, required, available) {
+    const purpose = operation === 'launch' ? `${APP_CONFIG[id].label}の起動` : '写真加工の作業';
+    const message = `${purpose}には${required} MBの空きメモリが必要ですが、空きは${available} MBです。メモリを確保できないため開始できません。不要なアプリを終了して再試行してください。`;
+    const failure = { id, operation, required, available, time: this.time, message };
+    this._lastFailure = failure;
+    this._failures[id] = failure;
+    this._event(message);
+    return message;
+  }
+
+  _clearFailure(id, operation = null) {
+    if (this._failures[id] && (!operation || this._failures[id].operation === operation)) {
+      delete this._failures[id];
+    }
+    if (this._lastFailure?.id === id && (!operation || this._lastFailure.operation === operation)) {
+      this._lastFailure = Object.values(this._failures).sort((a, b) => a.time - b.time).at(-1) || null;
+    }
+  }
+
   _applyInput(input) {
     const { id, type } = input;
     const app = this._apps[id];
     const label = APP_CONFIG[id].label;
     if (type === 'launch') {
       if (app.running) return `${label}はすでに起動しています。`;
+      const available = this._memory().free;
+      if (APP_CONFIG[id].memory > available) return this._allocationFailure(id, 'launch', APP_CONFIG[id].memory, available);
       this._apps[id] = freshApp(id);
       this._apps[id].running = true;
+      if (APP_CONFIG[id].background) {
+        this._apps[id].background.phase = 'waiting';
+        this._apps[id].background.nextEventAt = this.time + BACKGROUND_CONFIG[id].period;
+      }
+      this._clearFailure(id, 'launch');
       this._event(`${label}を起動し、${APP_CONFIG[id].memory} MBのメモリを確保。`);
       return `入力イベントを処理し、${label}を起動。メモリを確保しました。`;
     }
     if (type === 'close') {
       this._apps[id] = freshApp(id);
       this._ready = this._ready.filter((entry) => entry !== id);
+      this._interrupts = this._interrupts.filter((entry) => entry.id !== id);
+      if (this._timerOwner === id) {
+        this._timerPending = false;
+        this._timerOwner = null;
+      }
+      this._clearFailure(id);
       // Discard obsolete commands, but preserve commands for an explicitly
       // queued subsequent launch of the same app.
       let nextLaunch = false;
@@ -188,6 +249,9 @@ export class OSSimulation {
     }
     if (type === 'startPhoto') {
       if (app.photo.processing) return '写真は加工中です。CPUが割り当てられるのを待ちます。';
+      const available = this._memory().free;
+      if (PHOTO_MEMORY > available) return this._allocationFailure(id, 'workspace', PHOTO_MEMORY, available);
+      this._clearFailure(id, 'workspace');
       app.photo.processing = true;
       app.photo.progress = 0;
       app.photo.completed = 0;
@@ -201,6 +265,7 @@ export class OSSimulation {
   }
 
   _advanceDevices() {
+    this._advanceBackgroundDevices();
     const web = this._apps.web;
     if (web.running && web.web.phase === 'network') {
       web.web.networkRemaining -= 1;
@@ -237,6 +302,52 @@ export class OSSimulation {
     }
   }
 
+  _advanceBackgroundDevices() {
+    for (const id of BACKGROUND_IDS) {
+      const app = this._apps[id];
+      if (!app.running) continue;
+      const background = app.background;
+      if (background.phase === 'waiting' && background.nextEventAt !== null && this.time >= background.nextEventAt) {
+        background.nextEventAt = null;
+        background.pendingEvent = true;
+        this._interrupts.push({ id, type: 'wake', time: this.time });
+      } else if (background.phase === 'network' && background.networkRemaining > 0) {
+        background.networkRemaining -= 1;
+        if (background.networkRemaining === 0) {
+          background.pendingEvent = true;
+          this._interrupts.push({ id, type: 'network', time: this.time });
+        }
+      }
+    }
+  }
+
+  _applyBackgroundInterrupt(interrupt) {
+    const { id, type } = interrupt;
+    const app = this._apps[id];
+    const label = APP_CONFIG[id].label;
+    app.background.pendingEvent = false;
+    if (type === 'wake') {
+      app.background.phase = 'work';
+      app.background.wakeups += 1;
+      app.work = BACKGROUND_CONFIG[id].work;
+      this._event(`${label}の定期イベントが発生。OSが割り込みを処理し、実行待ちへ。`);
+    } else {
+      app.background.phase = 'finish';
+      app.work = 2;
+      this._event(`${label}の通信が完了。OSが割り込みを処理し、仕上げの処理が実行待ちへ。`);
+    }
+    this._enqueue(id);
+    return `${label}の${type === 'wake' ? '定期イベント' : '通信完了'}をOSが受け取り、必要な処理を実行待ちにしました。常駐アプリも、処理が必要なときだけCPUを使います。`;
+  }
+
+  _finishBackgroundCycle(id) {
+    const background = this._apps[id].background;
+    background.phase = 'waiting';
+    background.cycles += 1;
+    background.nextEventAt = this.time + BACKGROUND_CONFIG[id].period;
+    this._event(`${APP_CONFIG[id].label}の処理が完了。メモリを保持したまま、次の定期イベント待ちへ。`);
+  }
+
   _appTask(id) {
     const app = this._apps[id];
     if (!app.running) return '終了';
@@ -247,6 +358,14 @@ export class OSSimulation {
     if (id === 'music') {
       if (app.work > 0) return '音声データを準備・補充';
       return app.music.playing ? '音声バッファから再生・補充時刻待ち' : '再生操作待ち';
+    }
+    if (app.background) {
+      if (app.background.pendingEvent) return 'OSのイベント割り込み待ち';
+      if (app.background.phase === 'network') return '同期通信の完了待ち';
+      if (app.background.phase === 'waiting') return '次の定期イベント待ち';
+      if (id === 'notify') return '新しい通知を確認';
+      if (id === 'sync') return app.background.phase === 'finish' ? '同期結果を保存' : '同期データを準備';
+      return 'ファイルの安全性を確認';
     }
     return app.photo.processing ? '写真の画素を加工' : '加工操作待ち';
   }
@@ -267,6 +386,15 @@ export class OSSimulation {
         app.photo.completedFilter = app.photo.filter;
         this._event('写真加工が完了。作業用メモリを解放し、操作イベント待ちへ。');
       }
+    } else if (app.background) {
+      app.background.cpuTicks += 1;
+      if (app.work === 0) {
+        if (id === 'sync' && app.background.phase === 'work') {
+          app.background.phase = 'network';
+          app.background.networkRemaining = 6;
+          this._event('クラウド同期のデータ準備が完了。通信を待つ間はCPUを使いません。');
+        } else this._finishBackgroundCycle(id);
+      }
     } else if (app.work === 0 && app.web.phase === 'request') {
       app.web.phase = 'network';
       app.web.networkRemaining = 6;
@@ -284,20 +412,24 @@ export class OSSimulation {
     this._advanceDevices();
 
     if (this._inputs.length) {
-      if (this._current) {
-        const interrupted = this._current;
-        this._current = null;
-        this._enqueue(interrupted, true);
-      }
-      this._slice = 0;
+      this._interruptCurrent();
       const input = this._inputs.shift();
       const reason = this._applyInput(input);
       this._transition = '入力イベントを処理した後、実行待ちのプロセスを選びます。';
       return this._record('os', `入力イベント：${this._inputLabel(input)}`, reason);
     }
 
+    if (this._interrupts.length) {
+      this._interruptCurrent();
+      const interrupt = this._interrupts.shift();
+      const reason = this._applyBackgroundInterrupt(interrupt);
+      this._transition = 'イベント割り込みを処理した後、実行待ちの順番にCPUを割り当てます。';
+      return this._record('os', `イベント割り込み：${APP_CONFIG[interrupt.id].label}の${interrupt.type === 'wake' ? '定期イベント' : '通信完了'}`, reason);
+    }
+
     if (this._timerPending) {
       this._timerPending = false;
+      this._timerOwner = null;
       this._current = this._next();
       this._slice = 0;
       this._transition = '';
@@ -336,6 +468,7 @@ export class OSSimulation {
       this._current = null;
       this._enqueue(id);
       this._timerPending = true;
+      this._timerOwner = id;
     }
     return this._record(id, task, reason, executedSlice);
   }
@@ -367,6 +500,7 @@ export class OSSimulation {
         ...(app.web ? { web: app.web } : {}),
         ...(app.music ? { music: app.music } : {}),
         ...(app.photo ? { photo: app.photo } : {}),
+        ...(app.background ? { background: app.background } : {}),
       }];
     }));
   }
@@ -378,11 +512,17 @@ export class OSSimulation {
       if (music.running && music.music.playing && music.music.buffer > 0) {
         return 'CPUがアイドルでも、準備済みの音声バッファから音楽は流れ続けます。アプリのメモリも保持されています。';
       }
+      if (BACKGROUND_IDS.some((id) => this._apps[id].running)) {
+        return '常駐アプリも、次のイベントを待つ間はCPUを使いません。CPUが空いていても、起動中のアプリのメモリは保持されます。';
+      }
       return IDS.some((id) => this._apps[id].running)
         ? 'アプリはイベント待ちです。CPUが空いていても、起動中のアプリのメモリと画面は残ります。'
         : 'アプリを起動すると、OSがメモリを確保します。起動・表示・CPUでの実行はそれぞれ別です。';
     }
     if (owner === 'os') return this._cpu.reason;
+    if (APP_CONFIG[owner].background) {
+      return `画面には${APP_CONFIG[this.visible].label}を表示したまま、CPUは常駐アプリの${APP_CONFIG[owner].label}を処理しています。常駐アプリも必要なときだけCPUの順番待ちに並びます。`;
+    }
     if (owner !== this.visible) return `表示中は${APP_CONFIG[this.visible].label}ですが、CPUは${APP_CONFIG[owner].label}を処理しています。表示と実行は別です。`;
     if (this._apps.music.running && this._apps.music.music.playing && this._apps.music.music.buffer > 0 && owner !== 'music') {
       return 'CPUがほかの処理をしている間も、準備済みの音声バッファから音楽を再生できます。';
@@ -410,6 +550,8 @@ export class OSSimulation {
       time: this.time, visible: this.visible, cpu: this._cpu,
       apps: this._describeApps(), memory: this._memory(),
       history: this._history, events: this._events, explain: this._explain(),
+      lastFailure: this._lastFailure, failures: this._failures,
+      pendingInterrupts: this._interrupts.map((entry) => ({ ...entry, label: APP_CONFIG[entry.id].label })),
       pendingInputs: this._inputs.map((input) => ({
         type: input.type, id: input.id, label: this._inputLabel(input),
       })),

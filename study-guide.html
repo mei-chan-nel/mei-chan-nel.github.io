@@ -146,18 +146,25 @@
 
         <section id="lab">
           <h2>7．Interactive Labでしくみを実験する</h2>
-          <p><a href="./lab/">Interactive Lab</a>では、操作と可視化を通して情報Ⅰのしくみを確かめられます。<a href="./lab/os-work/">「OSの仕事」</a>では、3つのアプリとCPU・メモリの動きを観察します。</p>
+          <p><a href="./lab/">Interactive Lab</a>では、操作と可視化を通して情報Ⅰのしくみを確かめられます。<a href="./lab/os-work/">「OSの仕事」</a>では、3つのアプリやバックグラウンドアプリとCPU・メモリの動きを観察します。</p>
           <h3>アプリを操作して比べる</h3>
           <ol>
             <li>Webブラウザ・音楽再生・写真加工を起動し、「再生」で仮想時間を進めます。表示するアプリを切り替えても、ほかのアプリは起動したままです。</li>
             <li>Webのページ読み込み、音楽の再生、写真の加工を試します。CPUの現在の実行対象と履歴、メモリの帯が連動して変わります。</li>
             <li>音楽アプリではパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音楽を流しながら写真を加工し、CPUが写真加工やOSを処理している間も音声バッファから音楽が流れる様子を確かめます。写真加工はCPUが割り当てられた時間だけ進み、加工中には作業用メモリも使います。</li>
+            <li>「バックグラウンドで動くアプリ」の通知アプリ・クラウド同期・セキュリティ対策を起動します。専用の画面は開かず、ふだんは待機して、ときどきCPUを使います。写真加工と重なったときのCPUの順番待ちも観察できます。</li>
             <li>アプリを終了するとメモリが解放されます。CPUを使わず待っている間も、起動中のアプリのメモリは残ります。</li>
           </ol>
+          <h3>CPUの順番待ちとメモリ不足を比べる</h3>
+          <p>CPUの順番待ちは、実行する仕事があるアプリが、ほかの処理へのCPU割り当てを待っている状態です。待っている間もメモリを保持します。空きメモリが足りない場合は、新しいアプリの起動や写真加工の作業用200 MBの確保が失敗します。ほかのアプリは自動終了しません。不要なアプリを終了して空きを作り、失敗した操作を試し直してください。</p>
+          <ul>
+            <li><strong>加工に必要なメモリが足りない：</strong>OSと3つのアプリで720 MB、通知64 MB・同期96 MB・セキュリティ128 MBも起動すると1008 MBを使用します。空き16 MBでは加工を始められません。同期とセキュリティを終了すると784 MB・空き240 MBになり、加工を再試行できます。</li>
+            <li><strong>アプリの起動に必要なメモリが足りない：</strong>リセット後、3つのアプリを起動して写真を加工すると920 MBを使用します。通知を起動すると984 MBになり、同期96 MBの起動は失敗します。加工の完了かアプリの終了で空きを作り、同期を起動し直します。</li>
+          </ul>
           <h3>時間を止めて観察する</h3>
           <p>一定の速さで進むシミュレーションを「一時停止」で止めて観察できます。CPUの履歴を選ぶと、その時点の処理と切り替え理由を確認できます。詳しい状態やイベントログは、必要なときだけ開いてください。リセットで初期状態から試し直せます。</p>
           <p><strong>「表示中」は画面に見えていること、「起動中」は終了していないこと、「CPUで実行中」は今CPUが処理していることです。</strong>アプリ内の状態表示で、CPUの割り当て中・CPUの順番待ち・イベント待ちを確認できます。表示中のWebも通常は入力待ちです。画面の表示や、用意済みの音声の再生は、アプリがCPUを使っていない間も続きます。</p>
-          <p class="small-note">実際のOSの動きを学ぶためのモデルです。1コアCPUを仮定し、処理時間を引き延ばしています。メモリ量や音声バッファも観察しやすい値で、実機の性能測定を表すものではありません。</p>
+          <p class="small-note">実際のOSの動きを学ぶためのモデルです。1コアCPUを仮定し、処理時間を引き延ばしています。メモリ量や音声バッファも観察しやすい値で、実機の性能測定を表すものではありません。通知アプリ・クラウド同期・セキュリティ対策の動作は仮想的なもので、実際の通信・ファイル同期・セキュリティ検査は行いません。</p>
         </section>
 
         <section id="lecture">
@@ -186,7 +193,7 @@
       <div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./program-trace/">プログラムトレース</a><a href="./books/">書籍案内</a><a href="./study-guide.html">使い方</a><a href="./about.html">このサイトについて</a><a href="./privacy.html">プライバシーポリシー</a><a href="./sitemap.html">サイトマップ</a></nav></div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、Interactive Lab、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-10-18","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"学習アプリ、問題検索、用語解説、解説動画、プログラムトレース、Studio、Interactive Lab、講義ノートの基本操作と、記録・保存・共有の方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-10-19","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"トップページ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"使い方","item":"https://mei-chan-nel.com/study-guide.html"}]}</script>
     <script src="./assets/site-header.js?v=2026100501"></script>
   </body>
