@@ -49,6 +49,8 @@ export function setupFullscreen(workspace, redraw) {
       dialog.classList.toggle("statistics-data-fullscreen", !!dataView);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);
+      const histogram = root.querySelector("#histogram-chart");
+      root.classList.toggle("histogram-chart-screen", !!histogram);
       const nextKey =
         [
           ...workspace.querySelectorAll(
@@ -63,7 +65,7 @@ export function setupFullscreen(workspace, redraw) {
         key = nextKey;
         dialog.scrollTop = 0;
       }
-      pager.hidden = false;
+      pager.hidden = !!histogram;
       if (dataView) {
         // Keep every rendered person visible. The dialog supplies the single
         // page scrollbar; generic analysis pagination must not hide data rows.
@@ -114,7 +116,6 @@ export function setupFullscreen(workspace, redraw) {
         "--screen-chart-height",
         `${Math.max(150, available - 200)}px`,
       );
-      const histogram = root.querySelector("#histogram-chart");
       if (histogram) {
         const otherHeight = [...histogram.parentElement.children]
           .filter(
@@ -125,6 +126,10 @@ export function setupFullscreen(workspace, redraw) {
           "--screen-chart-height",
           `${Math.max(150, available - otherHeight - 12)}px`,
         );
+        // Keep the chart and its linked observations together in focus mode.
+        // Generic analysis pagination must not move the observations offscreen.
+        fitWorkspaceCharts(root);
+        return;
       }
       const units = [];
       const wrappers =

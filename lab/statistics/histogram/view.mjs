@@ -116,7 +116,7 @@ export function render(root, ctx) {
     ${settings(s, tableView)}
     ${tableView ? `<div class="histogram-frequency-table"><table class="stat-table"><thead><tr><th scope="col">階級<br>以上〜未満</th>${s.mode === "split" ? `<th scope="col">${esc(names[0])}</th><th scope="col">${esc(names[1])}</th>` : ""}<th scope="col">度数</th><th scope="col">相対度数</th><th scope="col">累積相対度数</th></tr></thead><tbody>${bins.map((b, i) => `<tr data-bin="${i}" tabindex="0" role="button" aria-label="${interval(b)}、${b.count}件" aria-selected="${i === s.selected}"><th scope="row">${value(b.lo)}〜${value(b.hi)}</th>${s.mode === "split" ? `<td>${b.a}</td><td>${b.b}</td>` : ""}<td>${b.count}</td><td>${fmt(b.relative * 100, 1)}%</td><td>${fmt(b.cumulative * 100, 1)}%</td></tr>`).join("")}</tbody><tfoot><tr><th>合計</th>${s.mode === "split" ? `<td>${rows.filter((r) => r.group === "A").length}</td><td>${rows.filter((r) => r.group === "B").length}</td>` : ""}<td>${n}</td><td>100%</td><td>—</td></tr></tfoot></table></div>` : chart(s, bins, n)}
     ${s.mode === "split" ? `<div class="histogram-legend"><span><i style="--series-color:${colors.A}"></i>${esc(names[0])}</span><span><i style="--series-color:${colors.B}"></i>${esc(names[1])}</span>${!tableView ? `<small>同じ階級で積み上げ（割合の分母は全${n}件）</small>` : ""}</div>` : ""}
-    ${rawDots(s, bins, s.width, selected, n)}
+    ${tableView ? "" : rawDots(s, bins, s.width, selected, n)}
   </section>`;
 
   const invalid = (message) => {

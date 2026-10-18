@@ -1285,8 +1285,11 @@ html.statistics-immersive body {
   min-height: 0;
   max-height: none;
 }
-.statistics-fullscreen .histogram-raw {
-  display: none !important;
+.statistics-fullscreen .histogram-raw .stat-chart {
+  height: 100px;
+}
+.statistics-fullscreen #experiment.histogram-chart-screen {
+  overflow-y: auto;
 }
 .statistics-fullscreen #experiment.histogram-table-screen {
   display: flex;
