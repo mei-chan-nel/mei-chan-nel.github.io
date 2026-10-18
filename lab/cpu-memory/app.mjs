@@ -36,6 +36,7 @@ const rate = (result) => {
     ? `${((s.hits / (s.hits + s.misses)) * 100).toFixed(1)}%`
     : "—";
 };
+const fixedConfig = (value) => ({ ...copy(value), start: 0 });
 const storageKey = "study-atlas-cpu-memory-v1";
 let initial = copy(presets[0].memory),
   config = copy(defaults),
@@ -71,7 +72,7 @@ try {
     validateMemory(stored.initial);
     validateConfig(stored.config);
     initial = stored.initial;
-    config = stored.config;
+    config = fixedConfig(stored.config);
     name = String(stored.name || "実験").slice(0, 60);
     records = (stored.records || []).slice(-12).filter((r) => {
       try {
@@ -130,6 +131,7 @@ function reset(message = "初期RAMに戻し、CPUとキャッシュを初期化
   selectedEvent = -1;
   runCount = 0;
   render();
+  focusPhase();
   renderRecords();
   if (message) announce(message);
   persist();
@@ -143,7 +145,7 @@ function readDraft() {
   const nextConfig = {
     enabled: $("cache-enabled").checked,
     blocks: integer($("capacity").value),
-    start: integer($("start").value),
+    start: 0,
     cacheTime: Number($("cache-time").value),
     ramTime: Number($("ram-time").value),
     cpuTime: Number($("cpu-time").value),
@@ -171,7 +173,6 @@ function guarded(action) {
 function renderInputs() {
   $("experiment-name").value = name;
   $("setup-name").textContent = name || "名前のないプログラム";
-  $("start").value = config.start;
   $("capacity").value = config.blocks;
   $("cache-enabled").checked = config.enabled;
   for (const [id, key] of [
@@ -290,7 +291,9 @@ function render() {
   $("acc").textContent = format(machine.acc);
   $("pc").textContent = machine.halted ? "—" : machine.pc;
   $("current-address").textContent =
-    machine.currentAddress === null ? "" : `（${machine.currentAddress}番地）`;
+    machine.currentAddress === null
+      ? "（—番地）"
+      : `（${machine.currentAddress}番地）`;
   $("current-command").textContent = machine.current
     ? text(machine.current)
     : "—";
@@ -299,11 +302,11 @@ function render() {
     machine.phase?.stage === "decode",
   );
   $("steps").textContent = machine.steps;
-  $("received-field").hidden = !machine.received;
   $("received-value").textContent = machine.received
     ? text(machine.received)
     : "—";
   const e = machine.events[selectedEvent] ?? machine.events.at(-1);
+  const targetAddress = ramTarget();
   rows.forEach(({ row, edit }, address) => {
     edit.textContent = text(machine.ram[address]);
     edit.setAttribute(
@@ -315,6 +318,7 @@ function render() {
       "next",
       !machine.halted && !machine.error && address === machine.pc,
     );
+    row.classList.toggle("targeted", address === targetAddress);
     row.classList.toggle(
       "current",
       address === machine.currentAddress && !!machine.current,
@@ -367,7 +371,7 @@ function render() {
       () => {
         selectedEvent = i;
         render();
-        if (event.hit === null || event.hit === false) revealRam(event.address);
+        revealRam(event.address);
         transfers.draw();
       },
       "access-event",
@@ -434,8 +438,20 @@ function revealIn(list, target, header = 0) {
     r = target.getBoundingClientRect();
   if (!bounds.height) return;
   if (r.top < bounds.top + header || r.bottom > bounds.bottom)
-    list.scrollTop +=
-      (r.top + r.bottom) / 2 - (bounds.top + header + bounds.bottom) / 2;
+    list.scrollTop = Math.max(
+      0,
+      list.scrollTop +
+        (r.top + r.bottom) / 2 -
+        (bounds.top + header + bounds.bottom) / 2,
+    );
+}
+function ramTarget() {
+  const selected = machine.events[selectedEvent];
+  if (selected) return selected.address;
+  if (machine.phase?.event) return machine.phase.event.address;
+  if (machine.phase?.stage === "complete" && !machine.halted && !machine.error)
+    return machine.pc;
+  return machine.currentAddress ?? machine.pc;
 }
 function revealRam(address) {
   const list = document.querySelector(".ram-scroll");
@@ -444,10 +460,22 @@ function revealRam(address) {
     rows[address]?.row,
     list?.querySelector("thead").getBoundingClientRect().height ?? 0,
   );
+  const row = rows[address]?.row,
+    bounds = row?.getBoundingClientRect();
+  if (bounds?.height && (bounds.top < 0 || bounds.bottom > window.innerHeight))
+    row.scrollIntoView?.({
+      block: "nearest",
+      inline: "nearest",
+      behavior: "instant",
+    });
 }
 function focusPhase() {
+  revealRam(ramTarget());
   const focus = machine.phase?.focus;
-  if (!focus) return;
+  if (!focus) {
+    transfers.draw();
+    return;
+  }
   if (focus.device === "ram") revealRam(focus.address);
   if (focus.device === "cache") {
     const block =
@@ -584,7 +612,6 @@ speedControls = installSpeed({
 });
 $("reset").addEventListener("click", () => guarded(() => reset()));
 for (const id of [
-  "start",
   "cache-enabled",
   "capacity",
   "cpu-time",
@@ -658,7 +685,7 @@ function renderRecords() {
     const actions = el("td"),
       restore = button("条件を復元", () => {
         initial = copy(result.initial);
-        config = copy(result.config);
+        config = fixedConfig(result.config);
         name = result.name;
         renderInputs();
         reset(
@@ -757,7 +784,7 @@ installProgramDocuments({
   message: announce,
   replace: (doc) => {
     initial = copy(doc.initial);
-    config = copy(doc.config);
+    config = fixedConfig(doc.config);
     name = doc.name;
     renderInputs();
     reset("プログラムを読み込み、CPUとキャッシュを初期化しました。");

@@ -26,7 +26,7 @@ dom.window.HTMLDialogElement.prototype.close = function () {
 window.scrollTo = () => {};
 const $ = (id) => document.getElementById(id),
   list = document.querySelector(".ram-scroll");
-let cacheRequestTop = 75;
+let cacheRequestTop = 170;
 const rect = (left, top, width, height) => ({
   left,
   top,
@@ -39,9 +39,9 @@ const rect = (left, top, width, height) => ({
 // receiving fields; they do not claim to verify browser rendering or CSS sizing.
 dom.window.HTMLElement.prototype.getBoundingClientRect = function () {
   if (this.matches(".memory-workspace")) return rect(0, 0, 1200, 600);
-  if (this.matches(".cpu-panel")) return rect(0, 12, 220, 568);
-  if (this.matches(".cache-panel")) return rect(250, 12, 300, 568);
-  if (this.matches(".ram-panel")) return rect(580, 12, 620, 568);
+  if (this.matches(".cpu-panel")) return rect(0, 76, 220, 504);
+  if (this.matches(".cache-panel")) return rect(250, 76, 300, 504);
+  if (this.matches(".ram-panel")) return rect(580, 76, 620, 504);
   if (this.matches(".ram-scroll")) return rect(580, 100, 620, 300);
   if (this.matches("thead")) return rect(580, 100, 620, 30);
   if (this.matches("tr[data-address]"))
@@ -85,12 +85,16 @@ const next = () => $("step").click(),
   target = () => document.querySelector(".transfer-target"),
   popup = document.querySelector(".transfer-callout");
 assert.equal(document.querySelector(".phase-panel"), null);
-assert.equal(
-  popup.parentElement,
-  document.querySelector(".cache-request-content"),
-);
+assert.equal(popup.parentElement, document.querySelector(".memory-workspace"));
 assert.match($("previous").textContent, /←\s*前へ/);
 assert.equal(popup.hidden, true);
+assert.equal($("start"), null);
+assert.equal($("received-field").hidden, false);
+assert.equal($("received-value").textContent, "—");
+assert.equal(
+  $("received-field").nextElementSibling.querySelector("dd").id,
+  "steps",
+);
 assert.match(
   document.querySelector(".transfer-legend").textContent,
   /要求.*命令・データ/s,
@@ -117,7 +121,7 @@ assert.match(title(), /命令 0番地.*ミス/);
 assert.equal(target().id, "cache-request-port");
 assert.equal(popup.hidden, false);
 assert.equal(popup.querySelector("strong").textContent, "キャッシュミス");
-assert.match(popup.textContent, /0番地.*ブロックなし/);
+assert.match(popup.textContent, /0番地/);
 assert.equal(popup.classList.contains("is-miss"), true);
 assert.equal(
   target().style.getPropertyValue("--transfer-color"),
@@ -125,16 +129,21 @@ assert.equal(
 );
 const requestPath = document.querySelector(".transfer-path").getAttribute("d"),
   lookupWait = $("wait-metric").textContent;
-cacheRequestTop = 100;
+cacheRequestTop = 195;
 window.dispatchEvent(new Event("resize"));
 assert.notEqual(
   document.querySelector(".transfer-path").getAttribute("d"),
   requestPath,
 );
-assert.equal(popup.style.top, "");
-assert.equal(popup.style.left, "");
+assert.ok(parseFloat(popup.style.top) > 8);
+assert.ok(parseFloat(popup.style.top) + 32 < 76);
+assert.ok(parseFloat(popup.style.left) >= 0);
+assert.match(
+  document.querySelector(".transfer-path").getAttribute("d"),
+  /L [^ ]+ 8 L/,
+);
 assert.equal($("wait-metric").textContent, lookupWait);
-cacheRequestTop = 75;
+cacheRequestTop = 170;
 window.dispatchEvent(new Event("resize"));
 $("memory-fullscreen").click();
 assert.equal(popup.hidden, false);
@@ -179,9 +188,9 @@ const before = list.scrollTop;
 next();
 assert.equal($("current-command").classList.contains("is-executing"), false);
 assert.equal(target().id, "cache-request-port");
-assert.equal(list.scrollTop, before);
+assert.ok(list.scrollTop > before + 400);
 assert.match(title(), /データ 16番地.*ミス/);
-assert.equal(list.scrollTop, before);
+assert.ok(list.scrollTop > before + 400);
 assert.equal(target().id, "cache-request-port");
 assert.equal(popup.hidden, false);
 assert.match(popup.textContent, /キャッシュミス.*16番地/s);
@@ -197,7 +206,7 @@ assert.equal(
 assert.equal(target().parentElement.dataset.address, "16");
 next();
 assert.equal(target().dataset.base, "16");
-assert.equal($("received-field").hidden, true);
+assert.equal($("received-field").hidden, false);
 assert.equal($("acc").textContent, "0");
 next();
 assert.equal(target().id, "received-value");
@@ -218,7 +227,7 @@ const savedScroll = list.scrollTop;
 next();
 assert.equal(popup.hidden, false);
 assert.equal(popup.querySelector("strong").textContent, "キャッシュヒット");
-assert.match(popup.textContent, /1番地.*保持あり/);
+assert.match(popup.textContent, /1番地/);
 assert.equal(popup.classList.contains("is-hit"), true);
 assert.equal(popup.classList.contains("is-miss"), false);
 assert.equal(
@@ -230,8 +239,22 @@ assert.equal(popup.hidden, true);
 next();
 assert.equal(popup.hidden, false);
 assert.match(popup.textContent, /キャッシュヒット/);
+for (let n = 0; n < 12 && !/データ 17番地.*ヒット/.test(title()); n++) next();
+assert.match(title(), /データ 17番地.*ヒット/);
+assert.ok(list.scrollTop > 400);
+assert.equal(
+  document
+    .querySelector('tr[data-address="17"]')
+    .classList.contains("targeted"),
+  true,
+);
+assert.match($("access-summary").textContent, /取得 2・書込 0/);
 for (let n = 0; n < 20 && $("steps").textContent !== "2"; n++) next();
 assert.equal(list.scrollTop, savedScroll);
+assert.equal(
+  document.querySelector('tr[data-address="2"]').classList.contains("targeted"),
+  true,
+);
 assert.equal($("acc").textContent, "12");
 assert.equal($("steps").textContent, "2");
 for (let n = 0; n < 30 && !title().startsWith("CPU → キャッシュ 18番地"); n++)

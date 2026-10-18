@@ -4,6 +4,8 @@
   --mint-pale: #eaf3ec;
   --coral-pale: #fbede6;
   --source-pale: #fce8e6;
+  --transfer-lane: calc(2.4rem + 24px);
+  --target-pale: #ddebf7;
   --request-color: var(--blue-strong);
   --value-color: var(--mint);
   --muted: #627674;
@@ -285,7 +287,7 @@
     );
   gap: 36px;
   align-items: start;
-  padding-top: 12px;
+  padding: var(--transfer-lane) 12px 0;
 }
 .panel {
   background: var(--white);
@@ -363,16 +365,6 @@
   font-size: 0.83rem;
   min-height: 2em;
 }
-.start-field {
-  font-size: 0.7rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 13px 16px;
-}
-.start-field input {
-  width: 66px;
-}
 .timing-settings {
   padding: 13px 16px;
   border-top: 1px solid var(--line);
@@ -412,8 +404,8 @@
   border-radius: 2px;
 }
 .legend-next {
-  background: var(--white);
-  border: 1px dashed #b5cec0;
+  background: var(--target-pale);
+  border: 1px solid var(--blue-strong);
 }
 .legend-current {
   background: var(--mint-pale);
@@ -581,9 +573,23 @@
 .transfer-path.transfer-request {
   stroke-dasharray: 6 4;
 }
-.ram-table tr.next {
-  box-shadow: inset 3px 0 #b5cec0;
-  background: var(--white);
+.ram-table tr.next,
+.ram-table tr.targeted {
+  box-shadow: inset 3px 0 var(--blue-strong);
+  background: var(--target-pale);
+}
+.ram-table tr.next > *,
+.ram-table tr.targeted > * {
+  background: var(--target-pale);
+}
+.ram-table tr.current > * {
+  background: var(--mint-pale);
+}
+.ram-table tr.accessed > * {
+  background: var(--source-pale);
+}
+.ram-table tr.write-target > * {
+  background: #cee6d5;
 }
 .ram-table tr.current {
   background: var(--mint-pale);
@@ -667,6 +673,7 @@
   overflow: auto;
 }
 .cache-line {
+  min-height: 76px;
   border: 1px solid var(--line);
   border-radius: 7px;
   overflow: hidden;
@@ -704,6 +711,9 @@
   font-size: 0.55rem;
 }
 .cache-empty {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
   border: 1px dashed var(--line);
   border-radius: 7px;
   padding: 10px;
@@ -821,27 +831,43 @@
 }
 .transfer-callout {
   --callout-color: var(--mint);
-  position: static;
-  margin-top: 8px;
-  padding: 6px 8px;
-  border-left: 3px solid var(--callout-color);
-  border-radius: 5px;
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  width: max-content;
+  max-width: calc(100% - 12px);
+  padding: 6px 10px;
+  border: 1px solid var(--callout-color);
+  border-radius: 8px;
   background: var(--white);
+  box-shadow: 0 2px 8px rgb(16 47 53 / 12%);
   color: var(--ink);
-  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.transfer-callout::before {
+  content: "";
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-left: 1px solid var(--callout-color);
+  border-top: 1px solid var(--callout-color);
+  background: var(--white);
+  transform: translateX(-50%) rotate(45deg);
 }
 .transfer-callout.is-miss {
   --callout-color: var(--coral-strong);
 }
 .transfer-callout strong {
-  display: block;
   color: var(--callout-color);
   font-size: 0.74rem;
   line-height: 1.4;
 }
 .transfer-callout > span {
-  display: block;
-  margin-top: 3px;
   font-size: 0.63rem;
   line-height: 1.4;
 }
@@ -1324,7 +1350,7 @@ html.memory-fullscreen body {
   align-items: stretch;
   gap: 30px;
   overflow: auto;
-  padding-top: 12px;
+  padding-top: var(--transfer-lane);
 }
 .is-fullscreen .panel {
   width: 100%;
@@ -1373,10 +1399,7 @@ html.memory-fullscreen body {
 }
 .is-fullscreen #current-command {
   font-size: 0.78rem;
-  min-height: 0;
-}
-.is-fullscreen .start-field {
-  margin: 9px 12px;
+  min-height: 2em;
 }
 .is-fullscreen .ram-panel {
   display: flex;

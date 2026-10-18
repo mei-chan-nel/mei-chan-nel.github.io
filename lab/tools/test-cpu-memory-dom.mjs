@@ -163,7 +163,7 @@ Object.defineProperty($("program-file"), "files", {
             cacheTime: 3,
             ramTime: 50,
             cpuTime: 2,
-            start: 0,
+            start: 17,
           },
         }),
     },
@@ -174,6 +174,8 @@ await new Promise((r) => setTimeout(r, 10));
 $("program-confirm-dialog").querySelector(".document-primary").click();
 assert.equal($("capacity").value, "4");
 assert.equal($("experiment-name").value, "再読込");
+assert.equal($("start"), null);
+assert.equal($("pc").textContent, "0");
 assert.equal($("steps").textContent, "0");
 console.log(
   "DOM integration passed: editing, cache snapshots, execution, pause, all-op loop, comparison, restore, direct input, persistence, JSON validation.",

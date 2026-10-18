@@ -297,32 +297,23 @@
         <span>計算中の値</span><strong id="acc">0</strong>
       </div>
       <dl class="cpu-registers">
-        <div id="received-field" hidden>
-          <dt>CPUが受け取った値</dt>
-          <dd id="received-value">—</dd>
-        </div>
         <div>
           <dt>次に実行する番地</dt>
           <dd id="pc">0</dd>
         </div>
         <div>
-          <dt>現在の命令 <span id="current-address"></span></dt>
+          <dt>現在の命令 <span id="current-address">（—番地）</span></dt>
           <dd id="current-command">—</dd>
+        </div>
+        <div id="received-field">
+          <dt>CPUが受け取った値</dt>
+          <dd id="received-value">—</dd>
         </div>
         <div>
           <dt>完了した命令数</dt>
           <dd id="steps">0</dd>
         </div>
       </dl>
-      <label class="start-field"
-        >開始番地<input
-          type="number"
-          id="start"
-          min="0"
-          max="31"
-          value="0"
-          step="1"
-      /></label>
       <details class="timing-settings">
         <summary>仮想アクセス時間</summary>
         <label
@@ -434,7 +425,7 @@
         <span class="tiny-label">32番地 · 行を押して編集</span>
       </div>
       <div class="ram-legend">
-        <span><i class="legend-next"></i>次の命令</span
+        <span><i class="legend-next"></i>対象 / 次の命令</span
         ><span><i class="legend-current"></i>実行した命令</span
         ><span><i class="legend-access"></i>読出元</span
         ><span><i class="legend-write"></i>書込先</span>
@@ -524,7 +515,7 @@
 <details class="model-notes">
   <summary>この実験のしくみ・時間の数え方</summary>
   <p>
-    RAMの行を押すと、現在の内容を確認しながら初期内容を編集できます。「次へ」で1動作ずつ進み、「前へ」でCPU・RAM・キャッシュ・計測値を直前の段階へ戻します。青い破線は番地の要求、緑の実線は命令やデータの転送です。命令取得・読み出し・書き込みで色の意味は変わりません。キャッシュのヒット／ミスは要求の矢印のそばに吹き出しで表示します。ミスの場合も、まずCPUからキャッシュへ要求し、ミス判定後にRAMへブロックを要求します。キャッシュの枠には要求を処理する制御を含めて表しています。
+    RAMの行を押すと、現在の内容を確認しながら初期内容を編集できます。「次へ」で1動作ずつ進み、「前へ」でCPU・RAM・キャッシュ・計測値を直前の段階へ戻します。青い破線は番地の要求、緑の実線は命令やデータの転送です。命令取得・読み出し・書き込みで色の意味は変わりません。キャッシュのヒット／ミスは要求の矢印の下に吹き出しで表示します。パネル上部の専用の余白に置き、他の項目には重ねません。開始番地は常に0です。対象のRAM行は自動で表示し、背景色で強調します。キャッシュヒット時のRAM行の表示は参照先の確認用で、RAMへの転送は発生しません。ミスの場合も、まずCPUからキャッシュへ要求し、ミス判定後にRAMへブロックを要求します。キャッシュの枠には要求を処理する制御を含めて表しています。
   </p>
   <p>
     命令と数値は同じRAM（0〜31番地）に置きます。命令取得とデータ読み書きは1つのキャッシュを共有し、2番地単位のブロックをどの枠にも保持できます。最近使われていないブロックから置き換えます（LRU）。書込ミスでもブロックを取得し（ライトアロケート）、RAMにもその都度書き込みます（ライトスルー）。書き込みによって命令が数値に変わる場合もあります。
