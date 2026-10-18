@@ -1,5 +1,5 @@
-import { createQuest } from "./quest.mjs?v=11";
-import { rounds } from "./model.mjs?v=17";
+import { createQuest } from "./quest.mjs?v=12";
+import { rounds } from "./model.mjs?v=18";
 import {
   introFrames,
   roundFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=13";
+} from "./storyboard.mjs?v=14";
 import { createDisplayController } from "./display.mjs";
-import { explanations } from "./explanations.mjs?v=3";
+import { explanations } from "./explanations.mjs?v=4";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -73,13 +73,6 @@ function render() {
     visibleResult = done && (!talking || f.revealOutcome);
   const pending = Boolean(s.pending);
   const picking = Boolean(s.selectingKey);
-  const forwardReady =
-    !talking &&
-    !s.feedback &&
-    !pending &&
-    !picking &&
-    s.choices.length === 1 &&
-    s.choices[0].id === "forward";
   if (s.count !== shownCount) {
     shownCount = s.count;
     shownKey = "未取得";
@@ -109,27 +102,18 @@ function render() {
       button.setAttribute("aria-current", "step");
     else button.removeAttribute("aria-current");
   });
-  $("round-number").textContent =
-    s.round === 3 ? "EXTRA" : "ROUND " + (s.round + 1);
+  $("round-number").textContent = "ROUND " + (s.round + 1);
   $("round-title").textContent = rounds[s.round].title;
   $("round-description").textContent = rounds[s.round].description;
-  $("auth-control").hidden = s.round !== 3;
-  $("ca-authority").hidden = $("browser-trust").hidden = s.round !== 3;
+  $("ca-authority").hidden = $("browser-trust").hidden = s.round < 2;
   $("ca-authority").dataset.active = String(
     ["ca-request", "ca-issue", "ca-response"].includes(f.scene),
   );
   $("browser-trust").dataset.active = String(
     ["trust-root", "ca-verify"].includes(f.scene),
   );
-  $("authenticate").checked = s.authenticate;
   const phase = f.phase || s.phase;
-  const stages =
-    s.round >= 2
-      ? [
-          s.round === 3 ? "CA証明書の準備" : "検証用公開鍵の配送",
-          ...rounds[s.round].stages,
-        ]
-      : rounds[s.round].stages;
+  const stages = rounds[s.round].stages;
   const step =
     phase === "done"
       ? stages.length
@@ -162,7 +146,7 @@ function render() {
     at: f.at,
     connected: String(f.connected !== false),
     speaker: f.speaker,
-    ca: String(s.round === 3),
+    ca: String(s.round >= 2),
   });
   const route =
     f.route ||
@@ -179,7 +163,7 @@ function render() {
       ? "■ 通信終了"
       : "Ⅱ 転送前で停止";
   const signed =
-    s.round >= 2 &&
+    s.round === 3 &&
     (f.kind === "ciphertext" || ["sign", "sign-charlie"].includes(f.scene));
   const visualKind = ["sign", "sign-charlie"].includes(f.scene)
     ? "letter"
@@ -247,7 +231,7 @@ function render() {
       ? s.feedback.correct
         ? "○ 正解"
         : "× 誤答"
-      : talking || forwardReady
+      : talking
         ? "ナレーション"
         : pending
           ? "この操作で進める？"
@@ -259,19 +243,15 @@ function render() {
   $("answer-explanation").hidden = talking || !s.feedback;
   $("answer-explanation").textContent =
     !talking && s.feedback ? s.feedback.explanation : "";
-  $("choice-list").hidden =
-    talking || pending || picking || correctAnswer || forwardReady;
+  $("choice-list").hidden = talking || pending || picking || correctAnswer;
   $("key-picker").hidden = talking || pending || !picking;
-  $("choice-confirm").hidden = talking || !pending;
   $("choice-list").innerHTML =
-    talking || pending || picking || correctAnswer || forwardReady
+    talking || pending || picking || correctAnswer
       ? ""
       : s.choices
           .map(
             (action, index) =>
-              '<button type="button" class="command' +
-              (index === 0 ? " suggested" : "") +
-              '" data-action="' +
+              '<button type="button" class="command" data-action="' +
               action.id +
               '"><span class="command-icon" aria-hidden="true">' +
               (index + 1) +
@@ -316,8 +296,6 @@ function render() {
             (key) =>
               '<button type="button" class="key-card" data-key="' +
               key.id +
-              '" aria-pressed="' +
-              (s.selectingKey.selectedId === key.id) +
               '"><strong>' +
               esc(key.label) +
               "</strong><small>" +
@@ -332,14 +310,13 @@ function render() {
       pageCount === 1;
   $("key-prev").disabled = keyPage === 0;
   $("key-next").disabled = keyPage + 1 >= pageCount;
-  $("choice-summary").textContent = s.pending?.summary || "";
   if (recordVisible) shownKey = s.keyLabel;
   $("key-record").textContent = shownKey;
   $("original-message").textContent = shownOriginal || "未解読";
-  $("edited-message").hidden = $("rewrite-arrow").hidden =
-    !plaintextVisible || !s.rewritten;
-  $("edited-message").textContent =
-    s.rewritten && plaintextVisible ? s.draft : "";
+  const draftVisible = s.rewritten && (plaintextVisible || s.impersonating);
+  $("edited-message").hidden = $("rewrite-arrow").hidden = !draftVisible;
+  $("rewrite-arrow").textContent = s.impersonating ? "／ 偽の本文：" : "→";
+  $("edited-message").textContent = draftVisible ? s.draft : "";
   $("outgoing-label").textContent = talking
     ? "通信の到着を待とう"
     : done
@@ -351,34 +328,27 @@ function render() {
     !talking && (Boolean(s.feedback) || pending || picking);
   $("feedback").textContent = talking
     ? f.text
-    : forwardReady
-      ? "Charlieは、中継機にあるデータを" +
-        (s.phase === "public" ? "Alice" : "Bob") +
-        "へ転送する。"
-      : correctAnswer
-        ? s.feedbackFrame?.text ||
-          "Charlieは、予想を実際の通信で確かめようとしている。"
-        : s.feedback
-          ? s.feedback.explanation
-          : done
-            ? lesson(s)
-            : pending
-              ? "「決定」で実行。「戻る」で選び直せる。"
-              : picking
-                ? s.selectingKey.title + "を選ぼう。"
-                : s.prompt;
+    : correctAnswer
+      ? s.feedbackFrame?.text ||
+        "Charlieは、予想を実際の通信で確かめようとしている。"
+      : s.feedback
+        ? s.feedback.explanation
+        : done
+          ? lesson(s)
+          : picking
+            ? s.selectingKey.title + "を選ぼう。"
+            : s.prompt;
   $("bob-result").hidden = !visibleResult || !s.result.message;
   $("bob-result").textContent =
     visibleResult && s.result.message
-      ? plaintextVisible
+      ? plaintextVisible || s.impersonating
         ? "Bobが受け取った本文：" + s.result.message
         : "Bobは共通鍵で復号し、本文を受け付けた。"
       : "";
   const position = story.position();
-  $("dialogue-next").hidden = !talking && !correctAnswer && !forwardReady;
-  $("dialogue-next").textContent = forwardReady
-    ? s.choices[0].label + " ▶"
-    : correctAnswer || position.index + 1 < position.total
+  $("dialogue-next").hidden = !talking && !correctAnswer;
+  $("dialogue-next").textContent =
+    correctAnswer || position.index + 1 < position.total
       ? "次へ ▶"
       : "行動を選ぶ ▶";
   $("dialogue-previous").hidden = false;
@@ -386,7 +356,7 @@ function render() {
   $("dialogue-previous").disabled = history.length === 0;
   $("dialogue-position").textContent = talking
     ? position.index + 1 + " / " + position.total
-    : correctAnswer || forwardReady
+    : correctAnswer
       ? ""
       : done
         ? "結果"
@@ -394,13 +364,12 @@ function render() {
 }
 function review(id, trigger = document.activeElement) {
   if (story.active()) return;
-  const direct = quest.view().choices.find((a) => a.id === id)?.direct;
   remember();
   if (!quest.select(id)) {
     history.pop();
     return;
   }
-  if (direct) {
+  if (quest.view().pending) {
     execute();
     return;
   }
@@ -408,7 +377,7 @@ function review(id, trigger = document.activeElement) {
   previousTrigger = trigger;
   keyPage = 0;
   render();
-  $(quest.view().pending ? "choice-back" : "key-back").focus({
+  (document.querySelector("[data-key]") || $("key-back")).focus({
     preventScroll: true,
   });
 }
@@ -432,7 +401,6 @@ function cancel() {
     previousTrigger
   )?.focus({ preventScroll: true });
 }
-$("choice-back").addEventListener("click", cancel);
 $("key-back").addEventListener("click", cancel);
 $("key-list").addEventListener("click", (event) => {
   const button = event.target.closest("[data-key]");
@@ -446,8 +414,7 @@ $("key-list").addEventListener("click", (event) => {
     history.pop();
     return;
   }
-  render();
-  $("choice-back").focus({ preventScroll: true });
+  execute();
 });
 $("key-prev").addEventListener("click", () => {
   if (keyPage > 0) {
@@ -460,11 +427,6 @@ $("key-next").addEventListener("click", () => {
   keyPage++;
   render();
   $("key-prev").focus({ preventScroll: true });
-});
-$("choice-commit").addEventListener("click", (event) => {
-  if (event.detail > 1) return;
-  remember();
-  execute();
 });
 $("game-console").addEventListener("keydown", (event) => {
   if (
@@ -481,12 +443,7 @@ $("dialogue-next").addEventListener("click", () => {
     review("continue");
     return;
   }
-  if (!story.active()) {
-    const available = quest.view().choices;
-    if (available.length === 1 && available[0].id === "forward")
-      review("forward");
-    return;
-  }
+  if (!story.active()) return;
   remember();
   story.next();
   render();
@@ -507,12 +464,8 @@ $("restart").addEventListener("click", () => {
   if (story.active()) {
     const s = quest.view();
     remember();
-    play(quest.start(s.round, s.authenticate, s.authenticateSigner));
+    play(quest.start(s.round));
   } else review("restart");
-});
-$("authenticate").addEventListener("change", () => {
-  remember();
-  play(quest.start(3, $("authenticate").checked));
 });
 function buildInfo() {
   const s = quest.view();

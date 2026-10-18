@@ -44,6 +44,6 @@ export const contents = [
     id: "crypto-communication",
     group: "society-security",
     name: "暗号通信シミュレーター",
-    description: "攻撃者チャーリーになって通信に介入。共通鍵・公開鍵・電子署名で、守れるものはどう変わる？",
+    description: "攻撃者チャーリーになって通信に介入。共通鍵・公開鍵・認証局CA・電子署名の4ラウンドで、守れるものはどう変わる？",
   },
 ];

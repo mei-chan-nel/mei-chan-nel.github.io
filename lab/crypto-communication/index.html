@@ -9,7 +9,7 @@
     <title>暗号通信シミュレーター｜Interactive Lab｜情報Ⅰ Study Atlas</title>
     <meta
       name="description"
-      content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・電子署名の役割を実験する暗号通信クエスト。"
+      content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・認証局CA・電子署名の役割を実験する暗号通信クエスト。"
     />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#102f35" />
@@ -93,9 +93,9 @@
               ><button type="button" data-round="1">
                 <span>ROUND 2</span>公開鍵</button
               ><button type="button" data-round="2">
-                <span>ROUND 3</span>電子署名</button
+                <span>ROUND 3</span>認証局 CA</button
               ><button type="button" data-round="3">
-                <span>EXTRA</span>公開鍵の確認
+                <span>ROUND 4</span>電子署名
               </button>
             </nav>
             <div class="level-heading">
@@ -108,15 +108,6 @@
 
             <div class="phase-row">
               <ol id="stages" class="stages" aria-label="通信の進行"></ol>
-              <div id="auth-control" class="auth-control" hidden="">
-                <label
-                  ><input type="checkbox" id="authenticate" checked="" />
-                  AliceがBobの証明書を検証する</label
-                >
-                <p>
-                  ブラウザ内のCA公開鍵でCA署名と相手名を検証。切り替えると、新しい通信で比較できます。
-                </p>
-              </div>
             </div>
             <div class="play-layout">
               <div class="scene-column">
@@ -335,25 +326,6 @@
                         </button>
                       </nav>
                     </section>
-                    <div id="choice-confirm" class="choice-confirm" hidden="">
-                      <p id="choice-summary"></p>
-                      <div class="choice-buttons">
-                        <button
-                          type="button"
-                          id="choice-back"
-                          class="pixel-button secondary"
-                        >
-                          ← 戻る
-                        </button>
-                        <button
-                          type="button"
-                          id="choice-commit"
-                          class="pixel-button primary"
-                        >
-                          決定 ▶
-                        </button>
-                      </div>
-                    </div>
                   </div>
                   <footer class="interaction-controls">
                     <button type="button" id="dialogue-previous">
@@ -454,10 +426,10 @@
           Charlieが通信経路の中継機を操作できる状況を仮定しています。中継機を通るデータは自動で記録されます。Charlieは、AliceやBobの秘密鍵を盗めません。
         </p>
         <p>
-          暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えい・再送攻撃は扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1・2ラウンドでは独立した改ざん検出を仮定しません。実際には認証付き暗号なども使われます。
+          暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えい・再送攻撃は扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1〜3ラウンドでは送信者を確かめる仕組みを設けていません。実際には認証付き暗号なども使われます。
         </p>
         <p>
-          第3ラウンドでは、電子署名を付けても検証用公開鍵の持ち主を確認しないと、すり替えによるなりすましを防げないことを試します。最後に、認証局の証明書とブラウザに事前登録されたCA公開鍵で、相手の鍵を確認します。署名自体は本文を隠しません。実験データはこの画面のメモリー内だけに保持します。
+          第3ラウンドでは、認証局の証明書とブラウザに事前登録されたCA公開鍵でBobの鍵を確認します。Aliceの共通鍵は漏れなくなりますが、Charlieが自作の共通鍵と本文を送るなりすましは残ります。第4ラウンドでは、BobもCAでAliceの鍵を確認し、本文の電子署名を検証して偽の本文を拒否します。署名自体は本文を隠しません。実験データはこの画面のメモリー内だけに保持します。
         </p>
       </details>
       <nav class="related" aria-label="関連する用語">
@@ -482,6 +454,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=17"></script>
+    <script type="module" src="./app.mjs?v=18"></script>
   </body>
 </html>
