@@ -485,3 +485,93 @@ test("success exposes first narration with explanation, then advances without re
   assert.deepEqual(choose(q, "continue"), []);
   assert.equal(q.view().choices[0].id, "edit");
 });
+function interceptSigningComparison(lab) {
+  lab.start(2, true, false);
+  capture(lab);
+  lab.setOutgoing(find(lab, "public", "charlie"));
+  lab.forward();
+  const keyPacket = capture(lab);
+  lab.decrypt(keyPacket, find(lab, "private", "charlie"));
+  const key = lab
+    .snapshot()
+    .inventory.find((k) => k.type === "symmetric" && k.current).id;
+  lab.setOutgoing(lab.wrapKey(key, find(lab, "public", "bob")).id);
+  lab.forward();
+  return key;
+}
+test("unchecked signing-key replacement lets Charlie own signature verify as Alice", () => {
+  const lab = createLab(),
+    key = interceptSigningComparison(lab);
+  assert.equal(lab.snapshot().verificationForBob.owner, "charlie");
+  tamper(lab, key, "charlie");
+  assert.equal(lab.snapshot().result.code, "attack-success");
+  assert.equal(lab.snapshot().result.message, "I hate you.");
+});
+test("replacing signing key does not make unchanged Alice signature valid over changed text", () => {
+  const lab = createLab(),
+    key = interceptSigningComparison(lab);
+  tamper(lab, key, "keep");
+  assert.equal(lab.snapshot().result.code, "signature-rejected");
+});
+test("key delivery and trusted fingerprint check precede Bob encryption public key in signed round", () => {
+  const q = createQuest();
+  q.start(2);
+  let frames = roundFrames(q.view());
+  assert.equal(frames[0].at, "alice");
+  assert.equal(frames[0].kind, "verify-key");
+  const checked = frames.findIndex((f) => f.scene === "trust-signing-key");
+  const bob = frames.findIndex((f) => f.scene === "bob-public");
+  assert.ok(checked >= 0 && checked < bob);
+  assert.match(frames[checked].text, /別の信頼できる経路/);
+  q.start(2, true, false);
+  frames = roundFrames(q.view());
+  assert.ok(
+    frames.some(
+      (f) => f.at === "relay" && f.packetLabel === "Charlieの検証用公開鍵",
+    ),
+  );
+});
+test("comparison retains key choices, prediction correctness and signing decision across exact retry", () => {
+  const q = createQuest();
+  q.start(2, true, false);
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  correct(q, "rewrap");
+  choose(q, "forward");
+  correct(q, "read");
+  assert.equal(q.view().state, "signature");
+  choose(q, "keep-signature");
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "signature-rejected");
+  choose(q, "retry-here");
+  assert.equal(q.view().state, "signature");
+  assert.equal(q.view().authenticateSigner, false);
+  correct(q, "forge-signature");
+  correct(q, "predict-safe");
+  correct(q, "edit");
+  assert.equal(q.view().outgoingSignature.owner, "charlie");
+  choose(q, "forward");
+  assert.equal(q.view().result.code, "attack-success");
+  choose(q, "retry-round");
+  assert.equal(q.view().authenticateSigner, false);
+});
+test("rejected prediction in unchecked-key comparison demonstrates actual accepted forgery", () => {
+  const q = createQuest();
+  q.start(2, true, false);
+  correct(q, "swap");
+  choose(q, "forward");
+  correct(q, "open-key");
+  correct(q, "rewrap");
+  choose(q, "forward");
+  correct(q, "read");
+  correct(q, "forge-signature");
+  choose(q, "predict-detected");
+  assert.equal(q.view().feedback.correct, false);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "attack-success");
+  choose(q, "retry-here");
+  assert.equal(q.view().state, "predict");
+  assert.equal(q.view().authenticateSigner, false);
+});

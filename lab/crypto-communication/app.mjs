@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=7";
+import { createQuest } from "./quest.mjs?v=8";
 import { rounds } from "./model.mjs";
 import {
   introFrames,
@@ -7,7 +7,7 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=10";
+} from "./storyboard.mjs?v=11";
 import { createDisplayController } from "./display.mjs";
 import { explanations } from "./explanations.mjs";
 const $ = (id) => document.getElementById(id);
@@ -53,7 +53,9 @@ function execute() {
     render();
     const target = quest.view().feedback?.correct
       ? $("dialogue-next")
-      : document.querySelector("[data-action]");
+      : document.querySelector("[data-action]") ||
+        document.querySelector("[data-key]") ||
+        $("key-back");
     target?.focus({ preventScroll: true });
   }
 }
@@ -93,6 +95,7 @@ function render() {
     talking: String(talking),
     pending: String(pending),
     pickingKey: String(picking),
+    feedback: String(Boolean(s.feedback)),
   });
   document.querySelectorAll("[data-round]").forEach((button) => {
     if (Number(button.dataset.round) === s.round)
@@ -104,21 +107,31 @@ function render() {
   $("round-title").textContent = rounds[s.round].title;
   $("round-description").textContent = rounds[s.round].description;
   $("auth-control").hidden = s.round !== 3;
+  $("signer-control").hidden = s.round !== 2;
+  $("authenticate-signer").checked = s.authenticateSigner;
+  $("comparison-note").hidden = s.round !== 2 || s.authenticateSigner;
   $("authenticate").checked = s.authenticate;
   const phase = f.phase || s.phase;
+  const stages =
+    s.round >= 2
+      ? ["検証用公開鍵の確認", ...rounds[s.round].stages]
+      : rounds[s.round].stages;
   const step =
     phase === "done"
-      ? s.step
-      : s.round === 0
-        ? phase === "message"
-          ? 1
-          : 0
-        : phase === "public"
-          ? 0
-          : phase === "key"
-            ? 1
-            : 2;
-  $("stages").innerHTML = rounds[s.round].stages
+      ? stages.length
+      : phase === "signing-setup"
+        ? 0
+        : (s.round >= 2 ? 1 : 0) +
+          (s.round === 0
+            ? phase === "message"
+              ? 1
+              : 0
+            : phase === "public"
+              ? 0
+              : phase === "key"
+                ? 1
+                : 2);
+  $("stages").innerHTML = stages
     .map(
       (text, index) =>
         '<li class="' +
@@ -151,17 +164,33 @@ function render() {
       ? "■ 通信終了"
       : "Ⅱ 転送前で停止";
   const signed =
-    s.round >= 2 && (f.kind === "ciphertext" || f.scene === "sign");
-  const visualKind =
-    f.scene === "sign" ? "letter" : signed ? "signed-message" : f.kind;
+    s.round >= 2 &&
+    (f.kind === "ciphertext" || ["sign", "sign-charlie"].includes(f.scene));
+  const visualKind = ["sign", "sign-charlie"].includes(f.scene)
+    ? "letter"
+    : signed
+      ? "signed-message"
+      : f.kind;
   $("packet-sprite").dataset.kind = visualKind;
   $("packet-sprite").dataset.signed = String(signed);
   $("signature-attachment").hidden = !signed;
   $("signature-note").textContent =
     f.scene === "sign" ? "Aliceの秘密鍵で作成" : "本文と一緒に暗号化";
+  const charlieSignature =
+    f.scene === "sign-charlie" ||
+    (s.outgoingSignature?.owner === "charlie" && f.scene !== "sign") ||
+    (["done", "message"].includes(phase) &&
+      (visibleResult || ["verify", "delivering"].includes(f.scene)) &&
+      s.deliveredSignature?.owner === "charlie");
+  $("signature-owner").textContent = charlieSignature
+    ? "Charlieの電子署名"
+    : "Aliceの電子署名";
+  if (f.scene === "sign-charlie")
+    $("signature-note").textContent = "Charlieの秘密鍵で作成";
   const shapes = {
     key: "key",
     public: "public",
+    "verify-key": "public",
     "wrapped-key": "wrapped",
     ciphertext: "encrypted",
     letter: "message",
@@ -180,32 +209,50 @@ function render() {
   $("packet-short").textContent = f.packetLabel || packetName(f.kind);
   $("packet-title").textContent =
     f.packetLabel || packetName(f.kind) || "通信の準備中";
-  $("copy-indicator").textContent = recordVisible
-    ? "自動で記録済み"
-    : f.at === "alice"
-      ? "Aliceの手元"
-      : f.at === "bob"
-        ? "Bobの手元"
-        : "";
-  $("packet-value").textContent = recordVisible
-    ? s.incoming.token ||
-      s.incoming.fingerprint ||
-      englishNames(s.incoming.label)
-    : "通信の到着待ち";
+  $("copy-indicator").textContent =
+    phase === "signing-setup"
+      ? f.at === "bob"
+        ? "Bobが登録する鍵"
+        : f.at === "relay"
+          ? "中継機を通過"
+          : "Aliceの手元"
+      : recordVisible
+        ? "自動で記録済み"
+        : f.at === "alice"
+          ? "Aliceの手元"
+          : f.at === "bob"
+            ? "Bobの手元"
+            : "";
+  $("packet-value").textContent =
+    phase === "signing-setup"
+      ? (f.packetLabel || "").startsWith("Charlie")
+        ? s.substituteSigningPublic.fingerprint
+        : s.signingPublic.fingerprint
+      : recordVisible
+        ? s.incoming.token ||
+          s.incoming.fingerprint ||
+          englishNames(s.incoming.label)
+        : "通信の到着待ち";
   $("alice-state").textContent =
     {
       sign: "秘密鍵で署名",
       wrap: "公開鍵で共通鍵を暗号化",
       encrypt: "共通鍵で本文を暗号化",
       authenticate: "Bobの公開鍵を確認",
+      "signing-key": "検証用公開鍵を送る",
+      "trust-signing-key": "署名の準備",
     }[f.scene] || "Bobへ秘密の通信";
   $("bob-state").textContent = visibleResult
     ? s.result.accepted
       ? "本文を受理"
       : "通信を拒否"
-    : f.scene === "verify"
-      ? "Aliceの署名を検証"
-      : "Aliceの通信を待つ";
+    : f.scene === "trust-signing-key"
+      ? s.authenticateSigner
+        ? "指紋で持ち主を確認"
+        : "持ち主を確認せず登録"
+      : f.scene === "verify"
+        ? "Aliceの署名を検証"
+        : "Aliceの通信を待つ";
   $("charlie-state").textContent =
     f.scene === "idea"
       ? "反対の内容に変えたい"
@@ -214,51 +261,23 @@ function render() {
         : f.scene === "decrypt"
           ? "鍵で暗号文を開く"
           : "通るデータを自動記録";
-  $("situation-title").textContent = talking
-    ? {
-        direct: "AliceからBobへの通信",
-        watch: "Charlieは盗み見たい",
-        setup: "通信経路の中継機",
-        relay: "データは自動で手に入る",
-        inbound: "中継機にデータが到着",
-        delivering: "データを転送",
-        wrap: "共通鍵を暗号化",
-        encrypt: "本文を暗号化",
-        verify: "Bobが署名を検証",
-        decrypt: "Charlieが暗号文を開く",
-        idea: "本文を読んで思いついた",
-        edit: "Charlieが本文を書き換える",
-        question: "この鍵では開けない",
-        replace: "送るデータを変更",
-        authenticate: "Bobの公開鍵を確認",
-        accept: "Bobが受理",
-        reject: "通信を中断",
-        "alice-key": "Aliceが共通鍵を送る",
-      }[f.scene] || "通信の様子"
-    : s.title;
-  $("situation-text").textContent = "";
-  $("goal-text").textContent = talking
-    ? "下の「次へ」で続きを見よう。"
-    : s.goal;
   $("command-label").textContent =
     !talking && s.feedback
       ? s.feedback.correct
         ? "○ 正解"
         : "× 誤答"
       : talking
-        ? "通信の様子を見よう"
+        ? "ナレーション"
         : pending
           ? "この操作で進める？"
           : picking
             ? s.selectingKey.title
             : done
-              ? "次に試すこと"
+              ? "通信の結果"
               : "Charlieの行動";
-  $("answer-explanation").hidden = !correctAnswer;
-  $("answer-explanation").textContent = correctAnswer
-    ? s.feedback.explanation
-    : "";
-  $("command-wait").hidden = !talking;
+  $("answer-explanation").hidden = talking || !s.feedback;
+  $("answer-explanation").textContent =
+    !talking && s.feedback ? s.feedback.explanation : "";
   $("choice-list").hidden = talking || pending || picking || correctAnswer;
   $("key-picker").hidden = talking || pending || !picking;
   $("choice-confirm").hidden = talking || !pending;
@@ -346,19 +365,13 @@ function render() {
         ? "Bobに届けた暗号文 ← " + s.deliveredKey.label
         : "この通信は終了"
       : s.outgoingDescription;
-  $("dialogue-label").textContent = talking
-    ? "STORY"
-    : done
-      ? "RESULT"
-      : "YOUR TURN";
-  $("result-heading").textContent =
-    tone === "wrong" ? "× 誤答とその結果" : "ナレーション";
-  $("speaker-sprite").setAttribute("href", "./characters.svg#narrator");
+  $("action-result").hidden =
+    !talking && (Boolean(s.feedback) || pending || picking);
   $("feedback").textContent = talking
     ? f.text
     : correctAnswer
       ? s.feedbackFrame?.text ||
-        "Charlieは、本文を書き換えてBobに届けようとしている。"
+        "Charlieは、予想を実際の通信で確かめようとしている。"
       : s.feedback
         ? s.feedback.explanation
         : done
@@ -366,7 +379,7 @@ function render() {
           : pending
             ? "「決定」で実行。「戻る」で選び直せる。"
             : picking
-              ? "どの鍵を使う？ 公開鍵・秘密鍵・共通鍵を比べてみよう。"
+              ? s.selectingKey.title + "を選ぼう。"
               : s.prompt;
   $("bob-result").hidden = !visibleResult || !s.result.message;
   $("bob-result").textContent =
@@ -502,12 +515,16 @@ $("restart").addEventListener("click", () => {
   if (story.active()) {
     const s = quest.view();
     remember();
-    play(quest.start(s.round, s.authenticate));
+    play(quest.start(s.round, s.authenticate, s.authenticateSigner));
   } else review("restart");
 });
 $("authenticate").addEventListener("change", () => {
   remember();
   play(quest.start(3, $("authenticate").checked));
+});
+$("authenticate-signer").addEventListener("change", () => {
+  remember();
+  play(quest.start(2, true, $("authenticate-signer").checked));
 });
 function buildInfo() {
   const s = quest.view();

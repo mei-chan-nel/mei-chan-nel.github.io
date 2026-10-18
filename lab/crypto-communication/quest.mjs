@@ -6,7 +6,7 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=10";
+} from "./storyboard.mjs?v=11";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
@@ -18,6 +18,8 @@ export function createQuest() {
     stagedKey: null,
     deliveredKey: null,
     predictionAnswered: false,
+    signatureSelected: false,
+    signatureChoice: "keep",
     consequence: false,
   });
   let x = initial(),
@@ -46,8 +48,8 @@ export function createQuest() {
       lab.capture();
     }
   }
-  function start(round = 0, authenticate = true) {
-    lab.start(round, authenticate);
+  function start(round = 0, authenticate = true, authenticateSigner = true) {
+    lab.start(round, authenticate, authenticateSigner);
     x = initial();
     records = new Set();
     retryPoint = null;
@@ -179,6 +181,21 @@ export function createQuest() {
       ];
     if (!s.read)
       return [choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ")];
+    if (s.round === 2 && !s.authenticateSigner && !x.signatureSelected)
+      return [
+        choice(
+          "forge-signature",
+          "Charlieの秘密鍵で署名を作り直す",
+          "Bobが登録した検証用公開鍵と対になる鍵",
+          "Charlieの秘密鍵で、書き換える本文に新しい署名を付ける。",
+        ),
+        choice(
+          "keep-signature",
+          "Aliceの署名を残す",
+          "元の本文に付いていた署名",
+          "本文を変えても、Aliceの元の署名を使う。",
+        ),
+      ];
     if (!x.predictionAnswered)
       return [
         choice(
@@ -233,14 +250,17 @@ export function createQuest() {
           : s.outgoing
             ? "ready"
             : s.phase === "message" && s.read
-              ? x.predictionAnswered
-                ? "edit"
-                : "predict"
+              ? s.round === 2 && !s.authenticateSigner && !x.signatureSelected
+                ? "signature"
+                : x.predictionAnswered
+                  ? "edit"
+                  : "predict"
               : s.phase;
     const titles = {
       public: "Aliceに渡す公開鍵を選ぶ",
       key: key ? "共通鍵をBobに届けよう" : "共通鍵の暗号文が届いた",
       message: "本文を開く鍵は？",
+      signature: "署名に使う鍵を考えよう",
       predict: "書き換えはBobにバレる？",
       edit: "予想を実際に試そう",
       ready: "このデータで通信を進めよう",
@@ -256,6 +276,7 @@ export function createQuest() {
             ? "Bobが取り出せる形に暗号化し直そう。"
             : "どの鍵で共通鍵を取り出せる？",
       message: "この本文を復号する鍵を選ぼう。",
+      signature: "Bobが検証に使う公開鍵と対になる秘密鍵は？",
       predict: "暗号化と改ざん検出の違いを考えよう。",
       edit: "本文を変えて、予想を確かめよう。",
       ready: "BobやAliceの反応を見よう。",
@@ -270,8 +291,12 @@ export function createQuest() {
         ? "Charlieは共通鍵を手に入れた。Bobにも同じ共通鍵を届けたい。"
         : "Aliceが送った共通鍵は暗号化されている。",
       message: "本文の暗号文が届いた。どの鍵で開けるだろうか。",
+      signature:
+        "BobはCharlieの検証用公開鍵をAliceの鍵として登録している。新しい本文には、どの署名を付ける？",
       predict:
-        "Charlieは「love」を「hate」に変えたい。Bobはその変更に気づくだろうか。",
+        s.round >= 2 && !s.authenticateSigner
+          ? "Charlieは、書き換えた本文にCharlieの秘密鍵で署名する予定だ。Bobは変更を検出できる？"
+          : "Charlieは「love」を「hate」に変えたい。Bobはその変更に気づくだろうか。",
       edit: "Charlieが考えた書き換えを、実際の暗号文にしてみよう。",
       ready: "選んだデータを相手に届けてみよう。",
     };
@@ -427,11 +452,11 @@ export function createQuest() {
         { phase: lab.snapshot().phase },
       ),
     ];
-    if (feedback?.kind === "prediction") {
+    if (["prediction", "signature"].includes(feedback?.kind)) {
       const s = lab.snapshot(),
         key = shared(s);
       lab.edit("I hate you.");
-      lab.chooseSignature("keep");
+      lab.chooseSignature(x.signatureChoice);
       const made = lab.encryptMessage(key.id);
       lab.setOutgoing(made.id);
       x.stagedKey = {
@@ -480,7 +505,11 @@ export function createQuest() {
     }
     if (action === "show-consequence") return showConsequence();
     if (action === "retry-round")
-      return start(lab.snapshot().round, lab.snapshot().authenticate);
+      return start(
+        lab.snapshot().round,
+        lab.snapshot().authenticate,
+        lab.snapshot().authenticateSigner,
+      );
     if (action === "next") return start(Math.min(3, lab.snapshot().round + 1));
     if (action === "compare") return start(3, !lab.snapshot().authenticate);
     if (action === "forward") {
@@ -542,14 +571,37 @@ export function createQuest() {
         origin,
         "pass",
       );
+    if (action === "forge-signature" || action === "keep-signature") {
+      const correct = action === "forge-signature";
+      x.signatureChoice = correct ? "charlie" : "keep";
+      if (correct) x.signatureSelected = true;
+      return evaluate(
+        correct,
+        correct
+          ? "Bobが登録したのはCharlieの検証用公開鍵。対になるCharlieの秘密鍵で署名すると、Bobの検証を通せる。"
+          : "Aliceの元の署名は元の本文に対応する。本文を書き換えたら、Aliceの元の署名では検証を通せない。",
+        [
+          frame(
+            "Charlieは、新しい本文にCharlieの秘密鍵で署名することにした。",
+            "idea",
+            { ...base, showPlaintext: true },
+          ),
+        ],
+        origin,
+        "signature",
+      );
+    }
     if (action.startsWith("predict-")) {
-      const correct = (action === "predict-detected") === before.round >= 2;
+      const detected = before.round >= 2 && before.authenticateSigner;
+      const correct = (action === "predict-detected") === detected;
       if (correct) x.predictionAnswered = true;
       return evaluate(
         correct,
-        before.round >= 2
-          ? "Aliceの署名は本文と結び付いている。Charlieが共通鍵で暗号化し直しても、Bobは本文の変更を検出できる。"
-          : "この通信には署名などの改ざん検出がない。Charlieが同じ共通鍵で暗号化し直すと、Bobは変更に気づけない。",
+        before.round >= 2 && !before.authenticateSigner
+          ? "BobはCharlieの検証用公開鍵を信じている。Charlie自身の署名が通るため、Bobは改ざんを受け付けてしまう。"
+          : before.round >= 2
+            ? "Aliceの署名は本文と結び付いている。Charlieが共通鍵で暗号化し直しても、Bobは本文の変更を検出できる。"
+            : "この通信には署名などの改ざん検出がない。Charlieが同じ共通鍵で暗号化し直すと、Bobは変更に気づけない。",
         [],
         origin,
         "prediction",
@@ -563,7 +615,7 @@ export function createQuest() {
     if (action === "edit") {
       if (key.type === "symmetric") {
         lab.edit("I hate you.");
-        lab.chooseSignature("keep");
+        lab.chooseSignature(x.signatureChoice);
       }
       response = lab.encryptMessage(key.id);
     }
@@ -628,6 +680,15 @@ export function createQuest() {
           ...base,
           showPlaintext: true,
         }),
+        ...(x.signatureChoice === "charlie"
+          ? [
+              frame(
+                "Charlieは、書き換えた本文にCharlieの秘密鍵で電子署名を作った。",
+                "sign-charlie",
+                { ...base, showPlaintext: true },
+              ),
+            ]
+          : []),
         frame(
           "Charlieは、" + key.label + "で本文を暗号化し直した。",
           "encrypt",

@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=10" />
     <link rel="stylesheet" href="./quest.css?v=6" />
+    <link rel="stylesheet" href="./unified.css?v=1" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -52,7 +53,7 @@
       </header>
       <section
         id="game-console"
-        class="game-console story-game quest-game"
+        class="game-console story-game quest-game unified-game"
         aria-label="暗号通信クエスト"
       >
         <div class="game-inner">
@@ -107,6 +108,15 @@
 
             <div class="phase-row">
               <ol id="stages" class="stages" aria-label="通信の進行"></ol>
+              <div id="signer-control" class="auth-control" hidden>
+                <label
+                  ><input
+                    type="checkbox"
+                    id="authenticate-signer"
+                    checked
+                  />BobがAliceの検証用公開鍵の持ち主を確認する</label
+                >
+              </div>
               <div id="auth-control" class="auth-control" hidden="">
                 <label
                   ><input type="checkbox" id="authenticate" checked="" />
@@ -224,7 +234,7 @@
                           >
                             <use href="./packets.svg#signature"></use>
                           </svg>
-                          <b>Aliceの電子署名</b>
+                          <b id="signature-owner">Aliceの電子署名</b>
                           <span id="signature-note">本文と一緒に暗号化</span>
                         </div>
                       </div>
@@ -241,94 +251,112 @@
                     </details>
                   </div>
                 </section>
-                <section class="story-box" aria-labelledby="situation-title">
-                  <span class="box-label">いまの場面</span
-                  ><button
-                    type="button"
-                    id="situation-details"
-                    class="text-detail"
-                  >
-                    <svg
-                      viewBox="0 0 20 20"
-                      width="16"
-                      height="16"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M10 5C7 3 4 3 2 4v12c3-1 5-1 8 1 3-2 5-2 8-1V4c-2-1-5-1-8 1Zm0 0v12"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span>詳しく</span
-                    ><span class="detail-chevron" aria-hidden="true">›</span>
-                  </button>
-                  <h3 id="situation-title"></h3>
-                  <p id="situation-text"></p>
-                  <div class="goal-line">
-                    <b>いまの目的</b>
-                    <p id="goal-text"></p>
-                  </div>
-                </section>
               </div>
               <div class="command-column">
                 <section class="command-box" aria-labelledby="command-label">
                   <div class="command-heading">
-                    <span class="box-label" id="command-label">行動を選ぶ</span>
+                    <span class="box-label" id="command-label"
+                      >ナレーション</span
+                    >
+                    <button
+                      type="button"
+                      id="situation-details"
+                      class="text-detail"
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        width="16"
+                        height="16"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M10 5C7 3 4 3 2 4v12c3-1 5-1 8 1 3-2 5-2 8-1V4c-2-1-5-1-8 1Zm0 0v12"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <span>詳しく</span
+                      ><span class="detail-chevron" aria-hidden="true">›</span>
+                    </button>
                   </div>
-                  <div id="choice-list" class="choice-list"></div>
-                  <p
-                    id="answer-explanation"
-                    class="answer-explanation"
-                    hidden
-                  ></p>
-                  <section
-                    id="key-picker"
-                    class="key-picker"
-                    aria-labelledby="command-label"
-                    hidden=""
-                  >
-                    <div
-                      id="key-list"
-                      class="key-list"
-                      role="group"
-                      aria-label="使う鍵、またはそのまま送る"
-                    ></div>
-                    <nav class="key-pagination" aria-label="鍵の選択ページ">
-                      <button type="button" id="key-back">← 戻る</button>
-                      <button type="button" id="key-prev" aria-label="前の鍵">
-                        ◀
-                      </button>
-                      <span id="key-page-count"></span>
-                      <button type="button" id="key-next" aria-label="次の鍵">
-                        ▶
-                      </button>
-                    </nav>
-                  </section>
-                  <div id="choice-confirm" class="choice-confirm" hidden="">
-                    <p id="choice-summary"></p>
-                    <div class="choice-buttons">
-                      <button
-                        type="button"
-                        id="choice-back"
-                        class="pixel-button secondary"
-                      >
-                        ← 戻る
-                      </button>
-                      <button
-                        type="button"
-                        id="choice-commit"
-                        class="pixel-button primary"
-                      >
-                        決定 ▶
-                      </button>
+                  <div class="interaction-body">
+                    <p id="comparison-note" class="comparison-note" hidden>
+                      比較実験：Bobは検証用公開鍵の持ち主を確認しない
+                    </p>
+                    <section
+                      id="action-result"
+                      class="narration"
+                      aria-label="状況と操作の結果"
+                    >
+                      <p id="feedback" role="status" aria-live="polite">
+                        Aliceは、Bobに秘密のメッセージを送ろうとしている。
+                      </p>
+                      <div id="bob-result" class="bob-result" hidden></div>
+                    </section>
+                    <div id="choice-list" class="choice-list"></div>
+                    <p
+                      id="answer-explanation"
+                      class="answer-explanation"
+                      hidden
+                    ></p>
+                    <section
+                      id="key-picker"
+                      class="key-picker"
+                      aria-labelledby="command-label"
+                      hidden=""
+                    >
+                      <div
+                        id="key-list"
+                        class="key-list"
+                        role="group"
+                        aria-label="使う鍵、またはそのまま送る"
+                      ></div>
+                      <nav class="key-pagination" aria-label="鍵の選択ページ">
+                        <button type="button" id="key-back">← 戻る</button>
+                        <button type="button" id="key-prev" aria-label="前の鍵">
+                          ◀
+                        </button>
+                        <span id="key-page-count"></span>
+                        <button type="button" id="key-next" aria-label="次の鍵">
+                          ▶
+                        </button>
+                      </nav>
+                    </section>
+                    <div id="choice-confirm" class="choice-confirm" hidden="">
+                      <p id="choice-summary"></p>
+                      <div class="choice-buttons">
+                        <button
+                          type="button"
+                          id="choice-back"
+                          class="pixel-button secondary"
+                        >
+                          ← 戻る
+                        </button>
+                        <button
+                          type="button"
+                          id="choice-commit"
+                          class="pixel-button primary"
+                        >
+                          決定 ▶
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <p id="command-wait" class="command-wait">
-                    下の「次へ」で進めよう。
-                  </p>
+                  <footer class="interaction-controls">
+                    <button type="button" id="dialogue-previous">
+                      ← 一つ前へ
+                    </button>
+                    <span id="dialogue-position"></span>
+                    <button
+                      type="button"
+                      id="dialogue-next"
+                      class="pixel-button primary"
+                    >
+                      次へ ▶
+                    </button>
+                  </footer>
                 </section>
                 <section class="record-card" aria-label="Charlieの記録">
                   <div>
@@ -347,41 +375,6 @@
                 </div>
               </div>
             </div>
-            <section
-              id="action-result"
-              class="action-result dialogue-box"
-              aria-labelledby="result-heading"
-            >
-              <div class="dialogue-portrait" aria-hidden="true">
-                <svg viewBox="0 0 32 40" shape-rendering="crispEdges">
-                  <use
-                    id="speaker-sprite"
-                    href="./characters.svg#narrator"
-                  ></use>
-                </svg>
-              </div>
-              <div class="dialogue-content">
-                <span class="box-label" id="dialogue-label">STORY</span>
-                <h3 id="result-heading">まだ行動していない。</h3>
-                <p id="feedback" role="status" aria-live="polite">
-                  Aliceは、Bobに秘密のメッセージを送ろうとしている。
-                </p>
-                <div id="bob-result" class="bob-result"></div>
-              </div>
-              <div class="dialogue-controls">
-                <span id="dialogue-position">1 / 1</span
-                ><button
-                  type="button"
-                  id="dialogue-next"
-                  class="pixel-button primary"
-                >
-                  次へ ▶
-                </button>
-                <div class="dialogue-options">
-                  <button type="button" id="dialogue-previous">← 前へ</button>
-                </div>
-              </div>
-            </section>
           </div>
           <dialog
             id="info-dialog"
@@ -478,6 +471,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=12"></script>
+    <script type="module" src="./app.mjs?v=13"></script>
   </body>
 </html>

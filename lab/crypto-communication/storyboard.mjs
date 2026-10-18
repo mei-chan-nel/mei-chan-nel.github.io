@@ -16,6 +16,7 @@ export const frame = (text, scene = "intercept", extra = {}) => ({
 export const packetKind = (item) =>
   ({
     public: "public",
+    verify: "verify-key",
     symmetric: "key",
     envelope: "wrapped-key",
     ciphertext: "ciphertext",
@@ -23,6 +24,7 @@ export const packetKind = (item) =>
 export const packetName = (kind) =>
   ({
     public: "公開鍵",
+    "verify-key": "署名の検証用公開鍵",
     key: "共通鍵",
     "wrapped-key": "共通鍵の暗号文",
     ciphertext: "本文の暗号文",
@@ -72,7 +74,69 @@ export function roundFrames(s) {
         : s.authenticate
           ? "Bobは、Bobの公開鍵をAliceへ送る。Aliceは、その公開鍵を信頼済みの指紋と照合する。"
           : "Bobは、Bobの公開鍵をAliceへ送る。今回は、Aliceによる公開鍵の確認を外して比べる。";
+  const verification =
+    s.round >= 2
+      ? [
+          frame(
+            "Aliceは、Aliceの署名をBobが確かめるために、検証用公開鍵をBobへ送る。",
+            "signing-key",
+            {
+              at: "alice",
+              kind: "verify-key",
+              packetLabel: "Aliceの検証用公開鍵",
+              phase: "signing-setup",
+              route: "Alice → 中継機 → Bob",
+            },
+          ),
+          frame(
+            s.authenticateSigner
+              ? "Charlieの中継機が、Aliceの検証用公開鍵を記録した。"
+              : "Charlieは、Aliceの検証用公開鍵をCharlieの検証用公開鍵にすり替えた。",
+            "signing-key",
+            {
+              at: "relay",
+              kind: "verify-key",
+              packetLabel: s.authenticateSigner
+                ? "Aliceの検証用公開鍵"
+                : "Charlieの検証用公開鍵",
+              phase: "signing-setup",
+              route: "Alice → 中継機 → Bob",
+            },
+          ),
+          frame(
+            s.authenticateSigner
+              ? "Bobは、届いた鍵を、別の信頼できる経路で確認済みのAliceの鍵の指紋と照合した。"
+              : "Bobは、持ち主を確かめずに、Charlieの公開鍵をAliceの検証用公開鍵として登録した。",
+            "trust-signing-key",
+            {
+              at: "bob",
+              kind: "verify-key",
+              packetLabel: s.authenticateSigner
+                ? "Aliceの検証用公開鍵"
+                : "Charlieの検証用公開鍵",
+              phase: "signing-setup",
+              route: "Alice → 中継機 → Bob",
+            },
+          ),
+          ...(s.authenticateSigner
+            ? [
+                frame(
+                  "Bobは、指紋が一致したAliceの検証用公開鍵を登録した。すり替えた鍵なら指紋が一致しない。",
+                  "trust-signing-key",
+                  {
+                    at: "bob",
+                    kind: "verify-key",
+                    packetLabel: "確認済み：Aliceの鍵",
+                    phase: "signing-setup",
+                    route: "Alice → 中継機 → Bob",
+                  },
+                ),
+              ]
+            : []),
+        ]
+      : [];
   const frames = [
+    ...verification,
     frame(text, "bob-public", {
       at: "bob",
       kind: "public",
@@ -124,9 +188,11 @@ export function lesson(s) {
   return (
     {
       "attack-success":
-        s.round === 0
-          ? "Charlieは、記録した共通鍵で本文を読み、書き換えた本文も暗号化できた。"
-          : "Aliceが公開鍵の持ち主を確認しなかったため、Charlieは共通鍵を手に入れられた。",
+        s.round >= 2 && !s.authenticateSigner
+          ? "Bobが検証用公開鍵の持ち主を確認しなかったため、Charlieの署名がAliceの署名として受理された。"
+          : s.round === 0
+            ? "Charlieは、記録した共通鍵で本文を読み、書き換えた本文も暗号化できた。"
+            : "Aliceが公開鍵の持ち主を確認しなかったため、Charlieは共通鍵を手に入れられた。",
       "original-accepted": s.read
         ? "Charlieは盗聴に成功した。次は、本文を書き換えた場合と比べよう。"
         : "Bobは正しい共通鍵を持っている。Charlieの手元の鍵で開けないことと、Bobが受信できることは別。",
@@ -134,8 +200,9 @@ export function lesson(s) {
       "bad-key":
         "Bobが共通鍵を取り出せるのは、Bobの公開鍵で暗号化された暗号文。",
       "bad-message": "Bobが復号するには、本文の暗号化に使われた共通鍵が必要。",
-      "signature-rejected":
-        "Charlieは本文を読めても、Aliceの署名を作り直せない。電子署名が本文の変更を検出した。",
+      "signature-rejected": !s.authenticateSigner
+        ? "Aliceの元の署名は新しい本文に対応しない。Bobが登録したCharlieの公開鍵と対になる秘密鍵で、新しい署名が必要。"
+        : "Charlieは本文を読めても、Aliceの署名を作り直せない。電子署名が本文の変更を検出した。",
       authenticated:
         "AliceがBobの公開鍵を確認すると、Charlieへの共通鍵の漏えいも防げる。",
     }[s.result?.code] || ""
@@ -172,7 +239,9 @@ export function forwardFrames(before, after) {
     )
       frames.push(
         frame(
-          "Bobは、信頼済みのAliceの公開鍵で、届いた本文の署名を検証した。",
+          after.authenticateSigner
+            ? "Bobは、確認済みのAliceの検証用公開鍵で、届いた本文の署名を検証した。"
+            : "Bobは、Aliceの鍵だと信じたCharlieの公開鍵で、届いた本文の署名を検証した。",
           "verify",
           { at: "bob", phase: "message", kind: "ciphertext" },
         ),

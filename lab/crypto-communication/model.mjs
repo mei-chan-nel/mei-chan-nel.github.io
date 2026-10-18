@@ -51,6 +51,11 @@ export function createLab() {
   const privC = make("private", "チャーリーの秘密鍵", { owner: "charlie" });
   const pubA = make("verify", "アリスの検証用公開鍵（信頼済み）", {
     owner: "alice",
+    fingerprint: "A11C · 58E2 · 9D30",
+  });
+  const verifyC = make("verify", "チャーリーの検証用公開鍵", {
+    owner: "charlie",
+    fingerprint: "C519 · 84B7 · 2E61",
   });
   known.add(pubC);
   known.add(privC);
@@ -75,7 +80,7 @@ export function createLab() {
     const id = make(
       "signature",
       `${owner === "alice" ? "アリス" : "チャーリー"}の電子署名`,
-      { token: `SIG · ${uid().slice(0, 12)}` },
+      { token: `SIG · ${uid().slice(0, 12)}`, owner },
     );
     secrets.set(id, { text, owner });
     return id;
@@ -94,7 +99,7 @@ export function createLab() {
     return { ...a, current: a.type === "symmetric" ? id === s.key : undefined };
   }
   const inventory = () => [...known].map(view);
-  function start(round = 0, authenticate = true) {
+  function start(round = 0, authenticate = true, authenticateSigner = true) {
     if (s)
       history.push({ round: s.round, result: s.result?.code ?? "restart" });
     // Keep learned keys, but clear working data between independent attempts.
@@ -109,6 +114,8 @@ export function createLab() {
     s = {
       round,
       authenticate,
+      authenticateSigner,
+      verificationPublic: authenticateSigner ? pubA : verifyC,
       phase: round === 0 ? "key" : "public",
       step: 0,
       count: counter,
@@ -125,11 +132,15 @@ export function createLab() {
       revealed: [],
       draft: "",
       attachedSignature: null,
+      deliveredSignature: null,
       signatureChoice: "keep",
       result: null,
       decryptResult: null,
     };
-    if (round >= 2) known.add(pubA);
+    if (round >= 2) {
+      known.add(pubA);
+      if (!authenticateSigner) known.add(verifyC);
+    }
     s.incoming = round === 0 ? s.key : pubB;
     event(`${rounds[round].title}を開始。共通鍵は新しく生成されました。`);
     return snapshot();
@@ -138,6 +149,12 @@ export function createLab() {
     return {
       round: s.round,
       authenticate: s.authenticate,
+      authenticateSigner: s.authenticateSigner,
+      verificationForBob: s.round >= 2 ? view(s.verificationPublic) : null,
+      signingPublic: view(pubA),
+      substituteSigningPublic: view(verifyC),
+      outgoingSignature: view(secrets.get(s.outgoing)?.payload?.signature),
+      deliveredSignature: view(s.deliveredSignature),
       phase: s.phase,
       step: s.step,
       count: s.count,
@@ -392,15 +409,22 @@ export function createLab() {
         return;
       }
       const { text, signature: sig } = sealed.payload;
+      s.deliveredSignature = sig;
       if (s.round >= 2) {
         const proof = secrets.get(sig);
-        if (!proof || proof.owner !== "alice" || proof.text !== text) {
+        if (
+          !proof ||
+          proof.owner !== objects.get(s.verificationPublic).owner ||
+          proof.text !== text
+        ) {
           finish(
             "signature-rejected",
             "署名検証に失敗。ボブは拒否しました",
-            s.read
-              ? "盗聴はできましたが、改ざんは受け付けられません。アリスの署名は元の内容に結び付いています。共通鍵で再暗号化しても署名は作り直せず、チャーリーの署名や署名の削除でも、信頼済みのアリスの公開鍵による検証を通せません。"
-              : "アリスの信頼済み公開鍵で署名を検証できません。本文の変更、署名の削除、別人による署名をボブが検出しました。",
+            !s.authenticateSigner
+              ? "Bobが登録したのはCharlieの検証用公開鍵です。Aliceの元の署名を残しても、書き換えた本文に対応しません。登録された鍵と対になるCharlieの秘密鍵で新しい署名を作る必要があります。"
+              : s.read
+                ? "盗聴はできましたが、改ざんは受け付けられません。アリスの署名は元の内容に結び付いています。共通鍵で再暗号化しても署名は作り直せず、チャーリーの署名や署名の削除でも、信頼済みのアリスの公開鍵による検証を通せません。"
+                : "アリスの信頼済み公開鍵で署名を検証できません。本文の変更、署名の削除、別人による署名をボブが検出しました。",
           );
           return;
         }
@@ -409,9 +433,11 @@ export function createLab() {
         finish(
           "attack-success",
           s.read ? "盗聴・改ざんに成功" : "改ざんは受理。盗聴は未達成",
-          s.round === 0
-            ? "鍵を知る人は、本文を読めるだけでなく、別の本文を暗号化して送れます。共通鍵を同じ経路で平文配送したため、機密性と完全性が破られました。"
-            : "公開鍵で共通鍵を包んでも、その公開鍵の持ち主を確かめなければ、間に入った人が共通鍵を取得できます。暗号化だけでは通信相手の認証や改ざん検出は保証できません。",
+          s.round >= 2 && !s.authenticateSigner
+            ? "Bobが検証用公開鍵の持ち主を確認せず、Charlieの鍵をAliceの鍵として登録したため、Charlie自身の署名が受理されました。Aliceの秘密鍵を盗んだわけではありません。"
+            : s.round === 0
+              ? "鍵を知る人は、本文を読めるだけでなく、別の本文を暗号化して送れます。共通鍵を同じ経路で平文配送したため、機密性と完全性が破られました。"
+              : "公開鍵で共通鍵を包んでも、その公開鍵の持ち主を確かめなければ、間に入った人が共通鍵を取得できます。暗号化だけでは通信相手の認証や改ざん検出は保証できません。",
           true,
           text,
         );
