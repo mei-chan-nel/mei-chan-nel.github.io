@@ -214,6 +214,111 @@ test('pausing music keeps its buffer; elapsed and buffer resume from retained va
   assert.ok(snapshot.apps.music.music.elapsed > elapsed);
 });
 
+test('track changes queue without advancing time, then reset audio while preserving playback, memory and display', () => {
+  const sim = new OSSimulation();
+  sim.launch('music');
+  sim.toggleMusic();
+  let snapshot = until(sim, (s) => s.apps.music.music.buffer >= 20);
+  sim.view('photo');
+  const previousTime = snapshot.time;
+  const previousMemory = snapshot.memory;
+  const previousAudio = snapshot.apps.music.music;
+  snapshot = sim.selectTrack('duru-rondo');
+  assert.equal(snapshot.time, previousTime);
+  assert.deepEqual(snapshot.apps.music.music, previousAudio, 'Queued selections do not mutate the current track');
+  assert.equal(snapshot.pendingInputs[0].type, 'selectTrack');
+  snapshot = sim.step();
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.match(snapshot.cpu.task, /曲を切り替える/);
+  assert.equal(snapshot.apps.music.music.track, 'duru-rondo');
+  assert.equal(snapshot.apps.music.music.playing, true);
+  assert.equal(snapshot.apps.music.music.buffer, 0);
+  assert.equal(snapshot.apps.music.music.elapsed, 0);
+  assert.equal(snapshot.apps.music.music.underruns, 0);
+  assert.equal(snapshot.apps.music.music.buffering, true);
+  assert.equal(snapshot.visible, 'photo');
+  assert.deepEqual(snapshot.memory, previousMemory);
+  assert.equal(snapshot.apps.music.state, 'ready');
+  snapshot = sim.step();
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.equal(snapshot.apps.music.music.buffer, 0, 'OS switching does not create new audio');
+  snapshot = sim.step();
+  assert.equal(snapshot.cpu.owner, 'music');
+  assert.equal(snapshot.apps.music.music.buffer, 8);
+  assert.equal(snapshot.apps.music.music.track, 'duru-rondo');
+  invariant(snapshot);
+});
+
+test('switching tracks in the middle of a music CPU slice discards old work safely', () => {
+  const sim = new OSSimulation();
+  sim.launch('music');
+  sim.toggleMusic();
+  let snapshot = until(sim, (s) => s.cpu.owner === 'music');
+  assert.equal(snapshot.quantum.used, 1);
+  assert.equal(snapshot.apps.music.music.buffer, 8);
+  sim.selectTrack('duru-arcade-vibe');
+  snapshot = sim.step();
+  assert.equal(snapshot.apps.music.music.buffer, 0);
+  assert.equal(snapshot.apps.music.music.track, 'duru-arcade-vibe');
+  assert.equal(snapshot.apps.music.music.hasPlayed, false);
+  snapshot = until(sim, (s) => s.cpu.owner === 'music');
+  assert.equal(snapshot.quantum.used, 1, 'New audio begins a fresh time slice');
+  assert.equal(snapshot.apps.music.music.buffer, 8);
+  const switchTime = snapshot.time;
+  snapshot = ticks(sim, 20);
+  assert.ok(snapshot.apps.music.music.elapsed > 0);
+  assert.equal(snapshot.apps.music.music.underruns, 0);
+  assert.equal(snapshot.apps.music.music.track, 'duru-arcade-vibe');
+  assert.ok(snapshot.history.filter((entry) => entry.time >= switchTime && entry.owner === 'music').length >= 3);
+  invariant(snapshot);
+});
+
+test('selecting a track while music is stopped waits for play; selecting the same track preserves audio', () => {
+  const sim = new OSSimulation();
+  sim.launch('music');
+  sim.step();
+  sim.selectTrack('duru-rondo');
+  let snapshot = sim.step();
+  assert.equal(snapshot.apps.music.music.playing, false);
+  assert.equal(snapshot.apps.music.music.track, 'duru-rondo');
+  snapshot = ticks(sim, 6);
+  assert.equal(snapshot.cpu.owner, 'idle');
+  assert.equal(snapshot.apps.music.music.buffer, 0);
+  sim.toggleMusic();
+  snapshot = until(sim, (s) => s.apps.music.music.buffer >= 20);
+  const music = snapshot.apps.music.music;
+  const time = snapshot.time;
+  snapshot = sim.selectTrack('duru-rondo');
+  assert.equal(snapshot.time, time);
+  assert.deepEqual(snapshot.apps.music.music, music);
+  assert.equal(snapshot.pendingInputs.length, 0);
+  // Selecting the original song while another selection is pending must queue
+  // both requests in their actual order, rather than treating the last as a no-op.
+  sim.selectTrack('duru-arcade-vibe');
+  snapshot = sim.selectTrack('duru-rondo');
+  assert.equal(snapshot.pendingInputs.length, 2);
+  snapshot = ticks(sim, 2);
+  assert.equal(snapshot.apps.music.music.track, 'duru-rondo');
+});
+
+test('closing music cancels stale track selections and a relaunch uses the default song', () => {
+  const sim = new OSSimulation();
+  sim.launch('music');
+  sim.toggleMusic();
+  until(sim, (s) => s.apps.music.music.buffer >= 20);
+  sim.close('music');
+  sim.selectTrack('duru-rondo');
+  let snapshot = sim.step();
+  assert.equal(snapshot.apps.music.running, false);
+  assert.equal(snapshot.apps.music.music.track, 'roomscene-lofi');
+  assert.equal(snapshot.pendingInputs.length, 0);
+  sim.launch('music');
+  snapshot = ticks(sim, 4);
+  assert.equal(snapshot.apps.music.music.track, 'roomscene-lofi');
+  assert.equal(snapshot.apps.music.music.playing, false);
+  assert.equal(snapshot.apps.music.music.buffer, 0);
+});
+
 test('closing each active app cancels CPU work, device waits, buffering and workspace', () => {
   const sim = new OSSimulation();
   for (const id of ['web', 'music', 'photo']) sim.launch(id);

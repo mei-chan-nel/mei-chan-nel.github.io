@@ -15,7 +15,7 @@
 
 ## 教材
 
-- [OSの仕事](./os-work/)（アルゴリズム）：1コアCPUの時間分割、プロセスの状態、メモリの確保・解放を共通の仮想時間で再現します。Webの通信待ち、音声バッファ、写真加工の進捗と作業用メモリを操作して確かめられます。
+- [OSの仕事](./os-work/)（アルゴリズム）：1コアCPUの時間分割、プロセスの状態、メモリの確保・解放を共通の仮想時間で再現します。Webの通信待ち、音声バッファ、写真加工の進捗と作業用メモリを操作して確かめられます。一定速度で再生・一時停止でき、アプリの画面内でCPUの割り当て中・順番待ち・イベント待ちを確認できます。音楽はパブリックドメインの3曲から選択でき、再生・一時停止・音量調整・消音に対応します。
 
 基本操作は [使い方ページ](../study-guide.html#lab) にまとめています。
 
@@ -30,6 +30,8 @@
 ```sh
 node lab/tools/build-pages.mjs
 node lab/tools/build-pages.mjs --check
+node lab/os-work/simulation.test.mjs
+node lab/os-work/audio-controller.test.mjs
 python3 scripts/preview_site.py --host 127.0.0.1 --port 8773 --app-root /workspace/info1-quiz-app
 ```
 

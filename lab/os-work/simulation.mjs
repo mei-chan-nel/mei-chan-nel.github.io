@@ -27,6 +27,7 @@ const freshApp = (id) => ({
   work: 0,
   web: id === 'web' ? { phase: 'idle', topic: 'nature', page: null, networkRemaining: 0 } : undefined,
   music: id === 'music' ? {
+    track: 'roomscene-lofi',
     playing: false, buffer: 0, capacity: MUSIC_CAPACITY, elapsed: 0,
     underruns: 0, buffering: false, hasPlayed: false, wasEmpty: false,
   } : undefined,
@@ -68,6 +69,13 @@ export class OSSimulation {
 
   webLoad(topic = 'nature') { return this._queue('webLoad', 'web', { topic: String(topic) }); }
   toggleMusic() { return this._queue('toggleMusic', 'music'); }
+  selectTrack(trackId = 'roomscene-lofi') {
+    const track = String(trackId);
+    const pendingTrackChange = this._inputs.some((input) => input.id === 'music'
+      && ['selectTrack', 'launch', 'close'].includes(input.type));
+    if (this._apps.music.music.track === track && !pendingTrackChange) return this.snapshot();
+    return this._queue('selectTrack', 'music', { track });
+  }
   startPhoto(filter = 'warm') { return this._queue('startPhoto', 'photo', { filter: String(filter) }); }
 
   _checkId(id) {
@@ -110,6 +118,7 @@ export class OSSimulation {
     return {
       launch: `${app}を起動`, close: `${app}を終了`,
       webLoad: 'ページを読み込む', toggleMusic: '音楽の再生・一時停止',
+      selectTrack: '音楽の曲を切り替える',
       startPhoto: '写真の加工を開始',
     }[input.type];
   }
@@ -148,6 +157,18 @@ export class OSSimulation {
       this._enqueue(id);
       this._event('ページ読み込みを要求。Webブラウザが実行待ちに。');
       return 'クリックをOSが受け取り、Webブラウザを実行待ちにしました。';
+    }
+    if (type === 'selectTrack') {
+      if (app.music.track === input.track) return '同じ曲が選択されているため、再生状態を保ちました。';
+      const playing = app.music.playing;
+      app.music = { ...freshApp('music').music, track: input.track, playing, buffering: playing };
+      app.work = playing ? 3 : 0;
+      this._ready = this._ready.filter((entry) => entry !== id);
+      this._enqueue(id);
+      this._event(`選択した曲に切り替え、音声バッファを空にしました。${playing ? '新しい曲の音声データをCPUで準備します。' : '再生操作を待ちます。'}`);
+      return playing
+        ? '曲の切り替え入力をOSが処理。前の音声バッファを空にし、新しい曲の準備を実行待ちにしました。'
+        : '曲の切り替え入力をOSが処理。再生位置と音声バッファを初期化し、再生操作を待ちます。';
     }
     if (type === 'toggleMusic') {
       app.music.playing = !app.music.playing;
