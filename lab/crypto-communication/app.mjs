@@ -209,20 +209,6 @@ function render() {
   $("packet-short").textContent = f.packetLabel || packetName(f.kind);
   $("packet-title").textContent =
     f.packetLabel || packetName(f.kind) || "通信の準備中";
-  $("copy-indicator").textContent =
-    phase === "signing-setup"
-      ? f.at === "bob"
-        ? "Bobが登録する鍵"
-        : f.at === "relay"
-          ? "中継機を通過"
-          : "Aliceの手元"
-      : recordVisible
-        ? "自動で記録済み"
-        : f.at === "alice"
-          ? "Aliceの手元"
-          : f.at === "bob"
-            ? "Bobの手元"
-            : "";
   $("packet-value").textContent =
     phase === "signing-setup"
       ? (f.packetLabel || "").startsWith("Charlie")
@@ -233,34 +219,6 @@ function render() {
           s.incoming.fingerprint ||
           englishNames(s.incoming.label)
         : "通信の到着待ち";
-  $("alice-state").textContent =
-    {
-      sign: "秘密鍵で署名",
-      wrap: "公開鍵で共通鍵を暗号化",
-      encrypt: "共通鍵で本文を暗号化",
-      authenticate: "Bobの公開鍵を確認",
-      "signing-key": "検証用公開鍵を送る",
-      "trust-signing-key": "署名の準備",
-    }[f.scene] || "Bobへ秘密の通信";
-  $("bob-state").textContent = visibleResult
-    ? s.result.accepted
-      ? "本文を受理"
-      : "通信を拒否"
-    : f.scene === "trust-signing-key"
-      ? s.authenticateSigner
-        ? "指紋で持ち主を確認"
-        : "持ち主を確認せず登録"
-      : f.scene === "verify"
-        ? "Aliceの署名を検証"
-        : "Aliceの通信を待つ";
-  $("charlie-state").textContent =
-    f.scene === "idea"
-      ? "反対の内容に変えたい"
-      : f.scene === "edit"
-        ? "本文を書き換える"
-        : f.scene === "decrypt"
-          ? "鍵で暗号文を開く"
-          : "通るデータを自動記録";
   $("command-label").textContent =
     !talking && s.feedback
       ? s.feedback.correct

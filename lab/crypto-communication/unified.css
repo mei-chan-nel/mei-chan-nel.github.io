@@ -947,3 +947,78 @@
     line-height: 1;
   }
 }
+
+/* Anchor the moving packet to the grid row immediately above the characters. */
+#game-console .network-scene {
+  grid-template-rows: var(--packet-lane) max-content;
+  align-content: center;
+}
+#game-console .actor,
+#game-console .relay {
+  align-self: center;
+}
+#game-console #scene .packet-sprite {
+  grid-row: 1 / 2;
+  grid-column: 1 / -1;
+  top: auto;
+  bottom: 8px;
+  left: 50%;
+}
+#game-console #scene[data-at="alice"] .packet-sprite {
+  left: 25%;
+}
+#game-console #scene[data-at="bob"] .packet-sprite {
+  left: 75%;
+}
+#game-console .cable {
+  grid-row: 2 / 3;
+  grid-column: 1 / -1;
+  top: 40%;
+}
+#game-console .relay-machine {
+  position: absolute;
+  top: 20%;
+  right: calc(50% + 36px);
+  width: 34px;
+  height: 28px;
+  max-width: none;
+  margin: 0;
+  padding: 2px;
+  min-height: 0;
+  border-width: 1px;
+  box-shadow: 2px 2px 0 #0b262b;
+  color: var(--game-mint);
+  align-items: center;
+  justify-content: center;
+}
+#game-console .relay-machine svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@media (max-width: 740px) {
+  #game-console:not(.is-viewport) .relay-machine {
+    right: calc(50% + 25px);
+    width: 24px;
+    height: 20px;
+  }
+}
+#game-console.is-viewport[data-layout="narrow"] .relay-machine {
+  right: calc(50% + 21px);
+  width: 22px;
+  height: 18px;
+}
+@media (max-height: 600px) {
+  #game-console.is-viewport .relay-machine {
+    right: calc(50% + 24px);
+    width: 24px;
+    height: 20px;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    .relay-machine {
+    right: calc(50% + 13px);
+    width: 16px;
+    height: 14px;
+    padding: 1px;
+  }
+}
