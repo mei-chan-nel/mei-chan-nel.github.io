@@ -25,7 +25,6 @@
 <section id="comparison-workspace" class="detail-section" aria-labelledby="detail-heading">
   <div class="section-toolbar"><h2 id="detail-heading"><span class="step-number">03</span> 拡大して、違いを探す</h2></div>
   <div class="comparison-toolbar"><label for="zoom">連動拡大 <input id="zoom" type="range" min="1" max="16" value="1" step=".25" /><output id="zoom-value">全体</output></label><label class="toggle"><input type="checkbox" id="show-diff" />差分を表示</label><button id="fullscreen-toggle" type="button" aria-pressed="false" aria-controls="comparison-workspace">全画面</button></div>
-  <p id="comparison-metrics" class="comparison-metrics" role="status">結果が出ると選択できます。</p>
   <div id="comparison-grid" class="comparison-grid">
     <figure class="original-comparison"><figcaption><strong id="caption-a">元画像</strong><span class="fixed-label">左側に固定</span></figcaption><canvas id="view-a" class="compare-view checker" tabindex="0" role="img" aria-label="元画像。左側に固定。ドラッグまたは矢印キーで連動移動。プラス・マイナスで拡大縮小。"></canvas></figure>
     <figure class="target-comparison"><figcaption><label for="compare-b">比較対象 <select id="compare-b"></select></label></figcaption><canvas id="view-b" class="compare-view checker" tabindex="0" role="img" aria-label="選択した形式の比較画像。ドラッグまたは矢印キーで連動移動。プラス・マイナスで拡大縮小。"></canvas><p id="caption-b" class="picture-caption">JPEG</p></figure>

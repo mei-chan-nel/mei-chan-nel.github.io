@@ -278,22 +278,6 @@ input[type="number"] {
 .compression-key > span:nth-child(2) {
   margin-right: 14px;
 }
-.mode-note {
-  margin: 0;
-  padding: 8px 14px;
-  min-height: 58px;
-  font-size: 12px;
-  line-height: 1.7;
-  background: #f1f3ee;
-}
-[data-kind="lossless"] > .mode-note {
-  color: #185344;
-  background: #edf5ef;
-}
-[data-kind="lossy"] > .mode-note {
-  color: #843624;
-  background: #fff0e9;
-}
 .range-guide {
   grid-column: 2;
   display: flex;
@@ -448,6 +432,13 @@ input[type="number"] {
 }
 .format-metrics div:first-child dd {
   font-size: 21px;
+}
+.detail-controls .format-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.detail-controls [data-metric="original"],
+.detail-controls [data-metric="size"] {
+  font-size: 18px;
 }
 .quality-result {
   margin: 0 14px 10px;
@@ -620,13 +611,6 @@ input[type="number"] {
 }
 .comparison-toolbar output {
   min-width: 40px;
-}
-.comparison-metrics {
-  font-size: 12px;
-  margin: 12px 0;
-  padding: 8px 12px;
-  background: #eff3ef;
-  border-radius: 5px;
 }
 .comparison-grid {
   display: grid;
@@ -830,9 +814,6 @@ input[type="number"] {
   #zoom {
     flex: 1;
   }
-  .comparison-metrics {
-    font-size: 11px;
-  }
   .notes-body dl {
     grid-template-columns: 1fr;
     gap: 14px;
@@ -928,12 +909,6 @@ body.has-fullscreen-card {
   margin: 0;
   min-height: 36px;
   flex-shrink: 0;
-}
-.detail-section:is(.is-fullscreen, :fullscreen) .comparison-metrics {
-  flex-shrink: 0;
-  margin: 0;
-  padding: 4px 8px;
-  font-size: 11px;
 }
 .detail-section:is(.is-fullscreen, :fullscreen) .comparison-grid {
   flex: 1;

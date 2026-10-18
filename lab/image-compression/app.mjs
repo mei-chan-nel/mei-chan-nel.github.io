@@ -189,7 +189,7 @@ function controls(f, scope = "card") {
     ])
   );
 }
-const metricsMarkup = `<dl class="format-metrics"><div><dt>ファイルサイズ</dt><dd data-metric="size">—</dd></div><div><dt>圧縮率</dt><dd data-metric="ratio">—</dd></div><div><dt>圧縮時間</dt><dd data-metric="time">—</dd></div></dl>`;
+const metricsMarkup = (includeOriginal = false) => `<dl class="format-metrics">${includeOriginal ? '<div><dt>元画像（非圧縮）</dt><dd data-metric="original">—</dd></div>' : ""}<div><dt>ファイルサイズ</dt><dd data-metric="size">—</dd></div><div><dt>圧縮率</dt><dd data-metric="ratio">—</dd></div><div><dt>圧縮時間</dt><dd data-metric="time">—</dd></div></dl>`;
 const settingNotes = {
   bmp: [
     ["画素の保存", "32bitはRGB各8bitと透明度8bitを保存します。24bitは透明部分を白背景に合成し、透明度を省くぶん小さくなります。どちらも非圧縮で、24bitにすると元の透明度は戻せません。"],
@@ -225,7 +225,7 @@ for (const f of formats) {
   const card = document.createElement("article");
   card.className = "format-card";
   card.dataset.format = f;
-  card.innerHTML = `<header class="format-heading"><h3>${labels[f]}</h3><span class="format-kind"></span></header><p class="mode-note"></p><div class="thumbnail checker"><canvas width="512" height="512" aria-label="${labels[f]}の変換結果"></canvas><div class="card-status">元画像を準備中</div></div>${metricsMarkup}<p class="quality-result">元画像とのPSNR · —</p><fieldset class="format-settings"><legend>${labels[f]}の圧縮設定</legend>${controls(f)}</fieldset><p class="format-tip">${tips[f]}</p><p class="match-result" hidden></p><div class="card-actions"><button type="button" data-compare disabled>比較</button><button type="button" data-retry hidden>再試行</button><a class="download-link" hidden>保存 ↓</a></div>${timingAndSettings(f)}`;
+  card.innerHTML = `<header class="format-heading"><h3>${labels[f]}</h3><span class="format-kind"></span></header><div class="thumbnail checker"><canvas width="512" height="512" aria-label="${labels[f]}の変換結果"></canvas><div class="card-status">元画像を準備中</div></div>${metricsMarkup()}<p class="quality-result">元画像とのPSNR · —</p><fieldset class="format-settings"><legend>${labels[f]}の圧縮設定</legend>${controls(f)}</fieldset><p class="format-tip">${tips[f]}</p><p class="match-result" hidden></p><div class="card-actions"><button type="button" data-compare disabled>比較</button><button type="button" data-retry hidden>再試行</button><a class="download-link" hidden>保存 ↓</a></div>${timingAndSettings(f)}`;
   $("results").append(card);
   cards.set(f, card);
   bindControls(card, f);
@@ -249,7 +249,6 @@ function updateMode(f) {
     const badge = container.querySelector(".format-kind");
     badge.textContent = mode.label;
     badge.dataset.kind = mode.kind;
-    container.querySelector(".mode-note").textContent = mode.description;
     const quality = container.querySelector('[data-key="quality"]');
     if (quality) quality.disabled = !!settings[f].lossless;
     const subsample = container.querySelector('[data-key="subsample"]');
@@ -261,7 +260,7 @@ function renderDetailControls(f) {
     detailFormat = f;
     const panel = $("detail-controls");
     panel.dataset.format = f;
-    panel.innerHTML = `<header class="format-heading"><h3>${labels[f]}の設定</h3><span class="format-kind"></span></header><p class="mode-note"></p>${metricsMarkup}<fieldset class="format-settings"><legend>${labels[f]}の圧縮設定</legend>${controls(f, "detail")}</fieldset><p class="format-tip">${tips[f]}</p><p class="detail-status" role="status"></p><div class="detail-retry"><button type="button" data-retry hidden>再試行</button></div>${timingAndSettings(f)}`;
+    panel.innerHTML = `<header class="format-heading"><h3>${labels[f]}の設定</h3><span class="format-kind"></span></header>${metricsMarkup(true)}<fieldset class="format-settings"><legend>${labels[f]}の圧縮設定</legend>${controls(f, "detail")}</fieldset><p class="format-tip">${tips[f]}</p><p class="detail-status" role="status"></p><div class="detail-retry"><button type="button" data-retry hidden>再試行</button></div>${timingAndSettings(f)}`;
     bindControls(panel, f);
     panel
       .querySelector("[data-retry]")
@@ -275,6 +274,11 @@ function updateDetailState(f) {
   const panel = $("detail-controls"),
     card = cards.get(f),
     done = states.get(f) === "done";
+  const originalSize = panel.querySelector('[data-metric="original"]');
+  originalSize.textContent = image ? bytesLabel(image.data.length) : "—";
+  originalSize.title = image
+    ? `${image.width} × ${image.height} px × RGBA 4バイト = ${image.data.length.toLocaleString()} B（圧縮率の基準）`
+    : "圧縮率の基準となる非圧縮のRGBA画素データ量";
   for (const metric of ["size", "ratio", "time"])
     panel.querySelector(`[data-metric="${metric}"]`).textContent =
       card.querySelector(`[data-metric="${metric}"]`).textContent;
@@ -630,12 +634,7 @@ function updateComparison() {
   drawViews();
   const ap = image?.data,
     bp = results.get(b)?.pixels;
-  if (!ap || !bp) {
-    $("comparison-metrics").textContent =
-      "選択した形式の結果を待っています。完了した形式から比較できます。";
-    return;
-  }
-  $("comparison-metrics").textContent = "画質指標を計算中…";
+  if (!ap || !bp || !$("show-diff").checked) return;
   try {
     if (!comparisonWorker) {
       comparisonWorker = new Worker(
@@ -644,17 +643,13 @@ function updateComparison() {
       );
       comparisonWorker.onmessage = ({ data }) => {
         if (data.id !== comparisonId) return;
-        const q = data.quality;
-        $("comparison-metrics").textContent =
-          `元画像 ↔ ${labels[$("compare-b").value]}：PSNR ${psnr(q.psnr)} · α誤差 ${q.alphaMae.toFixed(2)} / 255 · ${q.exact ? "RGBA画素が完全一致" : "画素に違いがあります"}`;
         if (data.pixels) {
           diffSurface = makeSurface(data.pixels);
           drawViews();
         }
       };
       comparisonWorker.onerror = () => {
-        $("comparison-metrics").textContent =
-          "画質指標を計算できません。ページを再読み込みしてください。";
+        showError("差分を計算できません。ページを再読み込みしてください。");
       };
     }
     comparisonWorker.postMessage({
@@ -665,7 +660,7 @@ function updateComparison() {
       diff: $("show-diff").checked,
     });
   } catch {
-    $("comparison-metrics").textContent = "比較用Workerを開始できません。";
+    showError("差分表示用Workerを開始できません。");
   }
 }
 const views = [$("view-a"), $("view-b"), $("view-diff")];
