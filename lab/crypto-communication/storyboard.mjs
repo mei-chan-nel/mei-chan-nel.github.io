@@ -241,7 +241,10 @@ export function outcomeFrame(s) {
     packet,
     signatureOwner:
       s.round === 3 && packet.type === "ciphertext"
-        ? s.deliveredSignature?.owner || null
+        ? s.deliveredSignature?.owner ||
+          (packet.id === s.outgoing?.id
+            ? s.outgoingSignature?.owner || null
+            : "alice")
         : null,
     stage: [
       "bad-verification-key",

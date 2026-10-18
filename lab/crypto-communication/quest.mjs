@@ -1,4 +1,4 @@
-import { createLab } from "./model.mjs?v=19";
+import { createLab } from "./model.mjs?v=20";
 import {
   frame,
   forwardFrames,
@@ -6,7 +6,7 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=16";
+} from "./storyboard.mjs?v=17";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
@@ -425,9 +425,11 @@ export function createQuest() {
           ? "correct"
           : "wrong"
         : s.phase === "done"
-          ? x.consequence
+          ? x.consequence || !s.result.accepted
             ? "wrong"
-            : "correct"
+            : s.result.code === "original-accepted" && s.round < 3
+              ? ""
+              : "correct"
           : "",
     };
   }
@@ -519,6 +521,34 @@ export function createQuest() {
         ...f,
         tone: "wrong",
       }));
+    const unchanged = lab.snapshot();
+    if (
+      !unchanged.outgoing &&
+      ["read", "open-key", "payload", "rewrap", "inject-key", "edit"].includes(
+        feedback?.kind,
+      )
+    ) {
+      const failure =
+        feedback.kind === "read"
+          ? "Charlieは選んだ鍵では本文を復号できなかった。"
+          : feedback.kind === "open-key"
+            ? "Charlieは選んだ鍵では共通鍵を取り出せなかった。"
+            : feedback.kind === "edit"
+              ? "Charlieは本文を書き換えようとしたが、選んだ鍵では新しい本文の暗号文を作れなかった。"
+              : "Charlieは選んだ鍵では新しい共通鍵の暗号文を作れなかった。";
+      frames.push(
+        frame(
+          failure + "Charlieは、届いた元の暗号文を変えずに転送する。",
+          "operation-failed",
+          {
+            at: "charlie",
+            phase: unchanged.phase,
+            kind: packetKind(unchanged.incoming),
+            packet: unchanged.incoming,
+          },
+        ),
+      );
+    }
     if (feedback?.kind === "readability" && !canRead(lab.snapshot())) {
       const s = lab.snapshot(),
         key =
@@ -651,8 +681,21 @@ export function createQuest() {
       (action === "pass" &&
         !(lab.snapshot().phase === "key" && lab.snapshot().round >= 2))
     ) {
+      const origin = checkpoint();
       x.pending = null;
-      return forward();
+      const frames = forward(),
+        after = lab.snapshot();
+      if (after.result && !after.result.accepted)
+        return evaluate(
+          false,
+          after.result.code === "bad-key"
+            ? "Charlie宛ての共通鍵の暗号文をそのまま転送したため、Bobは共通鍵を取り出せなかった。Bobが取り出せる形にしなければ、本文の通信は始まらない。"
+            : englishNames(after.result.text),
+          frames,
+          origin,
+          "delivery",
+        );
+      return frames;
     }
     const origin = checkpoint(),
       before = lab.snapshot(),
@@ -873,7 +916,7 @@ export function createQuest() {
         [
           frame(
             action === "inject-key"
-              ? "Charlieは、Charlieの共通鍵をBobの公開鍵で暗号化した。"
+              ? "Charlieは、Charlieの共通鍵を" + key.label + "で暗号化した。"
               : "Charlieは、共通鍵を" + key.label + "で暗号化し直した。",
             "wrap",
             {

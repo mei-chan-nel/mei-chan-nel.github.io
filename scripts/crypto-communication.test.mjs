@@ -7,6 +7,7 @@ import {
   roundFrames,
   forwardFrames,
   createStoryPlayer,
+  outcomeFrame,
 } from "../lab/crypto-communication/storyboard.mjs";
 import { explanations } from "../lab/crypto-communication/explanations.mjs";
 const find = (lab, type, owner) =>
@@ -1014,4 +1015,88 @@ test("R4 wrong forgery prediction replays both-key-and-body attack from delivery
   choose(q, "pass");
   assert.equal(q.view().result.code, "original-accepted");
   assert.equal(q.view().deliveredSignature.owner, "alice");
+});
+test("wrong injection wrapper narration names the actual selected recipient key", () => {
+  const q = createQuest();
+  reachKey(q, 2);
+  choose(q, "inject-key", (k) => k.type === "public" && k.owner === "charlie");
+  const s = q.view();
+  assert.equal(s.feedback.correct, false);
+  assert.match(s.feedbackFrame.text, /Charlieの公開鍵で暗号化した/);
+  assert.doesNotMatch(s.feedbackFrame.text, /Bobの公開鍵で暗号化した/);
+  assert.equal(s.feedbackFrame.packet.id, s.outgoing.id);
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "bad-key");
+});
+test("direct R2 forwarding failure is red and retries the exact forwarding decision", () => {
+  for (const openFirst of [false, true]) {
+    const q = createQuest();
+    reachKey(q, 1);
+    if (openFirst) correct(q, "open-key");
+    const before = q.view();
+    choose(q, "pass");
+    assert.equal(q.view().result.code, "bad-key");
+    assert.equal(q.view().tone, "wrong");
+    assert.equal(q.view().feedback.correct, false);
+    assert.match(q.view().feedback.explanation, /Charlie宛て/);
+    const resume = q.checkpoint();
+    choose(q, "retry-here");
+    assert.equal(q.view().phase, "key");
+    assert.equal(q.view().incoming.id, before.incoming.id);
+    assert.deepEqual(q.view().choices, before.choices);
+    resume();
+    choose(q, "show-consequence");
+    assert.equal(q.view().result.code, "bad-key");
+    choose(q, "retry-here");
+    assert.equal(q.view().incoming.id, before.incoming.id);
+    if (!openFirst) correct(q, "open-key");
+    correct(q, "rewrap");
+    choose(q, "forward");
+    assert.equal(q.view().phase, "message");
+  }
+});
+test("failed edit encryption explains why Bob receives the unchanged original", () => {
+  const q = createQuest();
+  reachMessage(q, 0);
+  correct(q, "read");
+  correct(q, "predict-safe");
+  const originalPacket = q.view().incoming.id;
+  choose(q, "edit", (k) => k.type === "public" && k.owner === "charlie");
+  assert.equal(q.view().feedback.correct, false);
+  assert.equal(q.view().draft, "I hate you.");
+  assert.equal(q.view().outgoing, null);
+  const frames = choose(q, "show-consequence");
+  assert.equal(frames[0].scene, "operation-failed");
+  assert.match(frames[0].text, /暗号文を作れなかった/);
+  assert.match(frames[0].text, /元の暗号文を変えずに転送/);
+  assert.equal(frames[0].packet.id, originalPacket);
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().result.message, "I love you.");
+  assert.equal(q.view().tone, "wrong");
+  choose(q, "retry-here");
+  assert.equal(q.view().selectingKey.action, "edit");
+  assert.equal(q.view().draft, "I love you.");
+});
+test("failed decryption keeps the original Alice signature attached in the scene", () => {
+  const q = createQuest();
+  reachKey(q, 3);
+  choose(q, "inject-key");
+  const frames = choose(q, "show-consequence");
+  const s = q.view();
+  assert.equal(s.result.code, "bad-message");
+  assert.equal(s.deliveredSignature, null);
+  assert.equal(frames.at(-1).signatureOwner, "alice");
+  assert.equal(outcomeFrame(s).signatureOwner, "alice");
+  assert.equal(outcomeFrame(s).packet.id, s.incoming.id);
+});
+test("unchanged original delivery before Round4 is neutral rather than a successful attack", () => {
+  for (const round of [0, 1]) {
+    const q = createQuest();
+    reachMessage(q, round);
+    choose(q, "pass");
+    assert.equal(q.view().result.code, "original-accepted");
+    assert.equal(q.view().tone, "");
+    assert.equal(q.view().read, false);
+    assert.equal(q.view().original, null);
+  }
 });
