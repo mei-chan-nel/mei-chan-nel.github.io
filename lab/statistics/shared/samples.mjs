@@ -102,6 +102,7 @@ export function sampleState(id, initial, seed = freshSeed()) {
   } else throw Error("このラボのサンプルはありません。");
   const next = applyData(id, base, { headers, rows, name, ...selection });
   next.dataInfo = { ...next.dataInfo, origin: "sample", seed };
+  if (id === "histogram") next.width = base.width;
   if (id === "summary") {
     next.min = 0;
     next.max = 100;
