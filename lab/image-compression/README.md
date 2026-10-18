@@ -17,3 +17,5 @@
 写真プリセットはNASAのEileen Collinsの写真（Public domain、scikit-imageのastronaut画像）。その他はCanvasで生成するオリジナルです。
 
 HTMLの編集元は `../tools/templates/image-compression.html`。共通ページは `node lab/tools/build-pages.mjs` で生成します。WASM・Worker・プリセットを同じサイトから配信するため、単独HTML書き出しは対象外です。
+
+`node --test scripts/interactive-lab-compression.test.mjs` で、実際のWorkerと全コーデックによる圧縮・復号、可逆でのRGBA完全一致、減色・白背景合成、実測サイズ探索、並列数制限とキャンセルを検証します。WASMはローカルから読み込み、テスト中の外部通信は拒否します。
