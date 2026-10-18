@@ -489,6 +489,9 @@ test("success exposes first narration with explanation, then advances without re
 function interceptSigningComparison(lab) {
   lab.start(2, true, false);
   capture(lab);
+  lab.setOutgoing(find(lab, "verify", "charlie"));
+  lab.forward();
+  capture(lab);
   lab.setOutgoing(find(lab, "public", "charlie"));
   lab.forward();
   const keyPacket = capture(lab);
@@ -528,13 +531,14 @@ test("explicit out-of-band key trust can authenticate a signature without a CA",
   frames = roundFrames(q.view());
   assert.ok(
     frames.some(
-      (f) => f.at === "relay" && f.packetLabel === "Charlieの検証用公開鍵",
+      (f) => f.at === "relay" && f.packetLabel === "Aliceの検証用公開鍵",
     ),
   );
 });
 test("comparison retains key choices, prediction correctness and signing decision across exact retry", () => {
   const q = createQuest();
   q.start(2, true, false);
+  correct(q, "swap-signing-key");
   correct(q, "swap");
   choose(q, "forward");
   correct(q, "open-key");
@@ -561,6 +565,7 @@ test("comparison retains key choices, prediction correctness and signing decisio
 test("rejected prediction in unchecked-key comparison demonstrates actual accepted forgery", () => {
   const q = createQuest();
   q.start(2, true, false);
+  correct(q, "swap-signing-key");
   correct(q, "swap");
   choose(q, "forward");
   correct(q, "open-key");
@@ -581,7 +586,8 @@ test("signed round defaults to unauthenticated verification key; CA stage authen
   lab.start(2);
   assert.equal(lab.snapshot().authenticateSigner, false);
   assert.equal(lab.snapshot().ca, null);
-  assert.equal(lab.snapshot().verificationForBob.owner, "charlie");
+  assert.equal(lab.snapshot().verificationForBob, null);
+  assert.equal(lab.snapshot().phase, "signing-public");
   lab.start(3);
   assert.equal(lab.snapshot().verificationForBob.owner, "alice");
   assert.ok(lab.snapshot().ca.root);
@@ -678,6 +684,7 @@ test("default signature round can be completed with Charlie key substitution and
   const q = createQuest();
   q.start(2);
   assert.equal(q.view().authenticateSigner, false);
+  correct(q, "swap-signing-key");
   correct(q, "swap");
   choose(q, "forward");
   correct(q, "open-key");
@@ -693,4 +700,78 @@ test("default signature round can be completed with Charlie key substitution and
   assert.equal(q.view().round, 3);
   assert.ok(q.view().ca);
   assert.equal(q.view().authenticateSigner, true);
+});
+test("verification key is intercepted before registration, and selecting without confirmation changes nothing", () => {
+  const q = createQuest();
+  q.start(2);
+  const before = q.view();
+  assert.equal(before.phase, "signing-public");
+  assert.equal(before.verificationForBob, null);
+  assert.deepEqual(
+    before.choices.map((c) => c.id),
+    ["swap-signing-key", "send-signing-key"],
+  );
+  assert.ok(q.select("swap-signing-key"));
+  assert.equal(q.view().verificationForBob, null);
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  q.cancel();
+  assert.equal(q.view().verificationForBob, null);
+  const undo = q.checkpoint();
+  correct(q, "swap-signing-key");
+  assert.equal(q.view().phase, "public");
+  assert.equal(q.view().verificationForBob.owner, "charlie");
+  undo();
+  assert.equal(q.view().phase, "signing-public");
+  assert.equal(q.view().verificationForBob, null);
+  assert.equal(q.view().incoming.id, before.incoming.id);
+});
+test("forwarding real signing key demonstrates original acceptance and retries at signing-key decision", () => {
+  const q = createQuest();
+  q.start(2);
+  const before = q.view();
+  choose(q, "send-signing-key");
+  assert.equal(q.view().feedback.correct, false);
+  assert.equal(q.view().verificationForBob, null);
+  const frames = choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().read, false);
+  assert.equal(q.view().original, null);
+  assert.equal(q.view().verificationForBob.owner, "alice");
+  assert.ok(
+    frames.some(
+      (f) => f.scene === "verify" && f.text.includes("Aliceの検証用公開鍵"),
+    ),
+  );
+  choose(q, "retry-here");
+  assert.equal(q.view().phase, "signing-public");
+  assert.equal(q.view().verificationForBob, null);
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.equal(q.view().count, before.count);
+});
+test("legitimate but unauthenticated Alice verification key rejects Charlie signature", () => {
+  const lab = createLab();
+  lab.start(2);
+  capture(lab);
+  lab.forward();
+  assert.equal(lab.snapshot().verificationForBob.owner, "alice");
+  capture(lab);
+  lab.setOutgoing(find(lab, "public", "charlie"));
+  lab.forward();
+  const encryptedKey = capture(lab);
+  lab.decrypt(encryptedKey, find(lab, "private", "charlie"));
+  const key = lab
+    .snapshot()
+    .inventory.find((k) => k.type === "symmetric" && k.current).id;
+  lab.setOutgoing(lab.wrapKey(key, find(lab, "public", "bob")).id);
+  lab.forward();
+  tamper(lab, key, "charlie");
+  assert.equal(lab.snapshot().result.code, "signature-rejected");
+});
+test("opening narration stops before Charlie chooses a verification key", () => {
+  const q = createQuest();
+  q.start(2);
+  const frames = roundFrames(q.view());
+  assert.equal(frames.at(-1).at, "relay");
+  assert.ok(frames.every((f) => !f.text.includes("すり替えた")));
+  assert.ok(frames.every((f) => !f.text.includes("登録した")));
 });

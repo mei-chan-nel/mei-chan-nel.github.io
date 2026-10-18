@@ -1,5 +1,5 @@
-import { createQuest } from "./quest.mjs?v=10";
-import { rounds } from "./model.mjs";
+import { createQuest } from "./quest.mjs?v=11";
+import { rounds } from "./model.mjs?v=17";
 import {
   introFrames,
   roundFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=12";
+} from "./storyboard.mjs?v=13";
 import { createDisplayController } from "./display.mjs";
-import { explanations } from "./explanations.mjs?v=2";
+import { explanations } from "./explanations.mjs?v=3";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -51,7 +51,7 @@ function execute() {
   if (frames.length) play(frames);
   else {
     render();
-    const target = quest.view().feedback?.correct
+    const target = !$("dialogue-next").hidden
       ? $("dialogue-next")
       : document.querySelector("[data-action]") ||
         document.querySelector("[data-key]") ||
@@ -73,6 +73,13 @@ function render() {
     visibleResult = done && (!talking || f.revealOutcome);
   const pending = Boolean(s.pending);
   const picking = Boolean(s.selectingKey);
+  const forwardReady =
+    !talking &&
+    !s.feedback &&
+    !pending &&
+    !picking &&
+    s.choices.length === 1 &&
+    s.choices[0].id === "forward";
   if (s.count !== shownCount) {
     shownCount = s.count;
     shownKey = "未取得";
@@ -107,7 +114,6 @@ function render() {
   $("round-title").textContent = rounds[s.round].title;
   $("round-description").textContent = rounds[s.round].description;
   $("auth-control").hidden = s.round !== 3;
-  $("comparison-note").hidden = s.round !== 2;
   $("ca-authority").hidden = $("browser-trust").hidden = s.round !== 3;
   $("ca-authority").dataset.active = String(
     ["ca-request", "ca-issue", "ca-response"].includes(f.scene),
@@ -127,7 +133,7 @@ function render() {
   const step =
     phase === "done"
       ? stages.length
-      : ["signing-setup", "ca-setup"].includes(phase)
+      : ["signing-public", "signing-setup", "ca-setup"].includes(phase)
         ? 0
         : (s.round >= 2 ? 1 : 0) +
           (s.round === 0
@@ -227,7 +233,7 @@ function render() {
         : (f.packetLabel || "").includes("Alice")
           ? s.ca.aliceCertificate.fingerprint
           : s.ca.bobCertificate.fingerprint
-      : phase === "signing-setup"
+      : ["signing-public", "signing-setup"].includes(phase)
         ? (f.packetLabel || "").startsWith("Charlie")
           ? s.substituteSigningPublic.fingerprint
           : s.signingPublic.fingerprint
@@ -241,7 +247,7 @@ function render() {
       ? s.feedback.correct
         ? "○ 正解"
         : "× 誤答"
-      : talking
+      : talking || forwardReady
         ? "ナレーション"
         : pending
           ? "この操作で進める？"
@@ -253,11 +259,12 @@ function render() {
   $("answer-explanation").hidden = talking || !s.feedback;
   $("answer-explanation").textContent =
     !talking && s.feedback ? s.feedback.explanation : "";
-  $("choice-list").hidden = talking || pending || picking || correctAnswer;
+  $("choice-list").hidden =
+    talking || pending || picking || correctAnswer || forwardReady;
   $("key-picker").hidden = talking || pending || !picking;
   $("choice-confirm").hidden = talking || !pending;
   $("choice-list").innerHTML =
-    talking || pending || picking || correctAnswer
+    talking || pending || picking || correctAnswer || forwardReady
       ? ""
       : s.choices
           .map(
@@ -344,18 +351,22 @@ function render() {
     !talking && (Boolean(s.feedback) || pending || picking);
   $("feedback").textContent = talking
     ? f.text
-    : correctAnswer
-      ? s.feedbackFrame?.text ||
-        "Charlieは、予想を実際の通信で確かめようとしている。"
-      : s.feedback
-        ? s.feedback.explanation
-        : done
-          ? lesson(s)
-          : pending
-            ? "「決定」で実行。「戻る」で選び直せる。"
-            : picking
-              ? s.selectingKey.title + "を選ぼう。"
-              : s.prompt;
+    : forwardReady
+      ? "Charlieは、中継機にあるデータを" +
+        (s.phase === "public" ? "Alice" : "Bob") +
+        "へ転送する。"
+      : correctAnswer
+        ? s.feedbackFrame?.text ||
+          "Charlieは、予想を実際の通信で確かめようとしている。"
+        : s.feedback
+          ? s.feedback.explanation
+          : done
+            ? lesson(s)
+            : pending
+              ? "「決定」で実行。「戻る」で選び直せる。"
+              : picking
+                ? s.selectingKey.title + "を選ぼう。"
+                : s.prompt;
   $("bob-result").hidden = !visibleResult || !s.result.message;
   $("bob-result").textContent =
     visibleResult && s.result.message
@@ -364,9 +375,10 @@ function render() {
         : "Bobは共通鍵で復号し、本文を受け付けた。"
       : "";
   const position = story.position();
-  $("dialogue-next").hidden = !talking && !correctAnswer;
-  $("dialogue-next").textContent =
-    correctAnswer || position.index + 1 < position.total
+  $("dialogue-next").hidden = !talking && !correctAnswer && !forwardReady;
+  $("dialogue-next").textContent = forwardReady
+    ? s.choices[0].label + " ▶"
+    : correctAnswer || position.index + 1 < position.total
       ? "次へ ▶"
       : "行動を選ぶ ▶";
   $("dialogue-previous").hidden = false;
@@ -374,7 +386,7 @@ function render() {
   $("dialogue-previous").disabled = history.length === 0;
   $("dialogue-position").textContent = talking
     ? position.index + 1 + " / " + position.total
-    : correctAnswer
+    : correctAnswer || forwardReady
       ? ""
       : done
         ? "結果"
@@ -469,7 +481,12 @@ $("dialogue-next").addEventListener("click", () => {
     review("continue");
     return;
   }
-  if (!story.active()) return;
+  if (!story.active()) {
+    const available = quest.view().choices;
+    if (available.length === 1 && available[0].id === "forward")
+      review("forward");
+    return;
+  }
   remember();
   story.next();
   render();

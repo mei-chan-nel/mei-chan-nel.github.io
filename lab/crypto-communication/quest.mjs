@@ -1,4 +1,4 @@
-import { createLab } from "./model.mjs";
+import { createLab } from "./model.mjs?v=17";
 import {
   frame,
   forwardFrames,
@@ -6,7 +6,7 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=12";
+} from "./storyboard.mjs?v=13";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
@@ -148,6 +148,21 @@ export function createQuest() {
             ),
           ];
     }
+    if (s.phase === "signing-public")
+      return [
+        choice(
+          "swap-signing-key",
+          "Charlieの検証用公開鍵にすり替える",
+          "Bobが署名の検証に使う鍵を選ぶ",
+          "Aliceの鍵の代わりにCharlieの検証用公開鍵をBobへ届ける。",
+        ),
+        choice(
+          "send-signing-key",
+          "Aliceの検証用公開鍵を届ける",
+          "届いたAliceの鍵をBobへ送る",
+          "Aliceの検証用公開鍵をそのままBobへ届ける。",
+        ),
+      ];
     if (s.outgoing || (s.phase === "key" && s.round === 0))
       return [
         choice(
@@ -193,7 +208,11 @@ export function createQuest() {
       ];
     if (!s.read)
       return [choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ")];
-    if (s.round === 2 && !s.authenticateSigner && !x.signatureSelected)
+    if (
+      s.round === 2 &&
+      s.verificationForBob?.owner === "charlie" &&
+      !x.signatureSelected
+    )
       return [
         choice(
           "forge-signature",
@@ -262,13 +281,16 @@ export function createQuest() {
           : s.outgoing
             ? "ready"
             : s.phase === "message" && s.read
-              ? s.round === 2 && !s.authenticateSigner && !x.signatureSelected
+              ? s.round === 2 &&
+                s.verificationForBob?.owner === "charlie" &&
+                !x.signatureSelected
                 ? "signature"
                 : x.predictionAnswered
                   ? "edit"
                   : "predict"
               : s.phase;
     const titles = {
+      "signing-public": "Bobに届ける検証用公開鍵を選ぶ",
       public:
         s.round === 3 ? "Aliceに渡す証明書を選ぶ" : "Aliceに渡す公開鍵を選ぶ",
       key: key ? "共通鍵をBobに届けよう" : "共通鍵の暗号文が届いた",
@@ -281,6 +303,7 @@ export function createQuest() {
       result: "通信の結果",
     };
     const goals = {
+      "signing-public": "Bobが検証に使う公開鍵を考えよう。",
       public: "Charlieが共通鍵を取り出せるようにする。",
       key:
         s.round === 0
@@ -299,6 +322,8 @@ export function createQuest() {
         : "予想と実際の結果を比べよう。",
     };
     const prompt = {
+      "signing-public":
+        "Aliceの検証用公開鍵が届いた。CharlieがBobへ届ける鍵を選ぼう。",
       public:
         s.round === 3
           ? "BobのCA署名付き証明書が届いた。Aliceはブラウザ内のCA公開鍵で署名と相手名を検証する。"
@@ -310,7 +335,7 @@ export function createQuest() {
       signature:
         "BobはCharlieの検証用公開鍵をAliceの鍵として登録している。新しい本文には、どの署名を付ける？",
       predict:
-        s.round >= 2 && !s.authenticateSigner
+        s.round >= 2 && s.verificationForBob?.owner === "charlie"
           ? "Charlieは、書き換えた本文にCharlieの秘密鍵で署名する予定だ。Bobは変更を検出できる？"
           : "Charlieは「love」を「hate」に変えたい。Bobはその変更に気づくだろうか。",
       edit: "Charlieが考えた書き換えを、実際の暗号文にしてみよう。",
@@ -322,6 +347,12 @@ export function createQuest() {
         : frame("", "intercept", {
             phase: s.phase,
             kind: packetKind(s.outgoing || s.incoming),
+            ...(s.phase === "signing-public"
+              ? {
+                  packetLabel: englishNames(s.incoming.label),
+                  route: "Alice → 中継機 → Bob",
+                }
+              : {}),
             ...(s.phase === "public"
               ? {
                   packetLabel: englishNames((s.outgoing || s.incoming).label),
@@ -493,7 +524,7 @@ export function createQuest() {
         ),
       );
     }
-    for (let i = 0; i < 3 && lab.snapshot().phase !== "done"; i++)
+    for (let i = 0; i < 4 && lab.snapshot().phase !== "done"; i++)
       frames.push(...forward());
     return frames.map((f) => ({ ...f, tone: "wrong" }));
   }
@@ -544,6 +575,27 @@ export function createQuest() {
       at: "charlie",
       kind: packetKind(before.incoming),
     };
+    if (action === "send-signing-key")
+      return evaluate(
+        false,
+        "BobがAliceの公開鍵を登録すると、Charlieの秘密鍵で作った署名は検証を通せない。",
+        [],
+        origin,
+        "signing-key",
+      );
+    if (action === "swap-signing-key") {
+      lab.setOutgoing(find(before, "verify", "charlie").id);
+      const sent = lab.snapshot();
+      lab.forward();
+      record();
+      return evaluate(
+        true,
+        "BobはCharlieの検証用公開鍵をAliceの鍵として登録する。対になるCharlieの秘密鍵で署名を作れば、Bobの検証を通せる。",
+        forwardFrames(sent, lab.snapshot()),
+        origin,
+        "signing-key",
+      );
+    }
     if (action === "swap") {
       const charlieKey = find(before, "public", "charlie").id;
       lab.setOutgoing(
@@ -616,12 +668,13 @@ export function createQuest() {
       );
     }
     if (action.startsWith("predict-")) {
-      const detected = before.round >= 2 && before.authenticateSigner;
+      const detected =
+        before.round >= 2 && before.verificationForBob?.owner === "alice";
       const correct = (action === "predict-detected") === detected;
       if (correct) x.predictionAnswered = true;
       return evaluate(
         correct,
-        before.round >= 2 && !before.authenticateSigner
+        before.round >= 2 && before.verificationForBob?.owner === "charlie"
           ? "BobはCharlieの検証用公開鍵を信じている。Charlie自身の署名が通るため、Bobは改ざんを受け付けてしまう。"
           : before.round >= 2
             ? "Aliceの署名は本文と結び付いている。Charlieが共通鍵で暗号化し直しても、Bobは本文の変更を検出できる。"
@@ -699,7 +752,7 @@ export function createQuest() {
     return evaluate(
       true,
       before.round >= 2
-        ? before.authenticateSigner
+        ? before.verificationForBob?.owner === "alice"
           ? "Bobは復号できても、本文がAliceの署名と一致しないため、改ざんに気づく。"
           : "BobがCharlieの公開鍵をAliceの鍵だと信じているため、Charlieの署名でも検証が通り、改ざんに気づかない。"
         : "Bobは同じ共通鍵で復号でき、本文の変更を確かめる署名もないため、改ざんに気づかない。",

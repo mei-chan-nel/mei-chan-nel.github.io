@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=10" />
     <link rel="stylesheet" href="./quest.css?v=6" />
-    <link rel="stylesheet" href="./unified.css?v=4" />
+    <link rel="stylesheet" href="./unified.css?v=5" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -127,7 +127,10 @@
                 >
                   <div class="scene-top">
                     <span id="scene-status">Ⅱ 通信を一時停止中</span
-                    ><span
+                    ><span id="direction">アリス → ボブ</span>
+                  </div>
+                  <div class="network-scene">
+                    <span
                       id="ca-authority"
                       class="ca-authority"
                       hidden
@@ -141,9 +144,7 @@
                       >
                         <use href="./authority.svg#ca"></use></svg
                       ><span>認証局 CA</span></span
-                    ><span id="direction">アリス → ボブ</span>
-                  </div>
-                  <div class="network-scene">
+                    >
                     <div class="cable" aria-hidden="true"></div>
                     <article class="actor alice">
                       <svg
@@ -295,9 +296,6 @@
                     </button>
                   </div>
                   <div class="interaction-body">
-                    <p id="comparison-note" class="comparison-note" hidden>
-                      認証局は未導入：検証用公開鍵の持ち主は未確認
-                    </p>
                     <section
                       id="action-result"
                       class="narration"
@@ -484,6 +482,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=16"></script>
+    <script type="module" src="./app.mjs?v=17"></script>
   </body>
 </html>

@@ -37,7 +37,7 @@ export function explanations(s) {
     [
       {
         title: "1. 署名の検証用公開鍵も配送する",
-        text: "AliceはAliceの署名をBobが検証できるよう、検証用公開鍵をBobへ送ります。このラウンドでは認証局をまだ使わず、別の信頼できる経路での確認も行いません。CharlieはAliceの検証用公開鍵をCharlieの検証用公開鍵にすり替えられます。BobはCharlieの鍵をAliceの鍵として登録してしまいます。",
+        text: "AliceはAliceの署名をBobが検証できるよう、検証用公開鍵をBobへ送ります。公開鍵を受け取るだけでは、鍵の持ち主は分かりません。Charlieは中継機で止めた検証用公開鍵を、Aliceの鍵のまま送るか、Charlieの鍵にすり替えるか選べます。BobはCharlieの鍵をAliceの鍵として登録してしまいます。",
       },
       {
         title: "2. 元の署名を残す場合と、新しい署名を作る場合",

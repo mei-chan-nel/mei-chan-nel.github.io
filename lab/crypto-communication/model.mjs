@@ -191,8 +191,13 @@ export function createLab() {
         ? round === 3
           ? validateCertificate(certA, "alice").keyId
           : pubA
-        : verifyC,
-      phase: round === 0 ? "key" : "public",
+        : null,
+      phase:
+        round === 0
+          ? "key"
+          : round === 2 && !authenticateSigner
+            ? "signing-public"
+            : "public",
       step: 0,
       count: counter,
       key: make("symmetric", `共通鍵 K${counter}`, {
@@ -218,7 +223,14 @@ export function createLab() {
       if (!authenticateSigner) known.add(verifyC);
       if (round === 3) known.add(certC);
     }
-    s.incoming = round === 0 ? s.key : round === 3 ? certB : pubB;
+    s.incoming =
+      round === 0
+        ? s.key
+        : s.phase === "signing-public"
+          ? pubA
+          : round === 3
+            ? certB
+            : pubB;
     event(`${rounds[round].title}を開始。共通鍵は新しく生成されました。`);
     return snapshot();
   }
@@ -437,6 +449,24 @@ export function createLab() {
     const id = s.outgoing || s.incoming,
       a = objects.get(id),
       sealed = secrets.get(id);
+    if (s.phase === "signing-public") {
+      if (a.type !== "verify") {
+        finish(
+          "bad-verification-key",
+          "Bobが検証用公開鍵を受け付けなかった",
+          "Bobが署名の検証に使える公開鍵ではありません。",
+        );
+        return;
+      }
+      s.verificationPublic = id;
+      s.incoming = pubB;
+      s.outgoing = null;
+      s.phase = "public";
+      event(
+        "Bobは、届いた公開鍵をAliceの署名の検証用として登録しました。Bobは共通鍵の配送に使うBobの公開鍵をAliceへ送ります。",
+      );
+      return;
+    }
     if (s.phase === "public") {
       const certificateKey =
         a.type === "certificate"
@@ -517,7 +547,7 @@ export function createLab() {
           finish(
             "signature-rejected",
             "署名検証に失敗。ボブは拒否しました",
-            !s.authenticateSigner
+            objects.get(s.verificationPublic)?.owner === "charlie"
               ? "Bobが登録したのはCharlieの検証用公開鍵です。Aliceの元の署名を残しても、書き換えた本文に対応しません。登録された鍵と対になるCharlieの秘密鍵で新しい署名を作る必要があります。"
               : s.read
                 ? "盗聴はできましたが、改ざんは受け付けられません。アリスの署名は元の内容に結び付いています。共通鍵で再暗号化しても署名は作り直せず、チャーリーの署名や署名の削除でも、信頼済みのアリスの公開鍵による検証を通せません。"
@@ -530,7 +560,7 @@ export function createLab() {
         finish(
           "attack-success",
           s.read ? "盗聴・改ざんに成功" : "改ざんは受理。盗聴は未達成",
-          s.round >= 2 && !s.authenticateSigner
+          s.round >= 2 && objects.get(s.verificationPublic)?.owner === "charlie"
             ? "Bobが検証用公開鍵の持ち主を確認せず、Charlieの鍵をAliceの鍵として登録したため、Charlie自身の署名が受理されました。Aliceの秘密鍵を盗んだわけではありません。"
             : s.round === 0
               ? "鍵を知る人は、本文を読めるだけでなく、別の本文を暗号化して送れます。共通鍵を同じ経路で平文配送したため、機密性と完全性が破られました。"

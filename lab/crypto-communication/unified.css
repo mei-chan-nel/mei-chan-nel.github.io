@@ -79,15 +79,6 @@
   color: var(--game-paper);
   overflow-wrap: anywhere;
 }
-.quest-game.unified-game .comparison-note {
-  padding: 6px 8px;
-  margin: 0;
-  border-left: 3px solid var(--game-violet);
-  background: #2b3c4b;
-  color: #e7dbff;
-  font-size: 11px;
-  line-height: 1.5;
-}
 .quest-game.unified-game .answer-explanation {
   flex-shrink: 0;
   min-height: 0;
@@ -908,9 +899,6 @@
     padding: 8px;
   }
 }
-.quest-game.unified-game.is-viewport[data-layout="narrow"] .comparison-note {
-  display: none;
-}
 @media (max-height: 600px) {
   .quest-game.unified-game.is-viewport[data-layout="narrow"][data-density="tiny"]
     .play-layout {
@@ -1022,38 +1010,55 @@
     padding: 1px;
   }
 }
-/* CA is a visible participant; the trusted root stays inside the browser. */
-#game-console #scene[data-ca="true"] .scene-top {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 6px;
-}
-#game-console #scene[data-ca="true"] #direction {
-  text-align: right;
-  font-size: 9px;
-  white-space: normal;
-  line-height: 1.25;
+/* The CA occupies its own row above the packets and the three characters. */
+#game-console #scene[data-ca="true"] .network-scene {
+  --ca-height: 48px;
+  --packet-lane: 80px;
+  grid-template-rows: var(--ca-height) var(--packet-lane) max-content;
 }
 #game-console .ca-authority {
-  display: inline-flex;
+  grid-row: 1;
+  grid-column: 2;
+  justify-self: center;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 1px 5px;
-  border: 1px solid #9fb89d;
-  background: #24483f;
+  gap: 2px;
   color: #e2efcf;
   font-size: 9px;
-  line-height: 1;
+  line-height: 1.2;
   white-space: nowrap;
 }
 #game-console .ca-authority svg {
-  width: 22px;
-  height: 22px;
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
 }
-#game-console .ca-authority[data-active="true"] {
-  border-color: #f3d88a;
-  background: #46513a;
-  box-shadow: 0 0 0 1px #f3d88a55;
+#game-console .ca-authority[data-active="true"] svg {
+  filter: drop-shadow(0 0 4px #f3d88a);
+}
+#game-console #scene[data-ca="true"] .actor,
+#game-console #scene[data-ca="true"] .relay {
+  grid-row: 3;
+}
+#game-console #scene[data-ca="true"] .packet-sprite {
+  grid-row: 2 / 3;
+  bottom: 4px;
+}
+#game-console #scene[data-ca="true"] .cable {
+  grid-row: 3 / 4;
+}
+#game-console #scene[data-ca="true"][data-at="ca"] .network-scene::after {
+  content: "";
+  position: absolute;
+  grid-row: 2 / 3;
+  grid-column: 2 / 3;
+  top: 0;
+  left: 50%;
+  height: 18px;
+  border-left: 2px dashed #b8d0a4;
+  pointer-events: none;
 }
 #game-console .browser-trust {
   display: inline-flex;
@@ -1078,55 +1083,69 @@
   color: #d4e8b5;
   border-color: #b7ce99;
 }
-@media (max-height: 600px) {
-  #game-console .ca-authority {
-    padding: 0 3px;
-    font-size: 8px;
-  }
-  #game-console .ca-authority svg {
-    width: 17px;
-    height: 17px;
-  }
-  #game-console #scene[data-ca="true"] #scene-status {
-    font-size: 8px;
-  }
-}
 #game-console.is-viewport[data-layout="narrow"]
   #scene[data-ca="true"]
-  .scene-top {
-  grid-template-columns: auto minmax(0, 1fr);
+  .network-scene {
+  --ca-height: 28px;
+  --packet-lane: 50px;
 }
-#game-console.is-viewport[data-layout="narrow"]
-  #scene[data-ca="true"]
-  #scene-status {
-  display: none;
+#game-console.is-viewport[data-layout="narrow"] .ca-authority {
+  font-size: 7px;
+  gap: 1px;
 }
-#game-console.is-viewport[data-layout="narrow"] .browser-trust span {
-  display: none;
-}
-#game-console #scene[data-ca="true"] .scene-top {
-  padding: 1px 5px;
-}
-#game-console .ca-authority svg {
+#game-console.is-viewport[data-layout="narrow"] .ca-authority svg {
   width: 18px;
   height: 18px;
 }
 #game-console.is-viewport[data-layout="narrow"] .browser-trust {
   padding: 0 2px;
 }
+#game-console.is-viewport[data-layout="narrow"] .browser-trust span {
+  display: none;
+}
 #game-console.is-viewport[data-layout="narrow"] .browser-trust svg {
   height: 12px;
   width: 18px;
 }
 @media (max-height: 600px) {
+  #game-console.is-viewport[data-layout="wide"]
+    #scene[data-ca="true"]
+    .network-scene {
+    --ca-height: 36px;
+    --packet-lane: 64px;
+  }
+  #game-console.is-viewport[data-layout="wide"] .ca-authority {
+    font-size: 8px;
+    gap: 1px;
+  }
+  #game-console.is-viewport[data-layout="wide"] .ca-authority svg {
+    width: 24px;
+    height: 24px;
+  }
   #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
-    .ca-authority
-    svg {
-    height: 12px;
-    width: 12px;
+    #scene[data-ca="true"] {
+    grid-template-rows: 18px minmax(0, 1fr) 0;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    #scene[data-ca="true"]
+    .packet-card {
+    display: none;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    #scene[data-ca="true"]
+    .network-scene {
+    --ca-height: 22px;
+    --packet-lane: 40px;
   }
   #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
     .ca-authority {
-    font-size: 7px;
+    font-size: 6px;
+    gap: 0;
+  }
+  #game-console.is-viewport[data-layout="narrow"][data-density="tiny"]
+    .ca-authority
+    svg {
+    height: 14px;
+    width: 14px;
   }
 }
