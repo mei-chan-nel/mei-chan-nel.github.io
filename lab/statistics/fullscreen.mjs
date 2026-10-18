@@ -47,6 +47,10 @@ export function setupFullscreen(workspace, redraw) {
       if (!root) return;
       const dataView = root.querySelector(".data-view");
       dialog.classList.toggle("statistics-data-fullscreen", !!dataView);
+      const analysis =
+        root.querySelector(".unified-workbench") ||
+        (root.id === "project-view" && !dataView ? root : null);
+      dialog.classList.toggle("statistics-analysis-fullscreen", !!analysis);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);
       const histogram = root.querySelector("#histogram-chart");
@@ -70,6 +74,17 @@ export function setupFullscreen(workspace, redraw) {
         // Keep every rendered person visible. The dialog supplies the single
         // page scrollbar; generic analysis pagination must not hide data rows.
         pager.hidden = true;
+        return;
+      }
+      if (analysis) {
+        // Full-width labs retain the active controls, plot and result together.
+        // Long results use the dialog scrollbar instead of hiding live nodes.
+        pager.hidden = true;
+        workspace.style.setProperty(
+          "--screen-chart-height",
+          `${Math.max(180, Math.min(460, window.innerHeight - 260))}px`,
+        );
+        fitWorkspaceCharts(root);
         return;
       }
       if (frequency) {

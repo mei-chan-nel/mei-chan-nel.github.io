@@ -1,19 +1,18 @@
 import { esc } from "./shared/ui.mjs";
 import { validateDocument } from "./shared/validation.mjs";
 import { currentData } from "./shared/data-model.mjs";
-import { composeWorkbench } from "./workbench.mjs";
+import { composeWorkbench } from "./workbench.mjs?v=20261018-aligned-labs";
 import { renderDataTab } from "./data-tab.mjs";
 import { sampleState } from "./shared/samples.mjs";
 import { normalizeExperiment } from "./sampling/model.mjs";
 import { readDataset } from "./shared/data.mjs";
 import { dataStep, learningViews, renderStepNavigation } from "./learning.mjs";
-import { insight } from "./shared/insights.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 import { normalizeHistogram } from "./histogram/model.mjs";
-import { setupFullscreen } from "./fullscreen.mjs";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261018-aligned-labs";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261017-all-data`))
+const config = (await import(`./${id}/lab.mjs?v=20261018-aligned-labs`))
   .default;
 const ui = {
   view: 0,
@@ -126,10 +125,10 @@ function draw() {
       );
     const lead = document.querySelector("#lab-lead"),
       flow = document.querySelector("#analysis-flow");
-    lead.hidden = !lesson.action;
+    lead.hidden = !lesson.action || !!root.querySelector(".unified-workbench");
     lead.textContent = lesson.action;
-    flow.hidden = ui.dataTab || ["correlation", "histogram"].includes(id);
-    finding.hidden = ui.dataTab || ["correlation", "histogram"].includes(id);
+    flow.hidden = true;
+    finding.hidden = true;
     if (ui.dataTab) {
       renderDataTab(root, {
         id,
@@ -155,11 +154,6 @@ function draw() {
         nextLabel: steps[1].title,
       });
     } else {
-      if (!["correlation", "histogram"].includes(id)) {
-        flow.textContent = "処理：" + currentData(id, state).operation;
-        finding.textContent = insight(id, state);
-        root.querySelector(".workbench-display").append(finding);
-      }
       fitWorkspaceCharts(root.querySelector(".workbench-display"));
     }
     if (focus?.id) {

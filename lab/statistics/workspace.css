@@ -1425,7 +1425,8 @@ html.statistics-immersive body {
   height: auto;
   min-height: 100%;
 }
-.statistics-fullscreen.statistics-data-fullscreen :is(#experiment, #project-root, #project-view) {
+.statistics-fullscreen.statistics-data-fullscreen
+  :is(#experiment, #project-root, #project-view) {
   flex: 0 0 auto;
   height: auto;
   min-height: 0;
@@ -1443,4 +1444,207 @@ html.statistics-immersive body {
 }
 .statistics-data-fullscreen .view-tabs {
   top: 42px;
+}
+
+/* Analysis views share the reference labs' full-width canvas and inline controls. */
+.unified-workbench > .workbench-body {
+  display: block;
+}
+.unified-workbench .workbench-display {
+  overflow: visible;
+}
+.unified-workbench .analysis-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 20px;
+  padding: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.unified-workbench .analysis-toolbar > .control {
+  flex: 0 1 210px;
+  min-width: 140px;
+  max-width: 100%;
+  margin: 0;
+  font-size: 0.8rem;
+}
+.unified-workbench .analysis-toolbar :is(select, input[type="number"]) {
+  box-sizing: border-box;
+  height: 38px;
+  min-width: 0;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #b6cbc3;
+  border-radius: 6px;
+  background: #fff;
+  font: inherit;
+}
+.unified-workbench .analysis-toolbar input[type="range"] {
+  min-height: 28px;
+  margin: 0;
+}
+.unified-workbench .analysis-toolbar > button,
+.unified-workbench .analysis-toggle {
+  min-height: 38px;
+  box-sizing: border-box;
+  margin: 0;
+  font-size: 0.8rem;
+}
+.unified-workbench .analysis-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.unified-workbench .analysis-view > :is(.panel, .chart-panel) {
+  border: 0;
+  margin: 0;
+  border-radius: 0;
+  padding: 20px;
+  background: transparent;
+  overflow: visible;
+}
+.unified-workbench .analysis-view :is(h2, h3) {
+  margin-top: 0;
+  font-size: 1.08rem;
+}
+.unified-workbench .analysis-view > .workbench-group {
+  padding: 4px;
+}
+.unified-workbench .analysis-settings,
+.unified-workbench .analysis-notes {
+  margin: 0 20px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.84rem;
+}
+.unified-workbench :is(.analysis-settings, .analysis-notes) > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #47675b;
+}
+.unified-workbench :is(.analysis-settings, .analysis-notes)[open] > summary {
+  margin-bottom: 16px;
+}
+.unified-workbench .workbench-controls {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+.unified-workbench .workbench-controls :is(.panel, .workbench-group) {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+.unified-workbench .workbench-controls .controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px 20px;
+}
+.unified-workbench .workbench-controls .control {
+  flex: 0 1 220px;
+  min-width: 150px;
+  max-width: 100%;
+}
+.unified-workbench .workbench-controls :is(p, details, .actions) {
+  flex-basis: 100%;
+}
+.unified-workbench .workbench-controls .actions:empty {
+  display: none;
+}
+.unified-workbench .analysis-notes p {
+  font-size: 0.83rem;
+  line-height: 1.85;
+  color: #50685f;
+}
+.unified-workbench .table-scroll,
+.unified-workbench .analysis-view div:has(> .stat-table) {
+  max-height: none;
+  overflow-x: auto;
+}
+.unified-workbench .stat-table {
+  min-width: 500px;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.statistics-analysis-fullscreen > .statistics-workspace {
+  display: block;
+  height: auto;
+  min-height: 100%;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen
+  :is(#experiment, #project-root, #project-view) {
+  flex: 0 0 auto;
+  height: auto;
+  overflow: visible;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen #project-root {
+  display: block;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen
+  #project-view
+  div:has(> table) {
+  display: block !important;
+  overflow-x: auto;
+}
+.statistics-analysis-fullscreen :is(.workspace-screenbar, .view-tabs) {
+  position: sticky;
+  z-index: 5;
+  background: #f7f6f0;
+}
+.statistics-analysis-fullscreen .workspace-screenbar {
+  top: 0;
+  min-height: 36px;
+}
+.statistics-analysis-fullscreen .view-tabs {
+  top: 42px;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen .unified-workbench,
+.statistics-fullscreen.statistics-analysis-fullscreen
+  .unified-workbench
+  :is(
+    .workbench-body,
+    .workbench-mode,
+    .workbench-display,
+    .workbench-group,
+    .panel,
+    .workbench-controls
+  ):not([hidden]),
+.statistics-fullscreen.statistics-analysis-fullscreen
+  .unified-workbench
+  details[open],
+.statistics-fullscreen.statistics-analysis-fullscreen
+  .unified-workbench
+  div:has(> table) {
+  display: block !important;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen
+  .unified-workbench
+  .controls {
+  display: flex !important;
+}
+.statistics-analysis-fullscreen .analysis-toolbar {
+  padding: 14px 16px;
+}
+.statistics-analysis-fullscreen .analysis-view [data-income-chart] .stat-chart {
+  height: auto;
+}
+@media (max-width: 600px) {
+  .unified-workbench .analysis-toolbar {
+    gap: 12px;
+    padding: 14px;
+  }
+  .unified-workbench .analysis-toolbar > .control {
+    flex: 1 1 150px;
+  }
+  .unified-workbench .analysis-view > :is(.panel, .chart-panel) {
+    padding: 14px;
+  }
+  .unified-workbench :is(.analysis-settings, .analysis-notes) {
+    margin: 0 14px;
+  }
 }

@@ -28,9 +28,7 @@ test("all nine independent labs have real modules, data views and valid nested s
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(
-      html.includes('src="./../app.mjs?v=20261017-all-data"'),
-    );
+    assert.ok(html.includes('src="./../app.mjs?v=20261018-aligned-labs"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));

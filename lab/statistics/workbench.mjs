@@ -1,5 +1,4 @@
 import { learningViews } from "./learning.mjs";
-import { esc } from "./shared/ui.mjs";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {
@@ -71,121 +70,160 @@ export function composeWorkbench(root, id, ui, onChange) {
   }
   main = main.filter(Boolean);
   if (!main.length) return;
-  // Original panes are kept under this root so callbacks can still locate their controls.
+  // Keep inactive nodes under the same root for callbacks that query shared controls.
   const stash = document.createElement("div");
   stash.hidden = true;
   stash.className = "workbench-stash";
-  [...root.children].forEach((n) => stash.append(n));
+  [...root.children].forEach((node) => stash.append(node));
   root.append(stash);
   const shell = document.createElement("div");
-  shell.className = "workbench";
-  shell.innerHTML =
-    '<div class="workbench-mode"></div><div class="workbench-body"><section class="workbench-display" aria-label="グラフと分析結果"></section><aside class="workbench-controls" aria-label="分析の操作"></aside></div>';
-  root.append(shell, stash);
-  const topMetrics = stash.querySelector(":scope>.metrics");
+  shell.className = "workbench unified-workbench";
+  shell.innerHTML = `<div class="workbench-mode"></div><div class="workbench-body"><section class="workbench-display" aria-label="グラフと分析結果"><div class="analysis-toolbar" role="group" aria-label="このタブの操作"></div><div class="analysis-view"></div><details class="analysis-settings"><summary>詳細設定</summary><div class="workbench-controls"></div></details></section></div>`;
+  root.append(shell);
   const view = Math.min(ui.view || 0, main.length - 1);
   ui.view = view;
   const display = shell.querySelector(".workbench-display"),
+    toolbar = shell.querySelector(".analysis-toolbar"),
+    settings = shell.querySelector(".analysis-settings"),
     side = shell.querySelector(".workbench-controls");
-  prelude.forEach((n) => shell.querySelector(".workbench-mode").append(n));
-  if (topMetrics) display.append(topMetrics);
-  display.append(main[view]);
+  prelude.forEach((node) =>
+    shell.querySelector(".workbench-mode").append(node),
+  );
+  let active = main[view];
+  if (active.tagName === "DETAILS") {
+    // A tab is already the disclosure: its actual result stays open.
+    const section = document.createElement("section");
+    section.className = active.className;
+    const title = document.createElement("h2");
+    title.textContent = active.querySelector(":scope > summary").textContent;
+    section.append(title);
+    [...active.childNodes]
+      .filter((node) => node.nodeName !== "SUMMARY")
+      .forEach((node) => section.append(node));
+    active.replaceWith(section);
+    active = section;
+  }
+  shell.querySelector(".analysis-view").append(active);
+  const metrics =
+    stash.querySelector(":scope > .metrics") ||
+    active.querySelector(":scope > .metrics");
+  if (metrics) display.prepend(metrics);
   side.append(controls[view] || controls[0]);
-  if (main[view].tagName === "DETAILS") main[view].open = true;
-  // Keep instructions beside the graph they explain. Advanced controls remain optional.
-  if (id === "crosstab") {
-    const old = side.querySelector("#ct-counts");
-    if (old) old.hidden = true;
-  }
-  const fold = (ids, label, key, open = false) => {
-    const nodes = ids
-      .map((k) => root.querySelector("#" + k))
-      .filter((n) => n && side.contains(n))
-      .map((n) => n.closest("label") || n);
-    if (!nodes.length) return;
-    const d = document.createElement("details");
-    d.className = "control-section";
-    d.innerHTML = "<summary>" + esc(label) + "</summary>";
-    d.open = ui.openSections?.[key] ?? open;
-    nodes[0].before(d);
-    nodes.forEach((n) => d.append(n));
-    d.addEventListener("toggle", () => {
-      ui.openSections ??= {};
-      ui.openSections[key] = d.open;
-    });
+  side.querySelectorAll("h2,h3").forEach((node) => node.remove());
+  if (id === "crosstab") side.querySelector("#ct-counts").hidden = true;
+
+  const primary = {
+    summary: [
+      [
+        "summary-selected",
+        "summary-value",
+        "summary-lock",
+        "summary-spread",
+        "summary-box-mode",
+      ],
+      ["summary-selected", "summary-value", "summary-denominator"],
+      ["summary-box-mode", "summary-denominator"],
+    ],
+    sampling: [
+      ["sample-n", "sample-method", "sample-one", "sample-many"],
+      ["sample-n", "sample-method", "sample-one", "sample-many"],
+      ["sample-n", "sample-method", "sample-one", "sample-many"],
+      ["sample-n", "sample-method", "sample-one"],
+    ],
+    crosstab: [
+      ["ct-mode", "ct-view"],
+      ["ct-view", "ct-share-0", "ct-share-1"],
+      ["ct-mode", "ct-view"],
+    ],
+    "time-series": [
+      ["period", "forecast", "selected"],
+      ["indicator", "selected"],
+      ["period", "forecast"],
+    ],
+    "hypothesis-test": [
+      ["alpha", "practical", "double", "halve"],
+      ["nA", "nB", "alpha", "base", "effect", "trials"],
+    ],
+    lorenz: [
+      [
+        "lock-total",
+        `income-${Number(ui.state?.selected) || 0}`,
+        '[data-action="equal"]',
+        '[data-action="concentrate"]',
+      ],
+      [
+        "lock-total",
+        '[data-action="equal"]',
+        '[data-action="concentrate"]',
+        '[data-action="same-gini"]',
+        '[data-action="clear-reference"]',
+      ],
+      ["lock-total", '[data-action="equal"]'],
+    ],
   };
-  const paired = (ids) => {
-    const nodes = ids
-      .map((k) => root.querySelector("#" + k)?.closest("label"))
-      .filter((n) => n && side.contains(n));
-    if (nodes.length < 2) return;
-    const g = document.createElement("div");
-    g.className = "paired-controls";
-    nodes[0].before(g);
-    nodes.forEach((n) => g.append(n));
-  };
-  if (id === "summary") {
-    fold(
-      ["summary-sd", "summary-denominator"],
-      "表示と分散の定義",
-      "summary-def",
-    );
-  }
-  if (id === "sampling") {
-    fold(["sample-seed", "sample-replay"], "乱数・実験の再現", "sample-seed");
-  }
-  if (id === "probability") {
-    fold(["prob-seed", "prob-new-seed"], "乱数と再現", "prob-seed");
-  }
-  if (id === "time-series") {
-    if (side.querySelector("#trend:disabled")) {
-      const note = document.createElement("p");
-      note.className = "muted";
-      note.textContent =
-        "生成条件は教材サンプルで試す操作です。現在は読み込んだ実測値を分析しています。";
-      side.append(note);
-    }
-    fold(
-      ["trend", "seasonal", "noise", "resample"],
-      "サンプルの生成条件",
-      "series-generator",
-      !side.querySelector("#trend:disabled"),
-    );
-  }
-  if (id === "crosstab") {
-    fold(["ct-equal-share", "ct-align"], "人数構成をそろえて比較", "ct-align");
-  }
-  if (id === "hypothesis-test") {
-    paired(["nA", "successA", "nB", "successB"]);
-    fold(
-      ["repetitions", "seed", "same-seed", "next-seed"],
-      "反復数・乱数の設定",
-      "test-seed",
-    );
-    fold(
-      ["base", "effect", "trials"],
-      "反復実験の真の条件",
-      "test-truth",
-      view === 1,
-    );
+  const probability =
+    ui.state?.mode === "normal"
+      ? [
+          "normal-mu",
+          "normal-sigma",
+          "normal-low",
+          "normal-high",
+          "normal-one",
+          "normal-two",
+          "normal-center",
+        ]
+      : ui.state?.mode === "binomial"
+        ? ["prob-p", "prob-n", "binomial-100", "binomial-1000"]
+        : ["prob-p", "coin-10", "coin-100", "coin-1000", "prob-early"];
+  const ids = id === "probability" ? probability : primary[id][view];
+  for (const key of ids) {
+    const input = root.querySelector(key.startsWith("[") ? key : "#" + key);
+    if (!input) continue;
+    const node = input.closest("label") || input;
+    if (node.querySelector?.('input[type="checkbox"]'))
+      node.classList.add("analysis-toggle");
+    toolbar.append(node);
   }
   if (id === "lorenz") {
-    const transfer = side.querySelector("[data-action=transfer]");
-    if (transfer) transfer.id = "income-transfer-button";
-    fold(
-      ["from", "to", "transfer-amount", "income-transfer-button"],
-      "2人の間で再分配",
-      "income-transfer",
-    );
+    // The graph selects one person; the shared data tab remains the full editor.
+    side
+      .querySelectorAll('[id^="income-"]')
+      .forEach((input) => stash.append(input.closest("label")));
   }
+  const settingsKey = `${id}-${view}-settings`;
+  settings.open = ui.openSections?.[settingsKey] || false;
+  settings.hidden = !side.querySelector("input,select,button,details");
+  settings.addEventListener("toggle", () => {
+    ui.openSections ??= {};
+    ui.openSections[settingsKey] = settings.open;
+  });
 
   const lessons = learningViews(id, ui.state);
-  return main.map((_, i) => ({
-    label: lessons[i].title,
-    active: i === view,
-    choose: () => {
-      ui.view = i;
-      onChange();
-    },
-  }));
+  const notes = document.createElement("details");
+  notes.className = "analysis-notes";
+  notes.innerHTML = "<summary>操作・読み取りのヒント</summary>";
+  if (lessons[view].action) {
+    const lead = document.createElement("p");
+    lead.textContent = lessons[view].action;
+    notes.append(lead);
+  }
+  for (const area of [active, side]) {
+    area
+      .querySelectorAll(area === side ? "p" : "p.hint,p.muted")
+      .forEach((node) => {
+        if (
+          !node.hasAttribute("aria-live") &&
+          node.getAttribute("role") !== "status"
+        )
+          notes.append(node);
+      });
+  }
+  const notesKey = `${id}-${view}-notes`;
+  notes.open = ui.openSections?.[notesKey] || false;
+  notes.addEventListener("toggle", () => {
+    ui.openSections ??= {};
+    ui.openSections[notesKey] = notes.open;
+  });
+  if (notes.childElementCount > 1) display.append(notes);
+  return main.map((_, i) => ({ label: lessons[i].title, active: i === view }));
 }
