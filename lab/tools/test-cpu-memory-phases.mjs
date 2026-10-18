@@ -83,11 +83,11 @@ await import("../cpu-memory/app.mjs");
 const next = () => $("step").click(),
   title = () => $("notice").textContent,
   target = () => document.querySelector(".transfer-target"),
-  popup = document.querySelector(".transfer-callout");
+  outcome = () => document.querySelector("#cache-request .cache-outcome");
 assert.equal(document.querySelector(".phase-panel"), null);
-assert.equal(popup.parentElement, document.querySelector(".memory-workspace"));
+assert.equal(document.querySelector(".transfer-callout"), null);
+assert.equal(outcome(), null);
 assert.match($("previous").textContent, /←\s*前へ/);
-assert.equal(popup.hidden, true);
 assert.equal($("start"), null);
 assert.equal($("received-field").hidden, false);
 assert.equal($("received-value").textContent, "—");
@@ -109,9 +109,10 @@ assert.equal(
   true,
 );
 assert.match($("access-events").textContent, /MISS/);
+assert.equal(outcome().tagName, "STRONG");
+assert.equal(outcome().textContent, "ミス");
+assert.equal(outcome().classList.contains("is-miss"), true);
 assert.equal($("wait-metric").textContent, "2");
-assert.equal(popup.hidden, false);
-assert.equal(popup.querySelector("strong").textContent, "キャッシュミス");
 assert.equal($("previous").disabled, false);
 $("previous").click();
 assert.match(title(), /実行前/);
@@ -119,10 +120,6 @@ assert.equal($("previous").disabled, true);
 next();
 assert.match(title(), /命令 0番地.*ミス/);
 assert.equal(target().id, "cache-request-port");
-assert.equal(popup.hidden, false);
-assert.equal(popup.querySelector("strong").textContent, "キャッシュミス");
-assert.match(popup.textContent, /0番地/);
-assert.equal(popup.classList.contains("is-miss"), true);
 assert.equal(
   target().style.getPropertyValue("--transfer-color"),
   "var(--request-color)",
@@ -135,10 +132,7 @@ assert.notEqual(
   document.querySelector(".transfer-path").getAttribute("d"),
   requestPath,
 );
-assert.ok(parseFloat(popup.style.top) > 8);
-assert.ok(parseFloat(popup.style.top) + 32 < 76);
-assert.ok(parseFloat(popup.style.left) >= 0);
-assert.match(
+assert.doesNotMatch(
   document.querySelector(".transfer-path").getAttribute("d"),
   /L [^ ]+ 8 L/,
 );
@@ -146,12 +140,10 @@ assert.equal($("wait-metric").textContent, lookupWait);
 cacheRequestTop = 170;
 window.dispatchEvent(new Event("resize"));
 $("memory-fullscreen").click();
-assert.equal(popup.hidden, false);
-assert.match(popup.textContent, /キャッシュミス/);
 document.querySelector('[data-control="previous"]').click();
-assert.equal(popup.hidden, true);
+assert.equal(outcome(), null);
 document.querySelector('[data-control="next"]').click();
-assert.equal(popup.hidden, false);
+assert.equal(outcome().textContent, "ミス");
 assert.equal($("wait-metric").textContent, lookupWait);
 $("memory-fullscreen").click();
 assert.equal($("current-command").textContent, "—");
@@ -159,7 +151,6 @@ assert.equal($("acc").textContent, "0");
 assert.equal(document.querySelectorAll(".cache-line").length, 0);
 next();
 assert.match(title(), /RAM 0番地へ読出要求/);
-assert.equal(popup.hidden, true);
 assert.equal(target().parentElement.dataset.address, "0");
 assert.equal(document.querySelector(".transfer-source").id, "cache-ram-port");
 next();
@@ -192,8 +183,6 @@ assert.ok(list.scrollTop > before + 400);
 assert.match(title(), /データ 16番地.*ミス/);
 assert.ok(list.scrollTop > before + 400);
 assert.equal(target().id, "cache-request-port");
-assert.equal(popup.hidden, false);
-assert.match(popup.textContent, /キャッシュミス.*16番地/s);
 next();
 assert.match(title(), /RAM 16番地へ読出要求/);
 assert.ok(list.scrollTop > before + 400);
@@ -225,22 +214,19 @@ assert.equal($("steps").textContent, "1");
 assert.equal(target(), null);
 const savedScroll = list.scrollTop;
 next();
-assert.equal(popup.hidden, false);
-assert.equal(popup.querySelector("strong").textContent, "キャッシュヒット");
-assert.match(popup.textContent, /1番地/);
-assert.equal(popup.classList.contains("is-hit"), true);
-assert.equal(popup.classList.contains("is-miss"), false);
+assert.equal(outcome().textContent, "ヒット");
+assert.equal(outcome().classList.contains("is-hit"), true);
+assert.equal(outcome().classList.contains("is-miss"), false);
 assert.equal(
   target().style.getPropertyValue("--transfer-color"),
   "var(--request-color)",
 );
 $("previous").click();
-assert.equal(popup.hidden, true);
 next();
-assert.equal(popup.hidden, false);
-assert.match(popup.textContent, /キャッシュヒット/);
 for (let n = 0; n < 12 && !/データ 17番地.*ヒット/.test(title()); n++) next();
 assert.match(title(), /データ 17番地.*ヒット/);
+assert.equal($("cache-request").textContent, "17番地 · データ読出 · ヒット");
+assert.equal(outcome().classList.contains("is-hit"), true);
 assert.ok(list.scrollTop > 400);
 assert.equal(
   document
@@ -277,7 +263,6 @@ assert.equal(
   document.querySelector(".transfer-path").getAttribute("marker-end"),
   "url(#transfer-value)",
 );
-assert.equal(popup.hidden, true);
 next();
 assert.match(title(), /CPU → RAM 18番地/);
 assert.equal(target().classList.contains("live-cell"), true);
@@ -346,7 +331,6 @@ assert.equal(
 $("reset").click();
 assert.equal($("steps").textContent, "0");
 assert.match(title(), /初期RAM/);
-assert.equal(popup.hidden, true);
 assert.equal(document.querySelectorAll(".cache-line").length, 0);
 console.log(
   "Phase UI passed: fetch/decode/read/compute separation, scroll-before-RAM-access, cache-hit bypass, partial results, cache/RAM write ordering and exact receive-field arrow endpoints.",

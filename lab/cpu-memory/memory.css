@@ -4,7 +4,6 @@
   --mint-pale: #eaf3ec;
   --coral-pale: #fbede6;
   --source-pale: #fce8e6;
-  --transfer-lane: calc(2.4rem + 24px);
   --target-pale: #ddebf7;
   --request-color: var(--blue-strong);
   --value-color: var(--mint);
@@ -287,7 +286,7 @@
     );
   gap: 36px;
   align-items: start;
-  padding: var(--transfer-lane) 12px 0;
+  padding: 12px 12px 0;
 }
 .panel {
   background: var(--white);
@@ -547,6 +546,15 @@
   color: var(--ink);
   font-size: 0.7rem;
   overflow-wrap: anywhere;
+}
+.cache-outcome {
+  font-weight: 800;
+}
+.cache-outcome.is-hit {
+  color: var(--mint);
+}
+.cache-outcome.is-miss {
+  color: var(--coral-strong);
 }
 .cache-request-port {
   position: absolute;
@@ -828,48 +836,6 @@
 }
 .legend-value {
   color: var(--value-color);
-}
-.transfer-callout {
-  --callout-color: var(--mint);
-  position: absolute;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0 8px;
-  width: max-content;
-  max-width: calc(100% - 12px);
-  padding: 6px 10px;
-  border: 1px solid var(--callout-color);
-  border-radius: 8px;
-  background: var(--white);
-  box-shadow: 0 2px 8px rgb(16 47 53 / 12%);
-  color: var(--ink);
-  pointer-events: none;
-}
-.transfer-callout::before {
-  content: "";
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  border-left: 1px solid var(--callout-color);
-  border-top: 1px solid var(--callout-color);
-  background: var(--white);
-  transform: translateX(-50%) rotate(45deg);
-}
-.transfer-callout.is-miss {
-  --callout-color: var(--coral-strong);
-}
-.transfer-callout strong {
-  color: var(--callout-color);
-  font-size: 0.74rem;
-  line-height: 1.4;
-}
-.transfer-callout > span {
-  font-size: 0.63rem;
-  line-height: 1.4;
 }
 .empty-note {
   font-size: 0.73rem;
@@ -1350,7 +1316,7 @@ html.memory-fullscreen body {
   align-items: stretch;
   gap: 30px;
   overflow: auto;
-  padding-top: var(--transfer-lane);
+  padding-top: 12px;
 }
 .is-fullscreen .panel {
   width: 100%;

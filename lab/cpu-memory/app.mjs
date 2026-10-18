@@ -350,12 +350,27 @@ function render() {
   });
   renderCache(selectedEvent >= 0 ? e : machine.phase?.event);
   const activeEvent = selectedEvent >= 0 ? e : machine.phase?.event;
-  $("cache-request").textContent =
-    config.enabled && activeEvent
-      ? `${activeEvent.address}番地 · ${{ fetch: "命令取得", read: "データ読出", write: "データ書込" }[activeEvent.kind]} · ${activeEvent.hit === undefined ? "判定前" : activeEvent.hit ? "HIT" : "MISS"}`
-      : config.enabled
-        ? "CPUからの要求待ち"
-        : "OFF · RAMへ直接要求";
+  const request = $("cache-request");
+  request.replaceChildren();
+  if (config.enabled && activeEvent) {
+    request.append(
+      document.createTextNode(
+        `${activeEvent.address}番地 · ${{ fetch: "命令取得", read: "データ読出", write: "データ書込" }[activeEvent.kind]} · `,
+      ),
+      el(
+        "strong",
+        activeEvent.hit === undefined
+          ? "判定前"
+          : activeEvent.hit
+            ? "ヒット"
+            : "ミス",
+        `cache-outcome${activeEvent.hit === undefined ? "" : activeEvent.hit ? " is-hit" : " is-miss"}`,
+      ),
+    );
+  } else
+    request.textContent = config.enabled
+      ? "CPUからの要求待ち"
+      : "OFF · RAMへ直接要求";
   $("access-events").replaceChildren();
   if (!machine.events.length) {
     const p = el(

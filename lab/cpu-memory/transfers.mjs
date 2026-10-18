@@ -124,15 +124,6 @@ export function transferGeometry(a, b, source, target, rect, bypass = false) {
 export function createTransfers(workspace) {
   const svg = workspace.querySelector("svg"),
     NS = "http://www.w3.org/2000/svg";
-  const callout = document.createElement("div"),
-    heading = document.createElement("strong"),
-    detail = document.createElement("span");
-  callout.className = "transfer-callout";
-  callout.hidden = true;
-  // The same result is announced by the execution status and access log.
-  callout.setAttribute("aria-hidden", "true");
-  callout.append(heading, detail);
-  workspace.append(callout);
   let event;
   const node = (tag, attrs) => {
     const n = document.createElementNS(NS, tag);
@@ -148,19 +139,6 @@ export function createTransfers(workspace) {
         n.style.removeProperty("--transfer-color");
       });
     const steps = transferSteps(event);
-    const resolvedRequest =
-      typeof event?.hit === "boolean" &&
-      (event.phaseStage === "lookup" || !("phaseTransfer" in event)) &&
-      steps.some(
-        (step) => step.request && step.from === "cpu" && step.to === "cache",
-      );
-    callout.hidden = !resolvedRequest;
-    if (resolvedRequest) {
-      heading.textContent = event.hit ? "キャッシュヒット" : "キャッシュミス";
-      detail.textContent = `${event.address}番地`;
-      callout.classList.toggle("is-hit", event.hit);
-      callout.classList.toggle("is-miss", !event.hit);
-    }
     if (!steps.length) return;
     const rect = workspace.getBoundingClientRect();
     const defs = node("defs", {});
@@ -235,28 +213,10 @@ export function createTransfers(workspace) {
             (step.from === "ram" && step.to === "cpu"),
         ),
         { d, sx, sy, tx, ty } = geometry;
-      let path = d;
-      if (
-        resolvedRequest &&
-        step.request &&
-        step.from === "cpu" &&
-        step.to === "cache"
-      ) {
-        // Reserve the strip above the panels for the result. The request runs
-        // above it, with both vertical legs in the gaps outside the panels.
-        const exit = a.right - rect.left + 8,
-          entry = b.left - rect.left - 8;
-        path = `M ${sx} ${sy} L ${exit} ${sy} L ${exit} 8 L ${entry} 8 L ${entry} ${ty} L ${tx} ${ty}`;
-        const width = callout.offsetWidth || 190,
-          panelTop = Math.min(a.top, b.top) - rect.top,
-          height = callout.offsetHeight || 32;
-        callout.style.left = `${Math.max(6, Math.min(rect.width - width - 6, (exit + entry - width) / 2))}px`;
-        callout.style.top = `${Math.max(17, (panelTop + 8 - height) / 2)}px`;
-      }
       svg.append(
-        node("path", { d: path, class: "transfer-halo" }),
+        node("path", { d, class: "transfer-halo" }),
         node("path", {
-          d: path,
+          d,
           class: `transfer-path transfer-${purpose}`,
           "marker-end": `url(#transfer-${purpose})`,
         }),
