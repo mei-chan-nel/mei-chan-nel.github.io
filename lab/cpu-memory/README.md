@@ -14,7 +14,7 @@ RAMの初期内容を書き換え、「次へ」で1動作ずつ進め、必要�
 - 合計時間 = 命令数 × CPU処理時間 + メモリ待ち。ヒットはcache、読出ミスはcache+RAM、書込ヒットはcache+RAM、書込ミスはcache+RAM×2。OFFは各アクセスRAMのみ。表示速度は仮想時間と独立。
 - 上部の「読込」「保存」は論理回路ラボと同じ選択式メニュー。「読込」は5種類のプリセット・名前を付けてブラウザ内に保存したプログラム・JSONを選択。「保存」はブラウザ内保存（上書き／別名）・JSON書出を選択。名前付き保存は自動保存や比較記録とは独立し、初期RAMと設定を保存する。以前のversion 1 JSONも読込可能。
 - 「新規作成」は保存・破棄・キャンセルを選んでから、0番地に終了、残りに数値0を置いたRAMと標準設定を作成する。CPU・キャッシュ・計測・戻る履歴を初期化し、名前付き保存と比較結果は保持する。「共有」は初期RAM・プログラム名・設定をURLのフラグメントに格納し、URLコピー・対応端末の共有・JSON書出に対応する。共有URLを開く場合と「読込」に貼り付ける場合のどちらも、確認後に置き換える。実行途中の状態・比較記録・保存先IDは共有しない。
-- 最大12件の結果保存・削除・条件復元。設定を変えて実行し、保存した結果を比較できる。作業中のプログラムと比較記録はブラウザ内に自動保存。
+- 終了命令まで正常に実行した実験は、結果と初期条件を自動保存する。段階実行・自動実行で共通。戻る・進むで終了を再現しても重複せず、最初からの再実行・編集・条件変更では新しい実験として記録する。途中やエラーで自動保存はせず、途中の結果はボタンから任意保存できる。最新12件の結果保存・削除・条件復元に対応。作業中のプログラムと比較記録はブラウザ内に自動保存。
 - 比較の条件番号は初期RAMと開始番地でグループ化。各記録には全設定・初期RAM・最終RAM・計測値を保存。途中の結果には「途中」を明示。
 - 不正な番地・命令位置・非数値データ参照・整数の範囲超過を検知。自動実行は10,000命令ごとに停止。
 
@@ -56,6 +56,7 @@ LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-dom.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-fullscreen.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-documents.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-sharing.mjs
+LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-autosave.mjs
 LAB_JSDOM_MODULE=/path/to/jsdom node lab/tools/test-cpu-memory-phases.mjs
 ```
 

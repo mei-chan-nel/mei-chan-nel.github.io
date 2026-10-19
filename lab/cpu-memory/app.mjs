@@ -46,6 +46,7 @@ let initial = copy(presets[0].memory),
   machine,
   running = false,
   selectedEvent = -1,
+  completedSaved = false,
   runCount = 0;
 const rows = [];
 const ramEditor = createRamEditor({
@@ -117,11 +118,13 @@ function persist() {
       storageKey,
       JSON.stringify({ version: 1, initial, config, name, records }),
     );
+    return true;
   } catch {
     announce(
       "ブラウザへの保存ができません。必要なプログラムはJSON保存で残してください。",
       true,
     );
+    return false;
   }
 }
 function stop() {
@@ -131,6 +134,7 @@ function stop() {
 function reset(message = "初期RAMに戻し、CPUとキャッシュを初期化しました。") {
   stop();
   machine = new Machine(initial, config);
+  completedSaved = false;
   selectedEvent = -1;
   runCount = 0;
   render();
@@ -215,7 +219,7 @@ function renderControls() {
   );
   $("step").disabled = running || machine.halted || !!machine.error;
   $("previous").disabled = !machine.actions;
-  $("save-result").disabled = running || !machine.actions;
+  $("save-result").disabled = running || machine.halted || !machine.actions;
   $("state").textContent = running
     ? "実行中"
     : machine.error
@@ -568,8 +572,20 @@ function execute() {
     renderControls();
   } else if (machine.halted) {
     stop();
+    const finished = `終了しました。計算中の値は ${format(machine.acc)}、合計時間は ${format(machine.stats.cpu + machine.stats.wait)} ns です。`;
+    let saved;
+    if (!completedSaved) {
+      completedSaved = true;
+      saved = addRecord(machine.result());
+    }
     announce(
-      `終了しました。計算中の値は ${format(machine.acc)}、合計時間は ${format(machine.stats.cpu + machine.stats.wait)} ns です。`,
+      finished +
+        (saved === true
+          ? "結果と初期条件を自動保存しました。"
+          : saved === false
+            ? "結果はこの画面に記録しましたが、ブラウザに保存できませんでした。"
+            : ""),
+      saved === false,
     );
     renderControls();
   } else announce(`${machine.phase.title}。${machine.phase.detail}`);
@@ -662,8 +678,9 @@ OPS.filter(([op]) => op !== "data").forEach(([, title, description]) => {
 function addRecord(result, label = name) {
   records.push({ ...copy(result), name: label.slice(0, 80), date: Date.now() });
   records = records.slice(-12);
-  persist();
+  const saved = persist();
   renderRecords();
+  return saved;
 }
 function renderRecords() {
   $("record-count").textContent = `${records.length}件`;
@@ -735,8 +752,13 @@ function renderRecords() {
   });
 }
 $("save-result").addEventListener("click", () => {
-  addRecord(machine.result());
-  announce("結果と初期条件を保存しました。設定を変えて比べてみよう。");
+  const saved = addRecord(machine.result());
+  announce(
+    saved
+      ? "途中の結果と初期条件を保存しました。"
+      : "結果はこの画面に記録しましたが、ブラウザに保存できませんでした。",
+    !saved,
+  );
 });
 $("clear-results").addEventListener("click", () => {
   records = [];
