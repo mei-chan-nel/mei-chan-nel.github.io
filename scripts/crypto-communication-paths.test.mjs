@@ -15,6 +15,7 @@ test("every offered action and key can progress, demonstrate consequences, and r
       retry: 0,
       consequences: 0,
       correct: 0,
+      keyBack: 0,
     };
   const role = (k) =>
     k
@@ -87,6 +88,11 @@ test("every offered action and key can progress, demonstrate consequences, and r
   const failure = (e, path, v) =>
     errors.push({ error: e.message, path, at: source(v) });
   function run(id) {
+    if (id === "key-back") {
+      q.cancel();
+      counters.keyBack++;
+      return [];
+    }
     assert(q.select(id), "select available " + id);
     return q.view().selectingKey ? [] : q.confirm();
   }
@@ -202,7 +208,7 @@ test("every offered action and key can progress, demonstrate consequences, and r
     seen.add(s);
     counters.states++;
     if (depth > 65) throw new Error("Depth exceeded");
-    assert(v.choices.length, "no dead end");
+    assert(v.choices.length || v.selectingKey?.keys.length, "no dead end");
     if (v.phase === "done" && !v.feedback) {
       if (v.consequence) {
         const resume = q.checkpoint();
@@ -223,7 +229,7 @@ test("every offered action and key can progress, demonstrate consequences, and r
     }
     const root = q.checkpoint();
     const options = v.selectingKey
-      ? v.selectingKey.keys.map((k) => ({ key: k }))
+      ? [...v.selectingKey.keys.map((k) => ({ key: k })), { id: "key-back" }]
       : v.choices.map((c) => ({ id: c.id }));
     for (const option of options) {
       root();
@@ -304,11 +310,11 @@ test("every offered action and key can progress, demonstrate consequences, and r
     JSON.stringify({ counters, coveredOperations: covered.size, endings }),
   );
   assert(
-    counters.keyEdges >= 37,
+    counters.keyEdges >= 33,
     "all current key-type and operation combinations were traversed",
   );
   assert(
-    counters.consequences >= 30,
+    counters.consequences >= 31,
     "all distinct wrong-answer demos were traversed",
   );
   for (const code of [

@@ -51,7 +51,8 @@ function caKey(lab, round) {
 }
 function choose(q, id, predicate) {
   assert.ok(q.view().choices.length <= 2);
-  assert.ok(q.select(id), "available action " + id);
+  if (q.view().selectingKey?.action !== id)
+    assert.ok(q.select(id), "available action " + id);
   if (q.view().selectingKey) {
     if (q.view().selectingKey.stage === "payload") {
       const payload = q
@@ -514,27 +515,29 @@ test("CA key readability question rejects impossible Bob-private-key decryption 
     ["inject-key", "pass"],
   );
 });
-test("pass is an outer action and forwards real data immediately without a key picker", () => {
+test("R2 forwarding unchanged remains an outer action after leaving the rewrap picker", () => {
   const q = createQuest();
-  reachMessage(q, 0);
+  reachKey(q, 1);
+  correct(q, "open-key");
+  assert.equal(q.view().selectingKey.action, "rewrap");
+  assert.equal(q.view().selectingKey.stage, "wrapping");
+  assert.equal(q.view().selectingKey.allowPass, false);
+  assert.equal(typeof q.selectPass, "undefined");
+  q.cancel();
+  assert.equal(q.view().selectingKey, null);
   assert.ok(q.view().choices.some((c) => c.id === "pass"));
   const frames = choose(q, "pass");
-  assert.ok(frames.length);
+  assert.ok(q.view().feedbackFrame || frames.length);
   assert.equal(q.view().selectingKey, null);
-  assert.equal(q.view().result.code, "original-accepted");
+  assert.equal(q.view().result.code, "bad-key");
   assert.equal(q.view().original, null);
-  const r = createQuest();
-  reachKey(r, 1);
-  r.select("open-key");
-  assert.equal(r.view().selectingKey.allowPass, false);
-  assert.equal(typeof r.selectPass, "undefined");
 });
 test("key-picker candidates exclude old keys and other people private keys", () => {
   const q = createQuest();
   reachMessage(q, 0);
   const old = q.view().inventory.find((k) => k.type === "symmetric").id;
   reachMessage(q, 1);
-  q.select("read");
+  assert.equal(q.view().selectingKey.action, "read");
   const keys = q.view().selectingKey.keys;
   assert.equal(
     keys.some((k) => k.id === old),
@@ -877,7 +880,11 @@ test("readable correct answers give an inline verdict without revealing the key 
   assert.equal(q.view().feedback.inline, true);
   assert.equal(q.view().feedback.explanation, "");
   assert.equal(q.view().original, null);
-  assert.ok(q.view().choices.some((c) => c.id === "read"));
+  assert.equal(q.view().selectingKey.action, "read");
+  assert.equal(
+    q.view().choices.some((c) => c.id === "read"),
+    false,
+  );
   assert.equal(
     q.view().choices.some((c) => c.id === "continue"),
     false,
@@ -889,7 +896,11 @@ test("readable correct answers give an inline verdict without revealing the key 
   choose(r, "can-read");
   assert.equal(r.view().feedback.explanation, "");
   assert.equal(r.view().feedback.inline, true);
-  assert.ok(r.view().choices.some((c) => c.id === "open-key"));
+  assert.equal(r.view().selectingKey.action, "open-key");
+  assert.equal(
+    r.view().choices.some((c) => c.id === "open-key"),
+    false,
+  );
   assert.equal(
     r.view().inventory.some((k) => k.type === "symmetric"),
     false,
@@ -947,11 +958,10 @@ test("key delivery selects the common key first and the encryption key second, w
   assert.equal(q.view().attackerKey.id, payload.id);
   assert.equal(q.view().original, null);
 });
-test("back from encryption-key selection returns to common-key selection without a new attempt", () => {
+test("R3 back from encryption-key selection returns to common-key selection without a new attempt", () => {
   const q = createQuest();
-  reachKey(q, 1);
-  correct(q, "open-key");
-  q.select("rewrap");
+  reachKey(q, 2);
+  q.select("inject-key");
   const count = q.view().count;
   const key = q.view().selectingKey.keys.find((k) => k.type === "symmetric");
   q.selectKey(key.id);
@@ -1072,32 +1082,30 @@ test("wrong injection wrapper narration names the actual selected recipient key"
   choose(q, "show-consequence");
   assert.equal(q.view().result.code, "bad-key");
 });
-test("direct R2 forwarding failure is red and retries the exact forwarding decision", () => {
-  for (const openFirst of [false, true]) {
-    const q = createQuest();
-    reachKey(q, 1);
-    if (openFirst) correct(q, "open-key");
-    const before = q.view();
-    choose(q, "pass");
-    assert.equal(q.view().result.code, "bad-key");
-    assert.equal(q.view().tone, "wrong");
-    assert.equal(q.view().feedback.correct, false);
-    assert.match(q.view().feedback.explanation, /Charlie宛て/);
-    const resume = q.checkpoint();
-    choose(q, "retry-here");
-    assert.equal(q.view().phase, "key");
-    assert.equal(q.view().incoming.id, before.incoming.id);
-    assert.deepEqual(q.view().choices, before.choices);
-    resume();
-    choose(q, "show-consequence");
-    assert.equal(q.view().result.code, "bad-key");
-    choose(q, "retry-here");
-    assert.equal(q.view().incoming.id, before.incoming.id);
-    if (!openFirst) correct(q, "open-key");
-    correct(q, "rewrap");
-    choose(q, "forward");
-    assert.equal(q.view().phase, "message");
-  }
+test("direct R2 unchanged forwarding failure is red and retries the exact forwarding decision", () => {
+  const q = createQuest();
+  reachKey(q, 1);
+  correct(q, "open-key");
+  q.cancel();
+  const before = q.view();
+  choose(q, "pass");
+  assert.equal(q.view().result.code, "bad-key");
+  assert.equal(q.view().tone, "wrong");
+  assert.equal(q.view().feedback.correct, false);
+  assert.match(q.view().feedback.explanation, /Charlie宛て/);
+  const resume = q.checkpoint();
+  choose(q, "retry-here");
+  assert.equal(q.view().phase, "key");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  assert.deepEqual(q.view().choices, before.choices);
+  resume();
+  choose(q, "show-consequence");
+  assert.equal(q.view().result.code, "bad-key");
+  choose(q, "retry-here");
+  assert.equal(q.view().incoming.id, before.incoming.id);
+  correct(q, "rewrap");
+  choose(q, "forward");
+  assert.equal(q.view().phase, "message");
 });
 test("failed edit encryption explains why Bob receives the unchanged original", () => {
   const q = createQuest();
@@ -1136,15 +1144,16 @@ test("failed key authentication shows the key-delivery signature rather than a s
   );
   assert.equal(outcomeFrame(s).packet.id, s.outgoing?.id || s.incoming.id);
 });
-test("unchanged original delivery before Round4 is neutral rather than a successful attack", () => {
+test("unchanged model-level original delivery before Round4 never reveals the plaintext to Charlie", () => {
   for (const round of [0, 1]) {
-    const q = createQuest();
-    reachMessage(q, round);
-    choose(q, "pass");
-    assert.equal(q.view().result.code, "original-accepted");
-    assert.equal(q.view().tone, "");
-    assert.equal(q.view().read, false);
-    assert.equal(q.view().original, null);
+    const lab = createLab();
+    lab.start(round);
+    for (let i = 0; i < 3 && lab.snapshot().phase !== "done"; i++)
+      lab.forward();
+    assert.equal(lab.snapshot().result.code, "original-accepted");
+    assert.equal(lab.snapshot().read, false);
+    assert.equal(lab.snapshot().original, null);
+    assert.equal(lab.snapshot().result.message, null);
   }
 });
 
@@ -1309,4 +1318,91 @@ for (const [field, value] of [
     assert.equal(s.result.message, null);
     assert.equal(s.deliveredTag.id, tag);
     assert.equal(s.original, null);
+  });
+
+test("correct readability opens the meaningful key selection directly without a repeated action card", () => {
+  const q = createQuest();
+  q.start(0);
+  choose(q, "forward");
+  choose(q, "can-read");
+  assert.equal(q.view().selectingKey.action, "read");
+  assert.equal(q.view().feedback.inline, true);
+  assert.equal(q.view().feedback.explanation, "");
+  assert.equal(q.view().read, false);
+  assert.equal(q.view().original, null);
+  assert.equal(q.select("read"), false);
+  assert.equal(q.select("pass"), false);
+  const packet = q.view().incoming.id;
+  q.cancel();
+  assert.equal(q.view().incoming.id, packet);
+  assert.equal(q.view().selectingKey, null);
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["can-read", "cannot-read"],
+  );
+  choose(q, "can-read");
+  correct(q, "read");
+  assert.equal(q.view().original, "I love you.");
+});
+
+test("R2 recovered common key goes directly to recipient-key selection without a repeated payload decision", () => {
+  const q = createQuest();
+  reachKey(q, 1);
+  assert.equal(q.view().selectingKey.action, "open-key");
+  assert.equal(
+    q.view().inventory.some((k) => k.type === "symmetric"),
+    false,
+  );
+  correct(q, "open-key");
+  const s = q.view();
+  const shared = s.inventory.find((k) => k.type === "symmetric");
+  assert.equal(s.selectingKey.action, "rewrap");
+  assert.equal(s.selectingKey.stage, "wrapping");
+  assert.equal(s.payloadKey.id, shared.id);
+  assert.match(s.selectingKey.context, new RegExp(shared.label));
+  assert.equal(
+    s.choices.some((c) => c.id === "rewrap"),
+    false,
+  );
+  q.cancel();
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["rewrap", "pass"],
+  );
+  q.select("rewrap");
+  assert.equal(q.view().selectingKey.stage, "wrapping");
+  assert.equal(q.view().payloadKey.id, shared.id);
+});
+
+for (const round of [0, 1, 2])
+  test(`R${round + 1} correct tamper prediction opens encryption-key selection without a repeated edit card`, () => {
+    const q = createQuest();
+    reachMessage(q, round);
+    if (round < 2) correct(q, "read");
+    const before = q.view();
+    correct(q, "predict-safe");
+    assert.equal(q.view().selectingKey.action, "edit");
+    assert.match(q.view().selectingKey.context, /I hate you\./);
+    assert.equal(
+      q.view().draft,
+      before.draft,
+      "planned replacement is not yet applied",
+    );
+    assert.equal(q.view().outgoing, null);
+    assert.equal(q.select("edit"), false);
+    const packet = q.view().incoming.id;
+    q.cancel();
+    assert.equal(q.view().selectingKey, null);
+    assert.equal(q.view().incoming.id, packet);
+    assert.equal(q.view().predictionAnswered, false);
+    assert.deepEqual(
+      q.view().choices.map((c) => c.id),
+      ["predict-safe", "predict-detected"],
+    );
+    correct(q, "predict-safe");
+    correct(q, "edit");
+    assert.equal(q.view().draft, "I hate you.");
+    assert.equal(q.view().read, round < 2);
+    choose(q, "forward");
+    assert.equal(q.view().result.code, "attack-success");
   });

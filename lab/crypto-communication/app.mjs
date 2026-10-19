@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=17";
+import { createQuest } from "./quest.mjs?v=18";
 import { rounds } from "./model.mjs?v=22";
 import {
   introFrames,
@@ -27,49 +27,139 @@ let keyPage = 0;
 let shownKey = "未取得",
   shownCount = 0,
   shownOriginal = null;
-const history = [];
-function remember() {
-  history.push({
+// Only text the learner has actually seen belongs to narration history.
+// Protocol checkpoints are replayed, so reviewing a line never sends data twice.
+const narrationHistory = [];
+let storyBatch = 0,
+  actionSequence = 0,
+  lastNarrationKey = null,
+  reviewCursor = null,
+  liveFrontier = null,
+  frontierIndex = 0;
+function captureScreen() {
+  return {
     restore: quest.checkpoint(),
     story: story.checkpoint(),
     keyPage,
     shownKey,
     shownCount,
     shownOriginal,
+    previousChoice,
+    storyBatch,
+    actionSequence,
+  };
+}
+function restoreScreen(saved) {
+  saved.restore();
+  story.restore(saved.story);
+  ({
+    keyPage,
+    shownKey,
+    shownCount,
+    shownOriginal,
+    previousChoice,
+    storyBatch,
+    actionSequence,
+  } = saved);
+}
+function visibleNarration(s = quest.view()) {
+  if (story.active())
+    return {
+      key: "story:" + storyBatch + ":" + story.position().index,
+      frame: story.current(),
+    };
+  if (s.feedback && !s.feedback.inline && s.feedback.explanation)
+    return {
+      key: "answer:" + actionSequence,
+      frame: {
+        ...(s.feedbackFrame || s.displayFrame),
+        text: s.feedback.explanation,
+        tone: s.tone,
+      },
+    };
+  return null;
+}
+function recordNarration(s) {
+  if (reviewCursor !== null) return;
+  const visible = visibleNarration(s);
+  if (!visible || visible.key === lastNarrationKey) return;
+  lastNarrationKey = visible.key;
+  narrationHistory.push({
+    ...visible,
+    frame: JSON.parse(JSON.stringify(visible.frame)),
+    saved: captureScreen(),
   });
 }
+function canGoBack() {
+  if (reviewCursor !== null) return reviewCursor > 0;
+  const visible = visibleNarration();
+  const currentIsLast = visible?.key === narrationHistory.at(-1)?.key;
+  return narrationHistory.length > (currentIsLast ? 1 : 0);
+}
 function goBack() {
-  const last = history.pop();
-  if (!last) return;
-  last.restore();
-  story.restore(last.story);
-  ({ keyPage, shownKey, shownCount, shownOriginal } = last);
+  if (!canGoBack()) return;
+  if (reviewCursor === null) {
+    liveFrontier = captureScreen();
+    const visible = visibleNarration();
+    const currentIsLast = visible?.key === narrationHistory.at(-1)?.key;
+    frontierIndex = narrationHistory.length - (currentIsLast ? 1 : 0);
+    reviewCursor = frontierIndex - 1;
+  } else reviewCursor--;
+  restoreScreen(narrationHistory[reviewCursor].saved);
   render();
+  $("dialogue-next").focus({ preventScroll: true });
+}
+function resumeLive() {
+  if (reviewCursor === null) return;
+  restoreScreen(liveFrontier);
+  reviewCursor = null;
+  liveFrontier = null;
+}
+function replayNext() {
+  if (reviewCursor === null) return false;
+  if (reviewCursor + 1 >= frontierIndex) resumeLive();
+  else {
+    reviewCursor++;
+    restoreScreen(narrationHistory[reviewCursor].saved);
+  }
+  render();
+  focusCurrentControl();
+  return true;
+}
+function focusCurrentControl() {
+  const target = !$("dialogue-next").hidden
+    ? $("dialogue-next")
+    : document.querySelector("[data-key]") ||
+      document.querySelector("[data-action]") ||
+      (!$("key-picker").hidden ? $("key-back") : null);
+  target?.focus({ preventScroll: true });
 }
 function execute() {
+  actionSequence++;
   const frames = quest.confirm();
   if (frames.length) play(frames);
   else {
     render();
-    const target = !$("dialogue-next").hidden
-      ? $("dialogue-next")
-      : document.querySelector("[data-action]") ||
-        document.querySelector("[data-key]") ||
-        $("key-back");
-    target?.focus({ preventScroll: true });
+    focusCurrentControl();
   }
 }
 function play(frames) {
+  storyBatch++;
   story.play(frames);
   render();
   $("dialogue-next").focus({ preventScroll: true });
 }
 function render() {
   const s = quest.view(),
-    talking = story.active(),
+    reviewing = reviewCursor !== null,
+    talking = story.active() || reviewing,
     correctAnswer =
       !talking && Boolean(s.feedback?.correct && !s.feedback?.inline),
-    f = story.current() || s.feedbackFrame || s.displayFrame;
+    f =
+      (reviewing ? narrationHistory[reviewCursor].frame : null) ||
+      story.current() ||
+      s.feedbackFrame ||
+      s.displayFrame;
   const done = s.phase === "done",
     visibleResult = done && (!talking || f.revealOutcome);
   const pending = Boolean(s.pending);
@@ -284,7 +374,10 @@ function render() {
     ? s.selectingKey.context
     : "";
   $("key-back").textContent =
-    s.selectingKey?.stage === "wrapping" ? "← 共通鍵を選び直す" : "← 戻る";
+    s.selectingKey?.stage === "wrapping" &&
+    s.selectingKey.action === "inject-key"
+      ? "← 共通鍵を選び直す"
+      : "← 戻る";
   $("choice-list").hidden = talking || pending || picking || correctAnswer;
   $("key-picker").hidden = talking || pending || !picking;
   $("choice-list").innerHTML =
@@ -383,27 +476,26 @@ function render() {
   const position = story.position();
   $("dialogue-next").hidden = !talking && !correctAnswer;
   $("dialogue-next").textContent =
-    correctAnswer || position.index + 1 < position.total
+    reviewing || correctAnswer || position.index + 1 < position.total
       ? "次へ ▶"
       : "行動を選ぶ ▶";
   $("dialogue-previous").hidden = false;
   $("dialogue-previous").textContent = "← 一つ前へ";
-  $("dialogue-previous").disabled = history.length === 0;
-  $("dialogue-position").textContent = talking
-    ? position.index + 1 + " / " + position.total
-    : correctAnswer
-      ? ""
-      : done
-        ? "結果"
-        : "行動を選ぶ";
+  recordNarration(s);
+  $("dialogue-previous").disabled = !canGoBack();
+  $("dialogue-position").textContent = reviewing
+    ? reviewCursor + 1 + " / " + narrationHistory.length
+    : talking
+      ? position.index + 1 + " / " + position.total
+      : correctAnswer
+        ? ""
+        : done
+          ? "結果"
+          : "行動を選ぶ";
 }
 function review(id, trigger = document.activeElement) {
-  if (story.active()) return;
-  remember();
-  if (!quest.select(id)) {
-    history.pop();
-    return;
-  }
+  if (story.active() || reviewCursor !== null) return;
+  if (!quest.select(id)) return;
   if (quest.view().pending) {
     execute();
     return;
@@ -421,7 +513,7 @@ $("choice-list").addEventListener("click", (event) => {
   if (button) review(button.dataset.action);
 });
 function cancel() {
-  remember();
+  if (reviewCursor !== null) return;
   quest.cancel();
   render();
   const selected = quest.view().selectingKey?.selectedId;
@@ -433,6 +525,7 @@ function cancel() {
   }
   (
     document.querySelector('[data-action="' + previousChoice + '"]') ||
+    document.querySelector("[data-action]") ||
     previousTrigger
   )?.focus({ preventScroll: true });
 }
@@ -440,12 +533,9 @@ $("key-back").addEventListener("click", cancel);
 $("key-list").addEventListener("click", (event) => {
   const button = event.target.closest("[data-key]");
   if (!button) return;
-  remember();
+  if (reviewCursor !== null) return;
   const selected = quest.selectKey(button.dataset.key);
-  if (!selected) {
-    history.pop();
-    return;
-  }
+  if (!selected) return;
   execute();
 });
 $("key-prev").addEventListener("click", () => {
@@ -471,6 +561,7 @@ $("game-console").addEventListener("keydown", (event) => {
   }
 });
 $("dialogue-next").addEventListener("click", () => {
+  if (replayNext()) return;
   if (
     !story.active() &&
     quest.view().feedback?.correct &&
@@ -480,11 +571,9 @@ $("dialogue-next").addEventListener("click", () => {
     return;
   }
   if (!story.active()) return;
-  remember();
   story.next();
   render();
-  if (!story.active())
-    document.querySelector("[data-action]")?.focus({ preventScroll: true });
+  if (!story.active()) focusCurrentControl();
 });
 $("dialogue-previous").addEventListener("click", () => {
   goBack();
@@ -492,16 +581,14 @@ $("dialogue-previous").addEventListener("click", () => {
 $("rounds").addEventListener("click", (event) => {
   const button = event.target.closest("[data-round]");
   if (button) {
-    remember();
+    resumeLive();
     play(quest.start(Number(button.dataset.round)));
   }
 });
 $("restart").addEventListener("click", () => {
-  if (story.active()) {
-    const s = quest.view();
-    remember();
-    play(quest.start(s.round));
-  } else review("restart");
+  const requestedRound = quest.view().round;
+  resumeLive();
+  play(quest.start(requestedRound));
 });
 function buildInfo() {
   const s = quest.view();
@@ -614,6 +701,7 @@ $("info-topics").addEventListener("click", (event) => {
     buildInfo();
   }
 });
+storyBatch++;
 story.play([...introFrames(), ...roundFrames(quest.view())]);
 createDisplayController({
   document,

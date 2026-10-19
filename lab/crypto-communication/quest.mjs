@@ -119,6 +119,7 @@ export function createQuest() {
               "実際の通信で確かめる",
             ),
           ];
+    if (x.selectingKey) return [];
     if (s.phase === "done") {
       const next =
         s.round < 3
@@ -229,19 +230,6 @@ export function createQuest() {
           "Charlieは改ざんをあきらめる",
         ),
       ];
-    if (s.round !== 3 && !s.read && !s.impersonating)
-      return canRead(s)
-        ? [
-            choice("read", "本文の暗号文を開く", "復号に使う鍵を選ぶ"),
-            choice("pass", "そのままBobへ転送する", "元の本文の暗号文を届ける"),
-          ]
-        : [
-            choice(
-              "pass",
-              "そのままBobへ転送する",
-              "Aliceの本文の暗号文を届ける",
-            ),
-          ];
     if (!x.predictionAnswered)
       return [
         choice(
@@ -397,7 +385,10 @@ export function createQuest() {
             context:
               x.selectingKey.stage === "wrapping"
                 ? "送る共通鍵：" + x.payloadKey.label
-                : "",
+                : x.selectingKey.action === "edit"
+                  ? (s.impersonating ? "偽の本文：" : "書き換える本文：") +
+                    "I hate you."
+                  : "",
             keys: availableKeys(s),
             allowPass: false,
           }
@@ -452,20 +443,29 @@ export function createQuest() {
       return true;
     }
     if (keyOperations[id]) {
-      if (id === "inject-key") lab.createAttackerKey();
-      if (["rewrap", "inject-key"].includes(id)) x.payloadKey = null;
-      x.selectingKey = {
-        action: id,
-        ...keyOperations[id],
-        stage: ["rewrap", "inject-key"].includes(id) ? "payload" : "operation",
-        selectedId: null,
-      };
-      x.pending = null;
+      beginKeySelection(id);
     } else {
       x.pending = { ...action };
       x.selectingKey = null;
     }
     return true;
+  }
+  function beginKeySelection(action) {
+    if (action === "inject-key") lab.createAttackerKey();
+    if (["rewrap", "inject-key"].includes(action))
+      x.payloadKey = action === "rewrap" ? shared(lab.snapshot()) : null;
+    x.selectingKey = {
+      action,
+      ...keyOperations[action],
+      stage:
+        action === "inject-key"
+          ? "payload"
+          : action === "rewrap"
+            ? "wrapping"
+            : "operation",
+      selectedId: null,
+    };
+    x.pending = null;
   }
   function selectKey(id) {
     if (!x.selectingKey) return false;
@@ -667,10 +667,14 @@ export function createQuest() {
       return [];
     }
     if (action === "continue") {
-      const frames = copy(x.feedbackFrames.slice(1));
+      const frames = copy(x.feedbackFrames.slice(1)),
+        completed = x.feedback.kind;
       x.pending = null;
       x.feedback = null;
       x.feedbackFrames = [];
+      if (completed === "open-key") beginKeySelection("rewrap");
+      if (completed === "prediction" && lab.snapshot().round < 3)
+        beginKeySelection("edit");
       return frames;
     }
     if (action === "show-consequence") return showConsequence();
@@ -755,10 +759,14 @@ export function createQuest() {
       const readable = canRead(before),
         correct = (action === "can-read") === readable;
       if (correct) x.readability[before.incoming.id] = readable;
+      if (correct && readable) {
+        beginKeySelection(before.phase === "key" ? "open-key" : "read");
+        return evaluate(true, "", [], origin, "readability", true);
+      }
       const next = correct ? choices(lab.snapshot()) : [];
       const onlyForward =
         next.length === 1 && ["pass", "forward"].includes(next[0].id);
-      if (correct && (readable || !onlyForward))
+      if (correct && !onlyForward)
         return evaluate(true, "", [], origin, "readability", true);
       return evaluate(
         correct,
@@ -976,14 +984,24 @@ export function createQuest() {
     cancel() {
       x.pending = null;
       if (x.feedback?.inline) x.feedback = null;
-      if (x.selectingKey?.stage === "wrapping") {
+      if (
+        x.selectingKey?.stage === "wrapping" &&
+        x.selectingKey.action === "inject-key"
+      ) {
         x.selectingKey = {
           ...x.selectingKey,
           stage: "payload",
           selectedId: null,
         };
         x.payloadKey = null;
-      } else x.selectingKey = null;
+      } else {
+        const action = x.selectingKey?.action;
+        if (["read", "open-key"].includes(action))
+          delete x.readability[lab.snapshot().incoming.id];
+        if (action === "edit") x.predictionAnswered = false;
+        if (action === "rewrap") x.payloadKey = null;
+        x.selectingKey = null;
+      }
     },
   };
 }
