@@ -230,10 +230,16 @@ function render() {
   );
   const packetLabel =
     f.packetLabel || englishNames(visiblePacket?.label) || packetName(f.kind);
-  $("packet-short").textContent = packetLabel.replace(
-    "のCA登録済の公開鍵",
-    "\nCA登録済の公開鍵",
-  );
+  const keyName = englishNames(visiblePacket?.label) || packetLabel;
+  const keyLabel = {
+    key: keyName,
+    public: keyName,
+    certificate: keyName.replace("のCA登録済の公開鍵", "の公開鍵"),
+    "verify-key": keyName.replace("の検証用公開鍵", "の公開鍵"),
+    "wrapped-key": "共通鍵の暗号文",
+  }[f.kind];
+  $("packet-short").textContent = keyLabel || "";
+  $("packet-sprite").dataset.keyLabel = String(Boolean(keyLabel));
   $("packet-title").textContent = packetLabel || "通信の準備中";
   $("packet-sprite").setAttribute(
     "aria-label",

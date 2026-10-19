@@ -1342,3 +1342,38 @@
 #game-console .mechanism-detail-content {
   padding: 12px;
 }
+
+/* Key names travel with their icons; the bottom anchor keeps them above actors. */
+#game-console #scene .packet-sprite[data-key-label="true"] #packet-short {
+  display: block;
+  margin-top: 2px;
+  font-size: 9px;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: inherit;
+}
+#game-console #scene .packet-sprite[data-signed="true"][data-key-label="true"] {
+  width: min(132px, 44%);
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene
+  .packet-sprite[data-key-label="true"]
+  #packet-short {
+  font-size: 8px;
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene
+  .packet-sprite[data-signed="true"][data-key-label="true"] {
+  width: min(106px, 44%);
+}
+#game-console #scene[data-at^="ca-"] .packet-sprite #packet-short {
+  font-size: 8px;
+}
+@media (max-height: 600px) {
+  #game-console.is-viewport[data-density="tiny"]
+    #scene[data-at^="ca-"]
+    .packet-sprite
+    #packet-short {
+    font-size: 7px;
+  }
+}
