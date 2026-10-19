@@ -54,14 +54,6 @@ function choose(q, id, predicate) {
   if (q.view().selectingKey?.action !== id)
     assert.ok(q.select(id), "available action " + id);
   if (q.view().selectingKey) {
-    if (q.view().selectingKey.stage === "payload") {
-      const payload = q
-        .view()
-        .selectingKey.keys.find((k) => k.type === "symmetric");
-      q.selectKey(payload.id);
-      q.confirm();
-      assert.equal(q.view().feedback.inline, true);
-    }
     const k = q
       .view()
       .selectingKey.keys.find(
@@ -906,27 +898,25 @@ test("readable correct answers give an inline verdict without revealing the key 
     false,
   );
 });
-test("key delivery selects the common key first and the encryption key second, with exact retry", () => {
+test("R3 injection fixes Charlie's common key and directly asks for its encryption key, with exact retry", () => {
   const q = createQuest();
   reachKey(q, 2);
   q.select("inject-key");
   const before = q.view();
-  assert.equal(before.selectingKey.stage, "payload");
+  assert.equal(before.selectingKey.stage, "wrapping");
+  assert.equal(before.selectingKey.title, "共通鍵の暗号化に使う鍵");
+  const payload = before.attackerKey;
+  assert.equal(before.payloadKey.id, payload.id);
+  assert.equal(before.selectingKey.context, "送る共通鍵：" + payload.label);
+  assert.equal(before.feedback, null);
   assert.equal(before.outgoing, null);
   q.selectKey(before.selectingKey.keys.find((k) => k.type === "private").id);
   q.confirm();
   assert.equal(q.view().feedback.correct, false);
   choose(q, "retry-here");
-  assert.equal(q.view().selectingKey.stage, "payload");
-  const payload = q
-    .view()
-    .selectingKey.keys.find((k) => k.type === "symmetric");
-  q.selectKey(payload.id);
-  q.confirm();
-  assert.equal(q.view().feedback.inline, true);
-  assert.equal(q.view().feedback.explanation, "");
   assert.equal(q.view().selectingKey.stage, "wrapping");
-  assert.match(q.view().selectingKey.context, new RegExp(payload.label));
+  assert.equal(q.view().payloadKey.id, payload.id);
+  assert.equal(q.view().selectingKey.context, "送る共通鍵：" + payload.label);
   assert.equal(q.view().outgoing, null);
   const saved = q.checkpoint();
   q.selectKey(
@@ -958,22 +948,30 @@ test("key delivery selects the common key first and the encryption key second, w
   assert.equal(q.view().attackerKey.id, payload.id);
   assert.equal(q.view().original, null);
 });
-test("R3 back from encryption-key selection returns to common-key selection without a new attempt", () => {
+test("R3 cancel returns to the injection decision without a payload choice or a new attempt", () => {
   const q = createQuest();
   reachKey(q, 2);
   q.select("inject-key");
   const count = q.view().count;
-  const key = q.view().selectingKey.keys.find((k) => k.type === "symmetric");
-  q.selectKey(key.id);
-  q.confirm();
+  const key = q.view().attackerKey;
+  const incoming = q.view().incoming.id;
   assert.equal(q.view().selectingKey.stage, "wrapping");
   q.cancel();
-  assert.equal(q.view().selectingKey.stage, "payload");
+  assert.equal(q.view().selectingKey, null);
+  assert.equal(q.view().payloadKey, null);
   assert.equal(q.view().count, count);
   assert.equal(q.view().feedback, null);
-  q.cancel();
-  assert.equal(q.view().selectingKey, null);
   assert.equal(q.view().outgoing, null);
+  assert.deepEqual(
+    q.view().choices.map((c) => c.id),
+    ["inject-key", "pass"],
+  );
+  q.select("inject-key");
+  assert.equal(q.view().selectingKey.stage, "wrapping");
+  assert.equal(q.view().payloadKey.id, key.id);
+  assert.equal(q.view().attackerKey.id, key.id);
+  assert.equal(q.view().incoming.id, incoming);
+  assert.equal(q.view().count, count);
 });
 test("R3 forwarding the original key is incorrect for the stated forgery goal, rather than another correct strategy", () => {
   const q = createQuest();

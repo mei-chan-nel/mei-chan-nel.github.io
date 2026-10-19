@@ -1,4 +1,4 @@
-import { createQuest } from "./quest.mjs?v=18";
+import { createQuest } from "./quest.mjs?v=19";
 import { rounds } from "./model.mjs?v=22";
 import {
   introFrames,
@@ -373,11 +373,7 @@ function render() {
   $("key-operation-context").textContent = picking
     ? s.selectingKey.context
     : "";
-  $("key-back").textContent =
-    s.selectingKey?.stage === "wrapping" &&
-    s.selectingKey.action === "inject-key"
-      ? "← 共通鍵を選び直す"
-      : "← 戻る";
+  $("key-back").textContent = "← 戻る";
   $("choice-list").hidden = talking || pending || picking || correctAnswer;
   $("key-picker").hidden = talking || pending || !picking;
   $("choice-list").innerHTML =

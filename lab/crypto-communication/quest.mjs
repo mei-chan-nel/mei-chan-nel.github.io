@@ -378,10 +378,6 @@ export function createQuest() {
       selectingKey: x.selectingKey
         ? {
             ...x.selectingKey,
-            title:
-              x.selectingKey.stage === "payload"
-                ? "Bobへ送る共通鍵を選ぶ"
-                : x.selectingKey.title,
             context:
               x.selectingKey.stage === "wrapping"
                 ? "送る共通鍵：" + x.payloadKey.label
@@ -453,16 +449,13 @@ export function createQuest() {
   function beginKeySelection(action) {
     if (action === "inject-key") lab.createAttackerKey();
     if (["rewrap", "inject-key"].includes(action))
-      x.payloadKey = action === "rewrap" ? shared(lab.snapshot()) : null;
+      x.payloadKey = shared(lab.snapshot());
     x.selectingKey = {
       action,
       ...keyOperations[action],
-      stage:
-        action === "inject-key"
-          ? "payload"
-          : action === "rewrap"
-            ? "wrapping"
-            : "operation",
+      stage: ["rewrap", "inject-key"].includes(action)
+        ? "wrapping"
+        : "operation",
       selectedId: null,
     };
     x.pending = null;
@@ -473,11 +466,7 @@ export function createQuest() {
     if (!key) return false;
     x.selectingKey.selectedId = id;
     x.pending = {
-      id:
-        x.selectingKey.stage === "payload"
-          ? "choose-payload"
-          : x.selectingKey.action,
-      operation: x.selectingKey.action,
+      id: x.selectingKey.action,
       key,
     };
     return true;
@@ -527,7 +516,7 @@ export function createQuest() {
     const unchanged = lab.snapshot();
     if (
       !unchanged.outgoing &&
-      ["read", "open-key", "payload", "rewrap", "inject-key", "edit"].includes(
+      ["read", "open-key", "rewrap", "inject-key", "edit"].includes(
         feedback?.kind,
       )
     ) {
@@ -541,17 +530,13 @@ export function createQuest() {
             ? "Charlieは" +
               attemptedKey +
               "では、Aliceの共通鍵の暗号文を復号できなかった。"
-            : feedback.kind === "payload"
+            : feedback.kind === "edit"
               ? "Charlieは" +
                 attemptedKey +
-                "を送る共通鍵として選んだが、共通鍵ではなかった。"
-              : feedback.kind === "edit"
-                ? "Charlieは" +
-                  attemptedKey +
-                  "では、書き換えた本文の暗号文を作れなかった。"
-                : "Charlieは" +
-                  attemptedKey +
-                  "では、Bobへ送る共通鍵の暗号文を作れなかった。";
+                "では、書き換えた本文の暗号文を作れなかった。"
+              : "Charlieは" +
+                attemptedKey +
+                "では、Bobへ送る共通鍵の暗号文を作れなかった。";
       frames.push(
         frame(
           failure + "Charlieは、届いた元の暗号文を変えずに転送する。",
@@ -715,26 +700,6 @@ export function createQuest() {
       kind: packetKind(before.incoming),
       packet: before.incoming,
     };
-    if (action === "choose-payload") {
-      if (key?.type !== "symmetric")
-        return evaluate(
-          false,
-          "Bobへ送るのは、本文を暗号化・復号するための共通鍵。公開鍵や秘密鍵は、送る共通鍵そのものではない。",
-          [],
-          origin,
-          "payload",
-          false,
-          key?.label,
-        );
-      x.payloadKey = key;
-      x.selectingKey = {
-        action: pending.operation,
-        ...keyOperations[pending.operation],
-        stage: "wrapping",
-        selectedId: null,
-      };
-      return evaluate(true, "", [], origin, "payload", true);
-    }
     if (action === "inject-key" && before.round === 3)
       return evaluate(
         false,
@@ -984,24 +949,12 @@ export function createQuest() {
     cancel() {
       x.pending = null;
       if (x.feedback?.inline) x.feedback = null;
-      if (
-        x.selectingKey?.stage === "wrapping" &&
-        x.selectingKey.action === "inject-key"
-      ) {
-        x.selectingKey = {
-          ...x.selectingKey,
-          stage: "payload",
-          selectedId: null,
-        };
-        x.payloadKey = null;
-      } else {
-        const action = x.selectingKey?.action;
-        if (["read", "open-key"].includes(action))
-          delete x.readability[lab.snapshot().incoming.id];
-        if (action === "edit") x.predictionAnswered = false;
-        if (action === "rewrap") x.payloadKey = null;
-        x.selectingKey = null;
-      }
+      const action = x.selectingKey?.action;
+      if (["read", "open-key"].includes(action))
+        delete x.readability[lab.snapshot().incoming.id];
+      if (action === "edit") x.predictionAnswered = false;
+      if (["rewrap", "inject-key"].includes(action)) x.payloadKey = null;
+      x.selectingKey = null;
     },
   };
 }

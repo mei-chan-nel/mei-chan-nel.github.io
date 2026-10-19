@@ -208,6 +208,11 @@ test("every offered action and key can progress, demonstrate consequences, and r
     seen.add(s);
     counters.states++;
     if (depth > 65) throw new Error("Depth exceeded");
+    assert.notEqual(
+      v.selectingKey?.stage,
+      "payload",
+      "no repeated payload choice",
+    );
     assert(v.choices.length || v.selectingKey?.keys.length, "no dead end");
     if (v.phase === "done" && !v.feedback) {
       if (v.consequence) {
@@ -310,11 +315,13 @@ test("every offered action and key can progress, demonstrate consequences, and r
     JSON.stringify({ counters, coveredOperations: covered.size, endings }),
   );
   assert(
-    counters.keyEdges >= 33,
+    // The removed R3 payload picker previously offered four key candidates.
+    counters.keyEdges >= 29,
     "all current key-type and operation combinations were traversed",
   );
   assert(
-    counters.consequences >= 31,
+    // Its wrong-type choices shared one consequence demonstration.
+    counters.consequences >= 30,
     "all distinct wrong-answer demos were traversed",
   );
   for (const code of [
