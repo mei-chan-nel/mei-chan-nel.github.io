@@ -12,8 +12,9 @@
   };
   window.gtag("js", new Date());
   const isProgramStudio = /\/program-trace\/studio(?:\/|$)/i.test(window.location.pathname);
+  const isCpuMemory = /\/lab\/cpu-memory(?:\/|$)/i.test(window.location.pathname);
   // Shared source lives in the fragment; analytics only receives the page URL.
-  window.gtag("config", GA_MEASUREMENT_ID, isProgramStudio ? {
+  window.gtag("config", GA_MEASUREMENT_ID, isProgramStudio || isCpuMemory ? {
     page_location: window.location.href.split("#")[0],
     page_referrer: document.referrer.split("#")[0],
   } : {});
