@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<script src="../../assets/site-analytics.js?v=2026102001" defer></script>
+<title>CPUと記憶装置｜Interactive Lab</title>
+<meta name="description" content="RAMの命令を書き換えてCPUを動かす。キャッシュのヒット・ミス、計算結果と実行時間を実験して比べよう。" />
+<meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
+<meta property="og:title" content="CPUと記憶装置｜Interactive Lab" /><meta property="og:description" content="RAMの命令を書き換えてCPUを動かす。キャッシュのヒット・ミス、計算結果と実行時間を実験して比べよう。" />
+<meta property="og:url" content="https://mei-chan-nel.com/lab/cpu-memory/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+<link rel="canonical" href="https://mei-chan-nel.com/lab/cpu-memory/" /><meta name="theme-color" content="#102f35" />
+<link rel="icon" href="../icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="../lab.css?v=3" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+<script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"CPUと記憶装置","item":"https://mei-chan-nel.com/lab/cpu-memory/"}]}</script>
+<link rel="stylesheet" href="./memory.css?v=1" />
+<script type="module" src="./app.mjs?v=1"></script>
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+</head><body>
+<a class="skip-link" href="#main-content">本文へ移動</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a></nav></div></header>
+<main id="main-content" class="lab-shell lab-content-page">
+<nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>CPUと記憶装置</span></nav>
+<header class="memory-heading">
+  <div>
+    <p class="eyebrow">INTERACTIVE LAB · COMPUTER SYSTEMS</p>
+    <h1>CPUと記憶装置</h1>
+    <p>RAMを書き換える。実行する。キャッシュの働きを比べる。</p>
+  </div>
+  <button id="help-toggle" aria-expanded="false" aria-controls="lab-guide">
+    使い方と命令一覧 <span aria-hidden="true">↗</span>
+  </button>
+</header>
+<div id="lab-guide" class="guide-panel" hidden>
+  <h2>自分のプログラムで、確かめよう</h2>
+  <ol>
+    <li>RAMの行を押すと編集画面が開き、命令や数値を変更できます。</li>
+    <li>
+      「次へ」で命令の取得・CPUへの取り込み・データ参照・計算を1動作ずつ確認。「自動実行」で最後まで進めます。「全画面」でCPU
+      → キャッシュ → RAMを広く表示できます。
+    </li>
+    <li>
+      終了命令まで実行すると結果が自動保存されます。キャッシュのON/OFFや容量を変えて再実行し、結果を比較できます。設定やRAMの編集時には、CPUとキャッシュが初期化されます。
+    </li>
+  </ol>
+  <div id="instruction-guide"></div>
+  <p>
+    加算・減算は指定番地の数値を使います。「値の設定」だけは数値をそのまま使います。計算中の値は1つです。
+  </p>
+</div>
+<div id="memory-lab" class="memory-lab">
+  <details class="experiment-setup" id="experiment-setup" open>
+    <summary>プログラムと保存 <span id="setup-name">基本の加算</span></summary>
+    <div class="setup-content">
+      <div
+        class="memory-document-bar"
+        role="group"
+        aria-label="プログラムの作成・保存・共有"
+      >
+        <label class="experiment-name" for="experiment-name"
+          ><span>プログラム名</span
+          ><input
+            id="experiment-name"
+            value="基本の加算"
+            maxlength="60"
+            autocomplete="off"
+        /></label>
+        <div class="file-actions">
+          <button id="save-program" type="button">保存</button
+          ><button id="load-program" type="button">読込</button
+          ><button id="new-program" type="button">新規作成</button
+          ><button id="share-program" type="button">共有</button>
+        </div>
+      </div>
+      <p class="experiment-hint" id="preset-hint"></p>
+    </div>
+  </details>
+  <div class="execution-bar control-panel">
+    <div class="run-buttons action-buttons">
+      <button
+        class="button"
+        id="previous"
+        type="button"
+        disabled
+        title="1動作戻る"
+      >
+        <span class="button-icon" aria-hidden="true">←</span> 前へ
+      </button>
+      <button
+        class="button button-primary primary"
+        id="step"
+        type="button"
+        title="1動作ずつ実行"
+        aria-label="次へ（1動作ずつ実行）"
+      >
+        <span class="button-icon" aria-hidden="true">→</span> 次へ
+      </button>
+      <button class="button" id="reset" type="button">
+        <span class="button-icon" aria-hidden="true">↺</span> 最初から
+      </button>
+      <button
+        class="button button-auto"
+        id="run"
+        type="button"
+        aria-pressed="false"
+      >
+        <svg viewBox="0 0 20 20" aria-hidden="true">
+          <path id="play-icon" d="m6 3 10 7-10 7Z" /></svg
+        ><span id="play-label">自動実行</span>
+      </button>
+      <div class="speed-control" id="speed-control">
+        <button
+          class="button speed-button"
+          id="speed-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="speed-panel"
+        >
+          実行速度 <span id="speed-value">0.5秒</span
+          ><span aria-hidden="true">⌄</span>
+        </button>
+        <div
+          id="speed-panel"
+          class="speed-panel"
+          role="group"
+          aria-label="実行速度の設定"
+          hidden
+        >
+          <p class="speed-title">1ステップの間隔</p>
+          <div class="speed-adjustment">
+            <button
+              id="speed-decrease"
+              class="button speed-adjust-button"
+              type="button"
+              aria-label="実行間隔を短くする"
+            >
+              −</button
+            ><label class="speed-input-wrap"
+              ><span class="visually-hidden">1ステップの秒数</span
+              ><input
+                id="speed-input"
+                type="number"
+                value="0.5"
+                min="0.001"
+                step="any"
+                required
+                inputmode="decimal"
+                aria-describedby="speed-error"
+              /><span>秒</span></label
+            ><button
+              id="speed-increase"
+              class="button speed-adjust-button"
+              type="button"
+              aria-label="実行間隔を長くする"
+            >
+              ＋
+            </button>
+          </div>
+          <p id="speed-error" class="speed-error" role="alert" hidden>
+            0.001秒以上で入力してください。0.1秒以上は0.1秒刻みです。
+          </p>
+        </div>
+      </div>
+      <button
+        class="button"
+        id="memory-fullscreen"
+        type="button"
+        aria-pressed="false"
+        aria-controls="memory-lab"
+        aria-label="実験画面を全画面で表示"
+      >
+        <span aria-hidden="true">⛶</span> 全画面
+      </button>
+    </div>
+    <span class="state-badge" id="state">実行前</span>
+  </div>
+  <nav class="fullscreen-sidebar" aria-label="全画面の操作">
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-exit"
+      data-control="exit"
+      aria-label="全画面を終了"
+      title="元に戻す"
+    >
+      ×
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-next"
+      data-control="next"
+      aria-label="次へ（1動作ずつ実行）"
+      title="次へ"
+    >
+      →
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="previous"
+      aria-label="前へ（1動作戻る）"
+      title="前へ"
+      disabled
+    >
+      ←
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="reset"
+      aria-label="最初から"
+      title="最初から"
+    >
+      ↺
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="play"
+      aria-label="自動実行"
+      aria-pressed="false"
+      title="自動実行"
+    >
+      ▶
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="speed"
+      aria-label="実行速度"
+      aria-expanded="false"
+      title="実行速度"
+    >
+      ◷
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-text"
+      data-control="load"
+      aria-label="プログラムを読み込む"
+      title="プログラムを読み込む"
+    >
+      読込
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action fullscreen-text"
+      data-control="save"
+      aria-label="プログラムを保存"
+      title="プログラムを保存"
+    >
+      保存
+    </button>
+    <button
+      type="button"
+      class="fullscreen-action"
+      data-control="records"
+      aria-label="記録と比較"
+      aria-expanded="false"
+      title="記録と比較"
+    >
+      ≡
+    </button>
+  </nav>
+  <p id="notice" role="status" aria-live="polite">
+    16・17番地の数値を変えて、計算を試してみよう。
+  </p>
+  <div class="memory-workspace">
+    <svg
+      id="memory-transfers"
+      class="memory-transfers"
+      aria-hidden="true"
+    ></svg>
+    <section class="panel cpu-panel" aria-labelledby="cpu-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-index">01</span>
+          <h2 id="cpu-heading">CPU</h2>
+        </div>
+        <span class="tiny-label">命令を実行</span>
+      </div>
+      <div class="cpu-value">
+        <span>計算中の値</span><strong id="acc">0</strong>
+      </div>
+      <dl class="cpu-registers">
+        <div>
+          <dt>次に実行する番地</dt>
+          <dd id="pc">0</dd>
+        </div>
+        <div>
+          <dt>現在の命令 <span id="current-address">（—番地）</span></dt>
+          <dd id="current-command">—</dd>
+        </div>
+        <div id="received-field">
+          <dt>CPUが受け取った値</dt>
+          <dd id="received-value">—</dd>
+        </div>
+        <div>
+          <dt>完了した命令数</dt>
+          <dd id="steps">0</dd>
+        </div>
+      </dl>
+      <details class="timing-settings">
+        <summary>仮想アクセス時間</summary>
+        <label
+          >CPU処理 / 命令完了<input
+            id="cpu-time"
+            type="number"
+            value="1"
+            min="0"
+            max="100000"
+            step="any"
+          /><span>ns</span></label
+        ><label
+          >キャッシュ / 参照<input
+            id="cache-time"
+            type="number"
+            value="2"
+            min="0"
+            max="100000"
+            step="any"
+          /><span>ns</span></label
+        ><label
+          >RAM / 転送<input
+            id="ram-time"
+            type="number"
+            value="40"
+            min="0"
+            max="100000"
+            step="any"
+          /><span>ns</span></label
+        >
+      </details>
+    </section>
+    <section class="panel cache-panel" aria-labelledby="cache-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-index">02</span>
+          <h2 id="cache-heading">キャッシュ</h2>
+        </div>
+        <label class="switch"
+          ><input id="cache-enabled" type="checkbox" checked /><span
+            >ON</span
+          ></label
+        >
+      </div>
+      <div class="cache-controls">
+        <label
+          >保持できるブロック<select id="capacity">
+            <option value="1">1個（2番地）</option>
+            <option value="2" selected>2個（4番地）</option>
+            <option value="4">4個（8番地）</option>
+            <option value="8">8個（16番地）</option>
+            <option value="16">16個（32番地）</option>
+          </select></label
+        >
+      </div>
+      <div class="cache-policy">
+        <span>全相連</span><span>LRU</span><span>ライトスルー</span>
+      </div>
+      <div class="transfer-legend" role="group" aria-label="矢印の見方">
+        <span
+          ><i class="legend-request" aria-hidden="true"></i>要求<span
+            class="visually-hidden"
+            >（青い破線）</span
+          ></span
+        >
+        <span
+          ><i class="legend-value" aria-hidden="true"></i>命令・データ<span
+            class="visually-hidden"
+            >（緑の実線）</span
+          ></span
+        >
+      </div>
+      <div class="cache-request-panel">
+        <span
+          id="cache-request-port"
+          class="cache-request-port"
+          aria-hidden="true"
+        ></span>
+        <span
+          id="cache-ram-port"
+          class="cache-request-port cache-ram-port"
+          aria-hidden="true"
+        ></span>
+        <div class="cache-request-content">
+          <p id="cache-request" class="cache-request">CPUからの要求待ち</p>
+        </div>
+      </div>
+      <p class="small-note" id="cache-caption">
+        実行するとブロックが入ります。
+      </p>
+      <div role="group" id="cache-lines" aria-label="保持中のブロック"></div>
+      <div class="access-heading">
+        <h3>この命令のアクセス</h3>
+        <span>押すと理由を表示</span>
+      </div>
+      <div id="access-events">
+        <p class="empty-note">
+          「次へ」を押して、<br />最初の命令を取得しよう。
+        </p>
+      </div>
+      <div id="access-reason" class="access-reason"></div>
+    </section>
+    <section class="panel ram-panel" aria-labelledby="ram-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="panel-index">03</span>
+          <h2 id="ram-heading">主記憶装置 <small>RAM</small></h2>
+        </div>
+        <span class="tiny-label">32番地 · 行を押して編集</span>
+      </div>
+      <div class="ram-legend">
+        <span><i class="legend-next"></i>対象 / 次の命令</span
+        ><span><i class="legend-current"></i>実行した命令</span
+        ><span><i class="legend-access"></i>読出元</span
+        ><span><i class="legend-write"></i>書込先</span>
+      </div>
+      <div
+        role="region"
+        class="ram-scroll"
+        tabindex="0"
+        aria-label="RAMの番地一覧"
+      >
+        <table class="ram-table">
+          <thead>
+            <tr>
+              <th scope="col">番地</th>
+              <th scope="col">現在の内容</th>
+            </tr>
+          </thead>
+          <tbody id="ram-rows"></tbody>
+        </table>
+      </div>
+      <p class="ram-note">
+        行を押して初期内容を編集。反映すると初期RAMからやり直します。2番地で1ブロック。
+      </p>
+    </section>
+  </div>
+  <section class="measurement-panel" aria-labelledby="measurement-heading">
+    <div class="measurement-title">
+      <h2 id="measurement-heading">実行状況</h2>
+      <span>仮想時間 / ns</span>
+    </div>
+    <div class="metrics">
+      <div>
+        <span>合計時間</span><strong id="total-time">0<small>ns</small></strong>
+      </div>
+      <div><span>CPU処理</span><strong id="cpu-metric">0</strong></div>
+      <div><span>メモリ待ち</span><strong id="wait-metric">0</strong></div>
+      <div><span>ヒット率</span><strong id="hit-rate">—</strong></div>
+      <div><span>アクセス回数</span><strong id="access-count">0</strong></div>
+    </div>
+    <div
+      id="time-track"
+      role="img"
+      class="time-track"
+      aria-label="時間の内訳：CPU処理 0 ns、キャッシュ参照 0 ns、RAM転送 0 ns。"
+    >
+      <span id="cpu-track" class="time-cpu"></span
+      ><span id="cache-track" class="time-cache"></span
+      ><span id="ram-track" class="time-ram"></span>
+    </div>
+    <ul class="time-legend" role="list" aria-label="時間の内訳の凡例">
+      <li>
+        <i class="time-key time-cpu" aria-hidden="true"></i><span>CPU処理</span
+        ><strong id="cpu-legend-value">0 ns</strong>
+      </li>
+      <li>
+        <i class="time-key time-cache" aria-hidden="true"></i
+        ><span>キャッシュ参照</span
+        ><strong id="cache-legend-value">0 ns</strong>
+      </li>
+      <li>
+        <i class="time-key time-ram" aria-hidden="true"></i><span>RAM転送</span
+        ><strong id="ram-legend-value">0 ns</strong>
+      </li>
+    </ul>
+    <p id="access-summary">命令取得 0 · 読出 0 · 書込 0　 /　RAM転送 0</p>
+  </section>
+  <details class="memory-records" id="comparison-records" open>
+    <summary>記録と比較 <span id="record-count">0件</span></summary>
+    <div class="records-content">
+      <section class="comparison-panel" aria-labelledby="comparison-heading">
+        <div class="comparison-heading">
+          <div>
+            <p class="eyebrow">EXPERIMENT RECORDS</p>
+            <h2 id="comparison-heading">条件を変えて、比べよう。</h2>
+          </div>
+          <div>
+            <button id="save-result" disabled>途中の結果を保存</button
+            ><button id="clear-results">記録を消す</button>
+          </div>
+        </div>
+        <p class="small-note">
+          終了命令まで実行すると、結果と初期条件を自動保存します。途中の結果はボタンで保存できます。記録は最新12件をこのブラウザに保存。各記録の「条件を復元」で初期RAMと設定を読み戻せます。同じ初期RAM・開始番地の記録には同じ条件番号が付きます。
+        </p>
+        <div class="comparison-scroll">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>記録 / 初期条件</th>
+                <th>キャッシュ</th>
+                <th>結果 / 命令数</th>
+                <th>合計時間</th>
+                <th>CPU / キャッシュ / RAM（ns）</th>
+                <th>ヒット率</th>
+                <th>アクセス / RAM転送</th>
+                <th><span class="visually-hidden">操作</span></th>
+              </tr>
+            </thead>
+            <tbody id="result-rows"></tbody>
+          </table>
+        </div>
+        <p id="comparison-empty" class="empty-note">
+          まず1回実行して、結果を残そう。次はキャッシュをOFFにしてみよう。
+        </p>
+      </section>
+    </div>
+  </details>
+</div>
+<details class="model-notes">
+  <summary>この実験のしくみ・時間の数え方</summary>
+  <p>
+    RAMの行を押すと、現在の内容を確認しながら初期内容を編集できます。「次へ」で1動作ずつ進み、「前へ」でCPU・RAM・キャッシュ・計測値を直前の段階へ戻します。青い破線は番地の要求、緑の実線は命令やデータの転送です。命令取得・読み出し・書き込みで色の意味は変わりません。キャッシュのヒット／ミスは要求欄で太字と色を使って表示します。開始番地は常に0です。対象のRAM行は自動で表示し、背景色で強調します。キャッシュヒット時のRAM行の表示は参照先の確認用で、RAMへの転送は発生しません。ミスの場合も、まずCPUからキャッシュへ要求し、ミス判定後にRAMへブロックを要求します。キャッシュの枠には要求を処理する制御を含めて表しています。
+  </p>
+  <p>
+    命令と数値は同じRAM（0〜31番地）に置きます。命令取得とデータ読み書きは1つのキャッシュを共有し、2番地単位のブロックをどの枠にも保持できます。最近使われていないブロックから置き換えます（LRU）。書込ミスでもブロックを取得し（ライトアロケート）、RAMにもその都度書き込みます（ライトスルー）。書き込みによって命令が数値に変わる場合もあります。
+  </p>
+  <p>
+    ヒット＝キャッシュ時間。読出ミス＝キャッシュ時間＋RAM転送時間。書込ヒット＝キャッシュ時間＋RAM転送時間。書込ミス＝キャッシュ時間＋RAM転送時間×2（ブロック取得と書込）。OFF時は1参照につきRAM転送時間。ブロック取得は2番地まとめて1転送と数えます。合計＝命令数×CPU処理時間＋全アクセスの待ち時間。表示は動作ごとに分けますが、CPU処理時間は命令完了時に1回だけ計上します。読み出しは、ヒット時はキャッシュ
+    → CPU、ミス時はRAM → キャッシュ →
+    CPU。RAMからの取得を2回数えているわけではありません。実機では、必要な値をブロック取得中に先にCPUへ返す場合もあります。書き込みは同じCPUの値をキャッシュとRAMへ反映するライトスルーです。実機のコントローラ・書込バッファ・並行処理は省き、教材では順番に表示して時間を加算します。表示の速さは仮想時間に影響しません。
+  </p>
+  <p>
+    実行状況のメーターは、CPU処理・キャッシュ参照・RAM転送にかかった時間の割合です。凡例の数値はそれぞれの仮想時間を表します。キャッシュ参照にはミスを調べた時間も含みます。RAM転送にはミス時のブロック取得、ライトスルーの書き込み、キャッシュOFF時の直接アクセスを含みます。青の無地・オレンジの斜線・紫の点模様を使い、色だけでなく模様と文字でも区別できます。
+  </p>
+  <p>
+    値は安全な整数の範囲で扱います。自動実行は10,000命令ごとに一時停止。RAM・設定の変更後はキャッシュを空にし、計算中の値を0に戻します。保存済みの比較記録は保持します。
+  </p>
+</details>
+<a class="lab-back" href="../#algorithm">← Interactive Lab の一覧へ</a>
+<noscript>この実験にはJavaScriptを有効にしてください。</noscript>
+
+</main>
+<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a>
+<a href="../../study-guide.html">使い方</a>
+<a href="../../books/">書籍案内</a>
+<a href="../../about.html">このサイトについて</a>
+<a href="../../privacy.html">プライバシーポリシー</a>
+<a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<script type="module" src="../navigation.mjs?v=1"></script>
+</body></html>

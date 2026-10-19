@@ -85,6 +85,21 @@ test("Studio page and referrer URLs omit shared fragments while retaining query 
   }
 });
 
+test("CPU memory sharing keeps program content out of analytics URLs", () => {
+  for (const path of ["", "index.html"]) {
+    const { window, run } = analyticsPage({
+      href: `https://mei-chan-nel.com/lab/cpu-memory/${path}?from=lab#cm1.program-content`,
+      referrer: "https://mei-chan-nel.com/lab/cpu-memory/#cm1.previous-program",
+    });
+    run();
+    const config = window.dataLayer.find((args) => args[0] === "config")[2];
+    assert.equal(config.page_location, `https://mei-chan-nel.com/lab/cpu-memory/${path}?from=lab`);
+    assert.equal(config.page_referrer, "https://mei-chan-nel.com/lab/cpu-memory/");
+  }
+  const html = readFileSync(new URL("lab/cpu-memory/index.html", root), "utf8");
+  assert.match(html, /site-analytics\.js\?v=2026102001/u);
+});
+
 function* htmlPages(directory) {
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     if (entry.name.startsWith(".") || ["node_modules", "projects"].includes(entry.name)) continue;

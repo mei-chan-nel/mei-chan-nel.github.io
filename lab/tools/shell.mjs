@@ -55,7 +55,7 @@ export function renderPage({
 <html lang="ja"><head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<script src="${prefix}assets/site-analytics.js?v=2026101201" defer></script>
+<script src="${prefix}assets/site-analytics.js?v=${slug === "cpu-memory" ? "2026102001" : "2026101201"}" defer></script>
 <title>${title}</title>
 <meta name="description" content="${description}" />
 <meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
