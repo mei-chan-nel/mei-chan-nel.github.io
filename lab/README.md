@@ -21,6 +21,8 @@
 
 CPUの実行待ちは、メモリを保持したまま処理の順番を待つ状態です。メモリ総量は1024 MBで、必要な空きが足りない起動・写真加工は「メモリ待ち」として保留され、空きができると自動で進みます。一時停止中はOSの再生後に進みます。初期状態ではOSと常駐アプリが448 MBを使用します。Web・音楽・写真も起動すると1008 MBになり、写真加工の作業用200 MBは確保待ちになります。Webを終了すれば空き216 MBになり、加工が自動で始まります。また、写真・音楽と加工用メモリで1008 MBを使用している間は、Webの起動が保留され、加工完了後に自動起動します。
 
+「全画面」は画像圧縮・色の見え方Labと同じく、対応環境ではFullscreen APIを使い、埋め込み環境などでは画面いっぱいのページ内表示に切り替えます。同じ操作部とアプリを使い、再生・起動・表示・入力状態を引き継ぎます。1〜3の領域を画面内に配置し、狭い画面では内容を枠内でスクロールできます。終了ボタン・Escによる通常表示への復帰、元のスクロール位置とキーボードフォーカスの復帰に対応します。
+
 基本操作は [使い方ページ](../study-guide.html#lab) にまとめています。
 
 ## 構成
@@ -36,6 +38,7 @@ node lab/tools/build-pages.mjs
 node lab/tools/build-pages.mjs --check
 node lab/os-work/simulation.test.mjs
 node lab/os-work/audio-controller.test.mjs
+node lab/os-work/fullscreen.test.mjs
 python3 scripts/preview_site.py --host 127.0.0.1 --port 8773 --app-root /workspace/info1-quiz-app
 ```
 

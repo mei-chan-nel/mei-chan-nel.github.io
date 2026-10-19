@@ -10,6 +10,7 @@
 <link rel="icon" href="../icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="./os-work.css?v=6" />
+<link rel="stylesheet" href="./fullscreen.css?v=1" />
 </head>
 <body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -17,8 +18,9 @@
 <main id="main-content" class="os-lab">
 <nav class="breadcrumb" aria-label="パンくず"><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>OSの仕事</span></nav>
 <header class="os-heading"><div><p class="eyebrow">INTERACTIVE LAB / COMPUTER SYSTEMS</p><h1>OSの仕事<span class="heading-dot">.</span></h1></div><p>アプリを動かす。<br />その裏で、OSは何をしている？</p></header>
+<div class="os-workspace" id="os-workspace" role="region" aria-label="OSの仕事の操作と観察">
 <section class="transport" aria-label="シミュレーション操作">
-<div class="transport-buttons"><button id="play" class="primary" type="button">▶ 再生</button><button id="reset" type="button" class="subtle">↺ リセット</button></div>
+<div class="transport-buttons"><button id="play" class="primary" type="button">▶ 再生</button><button id="reset" type="button" class="subtle">↺ リセット</button><button id="fullscreen-toggle" type="button" aria-pressed="false" aria-controls="os-workspace">全画面</button></div>
 <div class="clock-controls"><span class="sim-clock">仮想時間 <strong id="time">0</strong> <small>tick</small></span></div>
 </section>
 <p class="first-hint" id="first-hint">アプリを起動して「再生」。一定の速さで進み、「一時停止」でじっくり観察できます。表示を切り替えても、ほかのアプリは起動したままです。</p>
@@ -48,6 +50,7 @@
 <div id="allocation-notice" class="allocation-notice" role="status" aria-live="polite" hidden><strong id="allocation-title"></strong><p id="allocation-message"></p></div>
 </section>
 <div class="insight" role="status" aria-live="polite" aria-atomic="true"><span aria-hidden="true">↳</span><p id="explanation">起動するとメモリを確保。CPUが必要なときだけ、OSが順番に時間を割り当てます。</p></div>
+</div>
 <details class="details-panel" id="state-details"><summary>プロセスの状態・イベントログを見る</summary><div class="details-body"><p class="state-key"><strong>実行中</strong>＝CPUを使用　 <strong>実行待ち</strong>＝CPUの順番待ち　 <strong>イベント待ち</strong>＝入力・通信・音声出力などを待つ　 <strong>メモリ待ち</strong>＝必要な空き領域を待つ</p><div class="table-scroll"><table><caption class="visually-hidden">現在の各プロセス</caption><thead><tr><th>プロセス</th><th>起動</th><th>表示</th><th>状態</th><th>メモリ</th></tr></thead><tbody id="process-table"></tbody></table></div><p id="pending-inputs"></p><h3>イベントログ <small>新しい順 / 直近80件</small></h3><ol id="event-log" class="event-log"></ol></div></details>
 <details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes">
 <ol>
@@ -73,5 +76,5 @@
 </main>
 <footer class="os-footer">情報Ⅰ Study Atlas <span>知識を、ひろげ、つなげる</span></footer>
 <script type="module" src="../navigation.mjs?v=1"></script>
-<script type="module" src="./app.mjs?v=5"></script>
+<script type="module" src="./app.mjs?v=6"></script>
 </body></html>

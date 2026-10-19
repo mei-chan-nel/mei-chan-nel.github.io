@@ -6,6 +6,7 @@ import {
 } from "./simulation.mjs";
 import { RecordedAudioController } from "./audio-controller.mjs";
 import { tracks } from "./audio/tracks.mjs";
+import { initFullscreen } from "./fullscreen.mjs";
 
 const simulation = new OSSimulation();
 for (const [id, config] of Object.entries(APP_CONFIG))
@@ -749,5 +750,6 @@ function animate(timestamp) {
 makeLauncher();
 makeBackgroundLauncher();
 makeAppViews();
+initFullscreen({ panel: $("os-workspace"), button: $("fullscreen-toggle") });
 setPlaying(false);
 requestAnimationFrame(animate);
