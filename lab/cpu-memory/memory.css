@@ -1134,6 +1134,7 @@
   line-height: 1.5;
 }
 .model-notes .timing-table-wrap {
+  max-width: 560px;
   overflow-x: auto;
   margin: 8px 0 12px;
 }
