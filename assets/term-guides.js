@@ -198,6 +198,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "論理演算": {
     "url": "/terms/logic-operation/"
   },
+  "量子化": {
+    "url": "/terms/quantization/"
+  },
   "電子メール": {
     "url": "/terms/email/"
   },

@@ -215,6 +215,7 @@ def main() -> int:
         ("lab/thinking-tools/index.html", "after-interactive-lab-main"),
         ("lab/radix-conversion/index.html", "after-interactive-lab-main"),
         ("lab/digital-image/index.html", "after-interactive-lab-main"),
+        ("lab/image-compression/index.html", "after-interactive-lab-main"),
         ("lab/digital-audio/index.html", "after-interactive-lab-main"),
         ("lab/logic-circuit/index.html", "after-interactive-lab-main"),
         ("lab/flowchart/index.html", "after-interactive-lab-main"),
