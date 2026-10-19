@@ -24,7 +24,7 @@ class FakeMedia {
     this.playCalls += 1;
     const promise = new Promise((resolve, reject) => {
       this.requests.push({
-        resolve: () => { this.paused = false; resolve(); },
+        resolve: () => { this.readyState = 4; this.paused = false; resolve(); },
         reject: (name) => reject(Object.assign(new Error(name), { name })),
       });
     });
@@ -40,8 +40,9 @@ const snapshot = ({ running = true, playing = true, buffer = 16, elapsed = 0, vi
 const settle = async () => { await Promise.resolve(); await Promise.resolve(); };
 const create = () => {
   const media = new FakeMedia();
-  const controller = new RecordedAudioController({ media });
-  return { media, controller };
+  let time = 0;
+  const controller = new RecordedAudioController({ media, now: () => time });
+  return { media, controller, advance: (milliseconds) => { time += milliseconds; } };
 };
 
 test('one recording keeps playing through view and CPU changes without repeated play calls', async () => {
@@ -174,8 +175,8 @@ test('volume and mute preferences persist across close and reset', async () => {
   assert.equal(media.volume, 0);
 });
 
-test('virtual elapsed time sets position, corrects substantial drift and wraps at the recording end', async () => {
-  const { media, controller } = create();
+test('virtual time aligns position but rate-limits drift correction and wraps at the recording end', async () => {
+  const { media, controller, advance } = create();
   controller.sync(snapshot({ elapsed: 100 }), true);
   const unlocked = controller.unlock();
   media.requests[0].resolve();
@@ -186,7 +187,11 @@ test('virtual elapsed time sets position, corrects substantial drift and wraps a
   assert.equal(media.currentTime, 45.5, 'Minor wall-clock drift does not cause constant seeking.');
   media.currentTime = 30;
   controller.sync(snapshot({ elapsed: 100 }), true);
+  assert.equal(media.currentTime, 30, 'Repeated render calls cannot immediately seek again.');
+  advance(2000);
+  controller.sync(snapshot({ elapsed: 100 }), true);
   assert.equal(media.currentTime, 45);
+  advance(2000);
   controller.sync(snapshot({ elapsed: 140 }), true);
   assert.equal(media.currentTime, 3);
 });
@@ -206,7 +211,7 @@ test('reset clears position immediately and after an old play promise resolves',
 });
 
 test('quick pause and resume recover when the previous play request was aborted', async () => {
-  const { media, controller } = create();
+  const { media, controller, advance } = create();
   controller.sync(snapshot(), true);
   const first = controller.unlock();
   controller.sync(snapshot(), false);
@@ -214,6 +219,10 @@ test('quick pause and resume recover when the previous play request was aborted'
   assert.equal(media.playCalls, 1);
   media.requests[0].reject('AbortError');
   assert.equal(await first, false);
+  assert.equal(media.playCalls, 1);
+  advance(499); controller.sync(snapshot(), true);
+  assert.equal(media.playCalls, 1);
+  advance(1); controller.sync(snapshot(), true);
   assert.equal(media.playCalls, 2);
   media.requests[1].resolve();
   await settle();
@@ -231,6 +240,8 @@ test('reset then restart waits for an obsolete pending request before starting a
   assert.equal(media.playCalls, 1);
   media.requests[0].resolve();
   await first;
+  assert.equal(media.playCalls, 1, 'A stale promise must not recursively restart playback.');
+  controller.sync(snapshot(), true);
   assert.equal(media.playCalls, 2);
   media.requests[1].resolve();
   await settle();
@@ -472,4 +483,114 @@ test('starting music during photo processing without Web recovers from a natural
     }
   }
   assert.fail('Expected a real model underrun and automatic recovery.');
+});
+
+test('repeated browser AbortErrors cannot start a recursive play loop', async () => {
+  const { media, controller } = create();
+  media.play = () => {
+    media.playCalls++;
+    // A sentinel stops the old implementation's runaway microtask loop.
+    const name = media.playCalls <= 64 ? 'AbortError' : 'NotSupportedError';
+    return Promise.reject(Object.assign(new Error(name), { name }));
+  };
+  controller.sync(snapshot(), true);
+  await controller.unlock();
+  await new Promise(setImmediate);
+  assert.equal(media.playCalls, 1, 'A rejected request must yield to the application clock.');
+});
+
+test('delayed currentTime readback and canplay events cannot form a seek loop', async () => {
+  const { media, controller } = create();
+  let position = 0;
+  let seeks = 0;
+  Object.defineProperty(media, 'currentTime', {
+    get() { return position; },
+    set(value) {
+      seeks++;
+      // Real seeking is asynchronous. Simulate canplay before readback catches
+      // up; the sentinel bounds the old implementation for this regression.
+      if (seeks > 64) position = value;
+      queueMicrotask(() => media.emit('canplay'));
+    },
+  });
+  controller.sync(snapshot({ elapsed: 10 }), true);
+  void controller.unlock();
+  await new Promise(setImmediate);
+  assert.equal(seeks, 1, 'Ready events must not request another position correction.');
+});
+
+test('persistent aborted playback is rate-limited and stops after three attempts', async () => {
+  const { media, controller, advance } = create();
+  media.play = () => {
+    media.playCalls++;
+    return Promise.reject(Object.assign(new Error('interrupted'), { name: 'AbortError' }));
+  };
+  controller.sync(snapshot(), true);
+  await controller.unlock();
+  for (let i = 0; i < 1000; i++) {
+    media.emit('canplay'); media.emit('canplaythrough');
+    controller.sync(snapshot(), true);
+  }
+  assert.equal(media.playCalls, 1);
+  for (let i = 0; i < 20; i++) {
+    advance(500); controller.sync(snapshot(), true); await settle();
+  }
+  assert.equal(media.playCalls, 3);
+  assert.equal(controller.status, 'blocked');
+  assert.equal(await controller.unlock(), false);
+  assert.equal(media.playCalls, 4, 'An explicit user gesture may start a new bounded attempt.');
+});
+
+test('a pending native seek waits for seeked and consumes its intent only once', async () => {
+  const { media, controller } = create();
+  let position = 0;
+  let seeks = 0;
+  Object.defineProperty(media, 'currentTime', {
+    get() { return position; },
+    set(value) { seeks++; position = value; },
+  });
+  media.seeking = true;
+  controller.sync(snapshot({ elapsed: 10 }), true);
+  for (let i = 0; i < 1000; i++) media.emit('canplay');
+  assert.equal(seeks, 0);
+  media.seeking = false; media.emit('seeked');
+  for (let i = 0; i < 1000; i++) media.emit('canplaythrough');
+  assert.equal(seeks, 1);
+  assert.equal(position, 4.5);
+});
+
+test('repeated paused snapshots do not keep issuing native pause operations', async () => {
+  const { media, controller } = create();
+  controller.sync(snapshot(), true);
+  const request = controller.unlock(); media.requests[0].resolve(); await request;
+  controller.sync(snapshot(), false);
+  const pauses = media.pauseCalls;
+  for (let i = 0; i < 5000; i++) controller.sync(snapshot(), false);
+  assert.equal(media.pauseCalls, pauses);
+});
+
+test('intentional OS pause does not schedule playback retries or show a retry error', async () => {
+  const { media, controller, advance } = create();
+  controller.sync(snapshot(), true);
+  const request = controller.unlock();
+  controller.sync(snapshot(), false);
+  media.requests[0].reject('AbortError'); await request;
+  for (let i = 0; i < 10; i++) { advance(500); controller.sync(snapshot(), false); }
+  assert.equal(media.playCalls, 1);
+  assert.equal(controller.status, 'ready');
+  assert.equal(media.muted, true);
+});
+
+test('a late playing event after a media error remains silent and stops', async () => {
+  const { media, controller } = create();
+  controller.sync(snapshot(), true);
+  const request = controller.unlock();
+  media.emit('error');
+  media.requests[0].resolve(); await request;
+  controller.sync(snapshot(), true);
+  media.paused = false; media.emit('playing');
+  assert.equal(controller.status, 'error');
+  assert.equal(media.muted, true);
+  assert.equal(media.paused, true);
+  assert.equal(media.playCalls, 1);
 });

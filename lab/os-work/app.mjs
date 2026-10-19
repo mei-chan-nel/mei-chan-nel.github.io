@@ -4,7 +4,7 @@ import {
   FOREGROUND_IDS,
   BACKGROUND_IDS,
 } from "./simulation.mjs";
-import { RecordedAudioController } from "./audio-controller.mjs?v=2";
+import { RecordedAudioController } from "./audio-controller.mjs?v=3";
 import { tracks } from "./audio/tracks.mjs";
 import { initFullscreen } from "./fullscreen.mjs";
 
@@ -578,11 +578,13 @@ function renderAudioControls() {
     feedback.textContent =
       soundtrack.status === "error"
         ? "音源を読み込めませんでした。ページを再読み込みしてください。"
-        : soundtrack.muted || soundtrack.volume === 0
-          ? "消音中。音声バッファの動きは観察できます。"
-          : soundtrack.status === "loading" && snapshot.apps.music.music.playing
-            ? "音源を読み込んでいます。"
-            : "";
+        : soundtrack.status === "retrying"
+          ? "ブラウザで音声が中断されました。間を置いて再開します。"
+          : soundtrack.muted || soundtrack.volume === 0
+            ? "消音中。音声バッファの動きは観察できます。"
+            : soundtrack.status === "loading" && snapshot.apps.music.music.playing
+              ? "音源を読み込んでいます。"
+              : "";
 }
 function renderHistory() {
   const entries = snapshot.history.slice(-24);

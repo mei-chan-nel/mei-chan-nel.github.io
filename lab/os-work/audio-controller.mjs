@@ -3,7 +3,7 @@
  * The media element belongs to the page, never to an app window or CPU slice.
  */
 export class RecordedAudioController {
-  constructor({ media, tickSeconds = 0.45, onStatus } = {}) {
+  constructor({ media, tickSeconds = 0.45, onStatus, now = () => performance.now() } = {}) {
     if (!media || typeof media.play !== 'function' || typeof media.pause !== 'function') {
       throw new TypeError('A persistent HTML media element is required.');
     }
@@ -24,18 +24,21 @@ export class RecordedAudioController {
     this._gestureSeen = false;
     this._blocked = false;
     this._failed = false;
+    this._now = now;
+    this._retryAfter = 0;
+    this._abortCount = 0;
+    this._queuedSeek = null;
+    this._lastSeekAt = -Infinity;
     media.loop = true;
     media.preload = 'auto';
     this._applySoundSettings();
 
     const ready = () => {
-      if (this._audible || !this._desired) this._align();
-      if (!this._blocked && !this._failed) this._setStatus('ready');
-      this._reconcile();
+      this._flushSeek();
+      if (!this._blocked && !this._failed && this.status !== 'retrying') this._setStatus('ready');
     };
-    media.addEventListener?.('loadedmetadata', () => {
-      if (this._audible || !this._desired) this._align();
-    });
+    media.addEventListener?.('loadedmetadata', () => this._flushSeek());
+    media.addEventListener?.('seeked', () => this._flushSeek());
     media.addEventListener?.('canplay', ready);
     media.addEventListener?.('canplaythrough', ready);
     media.addEventListener?.('waiting', () => {
@@ -44,9 +47,8 @@ export class RecordedAudioController {
     media.addEventListener?.('playing', () => {
       // A pending play can finish after a close, reset or pause. Mute before
       // stopping it, including when the browser dispatches this event first.
-      if (!this._desired) {
-        this.media.muted = true;
-        this.media.pause();
+      if (!this._desired || this._failed || this._blocked) {
+        this._pause();
       } else if (!this._failed) this._setStatus('ready');
     });
     media.addEventListener?.('error', () => {
@@ -63,11 +65,12 @@ export class RecordedAudioController {
   }
 
   _applySoundSettings() {
-    this.media.volume = this.volume;
+    if (this.media.volume !== this.volume) this.media.volume = this.volume;
     // Keep an already started transport alive during simulated underruns.
     // Silence is immediate; each simulated underrun no longer needs a new
     // play() request outside the original user gesture.
-    this.media.muted = this.muted || !this._audible;
+    const muted = this.muted || !this._audible || this._failed || this._blocked;
+    if (this.media.muted !== muted) this.media.muted = muted;
   }
 
   setVolume(value) {
@@ -108,6 +111,10 @@ export class RecordedAudioController {
     this._pending = null;
     this._blocked = false;
     this._failed = false;
+    this._retryAfter = 0;
+    this._abortCount = 0;
+    this._queuedSeek = null;
+    this._lastSeekAt = -Infinity;
     this._sourceChanging = true;
     this._pause();
     this._setStatus('loading');
@@ -129,6 +136,8 @@ export class RecordedAudioController {
   unlock() {
     this._gestureSeen = true;
     this._blocked = false;
+    this._retryAfter = 0;
+    this._abortCount = 0;
     if (this._failed) return Promise.resolve(false);
     if (this._pending) return this._pending.promise;
     if (!this.media.paused && this._desired) return Promise.resolve(true);
@@ -143,6 +152,7 @@ export class RecordedAudioController {
     this._elapsed = Math.max(0, Number(music?.elapsed) || 0);
     this._desired = Boolean(!this._sourceChanging && simulationPlaying && app?.running && music?.playing);
     this._audible = this._desired && music.buffer > 0;
+    if (this._desired && !this._audible) this._queuedSeek = null;
     // Silence before any seek on depletion/pause. On recovery, seek to the
     // frozen virtual position before unmuting the continuous recording.
     if (!this._audible) this._applySoundSettings();
@@ -159,9 +169,9 @@ export class RecordedAudioController {
   }
 
   _reconcile() {
-    if (!this._desired || this._failed || this._blocked || !this._gestureSeen) return;
+    if (!this._desired || this._failed || this._blocked || !this._gestureSeen
+      || this._now() < this._retryAfter) return;
     this._applySoundSettings();
-    if (this._audible) this._align();
     if (!this._pending && this.media.paused) this._beginPlay(false);
   }
 
@@ -179,16 +189,30 @@ export class RecordedAudioController {
     if (Number.isFinite(duration) && duration > 0 && difference <= duration) {
       difference = Math.min(difference, duration - difference);
     }
-    if (force || !Number.isFinite(current) || difference > 0.9) {
-      // Some browsers disallow seeking until metadata is available. The
-      // loadedmetadata/canplay listeners retry with the same virtual position.
-      try { this.media.currentTime = target; } catch { /* Not ready to seek. */ }
-    }
+    if (difference < 0.02) return;
+    if (!force && Number.isFinite(current)
+      && (difference <= 0.9 || this._now() - this._lastSeekAt < 2000)) return;
+    this._queuedSeek = target;
+    this._flushSeek();
+  }
+
+  _flushSeek() {
+    if (this._queuedSeek === null || this._failed || this._blocked
+      || this.media.seeking || this.media.readyState < 1) return;
+    const target = this._queuedSeek;
+    // Consume the intent before setting currentTime: seeking can dispatch
+    // ready events while currentTime still reports its previous value.
+    this._queuedSeek = null;
+    this._lastSeekAt = this._now();
+    try { this.media.currentTime = target; } catch { /* A later state change may align again. */ }
   }
 
   _pause() {
-    this.media.muted = true;
-    this.media.pause();
+    if (!this.media.muted) this.media.muted = true;
+    if (!this.media.paused || (this._pending && !this._pending.cancelled)) {
+      if (this._pending) this._pending.cancelled = true;
+      this.media.pause();
+    }
   }
 
   _beginPlay(prime) {
@@ -196,6 +220,7 @@ export class RecordedAudioController {
     const request = { epoch: this._epoch, sourceEpoch: this._sourceEpoch, prime, promise: null };
     this._pending = request;
     this._applySoundSettings();
+    this._flushSeek();
     if (this.media.readyState < 2) this._setStatus('loading');
     let result;
     try { result = this.media.play(); }
@@ -209,34 +234,40 @@ export class RecordedAudioController {
         return false;
       }
       if (this._pending === request) this._pending = null;
+      this._abortCount = 0;
+      this._retryAfter = 0;
       if (request.epoch !== this._epoch || !this._desired || this._failed) {
         this._pause();
         this._align(true);
       } else {
         this._applySoundSettings();
-        if (this._audible) this._align();
+        if (this._audible) this._align(true);
       }
       if (!this._blocked && !this._failed) this._setStatus('ready');
-      // A reset can invalidate this request while a later gesture has already
-      // started a new simulated session. Reconcile only after the old play ends.
-      if (request.epoch !== this._epoch) this._reconcile();
+      // Application ticks reconcile a later session. Never restart playback
+      // recursively from a media promise or a media event.
       return true;
     }, (error) => {
       if (request.sourceEpoch !== this._sourceEpoch) return false;
       if (this._pending === request) this._pending = null;
       this._pause();
       if (request.epoch !== this._epoch) {
-        this._reconcile();
         return false;
       }
       if (error?.name === 'NotAllowedError') {
         this._blocked = true;
         this._setStatus('blocked');
       } else if (error?.name === 'AbortError') {
-        if (!this._failed) this._setStatus(this.media.readyState >= 2 ? 'ready' : 'loading');
-        // pause() may have aborted a request that was needed again before its
-        // promise settled. It is safe to retry without duplicating a request.
-        this._reconcile();
+        if (!this._desired) {
+          if (!this._failed) this._setStatus(this.media.readyState >= 2 ? 'ready' : 'loading');
+          return false;
+        }
+        this._abortCount++;
+        this._retryAfter = this._now() + 500;
+        if (this._abortCount >= 3) this._blocked = true;
+        if (!this._failed) this._setStatus(this._blocked ? 'blocked' : 'retrying');
+        // At most three attempts, separated by application ticks and a delay.
+        // Repeated immediate rejections must not monopolize the browser thread.
       } else {
         this._failed = true;
         this._setStatus('error');
@@ -251,6 +282,9 @@ export class RecordedAudioController {
     this._desired = false;
     this._audible = false;
     this._elapsed = 0;
+    this._queuedSeek = null;
+    this._abortCount = 0;
+    this._retryAfter = 0;
     this._pause();
     this._align(true);
     // Preserve volume/mute choices and any useful browser playback permission.
