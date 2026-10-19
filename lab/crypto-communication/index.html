@@ -9,7 +9,7 @@
     <title>暗号通信シミュレーター｜Interactive Lab｜情報Ⅰ Study Atlas</title>
     <meta
       name="description"
-      content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・認証局CA・電子署名の役割を実験する暗号通信クエスト。"
+      content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・認証局CA・電子署名・認証タグの役割を実験する暗号通信クエスト。"
     />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="theme-color" content="#102f35" />
@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="./viewport.css?v=5" />
     <link rel="stylesheet" href="./story.css?v=10" />
     <link rel="stylesheet" href="./quest.css?v=6" />
-    <link rel="stylesheet" href="./unified.css?v=8" />
+    <link rel="stylesheet" href="./unified.css?v=9" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -95,7 +95,7 @@
               ><button type="button" data-round="2">
                 <span>ROUND 3</span>認証局 CA</button
               ><button type="button" data-round="3">
-                <span>ROUND 4</span>電子署名
+                <span>ROUND 4</span>署名・タグ
               </button>
             </nav>
             <div class="level-heading">
@@ -197,7 +197,7 @@
                         <span>B</span>ob
                       </h3>
                     </article>
-                    <div class="packet-sprite" id="packet-sprite">
+                    <div class="packet-sprite" id="packet-sprite" role="img">
                       <div class="packet-contents">
                         <div class="packet-body">
                           <svg
@@ -209,7 +209,7 @@
                           >
                             <use
                               id="packet-icon"
-                              href="./packets.svg#key"
+                              href="./packets.svg?v=2#key"
                             ></use>
                           </svg>
                           <b id="packet-short">共通鍵</b>
@@ -225,10 +225,28 @@
                             height="24"
                             aria-hidden="true"
                           >
-                            <use href="./packets.svg#signature"></use>
+                            <use href="./packets.svg?v=2#signature"></use>
                           </svg>
                           <b id="signature-owner">Aliceの電子署名</b>
-                          <span id="signature-note">本文と一緒に暗号化</span>
+                          <span id="signature-note">共通鍵の配送を認証</span>
+                        </div>
+                        <div
+                          id="authentication-tag-attachment"
+                          class="authentication-tag-attachment"
+                          hidden
+                        >
+                          <svg
+                            viewBox="0 0 48 32"
+                            width="36"
+                            height="24"
+                            aria-hidden="true"
+                          >
+                            <use
+                              href="./packets.svg?v=2#authentication-tag"
+                            ></use>
+                          </svg>
+                          <b>認証タグ</b>
+                          <span>共通鍵で本文を保護</span>
                         </div>
                       </div>
                     </div>
@@ -236,6 +254,11 @@
                   <div class="packet-card">
                     <span id="packet-context">Charlieの中継機</span
                     ><strong id="packet-title"></strong
+                    ><span
+                      id="packet-protection"
+                      class="packet-protection"
+                      hidden
+                    ></span
                     ><span
                       id="browser-trust"
                       class="browser-trust"
@@ -247,7 +270,7 @@
                         height="16"
                         aria-hidden="true"
                       >
-                        <use href="./packets.svg#browser-root"></use></svg
+                        <use href="./packets.svg?v=2#browser-root"></use></svg
                       ><span>CA鍵は事前登録</span></span
                     >
                     <details>
@@ -415,14 +438,14 @@
             <span>02</span>
             <h3>完全性</h3>
             <p>
-              内容が変わっていないと確かめる。電子署名は、署名後の本文の変更を検出する。
+              内容が変わっていないと確かめる。第4ラウンドでは、認証タグが本文の変更を検出する。
             </p>
           </article>
           <article>
             <span>03</span>
             <h3>認証</h3>
             <p>
-              誰の鍵・誰からの通信かを確かめる。公開鍵と持ち主の結び付きを、信頼できる情報で確認する。
+              誰の鍵・誰からの通信かを確かめる。CAで公開鍵の持ち主を確認し、Aliceの署名で共通鍵の配送を認証する。
             </p>
           </article>
         </div>
@@ -433,10 +456,13 @@
           Charlieが通信経路の中継機を操作できる状況を仮定しています。中継機を通るデータは自動で記録されます。Charlieは、AliceやBobの秘密鍵を盗めません。
         </p>
         <p>
-          暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えい・再送攻撃は扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1〜3ラウンドでは送信者を確かめる仕組みを設けていません。実際には認証付き暗号なども使われます。
+          暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えいは扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1〜3ラウンドでは本文の送信者を確かめる仕組みを設けていません。
         </p>
         <p>
-          第3ラウンドでは、認証局の証明書とブラウザ内のCA公開鍵でAlice・Bobの鍵を確認します。Aliceの共通鍵は漏れなくなりますが、Charlieが自作の共通鍵と本文を送るなりすましは残ります。第4ラウンドでは、BobがCAで確認したAliceの公開鍵を使って本文の電子署名も検証し、偽の本文を拒否します。署名自体は本文を隠しません。実験データはこの画面のメモリー内だけに保持します。
+          第3ラウンドでは、認証局の証明書とブラウザ内のCA公開鍵でAlice・Bobの鍵を確認します。Aliceの共通鍵は漏れなくなりますが、Charlieが自作の共通鍵と本文を送るなりすましは残ります。第4ラウンドでは、Aliceが暗号化した共通鍵とAlice・Bobの名前・通信IDに署名し、BobがCAで確認したAliceの公開鍵で検証します。本文はその共通鍵による認証付き暗号（AEAD）で保護します。署名は鍵配送を認証し、認証タグは本文の変更を検出します。
+        </p>
+        <p>
+          実際のTLSでは、共通鍵をそのまま署名して配送するのではなく、鍵交換を含む通信履歴を認証して鍵を共有します。このゲームは鍵配送の署名と本文の認証タグに役割を分けた教育用モデルです。通信IDや本文の番号も検証に含めますが、実用システムの全手順は再現していません。過去の正しいデータの再送を防ぐには、順序や重複の確認も必要です。実験データはこの画面のメモリー内だけに保持します。
         </p>
       </details>
       <nav class="related" aria-label="関連する用語">
@@ -461,6 +487,6 @@
     </footer>
     <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
     <script type="module" src="../navigation.mjs?v=1"></script>
-    <script type="module" src="./app.mjs?v=21"></script>
+    <script type="module" src="./app.mjs?v=22"></script>
   </body>
 </html>

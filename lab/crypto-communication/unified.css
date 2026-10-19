@@ -1246,3 +1246,99 @@
 #game-console.is-viewport[data-density="tiny"] .key-operation-context {
   display: none;
 }
+
+/* Use distinct attachments for a key-delivery signature and a body auth tag. */
+#game-console #scene .packet-sprite[data-signed="true"],
+#game-console #scene .packet-sprite[data-tagged="true"] {
+  width: min(112px, 44%);
+}
+#game-console .packet-contents {
+  gap: 7px;
+}
+#game-console .packet-body {
+  flex: 0 0 auto;
+}
+#game-console .signature-attachment,
+#game-console .authentication-tag-attachment {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  padding: 2px;
+  border: 1px dashed #d5c0ff;
+  background: #302b46;
+  color: #eee3ff;
+}
+#game-console .authentication-tag-attachment {
+  border-color: #80dcd8;
+  background: #183d43;
+  color: #a6f0e9;
+}
+#game-console .authentication-tag-attachment::before {
+  content: "+";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #80dcd8;
+  font-size: 11px;
+}
+#game-console .signature-attachment svg,
+#game-console .authentication-tag-attachment svg {
+  width: 30px;
+  height: 22px;
+}
+/* Keep all moving objects icon-only, immediately above the characters. */
+#game-console #scene .packet-sprite b,
+#game-console #scene .packet-sprite .signature-attachment span,
+#game-console #scene .packet-sprite .authentication-tag-attachment span {
+  display: none;
+}
+#game-console .packet-protection {
+  color: #c9e9df;
+  font-size: 9px;
+  line-height: 1.4;
+}
+#game-console.is-viewport[data-layout="narrow"]
+  #scene
+  .packet-sprite:is([data-signed="true"], [data-tagged="true"]) {
+  width: min(86px, 44%);
+}
+#game-console.is-viewport[data-layout="narrow"] .signature-attachment,
+#game-console.is-viewport[data-layout="narrow"] .authentication-tag-attachment {
+  flex-basis: 25px;
+  padding: 1px;
+}
+#game-console.is-viewport[data-layout="narrow"] .signature-attachment svg,
+#game-console.is-viewport[data-layout="narrow"]
+  .authentication-tag-attachment
+  svg {
+  width: 24px;
+  height: 17px;
+}
+#game-console #info-text > * + * {
+  margin-top: 24px;
+}
+#game-console .mechanism-detail {
+  border: 1px solid #63888b;
+  background: #173b41;
+}
+#game-console .mechanism-detail > summary {
+  padding: 12px;
+  color: var(--game-gold);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+  cursor: pointer;
+}
+#game-console .mechanism-detail > summary:focus-visible {
+  outline: 2px solid var(--game-gold);
+  outline-offset: -3px;
+}
+#game-console .mechanism-detail[open] > summary {
+  border-bottom: 1px solid #45696d;
+}
+#game-console .mechanism-detail-content {
+  padding: 12px;
+}

@@ -215,6 +215,21 @@ export function roundFrames(s) {
     ),
   ];
 }
+function packetProtection(s, packet) {
+  if (s.round !== 3) return {};
+  const outgoing = packet?.id === s.outgoing?.id;
+  if (packet?.type === "envelope")
+    return {
+      signatureOwner:
+        (outgoing ? s.outgoingSignature : s.incomingSignature)?.owner || null,
+    };
+  if (packet?.type === "ciphertext")
+    return {
+      authenticationTag: true,
+      tag: (outgoing ? s.outgoingTag : s.incomingTag) || s.deliveredTag || null,
+    };
+  return {};
+}
 export function outcomeFrame(s) {
   const text =
     {
@@ -227,8 +242,10 @@ export function outcomeFrame(s) {
         "Bobは、AliceのCA登録済の公開鍵が偽物だと分かり、Charlieの鍵を登録しなかった。",
       "bad-key": "Bobは、届いた暗号文から共通鍵を取り出せず、通信を止めた。",
       "bad-message": "Bobは、届いた本文の暗号文を復号できなかった。",
-      "signature-rejected":
-        "Bobは、Aliceの公開鍵で署名を検証できず、偽の本文を拒否した。",
+      "key-signature-rejected":
+        "Bobは、Aliceの署名を確認できず、届いた共通鍵を受け入れなかった。",
+      "tag-rejected":
+        "Bobは、認証タグの検証に失敗し、届いた本文を受け付けなかった。",
       authenticated:
         "Aliceは、BobのCA登録済の公開鍵が偽物だと分かり、共通鍵を送らなかった。",
     }[s.result?.code] || "通信の結果を確認しよう。";
@@ -239,18 +256,13 @@ export function outcomeFrame(s) {
       : "bob",
     kind: packetKind(packet),
     packet,
-    signatureOwner:
-      s.round === 3 && packet.type === "ciphertext"
-        ? s.deliveredSignature?.owner ||
-          (packet.id === s.outgoing?.id
-            ? s.outgoingSignature?.owner || null
-            : "alice")
-        : null,
+    ...packetProtection(s, packet),
     stage: [
       "bad-verification-key",
       "authenticated",
       "bad-public",
       "bad-key",
+      "key-signature-rejected",
     ].includes(s.result?.code)
       ? s.result.code === "bad-verification-key"
         ? 0
@@ -276,13 +288,13 @@ export function lesson(s) {
     {
       "attack-success":
         s.round === 2
-          ? "CAで公開鍵を確認しても、Bobは届いた本文の署名を確かめていない。Charlieの共通鍵と偽の本文が受け付けられた。CharlieはAliceの本文を読めていない。"
+          ? "CAで公開鍵を確認しても、Bobは共通鍵を送ったのがAliceか確認していない。Charlieの共通鍵と偽の本文が受け付けられた。CharlieはAliceの本文を読めていない。"
           : s.round === 0
             ? "Charlieは平文で届いた共通鍵で本文を読み、書き換えた本文も暗号化できた。"
             : "Aliceが公開鍵の持ち主を確認しなかったため、Charlieは共通鍵を手に入れられた。",
       "original-accepted":
         s.round === 3
-          ? "Charlieは改ざんをあきらめ、元の暗号文を転送した。BobはCAで確認したAliceの公開鍵で署名を検証し、元の本文を受け付けた。"
+          ? "BobはAliceの署名を確認して共通鍵を受け取り、本文の認証タグも検証した。Charlieは鍵の差し替えも本文の改変も成功させられなかった。"
           : "Bobは正しい共通鍵でAliceの本文を復号した。Charlieは元の暗号文をそのまま送った。",
       "bad-public": "Aliceが共通鍵を暗号化するには、配送先の公開鍵が必要だ。",
       "bad-verification-key":
@@ -291,8 +303,10 @@ export function lesson(s) {
         "Bobが共通鍵を取り出すには、Bobの公開鍵で暗号化された共通鍵が必要だ。",
       "bad-message":
         "Bobが持つ共通鍵と、Aliceが本文の暗号化に使った共通鍵が違った。共通鍵だけの差し替えでは、Aliceの暗号文は復号できない。",
-      "signature-rejected":
-        "Charlieの秘密鍵で作れるのはCharlieの署名。BobがCAで確認したAliceの公開鍵では検証できず、なりすましが見破られた。",
+      "key-signature-rejected":
+        "Charlieの秘密鍵ではAliceの署名を作れない。Bobは共通鍵を使い始める前に、Aliceの公開鍵で鍵配送の署名を確かめ、差し替えを拒否した。",
+      "tag-rejected":
+        "暗号文を書き換えると、元の認証タグでは検証を通らない。CharlieはAliceの共通鍵を知らないため、書き換えた暗号文に合うタグも作れない。Bobは本文を受け付けなかった。",
       authenticated:
         "Aliceはブラウザ内のCA公開鍵でCA署名とBobの名前を確認するため、Charlieの鍵への取り替えを検出した。",
     }[s.result?.code] || ""
@@ -302,12 +316,19 @@ export function forwardFrames(before, after) {
   const signing = before.phase === "signing-public",
     recipient = before.phase === "public" ? "alice" : "bob";
   const packet = before.outgoing || before.incoming;
-  const signatureOwner =
-    before.round === 3 && packet.type === "ciphertext"
-      ? before.outgoing
-        ? before.outgoingSignature?.owner || null
-        : "alice"
-      : null;
+  const protection = packetProtection(before, packet);
+  const keyVerification = () =>
+    frame(
+      "Bobは、CAで確認したAliceの公開鍵で、共通鍵の暗号文の署名を検証した。",
+      "verify-key-signature",
+      {
+        at: "bob",
+        phase: "key",
+        kind: "wrapped-key",
+        packet,
+        ...protection,
+      },
+    );
   const frames = [
     frame(
       "Charlieは、" +
@@ -322,7 +343,7 @@ export function forwardFrames(before, after) {
         kind: packetKind(packet),
         packet,
         packetLabel: englishNames(packet.label),
-        signatureOwner,
+        ...protection,
         route:
           before.phase === "public"
             ? "Bob → 中継機 → Alice"
@@ -346,21 +367,19 @@ export function forwardFrames(before, after) {
           },
         ),
       );
-    if (
-      after.round === 3 &&
-      before.phase === "message" &&
-      after.result.code !== "bad-message"
-    )
+    if (after.result.code === "key-signature-rejected")
+      frames.push(keyVerification());
+    if (after.round === 3 && before.phase === "message")
       frames.push(
         frame(
-          "Bobは、CAで確認したAliceの公開鍵で、届いた本文の電子署名を検証した。",
-          "verify",
+          "Bobは、共通鍵で認証タグを検証し、本文の改変がないか確かめた。",
+          "verify-tag",
           {
             at: "bob",
             phase: "message",
             kind: "ciphertext",
             packet,
-            signatureOwner,
+            ...protection,
           },
         ),
       );
@@ -412,17 +431,41 @@ export function forwardFrames(before, after) {
           at: "alice",
           kind: "wrapped-key",
           packet: after.incoming,
+          signatureOwner: null,
           phase: "key",
         },
       ),
-      frame("Charlieの中継機が、Aliceの共通鍵の暗号文を記録した。", "inbound", {
-        kind: "wrapped-key",
-        packet: after.incoming,
-        phase: "key",
-      }),
+      ...(after.round === 3
+        ? [
+            frame(
+              "Aliceは、共通鍵の暗号文にAliceの秘密鍵で電子署名を付けた。",
+              "sign-key",
+              {
+                at: "alice",
+                kind: "wrapped-key",
+                packet: after.incoming,
+                signatureOwner: "alice",
+                phase: "key",
+              },
+            ),
+          ]
+        : []),
+      frame(
+        after.round === 3
+          ? "Charlieの中継機が、Aliceの署名が付いた共通鍵の暗号文を記録した。"
+          : "Charlieの中継機が、Aliceの共通鍵の暗号文を記録した。",
+        "inbound",
+        {
+          kind: "wrapped-key",
+          packet: after.incoming,
+          ...packetProtection(after, after.incoming),
+          phase: "key",
+        },
+      ),
     ];
   return [
     ...frames,
+    ...(after.round === 3 ? [keyVerification()] : []),
     frame(
       after.impersonating
         ? "Bobは、Bobの秘密鍵でCharlieの共通鍵を取り出した。Bobは、Aliceが共通鍵を送ったと思っている。"
@@ -440,41 +483,31 @@ export function forwardFrames(before, after) {
         packetLabel: after.impersonating ? "Charlieの共通鍵" : "Aliceの共通鍵",
       },
     ),
-    ...(after.round === 3
-      ? [
-          frame(
-            "Aliceは、Aliceの秘密鍵で、本文に対応する電子署名を作った。",
-            "sign",
-            {
-              at: "alice",
-              kind: "letter",
-              packet: { label: "Aliceの本文" },
-              signatureOwner: "alice",
-              phase: "message",
-              packetLabel: "Aliceの本文",
-            },
-          ),
-        ]
-      : []),
     frame(
       after.round === 3
-        ? "Aliceは、本文とAliceの電子署名をAliceの共通鍵で暗号化した。"
+        ? "Aliceは、共通鍵で本文を暗号化し、認証タグも作った。"
         : "Aliceは、本文をAliceの共通鍵で暗号化した。",
       "encrypt",
       {
         at: "alice",
         kind: "ciphertext",
         packet: after.incoming,
-        signatureOwner: after.round === 3 ? "alice" : null,
+        ...packetProtection(after, after.incoming),
         phase: "message",
       },
     ),
-    frame("Charlieの中継機が、Aliceの本文の暗号文を記録した。", "inbound", {
-      kind: "ciphertext",
-      packet: after.incoming,
-      signatureOwner: after.round === 3 ? "alice" : null,
-      phase: "message",
-    }),
+    frame(
+      after.round === 3
+        ? "Charlieの中継機が、認証タグの付いた本文の暗号文を記録した。"
+        : "Charlieの中継機が、Aliceの本文の暗号文を記録した。",
+      "inbound",
+      {
+        kind: "ciphertext",
+        packet: after.incoming,
+        ...packetProtection(after, after.incoming),
+        phase: "message",
+      },
+    ),
   ];
 }
 export function createStoryPlayer() {

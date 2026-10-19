@@ -1,5 +1,5 @@
-import { createQuest } from "./quest.mjs?v=15";
-import { rounds } from "./model.mjs?v=20";
+import { createQuest } from "./quest.mjs?v=16";
+import { rounds } from "./model.mjs?v=21";
 import {
   introFrames,
   roundFrames,
@@ -7,9 +7,9 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=17";
+} from "./storyboard.mjs?v=18";
 import { createDisplayController } from "./display.mjs";
-import { explanations } from "./explanations.mjs?v=7";
+import { explanations } from "./explanations.mjs?v=8";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
   story = createStoryPlayer();
@@ -164,35 +164,55 @@ function render() {
     : done
       ? "■ 通信終了"
       : "Ⅱ 転送前で停止";
+  const visiblePacket =
+    f.packet || (!talking ? s.outgoing || s.incoming : null);
   const signatureOwner = Object.hasOwn(f, "signatureOwner")
     ? f.signatureOwner
-    : s.round === 3 && f.kind === "ciphertext"
-      ? f.packet?.id === s.outgoing?.id
+    : s.round === 3 && f.kind === "wrapped-key"
+      ? visiblePacket?.id === s.outgoing?.id
         ? s.outgoingSignature?.owner
-        : "alice"
+        : visiblePacket?.id === s.incoming?.id
+          ? s.incomingSignature?.owner
+          : null
       : null;
   const signed =
     s.round === 3 &&
-    ((f.kind === "ciphertext" && Boolean(signatureOwner)) ||
-      ["sign", "sign-charlie"].includes(f.scene));
-  const visualKind = ["sign", "sign-charlie"].includes(f.scene)
-    ? "letter"
-    : signed
-      ? "signed-message"
-      : f.kind;
+    f.kind === "wrapped-key" &&
+    (Boolean(signatureOwner) || f.scene === "sign-key");
+  const tagged =
+    f.kind === "ciphertext" &&
+    Boolean(
+      f.authenticationTag ??
+      (visiblePacket?.authenticated ||
+        (visiblePacket?.id === s.outgoing?.id
+          ? s.outgoingTag
+          : visiblePacket?.id === s.incoming?.id
+            ? s.incomingTag
+            : false)),
+    );
+  const visualKind = f.kind;
   $("packet-sprite").dataset.kind = visualKind;
   $("packet-sprite").dataset.signed = String(signed);
+  $("packet-sprite").dataset.tagged = String(tagged);
   $("signature-attachment").hidden = !signed;
+  $("authentication-tag-attachment").hidden = !tagged;
   $("signature-note").textContent =
-    f.scene === "sign"
-      ? "Aliceの秘密鍵で作成"
-      : f.scene === "sign-charlie"
-        ? "Charlieの秘密鍵で作成"
-        : "本文と一緒に暗号化";
+    f.scene === "sign-key"
+      ? (signatureOwner === "charlie" ? "Charlie" : "Alice") + "の秘密鍵で作成"
+      : "共通鍵の配送を認証";
   $("signature-owner").textContent =
-    signatureOwner === "charlie" || f.scene === "sign-charlie"
-      ? "Charlieの電子署名"
-      : "Aliceの電子署名";
+    signatureOwner === "charlie" ? "Charlieの電子署名" : "Aliceの電子署名";
+  $("packet-protection").hidden = !signed && !tagged;
+  $("packet-protection").textContent = signed
+    ? "鍵配送の署名"
+    : tagged
+      ? "本文の認証タグ"
+      : "";
+  $("packet-protection").title = signed
+    ? $("signature-owner").textContent + "で鍵配送を認証"
+    : tagged
+      ? "認証タグで本文の変更を検出"
+      : "";
   const shapes = {
     key: "key",
     public: "public",
@@ -203,19 +223,11 @@ function render() {
     ciphertext: "encrypted",
     letter: "message",
     signature: "signature",
-    "signed-message": "encrypted",
   };
   $("packet-icon").setAttribute(
     "href",
-    "./packets.svg#" + (shapes[visualKind] || "message"),
+    "./packets.svg?v=2#" + (shapes[visualKind] || "message"),
   );
-  $("packet-sprite").setAttribute(
-    "aria-label",
-    (signed ? "署名付き・" : "") + (f.packetLabel || packetName(f.kind)),
-  );
-
-  const visiblePacket =
-    f.packet || (!talking ? s.outgoing || s.incoming : null);
   const packetLabel =
     f.packetLabel || englishNames(visiblePacket?.label) || packetName(f.kind);
   $("packet-short").textContent = packetLabel.replace(
@@ -223,7 +235,12 @@ function render() {
     "\nCA登録済の公開鍵",
   );
   $("packet-title").textContent = packetLabel || "通信の準備中";
-  $("packet-sprite").setAttribute("aria-label", packetLabel || "通信の準備中");
+  $("packet-sprite").setAttribute(
+    "aria-label",
+    (packetLabel || "通信の準備中") +
+      (signed ? "、" + $("signature-owner").textContent + "付き" : "") +
+      (tagged ? "、認証タグ付き" : ""),
+  );
   $("packet-context").textContent = f.at?.startsWith("ca-")
     ? "認証局 CAでの手続き"
     : f.at === "none" && f.scene === "trust-root"
@@ -498,11 +515,9 @@ function buildInfo() {
   $("info-title").textContent =
     infoTopic === "log" ? "通信の記録" : "このラウンドの仕組み";
   $("info-text").innerHTML = sections
-    .map(
-      (part) =>
-        "<section><h3>" +
-        esc(part.title) +
-        "</h3><p>" +
+    .map((part) => {
+      const content =
+        "<p>" +
         esc(part.text) +
         "</p>" +
         (part.links || [])
@@ -514,9 +529,15 @@ function buildInfo() {
               esc(link.label) +
               " ↗</a>",
           )
-          .join(" · ") +
-        "</section>",
-    )
+          .join(" · ");
+      return part.collapsible
+        ? '<details class="mechanism-detail"><summary>' +
+            esc(part.title) +
+            '</summary><div class="mechanism-detail-content">' +
+            content +
+            "</div></details>"
+        : "<section><h3>" + esc(part.title) + "</h3>" + content + "</section>";
+    })
     .join("");
   $("info-scroll").scrollTop = 0;
   document
@@ -560,8 +581,17 @@ $("info-dialog").addEventListener("keydown", (event) => {
   }
   if (event.key === "Tab") {
     const buttons = [
-      ...$("info-dialog").querySelectorAll('button, [tabindex="0"]'),
-    ].filter((b) => !b.disabled);
+      ...$("info-dialog").querySelectorAll(
+        'button, a[href], summary, [tabindex="0"]',
+      ),
+    ].filter((b) => {
+      const closed = b.closest("details:not([open])");
+      return (
+        !b.disabled &&
+        !b.closest("[hidden]") &&
+        (!closed || closed.querySelector(":scope > summary") === b)
+      );
+    });
     if (event.shiftKey && document.activeElement === buttons[0]) {
       event.preventDefault();
       buttons.at(-1)?.focus();

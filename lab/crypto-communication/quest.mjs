@@ -1,4 +1,4 @@
-import { createLab } from "./model.mjs?v=20";
+import { createLab } from "./model.mjs?v=21";
 import {
   frame,
   forwardFrames,
@@ -6,7 +6,7 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=17";
+} from "./storyboard.mjs?v=18";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
@@ -24,8 +24,7 @@ export function createQuest() {
   });
   let x = initial(),
     records = new Set(),
-    retryPoint = null,
-    keyDeliveryPoint = null;
+    retryPoint = null;
   const find = (s, type, owner) =>
     s.inventory.find((a) => a.type === type && (!owner || a.owner === owner));
   const shared = (s) =>
@@ -37,14 +36,12 @@ export function createQuest() {
     const restoreModel = lab.checkpoint(),
       saved = copy(x),
       savedRecords = [...records],
-      savedRetry = retryPoint,
-      savedDelivery = keyDeliveryPoint;
+      savedRetry = retryPoint;
     return () => {
       restoreModel();
       x = copy(saved);
       records = new Set(savedRecords);
       retryPoint = savedRetry;
-      keyDeliveryPoint = savedDelivery;
     };
   }
   function record() {
@@ -59,7 +56,6 @@ export function createQuest() {
     x = initial();
     records = new Set();
     retryPoint = null;
-    keyDeliveryPoint = null;
     record();
     return roundFrames(lab.snapshot());
   }
@@ -195,13 +191,15 @@ export function createQuest() {
             "inject-key",
             "Charlieの共通鍵に差し替える",
             s.round === 3
-              ? "Aliceとは別の共通鍵をBobに渡す"
+              ? "Charlieの鍵と署名をBobに渡す"
               : "共通鍵と本文の両方を偽物にする",
           ),
           choice(
             "pass",
             "Aliceの共通鍵の暗号文をそのまま転送する",
-            "Aliceの本文を復号するための共通鍵を届ける",
+            s.round === 3
+              ? "Aliceの署名も変えずにBobへ届ける"
+              : "Aliceの本文を復号するための共通鍵を届ける",
           ),
         ];
       return [
@@ -227,7 +225,7 @@ export function createQuest() {
       return [
         choice(
           "pass",
-          "署名付きの暗号文をそのままBobへ転送する",
+          "認証タグ付きの暗号文をそのままBobへ転送する",
           "Charlieは改ざんをあきらめる",
         ),
       ];
@@ -249,7 +247,7 @@ export function createQuest() {
         choice(
           "predict-safe",
           s.round === 3
-            ? "鍵と本文を差し替えてもBobにバレない"
+            ? "暗号文を書き換えてもBobにバレない"
             : s.impersonating
               ? "差し替えてもBobにバレない"
               : "書き換えてもBobにバレない",
@@ -258,7 +256,7 @@ export function createQuest() {
         choice(
           "predict-detected",
           s.round === 3
-            ? "鍵と本文を差し替えるとBobにバレる"
+            ? "暗号文を書き換えるとBobにバレる"
             : s.impersonating
               ? "差し替えるとBobにバレる"
               : "書き換えるとBobにバレる",
@@ -338,7 +336,7 @@ export function createQuest() {
           ? "Charlieは共通鍵を入手した。Charlieが鍵をBobへ届けると、Aliceは本文を送る。"
           : s.ca
             ? s.round === 3
-              ? "BobがAliceの本文を復号できる状態を保つには、Charlieはどちらの共通鍵を届ければよいだろうか。"
+              ? "Aliceの共通鍵の暗号文には、Aliceの署名が付いている。Charlieは、Bobへ届けるデータを選ぼう。"
               : "Charlieは偽の本文をBobに受け付けさせたい。Charlieは共通鍵の配送にどう介入する？"
             : key
               ? "Charlieは共通鍵を入手した。Bobも同じ共通鍵を取り出せるようにしよう。"
@@ -346,7 +344,7 @@ export function createQuest() {
       message: "本文の暗号文が届いた。復号に使う鍵を選ぼう。",
       predict:
         s.round === 3
-          ? "Charlieが共通鍵と本文の両方を偽物に差し替えたら、BobはAliceの署名の検証で見破れるだろうか。"
+          ? "CharlieはAliceの本文を読めない。Charlieが本文の暗号文を書き換えたら、Bobは認証タグの検証で気づくだろうか。"
           : s.impersonating
             ? "Charlieは本文を読めないと分かった。では、Charlieが自作の本文をAliceの本文として送り込むと、Bobは気づくだろうか。"
             : "Charlieは「love」を「hate」に変えたい。Bobは本文の変更に気づくだろうか。",
@@ -355,7 +353,7 @@ export function createQuest() {
         : "Charlieが考えた書き換えを、実際の暗号文にしてみよう。",
       ready:
         s.round === 3 && s.phase === "message"
-          ? "Charlieは、Aliceの署名を作り直せないと分かった。Charlieは署名付きの暗号文を変えずにBobへ届ける。"
+          ? "Charlieは、正しい認証タグを作れないと分かった。Charlieは暗号文と認証タグを変えずにBobへ届ける。"
           : "Charlieが選んだデータを、相手へ転送しよう。",
     };
     const shown =
@@ -366,11 +364,15 @@ export function createQuest() {
             kind: packetKind(s.outgoing || s.incoming),
             packet: s.outgoing || s.incoming,
             signatureOwner:
-              s.round === 3 && s.phase === "message"
+              s.round === 3 && s.phase === "key"
                 ? s.outgoing
                   ? s.outgoingSignature?.owner || null
-                  : "alice"
+                  : s.incomingSignature?.owner || null
                 : null,
+            authenticationTag:
+              s.round === 3 &&
+              s.phase === "message" &&
+              Boolean((s.outgoing || s.incoming).authenticated),
             packetLabel: englishNames((s.outgoing || s.incoming).label),
             route:
               s.phase === "public"
@@ -497,8 +499,6 @@ export function createQuest() {
   }
   function forward() {
     const before = lab.snapshot();
-    if (before.round === 3 && before.phase === "key" && !before.outgoing)
-      keyDeliveryPoint = lab.checkpoint();
     x.deliveredKey = x.stagedKey;
     x.stagedKey = null;
     lab.forward();
@@ -569,63 +569,44 @@ export function createQuest() {
         ),
       );
     }
-    if (
-      feedback?.kind === "key-strategy" ||
-      (feedback?.kind === "prediction" && lab.snapshot().round === 3)
-    ) {
-      if (feedback.kind === "prediction") {
-        if (!keyDeliveryPoint)
-          throw new Error("Missing original key delivery checkpoint");
-        keyDeliveryPoint();
-        frames.push(
-          frame(
-            "Charlieが鍵と本文の両方を差し替える場合を、共通鍵の配送から確認しよう。",
-            "question",
-            {
-              at: "charlie",
-              phase: "key",
-              kind: "wrapped-key",
-              packet: lab.snapshot().incoming,
-            },
-          ),
-        );
-      }
+    if (feedback?.kind === "key-strategy") {
       const own = lab.createAttackerKey().id,
         s = lab.snapshot();
       const wrapped = lab.wrapKey(own, find(s, "public", "bob").id);
-      lab.setOutgoing(wrapped.id);
+      const signed = lab.signKeyDelivery(
+        wrapped.id,
+        find(s, "private", "charlie").id,
+      );
+      lab.setOutgoing(signed.id);
       frames.push(
         frame(
-          "Charlieは、Charlieの共通鍵をBobの公開鍵で暗号化し、Aliceの共通鍵の暗号文と差し替えた。",
-          "wrap",
+          "Charlieは、Charlieの共通鍵をBobの公開鍵で暗号化し、Charlieの署名を付けて差し替えた。",
+          "sign-key",
           {
             at: "charlie",
             phase: "key",
             kind: "wrapped-key",
             packet: lab.snapshot().outgoing,
+            signatureOwner: "charlie",
           },
         ),
       );
       frames.push(...forward());
-      if (feedback.kind === "prediction") {
-        lab.edit("I hate you.");
-        lab.signDraft(find(lab.snapshot(), "private", "charlie").id);
-        lab.setOutgoing(lab.encryptMessage(own).id);
-        frames.push(
-          frame(
-            "Charlieは偽の本文にCharlieの署名を付け、Charlieの共通鍵で暗号化した。",
-            "encrypt",
-            {
-              at: "charlie",
-              phase: "message",
-              kind: "ciphertext",
-              packet: lab.snapshot().outgoing,
-              signatureOwner: "charlie",
-              showPlaintext: true,
-            },
-          ),
-        );
-      }
+    } else if (feedback?.kind === "prediction" && lab.snapshot().round === 3) {
+      lab.setOutgoing(lab.corrupt(lab.snapshot().incoming.id).id);
+      frames.push(
+        frame(
+          "Charlieは本文の暗号文を書き換え、届いた認証タグをそのまま添えた。CharlieはAliceの共通鍵を持たず、変更後の正しいタグを作れない。",
+          "tamper",
+          {
+            at: "charlie",
+            phase: "message",
+            kind: "ciphertext",
+            packet: lab.snapshot().outgoing,
+            authenticationTag: true,
+          },
+        ),
+      );
     } else if (feedback?.kind === "prediction") {
       const s = lab.snapshot();
       lab.edit("I hate you.");
@@ -731,7 +712,7 @@ export function createQuest() {
     if (action === "inject-key" && before.round === 3)
       return evaluate(
         false,
-        "共通鍵だけをCharlieの鍵に変えると、BobはAliceの暗号文を復号できなくなる。本文も偽物に変えれば、Aliceの正しい署名を付けられず、Bobの検証を通らない。",
+        "Bobは共通鍵を使う前に、CAで確認したAliceの公開鍵で鍵配送の署名を検証する。Charlieの鍵とCharlieの署名に差し替えても、Aliceの署名として検証を通らず、Bobは偽の共通鍵を拒否する。",
         [],
         origin,
         "key-strategy",
@@ -741,7 +722,7 @@ export function createQuest() {
       return evaluate(
         before.round === 3,
         before.round === 3
-          ? "Aliceが本文の暗号化に使う共通鍵をBobへ届けた。この共通鍵を別の鍵に変えると、BobはAliceの暗号文を復号できなくなる。"
+          ? "BobはAliceの署名を検証し、共通鍵の配送データが今回のAliceからBobへの通信に対応すると確認した。Bobは検証に成功してから、Bobの秘密鍵で共通鍵を取り出した。"
           : "BobにはAliceの共通鍵が届いた。Charlieはその共通鍵を知らないため、Charlieの偽の本文を同じ共通鍵で暗号化できない。偽の本文を受け付けさせるには、共通鍵と本文の両方を差し替える必要がある。",
         frames,
         origin,
@@ -834,9 +815,9 @@ export function createQuest() {
       return evaluate(
         correct,
         detected
-          ? "BobはCAで確認したAliceの公開鍵で署名を検証する。Charlieの署名はAliceの署名として通らないため、Bobは偽の本文を拒否する。"
+          ? "Bobは本文を受け付ける前に、共通鍵で認証タグを検証する。Charlieは共通鍵を持たず、変更後の暗号文に合うタグを作れないため、Bobは書き換えを検出する。"
           : before.impersonating
-            ? "BobはCAでAliceの公開鍵を確認したが、届いた本文の署名は確かめていない。Charlieが用意した共通鍵と本文でも、BobはAliceから届いたものだと誤認する。"
+            ? "BobはCAでAliceの公開鍵を確認したが、今回の共通鍵を送った相手は確認していない。Charlieが用意した共通鍵と本文でも、BobはAliceから届いたものだと誤認する。"
             : "Bobには本文の変更を確かめる署名がない。Charlieが同じ共通鍵で暗号化し直すと、Bobは変更に気づけない。",
         [],
         origin,
@@ -933,7 +914,7 @@ export function createQuest() {
     return evaluate(
       true,
       before.round === 3
-        ? "BobはCharlieの共通鍵で復号できても、Aliceの公開鍵でCharlieの署名を検証できないため、偽の本文を拒否する。"
+        ? "Bobは共通鍵で認証タグを検証し、成功した本文だけを受け付ける。"
         : before.impersonating
           ? "BobはCharlieの共通鍵で復号できる。送信者を確かめる署名がないため、BobはCharlieの本文をAliceの本文だと思って受け付ける。"
           : "Bobは同じ共通鍵で復号できる。本文の変更を確かめる署名がないため、Bobは改ざんに気づかない。",

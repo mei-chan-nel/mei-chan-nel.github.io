@@ -136,7 +136,7 @@ function complete(q, round) {
 test("four rounds progress from common key to public key, CA, and signature", () => {
   assert.deepEqual(
     rounds.map((r) => r.short),
-    ["共通鍵", "公開鍵", "認証局 CA", "電子署名"],
+    ["共通鍵", "公開鍵", "認証局 CA", "署名と認証タグ"],
   );
   const q = createQuest();
   for (let r = 0; r < 4; r++) {
@@ -270,16 +270,17 @@ for (const round of [2, 3]) {
     assert.equal(lab.snapshot().result.code, "original-accepted");
     assert.equal(lab.snapshot().original, null);
   });
-  test(`R${round + 1}: Charlie own key cannot decrypt Alice original packet`, () => {
-    const lab = createLab(),
-      key = caKey(lab, round);
-    assert.equal(lab.snapshot().impersonating, true);
-    assert.equal(lab.decrypt(lab.snapshot().incoming.id, key).ok, false);
-    assert.equal(lab.snapshot().original, null);
-    // Only replacing the key does not make Alice's ciphertext valid under Charlie's key.
-    lab.forward();
-    assert.equal(lab.snapshot().result.code, "bad-message");
-  });
+  if (round === 2)
+    test(`R${round + 1}: Charlie own key cannot decrypt Alice original packet`, () => {
+      const lab = createLab(),
+        key = caKey(lab, round);
+      assert.equal(lab.snapshot().impersonating, true);
+      assert.equal(lab.decrypt(lab.snapshot().incoming.id, key).ok, false);
+      assert.equal(lab.snapshot().original, null);
+      // Only replacing the key does not make Alice's ciphertext valid under Charlie's key.
+      lab.forward();
+      assert.equal(lab.snapshot().result.code, "bad-message");
+    });
 }
 test("R3 Bob public key allows Charlie to wrap a NEW key and submit own ciphertext without reading Alice", () => {
   const lab = createLab(),
@@ -294,17 +295,47 @@ test("R3 Bob public key allows Charlie to wrap a NEW key and submit own cipherte
   assert.equal(s.original, null);
   assert.equal(s.deliveredSignature, null);
 });
-for (const sig of ["none", "charlie"])
-  test(`R4 rejects fresh forgery with ${sig} signature after Charlie key injection`, () => {
-    const lab = createLab(),
-      key = caKey(lab, 3);
-    lab.edit("I hate you.");
-    lab.chooseSignature(sig);
-    lab.setOutgoing(lab.encryptMessage(key).id);
+function authenticatedKey(lab) {
+  lab.start(3);
+  lab.forward();
+  lab.capture();
+  lab.forward();
+  lab.capture();
+  return lab.snapshot().incoming;
+}
+function authenticatedBody(lab) {
+  authenticatedKey(lab);
+  lab.forward();
+  lab.capture();
+  return lab.snapshot().incoming;
+}
+for (const signer of ["none", "charlie"])
+  test(`R4 rejects ${signer} key-delivery signature before adopting an injected key or emitting a body`, () => {
+    const lab = createLab();
+    authenticatedKey(lab);
+    const key = lab.createAttackerKey().id;
+    let envelope = lab.wrapKey(key, find(lab, "public", "bob")).id;
+    if (signer === "charlie") {
+      const signed = lab.signKeyDelivery(
+        envelope,
+        find(lab, "private", "charlie"),
+      );
+      assert.equal(signed.ok, true);
+      envelope = signed.id;
+    }
+    lab.setOutgoing(envelope);
+    assert.equal(lab.snapshot().outgoingSignature?.owner || "none", signer);
     lab.forward();
-    assert.equal(lab.snapshot().result.code, "signature-rejected");
-    assert.equal(lab.snapshot().result.accepted, false);
-    assert.equal(lab.snapshot().original, null);
+    const s = lab.snapshot();
+    assert.equal(s.result.code, "key-signature-rejected");
+    assert.equal(s.result.accepted, false);
+    assert.equal(s.bobHasKey, false);
+    assert.equal(s.incoming.type, "envelope");
+    assert.equal(
+      s.inventory.some((o) => o.type === "ciphertext"),
+      false,
+    );
+    assert.equal(s.original, null);
   });
 test("R4 verifies Alice certificate BEFORE registering her verification key", () => {
   const lab = createLab();
@@ -328,24 +359,23 @@ test("R4 rejects substituted verification certificate instead of registering Cha
   assert.equal(lab.snapshot().result.code, "bad-verification-key");
   assert.equal(lab.snapshot().verificationForBob, null);
 });
-test("signature creation requires Charlie private key; public verification key cannot sign", () => {
+test("key-delivery signature creation requires Charlie private key and never signs a body", () => {
   const lab = createLab();
-  caKey(lab, 3);
-  lab.edit("I hate you.");
-  assert.equal(lab.signDraft(find(lab, "verify", "alice")).ok, false);
-  assert.equal(lab.signDraft(find(lab, "public", "bob")).ok, false);
-  assert.equal(lab.signDraft(find(lab, "private", "charlie")).ok, true);
-  assert.equal(lab.snapshot().signature.owner, "charlie");
-});
-test("a Charlie signature over a different text is not reusable as a valid signature", () => {
-  const lab = createLab(),
-    key = caKey(lab, 3);
-  lab.edit("first");
-  lab.signDraft(find(lab, "private", "charlie"));
-  lab.edit("I hate you.");
-  lab.setOutgoing(lab.encryptMessage(key).id);
-  lab.forward();
-  assert.equal(lab.snapshot().result.code, "signature-rejected");
+  authenticatedKey(lab);
+  const own = lab.createAttackerKey().id;
+  const envelope = lab.wrapKey(own, find(lab, "public", "bob")).id;
+  assert.equal(
+    lab.signKeyDelivery(envelope, find(lab, "verify", "alice")).ok,
+    false,
+  );
+  assert.equal(
+    lab.signKeyDelivery(envelope, find(lab, "public", "bob")).ok,
+    false,
+  );
+  const signed = lab.signKeyDelivery(envelope, find(lab, "private", "charlie"));
+  assert.equal(signed.ok, true);
+  lab.setOutgoing(signed.id);
+  assert.equal(lab.snapshot().outgoingSignature.owner, "charlie");
 });
 test("certificate verification uses a fixed browser trust anchor", () => {
   const lab = createLab();
@@ -418,7 +448,7 @@ for (const round of [0, 2, 3])
     assert.ok(frames.every((f) => f.tone === "wrong"));
     assert.equal(
       q.view().result.code,
-      round === 3 ? "signature-rejected" : "attack-success",
+      round === 3 ? "tag-rejected" : "attack-success",
     );
     choose(q, "retry-here");
     assert.equal(q.view().state, "predict");
@@ -617,19 +647,26 @@ test("CA narration shows requests, signed certificate returns, and fixed browser
   );
   assert.ok(all.some((f) => /CharlieはCAとの通信にも/.test(f.text)));
 });
-test("Round4 narrates Alice signature creation separately before encrypted message transport", () => {
+test("Round4 signs key delivery before transport and creates a separate authentication tag for the body", () => {
   const lab = createLab();
   lab.start(3);
   lab.forward();
+  const beforeKey = lab.snapshot();
   lab.forward();
-  const before = lab.snapshot();
+  const keyFrames = forwardFrames(beforeKey, lab.snapshot());
+  const signed = keyFrames.find(
+    (f) => f.signatureOwner === "alice" && /署名/.test(f.text),
+  );
+  assert.ok(signed, "Alice signature belongs to key delivery");
+  assert.equal(signed.phase, "key");
+  const beforeBody = lab.snapshot();
   lab.forward();
-  const frames = forwardFrames(before, lab.snapshot());
-  const signed = frames.findIndex((f) => f.scene === "sign"),
-    encrypted = frames.findIndex((f) => f.scene === "encrypt");
-  assert.ok(signed >= 0 && signed < encrypted);
-  assert.match(frames[signed].text, /Alice.*秘密鍵.*電子署名/);
-  assert.equal(frames[signed].at, "alice");
+  const bodyFrames = forwardFrames(beforeBody, lab.snapshot());
+  assert.ok(bodyFrames.some((f) => /認証タグ/.test(f.text)));
+  assert.equal(
+    bodyFrames.some((f) => f.phase === "message" && f.signatureOwner),
+    false,
+  );
 });
 test("full explanations preserve secrecy and distinguish CA authentication from sender authentication", () => {
   const q = createQuest();
@@ -813,23 +850,22 @@ test("one unchanged key forwarding advances immediately and can be rewound witho
   assert.equal(q.view().incoming.id, before.incoming.id);
   assert.equal(q.view().publicForAlice, null);
 });
-test("current and documented signature model stays message-based with linked standards", () => {
+test("documented model distinguishes signed key delivery and AEAD from the full TLS handshake", () => {
   const q = createQuest();
   q.start(3);
   const info = explanations(q.view());
-  const section = info.find((p) => p.links?.length);
-  assert.ok(section);
-  assert.ok(
-    section.links.some(
-      (l) => l.url === "https://www.rfc-editor.org/rfc/rfc5652.html",
-    ),
-  );
-  assert.ok(
-    section.links.some(
+  const section = info.find((p) =>
+    p.links?.some(
       (l) => l.url === "https://www.rfc-editor.org/rfc/rfc8446.html",
     ),
   );
-  assert.match(section.text, /ハンドシェイク/);
+  assert.ok(section, "modern TLS standard remains linked");
+  const text = info.map((p) => p.text).join(" ");
+  assert.match(text, /ハンドシェイク/);
+  assert.match(text, /AEAD|認証付き暗号/);
+  assert.match(text, /認証タグ/);
+  assert.match(text, /nonce|ノンス/);
+  assert.match(text, /再送|再利用|順番/);
 });
 
 test("readable correct answers give an inline verdict without revealing the key for the next action", () => {
@@ -945,7 +981,7 @@ test("R3 forwarding the original key is incorrect for the stated forgery goal, r
   assert.equal(q.view().bobHasKey, false);
   correct(q, "inject-key");
 });
-test("R4 replacing only the common key is rejected as a strategy and actually breaks Alice message decryption", () => {
+test("R4 injected common key is rejected by Alice signature verification before Bob adopts it", () => {
   const q = createQuest();
   reachKey(q, 3);
   const before = q.view();
@@ -955,9 +991,11 @@ test("R4 replacing only the common key is rejected as a strategy and actually br
   assert.equal(q.view().attackerKey, null);
   assert.equal(q.view().incoming.id, before.incoming.id);
   choose(q, "show-consequence");
-  assert.equal(q.view().result.code, "bad-message");
+  assert.equal(q.view().result.code, "key-signature-rejected");
   assert.equal(q.view().result.accepted, false);
-  assert.equal(q.view().impersonating, true);
+  assert.equal(q.view().bobHasKey, false);
+  assert.equal(q.view().impersonating, false);
+  assert.equal(q.view().incoming.type, "envelope");
   choose(q, "retry-here");
   assert.equal(q.view().phase, "key");
   assert.equal(q.view().attackerKey, null);
@@ -966,12 +1004,14 @@ test("R4 replacing only the common key is rejected as a strategy and actually br
   assert.equal(q.view().bobHasKey, true);
   assert.equal(q.view().impersonating, false);
 });
-test("R4 correct detection stops the attack and preserves the original key, ciphertext and Alice signature", () => {
+test("R4 correct detection stops the attack and preserves the signed key delivery and original ciphertext tag", () => {
   const q = createQuest();
   reachMessage(q, 3);
   const before = q.view();
   assert.equal(before.attackerKey, null);
   assert.equal(before.impersonating, false);
+  assert.equal(before.incomingSignature, null);
+  assert.ok(before.incomingTag);
   correct(q, "predict-detected");
   assert.deepEqual(
     q.view().choices.map((c) => c.id),
@@ -985,22 +1025,26 @@ test("R4 correct detection stops the attack and preserves the original key, ciph
   choose(q, "pass");
   assert.equal(q.view().result.code, "original-accepted");
   assert.equal(q.view().deliveredSignature.owner, "alice");
+  assert.equal(q.view().deliveredSignature.purpose, "key-delivery");
+  assert.equal(q.view().deliveredTag.id, before.incomingTag.id);
+  assert.equal(q.view().incomingSignature, null);
   assert.equal(q.view().incoming.id, before.incoming.id);
   assert.equal(q.view().attackerKey, null);
   assert.equal(q.view().original, null);
 });
-test("R4 wrong forgery prediction replays both-key-and-body attack from delivery and restores the exact original question", () => {
+test("R4 wrong tamper prediction demonstrates tag rejection and restores the exact original body question", () => {
   const q = createQuest();
   reachMessage(q, 3);
   const before = q.view();
   choose(q, "predict-safe");
   assert.equal(q.view().feedback.correct, false);
   const frames = choose(q, "show-consequence");
-  assert.equal(frames[0].phase, "key");
-  assert.equal(q.view().result.code, "signature-rejected");
-  assert.equal(q.view().deliveredSignature.owner, "charlie");
+  assert.equal(frames[0].phase, "message");
+  assert.equal(q.view().result.code, "tag-rejected");
+  assert.equal(q.view().deliveredSignature.owner, "alice");
   assert.equal(q.view().original, null);
-  assert.ok(q.view().attackerKey);
+  assert.equal(q.view().attackerKey, null);
+  assert.equal(q.view().deliveredTag.id, before.incomingTag.id);
   choose(q, "retry-here");
   assert.equal(q.view().phase, "message");
   assert.equal(q.view().incoming.id, before.incoming.id);
@@ -1077,17 +1121,20 @@ test("failed edit encryption explains why Bob receives the unchanged original", 
   assert.equal(q.view().selectingKey.action, "edit");
   assert.equal(q.view().draft, "I love you.");
 });
-test("failed decryption keeps the original Alice signature attached in the scene", () => {
+test("failed key authentication shows the key-delivery signature rather than a signed body", () => {
   const q = createQuest();
   reachKey(q, 3);
   choose(q, "inject-key");
   const frames = choose(q, "show-consequence");
   const s = q.view();
-  assert.equal(s.result.code, "bad-message");
-  assert.equal(s.deliveredSignature, null);
-  assert.equal(frames.at(-1).signatureOwner, "alice");
-  assert.equal(outcomeFrame(s).signatureOwner, "alice");
-  assert.equal(outcomeFrame(s).packet.id, s.incoming.id);
+  assert.equal(s.result.code, "key-signature-rejected");
+  assert.equal(s.bobHasKey, false);
+  assert.equal(s.incoming.type, "envelope");
+  assert.equal(
+    frames.some((f) => f.phase === "message"),
+    false,
+  );
+  assert.equal(outcomeFrame(s).packet.id, s.outgoing?.id || s.incoming.id);
 });
 test("unchanged original delivery before Round4 is neutral rather than a successful attack", () => {
   for (const round of [0, 1]) {
@@ -1100,3 +1147,166 @@ test("unchanged original delivery before Round4 is neutral rather than a success
     assert.equal(q.view().original, null);
   }
 });
+
+test("R4 signed key delivery authenticates the encrypted envelope before Bob adopts its key", () => {
+  const lab = createLab();
+  const envelope = authenticatedKey(lab);
+  const before = lab.snapshot();
+  assert.equal(before.bobHasKey, false);
+  assert.equal(before.incomingSignature.owner, "alice");
+  assert.equal(before.incomingSignature.purpose, "key-delivery");
+  assert.equal(envelope.sender, "alice");
+  assert.equal(envelope.recipient, "bob");
+  assert.equal(envelope.sessionId, before.sessionId);
+  assert.equal(envelope.sequence, 0);
+  const altered = lab.corrupt(envelope.id).id;
+  lab.setOutgoing(altered);
+  assert.equal(
+    lab.snapshot().outgoingSignature.id,
+    before.incomingSignature.id,
+  );
+  lab.forward();
+  const rejected = lab.snapshot();
+  assert.equal(rejected.result.code, "key-signature-rejected");
+  assert.equal(rejected.bobHasKey, false);
+  assert.equal(rejected.incoming.type, "envelope");
+  assert.equal(rejected.incomingTag, null);
+  assert.equal(rejected.original, null);
+});
+
+test("R4 body uses a separate authentication tag without a per-message digital signature", () => {
+  const lab = createLab();
+  const body = authenticatedBody(lab);
+  const before = lab.snapshot();
+  assert.equal(body.authenticated, true);
+  assert.equal(before.incomingSignature, null);
+  assert.equal(before.signature, null);
+  assert.equal(before.incomingTag.type, "tag");
+  assert.equal(before.deliveredSignature.owner, "alice");
+  assert.equal(before.deliveredSignature.purpose, "key-delivery");
+  assert.equal(body.sender, "alice");
+  assert.equal(body.recipient, "bob");
+  assert.equal(body.sessionId, before.sessionId);
+  assert.equal(typeof body.nonce, "string");
+  assert.equal(body.sequence, 0);
+  lab.forward();
+  const after = lab.snapshot();
+  assert.equal(after.result.code, "original-accepted");
+  assert.equal(after.deliveredTag.id, before.incomingTag.id);
+  assert.equal(after.original, null);
+  assert.equal(after.result.message, null);
+});
+
+test("R4 ciphertext tampering retains its old tag and fails before any plaintext is accepted", () => {
+  const lab = createLab();
+  const original = authenticatedBody(lab);
+  const tag = lab.snapshot().incomingTag.id;
+  const corrupted = lab.corrupt(original.id).id;
+  lab.setOutgoing(corrupted);
+  const altered = lab.snapshot();
+  assert.notEqual(altered.outgoing.token, original.token);
+  assert.equal(altered.outgoing.nonce, original.nonce);
+  assert.equal(altered.outgoing.sessionId, original.sessionId);
+  assert.equal(altered.outgoingTag.id, tag);
+  assert.equal(altered.outgoingSignature, null);
+  lab.forward();
+  const after = lab.snapshot();
+  assert.equal(after.result.code, "tag-rejected");
+  assert.equal(after.result.accepted, false);
+  assert.equal(after.deliveredTag.id, tag);
+  assert.equal(after.deliveredSignature.owner, "alice");
+  assert.equal(after.result.message, null);
+  assert.equal(after.read, false);
+  assert.equal(after.original, null);
+});
+
+test("R4 AEAD creates a fresh nonce for every encryption with the same key", () => {
+  const lab = createLab();
+  authenticatedBody(lab);
+  const key = lab.createAttackerKey().id;
+  lab.edit("I hate you.");
+  const first = lab.encryptMessage(key).id;
+  const second = lab.encryptMessage(key).id;
+  const inventory = lab.snapshot().inventory;
+  const a = inventory.find((o) => o.id === first);
+  const b = inventory.find((o) => o.id === second);
+  assert.notEqual(a.nonce, b.nonce);
+  assert.notEqual(a.token, b.token);
+  assert.equal(a.sessionId, b.sessionId);
+  assert.equal(a.authenticated, true);
+  lab.setOutgoing(second);
+  const staged = lab.snapshot();
+  assert.equal(staged.outgoingTag.type, "tag");
+  assert.equal(staged.outgoingSignature, null);
+  lab.forward();
+  assert.equal(lab.snapshot().result.code, "tag-rejected");
+  assert.equal(lab.snapshot().result.accepted, false);
+});
+
+test("R4 restarting creates a new session and refuses old key-delivery or body capabilities", () => {
+  const lab = createLab();
+  const oldEnvelope = authenticatedKey(lab);
+  lab.forward();
+  const oldBody = capture(lab);
+  const oldSession = lab.snapshot().sessionId;
+  authenticatedKey(lab);
+  const current = lab.snapshot();
+  assert.notEqual(current.sessionId, oldSession);
+  assert.equal(lab.setOutgoing(oldEnvelope.id).ok, false);
+  assert.equal(lab.setOutgoing(oldBody).ok, false);
+  assert.equal(lab.snapshot().outgoing, null);
+  assert.equal(lab.snapshot().incoming.id, current.incoming.id);
+  lab.forward();
+  lab.forward();
+  assert.equal(lab.snapshot().result.code, "original-accepted");
+});
+
+for (const [field, value] of [
+  ["sender", "charlie"],
+  ["recipient", "charlie"],
+  ["sessionId", "another-session"],
+  ["sequence", 1],
+])
+  test(`R4 key-delivery signature rejects altered ${field} without adopting the key`, () => {
+    const lab = createLab();
+    const original = authenticatedKey(lab);
+    const signature = lab.snapshot().incomingSignature.id;
+    const changed = lab.corrupt(original.id, { [field]: value });
+    assert.equal(changed.ok, true);
+    lab.setOutgoing(changed.id);
+    assert.equal(lab.snapshot().outgoing.token, original.token);
+    assert.equal(lab.snapshot().outgoing[field], value);
+    assert.equal(lab.snapshot().outgoingSignature.id, signature);
+    lab.forward();
+    const s = lab.snapshot();
+    assert.equal(s.result.code, "key-signature-rejected");
+    assert.equal(s.bobHasKey, false);
+    assert.equal(s.incoming.type, "envelope");
+    assert.equal(s.incomingTag, null);
+  });
+
+for (const [field, value] of [
+  ["nonce", "replaced-nonce"],
+  ["sender", "charlie"],
+  ["recipient", "charlie"],
+  ["sessionId", "another-session"],
+  ["sequence", 1],
+])
+  test(`R4 authentication tag rejects altered ${field} before accepting plaintext`, () => {
+    const lab = createLab();
+    const original = authenticatedBody(lab);
+    const tag = lab.snapshot().incomingTag.id;
+    const changed = lab.corrupt(original.id, { [field]: value });
+    assert.equal(changed.ok, true);
+    lab.setOutgoing(changed.id);
+    assert.equal(lab.snapshot().outgoing.token, original.token);
+    assert.equal(lab.snapshot().outgoing[field], value);
+    assert.equal(lab.snapshot().outgoingTag.id, tag);
+    lab.forward();
+    const s = lab.snapshot();
+    assert.equal(s.result.code, "tag-rejected");
+    assert.equal(s.result.accepted, false);
+    assert.equal(s.result.message, null);
+    assert.equal(s.deliveredTag.id, tag);
+    assert.equal(s.original, null);
+  });

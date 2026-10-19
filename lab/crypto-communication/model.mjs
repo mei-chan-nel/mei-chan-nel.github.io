@@ -27,15 +27,15 @@ export const rounds = [
     ],
   },
   {
-    title: "電子署名の導入",
-    short: "電子署名",
+    title: "鍵配送の電子署名と認証タグ",
+    short: "署名と認証タグ",
     description:
-      "BobがAliceの公開鍵を確認し、電子署名で本文と送信者を確かめる。",
+      "Bobが鍵配送のAliceの署名を検証し、本文の認証タグで改ざんを検出する。",
     stages: [
       "Aliceの鍵を確認",
       "Bobの鍵を確認",
-      "共通鍵の配送",
-      "電子署名の検証",
+      "署名付き共通鍵の配送",
+      "本文の認証タグを検証",
     ],
   },
 ];
@@ -141,35 +141,120 @@ export function createLab() {
     s.log.push({ text, kind });
     return { ok: kind !== "error", text };
   };
-  const cipher = (type, key, payload, label) => {
+  const cipher = (type, key, payload, label, metadata = {}) => {
     const id = make(type, label, {
       token: `⟦ ${uid()
         .replaceAll("-", "")
         .slice(0, 24)
         .match(/.{1,4}/g)
         .join(" ")} ⟧`,
+      ...metadata,
     });
     secrets.set(id, { key, payload });
     return id;
   };
   const envelope = (key, publicId) =>
-    cipher("envelope", publicId, key, "公開鍵で暗号化した共通鍵");
-  const signature = (text, owner) => {
+    cipher(
+      "envelope",
+      publicId,
+      key,
+      "公開鍵で暗号化した共通鍵",
+      s.round === 3
+        ? {
+            sender: "alice",
+            recipient: "bob",
+            sessionId: s.sessionId,
+            sequence: 0,
+          }
+        : {},
+    );
+  const signature = (text, owner, purpose = "message") => {
     const id = make(
       "signature",
       `${owner === "alice" ? "アリス" : "チャーリー"}の電子署名`,
-      { token: `SIG · ${uid().slice(0, 12)}`, owner },
+      { token: `SIG · ${uid().slice(0, 12)}`, owner, purpose },
     );
-    secrets.set(id, { text, owner });
+    secrets.set(id, { text, owner, purpose });
     return id;
   };
-  const packet = (text, key, sig = null) =>
-    cipher(
+  const deliveryContext = (item) =>
+    JSON.stringify([
+      "study-atlas/key-delivery/v1",
+      item.token,
+      item.sender,
+      item.recipient,
+      item.sessionId,
+      item.sequence,
+    ]);
+  const attachDeliverySignature = (id, owner) => {
+    const sig = signature(
+      deliveryContext(objects.get(id)),
+      owner,
+      "key-delivery",
+    );
+    secrets.get(id).signature = sig;
+    return sig;
+  };
+  const messageContext = (item) =>
+    JSON.stringify([
+      "study-atlas/message/v1",
+      item.token,
+      item.nonce,
+      item.sender,
+      item.recipient,
+      item.sessionId,
+      item.sequence,
+    ]);
+  function packet(text, key, sig = null) {
+    const authenticated = s.round === 3;
+    // A body signature is deliberately absent in Round 4. The AEAD tag
+    // authenticates the ciphertext and its public session/sequence context.
+    const id = cipher(
       "ciphertext",
       key,
-      { text, signature: sig },
-      sig ? "署名を添えた本文の暗号文" : "本文の暗号文",
+      { text, signature: authenticated ? null : sig },
+      authenticated
+        ? "認証タグを添えた本文の暗号文"
+        : sig
+          ? "署名を添えた本文の暗号文"
+          : "本文の暗号文",
+      authenticated
+        ? {
+            authenticated: true,
+            nonce: uid(),
+            sender: "alice",
+            recipient: "bob",
+            sessionId: s.sessionId,
+            sequence: s.messageSequence,
+          }
+        : {},
     );
+    if (authenticated) {
+      const tag = make("tag", "認証タグ", {
+        token: `TAG · ${uid().slice(0, 12)}`,
+      });
+      secrets.set(tag, {
+        key,
+        context: messageContext(objects.get(id)),
+      });
+      secrets.get(id).tag = tag;
+    }
+    return id;
+  }
+  function validTag(item, sealed, keyId) {
+    const proof = secrets.get(sealed?.tag);
+    return Boolean(
+      item?.authenticated &&
+      item.type === "ciphertext" &&
+      sealed?.key === keyId &&
+      proof?.key === keyId &&
+      proof.context === messageContext(item) &&
+      item.sender === "alice" &&
+      item.recipient === "bob" &&
+      item.sessionId === s.sessionId &&
+      item.sequence === s.messageSequence,
+    );
+  }
   function view(id) {
     const a = objects.get(id);
     if (!a) return null;
@@ -198,6 +283,8 @@ export function createLab() {
       phase: round === 0 ? "key" : round >= 2 ? "signing-public" : "public",
       step: 0,
       count: counter,
+      sessionId: uid(),
+      messageSequence: 0,
       key: make("symmetric", `共通鍵 K${counter}`, {
         token: uid().slice(0, 16).toUpperCase(),
         owner: "alice",
@@ -214,6 +301,7 @@ export function createLab() {
       draft: "",
       attachedSignature: null,
       deliveredSignature: null,
+      deliveredTag: null,
       signatureChoice: "keep",
       result: null,
       decryptResult: null,
@@ -250,11 +338,22 @@ export function createLab() {
       impersonating: Boolean(s.attackerKey && s.bobKey === s.attackerKey),
       signingPublic: view(pubA),
       substituteSigningPublic: view(verifyC),
-      outgoingSignature: view(secrets.get(s.outgoing)?.payload?.signature),
+      incomingSignature: view(
+        secrets.get(s.incoming)?.signature ||
+          secrets.get(s.incoming)?.payload?.signature,
+      ),
+      outgoingSignature: view(
+        secrets.get(s.outgoing)?.signature ||
+          secrets.get(s.outgoing)?.payload?.signature,
+      ),
       deliveredSignature: view(s.deliveredSignature),
+      incomingTag: view(secrets.get(s.incoming)?.tag),
+      outgoingTag: view(secrets.get(s.outgoing)?.tag),
+      deliveredTag: view(s.deliveredTag),
       phase: s.phase,
       step: s.step,
       count: s.count,
+      sessionId: s.sessionId,
       incoming: view(s.incoming),
       outgoing: view(s.outgoing),
       inventory: inventory(),
@@ -294,6 +393,9 @@ export function createLab() {
         "error",
       );
     known.add(s.incoming);
+    const sealed = secrets.get(s.incoming);
+    if (sealed?.signature) known.add(sealed.signature);
+    if (sealed?.tag) known.add(sealed.tag);
     if (objects.get(s.incoming)?.type === "certificate")
       known.add(secrets.get(s.incoming).certificate.publicId);
     return event(
@@ -339,6 +441,11 @@ export function createLab() {
         "error",
       );
     }
+    if (a.authenticated && !validTag(a, sealed, keyId))
+      return event(
+        "Charlieは、認証タグを検証できないため、本文を受け付けません。暗号文や通信の識別情報が変わっています。",
+        "error",
+      );
     s.draft = sealed.payload.text;
     s.attachedSignature = sealed.payload.signature;
     s.signatureChoice = "keep";
@@ -432,16 +539,76 @@ export function createLab() {
       id,
     };
   }
-  function corrupt(id) {
+  function signKeyDelivery(envelopeId, privateId) {
+    if (
+      !known.has(envelopeId) ||
+      objects.get(envelopeId)?.type !== "envelope" ||
+      !secrets.get(envelopeId)?.payload
+    )
+      return event(
+        "Charlieが署名する共通鍵の暗号文を選んでください。",
+        "error",
+      );
+    const key = objects.get(privateId);
+    if (
+      !known.has(privateId) ||
+      key?.type !== "private" ||
+      key.owner !== "charlie"
+    )
+      return event(
+        "Charlieが鍵配送に署名するには、Charlieの秘密鍵が必要です。CharlieはAliceの署名を作れません。",
+        "error",
+      );
+    const original = objects.get(envelopeId);
+    const { id: _id, label: _label, type: _type, ...metadata } = original;
+    const id = make("envelope", "Charlieが署名した共通鍵の暗号文", {
+      ...metadata,
+    });
+    secrets.set(id, { ...secrets.get(envelopeId) });
+    const sig = attachDeliverySignature(id, "charlie");
+    known.add(sig);
+    known.add(id);
+    return {
+      ...event(
+        "Charlieは、共通鍵の暗号文とAlice・Bob・今回の通信の識別情報にCharlieの秘密鍵で署名しました。Aliceの署名にはなりません。",
+      ),
+      id,
+    };
+  }
+  function corrupt(id, publicChanges = null) {
     if (
       !known.has(id) ||
       !["ciphertext", "envelope"].includes(objects.get(id)?.type)
     )
       return event("Charlieが直接書き換える暗号文を選んでください。", "error");
     const a = objects.get(id);
+    const { id: _id, label: _label, type: _type, ...metadata } = a;
+    // The attacker can modify the public wire representation, never the sealed
+    // plaintext/key or the authenticating proof. Explicit fields let tests and
+    // future experiments demonstrate nonce/session/recipient binding as well.
+    const changes = publicChanges
+      ? Object.fromEntries(
+          Object.entries(publicChanges).filter(
+            ([name]) =>
+              [
+                "token",
+                "nonce",
+                "sender",
+                "recipient",
+                "sessionId",
+                "sequence",
+              ].includes(name) && Object.hasOwn(a, name),
+          ),
+        )
+      : { token: `${a.token.slice(0, -2)} FF ⟧` };
+    if (!Object.keys(changes).length)
+      return event("Charlieが書き換える公開情報を選んでください。", "error");
     const broken = make(a.type, "直接編集した暗号文", {
-      token: `${a.token.slice(0, -2)} FF ⟧`,
+      ...metadata,
+      ...changes,
     });
+    if (a.authenticated || secrets.get(id)?.signature)
+      secrets.set(broken, { ...secrets.get(id) });
     known.add(broken);
     return {
       ...event(
@@ -527,12 +694,37 @@ export function createLab() {
       }
       s.alicePublic = publicId;
       s.incoming = envelope(s.key, publicId);
+      if (s.round === 3) attachDeliverySignature(s.incoming, "alice");
       s.phase = "key";
       s.step++;
       event(
-        "Aliceは、受け取った公開鍵で共通鍵を暗号化しました。Charlieの中継機は、共通鍵の暗号文を止めています。",
+        s.round === 3
+          ? "Aliceは、Bobの公開鍵で共通鍵を暗号化し、その暗号文とAlice・Bob・今回の通信の識別情報にAliceの秘密鍵で署名しました。Charlieの中継機は、署名を添えた共通鍵の暗号文を止めています。"
+          : "Aliceは、受け取った公開鍵で共通鍵を暗号化しました。Charlieの中継機は、共通鍵の暗号文を止めています。",
       );
     } else if (s.phase === "key") {
+      if (s.round === 3) {
+        const sig = sealed?.signature;
+        const proof = secrets.get(sig);
+        s.deliveredSignature = sig || null;
+        if (
+          a.type !== "envelope" ||
+          proof?.purpose !== "key-delivery" ||
+          proof.owner !== objects.get(s.verificationPublic)?.owner ||
+          proof.text !== deliveryContext(a) ||
+          a.sender !== "alice" ||
+          a.recipient !== "bob" ||
+          a.sessionId !== s.sessionId ||
+          a.sequence !== 0
+        ) {
+          finish(
+            "key-signature-rejected",
+            "共通鍵配送の署名検証に失敗。Bobは拒否した",
+            "Bobは、CAで確認したAliceの公開鍵で、共通鍵の暗号文・AliceとBobの識別名・今回の通信の識別情報への署名を検証します。署名の削除、Charlieの署名、暗号文や識別情報の変更は検証を通りません。Bobは共通鍵を採用せず、本文の通信を始めません。",
+          );
+          return;
+        }
+      }
       const deliveredKey =
         s.round === 0 && a.type === "symmetric"
           ? id
@@ -550,8 +742,7 @@ export function createLab() {
         return;
       }
       s.bobKey = deliveredKey;
-      const sig = s.round === 3 ? signature("I love you.", "alice") : null;
-      s.incoming = packet("I love you.", s.key, sig);
+      s.incoming = packet("I love you.", s.key);
       s.originalCipher = s.incoming;
       s.phase = "message";
       s.step++;
@@ -559,9 +750,22 @@ export function createLab() {
         (s.attackerKey && s.bobKey === s.attackerKey
           ? "Bobは、Charlieが用意した共通鍵を取得しました。"
           : "Bobは、Aliceの共通鍵を取得しました。") +
-          "Aliceは、本文をAliceの共通鍵で暗号化して送りました。Charlieの中継機は、本文の暗号文を止めています。",
+          (s.round === 3
+            ? "Aliceは、本文をAliceの共通鍵でAEAD暗号化し、認証タグを添えて送りました。Charlieの中継機は、認証タグを添えた本文の暗号文を止めています。"
+            : "Aliceは、本文をAliceの共通鍵で暗号化して送りました。Charlieの中継機は、本文の暗号文を止めています。"),
       );
     } else {
+      if (s.round === 3) {
+        s.deliveredTag = sealed?.tag || null;
+        if (!validTag(a, sealed, s.bobKey)) {
+          finish(
+            "tag-rejected",
+            "認証タグの検証に失敗。Bobは拒否した",
+            "Bobは、Aliceから署名付きで受け取った共通鍵で認証タグを検証します。暗号文の書き換え、別の鍵で作った偽の本文、今回の通信と異なるデータは検証を通りません。Bobは本文を受け付けず、復号結果も利用しません。",
+          );
+          return;
+        }
+      }
       if (a.type !== "ciphertext" || !sealed || sealed.key !== s.bobKey) {
         finish(
           "bad-message",
@@ -571,22 +775,7 @@ export function createLab() {
         return;
       }
       const { text, signature: sig } = sealed.payload;
-      s.deliveredSignature = sig;
-      if (s.round === 3) {
-        const proof = secrets.get(sig);
-        if (
-          !proof ||
-          proof.owner !== objects.get(s.verificationPublic)?.owner ||
-          proof.text !== text
-        ) {
-          finish(
-            "signature-rejected",
-            "署名検証に失敗。ボブは拒否しました",
-            "BobはCAで確認したAliceの公開鍵で署名を検証します。Charlieの署名、署名の削除、署名した本文の変更はAliceの署名として検証を通せないため、Bobは偽の本文を拒否しました。",
-          );
-          return;
-        }
-      }
+      if (s.round !== 3) s.deliveredSignature = sig;
       if (text === "I hate you.") {
         finish(
           "attack-success",
@@ -604,7 +793,7 @@ export function createLab() {
           "original-accepted",
           "ボブがメッセージを受け付けました",
           s.round === 3
-            ? "BobはCAで確認したAliceの公開鍵で本文の署名を検証し、Aliceの本文を受け付けました。電子署名は内容と署名者の確認、暗号化は本文を隠す役割を担います。"
+            ? "Bobは共通鍵配送のAliceの署名を検証し、その共通鍵で本文の認証タグを検証して、本文を受け付けました。鍵配送への署名は鍵の出所を確かめ、AEADは本文を隠すと同時に改ざんを検出します。本文ごとの電子署名は使っていません。"
             : "狙った改ざんには至りませんでした。経路上のデータを集め、鍵の役割を調べて再実験できます。",
           true,
           text,
@@ -650,6 +839,7 @@ export function createLab() {
     chooseSignature,
     createAttackerKey,
     signDraft,
+    signKeyDelivery,
     encryptMessage,
     wrapKey,
     corrupt,

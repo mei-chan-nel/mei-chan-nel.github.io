@@ -32,6 +32,9 @@ test("every offered action and key can progress, demonstrate consequences, and r
       public: role(v.publicForAlice),
       incoming: role(v.incoming),
       outgoing: role(v.outgoing),
+      keySignature: v.incomingSignature?.owner || v.outgoingSignature?.owner,
+      incomingTag: Boolean(v.incomingTag),
+      outgoingTag: Boolean(v.outgoingTag),
       attacker: !!v.attackerKey,
       impersonating: v.impersonating,
       pred: v.predictionAnswered,
@@ -63,6 +66,10 @@ test("every offered action and key can progress, demonstrate consequences, and r
       r: v.round,
       phase: v.phase,
       incoming: v.incoming.id,
+      keySignature: v.incomingSignature?.id,
+      incomingTag: v.incomingTag?.id,
+      sessionId: v.incoming.sessionId,
+      nonce: v.incoming.nonce,
       outgoing: v.outgoing?.id,
       public: v.publicForAlice?.id,
       attacker: v.attackerKey?.id,
@@ -112,14 +119,49 @@ test("every offered action and key can progress, demonstrate consequences, and r
         assert.equal(
           v.deliveredSignature?.owner,
           "alice",
-          "accepted signed message retains Alice signature",
+          "accepted channel retains Alice key-delivery signature",
         );
-      if (v.result.code === "signature-rejected")
+      if (v.round === 3 && v.result.accepted) {
+        assert.equal(v.incoming.type, "ciphertext");
+        assert.equal(v.incoming.authenticated, true);
+        assert(
+          v.deliveredTag,
+          "Bob verifies an authentication tag before accepting the body",
+        );
+        assert.equal(
+          v.signature,
+          null,
+          "AEAD body carries no digital signature",
+        );
+      }
+      if (v.result.code === "key-signature-rejected") {
+        assert.equal(
+          v.bobHasKey,
+          false,
+          "rejected key signature prevents key adoption",
+        );
+        assert.equal(
+          v.incoming.type,
+          "envelope",
+          "key rejection occurs before body generation",
+        );
+      }
+      if (v.result.code === "tag-rejected") {
         assert.equal(
           v.deliveredSignature?.owner,
-          "charlie",
-          "forged sender signature is rejected",
+          "alice",
+          "tamper demo keeps authenticated Alice key",
         );
+        assert.equal(
+          v.attackerKey,
+          null,
+          "body tamper does not regenerate the key",
+        );
+        assert(
+          v.deliveredTag,
+          "bad body is rejected against its retained authentication tag",
+        );
+      }
       if (v.result.code === "attack-success") {
         assert.equal(
           v.read,
@@ -276,7 +318,8 @@ test("every offered action and key can progress, demonstrate consequences, and r
     "bad-verification-key",
     "authenticated",
     "bad-message",
-    "signature-rejected",
+    "key-signature-rejected",
+    "tag-rejected",
   ])
     assert(endings[code], "reachable terminal " + code);
   assert.deepEqual(
