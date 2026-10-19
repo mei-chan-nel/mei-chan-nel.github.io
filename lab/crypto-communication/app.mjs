@@ -1,5 +1,5 @@
-import { createQuest } from "./quest.mjs?v=16";
-import { rounds } from "./model.mjs?v=21";
+import { createQuest } from "./quest.mjs?v=17";
+import { rounds } from "./model.mjs?v=22";
 import {
   introFrames,
   roundFrames,
@@ -7,7 +7,7 @@ import {
   packetName,
   englishNames,
   lesson,
-} from "./storyboard.mjs?v=18";
+} from "./storyboard.mjs?v=19";
 import { createDisplayController } from "./display.mjs";
 import { explanations } from "./explanations.mjs?v=8";
 const $ = (id) => document.getElementById(id);

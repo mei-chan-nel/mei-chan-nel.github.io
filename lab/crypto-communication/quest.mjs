@@ -1,4 +1,4 @@
-import { createLab } from "./model.mjs?v=21";
+import { createLab } from "./model.mjs?v=22";
 import {
   frame,
   forwardFrames,
@@ -6,7 +6,7 @@ import {
   outcomeFrame,
   packetKind,
   englishNames,
-} from "./storyboard.mjs?v=18";
+} from "./storyboard.mjs?v=19";
 const copy = (value) => JSON.parse(JSON.stringify(value));
 export function createQuest() {
   const lab = createLab();
@@ -206,8 +206,8 @@ export function createQuest() {
         shared(s)
           ? choice(
               "rewrap",
-              "共通鍵を包み直す",
-              "Bobが開けるようにする鍵を選ぶ",
+              "入手した共通鍵を暗号化し直す",
+              "共通鍵の暗号化に使う鍵を選ぶ",
             )
           : choice(
               "open-key",
@@ -333,15 +333,16 @@ export function createQuest() {
         : "Bobの公開鍵が届いた。Aliceに渡す公開鍵を選ぼう。",
       key:
         s.round === 0
-          ? "Charlieは共通鍵を入手した。Charlieが鍵をBobへ届けると、Aliceは本文を送る。"
+          ? "CharlieはAliceの共通鍵を入手した。Charlieが共通鍵をBobへ届けると、Aliceは本文をAliceの共通鍵で暗号化して送る。"
           : s.ca
             ? s.round === 3
               ? "Aliceの共通鍵の暗号文には、Aliceの署名が付いている。Charlieは、Bobへ届けるデータを選ぼう。"
               : "Charlieは偽の本文をBobに受け付けさせたい。Charlieは共通鍵の配送にどう介入する？"
             : key
-              ? "Charlieは共通鍵を入手した。Bobも同じ共通鍵を取り出せるようにしよう。"
-              : "Aliceが送った共通鍵は暗号化されている。どの鍵で開けるだろうか。",
-      message: "本文の暗号文が届いた。復号に使う鍵を選ぼう。",
+              ? "CharlieはAliceの共通鍵を取り出した。Charlieは、Bobへ届ける共通鍵と、その暗号化に使う鍵を選ぼう。"
+              : "Charlieは、Aliceから届いた共通鍵の暗号文を、どの鍵で復号できるだろうか。",
+      message:
+        "Charlieは、Aliceから届いた本文の暗号文を、どの鍵で復号できるだろうか。",
       predict:
         s.round === 3
           ? "CharlieはAliceの本文を読めない。Charlieが本文の暗号文を書き換えたら、Bobは認証タグの検証で気づくだろうか。"
@@ -350,7 +351,7 @@ export function createQuest() {
             : "Charlieは「love」を「hate」に変えたい。Bobは本文の変更に気づくだろうか。",
       edit: s.impersonating
         ? "Bobが持っているのは、Charlieが送り込んだ共通鍵だ。偽の本文をBobが復号できる形にしよう。"
-        : "Charlieが考えた書き換えを、実際の暗号文にしてみよう。",
+        : "Charlieは、書き換えた本文の暗号化に使う鍵を選ぼう。",
       ready:
         s.round === 3 && s.phase === "message"
           ? "Charlieは、正しい認証タグを作れないと分かった。Charlieは暗号文と認証タグを変えずにBobへ届ける。"
@@ -488,9 +489,11 @@ export function createQuest() {
     origin,
     kind,
     inline = false,
+    attemptedKeyLabel = "",
   ) {
     retryPoint = origin;
     x.feedback = { correct, explanation, kind, inline };
+    if (attemptedKeyLabel) x.feedback.attemptedKeyLabel = attemptedKeyLabel;
     x.feedbackFrames = frames.map((f) => ({
       ...f,
       tone: correct ? "correct" : "wrong",
@@ -528,14 +531,27 @@ export function createQuest() {
         feedback?.kind,
       )
     ) {
+      const attemptedKey = feedback.attemptedKeyLabel || "選んだ鍵";
       const failure =
         feedback.kind === "read"
-          ? "Charlieは選んだ鍵では本文を復号できなかった。"
+          ? "Charlieは" +
+            attemptedKey +
+            "では、Aliceの本文の暗号文を復号できなかった。"
           : feedback.kind === "open-key"
-            ? "Charlieは選んだ鍵では共通鍵を取り出せなかった。"
-            : feedback.kind === "edit"
-              ? "Charlieは本文を書き換えようとしたが、選んだ鍵では新しい本文の暗号文を作れなかった。"
-              : "Charlieは選んだ鍵では新しい共通鍵の暗号文を作れなかった。";
+            ? "Charlieは" +
+              attemptedKey +
+              "では、Aliceの共通鍵の暗号文を復号できなかった。"
+            : feedback.kind === "payload"
+              ? "Charlieは" +
+                attemptedKey +
+                "を送る共通鍵として選んだが、共通鍵ではなかった。"
+              : feedback.kind === "edit"
+                ? "Charlieは" +
+                  attemptedKey +
+                  "では、書き換えた本文の暗号文を作れなかった。"
+                : "Charlieは" +
+                  attemptedKey +
+                  "では、Bobへ送る共通鍵の暗号文を作れなかった。";
       frames.push(
         frame(
           failure + "Charlieは、届いた元の暗号文を変えずに転送する。",
@@ -558,7 +574,11 @@ export function createQuest() {
       lab.decrypt(s.incoming.id, key.id);
       frames.push(
         frame(
-          "Charlieは手元の鍵で復号を試したが、Aliceの暗号文を開けなかった。",
+          "Charlieは、" +
+            englishNames(key.label) +
+            "では、Aliceの" +
+            (s.phase === "key" ? "共通鍵" : "本文") +
+            "の暗号文を復号できなかった。",
           "decrypt-failed",
           {
             at: "charlie",
@@ -580,7 +600,7 @@ export function createQuest() {
       lab.setOutgoing(signed.id);
       frames.push(
         frame(
-          "Charlieは、Charlieの共通鍵をBobの公開鍵で暗号化し、Charlieの署名を付けて差し替えた。",
+          "Charlieは、Charlieの共通鍵をBobの公開鍵で暗号化した。CharlieはCharlieの秘密鍵で鍵配送に署名し、Aliceのデータと差し替えた。",
           "sign-key",
           {
             at: "charlie",
@@ -614,8 +634,8 @@ export function createQuest() {
       frames.push(
         frame(
           s.impersonating
-            ? "Charlieは、Charlieの共通鍵で偽の本文を暗号化した。"
-            : "Charlieは、書き換えた本文を同じ共通鍵で暗号化した。",
+            ? "Charlieは、偽の本文をCharlieの共通鍵で暗号化した。"
+            : "Charlieは、書き換えた本文をAliceの共通鍵で暗号化し直した。",
           "encrypt",
           {
             at: "charlie",
@@ -699,6 +719,8 @@ export function createQuest() {
           [],
           origin,
           "payload",
+          false,
+          key?.label,
         );
       x.payloadKey = key;
       x.selectingKey = {
@@ -722,8 +744,8 @@ export function createQuest() {
       return evaluate(
         before.round === 3,
         before.round === 3
-          ? "BobはAliceの署名を検証し、共通鍵の配送データが今回のAliceからBobへの通信に対応すると確認した。Bobは検証に成功してから、Bobの秘密鍵で共通鍵を取り出した。"
-          : "BobにはAliceの共通鍵が届いた。Charlieはその共通鍵を知らないため、Charlieの偽の本文を同じ共通鍵で暗号化できない。偽の本文を受け付けさせるには、共通鍵と本文の両方を差し替える必要がある。",
+          ? "BobはAliceの公開鍵で鍵配送の署名を検証した。Bobは検証後、Bobの秘密鍵で共通鍵の暗号文を復号し、Aliceの共通鍵を取り出した。"
+          : "BobにはAliceの共通鍵が届いた。CharlieはAliceの共通鍵を知らないため、偽の本文をAliceの共通鍵で暗号化できない。偽の本文を受け付けさせるには、共通鍵と本文の両方を差し替える必要がある。",
         frames,
         origin,
         "key-pass",
@@ -742,10 +764,10 @@ export function createQuest() {
         correct,
         before.phase === "key"
           ? readable
-            ? "AliceはCharlieの公開鍵で共通鍵を暗号化した。Charlieは、対になるCharlieの秘密鍵で共通鍵を取り出せる。"
-            : "Aliceは本物のBobの公開鍵で共通鍵を暗号化した。復号に必要なBobの秘密鍵をCharlieは持っていない。"
+            ? "AliceはAliceの共通鍵をCharlieの公開鍵で暗号化した。Charlieは、その暗号文をCharlieの秘密鍵で復号できる。"
+            : "AliceはAliceの共通鍵をBobの公開鍵で暗号化した。Charlieは、その暗号文の復号に必要なBobの秘密鍵を持っていない。"
           : readable
-            ? "Charlieは、Aliceが本文の暗号化に使った共通鍵を持っている。同じ共通鍵を使えば本文を復号できる。"
+            ? "CharlieはAliceの共通鍵を持っているため、Aliceの本文の暗号文をAliceの共通鍵で復号できる。"
             : before.impersonating
               ? "CharlieがBobに送り込んだ共通鍵は、Aliceの共通鍵とは別の鍵だ。Charlieの共通鍵ではAliceの本文を読めない。読めなくても、別の本文を作ることはできる。"
               : "CharlieはAliceの共通鍵を持っていない。公開鍵やCharlieの秘密鍵では、共通鍵で暗号化された本文は読めない。",
@@ -776,7 +798,7 @@ export function createQuest() {
       }
       return evaluate(
         true,
-        "AliceがCharlieの公開鍵を使えば、Charlieは対になる秘密鍵で共通鍵を取り出せる。",
+        "AliceがAliceの共通鍵をCharlieの公開鍵で暗号化すると、CharlieはCharlieの秘密鍵で共通鍵の暗号文を復号できる。",
         [
           frame(
             "Charlieは、Bobの公開鍵をCharlieの公開鍵にすり替えた。",
@@ -815,10 +837,10 @@ export function createQuest() {
       return evaluate(
         correct,
         detected
-          ? "Bobは本文を受け付ける前に、共通鍵で認証タグを検証する。Charlieは共通鍵を持たず、変更後の暗号文に合うタグを作れないため、Bobは書き換えを検出する。"
+          ? "Bobは本文を受け付ける前に、Aliceから受け取った共通鍵で本文の認証タグを検証する。CharlieはAliceの共通鍵を持たず、変更後の暗号文に合うタグを作れないため、Bobは書き換えを検出する。"
           : before.impersonating
             ? "BobはCAでAliceの公開鍵を確認したが、今回の共通鍵を送った相手は確認していない。Charlieが用意した共通鍵と本文でも、BobはAliceから届いたものだと誤認する。"
-            : "Bobには本文の変更を確かめる署名がない。Charlieが同じ共通鍵で暗号化し直すと、Bobは変更に気づけない。",
+            : "Charlieは、書き換えた本文をAliceの共通鍵で暗号化し直せる。BobはAliceから受け取った共通鍵で復号できるため、Charlieによる書き換えに気づかない。",
         [],
         origin,
         "prediction",
@@ -846,19 +868,19 @@ export function createQuest() {
             : action === "read"
               ? before.impersonating
                 ? "Aliceの本文はAliceの共通鍵で暗号化されている。CharlieがBobに送り込んだ共通鍵では復号できない。"
-                : "本文は共通鍵で暗号化されている。暗号化に使われた同じ共通鍵を選ぼう。"
+                : "Aliceの本文はAliceの共通鍵で暗号化されている。Charlieが本文を復号するにも、Aliceの共通鍵が必要だ。"
               : ["rewrap", "inject-key"].includes(action)
-                ? "Bob宛てに共通鍵を暗号化するにはBobの公開鍵を使う。Bobは対になる秘密鍵で共通鍵を取り出す。"
+                ? "CharlieがBobへ届ける共通鍵は、Bobの公開鍵で暗号化する。Bobは、その暗号文をBobの秘密鍵で復号する。"
                 : "本文の暗号化には共通鍵を使う。公開鍵や秘密鍵は、この本文の暗号化には使わない。";
-      return evaluate(false, reason, [], origin, action);
+      return evaluate(false, reason, [], origin, action, false, key.label);
     }
     if (action === "open-key")
       return evaluate(
         true,
-        "Charlieの公開鍵と対になるCharlieの秘密鍵で、共通鍵を取り出せた。",
+        "Charlieは、Charlieの秘密鍵で共通鍵の暗号文を復号し、Aliceの共通鍵を取り出せた。",
         [
           frame(
-            "Charlieは、Charlieの秘密鍵で共通鍵を取り出した。",
+            "Charlieは、共通鍵の暗号文をCharlieの秘密鍵で復号し、Aliceの共通鍵を取り出した。",
             "decrypt",
             base,
           ),
@@ -869,12 +891,16 @@ export function createQuest() {
     if (action === "read")
       return evaluate(
         true,
-        "本文の暗号化と同じ共通鍵を使ったため、Charlieは本文を復号できた。",
+        "Charlieは、Aliceの本文の暗号文をAliceの共通鍵で復号できた。Aliceが本文の暗号化に使った共通鍵と同じ鍵だからだ。",
         [
-          frame("Charlieは、" + key.label + "で本文を復号した。", "decrypt", {
-            ...base,
-            showPlaintext: true,
-          }),
+          frame(
+            "Charlieは、Aliceの本文の暗号文を" + key.label + "で復号した。",
+            "decrypt",
+            {
+              ...base,
+              showPlaintext: true,
+            },
+          ),
           frame(
             "Charlieは「love」を「hate」に変えて、Bobに届けることを思いついた。",
             "idea",
@@ -891,14 +917,16 @@ export function createQuest() {
         key.owner === "bob",
         key.owner === "bob"
           ? action === "inject-key"
-            ? "Charlieが選んだ共通鍵をBobの公開鍵で暗号化した。Bobは、対になるBobの秘密鍵でその共通鍵を取り出せる。"
-            : "Bobの公開鍵で包み直したので、BobはBobの秘密鍵で同じ共通鍵を取り出せる。"
+            ? "Charlieは、Charlieの共通鍵をBobの公開鍵で暗号化した。Bobは、その暗号文をBobの秘密鍵で復号し、Charlieの共通鍵を取り出せる。"
+            : "Charlieは、Aliceの共通鍵をBobの公開鍵で暗号化し直した。Bobは、その暗号文をBobの秘密鍵で復号し、Aliceの共通鍵を取り出せる。"
           : "Charlieの公開鍵で暗号化するとCharlie宛てになる。Bobが開けるように、Bobの公開鍵を選ぼう。",
         [
           frame(
             action === "inject-key"
               ? "Charlieは、Charlieの共通鍵を" + key.label + "で暗号化した。"
-              : "Charlieは、共通鍵を" + key.label + "で暗号化し直した。",
+              : "Charlieは、取り出したAliceの共通鍵を" +
+                  key.label +
+                  "で暗号化し直した。",
             "wrap",
             {
               ...base,
@@ -914,15 +942,15 @@ export function createQuest() {
     return evaluate(
       true,
       before.round === 3
-        ? "Bobは共通鍵で認証タグを検証し、成功した本文だけを受け付ける。"
+        ? "BobはAliceから受け取った共通鍵で本文の認証タグを検証し、成功した本文だけを受け付ける。"
         : before.impersonating
-          ? "BobはCharlieの共通鍵で復号できる。送信者を確かめる署名がないため、BobはCharlieの本文をAliceの本文だと思って受け付ける。"
-          : "Bobは同じ共通鍵で復号できる。本文の変更を確かめる署名がないため、Bobは改ざんに気づかない。",
+          ? "Bobは、偽の本文の暗号文をCharlieの共通鍵で復号できる。Bobは鍵の配送元を確認していないため、Charlieの本文をAliceの本文だと思って受け付ける。"
+          : "Bobは、書き換えられた本文の暗号文をAliceから受け取った共通鍵で復号できる。BobはCharlieがAliceの共通鍵を知っていると気づいていないため、本文の変更を見抜けない。",
       [
         frame(
           before.impersonating
             ? "Charlieは、自作の「I hate you.」をCharlieの共通鍵で暗号化した。"
-            : "Charlieは、本文を「I hate you.」に変え、同じ共通鍵で暗号化し直した。",
+            : "Charlieは、本文を「I hate you.」に変え、Aliceの共通鍵で暗号化し直した。",
           "encrypt",
           {
             ...base,

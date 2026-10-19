@@ -119,9 +119,9 @@ export function caPreparationFrames(s, owner = "Alice") {
     setup(
       "CAは" +
         owner +
-        "の本人確認を行い、" +
+        "の本人確認を行い、CAの秘密鍵で、" +
         owner +
-        "の名前と公開鍵にCAの署名を付けた。",
+        "の名前と公開鍵に電子署名を付けた。",
       "ca-issue",
       "ca-" + at,
       certificate,
@@ -290,17 +290,17 @@ export function lesson(s) {
         s.round === 2
           ? "CAで公開鍵を確認しても、Bobは共通鍵を送ったのがAliceか確認していない。Charlieの共通鍵と偽の本文が受け付けられた。CharlieはAliceの本文を読めていない。"
           : s.round === 0
-            ? "Charlieは平文で届いた共通鍵で本文を読み、書き換えた本文も暗号化できた。"
+            ? "CharlieはAliceの共通鍵で本文を復号した。Charlieは書き換えた本文もAliceの共通鍵で暗号化できた。"
             : "Aliceが公開鍵の持ち主を確認しなかったため、Charlieは共通鍵を手に入れられた。",
       "original-accepted":
         s.round === 3
-          ? "BobはAliceの署名を確認して共通鍵を受け取り、本文の認証タグも検証した。Charlieは鍵の差し替えも本文の改変も成功させられなかった。"
-          : "Bobは正しい共通鍵でAliceの本文を復号した。Charlieは元の暗号文をそのまま送った。",
+          ? "BobはAliceの公開鍵で鍵配送の署名を確認した。BobはAliceから受け取った共通鍵で本文を復号し、認証タグも検証した。"
+          : "BobはAliceから受け取った共通鍵で、Aliceの本文の暗号文を復号した。Charlieは元の暗号文をそのまま送った。",
       "bad-public": "Aliceが共通鍵を暗号化するには、配送先の公開鍵が必要だ。",
       "bad-verification-key":
         "Bobはブラウザ内のCA公開鍵でCA署名とAliceの名前を確認するので、Charlieの鍵への取り替えを検出した。",
       "bad-key":
-        "Bobが共通鍵を取り出すには、Bobの公開鍵で暗号化された共通鍵が必要だ。",
+        "BobはBobの秘密鍵で、Bobの公開鍵で暗号化された共通鍵を取り出す。Charlie宛ての暗号文はBobの秘密鍵では開けない。",
       "bad-message":
         "Bobが持つ共通鍵と、Aliceが本文の暗号化に使った共通鍵が違った。共通鍵だけの差し替えでは、Aliceの暗号文は復号できない。",
       "key-signature-rejected":
@@ -372,7 +372,9 @@ export function forwardFrames(before, after) {
     if (after.round === 3 && before.phase === "message")
       frames.push(
         frame(
-          "Bobは、共通鍵で認証タグを検証し、本文の改変がないか確かめた。",
+          after.result.code === "tag-rejected"
+            ? "Bobは、Aliceから受け取った共通鍵で、届いた本文の認証タグを検証した。"
+            : "Bobは、Aliceから受け取った共通鍵で、本文の復号と認証タグの検証に成功した。",
           "verify-tag",
           {
             at: "bob",
@@ -421,11 +423,11 @@ export function forwardFrames(before, after) {
           ]
         : []),
       frame(
-        "Aliceは、" +
+        "Aliceは、Aliceの共通鍵を" +
           (after.ca
             ? "BobのCA登録済の公開鍵"
             : englishNames(after.publicForAlice.label)) +
-          "でAliceの共通鍵を暗号化した。",
+          "で暗号化した。",
         "wrap",
         {
           at: "alice",
@@ -438,7 +440,7 @@ export function forwardFrames(before, after) {
       ...(after.round === 3
         ? [
             frame(
-              "Aliceは、共通鍵の暗号文にAliceの秘密鍵で電子署名を付けた。",
+              "Aliceは、Aliceの秘密鍵で、共通鍵の暗号文と今回の通信を示す情報に電子署名を付けた。",
               "sign-key",
               {
                 at: "alice",
@@ -468,10 +470,10 @@ export function forwardFrames(before, after) {
     ...(after.round === 3 ? [keyVerification()] : []),
     frame(
       after.impersonating
-        ? "Bobは、Bobの秘密鍵でCharlieの共通鍵を取り出した。Bobは、Aliceが共通鍵を送ったと思っている。"
+        ? "Bobは、Bobの秘密鍵で共通鍵の暗号文を復号し、Charlieの共通鍵を取り出した。BobはAliceの共通鍵だと思っている。"
         : before.round === 0
           ? "Bobは、Aliceの共通鍵を受け取った。"
-          : "Bobは、Bobの秘密鍵でAliceの共通鍵を取り出した。",
+          : "Bobは、Bobの秘密鍵で共通鍵の暗号文を復号し、Aliceの共通鍵を取り出した。",
       "decrypt",
       {
         at: "bob",
@@ -485,8 +487,8 @@ export function forwardFrames(before, after) {
     ),
     frame(
       after.round === 3
-        ? "Aliceは、共通鍵で本文を暗号化し、認証タグも作った。"
-        : "Aliceは、本文をAliceの共通鍵で暗号化した。",
+        ? "Aliceは、Bobへ届けたAliceの共通鍵で、本文を暗号化し、本文の認証タグも作った。"
+        : "Aliceは、Bobに送る本文をAliceの共通鍵で暗号化した。",
       "encrypt",
       {
         at: "alice",

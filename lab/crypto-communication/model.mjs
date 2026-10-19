@@ -422,7 +422,9 @@ export function createLab() {
         objects.get(sealed.key)?.owner !== key.owner
       ) {
         return event(
-          "Charlieは、選んだ鍵で共通鍵を復号できません。Charlieには、暗号化に使われた公開鍵と対になる秘密鍵が必要です。",
+          "Charlieは、" +
+            key.label +
+            "では共通鍵の暗号文を復号できません。Charlieには、暗号化に使われた公開鍵と対になる秘密鍵が必要です。",
           "error",
         );
       }
@@ -432,12 +434,18 @@ export function createLab() {
         label: objects.get(sealed.payload).label,
       };
       return event(
-        "Charlieは、共通鍵の復号に成功しました。Charlieは、共通鍵を持ち物に加えました。",
+        "Charlieは、共通鍵の暗号文を" +
+          key.label +
+          "で復号し、" +
+          objects.get(sealed.payload).label +
+          "を入手しました。",
       );
     }
     if (key.type !== "symmetric" || sealed.key !== keyId) {
       return event(
-        "Charlieは、選んだ共通鍵で本文を復号できません。Charlieには、本文の暗号化に使われた共通鍵が必要です。",
+        "Charlieは、" +
+          key.label +
+          "では本文の暗号文を復号できません。Charlieには、本文の暗号化に使われた共通鍵が必要です。",
         "error",
       );
     }
@@ -454,7 +462,9 @@ export function createLab() {
     if (id === s.originalCipher) s.read = true;
     s.decryptResult = { kind: "message", label: sealed.payload.text };
     return event(
-      "Charlieは、本文の復号に成功しました。Charlieは、作業台の本文を編集し、別の暗号文を作れます。",
+      "Charlieは、本文の暗号文を" +
+        key.label +
+        "で復号しました。Charlieは、復号した本文を編集できます。",
     );
   }
   function edit(text) {
@@ -517,7 +527,9 @@ export function createLab() {
     s.lastCreated = id;
     return {
       ...event(
-        "Charlieは、作業台の本文を暗号化し、持ち物に加えました。Charlieは、新しい暗号文を送信候補に選べます。",
+        "Charlieは、作業中の本文を" +
+          objects.get(keyId).label +
+          "で暗号化しました。Charlieは、新しい暗号文をまだBobへ転送していません。",
       ),
       id,
     };
@@ -534,7 +546,11 @@ export function createLab() {
     known.add(id);
     return {
       ...event(
-        "Charlieは、共通鍵を公開鍵で暗号化しました。Charlieは、新しい共通鍵の暗号文をまだ転送していません。",
+        "Charlieは、" +
+          objects.get(keyId).label +
+          "を" +
+          objects.get(publicId).label +
+          "で暗号化しました。Charlieは、新しい共通鍵の暗号文をまだ転送していません。",
       ),
       id,
     };
@@ -699,8 +715,10 @@ export function createLab() {
       s.step++;
       event(
         s.round === 3
-          ? "Aliceは、Bobの公開鍵で共通鍵を暗号化し、その暗号文とAlice・Bob・今回の通信の識別情報にAliceの秘密鍵で署名しました。Charlieの中継機は、署名を添えた共通鍵の暗号文を止めています。"
-          : "Aliceは、受け取った公開鍵で共通鍵を暗号化しました。Charlieの中継機は、共通鍵の暗号文を止めています。",
+          ? "Aliceは、Aliceの共通鍵をBobの公開鍵で暗号化し、その暗号文とAlice・Bob・今回の通信の識別情報にAliceの秘密鍵で署名しました。Charlieの中継機は、署名を添えた共通鍵の暗号文を止めています。"
+          : "Aliceは、Aliceの共通鍵を" +
+              objects.get(publicId).label +
+              "で暗号化しました。Charlieの中継機は、共通鍵の暗号文を止めています。",
       );
     } else if (s.phase === "key") {
       if (s.round === 3) {
