@@ -3,12 +3,11 @@
  * The media element belongs to the page, never to an app window or CPU slice.
  */
 export class RecordedAudioController {
-  constructor({ media, tickSeconds = 0.45, onStatus, now = () => performance.now() } = {}) {
+  constructor({ media, onStatus, now = () => performance.now() } = {}) {
     if (!media || typeof media.play !== 'function' || typeof media.pause !== 'function') {
       throw new TypeError('A persistent HTML media element is required.');
     }
     this.media = media;
-    this.tickSeconds = Number.isFinite(tickSeconds) && tickSeconds > 0 ? tickSeconds : 0.45;
     this.volume = 0.45;
     this.muted = false;
     this.status = media.readyState >= 2 ? 'ready' : 'loading';
@@ -16,6 +15,8 @@ export class RecordedAudioController {
     this._desired = false;
     this._audible = false;
     this._elapsed = 0;
+    this._running = false;
+    this._resumePosition = 0;
     this._epoch = 0;
     this._sourceEpoch = 0;
     this._source = this._sourceKey(media.getAttribute?.('src') || media.src || '');
@@ -28,17 +29,23 @@ export class RecordedAudioController {
     this._retryAfter = 0;
     this._abortCount = 0;
     this._queuedSeek = null;
-    this._lastSeekAt = -Infinity;
+    this._seekingPosition = null;
     media.loop = true;
     media.preload = 'auto';
     this._applySoundSettings();
 
     const ready = () => {
+      if (!this.media.seeking) this._seekingPosition = null;
       this._flushSeek();
+      this._applySoundSettings();
       if (!this._blocked && !this._failed && this.status !== 'retrying') this._setStatus('ready');
     };
     media.addEventListener?.('loadedmetadata', () => this._flushSeek());
-    media.addEventListener?.('seeked', () => this._flushSeek());
+    media.addEventListener?.('seeked', () => {
+      this._seekingPosition = null;
+      this._flushSeek();
+      this._applySoundSettings();
+    });
     media.addEventListener?.('canplay', ready);
     media.addEventListener?.('canplaythrough', ready);
     media.addEventListener?.('waiting', () => {
@@ -69,7 +76,8 @@ export class RecordedAudioController {
     // Keep an already started transport alive during simulated underruns.
     // Silence is immediate; each simulated underrun no longer needs a new
     // play() request outside the original user gesture.
-    const muted = this.muted || !this._audible || this._failed || this._blocked;
+    const muted = this.muted || !this._audible || this._failed || this._blocked
+      || this._seekingPosition !== null || this._queuedSeek !== null;
     if (this.media.muted !== muted) this.media.muted = muted;
   }
 
@@ -89,6 +97,12 @@ export class RecordedAudioController {
 
   toggleMute() { return this.setMuted(!this.muted); }
 
+  get positionSeconds() {
+    if (!this._audible) return this._resumePosition;
+    const position = this._queuedSeek ?? this._seekingPosition ?? Number(this.media.currentTime);
+    return Number.isFinite(position) ? Math.max(0, position) : this._resumePosition;
+  }
+
   _sourceKey(source) {
     try {
       return new URL(source, this.media.ownerDocument?.baseURI || globalThis.location?.href).href;
@@ -106,6 +120,7 @@ export class RecordedAudioController {
     this._desired = false;
     this._audible = false;
     this._elapsed = 0;
+    this._resumePosition = 0;
     // load() aborts old-source requests. Detach them immediately so unlock()
     // can prime the new recording inside the same track-selection gesture.
     this._pending = null;
@@ -114,14 +129,14 @@ export class RecordedAudioController {
     this._retryAfter = 0;
     this._abortCount = 0;
     this._queuedSeek = null;
-    this._lastSeekAt = -Infinity;
+    this._seekingPosition = null;
     this._sourceChanging = true;
     this._pause();
     this._setStatus('loading');
     try {
       this.media.src = next;
       this.media.load?.();
-      this._align(true);
+      this._seekTo(0);
     } catch {
       this._failed = true;
       this._setStatus('error');
@@ -149,16 +164,20 @@ export class RecordedAudioController {
     const music = app?.music;
     const wasDesired = this._desired;
     const wasAudible = this._audible;
-    this._elapsed = Math.max(0, Number(music?.elapsed) || 0);
-    this._desired = Boolean(!this._sourceChanging && simulationPlaying && app?.running && music?.playing);
-    this._audible = this._desired && music.buffer > 0;
-    if (this._desired && !this._audible) this._queuedSeek = null;
-    // Silence before any seek on depletion/pause. On recovery, seek to the
-    // frozen virtual position before unmuting the continuous recording.
+    const elapsed = Math.max(0, Number(music?.elapsed) || 0);
+    const desired = Boolean(!this._sourceChanging && simulationPlaying && app?.running && music?.playing);
+    const audible = desired && music.buffer > 0;
+    const restart = elapsed < this._elapsed || (this._running && !app?.running);
+    if (restart) this._resumePosition = 0;
+    else if (wasAudible && !audible) this._resumePosition = this.positionSeconds;
+    this._elapsed = elapsed;
+    this._running = Boolean(app?.running);
+    this._desired = desired;
+    this._audible = audible;
+    // The shared virtual clock gates sound availability. It must never seek
+    // an already playing recording back to an older virtual timestamp.
     if (!this._audible) this._applySoundSettings();
-    if (this._audible || !this._desired) {
-      this._align((wasDesired && !this._desired) || (!wasAudible && this._audible));
-    }
+    if (restart || (!wasAudible && audible)) this._seekTo(this._resumePosition);
     this._applySoundSettings();
     if (!this._desired) {
       // A muted gesture prime may complete normally so the browser can grant
@@ -175,23 +194,12 @@ export class RecordedAudioController {
     if (!this._pending && this.media.paused) this._beginPlay(false);
   }
 
-  _target() {
-    const position = this._elapsed * this.tickSeconds;
-    const duration = Number(this.media.duration);
-    return Number.isFinite(duration) && duration > 0 ? position % duration : position;
-  }
-
-  _align(force = false) {
-    const target = this._target();
-    const current = Number(this.media.currentTime);
-    const duration = Number(this.media.duration);
-    let difference = Math.abs(target - current);
-    if (Number.isFinite(duration) && duration > 0 && difference <= duration) {
-      difference = Math.min(difference, duration - difference);
+  _seekTo(position) {
+    const target = Math.max(0, Number(position) || 0);
+    if (!this.media.seeking && Math.abs(Number(this.media.currentTime) - target) < 0.02) {
+      this._queuedSeek = null;
+      return;
     }
-    if (difference < 0.02) return;
-    if (!force && Number.isFinite(current)
-      && (difference <= 0.9 || this._now() - this._lastSeekAt < 2000)) return;
     this._queuedSeek = target;
     this._flushSeek();
   }
@@ -203,8 +211,11 @@ export class RecordedAudioController {
     // Consume the intent before setting currentTime: seeking can dispatch
     // ready events while currentTime still reports its previous value.
     this._queuedSeek = null;
-    this._lastSeekAt = this._now();
-    try { this.media.currentTime = target; } catch { /* A later state change may align again. */ }
+    this._seekingPosition = target;
+    try {
+      this.media.currentTime = target;
+      if (!this.media.seeking) this._seekingPosition = null;
+    } catch { this._seekingPosition = null; }
   }
 
   _pause() {
@@ -238,10 +249,10 @@ export class RecordedAudioController {
       this._retryAfter = 0;
       if (request.epoch !== this._epoch || !this._desired || this._failed) {
         this._pause();
-        this._align(true);
+        this._seekTo(this._resumePosition);
       } else {
+        this._flushSeek();
         this._applySoundSettings();
-        if (this._audible) this._align(true);
       }
       if (!this._blocked && !this._failed) this._setStatus('ready');
       // Application ticks reconcile a later session. Never restart playback
@@ -282,11 +293,14 @@ export class RecordedAudioController {
     this._desired = false;
     this._audible = false;
     this._elapsed = 0;
+    this._running = false;
+    this._resumePosition = 0;
     this._queuedSeek = null;
+    this._seekingPosition = null;
     this._abortCount = 0;
     this._retryAfter = 0;
     this._pause();
-    this._align(true);
+    this._seekTo(0);
     // Preserve volume/mute choices and any useful browser playback permission.
     if (!this._blocked && !this._failed) this._setStatus(this.media.readyState >= 2 ? 'ready' : 'loading');
   }

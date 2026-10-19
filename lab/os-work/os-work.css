@@ -1409,11 +1409,37 @@ th {
   overflow-wrap: anywhere;
 }
 .music-top {
-  height: 66px;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  height: 64px;
+  gap: 8px;
+  align-items: center;
 }
+.music-top .album-art { width: 40px; height: 40px; font-size: 1.4rem; }
+.music-top .album-art:before { inset: 7px; }
+.music-top .music-controls {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  justify-items: end;
+}
+.music-top .music-controls button {
+  width: 112px;
+  min-height: 38px;
+  padding: 4px 5px;
+  white-space: nowrap;
+  font-size: 0.65rem;
+}
+.music-top .elapsed { line-height: 14px; font-size: 0.62rem; }
 .song-title {
-  max-height: 66px;
+  max-height: 64px;
   overflow-y: auto;
+}
+.music-top .song-title h3 { font-size: 0.88rem; line-height: 1.3; }
+.music-top .song-title p { margin: 2px 0 0; font-size: 0.6rem; line-height: 14px; }
+@media (max-width: 520px), (max-height: 620px) {
+  .music-top { grid-template-columns: minmax(0, 1fr) auto; }
+  .music-top .album-art { display: none; }
 }
 .audio-feedback {
   display: flex;

@@ -68,7 +68,7 @@ test('ticks while play is pending do not duplicate requests', async () => {
   assert.equal(media.playCalls, 1);
   media.requests[0].resolve();
   await unlocked;
-  assert.ok(Math.abs(media.currentTime - 3.15) <= 0.9);
+  assert.equal(media.currentTime, 0, 'Virtual elapsed time cannot skip ahead through unheard audio.');
 });
 
 for (const reason of ['OS pause', 'app close', 'music pause']) {
@@ -97,6 +97,7 @@ test('empty buffer silences transport and replenishment resumes without another 
   const unlocked = controller.unlock();
   media.requests[0].resolve();
   await unlocked;
+  media.currentTime = 5.4;
   controller.sync(snapshot({ elapsed: 12, buffer: 0 }), true);
   assert.equal(media.paused, false);
   assert.equal(media.muted, true);
@@ -175,13 +176,15 @@ test('volume and mute preferences persist across close and reset', async () => {
   assert.equal(media.volume, 0);
 });
 
-test('virtual time aligns position but rate-limits drift correction and wraps at the recording end', async () => {
+test('the displayed playhead follows the recording and natural loop, without virtual-time correction', async () => {
   const { media, controller, advance } = create();
-  controller.sync(snapshot({ elapsed: 100 }), true);
+  controller.sync(snapshot(), true);
   const unlocked = controller.unlock();
   media.requests[0].resolve();
   await unlocked;
-  assert.equal(media.currentTime, 45);
+  media.currentTime = 45;
+  controller.sync(snapshot({ elapsed: 100 }), true);
+  assert.equal(controller.positionSeconds, 45);
   media.currentTime = 45.5;
   controller.sync(snapshot({ elapsed: 100 }), true);
   assert.equal(media.currentTime, 45.5, 'Minor wall-clock drift does not cause constant seeking.');
@@ -190,10 +193,12 @@ test('virtual time aligns position but rate-limits drift correction and wraps at
   assert.equal(media.currentTime, 30, 'Repeated render calls cannot immediately seek again.');
   advance(2000);
   controller.sync(snapshot({ elapsed: 100 }), true);
-  assert.equal(media.currentTime, 45);
+  assert.equal(media.currentTime, 30);
   advance(2000);
+  media.currentTime = 0.3;
   controller.sync(snapshot({ elapsed: 140 }), true);
-  assert.equal(media.currentTime, 3);
+  assert.equal(media.currentTime, 0.3);
+  assert.equal(controller.positionSeconds, 0.3);
 });
 
 test('reset clears position immediately and after an old play promise resolves', async () => {
@@ -314,6 +319,7 @@ test('selecting the same recording twice does not reload or reset its position',
   const unlocked = controller.unlock();
   media.requests[0].resolve();
   await unlocked;
+  media.currentTime = 9;
   assert.equal(media.currentTime, 9);
   assert.equal(controller.setSource('audio/first.mp3'), false);
   assert.equal(media.currentTime, 9);
@@ -397,13 +403,15 @@ test('selecting a new source recovers from a recording error and follows its buf
   await second;
   controller.sync(snapshot({ elapsed: 6, buffer: 8 }), true);
   await settle();
-  assert.equal(media.currentTime, 2.7);
+  assert.equal(media.currentTime, 0);
+  media.currentTime = 2.7;
   controller.sync(snapshot({ elapsed: 7, buffer: 0 }), true);
   assert.equal(media.paused, false);
   assert.equal(media.muted, true);
+  media.currentTime = 5;
   controller.sync(snapshot({ elapsed: 7, buffer: 12 }), true);
   await settle();
-  assert.equal(media.currentTime, 3.15);
+  assert.equal(media.currentTime, 2.7);
   assert.equal(media.paused, false);
   assert.equal(controller.status, 'ready');
 });
@@ -412,6 +420,7 @@ test('an empty buffer during pending playback stays silent and can recover befor
   const { media, controller } = create();
   controller.sync(snapshot({ elapsed: 4 }), true);
   const request = controller.unlock();
+  media.currentTime = 1.8;
   controller.sync(snapshot({ elapsed: 4, buffer: 0 }), true);
   assert.equal(media.muted, true);
   controller.sync(snapshot({ elapsed: 4, buffer: 8 }), true);
@@ -468,7 +477,7 @@ test('starting music during photo processing without Web recovers from a natural
     await settle();
     if (music.hasPlayed && music.buffer === 0 && !depleted) {
       assert.equal(s.apps.photo.photo.processing, true);
-      depleted = { elapsed: music.elapsed, requests: media.playCalls, pauses: media.pauseCalls };
+      depleted = { elapsed: music.elapsed, position: controller.positionSeconds, requests: media.playCalls, pauses: media.pauseCalls };
       assert.equal(media.muted, true);
       assert.equal(media.paused, false);
     } else if (depleted && music.buffer > 0) {
@@ -478,7 +487,7 @@ test('starting music during photo processing without Web recovers from a natural
       assert.equal(media.muted, false);
       assert.equal(media.playCalls, depleted.requests);
       assert.equal(media.pauseCalls, depleted.pauses);
-      assert.equal(media.currentTime, (music.elapsed * 0.45) % media.duration);
+      assert.equal(media.currentTime, depleted.position);
       return;
     }
   }
@@ -501,7 +510,11 @@ test('repeated browser AbortErrors cannot start a recursive play loop', async ()
 
 test('delayed currentTime readback and canplay events cannot form a seek loop', async () => {
   const { media, controller } = create();
-  let position = 0;
+  controller.sync(snapshot({ elapsed: 10 }), true);
+  void controller.unlock();
+  media.currentTime = 4.5;
+  controller.sync(snapshot({ elapsed: 10, buffer: 0 }), true);
+  let position = 9;
   let seeks = 0;
   Object.defineProperty(media, 'currentTime', {
     get() { return position; },
@@ -513,8 +526,7 @@ test('delayed currentTime readback and canplay events cannot form a seek loop', 
       queueMicrotask(() => media.emit('canplay'));
     },
   });
-  controller.sync(snapshot({ elapsed: 10 }), true);
-  void controller.unlock();
+  controller.sync(snapshot({ elapsed: 10, buffer: 8 }), true);
   await new Promise(setImmediate);
   assert.equal(seeks, 1, 'Ready events must not request another position correction.');
 });
@@ -543,14 +555,17 @@ test('persistent aborted playback is rate-limited and stops after three attempts
 
 test('a pending native seek waits for seeked and consumes its intent only once', async () => {
   const { media, controller } = create();
-  let position = 0;
+  controller.sync(snapshot({ elapsed: 10 }), true);
+  media.currentTime = 4.5;
+  controller.sync(snapshot({ elapsed: 10, buffer: 0 }), true);
+  let position = 9;
   let seeks = 0;
   Object.defineProperty(media, 'currentTime', {
     get() { return position; },
     set(value) { seeks++; position = value; },
   });
   media.seeking = true;
-  controller.sync(snapshot({ elapsed: 10 }), true);
+  controller.sync(snapshot({ elapsed: 10, buffer: 8 }), true);
   for (let i = 0; i < 1000; i++) media.emit('canplay');
   assert.equal(seeks, 0);
   media.seeking = false; media.emit('seeked');
@@ -593,4 +608,30 @@ test('a late playing event after a media error remains silent and stops', async 
   assert.equal(media.muted, true);
   assert.equal(media.paused, true);
   assert.equal(media.playCalls, 1);
+});
+
+test('recovered music never replays a phrase when the simulation clock runs slower than audio', async () => {
+  const { media, controller, advance } = create();
+  controller.sync(snapshot({ elapsed: 12 }), true);
+  const request = controller.unlock(); media.requests[0].resolve(); await request;
+  media.currentTime = 5.4;
+  controller.sync(snapshot({ elapsed: 12, buffer: 0 }), true);
+  media.currentTime = 10;
+  controller.sync(snapshot({ elapsed: 12, buffer: 8 }), true);
+  assert.equal(media.currentTime, 5.4, 'Resume once at the last audible position.');
+  for (let i = 1; i <= 10; i++) {
+    const actualPosition = 5.4 + i * 3;
+    media.currentTime = actualPosition;
+    advance(3000);
+    controller.sync(snapshot({ elapsed: 12 + i, buffer: 8 }), true);
+    media.emit('canplay');
+    assert.equal(media.currentTime, actualPosition, 'Normal playback must not be rewound by virtual time.');
+    if (i % 3 === 0) {
+      controller.sync(snapshot({ elapsed: 12 + i, buffer: 0 }), true);
+      media.currentTime = actualPosition + 1;
+      assert.equal(controller.positionSeconds, actualPosition, 'The displayed playhead holds during silence.');
+      controller.sync(snapshot({ elapsed: 12 + i, buffer: 8 }), true);
+      assert.equal(media.currentTime, actualPosition, 'Each recovery must use the latest audible position.');
+    }
+  }
 });

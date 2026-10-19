@@ -4,7 +4,7 @@ import {
   FOREGROUND_IDS,
   BACKGROUND_IDS,
 } from "./simulation.mjs";
-import { RecordedAudioController } from "./audio-controller.mjs?v=3";
+import { RecordedAudioController } from "./audio-controller.mjs?v=4";
 import { tracks } from "./audio/tracks.mjs";
 import { initFullscreen } from "./fullscreen.mjs";
 
@@ -110,13 +110,16 @@ document.body.append(media);
 let soundtrack;
 soundtrack = new RecordedAudioController({
   media,
-  tickSeconds: TICK_MS / 1000,
   onStatus: () => renderAudioControls(),
 });
 
 function safeAction(action) {
   snapshot = action();
   render();
+}
+function launchAndView(id) {
+  simulation.view(id);
+  return simulation.launch(id);
 }
 function setPlaying(next) {
   playing = next;
@@ -169,7 +172,7 @@ function makeAppViews() {
     .join(
       "",
     )}</select><button type="button" data-action="web-load" id="web-load">読み込む</button></div><div class="web-load-state" id="web-load-state" data-phase="idle" role="status" aria-live="polite"><strong id="web-load-label">ページを選んで読み込む</strong><span id="web-load-detail"></span></div><div class="web-load-track" id="web-load-track" role="progressbar" aria-label="ページ読み込みの進行" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="web-load-fill"></i></div><div class="web-article" id="web-article"></div><p class="app-status" id="web-status"></p>`;
-  const music = `<div class="music-top"><div class="album-art" aria-hidden="true">♫</div><div class="song-title"><h3 id="song-title">DURU Roomscene Lofi</h3><p id="song-artist">DURU-AI / CC0</p></div></div><div class="music-track-select"><label for="music-track">曲</label><select id="music-track">${tracks.map((track) => `<option value="${track.id}">${esc(track.title)}</option>`).join("")}</select></div><div class="music-controls"><button type="button" class="primary" data-action="music-play" id="music-play">▶ 音楽を再生</button><span class="elapsed" id="music-elapsed">00:00</span></div><div class="volume-controls"><button type="button" data-action="mute" id="mute-toggle" aria-pressed="false">消音</button><label for="volume">音量</label><input type="range" id="volume" min="0" max="100" value="45" step="1" /><output id="volume-value" for="volume">45%</output></div><p class="audio-feedback" id="audio-feedback" role="status"></p><div class="buffer-heading"><span>音声バッファ <small>（再生待ちの音）</small></span><strong id="buffer-count">0 / 24</strong></div><div id="buffer-track" class="buffer-track" role="progressbar" aria-label="音声バッファ残量" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0"><span id="buffer-fill"></span></div><p class="app-status" id="music-status"></p><details class="music-credit"><summary>音源について</summary><p><a href="https://github.com/uncle-sheepsky/duru-ai-cc0-bgm#license--please-read" target="_blank" rel="noopener noreferrer">DURU-AI / uncle-sheepsky</a> が作曲・録音ともに<a href="./audio/CC0-1.0.txt">CC0</a>で提供した音源です。音声バッファの量は教材用のモデルです。</p><ul>${tracks.map((track) => `<li><a href="${esc(track.source)}" target="_blank" rel="noopener noreferrer">${esc(track.title)} の配布元</a></li>`).join("")}</ul><p>配信用にMP3を再圧縮しています。<a href="./audio/tracks.json">3曲の出典・加工内容</a></p></details>`;
+  const music = `<div class="music-top"><div class="album-art" aria-hidden="true">♫</div><div class="song-title"><h3 id="song-title">DURU Roomscene Lofi</h3><p id="song-artist">DURU-AI / CC0</p></div><div class="music-controls"><button type="button" class="primary" data-action="music-play" id="music-play">▶ 音楽を再生</button><span class="elapsed" id="music-elapsed">00:00</span></div></div><div class="music-track-select"><label for="music-track">曲</label><select id="music-track">${tracks.map((track) => `<option value="${track.id}">${esc(track.title)}</option>`).join("")}</select></div><div class="volume-controls"><button type="button" data-action="mute" id="mute-toggle" aria-pressed="false">消音</button><label for="volume">音量</label><input type="range" id="volume" min="0" max="100" value="45" step="1" /><output id="volume-value" for="volume">45%</output></div><p class="audio-feedback" id="audio-feedback" role="status"></p><div class="buffer-heading"><span>音声バッファ <small>（再生待ちの音）</small></span><strong id="buffer-count">0 / 24</strong></div><div id="buffer-track" class="buffer-track" role="progressbar" aria-label="音声バッファ残量" aria-valuemin="0" aria-valuemax="24" aria-valuenow="0"><span id="buffer-fill"></span></div><p class="app-status" id="music-status"></p><details class="music-credit"><summary>音源について</summary><p><a href="https://github.com/uncle-sheepsky/duru-ai-cc0-bgm#license--please-read" target="_blank" rel="noopener noreferrer">DURU-AI / uncle-sheepsky</a> が作曲・録音ともに<a href="./audio/CC0-1.0.txt">CC0</a>で提供した音源です。音声バッファの量は教材用のモデルです。</p><ul>${tracks.map((track) => `<li><a href="${esc(track.source)}" target="_blank" rel="noopener noreferrer">${esc(track.title)} の配布元</a></li>`).join("")}</ul><p>配信用にMP3を再圧縮しています。<a href="./audio/tracks.json">3曲の出典・加工内容</a></p></details>`;
   const photo = `<div class="app-toolbar"><select id="photo-filter" aria-label="写真の加工効果">${Object.entries(
     filters,
   )
@@ -200,7 +203,7 @@ function handleLauncherClick(event) {
     safeAction(() =>
       snapshot.apps[app].running || snapshot.apps[app].memoryWait
         ? simulation.close(app)
-        : simulation.launch(app),
+        : launchAndView(app),
     );
   }
 }
@@ -233,7 +236,7 @@ $("app-content").addEventListener("click", (event) => {
   if (!button || button.disabled) return;
   const action = button.dataset.action;
   if (action === "launch")
-    safeAction(() => simulation.launch(button.dataset.app));
+    safeAction(() => launchAndView(button.dataset.app));
   if (action === "web-load")
     safeAction(() => simulation.webLoad($("web-topic").value));
   if (action === "music-play") {
@@ -504,9 +507,7 @@ function renderAppViews() {
     ? "Ⅱ 音楽を一時停止"
     : "▶ 音楽を再生";
   $("music-play").disabled = musicPending;
-  const elapsedSeconds = Math.floor(
-    ((music.elapsed * TICK_MS) / 1000) % track.duration,
-  );
+  const elapsedSeconds = Math.floor(snapshot.apps.music.running ? soundtrack.positionSeconds : 0);
   $("music-elapsed").textContent =
     `${String(Math.floor(elapsedSeconds / 60)).padStart(2, "0")}:${String(elapsedSeconds % 60).padStart(2, "0")}`;
   $("buffer-count").textContent = `${music.buffer} / ${music.capacity}`;
