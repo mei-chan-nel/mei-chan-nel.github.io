@@ -110,11 +110,13 @@ assert.equal($("cache-legend-value").textContent, "0 ns");
 assert.equal($("ram-legend-value").textContent, "80 ns");
 assert.match($("access-reason").textContent, /OFF/);
 click("reset");
-click("compare-off");
-for (let n = 0; n < 100 && $("compare-off").disabled; n++)
-  await new Promise((r) => setTimeout(r, 5));
+for (let n = 0; n < 10 && $("state").textContent !== "終了"; n++) click("step");
+click("save-result");
+$("cache-enabled").checked = true;
+$("cache-enabled").dispatchEvent(new Event("change"));
+for (let n = 0; n < 10 && $("state").textContent !== "終了"; n++) click("step");
+click("save-result");
 assert.equal($("result-rows").children.length, 3);
-assert.match($("notice").textContent, /同じ初期条件/);
 assert.match($("result-rows").textContent, /284 ns/);
 assert.match($("result-rows").textContent, /218 ns/);
 click("load-program");

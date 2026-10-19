@@ -46,8 +46,6 @@ let initial = copy(presets[0].memory),
   machine,
   running = false,
   selectedEvent = -1,
-  revision = 0,
-  comparing = false,
   runCount = 0;
 const rows = [];
 const ramEditor = createRamEditor({
@@ -132,7 +130,6 @@ function stop() {
 }
 function reset(message = "初期RAMに戻し、CPUとキャッシュを初期化しました。") {
   stop();
-  revision++;
   machine = new Machine(initial, config);
   selectedEvent = -1;
   runCount = 0;
@@ -199,7 +196,6 @@ function renderInputs() {
     live.append(edit);
     row.append(index, live);
     row.addEventListener("click", () => {
-      if (comparing) return;
       stop();
       renderControls();
       ramEditor.open(address, initial[address], machine.ram[address], edit);
@@ -209,7 +205,7 @@ function renderInputs() {
   });
 }
 function renderControls() {
-  $("run").disabled = comparing || machine.halted || !!machine.error;
+  $("run").disabled = machine.halted || !!machine.error;
   $("run").setAttribute("aria-pressed", String(running));
   $("run").classList.toggle("is-running", running);
   $("play-label").textContent = running ? "一時停止" : "自動実行";
@@ -217,22 +213,18 @@ function renderControls() {
     "d",
     running ? "M5 3h4v14H5zM12 3h4v14h-4z" : "m6 3 10 7-10 7Z",
   );
-  $("step").disabled =
-    running || comparing || machine.halted || !!machine.error;
-  $("previous").disabled = comparing || !machine.actions;
-  $("save-result").disabled = running || comparing || !machine.actions;
-  $("compare-off").disabled = running || comparing;
-  $("state").textContent = comparing
-    ? "比較中"
-    : running
-      ? "実行中"
-      : machine.error
-        ? "エラー"
-        : machine.halted
-          ? "終了"
-          : machine.actions
-            ? "一時停止"
-            : "実行前";
+  $("step").disabled = running || machine.halted || !!machine.error;
+  $("previous").disabled = !machine.actions;
+  $("save-result").disabled = running || !machine.actions;
+  $("state").textContent = running
+    ? "実行中"
+    : machine.error
+      ? "エラー"
+      : machine.halted
+        ? "終了"
+        : machine.actions
+          ? "一時停止"
+          : "実行前";
   $("state").classList.toggle("running", running);
   fullscreen.sync();
   $("cache-enabled").nextElementSibling.textContent = config.enabled
@@ -319,7 +311,6 @@ function render() {
       "aria-label",
       `${address}番地、${edit.textContent}、初期内容を編集`,
     );
-    edit.disabled = comparing;
     row.classList.toggle(
       "next",
       !machine.halted && !machine.error && address === machine.pc,
@@ -753,57 +744,6 @@ $("clear-results").addEventListener("click", () => {
   renderRecords();
   announce("比較の記録を消しました。");
 });
-$("compare-off").addEventListener("click", () =>
-  guarded(async () => {
-    comparing = true;
-    renderControls();
-    const rev = revision,
-      source = copy(initial),
-      settings = copy(config),
-      title = name;
-    announce("同じ初期RAMから、キャッシュON / OFFを比較しています。");
-    const results = [];
-    try {
-      for (const enabled of [true, false]) {
-        const simulation = new Machine(source, { ...settings, enabled });
-        for (
-          let n = 0;
-          n < 10000 && !simulation.halted && !simulation.error;
-          n++
-        ) {
-          simulation.step();
-          if (n % 250 === 249) {
-            await new Promise((resolve) => setTimeout(resolve, 0));
-            if (revision !== rev)
-              throw new Error("条件が変更されたため比較を中止しました。");
-          }
-        }
-        if (simulation.error) throw new Error(simulation.error);
-        if (!simulation.halted)
-          throw new Error(
-            "10,000命令以内に終了しませんでした。終了命令と分岐先を確認してください。",
-          );
-        results.push(simulation.result());
-      }
-      if (revision !== rev)
-        throw new Error("条件が変更されたため比較を中止しました。");
-      results.forEach((r) =>
-        addRecord(r, `${title} · ${r.config.enabled ? "ON" : "OFF"}`),
-      );
-      const a = results[0].stats,
-        b = results[1].stats,
-        delta = b.cpu + b.wait - a.cpu - a.wait;
-      announce(
-        `同じ初期条件で比較しました。${delta >= 0 ? "ON" : "OFF"}の方が ${format(Math.abs(delta))} ns 短くなりました。`,
-      );
-    } catch (error) {
-      announce(error.message, true);
-    } finally {
-      comparing = false;
-      renderControls();
-    }
-  }),
-);
 const programDocuments = installProgramDocuments({
   read: () => {
     readDraft();
