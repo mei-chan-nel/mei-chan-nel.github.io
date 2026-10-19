@@ -748,7 +748,7 @@ function renderRecords() {
     remove.setAttribute("aria-label", `記録${index + 1}を削除`);
     actions.append(restore, remove);
     tr.append(actions);
-    $("result-rows").append(tr);
+    $("result-rows").prepend(tr);
   });
 }
 $("save-result").addEventListener("click", () => {
