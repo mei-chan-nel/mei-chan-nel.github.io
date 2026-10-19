@@ -1128,6 +1128,34 @@
   cursor: pointer;
   font-weight: 700;
 }
+.model-notes .timing-table-title {
+  margin: 16px 0 6px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.model-notes .timing-table-wrap {
+  overflow-x: auto;
+  margin: 8px 0 12px;
+}
+.model-notes .timing-table {
+  width: 100%;
+  border-collapse: collapse;
+  line-height: 1.6;
+  text-align: left;
+}
+.model-notes .timing-table th,
+.model-notes .timing-table td {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+}
+.model-notes .timing-table thead th {
+  background: var(--paper, #f4f7f6);
+}
+.model-notes .timing-table tbody th {
+  font-weight: 600;
+  width: 34%;
+}
 .lab-back {
   display: inline-block;
   margin: 24px 0;
