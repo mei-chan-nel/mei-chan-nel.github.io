@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { RecordedAudioController } from './audio-controller.mjs';
+import { OSSimulation } from './simulation.mjs';
 
 class FakeMedia {
   constructor() {
@@ -69,7 +70,7 @@ test('ticks while play is pending do not duplicate requests', async () => {
   assert.ok(Math.abs(media.currentTime - 3.15) <= 0.9);
 });
 
-for (const reason of ['OS pause', 'app close', 'music pause', 'empty buffer']) {
+for (const reason of ['OS pause', 'app close', 'music pause']) {
   test(`${reason} silences a pending play, even if it later resolves`, async () => {
     const { media, controller } = create();
     controller.sync(snapshot(), true);
@@ -78,7 +79,6 @@ for (const reason of ['OS pause', 'app close', 'music pause', 'empty buffer']) {
       'OS pause': [snapshot(), false],
       'app close': [snapshot({ running: false, elapsed: 0 }), true],
       'music pause': [snapshot({ playing: false }), true],
-      'empty buffer': [snapshot({ buffer: 0 }), true],
     }[reason];
     controller.sync(...next);
     assert.equal(media.paused, true);
@@ -90,21 +90,31 @@ for (const reason of ['OS pause', 'app close', 'music pause', 'empty buffer']) {
   });
 }
 
-test('empty buffer pauses real sound and replenishment resumes the same recording', async () => {
+test('empty buffer silences transport and replenishment resumes without another play request', async () => {
   const { media, controller } = create();
   controller.sync(snapshot({ elapsed: 10 }), true);
   const unlocked = controller.unlock();
   media.requests[0].resolve();
   await unlocked;
   controller.sync(snapshot({ elapsed: 12, buffer: 0 }), true);
-  assert.equal(media.paused, true);
-  assert.equal(media.currentTime, 5.4);
+  assert.equal(media.paused, false);
+  assert.equal(media.muted, true);
+  // The already granted transport keeps running silently. A browser that
+  // denies a subsequent programmatic play() must not strand the sound.
+  media.play = () => {
+    media.playCalls++;
+    return Promise.reject(Object.assign(new Error('another gesture required'), { name: 'NotAllowedError' }));
+  };
+  media.currentTime = 12;
+  media.emit('canplay');
+  assert.equal(media.currentTime, 12, 'Do not keep seeking while the model has no data.');
   controller.sync(snapshot({ elapsed: 12, buffer: 8, cpu: 'photo', visible: 'web' }), true);
-  assert.equal(media.playCalls, 2);
-  media.requests[1].resolve();
+  assert.equal(media.playCalls, 1);
   await settle();
   assert.equal(media.paused, false);
+  assert.equal(media.muted, false);
   assert.equal(media.currentTime, 5.4);
+  assert.equal(controller.status, 'ready');
 });
 
 test('autoplay rejection waits for another gesture, which retries once', async () => {
@@ -133,9 +143,10 @@ test('a gesture safely primes a silent element before simulated audio is ready',
   assert.equal(media.muted, true);
   media.requests[0].resolve();
   await unlocked;
-  assert.equal(media.paused, true);
+  assert.equal(media.paused, false);
+  assert.equal(media.muted, true);
   controller.sync(snapshot({ buffer: 8 }), true);
-  media.requests[1].resolve();
+  assert.equal(media.playCalls, 1);
   await settle();
   assert.equal(media.muted, false);
   assert.equal(media.paused, false);
@@ -374,15 +385,91 @@ test('selecting a new source recovers from a recording error and follows its buf
   media.requests[1].resolve();
   await second;
   controller.sync(snapshot({ elapsed: 6, buffer: 8 }), true);
-  media.requests[2].resolve();
   await settle();
   assert.equal(media.currentTime, 2.7);
   controller.sync(snapshot({ elapsed: 7, buffer: 0 }), true);
-  assert.equal(media.paused, true);
+  assert.equal(media.paused, false);
+  assert.equal(media.muted, true);
   controller.sync(snapshot({ elapsed: 7, buffer: 12 }), true);
-  media.requests[3].resolve();
   await settle();
   assert.equal(media.currentTime, 3.15);
   assert.equal(media.paused, false);
   assert.equal(controller.status, 'ready');
+});
+
+test('an empty buffer during pending playback stays silent and can recover before play settles', async () => {
+  const { media, controller } = create();
+  controller.sync(snapshot({ elapsed: 4 }), true);
+  const request = controller.unlock();
+  controller.sync(snapshot({ elapsed: 4, buffer: 0 }), true);
+  assert.equal(media.muted, true);
+  controller.sync(snapshot({ elapsed: 4, buffer: 8 }), true);
+  media.requests[0].resolve();
+  await request;
+  assert.equal(media.playCalls, 1);
+  assert.equal(media.paused, false);
+  assert.equal(media.muted, false);
+  assert.equal(media.currentTime, 1.8);
+});
+
+test('repeated underruns retain user mute/volume and explicit pauses still stop transport', async () => {
+  const { media, controller } = create();
+  controller.sync(snapshot(), true);
+  const request = controller.unlock(); media.requests[0].resolve(); await request;
+  controller.setVolume(0.3);
+  controller.setMuted(true);
+  for (let elapsed = 1; elapsed <= 4; elapsed++) {
+    controller.sync(snapshot({ elapsed, buffer: 0 }), true);
+    assert.equal(media.muted, true);
+    controller.sync(snapshot({ elapsed, buffer: 8 }), true);
+    assert.equal(media.muted, true);
+    assert.equal(media.volume, 0.3);
+    assert.equal(media.paused, false);
+  }
+  controller.setMuted(false);
+  controller.sync(snapshot({ elapsed: 4, buffer: 0 }), true);
+  controller.setVolume(0.7);
+  assert.equal(media.muted, true, 'Volume changes must not make an empty buffer audible.');
+  controller.sync(snapshot({ elapsed: 4, buffer: 8 }), true);
+  assert.equal(media.muted, false);
+  assert.equal(media.playCalls, 1);
+  controller.sync(snapshot({ elapsed: 4, buffer: 8 }), false);
+  assert.equal(media.paused, true);
+  assert.equal(media.muted, true);
+});
+
+test('starting music during photo processing without Web recovers from a natural underrun', async () => {
+  const sim = new OSSimulation();
+  const { media, controller } = create();
+  sim.launch('photo'); sim.startPhoto();
+  while (sim.snapshot().apps.photo.photo.progress === 0) sim.step();
+  sim.launch('music'); sim.toggleMusic();
+  const prime = controller.unlock(); media.requests[0].resolve(); await prime;
+  let resolved = 1;
+  let depleted = null;
+  for (let i = 0; i < 180; i++) {
+    if (!media.paused) media.currentTime = (media.currentTime + 0.45) % media.duration;
+    const s = sim.step();
+    assert.equal(s.apps.web.running, false);
+    const music = s.apps.music.music;
+    controller.sync(s, true);
+    while (resolved < media.requests.length) media.requests[resolved++].resolve();
+    await settle();
+    if (music.hasPlayed && music.buffer === 0 && !depleted) {
+      assert.equal(s.apps.photo.photo.processing, true);
+      depleted = { elapsed: music.elapsed, requests: media.playCalls, pauses: media.pauseCalls };
+      assert.equal(media.muted, true);
+      assert.equal(media.paused, false);
+    } else if (depleted && music.buffer > 0) {
+      assert.equal(s.apps.photo.photo.processing, true, 'Resume before the photo job finishes.');
+      assert.equal(music.elapsed, depleted.elapsed);
+      assert.equal(media.paused, false);
+      assert.equal(media.muted, false);
+      assert.equal(media.playCalls, depleted.requests);
+      assert.equal(media.pauseCalls, depleted.pauses);
+      assert.equal(media.currentTime, (music.elapsed * 0.45) % media.duration);
+      return;
+    }
+  }
+  assert.fail('Expected a real model underrun and automatic recovery.');
 });

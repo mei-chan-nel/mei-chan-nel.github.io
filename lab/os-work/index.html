@@ -9,8 +9,8 @@
 <meta name="theme-color" content="#102f35" />
 <link rel="icon" href="../icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-<link rel="stylesheet" href="./os-work.css?v=6" />
-<link rel="stylesheet" href="./fullscreen.css?v=1" />
+<link rel="stylesheet" href="./os-work.css?v=7" />
+<link rel="stylesheet" href="./fullscreen.css?v=2" />
 </head>
 <body>
 <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -67,7 +67,7 @@
 <p>通知やクラウド側の変更は、不規則に届く様子を再現します。同じ条件で繰り返し観察できるよう、到着順と時刻はあらかじめ用意しています。クラウド同期は、写真加工後の保存や仮想のクラウド側の変更を受け、変わったファイルの準備・通信待ち・結果保存を行います。変更がなければ、ファイル全体を繰り返し同期しません。</p>
 <p>セキュリティ対策は、予約されたクイックスキャンの例です。実際の製品はファイルを開くときなどのリアルタイム保護も行いますが、この教材では扱いません。通知も、実際にはOSの通知サービスや短時間のバックグラウンド処理を利用できます。比較のため、ここでは3種類をそれぞれ起動し続ける1プロセスにまとめ、終了できないようにしています。実際の通信・ファイル同期・セキュリティ検査は行いません。</p>
 <p>メモリ総量は1024 MB、アプリの使用量は固定の教材用値です。写真加工中だけ作業用200 MBを追加確保し、完了時に解放します。空きができるまで要求を保留する動作も教材用の単純化で、仮想メモリや断片化は扱いません。</p>
-<p>画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。音楽はパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音声バッファは教材用のモデルで、実際のデコード処理を計測するものではありません。OSの一時停止やバッファ残量に合わせて音も停止し、ブラウザのタブを離れると自動で一時停止します。</p>
+<p>画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。音楽はパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音声バッファは教材用のモデルで、実際のデコード処理を計測するものではありません。CPUの混雑で補充が間に合わないと一時的に音が途切れますが、CPUが補充すると続きから自動で再開します。OSの一時停止やバッファ残量に合わせて音も停止し、ブラウザのタブを離れると自動で一時停止します。</p>
 <h3>実際のしくみを調べる</h3>
 <ul><li><a href="https://learn.microsoft.com/en-us/windows/apps/develop/notifications/push-notifications/raw-notification-overview">Microsoft：WNSによる通知とバックグラウンド処理</a></li><li><a href="https://learn.microsoft.com/en-us/sharepoint/sync-process">Microsoft：OneDriveの同期プロセス</a></li><li><a href="https://learn.microsoft.com/en-us/defender-endpoint/schedule-antivirus-scans">Microsoft：Defenderの予約スキャン</a></li></ul>
 </div></details>
@@ -76,5 +76,5 @@
 </main>
 <footer class="os-footer">情報Ⅰ Study Atlas <span>知識を、ひろげ、つなげる</span></footer>
 <script type="module" src="../navigation.mjs?v=1"></script>
-<script type="module" src="./app.mjs?v=6"></script>
+<script type="module" src="./app.mjs?v=7"></script>
 </body></html>

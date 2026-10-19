@@ -14,6 +14,7 @@ export class RecordedAudioController {
     this.status = media.readyState >= 2 ? 'ready' : 'loading';
     this._onStatus = onStatus;
     this._desired = false;
+    this._audible = false;
     this._elapsed = 0;
     this._epoch = 0;
     this._sourceEpoch = 0;
@@ -28,11 +29,13 @@ export class RecordedAudioController {
     this._applySoundSettings();
 
     const ready = () => {
-      this._align();
+      if (this._audible || !this._desired) this._align();
       if (!this._blocked && !this._failed) this._setStatus('ready');
       this._reconcile();
     };
-    media.addEventListener?.('loadedmetadata', () => this._align());
+    media.addEventListener?.('loadedmetadata', () => {
+      if (this._audible || !this._desired) this._align();
+    });
     media.addEventListener?.('canplay', ready);
     media.addEventListener?.('canplaythrough', ready);
     media.addEventListener?.('waiting', () => {
@@ -61,9 +64,10 @@ export class RecordedAudioController {
 
   _applySoundSettings() {
     this.media.volume = this.volume;
-    // An unlock may briefly run a recording before the simulated buffer is
-    // ready. It stays silent until the model actually permits playback.
-    this.media.muted = this.muted || !this._desired;
+    // Keep an already started transport alive during simulated underruns.
+    // Silence is immediate; each simulated underrun no longer needs a new
+    // play() request outside the original user gesture.
+    this.media.muted = this.muted || !this._audible;
   }
 
   setVolume(value) {
@@ -97,6 +101,7 @@ export class RecordedAudioController {
     this._sourceEpoch += 1;
     this._epoch += 1;
     this._desired = false;
+    this._audible = false;
     this._elapsed = 0;
     // load() aborts old-source requests. Detach them immediately so unlock()
     // can prime the new recording inside the same track-selection gesture.
@@ -134,10 +139,17 @@ export class RecordedAudioController {
     const app = snapshot?.apps?.music;
     const music = app?.music;
     const wasDesired = this._desired;
+    const wasAudible = this._audible;
     this._elapsed = Math.max(0, Number(music?.elapsed) || 0);
-    this._desired = Boolean(!this._sourceChanging && simulationPlaying && app?.running && music?.playing && music.buffer > 0);
+    this._desired = Boolean(!this._sourceChanging && simulationPlaying && app?.running && music?.playing);
+    this._audible = this._desired && music.buffer > 0;
+    // Silence before any seek on depletion/pause. On recovery, seek to the
+    // frozen virtual position before unmuting the continuous recording.
+    if (!this._audible) this._applySoundSettings();
+    if (this._audible || !this._desired) {
+      this._align((wasDesired && !this._desired) || (!wasAudible && this._audible));
+    }
     this._applySoundSettings();
-    this._align(wasDesired && !this._desired);
     if (!this._desired) {
       // A muted gesture prime may complete normally so the browser can grant
       // this element playback permission. Actual playback is stopped at once.
@@ -149,7 +161,7 @@ export class RecordedAudioController {
   _reconcile() {
     if (!this._desired || this._failed || this._blocked || !this._gestureSeen) return;
     this._applySoundSettings();
-    this._align();
+    if (this._audible) this._align();
     if (!this._pending && this.media.paused) this._beginPlay(false);
   }
 
@@ -202,7 +214,7 @@ export class RecordedAudioController {
         this._align(true);
       } else {
         this._applySoundSettings();
-        this._align();
+        if (this._audible) this._align();
       }
       if (!this._blocked && !this._failed) this._setStatus('ready');
       // A reset can invalidate this request while a later gesture has already
@@ -237,6 +249,7 @@ export class RecordedAudioController {
   reset() {
     this._epoch += 1;
     this._desired = false;
+    this._audible = false;
     this._elapsed = 0;
     this._pause();
     this._align(true);

@@ -4,7 +4,7 @@ import {
   FOREGROUND_IDS,
   BACKGROUND_IDS,
 } from "./simulation.mjs";
-import { RecordedAudioController } from "./audio-controller.mjs";
+import { RecordedAudioController } from "./audio-controller.mjs?v=2";
 import { tracks } from "./audio/tracks.mjs";
 import { initFullscreen } from "./fullscreen.mjs";
 
@@ -522,7 +522,9 @@ function renderAppViews() {
       : !playing
         ? "OSと音楽を一時停止しています。"
         : music.buffer === 0
-          ? "音声の準備待ち。バッファに音がたまると再生します。"
+          ? music.hasPlayed
+            ? "バッファが空になり、音が途切れています。CPUが補充すると自動で再開します。"
+            : "音声の準備待ち。CPUがバッファに音を用意すると再生します。"
           : snapshot.cpu.owner === "music"
             ? "CPUで次の音を準備し、バッファに補充しています。"
             : "準備済みの音を再生中。別のアプリを表示しても音は続きます。";

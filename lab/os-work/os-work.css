@@ -1416,8 +1416,20 @@ th {
   overflow-y: auto;
 }
 .audio-feedback {
-  max-height: 56px;
+  display: flex;
+  align-items: center;
+  height: 40px;
+  min-height: 40px;
+  max-height: 40px;
+  line-height: 18px;
   overflow-y: auto;
+}
+.audio-feedback:empty {
+  display: flex;
+  visibility: hidden;
+}
+.audio-feedback button {
+  flex-shrink: 0;
 }
 .photo-caption {
   height: 36px;
