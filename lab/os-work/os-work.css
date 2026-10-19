@@ -1350,13 +1350,13 @@ th {
   flex-wrap: nowrap;
 }
 .window-process-status {
-  height: 96px;
-  min-height: 96px;
+  height: 64px;
+  min-height: 64px;
   display: grid;
-  grid-template-rows: 32px 40px;
+  grid-template-rows: 18px 28px;
   align-content: start;
   gap: 3px;
-  padding: 10px 12px;
+  padding: 7px 12px;
 }
 .window-process-status strong {
   display: block;
@@ -1368,14 +1368,15 @@ th {
 .window-process-status > span {
   display: block;
   min-height: 0;
-  line-height: 20px;
+  line-height: 14px;
   overflow-y: auto;
   overflow-wrap: anywhere;
 }
 .app-content {
-  height: 420px;
+  height: 376px;
   min-height: 0;
-  max-height: 420px;
+  max-height: 376px;
+  padding: 10px;
   overflow-x: hidden;
   overflow-y: auto;
   overflow-anchor: none;
@@ -1400,9 +1401,10 @@ th {
   margin-bottom: 0;
 }
 .app-status {
-  height: 44px;
-  min-height: 44px;
-  line-height: 20px;
+  height: 32px;
+  min-height: 32px;
+  margin-top: 6px;
+  line-height: 16px;
   overflow-y: auto;
   overflow-wrap: anywhere;
 }
@@ -1658,15 +1660,15 @@ th {
     height: 60px;
   }
   .window-process-status {
-    height: 104px;
-    min-height: 104px;
-    grid-template-rows: 34px 46px;
+    height: 80px;
+    min-height: 80px;
+    grid-template-rows: 32px 30px;
   }
   .window-process-status strong {
-    line-height: 17px;
+    line-height: 16px;
   }
   .window-process-status > span {
-    line-height: 15.3px;
+    line-height: 15px;
   }
   .cpu-current {
     height: 190px;
