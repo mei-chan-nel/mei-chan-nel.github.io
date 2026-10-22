@@ -9,6 +9,7 @@ import {
   lesson,
 } from "./storyboard.mjs?v=19";
 import { createDisplayController } from "./display.mjs";
+import { createNarrationHistory } from "./narration-history.mjs?v=1";
 import { explanations } from "./explanations.mjs?v=8";
 const $ = (id) => document.getElementById(id);
 const quest = createQuest(),
@@ -27,15 +28,14 @@ let keyPage = 0;
 let shownKey = "未取得",
   shownCount = 0,
   shownOriginal = null;
-// Only text the learner has actually seen belongs to narration history.
-// Protocol checkpoints are replayed, so reviewing a line never sends data twice.
-const narrationHistory = [];
+// Narration pages include the situation and question beside the action choices.
+// Back restores that page's protocol state so the learner can choose again.
+const narrationHistory = createNarrationHistory({
+  capture: captureScreen,
+  restore: restoreScreen,
+});
 let storyBatch = 0,
-  actionSequence = 0,
-  lastNarrationKey = null,
-  reviewCursor = null,
-  liveFrontier = null,
-  frontierIndex = 0;
+  actionSequence = 0;
 function captureScreen() {
   return {
     restore: quest.checkpoint(),
@@ -66,65 +66,35 @@ function visibleNarration(s = quest.view()) {
   if (story.active())
     return {
       key: "story:" + storyBatch + ":" + story.position().index,
-      frame: story.current(),
     };
+  if (s.selectingKey || s.pending) return null;
   if (s.feedback && !s.feedback.inline && s.feedback.explanation)
     return {
       key: "answer:" + actionSequence,
-      frame: {
-        ...(s.feedbackFrame || s.displayFrame),
-        text: s.feedback.explanation,
-        tone: s.tone,
-      },
     };
-  return null;
+  return {
+    key: JSON.stringify([
+      s.count,
+      s.round,
+      s.phase,
+      s.state,
+      s.incoming?.id,
+      s.outgoing?.id,
+      s.prompt,
+      s.choices.map((choice) => choice.id),
+    ]),
+  };
 }
 function recordNarration(s) {
-  if (reviewCursor !== null) return;
-  const visible = visibleNarration(s);
-  if (!visible || visible.key === lastNarrationKey) return;
-  lastNarrationKey = visible.key;
-  narrationHistory.push({
-    ...visible,
-    frame: JSON.parse(JSON.stringify(visible.frame)),
-    saved: captureScreen(),
-  });
+  narrationHistory.record(visibleNarration(s)?.key);
 }
 function canGoBack() {
-  if (reviewCursor !== null) return reviewCursor > 0;
-  const visible = visibleNarration();
-  const currentIsLast = visible?.key === narrationHistory.at(-1)?.key;
-  return narrationHistory.length > (currentIsLast ? 1 : 0);
+  return narrationHistory.canGoBack(visibleNarration()?.key);
 }
 function goBack() {
-  if (!canGoBack()) return;
-  if (reviewCursor === null) {
-    liveFrontier = captureScreen();
-    const visible = visibleNarration();
-    const currentIsLast = visible?.key === narrationHistory.at(-1)?.key;
-    frontierIndex = narrationHistory.length - (currentIsLast ? 1 : 0);
-    reviewCursor = frontierIndex - 1;
-  } else reviewCursor--;
-  restoreScreen(narrationHistory[reviewCursor].saved);
-  render();
-  $("dialogue-next").focus({ preventScroll: true });
-}
-function resumeLive() {
-  if (reviewCursor === null) return;
-  restoreScreen(liveFrontier);
-  reviewCursor = null;
-  liveFrontier = null;
-}
-function replayNext() {
-  if (reviewCursor === null) return false;
-  if (reviewCursor + 1 >= frontierIndex) resumeLive();
-  else {
-    reviewCursor++;
-    restoreScreen(narrationHistory[reviewCursor].saved);
-  }
+  if (!narrationHistory.back(visibleNarration()?.key)) return;
   render();
   focusCurrentControl();
-  return true;
 }
 function focusCurrentControl() {
   const target = !$("dialogue-next").hidden
@@ -151,15 +121,10 @@ function play(frames) {
 }
 function render() {
   const s = quest.view(),
-    reviewing = reviewCursor !== null,
-    talking = story.active() || reviewing,
+    talking = story.active(),
     correctAnswer =
       !talking && Boolean(s.feedback?.correct && !s.feedback?.inline),
-    f =
-      (reviewing ? narrationHistory[reviewCursor].frame : null) ||
-      story.current() ||
-      s.feedbackFrame ||
-      s.displayFrame;
+    f = story.current() || s.feedbackFrame || s.displayFrame;
   const done = s.phase === "done",
     visibleResult = done && (!talking || f.revealOutcome);
   const pending = Boolean(s.pending);
@@ -472,25 +437,23 @@ function render() {
   const position = story.position();
   $("dialogue-next").hidden = !talking && !correctAnswer;
   $("dialogue-next").textContent =
-    reviewing || correctAnswer || position.index + 1 < position.total
+    correctAnswer || position.index + 1 < position.total
       ? "次へ ▶"
       : "行動を選ぶ ▶";
   $("dialogue-previous").hidden = false;
   $("dialogue-previous").textContent = "← 一つ前へ";
   recordNarration(s);
   $("dialogue-previous").disabled = !canGoBack();
-  $("dialogue-position").textContent = reviewing
-    ? reviewCursor + 1 + " / " + narrationHistory.length
-    : talking
-      ? position.index + 1 + " / " + position.total
-      : correctAnswer
-        ? ""
-        : done
-          ? "結果"
-          : "行動を選ぶ";
+  $("dialogue-position").textContent = talking
+    ? position.index + 1 + " / " + position.total
+    : correctAnswer
+      ? ""
+      : done
+        ? "結果"
+        : "行動を選ぶ";
 }
 function review(id, trigger = document.activeElement) {
-  if (story.active() || reviewCursor !== null) return;
+  if (story.active()) return;
   if (!quest.select(id)) return;
   if (quest.view().pending) {
     execute();
@@ -509,7 +472,6 @@ $("choice-list").addEventListener("click", (event) => {
   if (button) review(button.dataset.action);
 });
 function cancel() {
-  if (reviewCursor !== null) return;
   quest.cancel();
   render();
   const selected = quest.view().selectingKey?.selectedId;
@@ -529,7 +491,6 @@ $("key-back").addEventListener("click", cancel);
 $("key-list").addEventListener("click", (event) => {
   const button = event.target.closest("[data-key]");
   if (!button) return;
-  if (reviewCursor !== null) return;
   const selected = quest.selectKey(button.dataset.key);
   if (!selected) return;
   execute();
@@ -557,7 +518,6 @@ $("game-console").addEventListener("keydown", (event) => {
   }
 });
 $("dialogue-next").addEventListener("click", () => {
-  if (replayNext()) return;
   if (
     !story.active() &&
     quest.view().feedback?.correct &&
@@ -577,13 +537,11 @@ $("dialogue-previous").addEventListener("click", () => {
 $("rounds").addEventListener("click", (event) => {
   const button = event.target.closest("[data-round]");
   if (button) {
-    resumeLive();
     play(quest.start(Number(button.dataset.round)));
   }
 });
 $("restart").addEventListener("click", () => {
   const requestedRound = quest.view().round;
-  resumeLive();
   play(quest.start(requestedRound));
 });
 function buildInfo() {
