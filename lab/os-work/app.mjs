@@ -120,16 +120,17 @@ function safeAction(action) {
 function launchAndView(id) {
   simulation.view(id);
   if (id === "web") $("web-topic").value = "nature";
-  if (id === "music") void soundtrack.unlock();
+  if (id === "music" || !playing) void soundtrack.unlock();
+  if (!playing) setPlaying(true, false);
   return simulation.launch(id);
 }
-function setPlaying(next) {
+function setPlaying(next, renderNow = true) {
   playing = next;
   accumulator = 0;
   lastFrame = null;
   $("play").textContent = playing ? "Ⅱ 一時停止" : "▶ 再生";
   $("play").setAttribute("aria-pressed", String(playing));
-  render();
+  if (renderNow) render();
 }
 $("play").addEventListener("click", () => {
   if (!playing) void soundtrack.unlock();
