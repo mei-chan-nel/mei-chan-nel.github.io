@@ -3,7 +3,7 @@ import {
   APP_CONFIG,
   FOREGROUND_IDS,
   BACKGROUND_IDS,
-} from "./simulation.mjs";
+} from "./simulation.mjs?v=2";
 import { RecordedAudioController } from "./audio-controller.mjs?v=4";
 import { tracks } from "./audio/tracks.mjs";
 import { initFullscreen } from "./fullscreen.mjs";
@@ -119,6 +119,8 @@ function safeAction(action) {
 }
 function launchAndView(id) {
   simulation.view(id);
+  if (id === "web") $("web-topic").value = "nature";
+  if (id === "music") void soundtrack.unlock();
   return simulation.launch(id);
 }
 function setPlaying(next) {
@@ -179,7 +181,7 @@ function makeAppViews() {
     .map(([id, filter]) => `<option value="${id}">${filter[0]}</option>`)
     .join(
       "",
-    )}</select><button type="button" class="primary" data-action="photo-start" id="photo-start">加工する</button></div><div class="photo-stage"><div class="photo-original">${landscape}</div><div class="photo-overlay" id="photo-overlay">${landscape.replaceAll('id="sky"', 'id="sky-overlay"').replaceAll("url(#sky)", "url(#sky-overlay)")}</div><span class="photo-progress" id="photo-progress">未加工</span></div><p class="photo-caption" id="photo-caption"></p><p class="app-status" id="photo-status"></p>`;
+    )}</select><button type="button" class="primary" data-action="photo-start" id="photo-start">加工する</button></div><div class="photo-stage" id="photo-stage" data-loading="true"><div class="photo-original">${landscape}</div><div class="photo-overlay" id="photo-overlay">${landscape.replaceAll('id="sky"', 'id="sky-overlay"').replaceAll("url(#sky)", "url(#sky-overlay)")}</div><div class="photo-loading" id="photo-loading" role="status"><strong id="photo-load-label">画像を読み込み中</strong><span id="photo-load-detail"></span></div><span class="photo-progress" id="photo-progress">未加工</span></div><p class="photo-caption" id="photo-caption"></p><p class="app-status" id="photo-status"></p>`;
   $("app-content").innerHTML = Object.entries({ web, music, photo })
     .map(
       ([id, content]) =>
@@ -532,6 +534,7 @@ function renderAppViews() {
   const photo = snapshot.apps.photo.photo;
   const photoPending = pendingFor("photo").length > 0;
   const photoWait = snapshot.apps.photo.memoryWait;
+  const photoLoading = photo.phase !== "ready";
   const visibleFilter = photo.processing ? photo.filter : photo.completedFilter;
   const progress = photo.processing
     ? photo.progress
@@ -540,28 +543,49 @@ function renderAppViews() {
       : 0;
   $("photo-overlay").style.filter = filters[visibleFilter]?.[1] || "none";
   $("photo-overlay").style.clipPath = `inset(0 ${100 - progress}% 0 0)`;
-  $("photo-progress").textContent = `${Math.round(progress)}%`;
+  $("photo-stage").dataset.loading = String(photoLoading);
+  $("photo-loading").hidden = !photoLoading;
+  const photoLoadMessages = {
+    idle: ["画像の読み込み待ち", "起動すると画像ファイルを読み込みます。"],
+    request: ["画像を読み込み中", "CPUで読み込み要求を準備しています。"],
+    read: ["画像を読み込み中", "記憶装置の読み込み待ち。CPUはほかの処理へ。"],
+    "decode-wait": ["画像を読み込み中", "読み込み完了。OSの割り込み処理を待っています。"],
+    decode: ["画像を展開中", "CPUで画像を展開し、画面に表示します。"],
+  };
+  const photoLoadMessage = photoLoadMessages[photo.phase] || ["", ""];
+  $("photo-load-label").textContent = photoLoadMessage[0];
+  $("photo-load-detail").textContent = photoLoadMessage[1];
+  $("photo-progress").textContent = photoLoading
+    ? `読み込み ${Math.round(photo.loadProgress)}%`
+    : photo.processing || photo.completedFilter
+      ? `加工 ${Math.round(progress)}%`
+      : "✓ 読み込み完了";
   $("photo-start").disabled =
-    photo.processing || photoPending || Boolean(photoWait);
+    photoLoading || photo.processing || photoPending || Boolean(photoWait);
   $("photo-filter").disabled =
-    photo.processing || photoPending || Boolean(photoWait);
-  $("photo-caption").textContent =
-    `CPUで処理した量 ${photo.completed} / ${photo.required} tick${photo.processing ? " · 作業用メモリ +200 MB" : ""}`;
+    photoLoading || photo.processing || photoPending || Boolean(photoWait);
+  $("photo-caption").textContent = photoLoading
+    ? `画像の読み込み ${Math.round(photo.loadProgress)}% · 読み込み待ちとCPU処理を順に実行`
+    : `CPUで処理した量 ${photo.completed} / ${photo.required} tick${photo.processing ? " · 作業用メモリ +200 MB" : ""}`;
   $("photo-status").textContent = photoPending
     ? playing
       ? "加工の入力を受け付けました。"
       : "入力を受け付けました。OSの「再生」で加工を進めます。"
-    : photoWait
-      ? `作業用メモリを待っています。${memoryWaitMessage(photoWait)}`
-      : photo.processing
-        ? !playing
-          ? "OSを一時停止中。加工の進捗と作業用メモリを保持します。"
-          : snapshot.cpu.owner === "photo"
-            ? "CPU割り当て中。この時間だけ加工が進みます。"
-            : "CPUの順番待ち。加工は止まり、作業用メモリは保持します。"
-        : photo.completedFilter
-          ? `「${filters[photo.completedFilter]?.[0] || photo.completedFilter}」の加工完了。作業用メモリを解放しました。`
-          : "効果を選んで加工。CPUの割り当てと進捗を見比べましょう。";
+    : photoLoading
+      ? !playing
+        ? "OSを一時停止中。OSの「再生」で画像の読み込みを進めます。"
+        : photoLoadMessage[1]
+      : photoWait
+        ? `作業用メモリを待っています。${memoryWaitMessage(photoWait)}`
+        : photo.processing
+          ? !playing
+            ? "OSを一時停止中。加工の進捗と作業用メモリを保持します。"
+            : snapshot.cpu.owner === "photo"
+              ? "CPU割り当て中。この時間だけ加工が進みます。"
+              : "CPUの順番待ち。加工は止まり、作業用メモリは保持します。"
+          : photo.completedFilter
+            ? `「${filters[photo.completedFilter]?.[0] || photo.completedFilter}」の加工完了。作業用メモリを解放しました。`
+            : "効果を選んで加工。CPUの割り当てと進捗を見比べましょう。";
   renderProcessStatus();
 }
 function renderAudioControls() {
@@ -590,8 +614,6 @@ function renderAudioControls() {
 function renderHistory() {
   const entries = snapshot.history.slice(-24);
   const history = $("cpu-history");
-  const follow =
-    history.scrollLeft + history.clientWidth >= history.scrollWidth - 10;
   if (snapshot.time < lastHistoryTime) {
     history.replaceChildren();
     historyButtons.clear();
@@ -624,7 +646,6 @@ function renderHistory() {
       history.append(cell);
       historyButtons.set(entry.time, cell);
     }
-  if (follow) history.scrollLeft = history.scrollWidth;
   $("history-range").textContent = entries.length
     ? `${entries[0].time} → ${entries.at(-1).time} tick`
     : "過去 → 現在";

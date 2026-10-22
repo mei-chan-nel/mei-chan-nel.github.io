@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#102f35" />
 <link rel="icon" href="../icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
-<link rel="stylesheet" href="./os-work.css?v=8" />
+<link rel="stylesheet" href="./os-work.css?v=9" />
 <link rel="stylesheet" href="./fullscreen.css?v=2" />
 </head>
 <body>
@@ -54,8 +54,8 @@
 <details class="details-panel" id="state-details"><summary>プロセスの状態・イベントログを見る</summary><div class="details-body"><p class="state-key"><strong>実行中</strong>＝CPUを使用　 <strong>実行待ち</strong>＝CPUの順番待ち　 <strong>イベント待ち</strong>＝入力・通信・音声出力などを待つ　 <strong>メモリ待ち</strong>＝必要な空き領域を待つ</p><div class="table-scroll"><table><caption class="visually-hidden">現在の各プロセス</caption><thead><tr><th>プロセス</th><th>起動</th><th>表示</th><th>状態</th><th>メモリ</th></tr></thead><tbody id="process-table"></tbody></table></div><p id="pending-inputs"></p><h3>イベントログ <small>新しい順 / 直近80件</small></h3><ol id="event-log" class="event-log"></ol></div></details>
 <details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes">
 <ol>
-<li>Webを起動してページを読み込む。「受付 → 通信待ち → 描画 → 完了」とCPUの動きを比べ、完了後も表示が続くことを確かめる。</li>
-<li>音楽を再生してから写真加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li>
+<li>Webを起動すると最初のページを読み込み始める。「受付 → 通信待ち → 描画 → 完了」とCPUの動きを比べ、完了後も表示が続くことを確かめる。</li>
+<li>音楽を起動すると最初の曲の再生が始まる。写真加工を起動し、画像の読み込みと展開が終わったら加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li>
 <li>最初から起動している通知アプリ・クラウド同期・セキュリティ対策を見る。通知の到着、ファイルの変更、予約スキャンをきっかけに、待機からCPUの順番待ちへ変わる様子を比べる。</li>
 <li>一時停止してCPUの履歴やイベントログを確認する。起動中でもCPUを使わない時間があること、操作するアプリの終了でメモリが戻ることを確かめる。</li>
 </ol>
@@ -66,6 +66,7 @@
 <p>1 tickは教材の仮想時間で、実際の1秒ではありません。観察のため処理やOSの仕事を引き延ばしています。1コア・最大3 tickのラウンドロビン方式を使い、各アプリを1プロセスとして扱います。実際のOSは優先度、複数コア、複数スレッドなども扱います。</p>
 <p>通知やクラウド側の変更は、不規則に届く様子を再現します。同じ条件で繰り返し観察できるよう、到着順と時刻はあらかじめ用意しています。クラウド同期は、写真加工後の保存や仮想のクラウド側の変更を受け、変わったファイルの準備・通信待ち・結果保存を行います。変更がなければ、ファイル全体を繰り返し同期しません。</p>
 <p>セキュリティ対策は、予約されたクイックスキャンの例です。実際の製品はファイルを開くときなどのリアルタイム保護も行いますが、この教材では扱いません。通知も、実際にはOSの通知サービスや短時間のバックグラウンド処理を利用できます。比較のため、ここでは3種類をそれぞれ起動し続ける1プロセスにまとめ、終了できないようにしています。実際の通信・ファイル同期・セキュリティ検査は行いません。</p>
+<p>写真は起動時に、CPUで読み込みを要求し、記憶装置の応答を待ち、CPUで画像を展開する流れを模擬します。読み込み待ちの間はCPUをほかの処理に渡します。実際のファイル読み込み時間や画像のデコード時間を測るものではありません。</p>
 <p>メモリ総量は1024 MB、アプリの使用量は固定の教材用値です。写真加工中だけ作業用200 MBを追加確保し、完了時に解放します。空きができるまで要求を保留する動作も教材用の単純化で、仮想メモリや断片化は扱いません。</p>
 <p>画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。音楽はパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音声バッファは教材用のモデルで、実際のデコード処理を計測するものではありません。CPUの混雑で補充が間に合わないと一時的に音が途切れますが、CPUが補充すると続きから自動で再開します。OSの一時停止やバッファ残量に合わせて音も停止し、ブラウザのタブを離れると自動で一時停止します。</p>
 <h3>実際のしくみを調べる</h3>
@@ -76,5 +77,5 @@
 </main>
 <footer class="os-footer">情報Ⅰ Study Atlas <span>知識を、ひろげ、つなげる</span></footer>
 <script type="module" src="../navigation.mjs?v=1"></script>
-<script type="module" src="./app.mjs?v=9"></script>
+<script type="module" src="./app.mjs?v=10"></script>
 </body></html>

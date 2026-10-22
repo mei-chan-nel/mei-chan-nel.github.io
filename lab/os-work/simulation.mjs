@@ -52,6 +52,7 @@ const freshApp = (id) => ({
     underruns: 0, buffering: false, hasPlayed: false, wasEmpty: false,
   } : undefined,
   photo: id === 'photo' ? {
+    phase: 'idle', loadProgress: 0, readRemaining: 0,
     processing: false, progress: 0, filter: 'warm', completedFilter: null,
     completed: 0, required: PHOTO_WORK,
   } : undefined,
@@ -216,7 +217,23 @@ export class OSSimulation {
     this._apps[id].running = true;
     this._memoryWaits = this._memoryWaits.filter((wait) => !(wait.id === id && wait.operation === 'launch'));
     this._clearFailure(id, 'launch');
+    const app = this._apps[id];
+    if (id === 'web') {
+      app.web.phase = 'request';
+      app.work = 3;
+    } else if (id === 'music') {
+      app.music.playing = true;
+      app.music.buffering = true;
+      app.work = 3;
+    } else if (id === 'photo') {
+      app.photo.phase = 'request';
+      app.work = 2;
+    }
+    this._enqueue(id);
     this._event(`${label}を起動し、${APP_CONFIG[id].memory} MBのメモリを確保。`);
+    this._event(id === 'web' ? '最初のページの読み込みを開始。'
+      : id === 'music' ? '最初の曲の再生を開始。CPUで音声データを準備します。'
+        : '画像ファイルの読み込みを開始。読み込み後にCPUで画像を展開します。');
     return `${label}を起動。${APP_CONFIG[id].memory} MBのメモリを確保しました。`;
   }
 
@@ -316,6 +333,7 @@ export class OSSimulation {
       return '音楽を一時停止しました。起動中のアプリとバッファはメモリに残ります。';
     }
     if (type === 'startPhoto') {
+      if (app.photo.phase !== 'ready') return '画像を読み込み中です。読み込みと画像の展開が完了すると加工できます。';
       if (app.photo.processing) return '写真は加工中です。CPUが割り当てられるのを待ちます。';
       const available = this._memory().free;
       if (PHOTO_MEMORY > available) return this._allocationFailure(id, 'workspace', PHOTO_MEMORY, available, { filter: input.filter });
@@ -326,6 +344,15 @@ export class OSSimulation {
 
   _advanceDevices() {
     this._advanceBackgroundDevices();
+    const photo = this._apps.photo;
+    if (photo.running && photo.photo.phase === 'read') {
+      photo.photo.readRemaining -= 1;
+      photo.photo.loadProgress = 20 + (4 - photo.photo.readRemaining) / 4 * 40;
+      if (photo.photo.readRemaining === 0) {
+        photo.photo.phase = 'decode-wait';
+        this._interrupts.push({ id: 'photo', type: 'photo-read', time: this.time });
+      }
+    }
     const web = this._apps.web;
     if (web.running && web.web.phase === 'network') {
       web.web.networkRemaining -= 1;
@@ -405,10 +432,17 @@ export class OSSimulation {
     this._interrupts.push({ id, type: 'wake', time: this.time, source: background.lastSource });
   }
 
-  _applyBackgroundInterrupt(interrupt) {
+  _applyInterrupt(interrupt) {
     const { id, type } = interrupt;
     const app = this._apps[id];
     const label = APP_CONFIG[id].label;
+    if (type === 'photo-read') {
+      app.photo.phase = 'decode';
+      app.work = 3;
+      this._enqueue(id);
+      this._event('画像ファイルの読み込みが完了。OSが割り込みを処理し、画像の展開が実行待ちへ。');
+      return '画像ファイルの読み込み完了をOSが受け取り、CPUで画像を展開する処理を実行待ちにしました。';
+    }
     app.background.pendingEvent = false;
     if (type === 'wake') {
       app.background.phase = 'work';
@@ -458,7 +492,12 @@ export class OSSimulation {
       if (id === 'sync') return app.background.phase === 'finish' ? '同期結果を保存' : '同期データを準備';
       return '定期クイックスキャン';
     }
-    return app.photo.processing ? '写真の画素を加工' : '加工操作待ち';
+    if (app.photo.processing) return '写真の画素を加工';
+    return {
+      idle: '画像の読み込み待ち', request: '画像ファイルの読み込みを要求',
+      read: '画像ファイルの読み込み完了待ち', 'decode-wait': 'OSの読み込み完了割り込み待ち',
+      decode: '画像を展開して表示', ready: '加工操作待ち',
+    }[app.photo.phase];
   }
 
   _run(id) {
@@ -469,14 +508,29 @@ export class OSSimulation {
       app.music.buffering = false;
       if (app.music.buffer === MUSIC_CAPACITY) app.work = 0;
     } else if (id === 'photo') {
-      app.photo.completed += 1;
-      app.photo.progress = app.photo.completed / PHOTO_WORK * 100;
-      if (app.work === 0) {
-        app.photo.processing = false;
-        app.photo.progress = 100;
-        app.photo.completedFilter = app.photo.filter;
-        this._event('写真加工が完了。作業用メモリを解放し、操作イベント待ちへ。');
-        this._receiveBackgroundEvent('sync', '写真の保存');
+      if (app.photo.phase === 'request') {
+        app.photo.loadProgress = (2 - app.work) / 2 * 20;
+        if (app.work === 0) {
+          app.photo.phase = 'read';
+          app.photo.readRemaining = 4;
+          this._event('画像の読み込みを要求。記憶装置を待つ間はCPUを使いません。');
+        }
+      } else if (app.photo.phase === 'decode') {
+        app.photo.loadProgress = 60 + (3 - app.work) / 3 * 40;
+        if (app.work === 0) {
+          app.photo.phase = 'ready';
+          this._event('画像の展開・表示が完了。加工できる状態で操作イベント待ちへ。');
+        }
+      } else if (app.photo.processing) {
+        app.photo.completed += 1;
+        app.photo.progress = app.photo.completed / PHOTO_WORK * 100;
+        if (app.work === 0) {
+          app.photo.processing = false;
+          app.photo.progress = 100;
+          app.photo.completedFilter = app.photo.filter;
+          this._event('写真加工が完了。作業用メモリを解放し、操作イベント待ちへ。');
+          this._receiveBackgroundEvent('sync', '写真の保存');
+        }
       }
     } else if (app.background) {
       app.background.cpuTicks += 1;
@@ -537,9 +591,10 @@ export class OSSimulation {
     if (this._interrupts.length) {
       this._interruptCurrent();
       const interrupt = this._interrupts.shift();
-      const reason = this._applyBackgroundInterrupt(interrupt);
+      const reason = this._applyInterrupt(interrupt);
       this._transition = 'イベント割り込みを処理した後、実行待ちの順番にCPUを割り当てます。';
-      const source = interrupt.type === 'wake' ? this._apps[interrupt.id].background.source : '通信完了';
+      const source = interrupt.type === 'wake' ? this._apps[interrupt.id].background.source
+        : interrupt.type === 'photo-read' ? '画像読み込み完了' : '通信完了';
       return this._record('os', `イベント割り込み：${APP_CONFIG[interrupt.id].label}の${source}`, reason);
     }
 
@@ -649,7 +704,9 @@ export class OSSimulation {
     if (this._apps.music.running && this._apps.music.music.playing && this._apps.music.music.buffer > 0 && owner !== 'music') {
       return 'CPUがほかの処理をしている間も、準備済みの音声バッファから音楽を再生できます。';
     }
-    if (owner === 'photo') return '写真加工は、CPUが割り当てられた時間だけ進みます。加工中は作業用のメモリも使います。';
+    if (owner === 'photo') return this._apps.photo.photo.phase !== 'ready'
+      ? '画像の読み込み要求や展開にはCPUを使います。記憶装置の読み込みを待つ間は、CPUをほかの処理に渡します。'
+      : '写真加工は、CPUが割り当てられた時間だけ進みます。加工中は作業用のメモリも使います。';
     if (owner === 'music') return 'CPUで音声データをまとめて準備し、バッファに蓄えています。再生のすべてにCPUが必要なわけではありません。';
     return 'ページの要求や描画にはCPUを使います。読み込みが終わると、画面を表示したままイベント待ちになります。';
   }

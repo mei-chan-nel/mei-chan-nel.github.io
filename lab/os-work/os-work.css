@@ -453,6 +453,25 @@
   inset: 0;
   overflow: hidden;
 }
+.photo-stage[data-loading="true"] :is(.photo-original, .photo-overlay) {
+  visibility: hidden;
+}
+.photo-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px 34px;
+  text-align: center;
+  color: var(--ink-soft);
+  background: var(--paper-deep);
+  font-size: 0.7rem;
+}
+.photo-loading[hidden] { display: none; }
+.photo-loading strong { font-size: 0.85rem; }
 .photo-progress {
   position: absolute;
   bottom: 7px;
@@ -957,19 +976,18 @@ th {
 .cpu-current[data-owner="idle"] .cpu-owner {
   color: var(--ink-soft);
 }
-/* Each history item remains a usable touch target at narrow widths. */
+/* All 24 ticks fit the panel; cells are at most half the former 28px width. */
 .cpu-history {
-  grid-template-columns: repeat(24, 28px);
-  overflow-x: auto;
-  overflow-y: hidden;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  width: 100%;
+  max-width: 388px;
+  gap: 2px;
+  overflow: hidden;
   padding: 4px 3px;
   height: 44px;
-  scrollbar-width: thin;
-  scroll-snap-type: x proximity;
 }
 .cpu-history .history-cell {
-  scroll-snap-align: start;
-  min-width: 28px;
+  min-width: 0;
 }
 
 .launcher-buffer {

@@ -17,6 +17,11 @@ const until = (sim, condition, limit = 600) => {
   assert.fail('Expected simulation state was not reached within the tick limit');
 };
 
+const launchPhoto = (sim) => {
+  sim.launch('photo');
+  return until(sim, (s) => s.apps.photo.photo.phase === 'ready');
+};
+
 const waitFor = (snapshot, id) => snapshot.memoryWaits.find((wait) => wait.id === id);
 
 const externalSchedule = (time, intervals) => {
@@ -103,7 +108,7 @@ test('foreground launch and close are OS inputs, independent of the selected win
   assert.equal(snapshot.cpu.owner, 'os');
   assert.match(snapshot.cpu.task, /入力イベント/);
   assert.equal(snapshot.apps.music.running, true);
-  assert.equal(snapshot.apps.music.state, 'waiting');
+  assert.equal(snapshot.apps.music.state, 'ready');
   assert.equal(snapshot.visible, 'photo');
   sim.view('music');
   snapshot = sim.close('music');
@@ -118,8 +123,8 @@ test('foreground launch and close are OS inputs, independent of the selected win
 test('idle foreground apps retain memory while resident work comes and goes; close releases only their allocation', () => {
   const sim = new OSSimulation();
   sim.launch('web');
-  let snapshot = ticks(sim, 5);
-  assert.equal(snapshot.cpu.owner, 'idle');
+  until(sim, (s) => s.apps.web.web.phase === 'loaded');
+  let snapshot = until(sim, (s) => s.cpu.owner === 'idle');
   assert.equal(snapshot.apps.web.state, 'waiting');
   assert.equal(snapshot.apps.web.memory, APP_CONFIG.web.memory);
   const memory = snapshot.memory.used;
@@ -171,7 +176,7 @@ test('Web CPU requests, six-tick device waits and rendering share the clock and 
 
 test('photo progress changes only on its CPU ticks and completion releases workspace', () => {
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('mono');
   let previous = sim.snapshot();
   let photoTicks = 0;
@@ -203,8 +208,7 @@ test('photo progress changes only on its CPU ticks and completion releases works
 test('resident and foreground work share one core fairly with CPU slices no longer than three ticks', () => {
   const sim = new OSSimulation();
   sim.launch('music');
-  sim.launch('photo');
-  sim.toggleMusic();
+  launchPhoto(sim);
   sim.startPhoto('mono');
   let previousOwner = null;
   let sliceLength = 0;
@@ -230,9 +234,8 @@ test('resident and foreground work share one core fairly with CPU slices no long
 test('music uses its prepared buffer while other processes run and refills only on its CPU ticks', () => {
   const sim = new OSSimulation();
   sim.launch('music');
-  sim.toggleMusic();
   until(sim, (s) => s.apps.music.music.buffer >= 20);
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('warm');
   sim.view('photo');
   let previous = sim.snapshot();
@@ -262,7 +265,6 @@ test('music uses its prepared buffer while other processes run and refills only 
 test('music pause retains audio and memory despite resident activity, and resume continues from that position', () => {
   const sim = new OSSimulation();
   sim.launch('music');
-  sim.toggleMusic();
   until(sim, (s) => s.apps.music.music.buffer >= 20);
   sim.toggleMusic();
   let snapshot = sim.step();
@@ -282,7 +284,6 @@ test('music pause retains audio and memory despite resident activity, and resume
 test('track selection is queued, retains playback intent, and resets audio without changing memory or display', () => {
   const sim = new OSSimulation();
   sim.launch('music');
-  sim.toggleMusic();
   let snapshot = until(sim, (s) => s.apps.music.music.buffer >= 20);
   sim.view('photo');
   const time = snapshot.time;
@@ -312,7 +313,6 @@ test('track selection is queued, retains playback intent, and resets audio witho
 test('a track change during a music slice discards old work and begins a fresh time slice', () => {
   const sim = new OSSimulation();
   sim.launch('music');
-  sim.toggleMusic();
   let snapshot = until(sim, (s) => s.cpu.owner === 'music');
   assert.equal(snapshot.quantum.used, 1);
   sim.selectTrack('duru-arcade-vibe');
@@ -332,6 +332,8 @@ test('a track change during a music slice discards old work and begins a fresh t
 test('selecting a paused track waits for play, and selecting the current track preserves audio', () => {
   const sim = new OSSimulation();
   sim.launch('music');
+  sim.step();
+  sim.toggleMusic();
   sim.step();
   sim.selectTrack('duru-rondo');
   let snapshot = sim.step();
@@ -359,7 +361,6 @@ test('close cancels foreground CPU, network and audio work while residents conti
   sim.launch('web');
   sim.launch('music');
   sim.webLoad('city');
-  sim.toggleMusic();
   until(sim, (s) => s.apps.web.web.phase === 'network');
   sim.close('web');
   sim.close('music');
@@ -376,7 +377,7 @@ test('close cancels foreground CPU, network and audio work while residents conti
   sim.launch('music');
   snapshot = ticks(sim, 4);
   assert.equal(snapshot.apps.music.music.track, 'roomscene-lofi');
-  assert.equal(snapshot.apps.music.music.playing, false);
+  assert.equal(snapshot.apps.music.music.playing, true);
   invariant(snapshot);
 });
 
@@ -385,7 +386,7 @@ test('close discards stale queued photo operations but preserves an explicit lat
   sim.launch('photo');
   sim.close('photo');
   sim.startPhoto('mono');
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('sunset');
   const snapshot = until(sim, (s) => s.apps.photo.photo.completedFilter === 'sunset');
   assert.equal(snapshot.apps.photo.photo.completed, 30);
@@ -451,7 +452,7 @@ test('security runs a periodic quick scan and schedules its next cycle after com
 
 test('sync network wait lasts six shared ticks, lets photo run, and needs an OS completion interrupt before finishing', () => {
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('warm');
   let snapshot = until(sim, (s) => s.apps.sync.background.phase === 'network');
   assert.equal(snapshot.apps.sync.background.networkRemaining, 6);
@@ -486,7 +487,7 @@ test('sync network wait lasts six shared ticks, lets photo run, and needs an OS 
 test('all foreground apps fit in base memory but photo workspace becomes a retained memory wait', () => {
   const sim = new OSSimulation();
   for (const id of FOREGROUND_IDS) sim.launch(id);
-  let snapshot = ticks(sim, 3);
+  let snapshot = until(sim, (s) => s.apps.photo.photo.phase === 'ready');
   assert.equal(snapshot.memory.used, 1008);
   assert.equal(snapshot.memory.free, 16);
   const before = snapshot.apps.photo.photo;
@@ -519,7 +520,7 @@ test('all foreground apps fit in base memory but photo workspace becomes a retai
 
 test('a blocked launch allocates automatically on an OS tick after photo completion frees workspace, without changing the view', () => {
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('mono');
   let snapshot = ticks(sim, 2);
   assert.equal(snapshot.memory.used, 888);
@@ -551,7 +552,8 @@ test('a blocked launch allocates automatically on an OS tick after photo complet
   assert.equal(snapshot.time, completedAt + 1);
   assert.equal(snapshot.cpu.owner, 'os', 'Allocation itself consumes OS time');
   assert.equal(snapshot.apps.web.running, true);
-  assert.equal(snapshot.apps.web.state, 'waiting');
+  assert.equal(snapshot.apps.web.state, 'ready');
+  assert.equal(snapshot.apps.web.web.phase, 'request');
   assert.equal(snapshot.apps.web.memory, APP_CONFIG.web.memory);
   assert.equal(snapshot.visible, 'music');
   assert.equal(snapshot.memory.used, 888);
@@ -564,7 +566,7 @@ test('a blocked launch allocates automatically on an OS tick after photo complet
 
 test('blocked photo keeps its previous image and original filter, then automatically starts after close frees memory', () => {
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('mono');
   let snapshot = until(sim, (s) => s.apps.photo.photo.completedFilter === 'mono');
   sim.launch('web');
@@ -610,7 +612,7 @@ test('blocked photo keeps its previous image and original filter, then automatic
 
 test('a smaller launch fits while an older larger request stays blocked and duplicate launches retain one request', () => {
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('warm');
   sim.launch('music');
   ticks(sim, 3);
@@ -643,7 +645,7 @@ test('a smaller launch fits while an older larger request stays blocked and dupl
 
 test('closing a pending launch cancels it even though the app never ran, and freed workspace cannot resurrect it', () => {
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('warm');
   sim.launch('web');
   let snapshot = ticks(sim, 3);
@@ -667,7 +669,7 @@ test('closing a pending launch cancels it even though the app never ran, and fre
 test('close wins over an eligible workspace allocation and cancels the retained operation permanently', () => {
   const sim = new OSSimulation();
   for (const id of FOREGROUND_IDS) sim.launch(id);
-  ticks(sim, 3);
+  until(sim, (s) => s.apps.photo.photo.phase === 'ready');
   sim.startPhoto('sunset');
   let snapshot = sim.step();
   assert.equal(snapshot.apps.photo.state, 'memory-wait');
@@ -702,7 +704,7 @@ test('identical inputs, resident timers and memory waits remain deterministic; s
   const second = new OSSimulation();
   for (const sim of [first, second]) {
     for (const id of FOREGROUND_IDS) sim.launch(id);
-    ticks(sim, 3);
+    until(sim, (s) => s.apps.photo.photo.phase === 'ready');
     sim.startPhoto('sunset');
     ticks(sim, 35);
     sim.view('photo');
@@ -836,7 +838,7 @@ for (const [id, heldUntil, minimumPending, workPerBatch] of [['notify', 84, 3, 2
 test('only the final photo CPU tick saves a file and adds a local sync event; paused or memory-blocked work adds none', () => {
   const blocked = new OSSimulation();
   for (const id of FOREGROUND_IDS) blocked.launch(id);
-  ticks(blocked, 3);
+  until(blocked, (s) => s.apps.photo.photo.phase === 'ready');
   blocked.startPhoto('warm');
   let snapshot = blocked.step();
   assert.equal(snapshot.apps.photo.state, 'memory-wait');
@@ -848,7 +850,7 @@ test('only the final photo CPU tick saves a file and adds a local sync event; pa
     assert.ok(snapshot.events.every((event) => !/写真の保存/.test(event.message)));
   }
   const sim = new OSSimulation();
-  sim.launch('photo');
+  launchPhoto(sim);
   sim.startPhoto('mono');
   snapshot = ticks(sim, 2);
   const start = snapshot;
@@ -947,4 +949,118 @@ test('Web progress follows request CPU work, shared network time and render CPU 
   assert.equal(snapshot.cpu.owner, 'web');
   assert.equal(snapshot.apps.web.web.progress, 100);
   assert.equal(snapshot.apps.web.web.completedLoads, 2);
+});
+
+test('launch immediately requests the first page or first track and repeat launch preserves ongoing work', () => {
+  for (const id of ['web', 'music']) {
+    const sim = new OSSimulation();
+    sim.launch(id);
+    let snapshot = sim.step();
+    assert.equal(snapshot.cpu.owner, 'os');
+    assert.equal(snapshot.apps[id].state, 'ready');
+    if (id === 'web') {
+      assert.equal(snapshot.apps.web.web.topic, 'nature');
+      assert.equal(snapshot.apps.web.web.phase, 'request');
+      snapshot = until(sim, (s) => s.apps.web.web.phase === 'loaded');
+      assert.equal(snapshot.apps.web.web.page, 'nature');
+      assert.equal(snapshot.apps.web.web.completedLoads, 1);
+      assert.equal(snapshot.history.filter((entry) => entry.owner === 'web').length, 6);
+    } else {
+      assert.equal(snapshot.apps.music.music.track, 'roomscene-lofi');
+      assert.equal(snapshot.apps.music.music.playing, true);
+      assert.equal(snapshot.apps.music.music.buffer, 0);
+      snapshot = until(sim, (s) => s.apps.music.music.elapsed > 0);
+      assert.ok(snapshot.history.some((entry) => entry.owner === 'music'));
+      sim.toggleMusic(); sim.step();
+      sim.selectTrack('duru-rondo'); snapshot = sim.step();
+    }
+    const app = snapshot.apps[id];
+    const memory = snapshot.memory;
+    sim.launch(id); snapshot = sim.step();
+    assert.deepEqual(snapshot.apps[id].web ?? snapshot.apps[id].music, app.web ?? app.music);
+    assert.deepEqual(snapshot.memory, memory);
+    if (id === 'web') {
+      sim.webLoad('space');
+      until(sim, (s) => s.apps.web.web.page === 'space');
+    }
+    sim.close(id); sim.step();
+    sim.launch(id); snapshot = sim.step();
+    if (id === 'web') {
+      assert.equal(snapshot.apps.web.web.topic, 'nature');
+      assert.equal(snapshot.apps.web.web.phase, 'request');
+    } else {
+      assert.equal(snapshot.apps.music.music.track, 'roomscene-lofi');
+      assert.equal(snapshot.apps.music.music.playing, true);
+      assert.equal(snapshot.apps.music.music.buffer, 0);
+    }
+    invariant(snapshot);
+  }
+});
+
+test('photo launch reads a file, waits without CPU, handles completion through OS and decodes only on its CPU ticks', () => {
+  const sim = new OSSimulation();
+  sim.launch('photo');
+  let snapshot = sim.step();
+  assert.equal(snapshot.apps.photo.photo.phase, 'request');
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 0);
+  assert.equal(snapshot.apps.photo.memory, 240);
+  sim.startPhoto('mono'); snapshot = sim.step();
+  assert.equal(snapshot.apps.photo.photo.processing, false);
+  assert.equal(snapshot.memoryWaits.length, 0);
+  assert.match(snapshot.cpu.reason, /画像を読み込み中/);
+  snapshot = until(sim, (s) => s.apps.photo.photo.phase === 'read');
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 20);
+  assert.equal(snapshot.history.filter((entry) => entry.owner === 'photo').length, 2);
+  const readAt = snapshot.time;
+  for (let remaining = 3; remaining > 0; remaining--) {
+    snapshot = sim.step();
+    assert.equal(snapshot.apps.photo.photo.readRemaining, remaining);
+    assert.equal(snapshot.apps.photo.photo.phase, 'read');
+    assert.notEqual(snapshot.cpu.owner, 'photo');
+    assert.equal(snapshot.apps.photo.memory, 240);
+  }
+  snapshot = sim.step();
+  assert.equal(snapshot.time, readAt + 4);
+  assert.equal(snapshot.apps.photo.photo.readRemaining, 0);
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 60);
+  snapshot = until(sim, (s) => s.apps.photo.photo.phase === 'decode');
+  assert.equal(snapshot.cpu.owner, 'os');
+  assert.match(snapshot.cpu.task, /画像読み込み完了/);
+  assert.equal(snapshot.apps.photo.state, 'ready');
+  let decodeTicks = 0;
+  while (snapshot.apps.photo.photo.phase !== 'ready') {
+    const before = snapshot;
+    snapshot = sim.step();
+    if (snapshot.cpu.owner === 'photo') decodeTicks++;
+    else assert.equal(snapshot.apps.photo.photo.loadProgress, before.apps.photo.photo.loadProgress);
+    assert.equal(snapshot.apps.photo.photo.completed, 0);
+    assert.equal(snapshot.apps.photo.photo.processing, false);
+    if (snapshot.apps.photo.photo.phase !== 'ready') assert.ok(snapshot.apps.photo.photo.loadProgress < 100);
+    invariant(snapshot);
+  }
+  assert.equal(decodeTicks, 3);
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 100);
+  assert.equal(snapshot.apps.photo.memory, 240);
+  const paused = sim.snapshot();
+  assert.deepEqual(sim.snapshot(), paused);
+  sim.startPhoto('mono'); snapshot = sim.step();
+  assert.equal(snapshot.apps.photo.photo.processing, true);
+  assert.equal(snapshot.apps.photo.memory, 440);
+});
+
+test('closing photo during storage wait cancels the device completion and relaunch starts a fresh image load', () => {
+  const sim = new OSSimulation();
+  sim.launch('photo');
+  until(sim, (s) => s.apps.photo.photo.phase === 'read');
+  sim.close('photo'); sim.step();
+  let snapshot = ticks(sim, 30);
+  assert.equal(snapshot.apps.photo.running, false);
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 0);
+  assert.ok(snapshot.pendingInterrupts.every((entry) => entry.id !== 'photo'));
+  sim.launch('photo'); snapshot = sim.step();
+  assert.equal(snapshot.apps.photo.photo.phase, 'request');
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 0);
+  snapshot = until(sim, (s) => s.apps.photo.photo.phase === 'ready');
+  assert.equal(snapshot.apps.photo.photo.loadProgress, 100);
+  invariant(snapshot);
 });

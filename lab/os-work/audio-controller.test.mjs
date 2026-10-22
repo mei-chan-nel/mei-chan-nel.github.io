@@ -461,9 +461,11 @@ test('repeated underruns retain user mute/volume and explicit pauses still stop 
 test('starting music during photo processing without Web recovers from a natural underrun', async () => {
   const sim = new OSSimulation();
   const { media, controller } = create();
-  sim.launch('photo'); sim.startPhoto();
+  sim.launch('photo');
+  while (sim.snapshot().apps.photo.photo.phase !== 'ready') sim.step();
+  sim.startPhoto();
   while (sim.snapshot().apps.photo.photo.progress === 0) sim.step();
-  sim.launch('music'); sim.toggleMusic();
+  sim.launch('music');
   const prime = controller.unlock(); media.requests[0].resolve(); await prime;
   let resolved = 1;
   let depleted = null;
