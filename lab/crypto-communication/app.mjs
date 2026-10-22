@@ -1,6 +1,7 @@
 import { createQuest } from "./quest.mjs?v=19";
 import { rounds } from "./model.mjs?v=22";
 import {
+  frame,
   introFrames,
   roundFrames,
   createStoryPlayer,
@@ -106,8 +107,10 @@ function focusCurrentControl() {
 }
 function execute() {
   actionSequence++;
+  const action = quest.view().pending?.id;
   const frames = quest.confirm();
   if (frames.length) play(frames);
+  else if (action === "continue" && playKeyPreparation()) return;
   else {
     render();
     focusCurrentControl();
@@ -118,6 +121,28 @@ function play(frames) {
   story.play(frames);
   render();
   $("dialogue-next").focus({ preventScroll: true });
+}
+function playKeyPreparation() {
+  const s = quest.view();
+  if (s.selectingKey?.stage !== "wrapping") return false;
+  const key = s.payloadKey;
+  play([
+    frame(
+      "Charlieは、" +
+        englishNames(key.label) +
+        "をBobへ" +
+        (s.selectingKey.action === "inject-key" ? "送る" : "転送する") +
+        "前に暗号化する。",
+      "question",
+      {
+        at: "charlie",
+        phase: "key",
+        kind: "key",
+        packet: key,
+      },
+    ),
+  ]);
+  return true;
 }
 function render() {
   const s = quest.view(),
@@ -462,6 +487,7 @@ function review(id, trigger = document.activeElement) {
   previousChoice = id;
   previousTrigger = trigger;
   keyPage = 0;
+  if (playKeyPreparation()) return;
   render();
   (document.querySelector("[data-key]") || $("key-back")).focus({
     preventScroll: true,
@@ -510,6 +536,7 @@ $("key-next").addEventListener("click", () => {
 $("game-console").addEventListener("keydown", (event) => {
   if (
     event.key === "Escape" &&
+    !story.active() &&
     (quest.view().pending || quest.view().selectingKey)
   ) {
     event.preventDefault();
