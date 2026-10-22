@@ -327,7 +327,7 @@ export function createQuest() {
               ? "Aliceの共通鍵の暗号文には、Aliceの署名が付いている。Charlieは、Bobへ届けるデータを選ぼう。"
               : "Charlieは偽の本文をBobに受け付けさせたい。Charlieは共通鍵の配送にどう介入する？"
             : key
-              ? "CharlieはAliceの共通鍵を取り出した。Charlieは、Bobへ届ける共通鍵と、その暗号化に使う鍵を選ぼう。"
+              ? "CharlieはAliceの共通鍵を取り出した。Charlieは、その共通鍵をBobへ送るため、暗号化に使う鍵を選ぼう。"
               : "Charlieは、Aliceから届いた共通鍵の暗号文を、どの鍵で復号できるだろうか。",
       message:
         "Charlieは、Aliceから届いた本文の暗号文を、どの鍵で復号できるだろうか。",

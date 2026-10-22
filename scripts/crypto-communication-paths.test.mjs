@@ -16,6 +16,7 @@ test("every offered action and key can progress, demonstrate consequences, and r
       consequences: 0,
       correct: 0,
       keyBack: 0,
+      verdictChecks: 0,
     };
   const role = (k) =>
     k
@@ -201,6 +202,66 @@ test("every offered action and key can progress, demonstrate consequences, and r
         "correct feedback proceeds",
       );
   }
+  // Check verdicts against the learner's goal and cryptographic roles, apart
+  // from reachability. A working transition alone does not imply a right answer.
+  function inspectVerdict(before, option, after) {
+    let expected;
+    if (option.key) {
+      const key = option.key;
+      switch (before.selectingKey.action) {
+        case "open-key":
+          expected =
+            key.type === "private" &&
+            key.owner === "charlie" &&
+            before.publicForAlice?.owner === "charlie";
+          break;
+        case "read":
+          expected =
+            key.type === "symmetric" && key.owner === "alice" && key.current;
+          break;
+        case "rewrap":
+        case "inject-key":
+          expected = key.type === "public" && key.owner === "bob";
+          break;
+        case "edit":
+          expected =
+            key.type === "symmetric" &&
+            key.current &&
+            key.owner === (before.round === 2 ? "charlie" : "alice");
+          break;
+      }
+    } else if (["can-read", "cannot-read"].includes(option.id)) {
+      const readable =
+        before.incoming.type === "envelope"
+          ? before.publicForAlice?.owner === "charlie"
+          : before.inventory.some(
+              (key) =>
+                key.type === "symmetric" &&
+                key.owner === "alice" &&
+                key.current,
+            );
+      expected = option.id === "can-read" ? readable : !readable;
+    } else if (["predict-safe", "predict-detected"].includes(option.id)) {
+      expected =
+        option.id === "predict-detected"
+          ? before.round === 3
+          : before.round < 3;
+    } else if (option.id === "swap") expected = before.round === 1;
+    else if (option.id === "swap-signing-key") expected = false;
+    else if (option.id === "send-public") expected = before.round >= 2;
+    else if (option.id === "send-signing-key") expected = true;
+    else if (option.id === "inject-key" && before.round === 3) expected = false;
+    else if (option.id === "pass" && before.phase === "key")
+      expected = before.round === 3;
+    if (expected !== undefined) {
+      assert.equal(
+        after.feedback?.correct,
+        expected,
+        "verdict matches the key role and stated goal",
+      );
+      counters.verdictChecks++;
+    }
+  }
   function visit(path = [], depth = 0) {
     const v = q.view(),
       s = signature(v);
@@ -253,6 +314,7 @@ test("every offered action and key can progress, demonstrate consequences, and r
           frames = run(option.id);
         }
         const after = q.view();
+        inspectVerdict(before, option, after);
         covered.add(
           JSON.stringify([
             before.round,
@@ -323,6 +385,10 @@ test("every offered action and key can progress, demonstrate consequences, and r
     // Its wrong-type choices shared one consequence demonstration.
     counters.consequences >= 30,
     "all distinct wrong-answer demos were traversed",
+  );
+  assert(
+    counters.verdictChecks >= 63,
+    "all graded choices were checked against their expected answers",
   );
   for (const code of [
     "attack-success",
