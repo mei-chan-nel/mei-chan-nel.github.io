@@ -132,8 +132,8 @@ body.has-fullscreen-card { overflow: hidden; }
 .os-workspace.is-fullscreen #ready-queue { height: 52px; gap: 3px; overflow-y: auto; scrollbar-gutter: stable; }
 .os-workspace.is-fullscreen .timeline-heading { flex: 0 0 20px; margin: 6px 0 4px; }
 .os-workspace.is-fullscreen .cpu-history {
-  flex: 0 0 32px;
-  height: 32px;
+  flex: 0 0 40px;
+  height: 40px;
   min-height: 0;
   grid-template-columns: repeat(var(--history-columns, 24), minmax(0, 1fr));
   gap: 2px;
@@ -142,7 +142,7 @@ body.has-fullscreen-card { overflow: hidden; }
 .os-workspace.is-fullscreen .cpu-history :is(.history-cell, .history-placeholder) {
   min-width: 0;
   min-height: 0;
-  height: 28px;
+  height: 36px;
 }
 .os-workspace.is-fullscreen .legend { flex: 0 0 36px; height: 36px; margin: 5px 0 0; gap: 2px 8px; font-size: 0.58rem; line-height: 14px; }
 .os-workspace.is-fullscreen .background-apps { flex: 0 0 auto; margin-top: 6px; padding-top: 6px; }
@@ -196,7 +196,7 @@ body.has-fullscreen-card { overflow: hidden; }
   .os-workspace.is-fullscreen .cpu-panel {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    grid-template-rows: 20px 52px 18px 28px minmax(24px, 1fr) 60px;
+    grid-template-rows: 20px 52px 18px 38px minmax(24px, 1fr) 60px;
     gap: 3px 7px;
     align-items: stretch;
   }
@@ -212,8 +212,8 @@ body.has-fullscreen-card { overflow: hidden; }
   .os-workspace.is-fullscreen .timeline-heading { grid-column: 2; grid-row: 3; height: 18px; margin: 0; }
   .os-workspace.is-fullscreen .timeline-heading h3 { font-size: 0.6rem; }
   .os-workspace.is-fullscreen #history-range { display: none; }
-  .os-workspace.is-fullscreen .cpu-history { grid-column: 2; grid-row: 4; height: 28px; padding: 1px 0; gap: 1px; }
-  .os-workspace.is-fullscreen .cpu-history :is(.history-cell, .history-placeholder) { height: 26px; }
+  .os-workspace.is-fullscreen .cpu-history { grid-column: 2; grid-row: 4; height: 38px; padding: 1px 0; gap: 1px; }
+  .os-workspace.is-fullscreen .cpu-history :is(.history-cell, .history-placeholder) { height: 36px; }
   .os-workspace.is-fullscreen .legend { grid-column: 2; grid-row: 5; height: auto; margin: 0; gap: 1px 5px; font-size: 0.51rem; line-height: 12px; }
   .os-workspace.is-fullscreen .background-apps { grid-column: 1/-1; grid-row: 6; margin: 0; padding-top: 2px; }
   .os-workspace.is-fullscreen .background-apps h3 { font-size: 0.59rem; }

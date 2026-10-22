@@ -20,6 +20,10 @@ const names = {
   idle: "アイドル",
 };
 const icons = { web: "◎", music: "♫", photo: "▧" };
+const historyLabels = {
+  web: "ウェブ", music: "音楽", photo: "写真", notify: "通知",
+  sync: "同期", security: "セキュ", os: "OS", idle: "空き",
+};
 const states = {
   running: "CPUで実行中",
   ready: "実行待ち",
@@ -642,6 +646,7 @@ function renderHistory() {
       cell.className = "history-cell";
       cell.dataset.time = entry.time;
       cell.dataset.owner = entry.owner;
+      cell.textContent = historyLabels[entry.owner];
       cell.setAttribute("role", "img");
       cell.title = `${entry.time} tick：${names[entry.owner]}。${entry.task}。${entry.reason}`;
       cell.setAttribute("aria-label", cell.title);
