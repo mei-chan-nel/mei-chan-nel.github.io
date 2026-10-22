@@ -135,7 +135,7 @@ body.has-fullscreen-card { overflow: hidden; }
   flex: 0 0 32px;
   height: 32px;
   min-height: 0;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--history-columns, 24), minmax(0, 1fr));
   gap: 2px;
   padding: 2px 0;
 }

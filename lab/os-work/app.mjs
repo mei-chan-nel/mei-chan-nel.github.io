@@ -97,6 +97,7 @@ let playing = false;
 let lastFrame = null;
 let accumulator = 0;
 let lastHistoryTime = -1;
+let historyColumns = 24;
 let snapshot = simulation.snapshot();
 let currentAudioTrackId = tracks[0].id;
 const historyButtons = new Map();
@@ -613,7 +614,7 @@ function renderAudioControls() {
               : "";
 }
 function renderHistory() {
-  const entries = snapshot.history.slice(-24);
+  const entries = snapshot.history.slice(-historyColumns);
   const history = $("cpu-history");
   if (snapshot.time < lastHistoryTime) {
     history.replaceChildren();
@@ -627,7 +628,7 @@ function renderHistory() {
       historyButtons.delete(time);
     }
   const placeholders = [...history.querySelectorAll(".history-placeholder")];
-  const required = 24 - entries.length;
+  const required = historyColumns - entries.length;
   for (const placeholder of placeholders.slice(required)) placeholder.remove();
   for (let i = placeholders.length; i < required; i++) {
     const placeholder = document.createElement("span");
@@ -647,9 +648,35 @@ function renderHistory() {
       history.append(cell);
       historyButtons.set(entry.time, cell);
     }
+  // Widening restores older entries from the retained simulation history.
+  // Insert them before the existing cells so the timeline remains chronological.
+  const ordered = [
+    ...history.querySelectorAll(".history-placeholder"),
+    ...entries.map((entry) => historyButtons.get(entry.time)),
+  ];
+  ordered.forEach((cell, index) => {
+    if (history.children[index] !== cell)
+      history.insertBefore(cell, history.children[index] || null);
+  });
   $("history-range").textContent = entries.length
     ? `${entries[0].time} → ${entries.at(-1).time} tick`
     : "過去 → 現在";
+}
+function fitHistory(contentWidth) {
+  const history = $("cpu-history");
+  const style = window.getComputedStyle(history);
+  const width = contentWidth ?? history.clientWidth
+    - (parseFloat(style.paddingLeft) || 0)
+    - (parseFloat(style.paddingRight) || 0);
+  if (!Number.isFinite(width) || width <= 0) return;
+  const gap = parseFloat(style.columnGap) || 0;
+  // The simulation retains 240 ticks. Keep cells close to 14px while filling
+  // the available content width, in normal and fullscreen layouts alike.
+  const columns = Math.min(240, Math.max(1, Math.floor((width + gap) / (14 + gap))));
+  if (columns === historyColumns) return;
+  historyColumns = columns;
+  history.style.setProperty("--history-columns", String(columns));
+  renderHistory();
 }
 function renderMemory() {
   const memory = snapshot.memory;
@@ -778,5 +805,20 @@ makeLauncher();
 makeBackgroundLauncher();
 makeAppViews();
 initFullscreen({ panel: $("os-workspace"), button: $("fullscreen-toggle") });
+if (window.ResizeObserver) {
+  const historyResizeObserver = new window.ResizeObserver(([entry]) => {
+    fitHistory(entry.contentRect.width);
+  });
+  historyResizeObserver.observe($("cpu-history"));
+} else {
+  const refit = () => requestAnimationFrame(() => fitHistory());
+  window.addEventListener("resize", refit);
+  document.addEventListener("fullscreenchange", refit);
+  $("fullscreen-toggle").addEventListener("click", refit);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") refit();
+  });
+}
+fitHistory();
 setPlaying(false);
 requestAnimationFrame(animate);

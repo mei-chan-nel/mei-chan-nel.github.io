@@ -570,7 +570,7 @@
 }
 .cpu-history {
   display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--history-columns, 24), minmax(0, 1fr));
   gap: 3px;
   height: 32px;
 }
@@ -840,7 +840,7 @@ th {
     padding-top: 0;
   }
   .cpu-history {
-    grid-template-columns: repeat(24, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--history-columns, 24), minmax(0, 1fr));
     gap: 2px;
   }
   .timeline-heading {
@@ -976,11 +976,11 @@ th {
 .cpu-current[data-owner="idle"] .cpu-owner {
   color: var(--ink-soft);
 }
-/* All 24 ticks fit the panel; cells are at most half the former 28px width. */
+/* Fill the panel with a responsive number of compact history cells. */
 .cpu-history {
-  grid-template-columns: repeat(24, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--history-columns, 24), minmax(0, 1fr));
   width: 100%;
-  max-width: 388px;
+  max-width: none;
   gap: 2px;
   overflow: hidden;
   padding: 4px 3px;
