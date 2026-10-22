@@ -8,7 +8,10 @@ execFileSync(process.execPath, [fileURLToPath(new URL('node_modules/typescript/l
 await mkdir(destination, { recursive: true });
 for (const name of await readdir(new URL('dist/', project))) if (name.endsWith('.js')) {
   const source = await readFile(new URL(`dist/${name}`, project), 'utf8');
-  const versioned = source.replace(/(from ['"]\.\/)(fullscreen|step-keys)(\.js)(['"])/g, '$1$2$3?v=20261005-desktop$4');
+  // Keep the unchanged registry and value/error helpers at their canonical URL:
+  // callers registering a builtin must share the same module instance.
+  const versioned = source.replace(/(from ['"]\.\/)([^'"]+\.js)(['"])/g, (match, prefix, name, quote) =>
+    ['builtins.js', 'errors.js', 'values.js'].includes(name) ? match : `${prefix}${name}?v=${name === 'flowchart-link.js' ? '20261009-flowchart2' : '20261009-function-help3'}${quote}`);
   await writeFile(new URL(name, destination), versioned, 'utf8');
 }
 const trace = await readFile(new URL('program-trace/index.html', portal), 'utf8');
@@ -28,11 +31,15 @@ for (const name of ['index.html', 'share.html', 'guide.html']) {
   await writeFile(new URL(name, destination), html, 'utf8');
 }
 for (const name of ['studio.css', 'ai-guide.md', 'ai-guide.json']) await copyFile(new URL(`public/${name}`, project), new URL(name, destination));
+await mkdir(new URL('examples/', destination), { recursive: true });
+for (const name of await readdir(new URL('public/examples/', project))) if (name.endsWith('.studio.json')) {
+  await copyFile(new URL(`public/examples/${name}`, project), new URL(`examples/${name}`, destination));
+}
 // Snapshot the existing runner's design without importing its problem collection.
 await copyFile(new URL('program-trace/styles.css', portal), new URL('trace-base.css', destination));
 // Both runners use the same DOM-only interactions. Program interpretation stays
 // independent, and these modules never import the original problem collection.
-for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js', 'result-panels.js', 'step-keys.js']) {
+for (const name of ['assignment-flow.js', 'variable-scroll.js', 'fullscreen.js', 'result-panels.js', 'step-keys.js', 'flowchart-link.js']) {
   await copyFile(new URL(`program-trace/${name}`, portal), new URL(name, destination));
 }
 console.log('Built independent Studio → program-trace/studio/');

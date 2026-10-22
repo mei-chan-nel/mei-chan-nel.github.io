@@ -14,7 +14,10 @@ export type BuilderNode = { id: string; comment: string } & (
   { kind: 'if'; condition: Expr; body: BuilderNode[]; otherwise?: BuilderNode } |
   { kind: 'else'; body: BuilderNode[] } |
   { kind: 'for'; name: string; start: Expr; end: Expr; step: Expr; direction: 1 | -1; body: BuilderNode[] } |
-  { kind: 'while'; condition: Expr; body: BuilderNode[] } | { kind: 'comment'; text: string } | { kind: 'blank' }
+  { kind: 'while'; condition: Expr; body: BuilderNode[] } |
+  { kind: 'define'; name: string; parameters: string[]; body: BuilderNode[] } |
+  { kind: 'return'; expression?: Expr } | { kind: 'call'; expression: Expr } |
+  { kind: 'comment'; text: string } | { kind: 'blank' }
 );
 export interface BuilderDocument { version: 1; nodes: BuilderNode[] }
 export interface SourceLine { line: number; depth: number; code: string; comment: string; column: number; original: string }
@@ -38,11 +41,14 @@ export type IfNode = NodeBase & { kind: 'if'; condition: Expr; body: Node[]; oth
 export type ElseNode = NodeBase & { kind: 'else'; body: Node[] };
 export type ForNode = NodeBase & { kind: 'for'; name: string; start: Expr; end: Expr; step: Expr; direction: 1 | -1; body: Node[] };
 export type WhileNode = NodeBase & { kind: 'while'; condition: Expr; body: Node[] };
-export type Node = AssignNode | PrintNode | InputNode | IfNode | ElseNode | ForNode | WhileNode;
+export type DefineNode = NodeBase & { kind: 'define'; name: string; parameters: string[]; body: Node[] };
+export type ReturnNode = NodeBase & { kind: 'return'; expression?: Expr };
+export type CallNode = NodeBase & { kind: 'call'; expression: Expr };
+export type Node = AssignNode | PrintNode | InputNode | IfNode | ElseNode | ForNode | WhileNode | DefineNode | ReturnNode | CallNode;
 export interface Editable { key: string; line: number; label: string; value: Value; assignment?: number; part?: 'start' | 'end' | 'step' }
 export interface Parsed { nodes: Node[]; lines: SourceLine[]; variableNames: string[]; inputNames: string[]; editable: Editable[] }
 export type Instruction = Node & { next: number | null; bodyEntry: number | null; falseEntry: number | null; bodyLines: number[] };
-export interface Compiled extends Parsed { instructions: Instruction[]; entry: number | null }
+export interface Compiled extends Parsed { instructions: Instruction[]; entry: number | null; functions: Record<string, { parameters: string[]; entry: number | null }> }
 export interface Read { name: string; indices: number[] }
 export interface Change { name: string; indices: number[]; before?: Value; after: Value }
 export interface TraceAssignment extends Read { sources: Read[] }
@@ -51,19 +57,28 @@ export interface TraceEvent {
   assignments?: TraceAssignment[]; sources?: Read[];
 }
 export interface Loop { end: number; increment: number; iteration: number }
+export interface Evaluation { value: Value; resolved: string; sources: Read[] }
+export interface Pending {
+  cache: Record<string, Evaluation>; awaiting?: string; assignmentIndex: number;
+  descriptions: string[]; assignments: TraceAssignment[]; reads: Read[]; changes: Change[];
+}
+export interface Frame {
+  name: string | null; pc: number | null; variables: Variables; loops: Record<number, Loop>; pending?: Pending;
+}
 export interface State {
   pc: number | null; steps: number; currentLine: number | null; completed: boolean;
   variables: Variables; output: string[]; changes: Change[]; reads: Read[]; skippedLines: number[];
-  event: TraceEvent | null; loops: Record<number, Loop>; randomState: number;
+  event: TraceEvent | null; loops: Record<number, Loop>; randomState: number; frames: Frame[];
 }
 export interface Diagnostic { message: string; line: number; column: number }
 export interface ViewState extends State { error?: Diagnostic }
 export interface ProgramInfo { lines: SourceLine[]; variableNames: string[]; inputNames: string[]; editable: Editable[] }
 export interface WorkerRequest {
-  generation: number; action: 'prepare' | 'step' | 'reset'; draft?: Draft; input?: Value;
+  generation: number; action: 'prepare' | 'step' | 'previous' | 'reset'; draft?: Draft; input?: Value;
 }
 export interface WorkerResponse {
   generation: number; kind: 'ready' | 'state' | 'error'; state?: ViewState;
   info?: ProgramInfo; request?: { name: string; line: number; spec: InputSpec }; error?: Diagnostic;
   outputAppend?: string[];
+  outputReset?: boolean; canGoBack?: boolean;
 }

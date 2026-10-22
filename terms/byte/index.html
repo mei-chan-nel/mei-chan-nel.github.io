@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>バイトとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="バイトの意味とビットとの関係、ビット・バイトの換算、kB・KiBなどの単位、2進数・16進数との対応を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="バイト" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="バイトとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="バイトの意味とビットとの関係、ビット・バイトの換算、kB・KiBなどの単位、2進数・16進数との対応を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/byte/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/byte/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">バイト</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">バイト</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「バイト」とは</h2>
+          <p><strong>バイト（byte）は、コンピュータで扱うデータ量を表す単位の一つです。</strong>現在のコンピュータでは、1バイトは8ビットと定義されています。</p>
+          <p>コンピュータでは、文字、画像、音声、動画など、さまざまな情報を0と1の組合せで表しています。その情報量を表す基本的な単位がビットであり、8ビットをまとめた単位がバイトです。</p>
+          <p>バイトは、ファイルの大きさ、主記憶装置や補助記憶装置の容量、通信するデータの量などを表すときに広く用いられます。</p>
+        </section>
+
+        <section>
+          <h2>ビットとバイトの関係</h2>
+          <h3>ビットとは</h3>
+          <p><strong>ビット（bit）は、情報量を表す基本的な単位であり、0または1の2通りの状態を表します。</strong></p>
+          <p>例えば、1ビットでは0と1の2通り、2ビットでは00、01、10、11の4通りの組合せを表現できます。</p>
+          <p>一般に、nビットで表現できる組合せの数は、次の式で求められます。</p>
+          <p class="term-formula"><strong>2<sup>n</sup> 通り</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">ビット数</th><th scope="col">組合せの数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1ビット</td><td>2通り</td></tr>
+              <tr><td>2ビット</td><td>4通り</td></tr>
+              <tr><td>3ビット</td><td>8通り</td></tr>
+              <tr><td>4ビット</td><td>16通り</td></tr>
+              <tr><td>8ビット</td><td>256通り</td></tr>
+              <tr><td>16ビット</td><td>65,536通り</td></tr>
+            </tbody>
+          </table>
+          <p>ビット数が1増えると、表現できる組合せの数は2倍になります。</p>
+
+          <h3>バイトとは</h3>
+          <p>1バイトは8ビットであるため、1バイトを使うと2<sup>8</sup>＝256通りの組合せを表現できます。</p>
+          <p>例えば、次の8桁の2進数は1バイトのデータです。</p>
+          <p class="term-formula"><code>10110011</code></p>
+          <p>バイトは「B」、ビットは「b」と表記することがあります。大文字と小文字で意味が異なるため、注意が必要です。</p>
+          <ul>
+            <li>8 b ＝ 8ビット</li>
+            <li>8 B ＝ 8バイト ＝ 64ビット</li>
+          </ul>
+
+          <h3>ビットとバイトの換算</h3>
+          <p><strong>バイトからビットへ換算するときは8倍、ビットからバイトへ換算するときは8で割ります。</strong></p>
+          <p>例えば、16バイトをビットに換算すると、</p>
+          <p class="term-formula">16 × 8 ＝ 128ビット</p>
+          <p>となります。</p>
+          <p>480バイトの場合は、</p>
+          <p class="term-formula">480 × 8 ＝ 3840ビット</p>
+          <p>となります。</p>
+          <p>一方、500ビットをバイトに換算すると、</p>
+          <p class="term-formula">500 ÷ 8 ＝ 62.5バイト</p>
+          <p>となります。</p>
+          <p>このように、データ量を換算した結果が小数になる場合もあります。ただし、記憶領域を1バイト単位で確保するときには、端数を切り上げなければならないことがあります。</p>
+          <p>例えば、500ビットのデータを1バイト単位の領域に収める場合、62バイトでは496ビット分しかないため、最低63バイトの領域が必要になります。</p>
+        </section>
+
+        <section>
+          <h2>バイトの大きな単位</h2>
+          <p>ファイルや記憶装置の容量は非常に大きくなるため、バイトをまとめた単位が使われます。</p>
+          <p>ここで注意したいのは、<strong>1000倍を基準とする単位と、1024倍を基準とする単位がある</strong>ことです。</p>
+
+          <h3>1000倍を基準とする単位</h3>
+          <table>
+            <thead>
+              <tr><th scope="col">単位</th><th scope="col">バイト数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1 kB（キロバイト）</td><td>1,000 B</td></tr>
+              <tr><td>1 MB（メガバイト）</td><td>1,000,000 B</td></tr>
+              <tr><td>1 GB（ギガバイト）</td><td>1,000,000,000 B</td></tr>
+              <tr><td>1 TB（テラバイト）</td><td>1,000,000,000,000 B</td></tr>
+            </tbody>
+          </table>
+          <p>これらは10の累乗を基準とする単位です。</p>
+
+          <h3>1024倍を基準とする単位</h3>
+          <p>コンピュータは2進数を使うため、2<sup>10</sup>＝1024を基準とする単位も用いられます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">単位</th><th scope="col">バイト数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1 KiB（キビバイト）</td><td>1,024 B</td></tr>
+              <tr><td>1 MiB（メビバイト）</td><td>1,048,576 B</td></tr>
+              <tr><td>1 GiB（ギビバイト）</td><td>1,073,741,824 B</td></tr>
+              <tr><td>1 TiB（テビバイト）</td><td>1,099,511,627,776 B</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、20480バイトをKiBに換算すると、</p>
+          <p class="term-formula">20480 ÷ 1024 ＝ 20 KiB</p>
+          <p>となります。</p>
+          <p>また、4 GiBをバイトに換算すると、</p>
+          <p class="term-formula">4 × 1024<sup>3</sup> ＝ 2<sup>32</sup> バイト</p>
+          <p>となります。</p>
+          <p>kBとKiB、MBとMiBは異なる単位です。問題を解く際には、単位の表記と問題文で指定された換算基準を確認する必要があります。</p>
+        </section>
+
+        <section>
+          <h2>バイトと2進数・16進数</h2>
+          <p>1バイトは8ビットなので、8桁の2進数で表すことができます。</p>
+          <p>例えば、次の2進数は1バイトのデータです。</p>
+          <p class="term-formula"><code>10110011</code></p>
+          <p>この8ビットを4ビットずつに分割すると、</p>
+          <p class="term-formula"><code>1011 0011</code></p>
+          <p>となります。</p>
+          <p>上位4ビットの1011は16進数のB、下位4ビットの0011は16進数の3に対応します。</p>
+          <p>したがって、</p>
+          <p class="term-formula"><strong>10110011<sub>2</sub> ＝ B3<sub>16</sub></strong></p>
+          <p>となります。</p>
+          <p>16進数では、0～9とA～Fの16種類の数字を使用し、A～Fは10～15に対応します。</p>
+          <p>16進数1桁は16通りの値を表すので、2進数4ビットに対応します。</p>
+          <p class="term-formula">16 ＝ 2<sup>4</sup></p>
+          <p>したがって、</p>
+          <ul>
+            <li>4ビット ＝ 16進数1桁</li>
+            <li>8ビット（1バイト）＝ 16進数2桁</li>
+            <li>16ビット（2バイト）＝ 16進数4桁</li>
+          </ul>
+          <p>となります。</p>
+          <p>16進数は2進数との対応がよいため、コンピュータで扱うバイト列やメモリアドレスなどを簡潔に表記するために利用されます。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>バイト · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>16バイトは何ビットか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>16ビット</p></li>
+            <li><span>1</span><p>128ビット</p></li>
+            <li><span>2</span><p>64ビット</p></li>
+            <li><span>3</span><p>256ビット</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．128ビット</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>1バイトは8ビットなので、16バイトは16×8＝128ビットです。1バイトは8ビットであるため、16バイト×8＝128ビットとなります。バイトからビットへ換算するときは8倍し、逆方向では8で割ります。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：バイト／ビット</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">バイトの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="バイト"
+          data-limit="5"
+          data-exclude-stem="16バイトは何ビットか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=バイト">バイトの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"バイトとは","description":"バイトの意味とビットとの関係、ビット・バイトの換算、kB・KiBなどの単位、2進数・16進数との対応を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/byte/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"バイト","item":"https://mei-chan-nel.com/terms/byte/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026101201"></script>
+  </body>
+</html>

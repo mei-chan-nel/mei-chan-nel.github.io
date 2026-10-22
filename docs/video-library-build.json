@@ -1,5 +1,5 @@
 {
-  "generated_on": "2026-10-03",
+  "generated_on": "2026-10-09",
   "generator": "scripts/generate_video_pages.py",
   "source": "data/video-questions.json",
   "curriculum_source": "data/video-curriculum.json",
@@ -124,5 +124,6 @@
   "video_viewer_aspect_ratio": "9:16",
   "programming_code_blocks": 100,
   "trace_program_count": 100,
-  "trace_link_count": 127
+  "trace_link_count": 127,
+  "flowchart_link_count": 127
 }
