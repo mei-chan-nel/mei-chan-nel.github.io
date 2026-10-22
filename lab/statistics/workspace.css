@@ -1648,3 +1648,178 @@ html.statistics-immersive body {
     margin: 0 14px;
   }
 }
+
+/* A shared horizontal scale connects histogram, grouped boxplots and observations. */
+.histogram-legend .group-key-a {
+  border-radius: 50%;
+  background: #168b87;
+}
+.histogram-legend .group-key-b {
+  border: 1px dashed #513622;
+  background: repeating-linear-gradient(
+    135deg,
+    #de7c35 0 4px,
+    #513622 4px 5px,
+    #de7c35 5px 8px
+  );
+  transform: rotate(45deg);
+}
+.histogram-boxplots {
+  border-top: 1px solid #d5e0d6;
+  margin-top: 14px;
+  padding-top: 12px;
+}
+.histogram-boxplots h3 {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+}
+.histogram-boxplots .stat-chart,
+.statistics-fullscreen .histogram-boxplots .stat-chart {
+  height: 150px;
+  min-height: 0;
+}
+.boxplot-summary,
+.boxplot-rule {
+  font-size: 0.78rem;
+  line-height: 1.7;
+  margin: 5px 0;
+}
+.boxplot-rule {
+  color: #52695e;
+}
+.calculation-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 18px;
+}
+.calculation-tabs button {
+  min-height: 40px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  background: #fff;
+}
+.calculation-tabs button[aria-pressed="true"] {
+  color: #fff;
+  background: #175f55;
+  border-color: #175f55;
+}
+.calculation-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #d5e0d6;
+}
+.calculation-context p {
+  font-size: 0.78rem;
+  color: #52695e;
+  margin: 0;
+}
+#calculation-group {
+  width: 260px;
+  max-width: 100%;
+}
+.calculation-section h3 {
+  margin: 20px 0 14px;
+  font-size: 1.05rem;
+}
+.calculation-section h4 {
+  margin: 20px 0 10px;
+}
+.calculation-section :is(p, li) {
+  line-height: 1.9;
+  font-size: 0.88rem;
+}
+.calculation-steps {
+  padding-left: 24px;
+}
+.calculation-steps li {
+  padding: 5px 0;
+}
+.calculation-formula {
+  padding: 12px 16px;
+  background: #f0f5eb;
+  border-left: 3px solid #176455;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.calculation-steps .calculation-formula {
+  padding: 10px 14px;
+  margin: 6px 0;
+}
+.histogram-calculations .metrics {
+  margin: 16px 0;
+}
+.histogram-calculations details {
+  border-top: 1px solid #d5e0d6;
+  padding-top: 12px;
+  margin-top: 16px;
+}
+.histogram-calculations details > summary {
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+.histogram-calculations .table-scroll {
+  overflow-x: auto;
+}
+.histogram-calculations .stat-table {
+  min-width: 580px;
+}
+.histogram-calculations .stat-table :is(td, th) {
+  font-variant-numeric: tabular-nums;
+}
+.ordered-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+  list-style: none;
+  padding: 0;
+  gap: 8px;
+}
+.ordered-values li {
+  text-align: center;
+  padding: 7px 4px;
+  border: 1px solid #cbd9cf;
+  border-bottom: 3px solid #53726c;
+  border-radius: 5px;
+}
+.ordered-values small,
+.ordered-values strong {
+  display: block;
+}
+.ordered-values small {
+  font-size: 0.7rem;
+}
+.ordered-values [data-half="upper"] {
+  border-bottom-style: dashed;
+}
+.ordered-values [data-half="middle"] {
+  outline: 2px solid #163b3c;
+  font-weight: 700;
+}
+.quartile-calculations {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.quartile-calculations > section {
+  border: 1px solid #d5e0d6;
+  padding: 0 14px;
+  border-radius: 8px;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen
+  :is(.distribution-composite, .histogram-calculations) {
+  display: block !important;
+  padding: 16px;
+}
+.statistics-fullscreen.statistics-analysis-fullscreen
+  .histogram-calculations
+  div:has(> table),
+.statistics-fullscreen.statistics-analysis-fullscreen
+  .histogram-calculations
+  details[open] {
+  display: block !important;
+  overflow-x: auto;
+}

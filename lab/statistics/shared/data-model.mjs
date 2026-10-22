@@ -35,7 +35,7 @@ export function currentData(id, s) {
       r.value + (r.group === "B" ? Number(s.shiftB || 0) : 0),
       s.groupNames?.[r.group === "B" ? 1 : 0] || r.group,
     ]);
-    operation = `階級幅 ${fmt(s.width, 2)}で集計 → 度数分布表 → ヒストグラム`;
+    operation = `階級幅 ${fmt(s.width, 2)}で集計 → 度数分布表・分布と箱ひげ図・代表値計算`;
   }
   if (id === "summary") {
     headers = [s.label || "値"];

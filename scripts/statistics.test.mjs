@@ -6,6 +6,7 @@ import "../lab/statistics/shared/learning.test.mjs";
 import "../lab/statistics/shared/table-data.test.mjs";
 import "../lab/statistics/correlation/test.mjs";
 import "../lab/statistics/histogram/test.mjs";
+import "../lab/statistics/histogram/descriptive.test.mjs";
 import "../lab/statistics/summary/test.mjs";
 import "../lab/statistics/sampling/test.mjs";
 import "../lab/statistics/crosstab/test.mjs";
@@ -18,7 +19,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { labs } from "../lab/statistics/catalog.mjs";
 import { renderPage } from "../lab/tools/shell.mjs";
-test("all nine independent labs have real modules, data views and valid nested shell assets", async () => {
+test("all eight integrated labs have real modules, data views and valid nested shell assets", async () => {
   for (const [id] of labs) {
     const config = (await import(`../lab/statistics/${id}/lab.mjs`)).default;
     assert.equal(config.id, id);
@@ -28,7 +29,7 @@ test("all nine independent labs have real modules, data views and valid nested s
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs?v=20261018-aligned-labs"'));
+    assert.ok(html.includes('src="./../app.mjs?v=20261023-distribution"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));

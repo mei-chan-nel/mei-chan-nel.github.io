@@ -55,6 +55,7 @@ export function applyTableRows(id, state, data, rows, allowGroup = false) {
         ? 2
         : -1,
   });
+  if (id === "histogram") next.width = state.width;
   next.dataInfo.tableEdited = true;
   return next;
 }

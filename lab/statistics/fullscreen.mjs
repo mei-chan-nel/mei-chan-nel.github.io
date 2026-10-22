@@ -48,8 +48,9 @@ export function setupFullscreen(workspace, redraw) {
       const dataView = root.querySelector(".data-view");
       dialog.classList.toggle("statistics-data-fullscreen", !!dataView);
       const analysis =
-        root.querySelector(".unified-workbench") ||
-        (root.id === "project-view" && !dataView ? root : null);
+        root.querySelector(
+          ".unified-workbench,.distribution-composite,.histogram-calculations",
+        ) || (root.id === "project-view" && !dataView ? root : null);
       dialog.classList.toggle("statistics-analysis-fullscreen", !!analysis);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);

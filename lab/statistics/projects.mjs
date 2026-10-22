@@ -104,15 +104,9 @@ function draw() {
     view.innerHTML = `<p class="project-context">${esc(dataset.name)} · ${dataset.rows.length}件。気になる見方を選んでみよう。</p><div class="archive-field-grid lab-content-grid">${[
       [
         "histogram",
-        "分布を見る",
-        "どの値に集まっている？ 山は1つ？",
+        "分布・代表値を見る",
+        "山・外れ値・平均やばらつきを同じデータで調べる。",
         "histogram",
-      ],
-      [
-        "summary",
-        "代表値とばらつきを見る",
-        "平均と中央値は同じ？ 個人差は大きい？",
-        "summary",
       ],
       [
         "correlation",
@@ -149,7 +143,7 @@ function draw() {
         `${fmt(Math.min(...values))}〜${fmt(Math.max(...values))}`,
         dataset.yLabel,
       ],
-    ])}<p class="experiment-insight">${Number.isFinite(r.r) ? `このデータの相関係数は r = ${fmt(r.r, 3)}。係数だけでなく、点が1本の直線からどれだけ散らばるかや、集団別の違いにも注目しましょう。相関は因果関係を証明するものではありません。` : "一方の値がすべて同じため、相関係数は定義できません。"}</p><p>平均や相関係数だけでは、山の数や外れ値はわかりません。<a class="text-link" href="../histogram/?dataset=project&field=y">分布</a>・<a class="text-link" href="../summary/?dataset=project&field=y">代表値</a>・<a class="text-link" href="../correlation/?dataset=project">散布図</a>を行き来して確かめられます。</p></section>`;
+    ])}<p class="experiment-insight">${Number.isFinite(r.r) ? `このデータの相関係数は r = ${fmt(r.r, 3)}。係数だけでなく、点が1本の直線からどれだけ散らばるかや、集団別の違いにも注目しましょう。相関は因果関係を証明するものではありません。` : "一方の値がすべて同じため、相関係数は定義できません。"}</p><p>平均や相関係数だけでは、山の数や外れ値はわかりません。<a class="text-link" href="../histogram/?dataset=project&field=y">分布・代表値</a>・<a class="text-link" href="../correlation/?dataset=project">散布図</a>を行き来して確かめられます。</p></section>`;
   }
 }
 document.querySelector("#lab-picker").onchange = (e) =>

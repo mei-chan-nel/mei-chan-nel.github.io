@@ -72,6 +72,17 @@ export function normalizeHistogram(state) {
     ...state,
     rows,
     shiftB: 0,
+    calcKind: ["mean", "quartiles", "variance", "anova"].includes(
+      state.calcKind,
+    )
+      ? state.calcKind
+      : "mean",
+    calcGroup:
+      ["A", "B"].includes(state.calcGroup) &&
+      rows.some((r) => r.group === state.calcGroup)
+        ? state.calcGroup
+        : "all",
+    varianceSample: state.varianceSample === true,
     width,
     mode:
       state.mode === "split" && rows.some((row) => row.group === "B")

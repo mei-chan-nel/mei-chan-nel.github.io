@@ -5,7 +5,7 @@ export function composeWorkbench(root, id, ui, onChange) {
     const nodes = [...root.children];
     const shell = document.createElement("div");
     shell.className = "workbench";
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "度数分布表とヒストグラム" : "散布図と直線"}"></section></div>`;
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;

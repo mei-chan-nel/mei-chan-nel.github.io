@@ -14,8 +14,8 @@
 <link rel="stylesheet" href="../../lab.css?v=3" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"散布図と相関・回帰","item":"https://mei-chan-nel.com/lab/statistics/correlation/"}]}</script>
 <link rel="stylesheet" href="./../statistics.css" />
-<link rel="stylesheet" href="./../workspace.css?v=20261018-aligned-labs" />
-<script type="module" src="./../app.mjs?v=20261018-aligned-labs"></script>
+<link rel="stylesheet" href="./../workspace.css?v=20261023-distribution" />
+<script type="module" src="./../app.mjs?v=20261023-distribution"></script>
 <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:type" content="image/png" />
@@ -36,7 +36,7 @@
 <a href="../../../LectureNote/">講義ノート</a>
 <a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
 <main id="main-content" class="lab-shell lab-content-page stat-page">
-<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>散布図と相関・回帰</h1><p class="workspace-purpose">2つの数値の関係を調べ、回帰直線で予測する。</p><p class="workspace-intro">散布図の1点は、同じ対象から得た2つの値です。点を動かして相関係数と直線の変化を追い、関係の強さと予測の確かさを区別して考えます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="correlation" selected>散布図と相関・回帰</option><option value="histogram" >データの分布とヒストグラム</option><option value="summary" >代表値とばらつき</option><option value="sampling" >標本調査と推定</option><option value="crosstab" >クロス集計とデータの関係</option><option value="time-series" >時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header>
+<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>散布図と相関・回帰</h1><p class="workspace-purpose">2つの数値の関係を調べ、回帰直線で予測する。</p><p class="workspace-intro">散布図の1点は、同じ対象から得た2つの値です。点を動かして相関係数と直線の変化を追い、関係の強さと予測の確かさを区別して考えます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="correlation" selected>散布図と相関・回帰</option><option value="histogram" >データの分布</option><option value="sampling" >標本調査と推定</option><option value="crosstab" >クロス集計とデータの関係</option><option value="time-series" >時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header>
 <section id="statistics-workspace" class="statistics-workspace" aria-label="散布図と相関・回帰の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">散布図と相関・回帰</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
 <nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
 <p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"></div>

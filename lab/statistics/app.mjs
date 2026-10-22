@@ -1,18 +1,18 @@
 import { esc } from "./shared/ui.mjs";
 import { validateDocument } from "./shared/validation.mjs";
-import { currentData } from "./shared/data-model.mjs";
-import { composeWorkbench } from "./workbench.mjs?v=20261018-aligned-labs";
+import { currentData, applyData } from "./shared/data-model.mjs";
+import { composeWorkbench } from "./workbench.mjs?v=20261023-distribution";
 import { renderDataTab } from "./data-tab.mjs";
-import { sampleState } from "./shared/samples.mjs";
+import { sampleState } from "./shared/samples.mjs?v=20261023-distribution";
 import { normalizeExperiment } from "./sampling/model.mjs";
 import { readDataset } from "./shared/data.mjs";
 import { dataStep, learningViews, renderStepNavigation } from "./learning.mjs";
 import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
-import { normalizeHistogram } from "./histogram/model.mjs";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261018-aligned-labs";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-distribution";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-distribution";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261018-aligned-labs`))
+const config = (await import(`./${id}/lab.mjs?v=20261023-distribution`))
   .default;
 const ui = {
   view: 0,
@@ -53,6 +53,22 @@ try {
     state = prepare(saved.state);
   }
 } catch {}
+// The old summary page offers an explicit transfer; its saved original is kept.
+if (
+  id === "histogram" &&
+  new URLSearchParams(location.search).get("legacy") === "summary"
+) {
+  try {
+    const transferred = JSON.parse(
+      sessionStorage.getItem("study-atlas-distribution-transfer"),
+    );
+    if (transferred) {
+      state = prepare(applyData("histogram", config.initial(), transferred));
+      persist();
+      sessionStorage.removeItem("study-atlas-distribution-transfer");
+    }
+  } catch {}
+}
 const root = document.querySelector("#experiment");
 const finding = document.querySelector("#experiment-insight");
 function persist() {

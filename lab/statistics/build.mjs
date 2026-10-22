@@ -27,8 +27,8 @@ async function save(slug, body, scripts = []) {
     styles: [
       slug ? "../statistics.css" : "statistics.css",
       slug
-        ? "../workspace.css?v=20261018-aligned-labs"
-        : "workspace.css?v=20261018-aligned-labs",
+        ? "../workspace.css?v=20261023-distribution"
+        : "workspace.css?v=20261023-distribution",
     ],
     scripts,
   });
@@ -56,7 +56,7 @@ async function save(slug, body, scripts = []) {
 }
 await save(
   "",
-  `<header class="statistics-home-heading"><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">Interactive Lab</a></nav><h1>統計・データ分析</h1><p class="workspace-purpose">データを動かす。見え方を比べる。根拠を持って判断する。</p><p class="workspace-intro">平均が同じなら、同じ集団？ 相関が強ければ、予測は正確？ グラフや条件を操作して、統計の数値が表す意味と限界を確かめる9つのラボです。高校「情報Ⅰ」の学習から、推定・検定の発展的な実験まで、自分のペースで試せます。</p></header>
+  `<header class="statistics-home-heading"><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">Interactive Lab</a></nav><h1>統計・データ分析</h1><p class="workspace-purpose">データを動かす。見え方を比べる。根拠を持って判断する。</p><p class="workspace-intro">平均が同じなら、同じ集団？ 相関が強ければ、予測は正確？ グラフや条件を操作して、統計の数値が表す意味と限界を確かめる8つのラボです。高校「情報Ⅰ」の学習から、推定・検定の発展的な実験まで、自分のペースで試せます。</p></header>
 
 <section class="lab-category" aria-labelledby="directory-heading" style="--lab-accent:var(--amber-strong)"><div class="section-heading lab-category-heading"><h2 id="directory-heading">調べたいことからラボを選ぶ</h2><p>気になるラボを開いて、点や条件を動かしてみよう。</p></div><div class="archive-field-grid lab-content-grid">${labs.map(([id, title, question], i) => `<a href="./${id}/" class="archive-field-card"><span aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h3>${title}</h3><p>${esc(question)} ${esc(experiences[id].purpose)}</p><small>${esc(experiences[id].input)} → ${esc(experiences[id].result)}</small></div><b aria-hidden="true">→</b></a>`).join("")}</div></section>
 <a href="./projects/" class="archive-course-card"><div><h2>同じデータで、分析の見え方を比べる</h2><p>学習時間とテスト得点を、分布・代表値・相関から眺めてみよう。各ラボへ同じデータを持ち込めます。</p></div><b aria-hidden="true">→</b></a>
@@ -75,7 +75,7 @@ for (const [id, title] of labs) {
 </section>
 ${academic('<div id="explanation-body"></div>')}
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    ["../app.mjs?v=20261018-aligned-labs"],
+    ["../app.mjs?v=20261023-distribution"],
   );
 }
 await save(
@@ -83,8 +83,16 @@ await save(
   `${heading("横断分析課題", "同じデータを分布・代表値・相関で眺め、見える特徴の違いを比べる。", "projects", "学習時間が長い人ほど高得点でしょうか。分布・代表値・相関から同じデータを見ると、どんな違いが見つかるか試せます。自分の2列の数値データでも利用できます。")}
 <section id="statistics-workspace" class="statistics-workspace" aria-label="横断分析課題の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">横断分析課題</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div><div id="project-root"></div></section>
 ${academic(`<details class="academic-section"><summary>問いに合わせて分析方法を選ぶ</summary><div class="explanation-content"><p>「得点の低い人はどれくらいいるか」には分布、「典型的な得点や個人差はどれくらいか」には代表値とばらつき、「時間と得点に関係があるか」には散布図が役立ちます。すべての方法を使うことより、問いの根拠になる情報を選ぶことが大切です。</p><p>サンプルは学習用に独自制作した架空の24人です。実在する生徒についての結論には使えません。各ラボへは同じ行の対応と列名を引き継ぎ、分布・代表値ではどちらの列を分析するか選べます。</p></div></details><details class="academic-section"><summary>分析結果を結び付け、限界も確かめる</summary><div class="explanation-content"><p>平均が高いことと、全員の得点が高いことは同じではありません。分布に複数の山があれば、集団別にも調べます。相関係数が大きくても、外れ値が直線を動かしていないか、予測範囲が元データから離れすぎていないかを確認しましょう。</p><p>学習時間と得点の関連から、時間を増やせば必ず得点が上がるとは言えません。既習内容、学習方法、対象者の選ばれ方なども関係しえます。どの集団のデータか、条件がそろっているか、他の説明はないかも考えると、数値の意味を読み取りやすくなります。</p></div></details>`)}`,
-  ["../projects.mjs?v=20261018-aligned-labs"],
+  ["../projects.mjs?v=20261023-distribution"],
 );
 console.log(
-  "Built statistics index, 9 labs and project with natural page flow",
+  "Built statistics index, 8 labs and project with natural page flow",
+);
+
+// Preserve incoming links and offer an explicit transfer of old saved data.
+await mkdir(new URL("./summary/", import.meta.url), { recursive: true });
+await writeFile(
+  new URL("./summary/index.html", import.meta.url),
+  `<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>データの分布へ統合しました｜Study Atlas</title><link rel="stylesheet" href="../workspace.css?v=20261023-distribution"><script type="module" src="../legacy-summary.mjs?v=20261023-distribution"></script></head><body><main class="stat-page"><h1>代表値とばらつきは「データの分布」へ統合しました</h1><p>分布・箱ひげ図・代表値計算を、同じデータで確認できます。</p><section id="legacy-summary-data" hidden><p>旧ページの保存データを統合ラボで使うか、CSVに保存できます。旧ページの保存データはそのまま残ります。</p><div class="actions"><button id="legacy-summary-open" type="button">この保存データで開く</button><button id="legacy-summary-download" type="button">CSVで保存</button></div></section><p><a href="../histogram/">データの分布を開く →</a></p></main></body></html>`,
 );

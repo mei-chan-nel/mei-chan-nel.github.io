@@ -35,8 +35,17 @@ export function sampleState(id, initial, seed = freshSeed()) {
       Math.max(5, bell(42 + (i < 30 ? 0 : offset), 7)),
       i < 30 ? "A" : "B",
     ]);
+    // Keep both groups' exceptional observations visible in every fresh sample.
+    for (const [from, to] of [
+      [0, 30],
+      [30, 60],
+    ]) {
+      const core = rows.slice(from, to - 1).map((r) => r[0]);
+      rows[to - 1][0] =
+        Math.max(...core) + 2 * (Math.max(...core) - Math.min(...core)) + 15;
+    }
     selection = { group: 1 };
-    name = "60人がクイズを解き終わるまでの時間";
+    name = "外れ値を含む60人のクイズ所要時間";
   } else if (id === "sampling") {
     headers = ["読書時間（分）", "集団"];
     rows = Array.from({ length: 120 }, (_, i) => [
