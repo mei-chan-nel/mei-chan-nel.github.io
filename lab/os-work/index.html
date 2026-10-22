@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>OSの仕事｜Interactive Lab｜情報Ⅰ Study Atlas</title>
+<meta name="description" content="3つのアプリを操作し、常駐アプリも含めたOSのCPU時間分割・プロセス管理・メモリ管理を体験する情報Ⅰの教材。" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="ja_JP" />
+<meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+<meta property="og:title" content="OSの仕事｜Interactive Lab｜情報Ⅰ Study Atlas" />
+<meta property="og:description" content="アプリを動かして、OSのCPU時間分割・プロセス管理・メモリ管理を体験。音声バッファや常駐アプリの待機も観察できます。" />
+<meta property="og:url" content="https://mei-chan-nel.com/lab/os-work/" />
+<link rel="canonical" href="https://mei-chan-nel.com/lab/os-work/" />
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<script src="../../assets/site-analytics.js?v=2026102201" defer></script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+<script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+<meta name="theme-color" content="#102f35" />
+<link rel="icon" href="../icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="./os-work.css?v=9" />
+<link rel="stylesheet" href="./fullscreen.css?v=2" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"OSの仕事","item":"https://mei-chan-nel.com/lab/os-work/"}]}</script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">本文へ移動</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../program-trace/">プログラムトレース</a><a href="../../LectureNote/">講義ノート</a><a href="../../lab/">ラボ</a></nav></div></header>
+<main id="main-content" class="os-lab">
+<nav class="breadcrumb" aria-label="パンくず"><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>OSの仕事</span></nav>
+<header class="os-heading"><div><p class="eyebrow">INTERACTIVE LAB / COMPUTER SYSTEMS</p><h1>OSの仕事<span class="heading-dot">.</span></h1></div><p>アプリを動かす。<br />その裏で、OSは何をしている？</p></header>
+<div class="os-workspace" id="os-workspace" role="region" aria-label="OSの仕事の操作と観察">
+<section class="transport" aria-label="シミュレーション操作">
+<div class="transport-buttons"><button id="play" class="primary" type="button">▶ 再生</button><button id="reset" type="button" class="subtle">↺ リセット</button><button id="fullscreen-toggle" type="button" aria-pressed="false" aria-controls="os-workspace">全画面</button></div>
+<div class="clock-controls"><span class="sim-clock">仮想時間 <strong id="time">0</strong> <small>tick</small></span></div>
+</section>
+<p class="first-hint" id="first-hint">アプリを起動すると自動で再生。一定の速さで進み、「一時停止」でじっくり観察できます。表示を切り替えても、ほかのアプリは起動したままです。</p>
+<div class="experiment-grid">
+<section class="panel apps-panel" aria-labelledby="apps-heading">
+<div class="panel-heading"><h2 id="apps-heading"><span class="section-index">01</span> アプリを操作する</h2><span class="quiet">表示は1つだけ</span></div>
+<div class="app-launcher" id="app-launcher"></div>
+<div class="app-window" id="app-window">
+<div class="window-bar"><span class="window-dots" aria-hidden="true">● ● ●</span><strong id="window-title">Webブラウザ</strong><span class="view-label">表示中</span></div>
+<div id="window-process-status" class="window-process-status" role="status" aria-live="polite"><strong id="window-process-label">未起動</strong><span id="window-process-detail">起動すると、CPUを使っているか、何を待っているかを確認できます。</span></div>
+<div class="app-content" id="app-content"></div>
+</div>
+</section>
+<section class="panel cpu-panel" aria-labelledby="cpu-heading">
+<div class="panel-heading"><h2 id="cpu-heading"><span class="section-index">02</span> CPUを見る</h2><span class="quiet">1コア / 時間分割</span></div>
+<div class="cpu-current" id="cpu-current"><span class="cpu-caption">いまCPUを使っているのは</span><div class="cpu-owner" id="cpu-owner">アイドル</div><p id="cpu-task">処理する仕事を待っています</p><div class="quantum-track" id="quantum-track" aria-hidden="true"><i></i><i></i><i></i></div><small id="quantum-caption">1回の割り当ては最大3 tick</small></div>
+<div class="queue-line"><span>実行待ち</span><div id="ready-queue">なし</div></div>
+<div class="timeline-heading"><h3>CPUの実行履歴</h3><span id="history-range">過去 → 現在</span></div>
+<div id="cpu-history" class="cpu-history" role="group" aria-label="CPUの実行履歴。色は処理したアプリやOSを表します。"></div>
+<div class="legend"><span data-owner="web">Web</span><span data-owner="music">音楽</span><span data-owner="photo">写真</span><span data-owner="notify">通知</span><span data-owner="sync">同期</span><span data-owner="security">セキュリティ</span><span data-owner="os">OS</span><span data-owner="idle">空き</span></div>
+<section class="background-apps" aria-labelledby="background-heading"><h3 id="background-heading">バックグラウンドで動くアプリ</h3><p class="background-hint">起動済み・終了不可</p><div id="background-launcher"></div></section>
+</section>
+</div>
+<section class="panel memory-panel" aria-labelledby="memory-heading">
+<div class="panel-heading"><h2 id="memory-heading"><span class="section-index">03</span> メモリを見る</h2><span id="memory-total" class="quiet">448 / 1024 MB 使用中</span></div>
+<div class="memory-band" id="memory-band" role="img" aria-label="メモリ使用状況"></div><div class="memory-labels" id="memory-labels"></div>
+<div id="allocation-notice" class="allocation-notice" role="status" aria-live="polite" hidden><strong id="allocation-title"></strong><p id="allocation-message"></p></div>
+</section>
+<div class="insight" role="status" aria-live="polite" aria-atomic="true"><span aria-hidden="true">↳</span><p id="explanation">起動するとメモリを確保。CPUが必要なときだけ、OSが順番に時間を割り当てます。</p></div>
+</div>
+<details class="details-panel" id="state-details"><summary>プロセスの状態・イベントログを見る</summary><div class="details-body"><p class="state-key"><strong>実行中</strong>＝CPUを使用　 <strong>実行待ち</strong>＝CPUの順番待ち　 <strong>イベント待ち</strong>＝入力・通信・音声出力などを待つ　 <strong>メモリ待ち</strong>＝必要な空き領域を待つ</p><div class="table-scroll"><table><caption class="visually-hidden">現在の各プロセス</caption><thead><tr><th>プロセス</th><th>起動</th><th>表示</th><th>状態</th><th>メモリ</th></tr></thead><tbody id="process-table"></tbody></table></div><p id="pending-inputs"></p><h3>イベントログ <small>新しい順 / 直近80件</small></h3><ol id="event-log" class="event-log"></ol></div></details>
+<details class="details-panel"><summary>試し方と、このモデルの単純化</summary><div class="details-body learning-notes">
+<ol>
+<li>Webを起動すると最初のページを読み込み始める。「受付 → 通信待ち → 描画 → 完了」とCPUの動きを比べ、完了後も表示が続くことを確かめる。</li>
+<li>音楽を起動すると最初の曲の再生が始まる。写真加工を起動し、画像の読み込みと展開が終わったら加工を始める。CPUが写真を処理していても、音声バッファが減りながら再生が続くことを確かめる。</li>
+<li>最初から起動している通知アプリ・クラウド同期・セキュリティ対策を見る。通知の到着、ファイルの変更、予約スキャンをきっかけに、待機からCPUの順番待ちへ変わる様子を比べる。</li>
+<li>一時停止してCPUの履歴やイベントログを確認する。起動中でもCPUを使わない時間があること、操作するアプリの終了でメモリが戻ることを確かめる。</li>
+</ol>
+<p>CPUの順番待ちでは、処理が進むまでメモリを保持します。必要なメモリが足りない操作は「メモリ待ち」になり、空きができると自動で進みます。一時停止中は、OSの再生後に進みます。</p>
+<h3>メモリ待ちを試す</h3>
+<ul><li>初期状態ではOSと常駐アプリで448 MBを使用。Web・音楽・写真を起動すると1008 MB・空き16 MBになり、写真加工の作業用200 MBは確保待ちになります。Webを終了すると空き216 MBになり、加工が自動で始まります。</li><li>リセット後、写真と音楽を起動して加工を始めると1008 MBを使用。Webの起動はメモリ待ちになります。加工が完了すると200 MBが解放され、Webが自動で起動します。</li></ul>
+<h3>実際のしくみとの違い</h3>
+<p>1 tickは教材の仮想時間で、実際の1秒ではありません。観察のため処理やOSの仕事を引き延ばしています。1コア・最大3 tickのラウンドロビン方式を使い、各アプリを1プロセスとして扱います。実際のOSは優先度、複数コア、複数スレッドなども扱います。</p>
+<p>通知やクラウド側の変更は、不規則に届く様子を再現します。同じ条件で繰り返し観察できるよう、到着順と時刻はあらかじめ用意しています。クラウド同期は、写真加工後の保存や仮想のクラウド側の変更を受け、変わったファイルの準備・通信待ち・結果保存を行います。変更がなければ、ファイル全体を繰り返し同期しません。</p>
+<p>セキュリティ対策は、予約されたクイックスキャンの例です。実際の製品はファイルを開くときなどのリアルタイム保護も行いますが、この教材では扱いません。通知も、実際にはOSの通知サービスや短時間のバックグラウンド処理を利用できます。比較のため、ここでは3種類をそれぞれ起動し続ける1プロセスにまとめ、終了できないようにしています。実際の通信・ファイル同期・セキュリティ検査は行いません。</p>
+<p>写真は起動時に、CPUで読み込みを要求し、記憶装置の応答を待ち、CPUで画像を展開する流れを模擬します。読み込み待ちの間はCPUをほかの処理に渡します。実際のファイル読み込み時間や画像のデコード時間を測るものではありません。</p>
+<p>メモリ総量は1024 MB、アプリの使用量は固定の教材用値です。写真加工中だけ作業用200 MBを追加確保し、完了時に解放します。空きができるまで要求を保留する動作も教材用の単純化で、仮想メモリや断片化は扱いません。</p>
+<p>画面は描画済みの内容を保持し、音楽は準備済みデータを音声出力装置が消費する状態を表します。実際にも描画更新や音声準備などにはCPUの仕事が必要です。音楽はパブリックドメインの3曲から選び、再生・一時停止・音量調整・消音ができます。音声バッファは教材用のモデルで、実際のデコード処理を計測するものではありません。CPUの混雑で補充が間に合わないと一時的に音が途切れますが、CPUが補充すると続きから自動で再開します。OSの一時停止やバッファ残量に合わせて音も停止し、ブラウザのタブを離れると自動で一時停止します。</p>
+<h3>実際のしくみを調べる</h3>
+<ul><li><a href="https://learn.microsoft.com/en-us/windows/apps/develop/notifications/push-notifications/raw-notification-overview">Microsoft：WNSによる通知とバックグラウンド処理</a></li><li><a href="https://learn.microsoft.com/en-us/sharepoint/sync-process">Microsoft：OneDriveの同期プロセス</a></li><li><a href="https://learn.microsoft.com/en-us/defender-endpoint/schedule-antivirus-scans">Microsoft：Defenderの予約スキャン</a></li></ul>
+</div></details>
+<p class="lab-back"><a href="../">← Lab一覧へ</a><a href="../../study-guide.html#lab">使い方</a></p>
+<noscript><p>この教材はJavaScriptを有効にして利用してください。</p></noscript>
+</main>
+<div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../program-trace/">プログラムトレース</a><a href="../../LectureNote/">講義ノート</a><a href="../../lab/">ラボ</a><a href="../../study-guide.html">使い方</a><a href="../../books/">書籍案内</a><a href="../../about.html">このサイトについて</a><a href="../../privacy.html">プライバシーポリシー</a><a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<script type="module" src="../navigation.mjs?v=1"></script>
+<script type="module" src="./app.mjs?v=11"></script>
+</body></html>

@@ -45,7 +45,7 @@ def read_portal_urls() -> list[str]:
         "program-trace/index.html",
         "program-trace/studio/index.html",
         "program-trace/studio/guide.html",
-        "lab/index.html", "lab/cpu-memory/index.html",
+        "lab/index.html", "lab/cpu-memory/index.html", "lab/os-work/index.html",
         "lab/color-vision/index.html",
         "lab/thinking-tools/index.html",
         "lab/radix-conversion/index.html",

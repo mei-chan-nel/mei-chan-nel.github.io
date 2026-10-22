@@ -121,6 +121,7 @@ def main() -> int:
         )
         portal_test_files = sorted((portal_root / "scripts").glob("*.test.mjs"))
         portal_test_files.extend(sorted((portal_root / "lab" / "cpu-memory").glob("*.test.mjs")))
+        portal_test_files.extend(sorted((portal_root / "lab" / "os-work").glob("*.test.mjs")))
         run_step(
             "portal JavaScript tests",
             portal_root,

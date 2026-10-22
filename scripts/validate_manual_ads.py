@@ -212,6 +212,7 @@ def main() -> int:
         ("program-trace/studio/guide.html", "after-program-studio-guide-main"),
         ("lab/index.html", "after-interactive-lab-main"),
         ("lab/cpu-memory/index.html", "after-interactive-lab-main"),
+        ("lab/os-work/index.html", "after-interactive-lab-main"),
         ("lab/color-vision/index.html", "after-interactive-lab-main"),
         ("lab/thinking-tools/index.html", "after-interactive-lab-main"),
         ("lab/radix-conversion/index.html", "after-interactive-lab-main"),

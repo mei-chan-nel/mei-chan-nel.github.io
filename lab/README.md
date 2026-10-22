@@ -205,3 +205,16 @@ node lab/tools/build-preview.mjs /workspace/interactive-lab-review
 ## パケット通信とルーティング
 
 `/lab/packet-routing/` に公開。詳細は [packet-routing/README.md](packet-routing/README.md)。この教材のHTMLは個別に管理し、catalogの `generated: false` により共通ページ生成で上書きしません。共通ナビゲーションと広告枠は公開Labに合わせています。
+
+### OSの仕事
+
+`/lab/os-work/`：Web・音楽・写真加工と3種類の常駐アプリを、1コア・最大3 tickのラウンドロビン方式で動かす教材です。`catalog.mjs` の `generated: false` で独立した画面を保持します。
+
+- アプリの起動で表示を選び、シミュレーションも自動再生。表示・終了・一時停止・リセット・共通仕様の全画面に対応します。
+- CPU・プロセス・メモリ・音声バッファ・加工進捗は、共通の仮想時間で進みます。起動中でもイベント待ちの間はCPUを使いません。
+- 起動時にWebは最初のページ、音楽は最初の曲、写真は模擬ファイル読み込みと画像展開を開始。写真の展開完了後に加工できます。
+- メモリ総量は1024 MB。OSと保護された常駐アプリが448 MBを保持します。加工用200 MBやアプリ起動の確保待ちは、空きができると自動で再開します。
+- 音源は作曲・録音ともCC0の3曲。出典・再圧縮内容とライセンスを `os-work/audio/` とアプリ内に明記しています。音切れ時は実際の再生位置を保持し、補充後に続きから再開します。
+- 通知・クラウド側の更新は再現可能な不規則な到着列、セキュリティは予約スキャンを模擬します。実際の通信・ファイル同期・検査やOSの性能測定は行いません。
+
+`node lab/os-work/simulation.test.mjs`、`node lab/os-work/audio-controller.test.mjs`、`node lab/os-work/fullscreen.test.mjs` で検証できます。統合検証にも含まれます。

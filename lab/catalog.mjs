@@ -42,9 +42,16 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "os-work",
+    group: "algorithm",
+    generated: false,
+    name: "OSの仕事",
+    description: "アプリと常駐アプリを動かし、CPUの時間分割とメモリ管理を観察。起動中と実行中の違いを体験します。",
+  },
+  {
     id: "cpu-memory",
     group: "algorithm",
-    styles: ["memory.css?v=1"],
+    styles: ["memory.css?v=3"],
     scripts: ["app.mjs?v=1"],
     name: "CPUと記憶装置",
     description: "RAMの命令を書き換えてCPUを動かす。キャッシュのヒット・ミス、計算結果と実行時間を実験して比べよう。",
