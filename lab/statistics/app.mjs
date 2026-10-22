@@ -1,19 +1,17 @@
 import { esc } from "./shared/ui.mjs";
 import { validateDocument } from "./shared/validation.mjs";
 import { currentData, applyData } from "./shared/data-model.mjs";
-import { composeWorkbench } from "./workbench.mjs?v=20261023-distribution";
+import { composeWorkbench } from "./workbench.mjs?v=20261023-loading";
 import { renderDataTab } from "./data-tab.mjs";
-import { sampleState } from "./shared/samples.mjs?v=20261023-distribution";
+import { sampleState } from "./shared/samples.mjs?v=20261023-loading";
 import { normalizeExperiment } from "./sampling/model.mjs";
 import { readDataset } from "./shared/data.mjs";
 import { dataStep, learningViews, renderStepNavigation } from "./learning.mjs";
-import { renderAcademicExplanation } from "./shared/explanation.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-distribution";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-distribution";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-loading";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-loading";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261023-distribution`))
-  .default;
+const config = (await import(`./${id}/lab.mjs?v=20261023-loading`)).default;
 const ui = {
   view: 0,
   dataTab: true,
@@ -43,9 +41,8 @@ function prepare(next) {
   }
   return next;
 }
-let state = prepare(
-  project ? config.initial() : sampleState(id, config.initial()),
-);
+// Restore user data before generating a sample that would immediately be discarded.
+let state;
 try {
   const saved = JSON.parse(localStorage.getItem(key));
   if (saved && !project && saved.state?.dataInfo?.origin === "user") {
@@ -53,6 +50,10 @@ try {
     state = prepare(saved.state);
   }
 } catch {}
+if (!state)
+  state = prepare(
+    project ? config.initial() : sampleState(id, config.initial()),
+  );
 // The old summary page offers an explicit transfer; its saved original is kept.
 if (
   id === "histogram" &&
@@ -96,10 +97,21 @@ function draw() {
         }
       : null;
   try {
-    config.render(root, { state, update, replace, view: ui.view });
     ui.state = state;
-    const views = composeWorkbench(root, id, ui, draw) || [];
     const steps = [dataStep(id), ...learningViews(id, state)];
+    ui.view = Math.max(0, Math.min(ui.view, steps.length - 2));
+    // The data editor is the first screen. Do not construct and immediately
+    // discard every graph, simulation and calculation behind it.
+    let views;
+    if (ui.dataTab) {
+      views = steps.slice(1).map((lesson, i) => ({
+        label: lesson.title,
+        active: i === ui.view,
+      }));
+    } else {
+      config.render(root, { state, update, replace, view: ui.view });
+      views = composeWorkbench(root, id, ui, draw) || [];
+    }
     const activate = (index, scroll = false) => {
       if (ui.dataTab && index > 0 && ui.commitData && !ui.commitData()) return;
       ui.dataTab = index === 0;
@@ -190,14 +202,29 @@ function draw() {
     console.error(e);
   }
 }
-renderAcademicExplanation(
-  document.querySelector("#explanation-body"),
-  config.explanation,
-);
 document.querySelector("#lab-picker").onchange = (e) =>
   (location.href = `../${e.target.value}/`);
 setupFullscreen(document.querySelector("#statistics-workspace"), draw);
 draw();
+// Let the editable first screen paint before fetching and laying out the
+// lower-page explanation. Its independent failure must not break the editor.
+requestAnimationFrame(() => {
+  const explain = () =>
+    import("./shared/explanation.mjs")
+      .then(({ renderAcademicExplanation }) =>
+        renderAcademicExplanation(
+          document.querySelector("#explanation-body"),
+          config.explanation,
+        ),
+      )
+      .catch(() => {
+        document.querySelector("#explanation-body").innerHTML =
+          config.explanation;
+      });
+  if (window.requestIdleCallback)
+    window.requestIdleCallback(explain, { timeout: 500 });
+  else setTimeout(explain, 0);
+});
 if (id === "correlation") {
   document.addEventListener("pointerdown", (e) => {
     if (ui.dataTab || !state.selectedId || e.button > 0) return;
@@ -230,5 +257,9 @@ if (id === "histogram") {
 let layoutTimer;
 window.addEventListener("resize", () => {
   clearTimeout(layoutTimer);
-  layoutTimer = setTimeout(draw, 120);
+  // The table reflows with CSS. Keep live inputs, drafts and scroll position.
+  if (!ui.dataTab)
+    layoutTimer = setTimeout(() => {
+      if (!ui.dataTab) draw();
+    }, 120);
 });

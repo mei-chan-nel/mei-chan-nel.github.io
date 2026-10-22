@@ -79,7 +79,7 @@ test("F upper tails match exact simple distributions and preserve small probabil
   assert.equal(fSurvival(1, 1, 0), null);
 });
 
-test("fresh distribution samples always contain visible outliers in both groups", async () => {
+test("overlapping teaching samples put one fast B pupil inside A's hill without high-side outliers", async () => {
   const { default: config } = await import("./lab.mjs");
   const { sampleState } = await import("../shared/samples.mjs");
   for (let seed = 0; seed < 200; seed++) {
@@ -87,12 +87,28 @@ test("fresh distribution samples always contain visible outliers in both groups"
     assert.equal(s.rows.length, 60);
     assert.equal(s.width, 5);
     assert.equal(s.mode, "split");
-    for (const group of ["A", "B"])
-      assert.ok(
-        describe(s.rows.filter((r) => r.group === group).map((r) => r.value))
-          .outliers.length >= 1,
-        `${seed}: ${group}`,
-      );
+    const a = describe(
+      s.rows.filter((r) => r.group === "A").map((r) => r.value),
+    );
+    const b = describe(
+      s.rows.filter((r) => r.group === "B").map((r) => r.value),
+    );
+    assert.equal(a.n, 30);
+    assert.equal(b.n, 30);
+    assert.deepEqual(a.outliers, [], `${seed}: A`);
+    assert.equal(b.outliers.length, 1, `${seed}: B`);
+    assert.ok(b.outliers[0] < b.lowerFence, `${seed}: fast B pupil`);
+    assert.ok(
+      b.outliers[0] >= a.q1 && b.outliers[0] <= a.q3,
+      `${seed}: inside A's hill`,
+    );
+    assert.ok(b.lower < a.max, `${seed}: the ordinary groups overlap too`);
+    assert.ok(a.q3 < b.q1, `${seed}: distinct centres`);
+    for (const d of [a, b]) {
+      const middle = d.sorted.filter((v) => Math.abs(v - d.q2) <= 4).length;
+      assert.ok(middle > d.sorted.filter((v) => v < d.q2 - 4).length);
+      assert.ok(middle > d.sorted.filter((v) => v > d.q2 + 4).length);
+    }
   }
 });
 test("table edits preserve the selected histogram width and old saved records remain valid", async () => {

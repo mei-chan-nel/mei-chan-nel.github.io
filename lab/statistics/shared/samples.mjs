@@ -30,22 +30,36 @@ export function sampleState(id, initial, seed = freshSeed()) {
     name = "14人の確認テスト";
   } else if (id === "histogram") {
     headers = ["クイズの所要時間（秒）", "集団"];
-    const offset = integer(20, 30);
-    rows = Array.from({ length: 60 }, (_, i) => [
-      Math.max(5, bell(42 + (i < 30 ? 0 : offset), 7)),
-      i < 30 ? "A" : "B",
-    ]);
-    // Keep both groups' exceptional observations visible in every fresh sample.
-    for (const [from, to] of [
-      [0, 30],
-      [30, 60],
-    ]) {
-      const core = rows.slice(from, to - 1).map((r) => r[0]);
-      rows[to - 1][0] =
-        Math.max(...core) + 2 * (Math.max(...core) - Math.min(...core)) + 15;
-    }
+    // Rounded normal-score offsets keep two recognisable, overlapping hills
+    // in this small teaching sample. These are constructed, fictional records.
+    const offsets = [
+      -12, -10, -9, -8, -7, -6, -5, -4, -4, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2,
+      2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 12,
+    ];
+    const centerA = integer(43, 45),
+      centerB = centerA + integer(18, 19);
+    const a = offsets.map(
+      (v) => centerA + v + (Math.abs(v) > 10 ? 0 : integer(-1, 1)),
+    );
+    const b = offsets
+      .filter((_, i) => i !== 14)
+      .map((v) => centerB + Math.round(v * 0.8));
+    // A very fast pupil in B falls inside A's hill, below B's lower IQR fence.
+    // Neither group receives an artificial high-side outlier.
+    b.push(centerA - 2);
+    const shuffle = (values) => {
+      for (let i = values.length - 1; i > 0; i--) {
+        const j = integer(0, i);
+        [values[i], values[j]] = [values[j], values[i]];
+      }
+      return values;
+    };
+    rows = [
+      ...shuffle(a).map((v) => [v, "A"]),
+      ...shuffle(b).map((v) => [v, "B"]),
+    ];
     selection = { group: 1 };
-    name = "外れ値を含む60人のクイズ所要時間";
+    name = "速いB群の生徒を含む60人のクイズ所要時間";
   } else if (id === "sampling") {
     headers = ["読書時間（分）", "集団"];
     rows = Array.from({ length: 120 }, (_, i) => [

@@ -1,6 +1,6 @@
 import { fmt } from "../shared/math.mjs";
 import { esc, svg, bind } from "../shared/ui.mjs";
-import { distribution, binIndex, stackedBars } from "./model.mjs?v=20261023-distribution";
+import { distribution, binIndex, stackedBars } from "./model.mjs?v=20261023-loading";
 import { describe } from "./descriptive.mjs";
 import { renderCalculations } from "./calculations.mjs";
 

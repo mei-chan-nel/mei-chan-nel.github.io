@@ -1,14 +1,14 @@
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261023-distribution";
+import { render } from "./view.mjs?v=20261023-loading";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [
-  ...[36, 39, 41, 42, 44, 45, 45, 47, 49, 50, 52, 110].map((value, i) => ({
+  ...[32, 36, 38, 40, 42, 43, 44, 45, 47, 49, 52, 56].map((value, i) => ({
     id: `a${i}`,
     value,
     group: "A",
   })),
-  ...[58, 61, 64, 65, 67, 68, 70, 72, 73, 76, 79, 145].map((value, i) => ({
+  ...[42, 53, 57, 60, 61, 62, 63, 64, 65, 67, 70, 73].map((value, i) => ({
     id: `b${i}`,
     value,
     group: "B",

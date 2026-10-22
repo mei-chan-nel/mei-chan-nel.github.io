@@ -14,8 +14,9 @@
 <link rel="stylesheet" href="../../lab.css?v=3" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"時系列データの分析","item":"https://mei-chan-nel.com/lab/statistics/time-series/"}]}</script>
 <link rel="stylesheet" href="./../statistics.css" />
-<link rel="stylesheet" href="./../workspace.css?v=20261023-distribution" />
-<script type="module" src="./../app.mjs?v=20261023-distribution"></script>
+<link rel="stylesheet" href="./../workspace.css?v=20261023-loading" />
+<link rel="modulepreload" href="./lab.mjs?v=20261023-loading" />
+<script type="module" src="./../app.mjs?v=20261023-loading"></script>
 <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:type" content="image/png" />
@@ -39,7 +40,7 @@
 <header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>時系列データの分析</h1><p class="workspace-purpose">月別データの変化をならし、4つの予測方法を実測値で検証する。</p><p class="workspace-intro">月ごとの増減には、長期的な流れ・季節の繰り返し・偶然の変動が重なります。動きをならす操作と未来を予測する操作を使い分け、実測値で確かめます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="correlation" >散布図と相関・回帰</option><option value="histogram" >データの分布</option><option value="sampling" >標本調査と推定</option><option value="crosstab" >クロス集計とデータの関係</option><option value="time-series" selected>時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header>
 <section id="statistics-workspace" class="statistics-workspace" aria-label="時系列データの分析の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">時系列データの分析</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
 <nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
-<p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"></div>
+<p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"><p role="status">データを読み込んでいます…</p></div>
 <p id="experiment-insight" class="experiment-insight"></p><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p>
 <nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
 </section>
