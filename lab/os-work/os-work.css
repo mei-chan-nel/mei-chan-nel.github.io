@@ -576,17 +576,13 @@
 }
 .cpu-history .history-cell {
   padding: 0;
-  min-height: 32px;
+  min-height: 36px;
   border: 0;
   background: var(--owner-color);
   border-radius: 3px;
   color: white;
-  font-size: 0.5rem;
+  font-size: 11px;
   position: relative;
-}
-.cpu-history .history-cell:hover:not(:disabled) {
-  background: var(--owner-color);
-  opacity: 0.7;
 }
 .history-placeholder {
   background: var(--paper-deep);
@@ -1289,9 +1285,22 @@ th {
   padding-left: 18px;
 }
 .cpu-history .history-cell {
-  display: block;
-  height: 32px;
-  cursor: help;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 36px;
+  cursor: default;
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  white-space: nowrap;
+  line-height: 1;
+  letter-spacing: 0;
+  font-weight: 600;
+  user-select: none;
+  overflow: hidden;
+}
+.cpu-history .history-cell[data-owner="idle"] {
+  color: var(--ink);
 }
 @media (max-width: 520px) {
   #background-launcher {
@@ -1795,5 +1804,5 @@ th {
   }
 }
 .cpu-history .history-placeholder {
-  height: 32px;
+  height: 36px;
 }
