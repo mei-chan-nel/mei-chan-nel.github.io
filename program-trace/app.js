@@ -27,7 +27,7 @@ const ui = Object.fromEntries([
   "input-dialog", "input-form", "input-fields", "input-description", "call-stack", "call-stack-frames", "call-stack-note", "return-value", "variable-scope",
   "example-navigation", "program-variants", "trace-breadcrumb", "value-inspector", "inspector-title", "inspector-content",
   "output-history-button",
-  "fullscreen-button", "fullscreen-surface", "fullscreen-workspace",
+  "fullscreen-button", "fullscreen-surface", "fullscreen-workspace", "studio-button",
 ].map((id) => [id, $(id)]));
 
 const settings = new Map();
@@ -618,4 +618,24 @@ function layoutWorkspace() {
 window.addEventListener("resize", () => { if (!fullscreen.active) layoutWorkspace(); });
 route();
 
+ui["studio-button"].addEventListener("click", async () => {
+  if (!example) return;
+  stop();
+  const entry = example, values = structuredClone(parameters);
+  ui["studio-button"].disabled = true;
+  ui["studio-button"].textContent = "コピーしています…";
+  try {
+    const { studioEditURL } = await import("./studio-link.js?v=20261023-studio-edit");
+    const url = await studioEditURL(entry, values, location.href);
+    if (example === entry) location.assign(url);
+  } catch (error) {
+    if (example === entry) {
+      ui["error-message"].textContent = error.message || "Studioにコピーできませんでした。";
+      ui["error-message"].hidden = false;
+    }
+  } finally {
+    ui["studio-button"].disabled = false;
+    ui["studio-button"].textContent = "プログラムを編集";
+  }
+});
 bindFlowchartConversion({read:()=>({example,parameters}),pause:stop});

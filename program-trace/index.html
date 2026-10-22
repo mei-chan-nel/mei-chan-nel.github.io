@@ -26,7 +26,7 @@
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />
     <link rel="stylesheet" href="./styles.css?v=20261009-functions" />
-    <script src="./library.js?v=20261009-flowchart2" type="module"></script>
+    <script src="./library.js?v=20261023-studio-edit" type="module"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
     <script src="../assets/manual-ads.js?v=2026080901" defer></script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"プログラムトレース","url":"https://mei-chan-nel.com/program-trace/","description":"共通テスト「情報Ⅰ」のプログラムを1行ずつ実行して、変数・配列・出力の変化を確かめる学習ツール。","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
@@ -108,8 +108,11 @@
             <h1 id="runner-title" tabindex="-1"></h1>
             <p id="runner-focus" class="runner-focus"></p>
           </div>
-          <div class="example-navigation" id="example-navigation">
-            <a href="./" class="library-link">例題一覧 <span aria-hidden="true">↗</span></a>
+          <div class="example-navigation">
+            <button id="studio-button" class="button" type="button" title="現在のプログラムをコピーしてStudioで編集します">プログラムを編集</button>
+            <nav id="example-navigation" aria-label="問題の一覧へ戻る">
+              <a href="./" class="library-link">例題一覧 <span aria-hidden="true">↗</span></a>
+            </nav>
           </div>
         </div>
         <nav id="program-variants" class="program-variants" aria-label="比較するプログラム" hidden></nav>

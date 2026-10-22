@@ -34,6 +34,7 @@ npm.cmd test
 - `/program-trace/studio/examples/fibonacci.studio.json`：最初の10項を再帰で求める読込用JSON。日本語のファイル仕様・使い方・AI向け仕様からダウンロードできます。ビルド元は `public/examples/`。
 - `/program-trace/studio/ai-guide.md`, `ai-guide.json`：AI向けのファイル生成指示とJSON Schema。HTML headのリンクとコメントから発見できます。編集画面の「ファイルの仕様」を開くと、日本語の規則、自作関数・値なしの呼び出し・再帰のJSON例、完全な仕様へのリンクを読めます。例をテストで読み込み・実行し、ダウンロード版との一致を確認します。
 - `/program-trace/studio/share.html#v2.d.<deflate-base64url>` または `#v2.j.<json-base64url>`：共有プログラムの実行画面。「プログラムを編集」で編集へ移れます。静的HTMLで `noindex, follow`、サイトマップに登録しません。受信後も自動実行しません。`#v1.<gzip-base64url>` も引き続き復元します。
+- `/program-trace/run.html` の「プログラムを編集」は現在の初期値・配列・入力設定を含めてコピーし、`share.html?edit=1#v2...` で編集画面を開きます。元の例題と名前付き保存は変更せず、Studioの既存の下書きも編集・保存するまで保持します。実行画面の「フローチャートに変換」は実行速度の右側に置き、編集画面へ戻ると保存・共有の操作欄へ戻します。
 - 完成したプログラムは従来の `{ version: 1, title, source, settings: { indexBase, inputs } }` を維持。ファイルには `format: "mei-program-studio"` を付けます。旧ファイル・旧共有URLも本文から行へ変換して編集できます。
 - 空のプログラムや内側が空の分岐／繰り返しは、追加の `builder: { version: 1, nodes }` で作成途中の構造を保存します。本文との一致、命令・式・ID・深さ・サイズを検証します。実行前には各まとまりに実行できる処理が必要です。完成後はこのメタデータを省き、共有URLが不要に大きくならないようにします。
 - AIには完成した `source` だけを生成させ、`builder` は作成させません。不正なファイルは置き換えの確認前に拒否します。変換できない旧下書きがあった場合は元のデータを保ち、書き出せる復旧ボタンを表示します。

@@ -56,7 +56,10 @@ catch (error) {
 function clearShareLocation() {
     if (document.body.dataset.studioEntry !== 'shared' && !/^#v\d/u.test(location.hash))
         return;
-    history.replaceState(null, '', new URL('./', location.href).pathname + location.search);
+    const url = new URL('./', location.href);
+    url.search = location.search;
+    url.searchParams.delete('edit');
+    history.replaceState(null, '', url.pathname + url.search);
     document.body.dataset.studioEntry = 'editor';
 }
 function edited() {
@@ -250,6 +253,7 @@ function showRunner() {
     byId('runner-view').hidden = false;
     byId('to-editor').hidden = false;
     byId('runner-document-tools').append(byId('document-tools'));
+    byId('fullscreen-button').before(byId('flowchart-button'));
     document.body.classList.add('is-tracing');
     byId('studio-title').textContent = activeDraft.title;
     byId('studio-title').focus({ preventScroll: true });
@@ -268,6 +272,7 @@ function showEditor() {
     byId('runner-view').hidden = true;
     byId('to-editor').hidden = true;
     byId('editor-document-tools').append(byId('document-tools'));
+    byId('document-tools').append(byId('flowchart-button'));
     document.body.classList.remove('is-tracing');
     byId('studio-title').replaceChildren(document.createTextNode('プログラムを、'), element('em', '', '書いて動かす。'));
     controls();
@@ -673,6 +678,13 @@ byId('recover-draft').addEventListener('click', () => guarded(() => { if (recove
     openExport(recoveryDraft, true); }));
 window.addEventListener('pagehide', () => { pause(); if (!sharedSource && !recoveryDraft)
     autosave(); });
+function openSharedProgram() {
+    if (new URLSearchParams(location.search).get('edit') === '1') {
+        showMessage('プログラムをコピーしました。編集して「実行画面へ」で実行できます。元のプログラムは変更されません。');
+    }
+    else
+        prepare(true);
+}
 window.addEventListener('hashchange', async () => {
     if (!/^#v\d/u.test(location.hash) && document.body.dataset.studioEntry !== 'shared')
         return;
@@ -690,7 +702,7 @@ window.addEventListener('hashchange', async () => {
         savedId = undefined;
         sharedSource = true;
         savedFingerprint = draftFingerprint(currentDraft());
-        prepare(true);
+        openSharedProgram();
     }
     catch (error) {
         if (token === shareGeneration) {
@@ -748,7 +760,7 @@ async function start() {
         catch { /* An unreadable named-save list must not discard the recovered draft. */ }
     }
     if (sharedSource)
-        prepare(true);
+        openSharedProgram();
     else if (error)
         showMessage(error, true);
     else
