@@ -1,5 +1,5 @@
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261023-loading";
+import { render } from "./view.mjs?v=20261023-viewport";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

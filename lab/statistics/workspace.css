@@ -1130,322 +1130,6 @@ body[data-statistics]
   color: #597067;
 }
 
-html.statistics-immersive,
-html.statistics-immersive body {
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-.statistics-fullscreen details[open]:not(.data-bulk-edit),
-.statistics-fullscreen
-  :is(
-    #data-upload,
-    .data-editor,
-    .data-editor-grid,
-    .data-editor-grid > section,
-    .data-editor-grid > aside,
-    #csv-preview,
-    #csv-columns
-  ):not([hidden]) {
-  display: contents !important;
-}
-.statistics-fullscreen div:has(> table) {
-  display: contents !important;
-}
-.statistics-fullscreen
-  .screen-columns
-  :is(.workbench-display, .workbench-controls) {
-  display: block !important;
-  padding: 8px;
-  min-height: 0;
-}
-.statistics-fullscreen {
-  position: fixed;
-  inset: 0;
-  margin: 0;
-  padding: 12px 18px;
-  width: 100dvw;
-  height: 100dvh;
-  max-width: none;
-  max-height: none;
-  box-sizing: border-box;
-  border: 0;
-  background: #f7f6f0;
-  color: #163b3c;
-  overflow: hidden;
-}
-.statistics-fullscreen::backdrop {
-  background: #f7f6f0;
-}
-.statistics-fullscreen > .statistics-workspace {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-.statistics-fullscreen .workspace-screenbar {
-  margin: 0 0 6px;
-  flex: 0 0 auto;
-  justify-content: space-between;
-}
-.statistics-fullscreen .workspace-screen-title {
-  display: block;
-  font-size: 0.95rem;
-  font-weight: 650;
-}
-.statistics-fullscreen .workspace-screenbar button {
-  padding: 7px 12px;
-  min-height: 36px;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-.statistics-fullscreen .view-tabs {
-  flex: 0 0 auto;
-  margin: 0 0 8px;
-  padding: 0 0 7px;
-  gap: 6px;
-}
-.statistics-fullscreen .view-tabs button {
-  font-size: 0.8rem;
-  padding: 7px 10px;
-  min-height: 35px;
-}
-.statistics-fullscreen
-  :is(
-    .tab-progress,
-    #lab-lead,
-    #analysis-flow,
-    #experiment-insight,
-    .step-navigation
-  ) {
-  display: none !important;
-}
-.statistics-fullscreen :is(#experiment, #project-root, #project-view) {
-  flex: 1 1 0;
-  min-height: 0;
-  margin: 0;
-}
-.statistics-fullscreen #project-root {
-  display: flex;
-  flex-direction: column;
-}
-.statistics-fullscreen
-  :is(
-    .workbench,
-    .workbench-mode,
-    .workbench-body,
-    .workbench-display,
-    .workbench-controls,
-    .workbench-group,
-    .stat-grid,
-    .panel,
-    .data-view,
-    .data-table,
-    .table-scroll,
-    .histogram-frequency-table
-  ):not([hidden]) {
-  display: contents !important;
-}
-.statistics-fullscreen [data-screen-hidden],
-.statistics-fullscreen [hidden] {
-  display: none !important;
-}
-.statistics-fullscreen :is(#experiment, #project-view) > *,
-.statistics-fullscreen .panel > * {
-  margin-top: 0;
-  margin-bottom: 8px;
-}
-.statistics-fullscreen h2 {
-  font-size: 1rem;
-  line-height: 1.4;
-  margin: 0 0 6px;
-}
-.statistics-fullscreen h3 {
-  font-size: 0.88rem;
-  margin: 0 0 6px;
-}
-.statistics-fullscreen p {
-  font-size: 0.8rem;
-  line-height: 1.55;
-  margin: 0 0 7px;
-}
-.statistics-fullscreen .metrics {
-  margin: 0 0 8px;
-  gap: 6px;
-}
-.statistics-fullscreen .metrics > div {
-  padding: 7px 10px;
-  min-height: 0;
-}
-.statistics-fullscreen .metrics strong {
-  font-size: 1.1rem;
-}
-.statistics-fullscreen .stat-chart {
-  width: 100%;
-  height: var(--screen-chart-height, 280px);
-  min-height: 0;
-  max-height: none;
-}
-.statistics-fullscreen .histogram-raw .stat-chart {
-  height: 100px;
-}
-.statistics-fullscreen #experiment.histogram-chart-screen {
-  overflow-y: auto;
-}
-.statistics-fullscreen #experiment.histogram-table-screen {
-  display: flex;
-  flex-direction: column;
-}
-.statistics-fullscreen .histogram-table-screen .histogram-frequency-table {
-  display: block !important;
-  flex: 1 1 0;
-  min-height: 0;
-}
-.statistics-fullscreen .histogram-table-screen table {
-  height: 100%;
-  line-height: 1.4;
-}
-.statistics-fullscreen .histogram-table-screen :is(thead tr, tfoot tr) {
-  height: 1px;
-}
-.statistics-fullscreen .histogram-table-screen tbody tr {
-  height: 32px;
-}
-.statistics-fullscreen
-  :is(.data-edit-help, .data-constraint, .data-operation, .data-next) {
-  display: none !important;
-}
-.statistics-fullscreen .data-view-heading {
-  margin: 0 0 8px;
-  padding: 0;
-  gap: 12px;
-}
-.statistics-fullscreen .data-view-heading h2 {
-  font-size: 0.95rem;
-}
-.statistics-fullscreen .data-view-heading p {
-  margin: 3px 0 0;
-}
-.statistics-fullscreen .data-file-actions button {
-  font-size: 0.76rem;
-  padding: 6px 9px;
-  min-height: 34px;
-}
-.statistics-fullscreen .editable-data-table :is(th, td) {
-  padding: 3px 6px;
-}
-.statistics-fullscreen .data-cell {
-  min-height: 29px;
-  padding: 4px 6px;
-}
-.statistics-fullscreen .data-edit-actions {
-  margin: 6px 0;
-}
-.statistics-fullscreen :is(.data-edit-actions, .data-pagination) button {
-  padding: 6px 9px;
-  min-height: 32px;
-  font-size: 0.76rem;
-}
-.statistics-fullscreen .data-pagination {
-  margin: 6px 0;
-  gap: 10px;
-}
-.statistics-fullscreen .stat-table {
-  font-size: 0.8rem;
-}
-.statistics-fullscreen .stat-table :is(th, td) {
-  padding: 6px 9px;
-}
-.statistics-fullscreen .screen-pager {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  flex: 0 0 40px;
-  padding-top: 6px;
-  border-top: 1px solid #cbd8ce;
-  font-size: 0.8rem;
-  margin: 0;
-}
-.statistics-fullscreen .screen-pager button {
-  padding: 6px 10px;
-  min-height: 32px;
-  font-size: 0.8rem;
-}
-@media (max-width: 600px) {
-  .histogram-axis-controls {
-    gap: 10px 12px;
-  }
-  .histogram-axis-control input {
-    width: 76px;
-  }
-  .histogram-axis-control select {
-    width: 132px;
-  }
-  .histogram-frequency-table .stat-table {
-    font-size: 0.72rem;
-  }
-  .histogram-frequency-table :is(th, td) {
-    padding: 7px 4px;
-  }
-  .histogram-heading {
-    gap: 8px;
-  }
-  .histogram-heading h2 {
-    font-size: 1rem;
-  }
-  .histogram-group-toggle {
-    font-size: 0.76rem;
-  }
-  .statistics-fullscreen {
-    padding: max(8px, env(safe-area-inset-top)) 10px
-      max(8px, env(safe-area-inset-bottom));
-  }
-  .statistics-fullscreen .workspace-screen-title {
-    font-size: 0.8rem;
-  }
-  .statistics-fullscreen .data-file-actions {
-    gap: 6px;
-  }
-  .statistics-fullscreen .data-view-heading {
-    display: block;
-  }
-  .statistics-fullscreen .editable-data-table tr {
-    padding: 7px;
-    margin-bottom: 5px;
-  }
-}
-
-/* The data tab shows complete records in one continuous browser-contained page. */
-.statistics-fullscreen.statistics-data-fullscreen {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-.statistics-data-fullscreen > .statistics-workspace {
-  display: block;
-  height: auto;
-  min-height: 100%;
-}
-.statistics-fullscreen.statistics-data-fullscreen
-  :is(#experiment, #project-root, #project-view) {
-  flex: 0 0 auto;
-  height: auto;
-  min-height: 0;
-  overflow: visible;
-}
-.statistics-data-fullscreen .workspace-screenbar,
-.statistics-data-fullscreen .view-tabs {
-  position: sticky;
-  z-index: 5;
-  background: #f7f6f0;
-}
-.statistics-data-fullscreen .workspace-screenbar {
-  top: 0;
-  min-height: 36px;
-}
-.statistics-data-fullscreen .view-tabs {
-  top: 42px;
-}
-
 /* Analysis views share the reference labs' full-width canvas and inline controls. */
 .unified-workbench > .workbench-body {
   display: block;
@@ -1566,72 +1250,6 @@ html.statistics-immersive body {
 }
 .unified-workbench .stat-table {
   min-width: 500px;
-}
-.statistics-fullscreen.statistics-analysis-fullscreen {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
-.statistics-analysis-fullscreen > .statistics-workspace {
-  display: block;
-  height: auto;
-  min-height: 100%;
-}
-.statistics-fullscreen.statistics-analysis-fullscreen
-  :is(#experiment, #project-root, #project-view) {
-  flex: 0 0 auto;
-  height: auto;
-  overflow: visible;
-}
-.statistics-fullscreen.statistics-analysis-fullscreen #project-root {
-  display: block;
-}
-.statistics-fullscreen.statistics-analysis-fullscreen
-  #project-view
-  div:has(> table) {
-  display: block !important;
-  overflow-x: auto;
-}
-.statistics-analysis-fullscreen :is(.workspace-screenbar, .view-tabs) {
-  position: sticky;
-  z-index: 5;
-  background: #f7f6f0;
-}
-.statistics-analysis-fullscreen .workspace-screenbar {
-  top: 0;
-  min-height: 36px;
-}
-.statistics-analysis-fullscreen .view-tabs {
-  top: 42px;
-}
-.statistics-fullscreen.statistics-analysis-fullscreen .unified-workbench,
-.statistics-fullscreen.statistics-analysis-fullscreen
-  .unified-workbench
-  :is(
-    .workbench-body,
-    .workbench-mode,
-    .workbench-display,
-    .workbench-group,
-    .panel,
-    .workbench-controls
-  ):not([hidden]),
-.statistics-fullscreen.statistics-analysis-fullscreen
-  .unified-workbench
-  details[open],
-.statistics-fullscreen.statistics-analysis-fullscreen
-  .unified-workbench
-  div:has(> table) {
-  display: block !important;
-}
-.statistics-fullscreen.statistics-analysis-fullscreen
-  .unified-workbench
-  .controls {
-  display: flex !important;
-}
-.statistics-analysis-fullscreen .analysis-toolbar {
-  padding: 14px 16px;
-}
-.statistics-analysis-fullscreen .analysis-view [data-income-chart] .stat-chart {
-  height: auto;
 }
 @media (max-width: 600px) {
   .unified-workbench .analysis-toolbar {
@@ -1809,8 +1427,7 @@ html.statistics-immersive body {
   padding: 0 14px;
   border-radius: 8px;
 }
-.statistics-fullscreen.statistics-analysis-fullscreen
-  :is(.distribution-composite, .histogram-calculations) {
+.statistics-fullscreen.statistics-analysis-fullscreen .histogram-calculations {
   display: block !important;
   padding: 16px;
 }
@@ -1822,4 +1439,529 @@ html.statistics-immersive body {
   details[open] {
   display: block !important;
   overflow-x: auto;
+}
+
+/* Fullscreen is a height-constrained workspace, with one active canvas. */
+html.statistics-immersive,
+html.statistics-immersive body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.statistics-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100dvw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  border: 0;
+  background: #f7f6f0;
+  color: #163b3c;
+  overflow: hidden;
+}
+.statistics-fullscreen::backdrop {
+  background: #f7f6f0;
+}
+.statistics-fullscreen > .statistics-workspace {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.statistics-fullscreen .workspace-screenbar {
+  flex: 0 0 auto;
+  justify-content: space-between;
+  margin: 0 0 6px;
+}
+.statistics-fullscreen .workspace-screen-title {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+.statistics-fullscreen .workspace-screenbar button {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.statistics-fullscreen .view-tabs {
+  flex: 0 0 auto;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  margin: 0 0 7px;
+  padding: 0 0 6px;
+  gap: 6px;
+  scrollbar-width: thin;
+}
+.statistics-fullscreen .view-tabs button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.statistics-fullscreen
+  :is(
+    .tab-progress,
+    #lab-lead,
+    #analysis-flow,
+    #experiment-insight,
+    .step-navigation
+  ) {
+  display: none !important;
+}
+.statistics-fullscreen :is(#experiment, #project-root, #project-view) {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+}
+.statistics-fullscreen #project-root {
+  display: flex;
+  flex-direction: column;
+}
+.statistics-fullscreen [data-screen-hidden],
+.statistics-fullscreen [hidden] {
+  display: none !important;
+}
+.statistics-fullscreen h2 {
+  font-size: 1rem;
+  line-height: 1.4;
+  margin: 0 0 5px;
+}
+.statistics-fullscreen h3 {
+  font-size: 0.86rem;
+  line-height: 1.4;
+  margin: 0 0 4px;
+}
+.statistics-fullscreen p {
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 3px 0;
+}
+.statistics-fullscreen .metrics {
+  margin: 4px 0;
+  gap: 6px;
+}
+.statistics-fullscreen .metrics > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 9px;
+  min-height: 0;
+  padding: 6px 9px;
+}
+.statistics-fullscreen .metrics strong {
+  font-size: 1.08rem;
+  margin: 0;
+}
+.statistics-fullscreen .metrics small {
+  font-size: 0.7rem;
+}
+.statistics-fullscreen .metrics span {
+  flex-basis: 100%;
+  font-size: 0.68rem;
+  line-height: 1.4;
+}
+.statistics-fullscreen .stat-table :is(th, td) {
+  padding: 6px 9px;
+  font-size: 0.76rem;
+}
+.statistics-fullscreen .screen-pager {
+  display: flex;
+  flex: 0 0 36px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin: 0;
+  border-top: 1px solid #cbd8ce;
+  padding-top: 4px;
+  font-size: 0.78rem;
+}
+.statistics-fullscreen .screen-pager button {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+}
+
+/* Text and table tabs retain readable text and a fixed title/tab strip. */
+.statistics-analysis-fullscreen :is(#experiment, #project-view) {
+  overflow: auto;
+}
+.statistics-analysis-fullscreen .workbench-body {
+  display: block;
+}
+.statistics-analysis-fullscreen .workbench-display {
+  border: 0;
+}
+.statistics-analysis-fullscreen .analysis-toolbar {
+  padding: 8px 12px;
+}
+[data-stat-lab="crosstab"]
+  .statistics-analysis-fullscreen
+  .analysis-view
+  > .workbench-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: 8px;
+}
+[data-stat-lab="crosstab"]
+  .statistics-analysis-fullscreen
+  .workbench-group
+  .stat-table {
+  min-width: 0;
+  width: 100%;
+}
+.statistics-fullscreen .histogram-table-screen,
+.statistics-fullscreen
+  .histogram-table-screen
+  :is(.workbench, .workbench-body, .workbench-display, .histogram-panel) {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.statistics-fullscreen .histogram-frequency-table {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.statistics-fullscreen .histogram-table-screen table {
+  height: 100%;
+  line-height: 1.4;
+}
+.statistics-fullscreen .histogram-table-screen :is(thead tr, tfoot tr) {
+  height: 1px;
+}
+.statistics-fullscreen .histogram-table-screen tbody tr {
+  height: 32px;
+}
+
+/* Only ancestors of a visible chart flex; inactive analyses keep their own DOM. */
+.statistics-chart-fullscreen [data-screen-chart-flow] {
+  display: flex !important;
+  flex: 1 1 0;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+}
+.statistics-chart-fullscreen
+  [data-screen-chart-flow]
+  > :not([data-screen-chart-flow]):not([data-screen-chart]) {
+  flex: 0 0 auto;
+}
+.statistics-chart-fullscreen
+  [data-screen-chart-flow]:is(.panel, .chart-panel, .workbench-group) {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  overflow: visible;
+}
+.statistics-chart-fullscreen [data-screen-chart-flow].workbench-display {
+  border: 1px solid #d5e2dc;
+  border-radius: 10px;
+  padding: 8px 12px;
+  background: white;
+}
+.statistics-chart-fullscreen [data-screen-chart] {
+  display: block;
+  flex: 1 1 0;
+  align-self: center;
+  width: 100%;
+  max-width: var(--screen-plot-width, 100%);
+  height: 0 !important;
+  min-height: 160px !important;
+  max-height: none;
+  margin: 0;
+}
+.statistics-chart-fullscreen .workbench-mode .panel {
+  margin: 0 0 4px;
+  padding: 0;
+  border: 0;
+}
+.statistics-chart-fullscreen .analysis-toolbar {
+  gap: 7px 12px;
+  padding: 6px 0;
+}
+.statistics-chart-fullscreen .analysis-toolbar > .control {
+  flex: 1 1 135px;
+  min-width: 110px;
+  max-width: 210px;
+  gap: 3px;
+  font-size: 0.74rem;
+}
+.statistics-chart-fullscreen
+  .analysis-toolbar
+  :is(select, input[type="number"]) {
+  height: 32px;
+  padding: 4px 7px;
+}
+.statistics-chart-fullscreen :is(.analysis-toolbar > button, .analysis-toggle) {
+  min-height: 32px;
+  padding: 5px 8px;
+}
+.statistics-chart-fullscreen .correlation-toolbar {
+  margin: 0 0 4px;
+}
+.statistics-chart-fullscreen .correlation-toolbar button {
+  min-height: 32px;
+  padding: 4px 9px;
+  font-size: 0.76rem;
+}
+.statistics-chart-fullscreen :is(.legend, .corr-legend) {
+  margin: 4px 0;
+  gap: 5px 14px;
+  font-size: 0.72rem;
+}
+.statistics-chart-fullscreen .annotation {
+  padding: 6px 9px;
+  margin: 4px 0;
+  font-size: 0.75rem;
+}
+.statistics-chart-fullscreen .screen-details-bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px 18px;
+  padding: 5px 3px 0;
+}
+.statistics-chart-fullscreen .screen-details-bar > details {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 0.75rem;
+}
+.statistics-chart-fullscreen .screen-details-bar summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.statistics-chart-fullscreen .screen-details-bar > details[open] {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
+  width: min(560px, 100%);
+  max-height: calc(100% - 12px);
+  box-sizing: border-box;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 12px 16px;
+  border: 1px solid #9db7ac;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 28px #163b3c33;
+}
+.statistics-chart-fullscreen :is(#experiment, #project-view) {
+  position: relative;
+}
+.statistics-chart-fullscreen .screen-details-bar > details[open] > summary {
+  position: sticky;
+  top: -12px;
+  z-index: 1;
+  margin: -12px -16px 12px;
+  padding: 12px 16px;
+  background: #f0f5eb;
+}
+.statistics-chart-fullscreen .screen-details-bar .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.statistics-chart-fullscreen .screen-details-bar .control {
+  flex: 1 1 180px;
+  min-width: 130px;
+}
+.statistics-chart-fullscreen .screen-details-bar .table-scroll {
+  overflow: auto;
+}
+
+/* Keep histogram, boxplots and raw points together, on the same horizontal scale. */
+.statistics-fullscreen .histogram-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-bottom: 4px;
+}
+.statistics-fullscreen :is(.histogram-heading, .histogram-axis-controls) {
+  margin: 0;
+  gap: 8px 14px;
+}
+.statistics-fullscreen .histogram-heading h2 small {
+  margin-left: 8px;
+}
+.statistics-fullscreen .histogram-axis-control {
+  gap: 5px;
+  font-size: 0.75rem;
+}
+.statistics-fullscreen .histogram-axis-control :is(input, select) {
+  height: 32px;
+  padding: 4px 7px;
+}
+.statistics-fullscreen .histogram-group-toggle {
+  font-size: 0.75rem;
+}
+.statistics-chart-fullscreen
+  .distribution-composite
+  :is(
+    #histogram-chart,
+    .histogram-legend,
+    .histogram-boxplots,
+    .histogram-raw
+  ) {
+  align-self: center;
+  width: 100%;
+  max-width: var(--screen-distribution-width, 100%);
+}
+.statistics-chart-fullscreen .distribution-composite .histogram-legend {
+  gap: 4px 16px;
+  margin: 3px 0;
+  font-size: 0.71rem;
+}
+.statistics-chart-fullscreen .histogram-boxplots[data-screen-chart-flow] {
+  flex: 0 0 130px;
+  box-sizing: border-box;
+  padding: 4px 0;
+  border-top: 1px solid #d5e0d6;
+}
+.statistics-chart-fullscreen .histogram-raw[data-screen-chart-flow] {
+  flex: 0 0 110px;
+  box-sizing: border-box;
+  padding: 4px 0;
+  border-top: 1px solid #d5e0d6;
+}
+.statistics-chart-fullscreen
+  :is(.histogram-boxplots, .histogram-raw)
+  [data-screen-chart] {
+  min-height: 0 !important;
+}
+.statistics-chart-fullscreen :is(.boxplot-summary, .histogram-selection) {
+  font-size: 0.7rem;
+  line-height: 1.4;
+  margin: 2px 0;
+}
+.statistics-chart-fullscreen .histogram-selection {
+  min-height: 0;
+}
+.boxplot-help > summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+
+/* Data remains a continuous editable page, including the last record. */
+.statistics-fullscreen.statistics-data-fullscreen {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.statistics-data-fullscreen > .statistics-workspace {
+  display: block;
+  height: auto;
+  min-height: 100%;
+}
+.statistics-fullscreen.statistics-data-fullscreen
+  :is(#experiment, #project-root, #project-view) {
+  display: block;
+  height: auto;
+  overflow: visible;
+}
+.statistics-data-fullscreen :is(.workspace-screenbar, .view-tabs) {
+  position: sticky;
+  z-index: 5;
+  background: #f7f6f0;
+}
+.statistics-data-fullscreen .workspace-screenbar {
+  top: 0;
+  min-height: 34px;
+}
+.statistics-data-fullscreen .view-tabs {
+  top: 40px;
+}
+.statistics-fullscreen
+  :is(.data-edit-help, .data-constraint, .data-operation, .data-next) {
+  display: none !important;
+}
+.statistics-fullscreen .data-view-heading {
+  margin: 0 0 8px;
+  padding: 0;
+  gap: 12px;
+}
+.statistics-fullscreen .data-file-actions button {
+  min-height: 32px;
+  padding: 5px 8px;
+  font-size: 0.75rem;
+}
+.statistics-fullscreen .editable-data-table :is(th, td) {
+  padding: 3px 6px;
+}
+.statistics-fullscreen .data-cell {
+  min-height: 29px;
+  padding: 4px 6px;
+}
+.statistics-fullscreen :is(.data-edit-actions, .data-pagination) {
+  margin: 6px 0;
+  gap: 8px;
+}
+.statistics-fullscreen :is(.data-edit-actions, .data-pagination) button {
+  min-height: 32px;
+  padding: 5px 8px;
+  font-size: 0.75rem;
+}
+
+@media (max-height: 650px) {
+  .statistics-fullscreen {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  .statistics-chart-fullscreen .histogram-boxplots[data-screen-chart-flow] {
+    flex-basis: 116px;
+  }
+  .statistics-chart-fullscreen .histogram-raw[data-screen-chart-flow] {
+    flex-basis: 98px;
+  }
+  .statistics-chart-fullscreen .metrics > div {
+    padding: 4px 7px;
+  }
+  .statistics-chart-fullscreen .analysis-toolbar {
+    padding: 4px 0;
+  }
+}
+@media (max-width: 600px) {
+  .histogram-axis-controls {
+    gap: 10px 12px;
+  }
+  .histogram-axis-control input {
+    width: 76px;
+  }
+  .histogram-axis-control select {
+    width: 132px;
+  }
+  .histogram-heading {
+    gap: 8px;
+  }
+  .statistics-fullscreen {
+    padding: max(6px, env(safe-area-inset-top)) 8px
+      max(6px, env(safe-area-inset-bottom));
+  }
+  .statistics-fullscreen .workspace-screen-title {
+    font-size: 0.78rem;
+  }
+  .statistics-chart-fullscreen .analysis-toolbar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  .statistics-chart-fullscreen .analysis-toolbar > .control {
+    flex: 0 0 140px;
+  }
+  .statistics-fullscreen .data-view-heading {
+    display: block;
+  }
 }

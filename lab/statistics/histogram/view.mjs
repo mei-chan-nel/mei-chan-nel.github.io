@@ -1,6 +1,10 @@
 import { fmt } from "../shared/math.mjs";
 import { esc, svg, bind } from "../shared/ui.mjs";
-import { distribution, binIndex, stackedBars } from "./model.mjs?v=20261023-loading";
+import {
+  distribution,
+  binIndex,
+  stackedBars,
+} from "./model.mjs?v=20261023-viewport";
 import { describe } from "./descriptive.mjs";
 import { renderCalculations } from "./calculations.mjs";
 
@@ -54,7 +58,7 @@ function boxPlots(s, bins) {
   });
   const axis = groups.length * 54 + 8;
   drawing += `<line x1="${left}" x2="${right}" y1="${axis}" y2="${axis}" stroke="#8aa"/><text x="${left}" y="${axis + 18}" font-size="12">${value(xmin)}</text><text x="${right}" y="${axis + 18}" text-anchor="end" font-size="12">${value(xmax)}</text>`;
-  return `<section class="histogram-boxplots" aria-label="群別の箱ひげ図"><h3>群別の箱ひげ図</h3>${svg(drawing, "同じ横軸で比較するA・Bの箱ひげ図。ひげの外側の観測は個別の記号で表示。", 900, axis + 26)}<p class="boxplot-summary">${summary.map(esc).join(" ／ ")}</p><p class="boxplot-rule">箱はQ₁〜Q₃、箱の中の線は中央値。ひげは Q₁−1.5IQR〜Q₃＋1.5IQR の内側の実測値まで。範囲外は別の点で示します。外れ値候補は誤りと断定するものではありません。</p></section>`;
+  return `<section class="histogram-boxplots" aria-label="群別の箱ひげ図"><h3>群別の箱ひげ図</h3>${svg(drawing, "同じ横軸で比較するA・Bの箱ひげ図。ひげの外側の観測は個別の記号で表示。", 900, axis + 26)}<p class="boxplot-summary">${summary.map(esc).join(" ／ ")}</p><details class="boxplot-help"><summary>箱ひげ図の読み方</summary><p class="boxplot-rule">箱はQ₁〜Q₃、箱の中の線は中央値。ひげは Q₁−1.5IQR〜Q₃＋1.5IQR の内側の実測値まで。範囲外は別の点で示します。外れ値候補は誤りと断定するものではありません。</p></details></section>`;
 }
 
 function settings(s, tableView) {
@@ -169,9 +173,9 @@ export function render(root, ctx) {
     multiple = rows.some((r) => r.group === "B");
   const tableView = (ctx.view || 0) === 0;
   root.innerHTML = `<section class="panel histogram-panel ${tableView ? "" : "distribution-composite"}" data-screen-group>
-    <header class="histogram-heading"><h2>${tableView ? "度数分布表" : "分布と箱ひげ図"}<small>${n}件</small></h2>
+    <div class="histogram-tools"><header class="histogram-heading"><h2>${tableView ? "度数分布表" : "分布と箱ひげ図"}<small>${n}件</small></h2>
     ${multiple ? `<label class="histogram-group-toggle"><input id="display-mode" type="checkbox" role="switch" ${s.mode === "split" ? "checked" : ""}><span>群別に表示</span></label>` : ""}</header>
-    ${settings(s, tableView)}
+    ${settings(s, tableView)}</div>
     ${tableView ? `<div class="histogram-frequency-table"><table class="stat-table"><thead><tr><th scope="col">階級<br>以上〜未満</th>${s.mode === "split" ? `<th scope="col">${esc(groupLabel(s, "A"))}</th><th scope="col">${esc(groupLabel(s, "B"))}</th>` : ""}<th scope="col">度数</th><th scope="col">相対度数</th><th scope="col">累積相対度数</th></tr></thead><tbody>${bins.map((b, i) => `<tr data-bin="${i}" tabindex="0" role="button" aria-label="${interval(b)}、${b.count}件" aria-selected="${i === s.selected}"><th scope="row">${value(b.lo)}〜${value(b.hi)}</th>${s.mode === "split" ? `<td>${b.a}</td><td>${b.b}</td>` : ""}<td>${b.count}</td><td>${fmt(b.relative * 100, 1)}%</td><td>${fmt(b.cumulative * 100, 1)}%</td></tr>`).join("")}</tbody><tfoot><tr><th>合計</th>${s.mode === "split" ? `<td>${rows.filter((r) => r.group === "A").length}</td><td>${rows.filter((r) => r.group === "B").length}</td>` : ""}<td>${n}</td><td>100%</td><td>—</td></tr></tfoot></table></div>` : chart(s, bins, n)}
     ${multiple ? `<div class="histogram-legend"><span><i class="group-key group-key-a" aria-hidden="true"></i>${esc(groupLabel(s, "A"))}（無地・実線）</span><span><i class="group-key group-key-b" aria-hidden="true"></i>${esc(groupLabel(s, "B"))}（斜線・破線）</span>${!tableView ? `<small>${s.mode === "split" ? "同じ階級で積み上げ" : "棒は群を合算"}（割合の分母は全${n}件）</small>` : ""}</div>` : ""}
     ${tableView ? "" : boxPlots(s, bins)}

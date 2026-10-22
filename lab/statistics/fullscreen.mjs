@@ -1,4 +1,8 @@
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
+import {
+  prepareFullscreenCharts,
+  sizeFullscreenCharts,
+} from "./shared/fullscreen-layout.mjs?v=20261023-viewport";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.
@@ -48,10 +52,11 @@ export function setupFullscreen(workspace, redraw) {
       const dataView = root.querySelector(".data-view");
       dialog.classList.toggle("statistics-data-fullscreen", !!dataView);
       const analysis =
-        root.querySelector(
-          ".unified-workbench,.distribution-composite,.histogram-calculations",
-        ) || (root.id === "project-view" && !dataView ? root : null);
+        root.querySelector(".workbench,.histogram-calculations") ||
+        (root.id === "project-view" && !dataView ? root : null);
       dialog.classList.toggle("statistics-analysis-fullscreen", !!analysis);
+      const charts = dataView ? [] : prepareFullscreenCharts(root);
+      dialog.classList.toggle("statistics-chart-fullscreen", charts.length > 0);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);
       const histogram = root.querySelector("#histogram-chart");
@@ -77,14 +82,11 @@ export function setupFullscreen(workspace, redraw) {
         pager.hidden = true;
         return;
       }
-      if (analysis) {
-        // Full-width labs retain the active controls, plot and result together.
-        // Long results use the dialog scrollbar instead of hiding live nodes.
+      if (charts.length) {
+        // The live plot gets the space left after the actual controls, metrics
+        // and legends, instead of a constant height in a scrolling document.
         pager.hidden = true;
-        workspace.style.setProperty(
-          "--screen-chart-height",
-          `${Math.max(180, Math.min(460, window.innerHeight - 260))}px`,
-        );
+        sizeFullscreenCharts(root, charts);
         fitWorkspaceCharts(root);
         return;
       }
@@ -121,128 +123,13 @@ export function setupFullscreen(workspace, redraw) {
         pager.hidden = pageCount === 1;
         return;
       }
-      const available = Math.max(
-        110,
-        dialog.getBoundingClientRect().bottom -
-          root.getBoundingClientRect().top -
-          pager.offsetHeight -
-          20,
-      );
-      workspace.style.setProperty(
-        "--screen-chart-height",
-        `${Math.max(150, available - 200)}px`,
-      );
-      if (histogram) {
-        const otherHeight = [...histogram.parentElement.children]
-          .filter(
-            (el) => el !== histogram && getComputedStyle(el).display !== "none",
-          )
-          .reduce((sum, el) => sum + el.getBoundingClientRect().height + 8, 0);
-        workspace.style.setProperty(
-          "--screen-chart-height",
-          `${Math.max(150, available - otherHeight - 12)}px`,
-        );
-        // Keep the chart and its linked observations together in focus mode.
-        // Generic analysis pagination must not move the observations offscreen.
-        fitWorkspaceCharts(root);
+      if (analysis) {
+        // Calculation walkthroughs and large tables remain readable at their
+        // natural text size and can scroll independently of the fixed header.
+        pager.hidden = true;
         return;
       }
-      const units = [];
-      const wrappers =
-        ".workbench,.workbench-mode,.workbench-body,.workbench-display,.workbench-controls,.workbench-group,.stat-grid,.panel,#project-view,.data-view,.data-table,.table-scroll,.histogram-frequency-table,#data-upload,.data-editor,.data-editor-grid,.data-editor-grid>section,.data-editor-grid>aside,#csv-preview,#csv-columns";
-      const collect = (el) => {
-        if (el.hidden || getComputedStyle(el).display === "none") return;
-        if (el.matches("table")) {
-          const rows = [...el.tBodies].flatMap((body) => [...body.rows]);
-          const height = el.getBoundingClientRect().height;
-          const rowHeight = Math.max(
-            24,
-            ...rows.map((row) => row.getBoundingClientRect().height),
-          );
-          const header =
-            height -
-            rows.reduce(
-              (sum, row) => sum + row.getBoundingClientRect().height,
-              0,
-            );
-          const count = Math.max(
-            1,
-            Math.floor((available - 180 - header) / rowHeight),
-          );
-          if (rows.length > count) {
-            for (let from = 0; from < rows.length; from += count)
-              units.push({
-                el,
-                height:
-                  header + Math.min(count, rows.length - from) * rowHeight,
-                rows,
-                from,
-                to: from + count,
-              });
-          } else units.push({ el, height });
-        } else if (
-          el.matches(wrappers) ||
-          el.matches("div:has(>table)") ||
-          (el.matches("details[open]") && !el.matches(".data-bulk-edit"))
-        ) {
-          [...el.children].forEach(collect);
-        } else {
-          const box = el.getBoundingClientRect();
-          const style = getComputedStyle(el);
-          if (box.height)
-            units.push({
-              el,
-              height:
-                box.height +
-                (parseFloat(style.marginTop) || 0) +
-                (parseFloat(style.marginBottom) || 0),
-            });
-        }
-      };
-      [...root.children].forEach(collect);
-      const paginate = (items) => {
-        const pages = [[]];
-        let used = 0;
-        for (const unit of items) {
-          if (
-            used &&
-            (used + unit.height > available ||
-              pages.at(-1).some((previous) => previous.el === unit.el))
-          ) {
-            pages.push([]);
-            used = 0;
-          }
-          pages.at(-1).push(unit);
-          used += unit.height;
-        }
-        return pages;
-      };
-      const pages = paginate(units);
-      const pageCount = pages.length;
-      page = Math.min(page, pageCount - 1);
-      const shown = pages[page];
-      const visible = new Set(shown.map((unit) => unit.el));
-      for (const unit of units)
-        if (!visible.has(unit.el))
-          unit.el.setAttribute("data-screen-hidden", "");
-      for (const unit of shown) {
-        if (unit.rows)
-          unit.rows.forEach((row, i) => {
-            if (i < unit.from || i >= unit.to)
-              row.setAttribute("data-screen-hidden", "");
-          });
-        if (unit.height > available) {
-          unit.el.style.zoom = String(available / unit.height);
-          unit.el.setAttribute("data-screen-scale", "");
-        }
-      }
-      pager.querySelector("[data-screen-prev]").disabled = page === 0;
-      pager.querySelector("[data-screen-next]").disabled =
-        page === pageCount - 1;
-      pager.querySelector("span").textContent =
-        pageCount > 1 ? `表示 ${page + 1} / ${pageCount}` : "";
-      pager.hidden = pageCount === 1;
-      fitWorkspaceCharts(root);
+      pager.hidden = true;
     });
   };
   pager.querySelector("[data-screen-prev]").onclick = () => {
