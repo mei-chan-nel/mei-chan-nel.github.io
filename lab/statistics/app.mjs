@@ -1,17 +1,17 @@
 import { esc } from "./shared/ui.mjs";
 import { validateDocument } from "./shared/validation.mjs";
 import { currentData, applyData } from "./shared/data-model.mjs";
-import { composeWorkbench } from "./workbench.mjs?v=20261023-viewport";
+import { composeWorkbench } from "./workbench.mjs?v=20261023-side-notes";
 import { renderDataTab } from "./data-tab.mjs";
-import { sampleState } from "./shared/samples.mjs?v=20261023-viewport";
+import { sampleState } from "./shared/samples.mjs?v=20261023-side-notes";
 import { normalizeExperiment } from "./sampling/model.mjs";
 import { readDataset } from "./shared/data.mjs";
 import { dataStep, learningViews, renderStepNavigation } from "./learning.mjs";
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-viewport";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-viewport";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-side-notes";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-side-notes";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261023-viewport`)).default;
+const config = (await import(`./${id}/lab.mjs?v=20261023-side-notes`)).default;
 const ui = {
   view: 0,
   dataTab: true,

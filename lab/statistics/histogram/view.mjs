@@ -4,7 +4,7 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261023-viewport";
+} from "./model.mjs?v=20261023-side-notes";
 import { describe } from "./descriptive.mjs";
 import { renderCalculations } from "./calculations.mjs";
 

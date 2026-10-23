@@ -1,8 +1,9 @@
 import { fitWorkspaceCharts } from "./shared/chart-layout.mjs";
 import {
+  clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261023-viewport";
+} from "./shared/fullscreen-layout.mjs?v=20261023-side-notes";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.
@@ -17,6 +18,34 @@ export function setupFullscreen(workspace, redraw) {
   workspace.after(dialog);
   const marker = document.createComment("statistics workspace");
   const button = workspace.querySelector("[data-stat-fullscreen]");
+  const screenbar = workspace.querySelector(".workspace-screenbar");
+  const title = screenbar.querySelector(".workspace-screen-title");
+  title.id = "statistics-fullscreen-title";
+  const actions = document.createElement("div");
+  actions.className = "screen-header-actions";
+  const headerToggle = document.createElement("button");
+  headerToggle.type = "button";
+  headerToggle.hidden = true;
+  headerToggle.setAttribute("data-fullscreen-header-toggle", "");
+  actions.append(headerToggle, button);
+  screenbar.append(actions);
+  const headerKey = "study-atlas-statistics-fullscreen-header";
+  let headerCollapsed = false;
+  try {
+    headerCollapsed = window.sessionStorage.getItem(headerKey) === "collapsed";
+  } catch {}
+  const syncHeader = () => {
+    dialog.classList.toggle("statistics-header-collapsed", headerCollapsed);
+    headerToggle.setAttribute("aria-expanded", String(!headerCollapsed));
+    const label = headerCollapsed ? "▼ ヘッダーを表示" : "▲ ヘッダーを隠す";
+    if (headerToggle.textContent !== label) headerToggle.textContent = label;
+    const controlled = [title.id];
+    workspace.querySelectorAll(".view-tabs").forEach((tabs, i) => {
+      if (!tabs.id) tabs.id = `statistics-fullscreen-tabs-${i}`;
+      controlled.push(tabs.id);
+    });
+    headerToggle.setAttribute("aria-controls", controlled.join(" "));
+  };
   button.setAttribute("aria-controls", dialog.id);
   button.setAttribute("aria-haspopup", "dialog");
   const pager = document.createElement("nav");
@@ -44,6 +73,7 @@ export function setupFullscreen(workspace, redraw) {
     if (!dialog.open) return;
     pending = requestAnimationFrame(() => {
       if (!dialog.open) return;
+      syncHeader();
       reset();
       const root =
         workspace.querySelector("#project-view") ||
@@ -55,7 +85,7 @@ export function setupFullscreen(workspace, redraw) {
         root.querySelector(".workbench,.histogram-calculations") ||
         (root.id === "project-view" && !dataView ? root : null);
       dialog.classList.toggle("statistics-analysis-fullscreen", !!analysis);
-      const charts = dataView ? [] : prepareFullscreenCharts(root);
+      const charts = prepareFullscreenCharts(root);
       dialog.classList.toggle("statistics-chart-fullscreen", charts.length > 0);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);
@@ -140,6 +170,17 @@ export function setupFullscreen(workspace, redraw) {
     page++;
     refresh();
   };
+  headerToggle.onclick = () => {
+    headerCollapsed = !headerCollapsed;
+    try {
+      window.sessionStorage.setItem(
+        headerKey,
+        headerCollapsed ? "collapsed" : "expanded",
+      );
+    } catch {}
+    syncHeader();
+    refresh();
+  };
   const enter = () => {
     savedScroll = window.scrollY;
     workspace.before(marker);
@@ -147,16 +188,23 @@ export function setupFullscreen(workspace, redraw) {
     document.documentElement.classList.add("statistics-immersive");
     button.textContent = "全画面を終了";
     button.setAttribute("aria-expanded", "true");
+    headerToggle.hidden = false;
+    syncHeader();
     dialog.showModal();
     redraw();
     refresh();
   };
   const exit = () => {
     reset();
+    const root =
+      workspace.querySelector("#project-view") ||
+      workspace.querySelector("#experiment");
+    if (root) clearFullscreenExplanations(root);
     document.documentElement.classList.remove("statistics-immersive");
     marker.replaceWith(workspace);
     button.textContent = "⛶ 全画面";
     button.setAttribute("aria-expanded", "false");
+    headerToggle.hidden = true;
     pager.hidden = true;
     page = 0;
     key = "";

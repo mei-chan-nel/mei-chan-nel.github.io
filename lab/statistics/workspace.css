@@ -922,6 +922,15 @@ body[data-statistics]
 .workspace-screen-title {
   display: none;
 }
+.screen-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-left: auto;
+}
+.screen-header-actions button[hidden] {
+  display: none !important;
+}
 .histogram-body {
   display: block;
 }
@@ -1478,6 +1487,11 @@ html.statistics-immersive body {
 }
 .statistics-fullscreen .workspace-screen-title {
   display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 0.9rem;
   font-weight: 650;
 }
@@ -1502,6 +1516,18 @@ html.statistics-immersive body {
   padding: 6px 10px;
   font-size: 0.8rem;
   white-space: nowrap;
+}
+.statistics-fullscreen.statistics-header-collapsed
+  :is(.workspace-screen-title, .view-tabs) {
+  display: none !important;
+}
+.statistics-header-collapsed .workspace-screenbar {
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+.statistics-header-collapsed .screen-header-actions button {
+  min-height: 28px;
+  padding: 4px 9px;
 }
 .statistics-fullscreen
   :is(
@@ -1733,6 +1759,10 @@ html.statistics-immersive body {
   gap: 4px 18px;
   padding: 5px 3px 0;
 }
+.statistics-chart-fullscreen
+  .screen-details-bar:not(:has(> details:not([hidden]))) {
+  display: none;
+}
 .statistics-chart-fullscreen .screen-details-bar > details {
   margin: 0;
   padding: 0;
@@ -1781,6 +1811,80 @@ html.statistics-immersive body {
 }
 .statistics-chart-fullscreen .screen-details-bar .table-scroll {
   overflow: auto;
+}
+
+/* Desktop explanations use the horizontal room beside the active graph. */
+@media (min-width: 900px) {
+  .statistics-chart-fullscreen #experiment.screen-with-explanations {
+    display: grid !important;
+    grid-template-columns: var(--screen-left-width) minmax(0, 1fr) var(
+        --screen-right-width
+      );
+    grid-template-rows: minmax(0, 1fr) auto;
+    column-gap: 12px;
+  }
+  .statistics-chart-fullscreen .screen-with-explanations > .workbench {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .statistics-chart-fullscreen .screen-with-explanations > .screen-details-bar {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .screen-with-explanations > .screen-explanation-rail {
+    grid-row: 1 / -1;
+    min-width: 0;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+    padding: 12px;
+    border: 1px solid #d6e0d5;
+    border-radius: 10px;
+    background: #edf3ec;
+    color: #38584c;
+  }
+  .screen-with-explanations > .screen-explanation-left {
+    grid-column: 1;
+  }
+  .screen-with-explanations > .screen-explanation-right {
+    grid-column: 3;
+  }
+  .statistics-fullscreen .screen-explanation-rail h3 {
+    margin: 0 0 12px;
+    font-size: 0.82rem;
+  }
+  .statistics-fullscreen .screen-explanation-rail p {
+    margin: 0 0 14px;
+    font-size: 0.76rem;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+  }
+  .statistics-fullscreen
+    .screen-explanation-rail
+    :is(.legend, .corr-legend, .histogram-legend) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 14px;
+    font-size: 0.74rem;
+    line-height: 1.7;
+  }
+  .statistics-fullscreen .screen-explanation-rail .annotation {
+    padding: 8px;
+    background: #fff;
+  }
+  .statistics-chart-fullscreen
+    .screen-with-explanations
+    .histogram-boxplots[data-screen-chart-flow] {
+    flex-basis: 94px;
+  }
+  .statistics-chart-fullscreen
+    .screen-with-explanations
+    .histogram-raw[data-screen-chart-flow] {
+    flex-basis: 82px;
+  }
 }
 
 /* Keep histogram, boxplots and raw points together, on the same horizontal scale. */
