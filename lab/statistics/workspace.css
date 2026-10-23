@@ -2206,3 +2206,9 @@ html.statistics-immersive body {
   flex-wrap: wrap;
   gap: 8px 20px;
 }
+
+[data-stat-lab="sampling"] .stat-chart text.sampling-repeat-count {
+  fill: #fff;
+  font-size: 9px;
+  font-weight: 700;
+}

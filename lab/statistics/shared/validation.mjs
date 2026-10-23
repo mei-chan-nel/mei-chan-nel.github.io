@@ -198,7 +198,7 @@ function domain(s, id) {
           (p, i) =>
             p.id === i &&
             Number.isFinite(p.value) &&
-            typeof p.frequent === "boolean",
+            (p.frequent === undefined || typeof p.frequent === "boolean"),
         ),
       "母集団データを確認してください。",
     );
@@ -210,6 +210,10 @@ function domain(s, id) {
       "月別データは0以上の数値48件にしてください。",
     );
   if (id === "sampling") {
+    need(
+      ["without", "with", "random", "biased"].includes(s.method),
+      "抽出方法を確認してください。",
+    );
     need(
       Number.isInteger(s.n) &&
         s.n >= 1 &&

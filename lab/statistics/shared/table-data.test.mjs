@@ -152,10 +152,7 @@ test("changing population rows rebuilds the sampling experiment against the edit
   const state = sampleState("sampling", sampling.initial(), 99),
     data = currentData("sampling", state);
   const next = normalizeExperiment(
-    applyTableRows("sampling", state, data, [
-      ["-10", "北"],
-      ["10", "南"],
-    ]),
+    applyTableRows("sampling", state, data, [["-10"], ["10"]]),
   );
   assert.equal(next.customPopulation.length, 2);
   assert.equal(next.n, 2);
@@ -163,7 +160,8 @@ test("changing population rows rebuilds the sampling experiment against the edit
   assert.equal(next.history[0].mean, 0);
   assert.equal(next.history[0].low, 0);
   assert.equal(next.history[0].high, 0);
-  assert.deepEqual(next.groupNames, ["北", "南"]);
+  assert.equal(next.groupNames, undefined);
+  assert.deepEqual(currentData("sampling", next).rows, [[-10], [10]]);
 });
 
 test("invalid table cells identify the displayed row and cannot silently replace a group name", () => {

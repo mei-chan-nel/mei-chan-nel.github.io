@@ -39,7 +39,11 @@ export function fitWorkspaceCharts(container) {
           node.hasAttribute(key) &&
           /^[-+.\deE]+$/.test(node.getAttribute(key))
         ) {
-          let value = Number(node.getAttribute(key)) * sy;
+          const offset =
+            node.tagName === "text" && key === "y"
+              ? Number(node.dataset.labelOffset || 0)
+              : 0;
+          let value = (Number(node.getAttribute(key)) - offset) * sy + offset;
           if (node.tagName === "text" && key === "y")
             value = Math.max(15, Math.min(height - 3, value));
           node.setAttribute(key, String(value));

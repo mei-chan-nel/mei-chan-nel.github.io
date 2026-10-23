@@ -286,13 +286,13 @@ test("reset returns to the imported observations, including actual group names, 
   assert.equal(restored.shiftB, 0);
   assert.equal(restored.dataInfo.origin, "user");
 });
-test("legacy sampling signatures keep existing draws when upgrading the interface", () => {
+test("outdated sampling signatures restart the experiment under the current method", () => {
   const old = addTrials(sampling.initial(), 20);
   old.signature = `${old.n}/${old.method}/${old.seed}`;
   const next = normalizeExperiment(old);
-  assert.equal(next.trials, old.trials);
-  assert.deepEqual(next.history, old.history);
-  assert.deepEqual(next.last, old.last);
+  assert.equal(next.trials, 1);
+  assert.equal(next.method, "without");
+  assert.equal(next.n, old.n);
 });
 test("a numeric population may include negative measurements and still gives an exact census", () => {
   const s = applyData(

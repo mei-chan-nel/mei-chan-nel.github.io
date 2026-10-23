@@ -1,6 +1,9 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs";
-import { population, finiteSE } from "../sampling/model.mjs?v=20261023-sampling-inference";
+import { currentData } from "./data-model.mjs?v=20261023-sampling-replacement";
+import {
+  population,
+  samplingSE,
+} from "../sampling/model.mjs?v=20261023-sampling-replacement";
 import { matrixFor, successRate } from "../crosstab/lab.mjs";
 import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs";
 import { observationValues, normalInterval } from "../probability/model.mjs";
@@ -54,7 +57,7 @@ export function insight(id, state) {
     const values = population(state.customPopulation).map((p) => p.value),
       truth = mean(values),
       estimates = state.history.map((r) => r.mean);
-    return `${state.trials}回の標本平均の平均は ${fmt(mean(estimates))}、母平均は ${fmt(truth)}。${state.n === values.length ? "全数調査なので、標本平均は毎回母平均に一致します。" : state.method === "biased" ? "一部の標本を増やすだけでは、選び方の偏りが必ず解消されるとはいえません。" : `この標本数での標準誤差は ${fmt(finiteSE(values, state.n))}。標本数を増やすと、推定のばらつきが小さくなります。`}`;
+    return `${state.trials}組の標本平均の中心は ${fmt(mean(estimates))}、母平均は ${fmt(truth)}。${state.method === "without" && state.n === values.length ? "重複なしで全員を1回ずつ選ぶ全数調査なので、毎回母平均に一致します。" : `抽出方法は${state.method === "with" ? "重複あり" : "重複なし"}、理論上の標準誤差は ${fmt(samplingSE(values, state.n, state.method))}です。同じ標本数で2つの方法を比べてみましょう。`}`;
   }
   if (id === "crosstab") {
     const names = state.dataInfo?.labels?.methods || ["A", "B"];

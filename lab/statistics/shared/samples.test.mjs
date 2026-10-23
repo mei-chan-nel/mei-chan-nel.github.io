@@ -143,10 +143,7 @@ test("replacing a population updates its numeric label instead of retaining the 
     x: 0,
     group: 1,
   });
-  assert.deepEqual(currentData("sampling", next).headers, [
-    "気温（℃）",
-    "地域",
-  ]);
+  assert.deepEqual(currentData("sampling", next).headers, ["気温（℃）"]);
 });
 
 test("cross-tab, A/B and month labels retain the uploaded column names in CSV output", async () => {

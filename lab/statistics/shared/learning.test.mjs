@@ -34,10 +34,10 @@ test("correlation feedback uses the actual training set when validating a held-o
   assert.match(insight("correlation", state), /学習用 2組の r=1\.000/);
   assert.doesNotMatch(insight("correlation", state), /現在 -/);
 });
-test("a biased ordering of a complete census is still exact, and is explained as such", () => {
+test("a without-replacement census is exact, while replacement does not imply a census", () => {
   const s = newExperiment({
     n: 3,
-    method: "biased",
+    method: "without",
     customPopulation: [
       { value: 10 },
       { value: 20 },
@@ -46,4 +46,6 @@ test("a biased ordering of a complete census is still exact, and is explained as
   });
   assert.match(insight("sampling", s), /全数調査/);
   assert.doesNotMatch(insight("sampling", s), /偏りが必ず/);
+  const replacement = newExperiment({ ...s, method: "with" });
+  assert.doesNotMatch(insight("sampling", replacement), /全数調査/);
 });

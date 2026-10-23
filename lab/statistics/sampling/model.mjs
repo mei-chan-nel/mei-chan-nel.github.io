@@ -1,164 +1,191 @@
 import { mean, sd, rng } from "../shared/math.mjs";
 
-// An original, completely fictional finite population. Group is visible, not hidden.
 export function population(custom) {
   if (Array.isArray(custom))
-    return custom.map((p, id) => ({
-      id,
-      value: Number(p.value),
-      frequent: Boolean(p.frequent),
-    }));
+    return custom.map((p, id) => ({ id, value: Number(p.value) }));
   const random = rng(841917);
-  return Array.from({ length: 120 }, (_, id) => {
-    const frequent = id % 3 === 0;
-    const minutes = Math.round(
-      (frequent ? 52 : 24) + (random() + random() + random() - 1.5) * 24,
-    );
-    return { id, frequent, value: Math.max(0, minutes) };
-  });
+  return Array.from({ length: 120 }, (_, id) => ({
+    id,
+    value: Math.max(
+      0,
+      Math.round(34 + (random() + random() + random() - 1.5) * 30),
+    ),
+  }));
 }
+const methodOf = (method) => (method === "with" ? "with" : "without");
 
 export function finiteSE(values, n) {
   const size = values.length;
   if (!size || n < 1 || n > size) return NaN;
   if (size === 1 || n === size) return 0;
-  // sigma is population SD with divisor N. SRS is without replacement.
   return (sd(values) / Math.sqrt(n)) * Math.sqrt((size - n) / (size - 1));
+}
+export function samplingSE(values, n, method = "without") {
+  if (!values.length || n < 1) return NaN;
+  return methodOf(method) === "with"
+    ? sd(values) / Math.sqrt(n)
+    : finiteSE(values, n);
 }
 
 export function samplePopulation(people, n, method, seed, trial = 0) {
   const random = rng((Number(seed) + Math.imul(trial, 0x9e3779b9)) >>> 0);
-  const remaining = [...people];
-  const sample = [];
   const count = Math.min(people.length, Math.max(1, Math.trunc(n)));
-  for (let i = 0; i < count; i++) {
-    // A weighted draw without replacement deliberately over-represents frequent users.
-    const weight = (person) => (method === "biased" && person.frequent ? 7 : 1);
-    const totalWeight = remaining.reduce(
-      (total, person) => total + weight(person),
-      0,
+  if (methodOf(method) === "with")
+    return Array.from(
+      { length: count },
+      () => people[Math.floor(random() * people.length)],
     );
-    let target = random() * totalWeight;
-    let selected = remaining.length - 1;
-    for (let j = 0; j < remaining.length; j++) {
-      target -= weight(remaining[j]);
-      if (target < 0) {
-        selected = j;
-        break;
-      }
-    }
-    sample.push(remaining.splice(selected, 1)[0]);
+  const pool = [...people];
+  for (let i = 0; i < count; i++) {
+    const j = i + Math.floor(random() * (pool.length - i));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
   }
-  return sample;
+  return pool.slice(0, count);
 }
-
 export function simulateSample(people, n, method, seed, trial = 0) {
-  const sample = samplePopulation(people, n, method, seed, trial);
-  const values = people.map((person) => person.value);
+  const sample = samplePopulation(people, n, method, seed, trial),
+    values = people.map((p) => p.value),
+    truth = mean(values);
   const center =
-    sample.length === people.length
-      ? mean(values)
-      : mean(sample.map((person) => person.value));
-  const se = finiteSE(values, sample.length);
-  const truth = mean(values);
-  const low = center - 1.96 * se;
-  const high = center + 1.96 * se;
+    methodOf(method) === "without" && sample.length === people.length
+      ? truth
+      : mean(sample.map((p) => p.value));
+  const se = samplingSE(values, sample.length, method),
+    low = center - 1.96 * se,
+    high = center + 1.96 * se;
   return {
     mean: center,
     low,
     high,
     covers: low <= truth && truth <= high,
-    indices: sample.map((person) => person.id),
+    indices: sample.map((p) => p.id),
   };
 }
 
+function cleanOptions(state) {
+  const { groupNames, groupLabel, shiftB, ...options } = state;
+  options.method = methodOf(state.method);
+  if (options.customPopulation)
+    options.customPopulation = population(options.customPopulation);
+  if (options.dataInfo)
+    options.dataInfo = {
+      ...options.dataInfo,
+      columns: options.dataInfo.columns.slice(0, 1),
+      baseline: options.dataInfo.baseline.map((r) => [r[0]]),
+    };
+  return options;
+}
+const signatureOf = (options) =>
+  `replacement-v2/${options.n}/${options.method}/${options.seed}/${options.customPopulation ? JSON.stringify(options.customPopulation) : "sample"}`;
 export function newExperiment(overrides = {}) {
-  const options = { n: 20, method: "random", seed: 20261015, ...overrides };
+  const options = cleanOptions({
+    n: 20,
+    method: "without",
+    seed: 20261015,
+    ...overrides,
+  });
   const people = population(options.customPopulation);
-  options.n = Math.min(people.length, Math.max(1, Math.trunc(options.n)));
-  const first = simulateSample(people, options.n, options.method, options.seed);
+  options.n = Math.min(
+    people.length,
+    Math.max(1, Math.trunc(Number(options.n) || 20)),
+  );
+  options.seed = Number.isFinite(Number(options.seed))
+    ? Number(options.seed) >>> 0
+    : 20261015;
+  const { indices, ...result } = simulateSample(
+    people,
+    options.n,
+    options.method,
+    options.seed,
+  );
   return {
     ...options,
-    signature: `${options.n}/${options.method}/${options.seed}/${options.customPopulation ? JSON.stringify(options.customPopulation) : "sample"}`,
+    signature: signatureOf(options),
     trials: 1,
-    history: [
-      {
-        mean: first.mean,
-        low: first.low,
-        high: first.high,
-        covers: first.covers,
-      },
-    ],
-    last: first.indices,
+    history: [result],
+    last: indices,
   };
 }
-
 export function normalizeExperiment(state) {
-  const people = population(state.customPopulation);
-  const n = Math.min(
+  const options = cleanOptions(state),
+    people = population(options.customPopulation);
+  options.n = Math.min(
     people.length,
-    Math.max(1, Math.trunc(Number(state.n) || 20)),
+    Math.max(1, Math.trunc(Number(options.n) || 20)),
   );
-  const method = state.method === "biased" ? "biased" : "random";
-  const seed = Number.isFinite(Number(state.seed))
-    ? Number(state.seed) >>> 0
+  options.seed = Number.isFinite(Number(options.seed))
+    ? Number(options.seed) >>> 0
     : 20261015;
-  const signature = `${n}/${method}/${seed}/${state.customPopulation ? JSON.stringify(state.customPopulation) : "sample"}`;
-  if (!state.customPopulation && state.signature === `${n}/${method}/${seed}`)
-    state = { ...state, signature };
+  const signature = signatureOf(options);
   if (
     state.signature !== signature ||
     !Array.isArray(state.history) ||
     !Array.isArray(state.last) ||
     !state.history.length
-  ) {
-    return newExperiment({ ...state, n, method, seed });
-  }
-  return { ...state, n, method, seed };
+  )
+    return newExperiment(options);
+  return { ...options, signature };
 }
-
 export function addTrials(state, count, replay = false) {
-  const current = normalizeExperiment(state);
-  const people = population(current.customPopulation);
-  const history = replay ? [] : [...current.history];
-  const first = replay ? 0 : current.trials;
-  const end = Math.min(2000, first + Math.max(0, Math.trunc(count)));
+  const current = normalizeExperiment(state),
+    people = population(current.customPopulation),
+    history = replay ? [] : [...current.history];
+  const first = replay ? 0 : current.trials,
+    end = Math.min(2000, first + Math.max(0, Math.trunc(count)));
   let last = current.last;
   for (let trial = first; trial < end; trial++) {
-    const result = simulateSample(
+    const { indices, ...result } = simulateSample(
       people,
       current.n,
       current.method,
       current.seed,
       trial,
     );
-    const { indices, ...summary } = result;
-    history.push(summary);
+    history.push(result);
     last = indices;
   }
   return { ...current, history, trials: end, last };
 }
 
-// Bound every possible sample mean and its reference interval before drawing.
-// Neither the realized draws nor the sampling method can move this axis.
-export function samplingDomain(values, count) {
-  const sorted = [...values].sort((a, b) => a - b);
-  const n = Math.max(1, Math.min(sorted.length, Math.trunc(count)));
-  const truth = mean(values);
-  const halfWidth = 1.96 * finiteSE(sorted, n);
-  const reach =
-    Math.max(truth - mean(sorted.slice(0, n)), mean(sorted.slice(-n)) - truth) +
-    halfWidth;
-  const radius = Math.max(
-    reach * 1.12,
-    sd(sorted) * 0.75,
-    Math.abs(truth) * Number.EPSILON * 16,
-    sd(sorted) === 0 ? Math.max(1, Math.abs(truth) * 0.1) : Number.EPSILON,
-  );
-  const rough = radius / 4;
+const niceStep = (rough) => {
   const magnitude = 10 ** Math.floor(Math.log10(rough));
-  const tick = [1, 2, 5, 10].map((m) => m * magnitude).find((v) => v >= rough);
-  return { truth, tick, xmin: truth - 4 * tick, xmax: truth + 4 * tick };
+  return [1, 2, 5, 10].map((m) => m * magnitude).find((v) => v >= rough);
+};
+// Start close to the expected spread; only observed results can expand it.
+// The same radius is always added to both sides of the fixed population mean.
+export function samplingDomain(
+  values,
+  count,
+  history = [],
+  method = "without",
+) {
+  const truth = mean(values),
+    sigma = sd(values),
+    se = samplingSE(values, count, method);
+  const initial = Math.max(
+    se * 2.5,
+    se === 0 ? Math.max(sigma * 0.15, 0.5) : 0,
+    Math.abs(truth) * Number.EPSILON * 16,
+    Number.EPSILON,
+  );
+  const quantum = niceStep(initial / 5);
+  const needed = history.reduce(
+    (r, item) =>
+      Math.max(
+        r,
+        Math.abs(item.mean - truth) * 1.05,
+        Math.abs(item.low - truth) * 1.05,
+        Math.abs(item.high - truth) * 1.05,
+      ),
+    initial,
+  );
+  const radius = Math.ceil(needed / quantum) * quantum;
+  return {
+    truth,
+    tick: niceStep(radius / 4),
+    xmin: truth - radius,
+    xmax: truth + radius,
+  };
 }
 
 export function experimentSummary(history, truth) {

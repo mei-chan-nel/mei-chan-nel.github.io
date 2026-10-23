@@ -1,21 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs";
-import { currentData, applyData } from "./shared/data-model.mjs";
-import { composeWorkbench } from "./workbench.mjs?v=20261023-sampling-inference";
-import { renderDataTab } from "./data-tab.mjs";
-import { sampleState } from "./shared/samples.mjs?v=20261023-sampling-inference";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261023-sampling-inference";
+import { validateDocument } from "./shared/validation.mjs?v=20261023-sampling-replacement";
+import {
+  currentData,
+  applyData,
+} from "./shared/data-model.mjs?v=20261023-sampling-replacement";
+import { composeWorkbench } from "./workbench.mjs?v=20261023-sampling-replacement";
+import { renderDataTab } from "./data-tab.mjs?v=20261023-sampling-replacement";
+import { sampleState } from "./shared/samples.mjs?v=20261023-sampling-replacement";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261023-sampling-replacement";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261023-sampling-inference";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-inference";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-sampling-inference";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-sampling-inference";
+} from "./learning.mjs?v=20261023-sampling-replacement";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-replacement";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-sampling-replacement";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-sampling-replacement";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261023-sampling-inference`))
+const config = (await import(`./${id}/lab.mjs?v=20261023-sampling-replacement`))
   .default;
 const ui = {
   view: 0,

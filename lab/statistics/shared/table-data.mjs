@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs";
+import { applyData } from "./data-model.mjs?v=20261023-sampling-replacement";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {
@@ -18,7 +18,9 @@ export function tableConstraint(id, state) {
   if (id === "probability")
     return `1〜10,000行。${state.mode === "coin" ? "表=1・裏=0を試行順に入力します。" : state.mode === "binomial" ? `1セットの成功回数を0〜${state.n}の整数で入力します。` : "測定した数値を入力します。正規分布に従うことを保証するものではありません。"}`;
   if (id === "lorenz") return "2〜300行。所得は0以上の数値にします。";
-  if (["histogram", "sampling"].includes(id))
+  if (id === "sampling")
+    return "2〜300行。1行が母集団の1人分です。数値を入力します。";
+  if (id === "histogram")
     return "2〜300行。数値と、所属する集団名を入力します。集団は2種類まで使えます。";
   return "2〜300行。空欄を埋めてから分析へ進みます。";
 }
@@ -49,11 +51,8 @@ export function applyTableRows(id, state, data, rows, allowGroup = false) {
     x: id === "time-series" ? 1 : 0,
     y: 1,
     date: 0,
-    group: ["histogram", "sampling"].includes(id)
-      ? 1
-      : allowGroup && data.headers.length > 2
-        ? 2
-        : -1,
+    group:
+      id === "histogram" ? 1 : allowGroup && data.headers.length > 2 ? 2 : -1,
   });
   if (id === "histogram") next.width = state.width;
   next.dataInfo.tableEdited = true;

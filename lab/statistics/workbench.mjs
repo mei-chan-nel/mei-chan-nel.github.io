@@ -1,4 +1,4 @@
-import { learningViews } from "./learning.mjs?v=20261023-sampling-inference";
+import { learningViews } from "./learning.mjs?v=20261023-sampling-replacement";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {

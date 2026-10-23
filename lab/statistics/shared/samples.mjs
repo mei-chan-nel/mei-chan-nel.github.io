@@ -1,5 +1,5 @@
 import { rng, normal, clamp } from "./math.mjs";
-import { applyData, currentData } from "./data-model.mjs";
+import { applyData, currentData } from "./data-model.mjs?v=20261023-sampling-replacement";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
@@ -61,12 +61,8 @@ export function sampleState(id, initial, seed = freshSeed()) {
     selection = { group: 1 };
     name = "速いB群の生徒を含む60人のクイズ所要時間";
   } else if (id === "sampling") {
-    headers = ["読書時間（分）", "集団"];
-    rows = Array.from({ length: 120 }, (_, i) => [
-      Math.max(0, bell(i % 3 ? 25 : 52, 10)),
-      i % 3 ? "A" : "B",
-    ]);
-    selection = { group: 1 };
+    headers = ["読書時間（分）"];
+    rows = Array.from({ length: 120 }, () => [Math.max(0, bell(34, 13))]);
     name = "生徒120人の読書時間";
     base.seed = seed;
   } else if (id === "crosstab") {

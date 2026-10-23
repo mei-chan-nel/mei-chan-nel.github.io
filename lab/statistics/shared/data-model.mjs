@@ -1,5 +1,5 @@
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261023-sampling-inference";
+import { population } from "../sampling/model.mjs?v=20261023-sampling-replacement";
 import { createMonthlySeries } from "../time-series/lab.mjs";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
@@ -43,18 +43,13 @@ export function currentData(id, s) {
     operation = `${s.meanLocked ? "平均を保って値を再配分 → " : ""}平均・中央値・四分位数・分散（分母 ${s.sample ? "n−1" : "n"}）を計算`;
   }
   if (id === "sampling") {
-    headers = [
-      s.dataInfo?.columns?.[0] || "読書時間（分）",
-      s.groupLabel || "集団",
-    ];
-    const p = s.customPopulation || population();
-    rows = p.map((r) => [
-      r.value + (r.group === "B" ? Number(s.shiftB || 0) : 0),
-      s.groupNames?.[r.frequent ? 1 : 0] || (r.frequent ? "B" : "A"),
-    ]);
+    headers = [s.dataInfo?.columns?.[0] || "読書時間（分）"];
+    const people = population(s.customPopulation);
+    rows = people.map((r) => [r.value]);
     name = name || "生徒120人の読書時間";
-    operation = `${p.length}件から${s.n}件を${s.method === "biased" ? `${s.groupNames?.[1] || "B"}を選びやすい方法` : "無作為"}で抽出 → ${s.trials}回の標本平均`;
+    operation = `${people.length}件から${s.n}回、${s.method === "with" ? "重複あり" : "重複なし"}で抽出 → ${s.trials}組の標本平均`;
   }
+
   if (id === "lorenz") {
     headers = [s.incomeLabel || "所得（万円）"];
     rows = s.incomes.map((v) => [v]);
@@ -264,19 +259,11 @@ export function applyData(
       s.locked = true;
     }
     if (kind === "population") {
-      s.dataInfo = {
-        columns: [headers[x], group >= 0 ? headers[group] : "集団"],
-      };
-      s.groupLabel = group >= 0 ? headers[group] : "集団";
-      const groups =
-        group < 0 ? [] : [...new Set(rows.map((r) => r[group] || "全体"))];
-      if (groups.length > 2) throw Error("集団は2種類までにしてください。");
-      s.customPopulation = values.map((v, i) => ({
-        id: i,
-        value: v,
-        frequent: group >= 0 && rows[i][group] === groups[1],
-      }));
-      s.groupNames = [groups[0] || "全員", groups[1] || "B（該当なし）"];
+      s.dataInfo = { columns: [headers[x]] };
+      s.customPopulation = values.map((value, id) => ({ id, value }));
+      delete s.groupNames;
+      delete s.groupLabel;
+      delete s.shiftB;
       s.n = Math.min(20, values.length);
       s.signature = "";
       s.history = [];

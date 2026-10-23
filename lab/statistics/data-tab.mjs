@@ -1,11 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs";
+import { currentData } from "./shared/data-model.mjs?v=20261023-sampling-replacement";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs";
-import { mountDataEditor, downloadCSV } from "./data-editor.mjs";
+} from "./shared/table-data.mjs?v=20261023-sampling-replacement";
+import {
+  mountDataEditor,
+  downloadCSV,
+} from "./data-editor.mjs?v=20261023-sampling-replacement";
 import { asNumber } from "./shared/csv.mjs";
 export function renderDataTab(root, options) {
   const {
@@ -76,7 +79,14 @@ export function renderDataTab(root, options) {
       ["all", "すべて"],
       [100, "100行"],
       [300, "300行"],
-    ].map(([v, label]) => `<option value="${v}" ${String(v) === String(preferredSize) ? "selected" : ""}>${label}</option>`).join("")}</select></label>${pageCount > 1 ? `<button id="data-prev" type="button" ${page ? "" : "disabled"}>前へ</button>` : ""}<span>${draft.rows.length ? from + 1 : 0}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span>${pageCount > 1 ? `<button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次へ</button>` : ""}</div>
+    ]
+      .map(
+        ([v, label]) =>
+          `<option value="${v}" ${String(v) === String(preferredSize) ? "selected" : ""}>${label}</option>`,
+      )
+      .join(
+        "",
+      )}</select></label>${pageCount > 1 ? `<button id="data-prev" type="button" ${page ? "" : "disabled"}>前へ</button>` : ""}<span>${draft.rows.length ? from + 1 : 0}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span>${pageCount > 1 ? `<button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次へ</button>` : ""}</div>
     ${id === "histogram" ? `<details class="data-bulk-edit"><summary>集団の値をまとめて変える</summary><div class="data-bulk-controls"><label for="data-shift-group">集団<select id="data-shift-group">${[...new Set(draft.rows.map((r) => r[1]))].map((g) => `<option>${esc(g)}</option>`).join("")}</select></label><label for="data-shift-amount">各値に足す数<input id="data-shift-amount" type="number" step="any" value="0" inputmode="decimal"></label><button id="data-shift-apply" type="button">表の値を変更</button><span>負の数なら小さくなります。</span></div></details>` : ""}
     <p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button></div><div id="data-upload" hidden></div></section>`;
   const message = root.querySelector("#data-message");
