@@ -306,7 +306,6 @@ function receive(message) {
         controls();
         return;
     }
-    const prepared = preparing;
     if (message.info)
         info = message.info;
     if (message.state)
@@ -331,8 +330,6 @@ function receive(message) {
         openInput(message.request);
         return;
     }
-    if (prepared && sharedSource)
-        showMessage('共有されたプログラムです。「次へ」で実行できます。');
     if (state && !running && !message.request)
         byId('execution-announcement').textContent = `${state.currentLine === null ? '実行前' : `${state.currentLine}行目を実行`}${state.completed ? '。実行が終わりました。' : ''}`;
     // Restarting autoplay after completion first resets the Worker, then steps.
@@ -679,10 +676,7 @@ byId('recover-draft').addEventListener('click', () => guarded(() => { if (recove
 window.addEventListener('pagehide', () => { pause(); if (!sharedSource && !recoveryDraft)
     autosave(); });
 function openSharedProgram() {
-    if (new URLSearchParams(location.search).get('edit') === '1') {
-        showMessage('プログラムをコピーしました。編集して「実行画面へ」で実行できます。元のプログラムは変更されません。');
-    }
-    else
+    if (new URLSearchParams(location.search).get('edit') !== '1')
         prepare(true);
 }
 window.addEventListener('hashchange', async () => {
