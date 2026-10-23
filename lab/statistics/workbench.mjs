@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261023-sampling-interval-style";
-import { readingNotes } from "./shared/reading.mjs?v=20261023-sampling-interval-style";
+import { learningViews } from "./learning.mjs?v=20261024-fullscreen-navigation";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-fullscreen-navigation";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {

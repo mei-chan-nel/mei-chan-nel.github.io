@@ -1,4 +1,4 @@
-import { downloadCSV } from "./data-editor.mjs?v=20261023-sampling-interval-style";
+import { downloadCSV } from "./data-editor.mjs?v=20261024-fullscreen-navigation";
 const target = new URL("./histogram/", new URL("../", location.href));
 target.protocol = location.protocol;
 target.host = location.host;

@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-interval-style";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-fullscreen-navigation";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261023-sampling-interval-style";
+} from "./shared/fullscreen-layout.mjs?v=20261024-fullscreen-navigation";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.
@@ -65,7 +65,7 @@ export function setupFullscreen(workspace, redraw) {
         root.querySelector(".workbench,.histogram-calculations") ||
         (root.id === "project-view" && !dataView ? root : null);
       dialog.classList.toggle("statistics-analysis-fullscreen", !!analysis);
-      const charts = prepareFullscreenCharts(root);
+      const charts = prepareFullscreenCharts(root, refresh);
       dialog.classList.toggle("statistics-chart-fullscreen", charts.length > 0);
       const frequency = root.querySelector(".histogram-frequency-table");
       root.classList.toggle("histogram-table-screen", !!frequency);

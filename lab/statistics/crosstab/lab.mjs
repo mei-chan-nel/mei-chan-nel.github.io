@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-interval-style";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-fullscreen-navigation";
 import { esc, range, select, metrics, svg, bind } from "../shared/ui.mjs";
 
 const METHOD = ["A方式", "B方式"];

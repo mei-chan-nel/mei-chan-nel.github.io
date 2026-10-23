@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-interval-style";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-fullscreen-navigation";
 import { mean, fmt } from "../shared/math.mjs";
 import { esc, number, select, metrics, svg, bind } from "../shared/ui.mjs";
 import {
@@ -11,7 +11,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261023-sampling-interval-style";
+} from "./model.mjs?v=20261024-fullscreen-navigation";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");
@@ -51,7 +51,7 @@ function populationChart(state) {
   const full = document.querySelector("#statistics-fullscreen")?.open;
   const available = Math.min(
     1000,
-    window.innerWidth - (full && window.innerWidth >= 900 ? 330 : 80),
+    window.innerWidth - (full && window.innerWidth >= 760 ? 330 : 80),
   );
   const columns = Math.max(6, Math.min(20, Math.floor(available / 36))),
     width = columns * 36 + 18,

@@ -1813,68 +1813,153 @@ html.statistics-immersive body {
   overflow: auto;
 }
 
-/* One shared sidebar keeps the legend above its explanation on every plot. */
-@media (min-width: 900px) {
-  .statistics-chart-fullscreen #experiment.screen-with-explanations {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) var(--screen-explanation-width);
-    grid-template-rows: minmax(0, 1fr) auto;
-    column-gap: 12px;
-  }
-  .statistics-chart-fullscreen .screen-with-explanations > .workbench {
-    grid-column: 1;
-    grid-row: 1;
-  }
-  .statistics-chart-fullscreen .screen-with-explanations > .screen-details-bar {
-    grid-column: 1;
-    grid-row: 2;
-  }
-  .screen-with-explanations > .screen-explanation-rail {
-    grid-row: 1 / -1;
-    min-width: 0;
-    min-height: 0;
-    overflow: auto;
-    overscroll-behavior: contain;
-    box-sizing: border-box;
-    padding: 12px;
-    border: 1px solid #d6e0d5;
-    border-radius: 10px;
-    background: #edf3ec;
-    color: #38584c;
-  }
-  .screen-with-explanations > .screen-explanation-right {
-    grid-column: 2;
-  }
-  .screen-explanation-section + .screen-explanation-section {
-    border-top: 1px solid #cbd9cc;
-    margin-top: 14px;
-    padding-top: 14px;
-  }
-  .statistics-fullscreen .screen-explanation-rail h3 {
-    margin: 0 0 12px;
-    font-size: 0.82rem;
-  }
-  .statistics-fullscreen .screen-explanation-rail p {
-    margin: 0 0 14px;
-    font-size: 0.76rem;
-    line-height: 1.85;
-    overflow-wrap: anywhere;
-  }
-  .statistics-fullscreen
-    .screen-explanation-rail
-    :is(.legend, .corr-legend, .histogram-legend) {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 0 0 14px;
-    font-size: 0.74rem;
-    line-height: 1.7;
-  }
-  .statistics-fullscreen .screen-explanation-rail .annotation {
-    padding: 8px;
-    background: #fff;
-  }
+/* Shared fullscreen navigation keeps summaries out of the plot height budget. */
+.statistics-analysis-fullscreen
+  :is(#experiment, #project-view).screen-with-explanations {
+  display: grid !important;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) var(--screen-explanation-width);
+  grid-template-rows: minmax(0, 1fr) auto;
+  column-gap: 12px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+.statistics-analysis-fullscreen
+  .screen-with-explanations
+  > [data-screen-navigation-scene] {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.statistics-analysis-fullscreen:not(.statistics-chart-fullscreen)
+  .screen-with-explanations
+  > [data-screen-navigation-scene] {
+  overflow: auto;
+}
+.statistics-analysis-fullscreen
+  .screen-with-explanations
+  > .screen-details-bar {
+  grid-column: 1;
+  grid-row: 2;
+}
+.screen-with-explanations > .screen-explanation-rail {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #d6e0d5;
+  border-radius: 10px;
+  background: #edf3ec;
+  color: #38584c;
+}
+.screen-navigation-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+.statistics-fullscreen .screen-navigation-header button {
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1;
+}
+.screen-navigation-content {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.screen-explanation-rail.screen-navigation-collapsed {
+  padding: 3px;
+}
+.screen-navigation-collapsed .screen-navigation-header {
+  justify-content: center;
+}
+.screen-explanation-section + .screen-explanation-section {
+  border-top: 1px solid #cbd9cc;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+.statistics-fullscreen .screen-explanation-rail h3 {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+}
+.statistics-fullscreen .screen-explanation-rail p {
+  margin: 0 0 12px;
+  font-size: 0.76rem;
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+.statistics-fullscreen
+  .screen-explanation-rail
+  :is(.legend, .corr-legend, .histogram-legend) {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 0.74rem;
+  line-height: 1.7;
+}
+.statistics-fullscreen .screen-explanation-rail .annotation {
+  padding: 8px;
+  background: #fff;
+}
+.statistics-fullscreen .screen-explanation-rail .metrics {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.statistics-fullscreen .screen-explanation-rail .metrics > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+  padding: 8px 10px;
+  border-radius: 6px;
+}
+.statistics-fullscreen .screen-explanation-rail .metrics strong {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+.statistics-analysis-fullscreen
+  :is(#experiment, #project-view).screen-navigation-narrow {
+  grid-template-columns: minmax(0, 1fr) 40px;
+  column-gap: 8px;
+}
+.screen-navigation-narrow:not(.screen-navigation-collapsed)
+  > .screen-explanation-rail {
+  position: absolute;
+  z-index: 8;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(280px, calc(100% - 48px));
+  box-shadow: 0 4px 20px #163b3c33;
 }
 
 /* Keep histogram, boxplots and raw points together, on the same horizontal scale. */

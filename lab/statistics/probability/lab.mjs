@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-interval-style";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-fullscreen-navigation";
 import { fmt, sd } from "../shared/math.mjs";
 import {
   range,

@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261023-sampling-interval-style";
+import { applyData } from "./data-model.mjs?v=20261024-fullscreen-navigation";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

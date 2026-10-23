@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261023-sampling-interval-style";
+} from "./descriptive.mjs?v=20261024-fullscreen-navigation";
 
 const n = (value) =>
   value === null || value === undefined
