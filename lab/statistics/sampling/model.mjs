@@ -55,7 +55,10 @@ export function samplePopulation(people, n, method, seed, trial = 0) {
 export function simulateSample(people, n, method, seed, trial = 0) {
   const sample = samplePopulation(people, n, method, seed, trial);
   const values = people.map((person) => person.value);
-  const center = mean(sample.map((person) => person.value));
+  const center =
+    sample.length === people.length
+      ? mean(values)
+      : mean(sample.map((person) => person.value));
   const se = finiteSE(values, sample.length);
   const truth = mean(values);
   const low = center - 1.96 * se;
@@ -134,4 +137,52 @@ export function addTrials(state, count, replay = false) {
     last = indices;
   }
   return { ...current, history, trials: end, last };
+}
+
+// Bound every possible sample mean and its reference interval before drawing.
+// Neither the realized draws nor the sampling method can move this axis.
+export function samplingDomain(values, count) {
+  const sorted = [...values].sort((a, b) => a - b);
+  const n = Math.max(1, Math.min(sorted.length, Math.trunc(count)));
+  const truth = mean(values);
+  const halfWidth = 1.96 * finiteSE(sorted, n);
+  const reach =
+    Math.max(truth - mean(sorted.slice(0, n)), mean(sorted.slice(-n)) - truth) +
+    halfWidth;
+  const radius = Math.max(
+    reach * 1.12,
+    sd(sorted) * 0.75,
+    Math.abs(truth) * Number.EPSILON * 16,
+    sd(sorted) === 0 ? Math.max(1, Math.abs(truth) * 0.1) : Number.EPSILON,
+  );
+  const rough = radius / 4;
+  const magnitude = 10 ** Math.floor(Math.log10(rough));
+  const tick = [1, 2, 5, 10].map((m) => m * magnitude).find((v) => v >= rough);
+  return { truth, tick, xmin: truth - 4 * tick, xmax: truth + 4 * tick };
+}
+
+export function experimentSummary(history, truth) {
+  const count = history.length;
+  const center = count ? mean(history.map((r) => r.mean)) : null;
+  const covered = history.filter(
+    (r) => r.low <= truth && truth <= r.high,
+  ).length;
+  return {
+    count,
+    center,
+    error: count ? center - truth : null,
+    spread:
+      count > 1
+        ? sd(
+            history.map((r) => r.mean),
+            true,
+          )
+        : null,
+    rmse: count
+      ? Math.sqrt(mean(history.map((r) => (r.mean - truth) ** 2)))
+      : null,
+    covered,
+    missed: count - covered,
+    coverage: count ? covered / count : null,
+  };
 }

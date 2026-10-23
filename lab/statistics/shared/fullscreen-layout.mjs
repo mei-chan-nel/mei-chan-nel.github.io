@@ -101,6 +101,7 @@ export function arrangeFullscreenExplanations(root, desktop) {
 export function fullscreenCharts(root) {
   return [...root.querySelectorAll("svg.stat-chart")].filter(
     (svg) =>
+      !svg.hasAttribute("data-scroll-chart") &&
       !svg.closest(
         "[hidden], .workbench-stash, .screen-details-bar, details:not([open])",
       ),
@@ -165,6 +166,8 @@ export function sizeFullscreenCharts(root, charts) {
   for (const svg of charts) {
     // The three distribution plots must retain exactly the same horizontal axis.
     if (svg.closest(".distribution-composite")) continue;
+    // An interval history has a short fixed axis above a scrolling plot.
+    if (svg.hasAttribute("data-sampling-axis")) continue;
     const box = svg.getBoundingClientRect();
     if (box.height > 0 && svg.parentElement.clientWidth > 0)
       svg.style.setProperty(

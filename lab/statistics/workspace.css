@@ -2119,3 +2119,90 @@ html.statistics-immersive body {
   border-radius: 6px;
   background: #f5f8f1;
 }
+
+/* Sampling values stay legible against saturated selections and pale context. */
+[data-stat-lab="sampling"] .stat-chart text.sampling-value {
+  fill: #fff;
+  font-size: 12px;
+  font-weight: 750;
+  paint-order: stroke;
+  stroke: #102d30;
+  stroke-width: 0.25px;
+}
+.sampling-intervals {
+  display: flex;
+  flex-direction: column;
+  height: 430px;
+  min-height: 0;
+}
+.workbench-display .sampling-intervals [data-sampling-axis] {
+  flex: 0 0 80px;
+  height: 80px;
+  min-height: 80px;
+  max-width: 100%;
+}
+.sampling-history-scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  touch-action: pan-y;
+}
+.sampling-history-scroll::-webkit-scrollbar {
+  display: none;
+}
+.sampling-history-scroll:focus-visible {
+  outline: 2px solid #2d7066;
+  outline-offset: -2px;
+}
+.workbench-display .sampling-history-scroll [data-scroll-chart] {
+  display: block;
+  width: 100%;
+  height: var(--sampling-history-height) !important;
+  min-height: var(--sampling-history-height) !important;
+  max-height: none;
+}
+.stat-chart text.sampling-trial-label {
+  font-size: 11px;
+}
+.statistics-chart-fullscreen .sampling-intervals {
+  height: auto;
+}
+.statistics-chart-fullscreen .sampling-history-scroll {
+  flex: 1 1 0 !important;
+}
+.statistics-chart-fullscreen [data-sampling-axis] {
+  flex: 0 0 80px;
+  height: 80px !important;
+  min-height: 80px !important;
+  max-width: 100%;
+}
+.sampling-reading-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+.sampling-reading-cards > section {
+  padding: 16px 18px;
+  border: 1px solid #d0dfd4;
+  border-radius: 10px;
+  background: #f7f9f3;
+}
+.sampling-reading-cards h3 {
+  margin: 0 0 10px;
+  font-size: 0.96rem;
+}
+.sampling-reading-cards p {
+  font-size: 0.87rem;
+  line-height: 1.9;
+}
+.sampling-reading-cards button {
+  font-size: 0.8rem;
+}
+.sampling-interval-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+}

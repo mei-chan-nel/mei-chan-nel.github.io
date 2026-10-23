@@ -1,6 +1,6 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
 import { currentData } from "./data-model.mjs";
-import { population, finiteSE } from "../sampling/model.mjs";
+import { population, finiteSE } from "../sampling/model.mjs?v=20261023-sampling-inference";
 import { matrixFor, successRate } from "../crosstab/lab.mjs";
 import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs";
 import { observationValues, normalInterval } from "../probability/model.mjs";
