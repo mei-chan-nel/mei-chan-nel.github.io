@@ -1,5 +1,5 @@
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261023-side-notes";
+import { render } from "./view.mjs?v=20261023-shared-axis";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

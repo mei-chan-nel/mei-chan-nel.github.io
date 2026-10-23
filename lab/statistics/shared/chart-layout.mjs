@@ -6,7 +6,7 @@ export function fitWorkspaceCharts(container) {
       original = svg.viewBox.baseVal;
     if (
       box.width < 40 ||
-      box.height < 60 ||
+      box.height < (svg.hasAttribute("data-fixed-row-chart") ? 24 : 60) ||
       !original.width ||
       !original.height
     )
@@ -56,7 +56,18 @@ export function fitWorkspaceCharts(container) {
         );
       }
       if (node.tagName === "path") {
-        node.setAttribute("transform", `scale(${totalX} ${totalY})`);
+        if (node.hasAttribute("data-marker-radius")) {
+          // Position follows the shared axes; the observation symbol keeps its
+          // pixel size and shape instead of becoming a flattened diamond.
+          const x = Number(node.dataset.markerX) * totalX;
+          const y = Number(node.dataset.markerY) * totalY;
+          const r = Number(node.dataset.markerRadius);
+          node.setAttribute(
+            "d",
+            `M${x},${y - r}L${x + r},${y}L${x},${y + r}L${x - r},${y}Z`,
+          );
+          node.removeAttribute("transform");
+        } else node.setAttribute("transform", `scale(${totalX} ${totalY})`);
         node.setAttribute("vector-effect", "non-scaling-stroke");
       }
     }

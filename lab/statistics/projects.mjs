@@ -4,7 +4,7 @@ import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
 import { renderDataTab } from "./data-tab.mjs";
 import { renderStepNavigation } from "./learning.mjs";
 import correlation from "./correlation/lab.mjs";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-side-notes";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-shared-axis";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";
@@ -20,7 +20,8 @@ function draw() {
     dataset.origin === "sample"
       ? "学習時間が長い人ほど高得点でしょうか。架空の24人のデータを、分布・代表値・相関から眺めてみましょう。自分の2列の数値データでも、同じように見比べられます。"
       : `「${dataset.xLabel}」と「${dataset.yLabel}」には、どんな特徴や関係があるでしょうか。同じデータを各ラボへ持ち込み、分布・代表値・相関から見える違いを試せます。`;
-  root.innerHTML = `<nav class="view-tabs project-tabs" aria-label="横断分析の表示">${[
+  const tabs = document.querySelector("#project-tabs");
+  tabs.innerHTML = `${[
     ["data", "データ"],
     ["analysis", "分析方法を選ぶ"],
     ["results", "特徴を見比べる"],
@@ -29,10 +30,9 @@ function draw() {
       ([id, label]) =>
         `<button type="button" data-project-tab="${id}" aria-pressed="${active === id}">${label}</button>`,
     )
-    .join(
-      "",
-    )}</nav><p class="tab-progress">${["data", "analysis", "results"].indexOf(active) + 1} / 3 · ${active === "data" ? "同じ行の対応と項目名・単位を確かめてから分析へ進みます。" : active === "analysis" ? "調べたいことに合うラボを選びます。どのラボもデータの確認から始まります。" : "同じ元データについて、複数の見方を組み合わせます。"}</p><div id="project-view"></div><nav id="project-step-navigation" class="step-navigation" aria-label="分析課題の順路"></nav>`;
-  root.querySelectorAll("[data-project-tab]").forEach(
+    .join("")}`;
+  root.innerHTML = `<p class="tab-progress">${["data", "analysis", "results"].indexOf(active) + 1} / 3 · ${active === "data" ? "同じ行の対応と項目名・単位を確かめてから分析へ進みます。" : active === "analysis" ? "調べたいことに合うラボを選びます。どのラボもデータの確認から始まります。" : "同じ元データについて、複数の見方を組み合わせます。"}</p><div id="project-view"></div><nav id="project-step-navigation" class="step-navigation" aria-label="分析課題の順路"></nav>`;
+  tabs.querySelectorAll("[data-project-tab]").forEach(
     (b) =>
       (b.onclick = () => {
         if (

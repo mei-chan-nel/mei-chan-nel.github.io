@@ -928,9 +928,6 @@ body[data-statistics]
   gap: 7px;
   margin-left: auto;
 }
-.screen-header-actions button[hidden] {
-  display: none !important;
-}
 .histogram-body {
   display: block;
 }
@@ -1292,18 +1289,12 @@ body[data-statistics]
   transform: rotate(45deg);
 }
 .histogram-boxplots {
-  border-top: 1px solid #d5e0d6;
-  margin-top: 14px;
-  padding-top: 12px;
+  margin: 0;
+  padding: 0;
 }
-.histogram-boxplots h3 {
-  margin: 0 0 6px;
-  font-size: 0.9rem;
-}
-.histogram-boxplots .stat-chart,
-.statistics-fullscreen .histogram-boxplots .stat-chart {
-  height: 150px;
-  min-height: 0;
+.histogram-boxplots .stat-chart {
+  height: var(--boxplot-height, 88px);
+  min-height: var(--boxplot-height, 88px);
 }
 .boxplot-summary,
 .boxplot-rule {
@@ -1481,12 +1472,16 @@ html.statistics-immersive body {
   min-height: 0;
 }
 .statistics-fullscreen .workspace-screenbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
   flex: 0 0 auto;
-  justify-content: space-between;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
 }
 .statistics-fullscreen .workspace-screen-title {
   display: block;
+  max-width: clamp(90px, 18vw, 250px);
   flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
@@ -1502,11 +1497,13 @@ html.statistics-immersive body {
   white-space: nowrap;
 }
 .statistics-fullscreen .view-tabs {
-  flex: 0 0 auto;
+  min-width: 0;
   flex-wrap: nowrap;
+  align-items: center;
   overflow-x: auto;
-  margin: 0 0 7px;
-  padding: 0 0 6px;
+  margin: 0;
+  padding: 0;
+  border: 0;
   gap: 6px;
   scrollbar-width: thin;
 }
@@ -1516,18 +1513,6 @@ html.statistics-immersive body {
   padding: 6px 10px;
   font-size: 0.8rem;
   white-space: nowrap;
-}
-.statistics-fullscreen.statistics-header-collapsed
-  :is(.workspace-screen-title, .view-tabs) {
-  display: none !important;
-}
-.statistics-header-collapsed .workspace-screenbar {
-  justify-content: flex-end;
-  margin-bottom: 4px;
-}
-.statistics-header-collapsed .screen-header-actions button {
-  min-height: 28px;
-  padding: 4px 9px;
 }
 .statistics-fullscreen
   :is(
@@ -1877,11 +1862,6 @@ html.statistics-immersive body {
   }
   .statistics-chart-fullscreen
     .screen-with-explanations
-    .histogram-boxplots[data-screen-chart-flow] {
-    flex-basis: 94px;
-  }
-  .statistics-chart-fullscreen
-    .screen-with-explanations
     .histogram-raw[data-screen-chart-flow] {
     flex-basis: 82px;
   }
@@ -1932,11 +1912,13 @@ html.statistics-immersive body {
   font-size: 0.71rem;
 }
 .statistics-chart-fullscreen .histogram-boxplots[data-screen-chart-flow] {
-  flex: 0 0 130px;
+  flex: 0 0 auto;
   box-sizing: border-box;
-  padding: 4px 0;
-  border-top: 1px solid #d5e0d6;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
+
 .statistics-chart-fullscreen .histogram-raw[data-screen-chart-flow] {
   flex: 0 0 110px;
   box-sizing: border-box;
@@ -1947,6 +1929,11 @@ html.statistics-immersive body {
   :is(.histogram-boxplots, .histogram-raw)
   [data-screen-chart] {
   min-height: 0 !important;
+}
+.statistics-chart-fullscreen .histogram-boxplots [data-screen-chart] {
+  flex: 0 0 var(--boxplot-height, 88px);
+  height: var(--boxplot-height, 88px) !important;
+  min-height: var(--boxplot-height, 88px) !important;
 }
 .statistics-chart-fullscreen :is(.boxplot-summary, .histogram-selection) {
   font-size: 0.7rem;
@@ -1977,7 +1964,7 @@ html.statistics-immersive body {
   height: auto;
   overflow: visible;
 }
-.statistics-data-fullscreen :is(.workspace-screenbar, .view-tabs) {
+.statistics-data-fullscreen .workspace-screenbar {
   position: sticky;
   z-index: 5;
   background: #f7f6f0;
@@ -1985,9 +1972,6 @@ html.statistics-immersive body {
 .statistics-data-fullscreen .workspace-screenbar {
   top: 0;
   min-height: 34px;
-}
-.statistics-data-fullscreen .view-tabs {
-  top: 40px;
 }
 .statistics-fullscreen
   :is(.data-edit-help, .data-constraint, .data-operation, .data-next) {
@@ -2025,9 +2009,6 @@ html.statistics-immersive body {
     padding-top: 6px;
     padding-bottom: 6px;
   }
-  .statistics-chart-fullscreen .histogram-boxplots[data-screen-chart-flow] {
-    flex-basis: 116px;
-  }
   .statistics-chart-fullscreen .histogram-raw[data-screen-chart-flow] {
     flex-basis: 98px;
   }
@@ -2055,8 +2036,16 @@ html.statistics-immersive body {
     padding: max(6px, env(safe-area-inset-top)) 8px
       max(6px, env(safe-area-inset-bottom));
   }
+  .statistics-fullscreen .workspace-screenbar {
+    gap: 6px;
+  }
   .statistics-fullscreen .workspace-screen-title {
+    max-width: 90px;
     font-size: 0.78rem;
+  }
+  .statistics-fullscreen .workspace-screenbar button {
+    padding: 6px 8px;
+    font-size: 0.74rem;
   }
   .statistics-chart-fullscreen .analysis-toolbar {
     flex-wrap: nowrap;
