@@ -2201,7 +2201,8 @@ html.statistics-immersive body {
 .sampling-reading-cards button {
   font-size: 0.8rem;
 }
-.sampling-interval-legend {
+.sampling-interval-legend,
+.sampling-comparison-legend {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 20px;

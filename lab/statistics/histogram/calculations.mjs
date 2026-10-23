@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261023-sampling-replacement";
+} from "./descriptive.mjs?v=20261023-sampling-size-comparison";
 
 const n = (value) =>
   value === null || value === undefined

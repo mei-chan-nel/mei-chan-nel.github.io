@@ -12,6 +12,8 @@ import {
   addTrials,
   samplingDomain,
   experimentSummary,
+  comparisonSettings,
+  compareSampleSizes,
 } from "./model.mjs";
 const near = (a, b, tolerance = 1e-12) =>
   assert.ok(
@@ -204,4 +206,143 @@ test("legacy group data retains every measured value while restarting its obsole
   assert.deepEqual(next.dataInfo.columns, ["値"]);
   assert.deepEqual(next.dataInfo.baseline, [[10], [20], [90]]);
   assert.equal(next.dataInfo.origin, "user");
+});
+
+test("sample-size comparisons use equal replication counts and the actual draws at each size", () => {
+  for (const method of ["without", "with"]) {
+    const state = newExperiment({ method }),
+      comparison = compareSampleSizes(state),
+      people = population();
+    assert.deepEqual(comparison.sizes, [20, 40]);
+    assert.equal(comparison.trials, 200);
+    for (const series of comparison.series) {
+      assert.equal(series.history.length, 200);
+      for (const trial of [0, 19, 199])
+        near(
+          series.history[trial].mean,
+          simulateSample(people, series.n, method, state.seed, trial).mean,
+        );
+      near(
+        series.se,
+        samplingSE(
+          people.map((p) => p.value),
+          series.n,
+          method,
+        ),
+      );
+      assert.ok(Math.abs(series.summary.spread / series.se - 1) < 0.15);
+    }
+    assert.ok(
+      comparison.series[1].summary.spread < comparison.series[0].summary.spread,
+    );
+    const [a, b] = comparison.series;
+    near(b.se / a.se, method === "with" ? 1 / Math.sqrt(2) : Math.sqrt(0.4));
+    assert.equal(
+      state.trials,
+      1,
+      "comparison does not overwrite the single-experiment history",
+    );
+  }
+});
+test("comparison repetitions extend both existing sequences and keep one symmetric scale", () => {
+  const state = newExperiment(),
+    before = compareSampleSizes(state),
+    after = compareSampleSizes({
+      ...state,
+      sizeComparison: { sizes: [20, 40], trials: 300 },
+    });
+  for (let i = 0; i < 2; i++) {
+    assert.deepEqual(
+      after.series[i].history.slice(0, 200),
+      before.series[i].history,
+    );
+    for (const result of after.series[i].history) {
+      assert.ok(result.mean > after.domain.xmin);
+      assert.ok(result.mean < after.domain.xmax);
+    }
+  }
+  near((after.domain.xmin + after.domain.xmax) / 2, after.domain.truth);
+  assert.ok(after.domain.xmin <= before.domain.xmin);
+  assert.ok(after.domain.xmax >= before.domain.xmax);
+});
+test("comparison redraws reuse results but changes to population, method or seed recalculate them", () => {
+  const state = newExperiment(),
+    result = compareSampleSizes(state);
+  assert.equal(
+    compareSampleSizes(addTrials({ ...state, n: 40 }, 20)),
+    result,
+    "single-experiment settings do not affect the separate comparison",
+  );
+  for (const patch of [
+    { seed: 5 },
+    { method: "with" },
+    {
+      customPopulation: population().map((p) => ({
+        ...p,
+        value: p.value + 10,
+      })),
+    },
+  ])
+    assert.notDeepEqual(
+      compareSampleSizes({ ...state, ...patch }).series[0].history,
+      result.series[0].history,
+    );
+});
+test("comparison supports equal sizes, censuses and constant-valued small imported populations", () => {
+  const customPopulation = [0.1, 0.2, 0.4].map((value, id) => ({ id, value }));
+  const state = newExperiment({ customPopulation }),
+    settings = comparisonSettings(state),
+    comparison = compareSampleSizes(state);
+  assert.deepEqual(settings.sizes, [3, 3]);
+  assert.deepEqual(comparison.series[0], comparison.series[1]);
+  assert.equal(comparison.series[0].se, 0);
+  assert.equal(comparison.series[0].summary.spread, 0);
+  const constant = compareSampleSizes(
+    newExperiment({
+      customPopulation: [
+        { id: 0, value: 5 },
+        { id: 1, value: 5 },
+      ],
+    }),
+  );
+  assert.equal(constant.series[0].summary.spread, 0);
+  assert.ok(constant.domain.xmax > constant.domain.xmin);
+});
+test("comparison settings round-trip without requiring new fields in legacy saved experiments", () => {
+  const old = newExperiment();
+  validateDocument(
+    { version: 1, id: "sampling", state: old },
+    "sampling",
+    newExperiment(),
+  );
+  const state = { ...old, sizeComparison: { sizes: [20, 40], trials: 500 } };
+  validateDocument(
+    { version: 1, id: "sampling", state },
+    "sampling",
+    newExperiment(),
+  );
+  assert.deepEqual(
+    normalizeExperiment(JSON.parse(JSON.stringify(state))),
+    state,
+  );
+  for (const sizeComparison of [
+    { sizes: [0, 40], trials: 500 },
+    { sizes: [20, 121], trials: 500 },
+    { sizes: [20, 40], trials: 2001 },
+  ])
+    assert.throws(() =>
+      validateDocument(
+        { version: 1, id: "sampling", state: { ...old, sizeComparison } },
+        "sampling",
+        newExperiment(),
+      ),
+    );
+  const smaller = newExperiment({
+    ...state,
+    customPopulation: [
+      { id: 0, value: 1 },
+      { id: 1, value: 2 },
+    ],
+  });
+  assert.deepEqual(smaller.sizeComparison.sizes, [2, 2]);
 });

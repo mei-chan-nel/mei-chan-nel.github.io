@@ -1,4 +1,4 @@
-import { learningViews } from "./learning.mjs?v=20261023-sampling-replacement";
+import { learningViews } from "./learning.mjs?v=20261023-sampling-size-comparison";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {
@@ -31,7 +31,7 @@ export function composeWorkbench(root, id, ui, onChange) {
     controls = [panels[1]];
   }
   if (id === "sampling") {
-    main = [panels[0], panels[2], panels[3], panels[4]];
+    main = [panels[0], panels[2], panels[3], panels[4], panels[5]];
     controls = [panels[1]];
   }
   if (id === "crosstab") {
@@ -127,6 +127,12 @@ export function composeWorkbench(root, id, ui, onChange) {
     sampling: [
       ["sample-n", "sample-method", "sample-one", "sample-many"],
       ["sample-n", "sample-method", "sample-one", "sample-many"],
+      [
+        "sample-compare-first",
+        "sample-compare-second",
+        "sample-method",
+        "sample-compare-many",
+      ],
       ["sample-n", "sample-method", "sample-one", "sample-many"],
       ["sample-n", "sample-method", "sample-one", "sample-many"],
     ],

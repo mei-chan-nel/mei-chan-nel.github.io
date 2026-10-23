@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-replacement";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-size-comparison";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261023-sampling-replacement";
+} from "./shared/fullscreen-layout.mjs?v=20261023-sampling-size-comparison";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

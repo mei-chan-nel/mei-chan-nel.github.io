@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261023-sampling-replacement";
+import { applyData } from "./data-model.mjs?v=20261023-sampling-size-comparison";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

@@ -210,6 +210,22 @@ function domain(s, id) {
       "月別データは0以上の数値48件にしてください。",
     );
   if (id === "sampling") {
+    if (s.sizeComparison !== undefined)
+      need(
+        s.sizeComparison &&
+          Array.isArray(s.sizeComparison.sizes) &&
+          s.sizeComparison.sizes.length === 2 &&
+          s.sizeComparison.sizes.every(
+            (n) =>
+              Number.isInteger(n) &&
+              n >= 1 &&
+              n <= (s.customPopulation?.length || 120),
+          ) &&
+          Number.isInteger(s.sizeComparison.trials) &&
+          s.sizeComparison.trials >= 2 &&
+          s.sizeComparison.trials <= 2000,
+        "比較する標本数と反復回数を確認してください。",
+      );
     need(
       ["without", "with", "random", "biased"].includes(s.method),
       "抽出方法を確認してください。",

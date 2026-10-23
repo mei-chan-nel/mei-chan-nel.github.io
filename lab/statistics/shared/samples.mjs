@@ -1,5 +1,5 @@
 import { rng, normal, clamp } from "./math.mjs";
-import { applyData, currentData } from "./data-model.mjs?v=20261023-sampling-replacement";
+import { applyData, currentData } from "./data-model.mjs?v=20261023-sampling-size-comparison";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);

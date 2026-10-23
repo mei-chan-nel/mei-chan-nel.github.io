@@ -4,8 +4,8 @@ import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261023-sampling-replacement";
-import { experiences } from "./experience.mjs?v=20261023-sampling-replacement";
+} from "./shared/data-model.mjs?v=20261023-sampling-size-comparison";
+import { experiences } from "./experience.mjs?v=20261023-sampling-size-comparison";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

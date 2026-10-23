@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261023-sampling-replacement";
-import { describe } from "./descriptive.mjs?v=20261023-sampling-replacement";
-import { renderCalculations } from "./calculations.mjs?v=20261023-sampling-replacement";
+} from "./model.mjs?v=20261023-sampling-size-comparison";
+import { describe } from "./descriptive.mjs?v=20261023-sampling-size-comparison";
+import { renderCalculations } from "./calculations.mjs?v=20261023-sampling-size-comparison";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>

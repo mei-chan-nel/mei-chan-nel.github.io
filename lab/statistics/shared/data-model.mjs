@@ -1,5 +1,5 @@
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261023-sampling-replacement";
+import { population } from "../sampling/model.mjs?v=20261023-sampling-size-comparison";
 import { createMonthlySeries } from "../time-series/lab.mjs";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";

@@ -67,6 +67,8 @@ function cleanOptions(state) {
   options.method = methodOf(state.method);
   if (options.customPopulation)
     options.customPopulation = population(options.customPopulation);
+  if (options.sizeComparison)
+    options.sizeComparison = comparisonSettings(options);
   if (options.dataInfo)
     options.dataInfo = {
       ...options.dataInfo,
@@ -190,7 +192,13 @@ export function samplingDomain(
 
 export function experimentSummary(history, truth) {
   const count = history.length;
-  const center = count ? mean(history.map((r) => r.mean)) : null;
+  const constant =
+    count > 0 && history.every((r) => r.mean === history[0].mean);
+  const center = count
+    ? constant
+      ? history[0].mean
+      : mean(history.map((r) => r.mean))
+    : null;
   const covered = history.filter(
     (r) => r.low <= truth && truth <= r.high,
   ).length;
@@ -200,10 +208,12 @@ export function experimentSummary(history, truth) {
     error: count ? center - truth : null,
     spread:
       count > 1
-        ? sd(
-            history.map((r) => r.mean),
-            true,
-          )
+        ? constant
+          ? 0
+          : sd(
+              history.map((r) => r.mean),
+              true,
+            )
         : null,
     rmse: count
       ? Math.sqrt(mean(history.map((r) => (r.mean - truth) ** 2)))
@@ -212,4 +222,57 @@ export function experimentSummary(history, truth) {
     missed: count - covered,
     coverage: count ? covered / count : null,
   };
+}
+
+// Keep comparison settings optional so existing saved experiments still load.
+export function comparisonSettings(state) {
+  const size = population(state.customPopulation).length;
+  const bounded = (value, fallback, min, max) =>
+    Math.max(min, Math.min(max, Math.trunc(Number(value) || fallback)));
+  return {
+    sizes: [20, 40].map((fallback, i) =>
+      bounded(state.sizeComparison?.sizes?.[i], fallback, 1, size),
+    ),
+    trials: bounded(state.sizeComparison?.trials, 200, 2, 2000),
+  };
+}
+
+const comparisonCache = new Map();
+export function compareSampleSizes(state) {
+  const settings = comparisonSettings(state),
+    people = population(state.customPopulation),
+    values = people.map((p) => p.value),
+    method = methodOf(state.method),
+    seed = Number(state.seed) >>> 0;
+  const key = JSON.stringify([values, method, seed, settings]);
+  if (comparisonCache.has(key)) return comparisonCache.get(key);
+  const truth = mean(values);
+  const series = settings.sizes.map((n) => {
+    const history = Array.from({ length: settings.trials }, (_, trial) => {
+      // Reuse each trial's draw sequence: both sizes have identical conditions.
+      const { mean: center } = simulateSample(people, n, method, seed, trial);
+      return { mean: center, low: center, high: center };
+    });
+    return {
+      n,
+      history,
+      summary: experimentSummary(history, truth),
+      se: samplingSE(values, n, method),
+    };
+  });
+  const result = {
+    ...settings,
+    series,
+    domain: samplingDomain(
+      values,
+      Math.min(...settings.sizes),
+      series.flatMap((s) => s.history),
+      method,
+    ),
+  };
+  // Chart redraws and tab switches reuse results; bound retained experiments.
+  if (comparisonCache.size >= 4)
+    comparisonCache.delete(comparisonCache.keys().next().value);
+  comparisonCache.set(key, result);
+  return result;
 }

@@ -16,7 +16,9 @@ import {
   addTrials,
   samplingDomain,
   experimentSummary,
-} from "./model.mjs?v=20261023-sampling-replacement";
+  comparisonSettings,
+  compareSampleSizes,
+} from "./model.mjs?v=20261023-sampling-size-comparison";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");
@@ -117,6 +119,77 @@ function distributionChart(state, domain) {
   );
 }
 
+function sizeComparisonChart(state, comparison) {
+  const { domain, series } = comparison,
+    x = xScale(domain),
+    binWidth = (domain.xmax - domain.xmin) / 32;
+  const counts = series.map(({ history }) => {
+    const bins = Array(32).fill(0);
+    for (const result of history)
+      bins[
+        Math.max(
+          0,
+          Math.min(31, Math.floor((result.mean - domain.xmin) / binWidth)),
+        )
+      ]++;
+    return bins;
+  });
+  const step = Math.max(1, Math.ceil(Math.max(...counts.flat()) / 4)),
+    ymax = step * 4;
+  let drawing = "";
+  series.forEach(({ n }, index) => {
+    const top = 35 + index * 180,
+      bottom = top + 122,
+      y = (count) => bottom - (count / ymax) * (bottom - top),
+      color = index ? "#9b5417" : "#176660";
+    drawing += `<g data-comparison-series="${index}" data-sample-size="${n}" data-y-max="${ymax}"><text x="56" y="${top - 13}" fill="${color}" font-weight="700">${index ? "◇" : "●"} 標本数 ${n} ・ ${comparison.trials}回</text>`;
+    for (let i = 0; i <= 4; i++)
+      drawing += `<line class="gridline" x1="56" x2="664" y1="${y(i * step)}" y2="${y(i * step)}"/><text x="47" y="${y(i * step) + 4}" text-anchor="end">${i * step}</text>`;
+    counts[index].forEach((count, bin) => {
+      if (!count) return;
+      const lo = domain.xmin + bin * binWidth,
+        hi = lo + binWidth;
+      drawing += `<rect data-bin-count="${count}" x="${x(lo) + 0.5}" y="${y(count)}" width="${Math.max(0.5, x(hi) - x(lo) - 1)}" height="${bottom - y(count)}" fill="${index ? "#fffaf1" : color}" stroke="${color}" stroke-width="1.5" ${index ? 'stroke-dasharray="4 2"' : ""}><title>標本数${n}：${fmt(lo)}以上${fmt(hi)}未満 ${count}回</title></rect>`;
+    });
+    drawing += `<path class="axis" d="M56,${top}V${bottom}H664"/>${xTicks(domain, bottom, bottom + 21)}<line data-sampling-truth x1="360" x2="360" y1="${top}" y2="${bottom}" stroke="#995b10" stroke-width="2" stroke-dasharray="6 4"/></g>`;
+  });
+  drawing += `<text x="360" y="391" text-anchor="middle">${esc(axisLabel(state, "標本平均（共通の目盛り）"))}</text>`;
+  return chartAttributes(
+    svg(
+      drawing,
+      `標本数${series[0].n}と${series[1].n}で各${comparison.trials}回の平均を比較。横軸、階級、縦軸の目盛りは共通。上は塗り棒、下は破線の白抜き棒。`,
+      720,
+      400,
+    ),
+    domain,
+    "data-sampling-comparison",
+  );
+}
+
+function sizeComparisonPanel(state) {
+  const comparison = compareSampleSizes(state),
+    [first, second] = comparison.series,
+    unit = unitOf(state),
+    ratio =
+      first.summary.spread > 0
+        ? second.summary.spread / first.summary.spread
+        : null,
+    theoryRatio = first.se > 0 ? second.se / first.se : null;
+  const observed =
+    ratio === null
+      ? first.summary.spread === 0 && second.summary.spread === 0
+        ? "どちらも標本平均は動かず、ぶれは0です。"
+        : "①のぶれが0なので、倍率は計算しません。"
+      : `②のぶれは①の${fmt(ratio, 2)}倍でした。${ratio < 1 ? `約${fmt((1 - ratio) * 100, 1)}%小さくなっています。` : ratio > 1 ? "今回は②の方が大きくなっています。" : "今回は同じ大きさです。"}`;
+  return `<section class="panel chart-panel sampling-comparison-panel"><h2>標本数${first.n}と${second.n}を、各${comparison.trials}回で比べる</h2>${metrics(
+    comparison.series.map((s, i) => [
+      `${i ? "◇ ②" : "● ①"} 標本数${s.n}：平均の標準偏差`,
+      `${fmt(s.summary.spread)}${unit}`,
+      `理論上の標準誤差 ${fmt(s.se)}${unit} ・ 各${comparison.trials}回`,
+    ]),
+  )}${sizeComparisonChart(state, comparison)}<div class="legend sampling-comparison-legend"><span>● ①：塗り棒・実線 ／ 標本数${first.n}</span><span>◇ ②：白抜き棒・破線 ／ 標本数${second.n}</span><span>橙の縦破線：母平均 ${fmt(comparison.domain.truth)}${unit}</span><span>縦軸：回数</span><span>横軸・階級幅・縦軸をそろえて比較</span></div><p class="annotation" data-size-comparison-reading>${observed}</p><p class="hint">比べるのは、個々の人の値のばらつきではなく、繰り返し作った「標本平均のばらつき」です。同じ母集団・抽出方法・乱数の種で、両方を同じ回数ずつ抽出しています。各回の抽出順を共通にし、人数だけを変えます。この比較用の反復は、他のタブの抽出履歴とは別です。</p><p class="hint">${first.n === second.n ? "標本数が同じなので、2つの結果は一致します。片方の標本数を変えてみましょう。" : `標本数を増やすと、理論上の標準誤差は小さくなります。${theoryRatio === null ? "" : `この条件では、②は①の${fmt(theoryRatio, 2)}倍です。`}実験で求めた標準偏差は偶然で変わるため、少ない反復では大小が逆になることもあります。`}</p><p class="hint">重複ありなら標準誤差は σ/√n。20人から40人に増やすと1/√2（約0.71倍）です。重複なしでは、全体の人数による補正も加わります。</p></section>`;
+}
+
 function intervalChart(state, domain) {
   const x = xScale(domain),
     height = Math.max(286, state.history.length * 26);
@@ -194,6 +267,8 @@ export default {
       se = samplingSE(values, state.n, state.method),
       summary = experimentSummary(state.history, truth),
       domain = samplingDomain(values, state.n, state.history, state.method);
+    const comparing = ctx.view === 2,
+      comparison = comparisonSettings(state);
     root.innerHTML = `<div class="stat-grid"><section class="panel chart-panel"><h2>母集団から、${state.n}回選ぶ</h2><p class="muted">丸1つが1件。大きく濃い丸が今回の標本で、白い数字はその値です。</p>${(ctx.view || 0) === 0 ? populationChart(state) : ""}<p class="legend"><span>淡い丸：今回選ばれていない人</span><span>濃い丸・白い数字：今回選ばれた人と値</span>${state.method === "with" ? "<span>×の数字：同じ人を選んだ回数</span>" : ""}</p>${metrics(
       [
         ["今回の標本平均", `${fmt(latest.mean)}${unit}`],
@@ -213,7 +288,7 @@ export default {
           `${state.n}回の抽出・同じ人の再登場 ${state.n - unique}回`,
         ],
       ],
-    )}</section><aside class="panel controls"><h2>調査を設計する</h2>${range("sample-n", "標本数 n", state.n, 1, people.length, 1, "件")}${select(
+    )}</section><aside class="panel controls"><h2>調査を設計する</h2>${comparing ? `${number("sample-compare-first", "● ① 標本数", comparison.sizes[0], 1, people.length)}${number("sample-compare-second", "◇ ② 標本数", comparison.sizes[1], 1, people.length)}` : range("sample-n", "標本数 n", state.n, 1, people.length, 1, "件")}${select(
       "sample-method",
       "抽出方法",
       [
@@ -221,7 +296,7 @@ export default {
         ["with", "重複あり"],
       ],
       state.method,
-    )}<p class="hint">${state.method === "with" ? "選ぶたびに元へ戻します。同じ人が何度も標本に入ることがあります。" : "1つの標本の中で、同じ人は1度だけ選びます。"}</p>${number("sample-seed", "再現用の乱数の種", state.seed, 0, 4294967295, 1)}<div class="actions"><button id="sample-one" class="primary" ${state.trials >= 2000 ? "disabled" : ""}>1回抽出する</button><button id="sample-many" ${state.trials >= 2000 ? "disabled" : ""}>100回繰り返す</button><button id="sample-replay">同じ実験を再現</button></div><p class="muted">条件を変えると、新しい条件で1回目から開始します。種と条件が同じなら、抽出の順序も結果も再現できます。最大2000回。</p></aside></div>
+    )}<p class="hint">${state.method === "with" ? "選ぶたびに元へ戻します。同じ人が何度も標本に入ることがあります。" : "1つの標本の中で、同じ人は1度だけ選びます。"}</p>${number("sample-seed", "再現用の乱数の種", state.seed, 0, 4294967295, 1)}<div class="actions">${comparing ? `<button id="sample-compare-many" class="primary" ${comparison.trials >= 2000 ? "disabled" : ""}>両方に100回追加</button><button id="sample-compare-reset">各200回からやり直す</button>` : `<button id="sample-one" class="primary" ${state.trials >= 2000 ? "disabled" : ""}>1回抽出する</button><button id="sample-many" ${state.trials >= 2000 ? "disabled" : ""}>100回繰り返す</button><button id="sample-replay">同じ実験を再現</button>`}</div><p class="muted">${comparing ? "両方の標本数・抽出方法・種を変えても、反復回数をそろえて比較します。初期値は各200回、最大各2000回。比較の標本数と反復回数は他のタブと別に保持します。抽出方法・種・母集団は共通です。" : "条件を変えると、新しい条件で1回目から開始します。種と条件が同じなら、抽出の順序も結果も再現できます。最大2000回。"}</p></aside></div>
     <section class="panel chart-panel"><h2>${state.trials}回の推定を重ねる</h2>${ctx.view === 1 ? distributionChart(state, domain) : ""}${metrics(
       [
         [
@@ -245,6 +320,7 @@ export default {
         ],
       ],
     )}<p class="hint">横軸は区間の図と共通です。最初は狭い範囲で始め、結果がはみ出すと左右を同じだけ広げます。母平均はいつも中央です。標準誤差は、標本の平均がどれくらいぶれるかを表します。</p></section>
+    ${comparing ? sizeComparisonPanel(state) : '<section class="panel chart-panel sampling-comparison-panel"></section>'}
     <section class="panel chart-panel sampling-interval-panel"><h2>95%信頼区間を繰り返す</h2>${metrics(
       [
         [
@@ -258,7 +334,7 @@ export default {
           `${summary.missed} / ${summary.count}回`,
         ],
       ],
-    )}<div class="legend sampling-interval-legend"><span>実線・塗り丸：母平均を捉えた</span><span>破線・白丸：母平均を捉えなかった</span><span>橙の縦破線：母平均</span><span>新しい順。スクロールして過去の区間へ。</span></div>${ctx.view === 2 ? intervalChart(state, domain) : ""}<p class="annotation" data-coverage-reading>${coverageReading(state, summary, se)}</p><p class="hint">区間の線が中央の母平均に届けば「捉えた」、届かなければ「捉えなかった」です。母平均は動かず、選ぶ人が変わるたびに区間が動きます。</p><p class="hint">95%は「同じやり方で区間を何本も作ると、そのうち約95%が母平均を捉える」という目安です。「この1本が正しい確率が95%」という意味ではありません。</p><p class="hint">この教材では母集団全員の値を使って区間の幅を計算しています。平均が正規分布に近いとみなす計算なので、標本数が少ないと95%から離れることもあります。</p></section>
+    )}<div class="legend sampling-interval-legend"><span>実線・塗り丸：母平均を捉えた</span><span>破線・白丸：母平均を捉えなかった</span><span>橙の縦破線：母平均</span><span>新しい順。スクロールして過去の区間へ。</span></div>${ctx.view === 3 ? intervalChart(state, domain) : ""}<p class="annotation" data-coverage-reading>${coverageReading(state, summary, se)}</p><p class="hint">区間の線が中央の母平均に届けば「捉えた」、届かなければ「捉えなかった」です。母平均は動かず、選ぶ人が変わるたびに区間が動きます。</p><p class="hint">95%は「同じやり方で区間を何本も作ると、そのうち約95%が母平均を捉える」という目安です。「この1本が正しい確率が95%」という意味ではありません。</p><p class="hint">この教材では母集団全員の値を使って区間の幅を計算しています。平均が正規分布に近いとみなす計算なので、標本数が少ないと95%から離れることもあります。</p></section>
     ${reflection(state, people, summary, se)}`;
     bind(root, "sample-n", (n) => ctx.replace(newExperiment({ ...state, n })));
     bind(root, "sample-method", (method) =>
@@ -267,22 +343,47 @@ export default {
     bind(root, "sample-seed", (seed) =>
       ctx.replace(newExperiment({ ...state, seed })),
     );
-    root.querySelector("#sample-one").onclick = () =>
-      ctx.replace(addTrials(state, 1));
-    root.querySelector("#sample-many").onclick = () =>
-      ctx.replace(addTrials(state, 100));
-    root.querySelector("#sample-replay").onclick = () =>
-      ctx.replace(addTrials(state, state.trials, true));
     root
-      .querySelector("#sampling-try-other")
+      .querySelector("#sample-one")
+      ?.addEventListener("click", () => ctx.replace(addTrials(state, 1)));
+    root
+      .querySelector("#sample-many")
+      ?.addEventListener("click", () => ctx.replace(addTrials(state, 100)));
+    root
+      .querySelector("#sample-replay")
       ?.addEventListener("click", () =>
-        ctx.replace(
-          newExperiment({
-            ...state,
-            method: state.method === "with" ? "without" : "with",
-          }),
-        ),
+        ctx.replace(addTrials(state, state.trials, true)),
       );
+    const updateComparison = (settings) =>
+      ctx.replace({ ...state, sizeComparison: { ...comparison, ...settings } });
+    ["sample-compare-first", "sample-compare-second"].forEach((id, i) =>
+      bind(
+        root,
+        id,
+        (n) => {
+          const sizes = [...comparison.sizes];
+          sizes[i] = Math.max(1, Math.min(people.length, Math.trunc(n) || 1));
+          updateComparison({ sizes });
+        },
+        "change",
+      ),
+    );
+    root
+      .querySelector("#sample-compare-many")
+      ?.addEventListener("click", () =>
+        updateComparison({ trials: Math.min(2000, comparison.trials + 100) }),
+      );
+    root
+      .querySelector("#sample-compare-reset")
+      ?.addEventListener("click", () => updateComparison({ trials: 200 }));
+    root.querySelector("#sampling-try-other")?.addEventListener("click", () =>
+      ctx.replace(
+        newExperiment({
+          ...state,
+          method: state.method === "with" ? "without" : "with",
+        }),
+      ),
+    );
     root
       .querySelector("#sampling-try-larger")
       ?.addEventListener("click", () =>
