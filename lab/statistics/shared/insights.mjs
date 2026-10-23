@@ -1,11 +1,11 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261023-sampling-size-comparison";
+import { currentData } from "./data-model.mjs?v=20261023-sampling-unified-notes";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261023-sampling-size-comparison";
-import { matrixFor, successRate } from "../crosstab/lab.mjs";
-import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs";
+} from "../sampling/model.mjs?v=20261023-sampling-unified-notes";
+import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261023-sampling-unified-notes";
+import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261023-sampling-unified-notes";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),

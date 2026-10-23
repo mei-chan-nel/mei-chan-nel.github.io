@@ -63,12 +63,22 @@ export function simulateSample(people, n, method, seed, trial = 0) {
 }
 
 function cleanOptions(state) {
-  const { groupNames, groupLabel, shiftB, ...options } = state;
+  const { groupNames, groupLabel, shiftB, sizeComparison, ...options } = state;
   options.method = methodOf(state.method);
   if (options.customPopulation)
     options.customPopulation = population(options.customPopulation);
-  if (options.sizeComparison)
-    options.sizeComparison = comparisonSettings(options);
+  if (sizeComparison && options.compareN === undefined) {
+    options.compareN = sizeComparison.sizes?.[1] || 40;
+    options.compareSamples = true;
+  }
+  if (options.compareN !== undefined)
+    options.compareN = Math.max(
+      1,
+      Math.min(
+        population(options.customPopulation).length,
+        Math.trunc(Number(options.compareN) || 40),
+      ),
+    );
   if (options.dataInfo)
     options.dataInfo = {
       ...options.dataInfo,
@@ -230,10 +240,11 @@ export function comparisonSettings(state) {
   const bounded = (value, fallback, min, max) =>
     Math.max(min, Math.min(max, Math.trunc(Number(value) || fallback)));
   return {
-    sizes: [20, 40].map((fallback, i) =>
-      bounded(state.sizeComparison?.sizes?.[i], fallback, 1, size),
-    ),
-    trials: bounded(state.sizeComparison?.trials, 200, 2, 2000),
+    sizes: [
+      bounded(state.n, 20, 1, size),
+      bounded(state.compareN ?? state.sizeComparison?.sizes?.[1], 40, 1, size),
+    ],
+    trials: bounded(state.trials, 1, 1, 2000),
   };
 }
 
@@ -250,8 +261,14 @@ export function compareSampleSizes(state) {
   const series = settings.sizes.map((n) => {
     const history = Array.from({ length: settings.trials }, (_, trial) => {
       // Reuse each trial's draw sequence: both sizes have identical conditions.
-      const { mean: center } = simulateSample(people, n, method, seed, trial);
-      return { mean: center, low: center, high: center };
+      const { indices, ...result } = simulateSample(
+        people,
+        n,
+        method,
+        seed,
+        trial,
+      );
+      return result;
     });
     return {
       n,

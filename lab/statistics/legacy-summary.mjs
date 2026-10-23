@@ -1,4 +1,4 @@
-import { downloadCSV } from "./data-editor.mjs?v=20261023-sampling-size-comparison";
+import { downloadCSV } from "./data-editor.mjs?v=20261023-sampling-unified-notes";
 const target = new URL("./histogram/", new URL("../", location.href));
 target.protocol = location.protocol;
 target.host = location.host;

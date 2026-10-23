@@ -24,12 +24,13 @@ test("all eight integrated labs have real modules, data views and valid nested s
     const config = (await import(`../lab/statistics/${id}/lab.mjs`)).default;
     assert.equal(config.id, id);
     assert.equal(typeof config.render, "function");
-    assert.ok(config.explanation.length > 500);
+    assert.match(config.explanation, /<h[23]>.+<\/h[23]>/);
+    assert.match(config.explanation, /<p>.+<\/p>/);
     const html = await readFile(
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs?v=20261023-sampling-size-comparison"'));
+    assert.ok(html.includes('src="./../app.mjs?v=20261023-sampling-unified-notes"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));

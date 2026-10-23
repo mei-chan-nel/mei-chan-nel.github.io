@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261023-sampling-size-comparison";
-import { describe } from "./descriptive.mjs?v=20261023-sampling-size-comparison";
-import { renderCalculations } from "./calculations.mjs?v=20261023-sampling-size-comparison";
+} from "./model.mjs?v=20261023-sampling-unified-notes";
+import { describe } from "./descriptive.mjs?v=20261023-sampling-unified-notes";
+import { renderCalculations } from "./calculations.mjs?v=20261023-sampling-unified-notes";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>
@@ -160,7 +160,7 @@ function reading(s, n) {
         `<span><i class="group-key group-key-${g.toLowerCase()}" aria-hidden="true"></i>${esc(groupLabel(s, g))}（${g === "A" ? "丸・無地・実線" : "ひし形・斜線・破線"}）</span>`,
     )
     .join("");
-  return `<details class="analysis-notes histogram-reading"><summary>凡例・解説</summary><div class="histogram-legend">${legend}</div><p>3つの図は同じ横軸です。棒は階級ごとの度数、下の記号は元データの値を表します。${s.mode === "split" && groups.length > 1 ? "棒は同じ階級で群を積み上げています。" : s.mode === "combined" && groups.length > 1 ? "棒は群を合算しています。箱ひげ図と元データは群別です。" : ""}相対度数の分母は全${n}件です。</p><p>箱は第1四分位数Q₁から第3四分位数Q₃、箱の中の線は中央値です。IQR = Q₃ − Q₁。ひげはQ₁−1.5IQR〜Q₃＋1.5IQRの内側の実測値まで伸ばします。外側の記号は外れ値候補で、誤りと断定するものではありません。</p><p>棒・元データの点・外れ値候補を選ぶと、対応する階級を強調します。空白をクリックすると選択を解除します。</p></details>`;
+  return `<details class="analysis-notes histogram-reading"><summary>凡例・解説</summary><div class="histogram-legend">${legend}</div><p>箱はQ₁〜Q₃、中の線は中央値です。ひげの外の点は外れ値候補です。</p><p>棒・箱・元の値は同じ横軸です。${s.mode === "combined" && groups.length > 1 ? "棒は群を合算しています。" : s.mode === "split" && groups.length > 1 ? "棒は群を積み上げています。" : ""}山と箱の位置を比べましょう。相対度数は全${n}件に占める割合です。</p></details>`;
 }
 
 export function render(root, ctx) {

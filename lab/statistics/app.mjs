@@ -1,24 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261023-sampling-size-comparison";
+import { validateDocument } from "./shared/validation.mjs?v=20261023-sampling-unified-notes";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261023-sampling-size-comparison";
-import { composeWorkbench } from "./workbench.mjs?v=20261023-sampling-size-comparison";
-import { renderDataTab } from "./data-tab.mjs?v=20261023-sampling-size-comparison";
-import { sampleState } from "./shared/samples.mjs?v=20261023-sampling-size-comparison";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261023-sampling-size-comparison";
+} from "./shared/data-model.mjs?v=20261023-sampling-unified-notes";
+import { composeWorkbench } from "./workbench.mjs?v=20261023-sampling-unified-notes";
+import { renderDataTab } from "./data-tab.mjs?v=20261023-sampling-unified-notes";
+import { sampleState } from "./shared/samples.mjs?v=20261023-sampling-unified-notes";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261023-sampling-unified-notes";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261023-sampling-size-comparison";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-size-comparison";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-sampling-size-comparison";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-sampling-size-comparison";
+} from "./learning.mjs?v=20261023-sampling-unified-notes";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-unified-notes";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-sampling-unified-notes";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-sampling-unified-notes";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261023-sampling-size-comparison`))
+const config = (await import(`./${id}/lab.mjs?v=20261023-sampling-unified-notes`))
   .default;
 const ui = {
   view: 0,

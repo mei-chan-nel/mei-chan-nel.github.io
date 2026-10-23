@@ -210,6 +210,18 @@ function domain(s, id) {
       "月別データは0以上の数値48件にしてください。",
     );
   if (id === "sampling") {
+    if (s.compareSamples !== undefined)
+      need(
+        typeof s.compareSamples === "boolean",
+        "標本数の表示方法を確認してください。",
+      );
+    if (s.compareN !== undefined)
+      need(
+        Number.isInteger(s.compareN) &&
+          s.compareN >= 1 &&
+          s.compareN <= (s.customPopulation?.length || 120),
+        "2つ目の標本数を確認してください。",
+      );
     if (s.sizeComparison !== undefined)
       need(
         s.sizeComparison &&

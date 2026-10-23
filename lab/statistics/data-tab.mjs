@@ -1,14 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261023-sampling-size-comparison";
+import { currentData } from "./shared/data-model.mjs?v=20261023-sampling-unified-notes";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261023-sampling-size-comparison";
+} from "./shared/table-data.mjs?v=20261023-sampling-unified-notes";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261023-sampling-size-comparison";
+} from "./data-editor.mjs?v=20261023-sampling-unified-notes";
 import { asNumber } from "./shared/csv.mjs";
 export function renderDataTab(root, options) {
   const {

@@ -1,6 +1,6 @@
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261023-sampling-size-comparison";
-import { createMonthlySeries } from "../time-series/lab.mjs";
+import { population } from "../sampling/model.mjs?v=20261023-sampling-unified-notes";
+import { createMonthlySeries } from "../time-series/lab.mjs?v=20261023-sampling-unified-notes";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";

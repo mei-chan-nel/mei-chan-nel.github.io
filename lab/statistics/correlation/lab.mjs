@@ -1,3 +1,4 @@
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-unified-notes";
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
 import { esc, metrics, table, svg, drag } from "../shared/ui.mjs";
 import { readDataset } from "../shared/data.mjs";
@@ -587,6 +588,6 @@ export default {
   initial,
   normalize: normalizeCorrelation,
   render,
-  explanation: `<h2>相関と回帰で、何がわかる？</h2><p>散布図は2つの量の組を1点で表します。右上がりなら正の相関、右下がりなら負の相関。相関係数 r は −1〜1で、直線的な関係を測ります。r ≈ 0でも曲線の関係があることがあり、因果関係がないことを意味しません。</p><h3>残差を二乗する理由</h3><p>回帰直線 ŷ = ax + b の残差は y − ŷ。正負の残差を足すだけでは打ち消し合います。最小二乗法は二乗の合計を最小にします。傾き a = Σ(x−x̄)(y−ȳ) / Σ(x−x̄)²、切片 b = ȳ − ax̄ です。二乗は大きな誤差を強く重視するため、外れ値、とくにxの端にある点が直線を大きく動かす場合があります。</p><h3>予測と限界</h3><p>回帰は集団としての傾向です。同じ復習時間でも得点が違い、既習知識や睡眠など、この図にない要因もあります。学習に使わなかった点で誤差を確かめることが大切です。1点だけの検証で性能を判断せず、複数の点・別の時期でも比較しましょう。学習した範囲外への外挿や、得点の上限を超える予測には特に注意します。</p><h3>相関があっても、原因とは限らない</h3><p>「復習時間が長い人ほど高得点」は、「時間を増やしたから得点が上がった」という証明ではありません。学習意欲が両方に影響する、苦手な人が長く復習する、といった別の説明があります。原因を調べるには条件をそろえた比較や無作為化などが必要です。この教材は独自に作った架空データで、効果を主張する調査結果ではありません。</p><p>点が2つ未満、またはxがすべて同じなら傾きは定まりません。xかyの標準偏差が0ならrは未定義です。この教材のRMSEは記述用の √(SSE/n) で、回帰誤差の標準偏差の推定に使う √(SSE/(n−2)) とは区別します。</p>`,
+  explanation: academicExplanation("correlation"),
   related: ["histogram", "summary", "projects", "hypothesis-test"],
 };

@@ -1,4 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261023-sampling-size-comparison";
+import { learningViews } from "./learning.mjs?v=20261023-sampling-unified-notes";
+import { readingNotes } from "./shared/reading.mjs?v=20261023-sampling-unified-notes";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {
@@ -31,7 +32,7 @@ export function composeWorkbench(root, id, ui, onChange) {
     controls = [panels[1]];
   }
   if (id === "sampling") {
-    main = [panels[0], panels[2], panels[3], panels[4], panels[5]];
+    main = [panels[0], panels[2], panels[3], panels[4]];
     controls = [panels[1]];
   }
   if (id === "crosstab") {
@@ -126,14 +127,22 @@ export function composeWorkbench(root, id, ui, onChange) {
     ],
     sampling: [
       ["sample-n", "sample-method", "sample-one", "sample-many"],
-      ["sample-n", "sample-method", "sample-one", "sample-many"],
       [
-        "sample-compare-first",
+        "sample-compare-mode",
+        "sample-n",
         "sample-compare-second",
         "sample-method",
-        "sample-compare-many",
+        "sample-one",
+        "sample-many",
       ],
-      ["sample-n", "sample-method", "sample-one", "sample-many"],
+      [
+        "sample-compare-mode",
+        "sample-n",
+        "sample-compare-second",
+        "sample-method",
+        "sample-one",
+        "sample-many",
+      ],
       ["sample-n", "sample-method", "sample-one", "sample-many"],
     ],
     crosstab: [
@@ -207,21 +216,23 @@ export function composeWorkbench(root, id, ui, onChange) {
   const lessons = learningViews(id, ui.state);
   const notes = document.createElement("details");
   notes.className = "analysis-notes";
-  notes.innerHTML = "<summary>操作・読み取りのヒント</summary>";
-  if (lessons[view].action) {
-    const lead = document.createElement("p");
-    lead.textContent = lessons[view].action;
-    notes.append(lead);
+  notes.innerHTML = "<summary>解説</summary>";
+  for (const text of readingNotes(id, view, ui.state)) {
+    const paragraph = document.createElement("p");
+    paragraph.textContent = text;
+    notes.append(paragraph);
   }
   for (const area of [active, side]) {
     area
       .querySelectorAll(area === side ? "p" : "p.hint,p.muted")
       .forEach((node) => {
         if (
+          !node.matches(".annotation") &&
+          !node.querySelector("input,select,button,textarea") &&
           !node.hasAttribute("aria-live") &&
           node.getAttribute("role") !== "status"
         )
-          notes.append(node);
+          node.remove();
       });
   }
   const notesKey = `${id}-${view}-notes`;

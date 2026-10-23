@@ -1,3 +1,4 @@
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-unified-notes";
 import { fmt, sd } from "../shared/math.mjs";
 import {
   range,
@@ -81,7 +82,7 @@ function coinView(state) {
     ${number("prob-seed", "再現用の乱数の種", state.seed, 0, 4294967295, 1)}
     <button id="prob-new-seed">別の偶然を試す</button>
     <p class="hint">最大10000回。${state.observed?.mode === "coin" ? "読込データは固定され、pは比較する理論の確率だけを変えます。" : "同じ種なら同じ乱数列で再現します。pを変えると、その乱数列を新しい確率で判定し直すので、同じ条件の偶然を使って比較できます。"}</p>
-    <p class="annotation">${state.p === 0 || state.p === 1 ? "p = 0 または 1 では結果は確定しています。偶然によるばらつきはありません。" : "回数を増やすと割合はpの近くに安定する傾向がありますが、毎回必ず近づくわけではありません。次に裏が「出やすくなる」こともありません。"}</p></aside></div>`;
+    <p class="annotation">${state.p === 0 || state.p === 1 ? "p = 0 または 1 では結果は確定しています。偶然によるばらつきはありません。" : "回数を増やし、相対度数と確率pを比べましょう。"}</p></aside></div>`;
 }
 
 function binomialView(state) {
@@ -151,7 +152,7 @@ function binomialView(state) {
     <div class="actions"><button id="binomial-100" class="primary" ${state.repetitions >= 10000 ? "disabled" : ""}>100セット追加</button><button id="binomial-1000" ${state.repetitions >= 10000 ? "disabled" : ""}>1000セット追加</button><button id="binomial-clear">0セットに戻す</button></div>
     ${number("prob-seed", "再現用の乱数の種", state.seed, 0, 4294967295, 1)}<button id="prob-new-seed">別の偶然を試す</button>
     <p class="hint">${state.observed?.mode === "binomial" ? "読込データの成功回数は固定。pやnで変わるのは比較する理論です。nは観測した最大成功回数以上に保ちます。" : "pとnを変えると、同じセット数を新しい条件で実験し直します。最大10000セット。pと各回の独立性は全セットで一定と仮定しています。"}</p>
-    <p class="annotation">${state.p === 0 || state.p === 1 ? `p = ${state.p}なので、表の回数は必ず${state.p * state.n}回です。標準偏差は0になります。` : "反復セット数は、実験の棒が理論確率に近づく精度を変えます。1セットのnを変えると、分布そのものが変わります。2つの回数を区別してみましょう。"}</p>
+    <p class="annotation">${state.p === 0 || state.p === 1 ? `p = ${state.p}なので、表の回数は必ず${state.p * state.n}回です。標準偏差は0になります。` : "nは1セットの試行回数です。反復セット数を増やし、棒と理論確率を比べましょう。"}</p>
     </aside></div><details class="panel"><summary>表・計算式で確かめる</summary>
     <p>表がk回出る確率は、P(X = k) = C(n, k) p<sup>k</sup>(1 − p)<sup>n − k</sup>。実験の相対度数は「そのkが出たセット数 ÷ 全セット数」です。p = 0, 1 は端点にすべての確率が集まる分布として処理します。</p>
     ${table(
@@ -263,7 +264,7 @@ function normalView(state) {
     ${number("normal-low", "区間の左端 a", state.low, loaded ? -1e7 : -200, state.high, loaded ? Math.max(scale / 20, 1e-8) : 0.5)}
     ${number("normal-high", "区間の右端 b", state.high, state.low, loaded ? 1e7 : 200, loaded ? Math.max(scale / 20, 1e-8) : 0.5)}
     <div class="actions"><button id="normal-one" class="primary">区間を μ ± σ に</button><button id="normal-two">区間を μ ± 2σ に</button><button id="normal-center">区間を μ−4σ 〜 μ に</button></div>
-    <p class="annotation">μは分布の位置、σは散らばりの尺度です。μ ± σ の区間に合わせ直すと、μやσが違っても約68.27%になります。区間を固定してσだけ動かした場合も同じですか？</p>
+    <p class="annotation">μは中心、σは広がりです。μ±σの区間の面積は約68%です。</p>
     </aside></div><section class="panel chart-panel"><h2>同じ面積を、標準正規分布で読む</h2>
     <p><strong>Z = (X − μ) / σ</strong> と変換すると、平均0・標準偏差1になります。${measurement(state.low, 1)} ≤ X ≤ ${measurement(state.high, 1)} は、${fmt(interval.zLow)} ≤ Z ≤ ${fmt(interval.zHigh)} に対応します。</p>
     ${normalChart(0, 1, interval.zLow, interval.zHigh, true)}
@@ -354,6 +355,6 @@ export default {
         update({ low: state.mu - 4 * state.sigma, high: state.mu });
     }
   },
-  explanation: `<h2>結果を予言するのではなく、偶然の規則性を知る</h2><p>表の確率pを固定し、独立にコインを投げます。表の相対度数は「表の回数 ÷ 投げた回数」です。試行を多数繰り返すと相対度数がpの近くにある確率は高くなりますが、毎回単調に近づくわけではありません。表が連続しても次に裏が出る確率が増えることはありません。表と裏の回数の差そのものが必ず小さくなる、という法則でもありません。</p><h3>二項分布では、何を1回と数える？</h3><p>独立なn回の試行を1セットにして、成功回数Xを数えると二項分布になります。1セットの試行回数nと、セットを繰り返す回数は別です。nやpは理論分布を変えますが、反復セット数は実験による近似の精度を変えます。成功確率が途中で変わる場合や、前の結果に依存する場合には、そのまま二項分布を使えません。点を結んだ理論線は見やすくするためのもので、成功回数に小数の値が生じるわけではありません。</p><h3>正規分布と標準化</h3><p>正規分布は平均μを中心とする左右対称の連続分布です。標準偏差σを大きくすると横に広がり、全体の面積が1のままなので山は低くなります。確率は高さではなく面積です。Z = (X − μ) / σ と標準化すれば、元の単位を外して「平均から標準偏差の何倍離れているか」で比較できます。μ ± σには約68.27%、μ ± 2σには約95.45%が入ります。</p><p>すべての実測データが正規分布になるわけではありません。非対称な分布や複数集団が混ざった分布では、モデルの妥当性を先に調べましょう。二項分布の正規近似も、nが大きいだけで十分とは限らず、npやn(1−p)の大きさなどに注意が必要です。</p><h3>読み込んだデータとモデルの違い</h3><p>データタブでは、コインの0/1、1セットの成功回数、連続した測定値をCSVで読み込めます。読込値は固定し、条件を変えたときは比較する理論だけを変えます。正規モデルの初期の平均と標準偏差には、読込データの平均と分母nの標準偏差を使います。標準偏差0の場合は表示のため1を使い、データが正規分布であると認定するものではありません。試行を追加する操作はサンプルに対して使います。観測値が正規分布に従うことや、試行が独立であることは、読込操作では保証されません。</p><h3>この実験の再現性</h3><p>乱数の種が同じなら、同じ条件では同じ試行列を生成します。追加した試行はそれまでの列を保ちます。「別の偶然を試す」で種を変えると別の実験になります。pを変えたときは同じ一様乱数列を新しいpで判定し直すため、既存の回数を新しい条件で再実験した表示になります。実験結果と理論値を区別して比較してください。</p>`,
+  explanation: academicExplanation("probability"),
   related: ["sampling", "histogram", "hypothesis-test"],
 };

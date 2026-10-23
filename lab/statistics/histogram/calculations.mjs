@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261023-sampling-size-comparison";
+} from "./descriptive.mjs?v=20261023-sampling-unified-notes";
 
 const n = (value) =>
   value === null || value === undefined
@@ -22,7 +22,7 @@ function medianStep(values, offset = 0) {
 }
 function meanView(rows, d) {
   const terms = rows.map((r) => n(r.value));
-  return `<section class="calculation-section"><h3>平均：合計をデータの個数で割る</h3><ol class="calculation-steps"><li>全ての値を足す：Σxᵢ = <strong>${n(d.sum)}</strong></li><li>個数を数える：n = <strong>${d.n}</strong></li><li class="calculation-formula">x̄ = Σxᵢ ÷ n = ${n(d.sum)} ÷ ${d.n} = <strong>${n(d.mean)}</strong></li></ol><div class="metrics">${metric("平均 x̄", d.mean, "mean")}${metric("合計 Σxᵢ", d.sum, "sum")}${metric("個数 n", d.n, "n")}</div><p>極端に大きい値も同じように合計へ入るので、平均は外れ値の影響を受けます。データタブでその値を変えると、計算も更新されます。</p><details><summary>全ての値と足し算を確認</summary><p class="calculation-formula">${terms.join(" ＋ ")} = ${n(d.sum)}</p>${table(
+  return `<section class="calculation-section"><h3>平均：合計をデータの個数で割る</h3><ol class="calculation-steps"><li>全ての値を足す：Σxᵢ = <strong>${n(d.sum)}</strong></li><li>個数を数える：n = <strong>${d.n}</strong></li><li class="calculation-formula">x̄ = Σxᵢ ÷ n = ${n(d.sum)} ÷ ${d.n} = <strong>${n(d.mean)}</strong></li></ol><div class="metrics">${metric("平均 x̄", d.mean, "mean")}${metric("合計 Σxᵢ", d.sum, "sum")}${metric("個数 n", d.n, "n")}</div><p>平均は外れ値の影響を受けます。端の値を変えて確かめましょう。</p><details><summary>全ての値と足し算を確認</summary><p class="calculation-formula">${terms.join(" ＋ ")} = ${n(d.sum)}</p>${table(
     ["元の番号", "群", "値 xᵢ"],
     rows.map((r) => [r.index + 1, r.group, n(r.value)]),
   )}</details></section>`;
@@ -60,13 +60,13 @@ function quartileView(d) {
     d.n === 1
       ? cells(d.sorted, 0)
       : `<section class="quartile-half"><h4>下位${h}個：全体の1〜${h}番目</h4>${cells(lower, 0)}</section>${d.n % 2 ? `<section class="quartile-half"><h4>中央の1個：上下の半分には含めません</h4>${cells([d.sorted[h]], h)}</section>` : ""}<section class="quartile-half"><h4>上位${h}個：全体の${Math.ceil(d.n / 2) + 1}〜${d.n}番目</h4>${cells(upper, Math.ceil(d.n / 2))}</section>`;
-  return `<section class="calculation-section"><h3>中央値・四分位数：小さい順に並べて、中央を探す</h3><p>Q₁は下位半分の中央、Q₂は全体の中央、Q₃は上位半分の中央です。下の印は、計算に使う値そのものを示します。2個に同じ印があるときは、その2個の平均を取ります。</p><div class="quartile-calculations">${cards}</div>${ordered}<p>この教材では、個数が奇数のときは中央の1個を上下の半分から除きます。四分位数の定義にはソフトや教材による違いがあります。</p><div class="metrics">${metric("第1四分位数 Q₁", d.q1, "q1")}${metric("中央値 Q₂", d.q2, "median")}${metric("第3四分位数 Q₃", d.q3, "q3")}${metric("四分位範囲 IQR", d.iqr, "iqr")}</div><p class="calculation-formula">IQR = Q₃ − Q₁ = ${n(d.q3)} − ${n(d.q1)} = ${n(d.iqr)}</p><p>箱ひげ図の箱はQ₁からQ₃、箱の中の線は中央値です。ひげの外に出す基準は ${n(d.lowerFence)} 未満、または ${n(d.upperFence)} 超。ひげ自体は基準値ではなく、その内側の実際の観測値まで伸ばします。</p></section>`;
+  return `<section class="calculation-section"><h3>中央値・四分位数：小さい順に並べて、中央を探す</h3><p>Q₁は下位半分の中央、Q₂は全体の中央、Q₃は上位半分の中央です。下の印は、計算に使う値そのものを示します。2個に同じ印があるときは、その2個の平均を取ります。</p><div class="quartile-calculations">${cards}</div>${ordered}<p>個数が奇数のときは中央の1個を上下の半分から除きます。</p><div class="metrics">${metric("第1四分位数 Q₁", d.q1, "q1")}${metric("中央値 Q₂", d.q2, "median")}${metric("第3四分位数 Q₃", d.q3, "q3")}${metric("四分位範囲 IQR", d.iqr, "iqr")}</div><p class="calculation-formula">IQR = Q₃ − Q₁ = ${n(d.q3)} − ${n(d.q1)} = ${n(d.iqr)}</p><p>箱ひげ図の箱はQ₁からQ₃、箱の中の線は中央値です。ひげの外に出す基準は ${n(d.lowerFence)} 未満、または ${n(d.upperFence)} 超。ひげ自体は基準値ではなく、その内側の実際の観測値まで伸ばします。</p></section>`;
 }
 function varianceView(rows, d, s) {
   const sample = !!s.varianceSample,
     denominator = d.n - (sample ? 1 : 0),
     v = sample ? d.sampleVariance : d.variance;
-  return `<section class="calculation-section"><h3>分散：平均との差を二乗して平均する</h3><label class="histogram-axis-control" for="variance-definition"><span>分散の定義</span><select id="variance-definition"><option value="population" ${!sample ? "selected" : ""}>データ全体の分散（÷ n）</option><option value="sample" ${sample ? "selected" : ""}>母分散を推定する不偏分散（÷ n−1）</option></select></label><ol class="calculation-steps"><li>平均 x̄ = ${n(d.mean)} を求める。</li><li>各値の偏差 xᵢ − x̄ を求めて二乗する。</li><li>二乗の和 Σ(xᵢ − x̄)² = <strong>${n(d.ss)}</strong> を求める。</li><li class="calculation-formula">${sample ? "s²" : "σ²"} = ${n(d.ss)} ÷ ${denominator} = <strong>${n(v)}</strong></li></ol>${denominator <= 0 ? '<p role="status">1件では n−1 が0のため、不偏分散は定義できません。</p>' : ""}<div class="metrics">${metric(sample ? "不偏分散 s²" : "分散 σ²", v, "variance")}${metric(sample ? "標本標準偏差 s" : "標準偏差 σ", v === null ? null : Math.sqrt(v), "sd")}${metric("偏差平方和", d.ss, "ss")}</div><p class="calculation-formula">標準偏差 = √分散 = ${v === null ? "定義できない" : `√${n(v)} = ${n(Math.sqrt(v))}`}</p><p>分散の単位は元の単位の二乗、標準偏差は元のデータと同じ単位です。n−1で割るのは母分散を推定するときの補正です。その平方根自体が、母標準偏差の不偏推定量になるわけではありません。</p><details open><summary>1件ずつの偏差と二乗</summary>${table(
+  return `<section class="calculation-section"><h3>分散：平均との差を二乗して平均する</h3><label class="histogram-axis-control" for="variance-definition"><span>分散の定義</span><select id="variance-definition"><option value="population" ${!sample ? "selected" : ""}>データ全体の分散（÷ n）</option><option value="sample" ${sample ? "selected" : ""}>母分散を推定する不偏分散（÷ n−1）</option></select></label><ol class="calculation-steps"><li>平均 x̄ = ${n(d.mean)} を求める。</li><li>各値の偏差 xᵢ − x̄ を求めて二乗する。</li><li>二乗の和 Σ(xᵢ − x̄)² = <strong>${n(d.ss)}</strong> を求める。</li><li class="calculation-formula">${sample ? "s²" : "σ²"} = ${n(d.ss)} ÷ ${denominator} = <strong>${n(v)}</strong></li></ol>${denominator <= 0 ? '<p role="status">1件では n−1 が0のため、不偏分散は定義できません。</p>' : ""}<div class="metrics">${metric(sample ? "不偏分散 s²" : "分散 σ²", v, "variance")}${metric(sample ? "標本標準偏差 s" : "標準偏差 σ", v === null ? null : Math.sqrt(v), "sd")}${metric("偏差平方和", d.ss, "ss")}</div><p class="calculation-formula">標準偏差 = √分散 = ${v === null ? "定義できない" : `√${n(v)} = ${n(Math.sqrt(v))}`}</p><p>分散の単位は元の単位の二乗、標準偏差は元のデータと同じ単位です。</p><details open><summary>1件ずつの偏差と二乗</summary>${table(
     ["元の番号", "群", "値 xᵢ", "偏差 xᵢ − x̄", "偏差の二乗"],
     rows.map((r) => [
       r.index + 1,
@@ -89,7 +89,7 @@ function anovaView(s) {
           : n(a.p);
   const interpretation = !a.available
     ? `<section class="anova-interpretation" data-anova-decision="unavailable"><h4>今回の結果の読み方</h4><p role="status">${esc(a.reason)} 検定の結論は出せません。</p></section>`
-    : `<section class="anova-interpretation" data-anova-decision="${a.p < 0.05 ? "significant" : "not-significant"}"><h4>今回の結果の読み方（有意水準5%）</h4><p><strong>${a.p < 0.05 ? "p値が0.05未満なので、「各群の母平均が等しい」という帰無仮説を棄却します。群の母平均に差があると判断します。" : "p値が0.05以上なので、帰無仮説を棄却しません。母平均に差があると言うには証拠が足りません。「等しいと証明できた」という意味ではありません。"}</strong></p><p>群間平均平方は群内平均平方の${n(a.f)}倍（F = ${n(a.f)}）。${a.f >= 1 ? "群内のばらつきと比べ、群平均の隔たりがどれだけ大きいかを表します。" : "群平均の隔たりは、群内のばらつきと比べて小さい結果です。"} p ${a.p === 0 ? "" : "= "}${esc(pText)} は、母平均が等しいと仮定したとき、今回以上のF値が出る確率です。</p><p>観測された群平均：${a.groups.map((g) => `${esc(groupName(s, g.group))} = ${n(g.mean)}`).join("、")}${a.k === 2 ? `（差の絶対値 ${n(Math.abs(a.groups[0].mean - a.groups[1].mean))}）` : ""}。${a.k > 2 ? "この検定だけでは、どの組合せの群が異なるかまでは分かりません。" : "検定は母平均の差についての判断であり、個々の観測の優劣を決めるものではありません。"}</p><p>この判断は下の前提が成り立つことが条件です。p値は帰無仮説が正しい確率ではありません。有意差があっても、群分けが原因だとは言えず、実用上の差の大きさは群平均の差や単位と合わせて考えます。</p></section>`;
+    : `<section class="anova-interpretation" data-anova-decision="${a.p < 0.05 ? "significant" : "not-significant"}"><h4>今回の結果（有意水準5%）</h4><p><strong>${a.p < 0.05 ? "p値が0.05未満なので、群の母平均に差があると判断します。" : "p値が0.05以上なので、今回のデータでは母平均の差を確認できません。"}</strong></p><p>F = ${n(a.f)}、p ${a.p === 0 ? "" : "= "}${esc(pText)}。群平均：${a.groups.map((g) => `${esc(groupName(s, g.group))} = ${n(g.mean)}`).join("、")}。</p></section>`;
   const groups = new Map(a.groups.map((g) => [g.group, g]));
   return `<section class="calculation-section anova-calculation"><h3>発展：群間・群内のばらつきから一元配置分散分析へ</h3><p>要因は「群」、観測値は「${esc(s.label || "値")}」。帰無仮説は「各群の母平均が等しい」です。同じ元データを、全体平均との差・群平均との差の2つの見方で調べます。</p><ol class="calculation-steps"><li>全体平均は個数で重み付けします：x̄ = Σ(nⱼ x̄ⱼ) ÷ N = <strong>${n(a.total.mean)}</strong>。</li><li class="calculation-formula">群間平方和 SS間 = Σ nⱼ(x̄ⱼ − x̄)² = <strong>${n(a.between)}</strong></li><li class="calculation-formula">群内平方和 SS内 = ΣΣ(xᵢⱼ − x̄ⱼ)² = <strong>${n(a.within)}</strong></li><li class="calculation-formula">全体平方和 SS全 = SS間 ＋ SS内<br>${n(a.total.ss)} = ${n(a.between)} ＋ ${n(a.within)}</li></ol><div class="metrics">${metric("群間平方和", a.between, "ss-between")}${metric("群内平方和", a.within, "ss-within")}${metric("全体平方和", a.total.ss, "ss-total")}</div>${table(
     ["群", "個数 nⱼ", "群平均 x̄ⱼ", "nⱼ(x̄ⱼ − x̄)²", "群内の偏差平方和"],
@@ -107,7 +107,7 @@ function anovaView(s) {
       ["群内（誤差）", n(a.within), a.dfWithin, n(a.msWithin)],
       ["全体", n(a.total.ss), a.dfTotal, "—"],
     ],
-  )}<p class="calculation-formula">F = MS間 ÷ MS内 = ${n(a.msBetween)} ÷ ${n(a.msWithin)} = <strong>${n(a.f)}</strong></p><div class="metrics">${metric("F値", a.f, "f")}${metric("F分布の上側確率 p", a.p, "p", pText)}</div>${interpretation}<details class="anova-assumptions" open><summary>分散分析の前提と外れ値</summary><p>観測の独立性、各群の誤差の正規性、群間の等分散性を仮定する通常の一元配置分散分析です。サンプルには外れ値を含めているので、箱ひげ図でその影響を点検してください。前提を確認せずにこのp値だけで結論を出さず、必要ならWelchの方法や頑健な方法を検討します。ここでは計算のしくみを学ぶ参考値として示します。</p></details><details><summary>全ての観測を使った平方和の内訳</summary>${table(
+  )}<p class="calculation-formula">F = MS間 ÷ MS内 = ${n(a.msBetween)} ÷ ${n(a.msWithin)} = <strong>${n(a.f)}</strong></p><div class="metrics">${metric("F値", a.f, "f")}${metric("F分布の上側確率 p", a.p, "p", pText)}</div>${interpretation}<details class="anova-assumptions"><summary>計算の前提</summary><p>観測の独立性、各群の誤差の正規性、等分散性を仮定します。箱ひげ図で外れ値の位置も確かめましょう。</p></details><details><summary>全ての観測を使った平方和の内訳</summary>${table(
     [
       "元の番号",
       "群",
@@ -124,7 +124,7 @@ function anovaView(s) {
       n((r.value - groups.get(r.group).mean) ** 2),
       n((groups.get(r.group).mean - a.total.mean) ** 2),
     ]),
-  )}<p>偏差は xᵢⱼ−x̄ = (xᵢⱼ−x̄ⱼ)＋(x̄ⱼ−x̄) と分解できます。二乗すると交差項も生じますが、各群の偏差の合計が0なので、全観測で足した交差項が0となり、平方和の分解が成り立ちます。</p></details></section>`;
+  )}<p>偏差は xᵢⱼ−x̄ = (xᵢⱼ−x̄ⱼ)＋(x̄ⱼ−x̄) と分解できます。群内の偏差の合計が0なので、二乗の交差項が消え、平方和も分解できます。</p></details></section>`;
 }
 
 export function renderCalculations(root, ctx) {

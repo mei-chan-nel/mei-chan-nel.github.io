@@ -2213,3 +2213,50 @@ html.statistics-immersive body {
   font-size: 9px;
   font-weight: 700;
 }
+
+[data-stat-lab="sampling"] .control > .sampling-stepper {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  gap: 0;
+  height: 38px;
+}
+.sampling-stepper input[type="number"] {
+  appearance: textfield;
+  border-radius: 6px 0 0 6px !important;
+}
+.sampling-stepper input::-webkit-inner-spin-button,
+.sampling-stepper input::-webkit-outer-spin-button {
+  appearance: none;
+  margin: 0;
+}
+.sampling-step-buttons {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+}
+.sampling-step-buttons button {
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  border: 1px solid #b6cbc3;
+  border-left: 0;
+  border-radius: 0 5px 0 0;
+  font-size: 10px;
+  line-height: 1;
+  color: #174c49;
+  background: #f3f8f5;
+}
+.sampling-step-buttons button + button {
+  border-top: 0;
+  border-radius: 0 0 5px 0;
+}
+[data-stat-lab="sampling"] .analysis-toolbar {
+  gap: 10px 12px;
+}
+[data-stat-lab="sampling"] .analysis-toolbar > .control {
+  flex: 0 1 125px;
+  min-width: 105px;
+}
+.sampling-reset-note {
+  font-size: 0.78rem;
+  color: #536e66;
+}
