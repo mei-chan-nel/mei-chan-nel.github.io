@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-centered-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-interval-style";
 import { mean, fmt } from "../shared/math.mjs";
 import { esc, number, select, metrics, svg, bind } from "../shared/ui.mjs";
 import {
@@ -11,7 +11,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261023-centered-data";
+} from "./model.mjs?v=20261023-sampling-interval-style";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");
@@ -134,7 +134,7 @@ function sizeComparisonChart(state, comparison) {
     const top = 35 + index * 180,
       bottom = top + 122,
       y = (count) => bottom - (count / ymax) * (bottom - top),
-      color = index ? "#9b5417" : "#176660";
+      color = index ? "#c5651c" : "#176660";
     drawing += `<g data-comparison-series="${index}" data-sample-size="${n}" data-y-max="${ymax}"><text x="56" y="${top - 13}" fill="${color}" font-weight="700">${index ? "◇" : "●"} 標本数 ${n} ・ ${comparison.trials}回</text>`;
     for (let i = 0; i <= 4; i++)
       drawing += `<line class="gridline" x1="56" x2="664" y1="${y(i * step)}" y2="${y(i * step)}"/><text x="47" y="${y(i * step) + 4}" text-anchor="end">${i * step}</text>`;
@@ -168,50 +168,31 @@ function intervalChart(state, domain, series) {
     rowHeight = paired ? 52 : 26,
     height = Math.max(286, state.trials * rowHeight),
     x = xScale(domain);
-  const axis = `<text x="360" y="16" text-anchor="middle">母平均 ${fmt(domain.truth)}${unitOf(state)}</text><line data-sampling-truth x1="360" x2="360" y1="24" y2="36" stroke="#995b10" stroke-width="2" stroke-dasharray="5 3"/><path class="axis" d="M56,36H664"/>${xTicks(domain, 36, 55)}<text x="360" y="74" text-anchor="middle">${esc(axisLabel(state, "平均の推定範囲"))}</text>`;
+  const axis = `<text x="360" y="16" text-anchor="middle">母平均 ${fmt(domain.truth)}${unitOf(state)}</text><line data-sampling-truth x1="360" x2="360" y1="24" y2="36" stroke="#995b10" stroke-width="2" stroke-dasharray="5 3"/><path class="axis" d="M56,36H664"/>${xTicks(domain, 36, 55)}<text x="360" y="74" text-anchor="middle">${esc(axisLabel(state, "母平均の推定区間"))}</text>`;
   let rows = "";
   for (let i = state.trials - 1; i >= 0; i--) {
     series.forEach(({ n, history }, index) => {
       const result = history[i],
         y = 14 + (state.trials - 1 - i) * rowHeight + index * 24,
         covers = result.low <= domain.truth && domain.truth <= result.high,
-        color = covers ? "#176660" : "#a63c42",
+        color = paired
+          ? index
+            ? "#c5651c"
+            : "#176660"
+          : covers
+            ? "#176660"
+            : "#a63c42",
+        dash = paired ? (index ? "1 5" : "") : covers ? "" : "5 3",
         cx = x(result.mean),
         fill = covers ? color : "white";
       const marker = index
         ? `<path data-marker-x="${cx}" data-marker-y="${y}" data-marker-radius="4" d="M${cx},${y - 4}L${cx + 4},${y}L${cx},${y + 4}L${cx - 4},${y}Z" fill="${fill}" stroke="${color}" stroke-width="2"/>`
         : `<circle cx="${cx}" cy="${y}" r="4" fill="${fill}" stroke="${color}" stroke-width="2"/>`;
-      rows += `<g data-sampling-trial="${i + 1}" data-comparison-series="${index}" data-sample-size="${n}" data-covers="${covers}"><text class="sampling-trial-label" x="47" y="${y + 4}" text-anchor="end">${i + 1}${paired ? (index ? "②" : "①") : ""}</text><line data-interval-line x1="${x(result.low)}" x2="${x(result.high)}" y1="${y}" y2="${y}" stroke="${color}" stroke-width="3" ${index || !covers ? `stroke-dasharray="${index ? (covers ? "3 2" : "7 3 1 3") : "5 3"}"` : ""}/><line x1="${x(result.low)}" x2="${x(result.low)}" y1="${y - 5}" y2="${y + 5}" stroke="${color}"/><line x1="${x(result.high)}" x2="${x(result.high)}" y1="${y - 5}" y2="${y + 5}" stroke="${color}"/>${marker}<title>第${i + 1}回・標本数${n}：${fmt(result.low)}〜${fmt(result.high)}${unitOf(state)}・母平均を${covers ? "捉えた" : "捉えなかった"}</title></g>`;
+      rows += `<g data-sampling-trial="${i + 1}" data-comparison-series="${index}" data-sample-size="${n}" data-covers="${covers}"><text class="sampling-trial-label" x="47" y="${y + 4}" text-anchor="end">${i + 1}${paired ? (index ? "②" : "①") : ""}</text><line data-interval-line x1="${x(result.low)}" x2="${x(result.high)}" y1="${y}" y2="${y}" stroke="${color}" stroke-width="3" ${paired && index ? 'stroke-linecap="round"' : ""} ${dash ? `stroke-dasharray="${dash}"` : ""}/><line x1="${x(result.low)}" x2="${x(result.low)}" y1="${y - 5}" y2="${y + 5}" stroke="${color}"/><line x1="${x(result.high)}" x2="${x(result.high)}" y1="${y - 5}" y2="${y + 5}" stroke="${color}"/>${marker}<title>第${i + 1}回・標本数${n}：${fmt(result.low)}〜${fmt(result.high)}${unitOf(state)}・母平均を${covers ? "含む" : "含まない"}</title></g>`;
     });
   }
   const key = `${state.signature}/${paired ? series[1].n : "single"}`;
-  return `<div class="sampling-intervals">${chartAttributes(svg(axis, "共通の横軸。中央は母平均。", 720, 80), domain, "data-sampling-axis data-fixed-row-chart")}<div class="sampling-history-scroll" tabindex="0" role="region" aria-label="新しい順の推定区間。スクロールで過去の区間へ。" data-history-signature="${esc(key)}" data-history-trials="${state.trials}">${chartAttributes(svg(`<line data-sampling-truth x1="360" x2="360" y1="0" y2="${height}" stroke="#995b10" stroke-width="2" stroke-dasharray="5 4"/>` + rows, `${state.trials}回の推定区間${paired ? "を2種類の標本数で比較" : ""}。塗りマークは母平均を捉え、白抜きは外れた区間。`, 720, height), domain, `data-scroll-chart data-fixed-row-chart style="--sampling-history-height:${height}px"`)}</div></div>`;
-}
-
-function coverageReading(state, summary, se) {
-  if (se === 0) return "平均が毎回同じなので、区間は母平均の1点です。";
-  return `${summary.count}本中${summary.covered}本（${fmt(summary.coverage * 100, 1)}%）が母平均を捉えました。95%信頼区間は、繰り返すと約95%が母平均を捉える区間です。`;
-}
-
-function reflection(state, people, summary, se) {
-  const unit = unitOf(state),
-    truth = mean(people.map((p) => p.value));
-  return `<section class="panel sampling-reflection"><h2>今回の結果を読む</h2>${metrics(
-    [
-      [
-        "標本平均の中心",
-        `${fmt(summary.center)}${unit}`,
-        `母平均 ${fmt(truth)}${unit}`,
-      ],
-      [
-        "平均のぶれ（標準偏差）",
-        summary.spread === null
-          ? "2回以上で表示"
-          : `${fmt(summary.spread)}${unit}`,
-        `理論上の標準誤差 ${fmt(se)}${unit}`,
-      ],
-    ],
-  )}<div class="sampling-reading-cards"><section><h3>平均の精度</h3><p>標準誤差は、繰り返し抽出した平均のぶれの大きさです。標本数を増やしたとき、ぶれがどう変わるか比べましょう。</p></section><section><h3>今回の標本</h3><p>${state.n}回選び、${new Set(state.last).size}人が入りました。${state.method === "with" ? "重複ありでは同じ人が何度も入ります。" : "重複なしでは同じ人は1度だけ入ります。"}</p><button type="button" id="sampling-try-other">${state.method === "with" ? "重複なし" : "重複あり"}で試す</button></section><section><h3>区間の届き方</h3><p>${coverageReading(state, summary, se)}</p></section></div></section>`;
+  return `<div class="sampling-intervals">${chartAttributes(svg(axis, "共通の横軸。中央は母平均。", 720, 80), domain, "data-sampling-axis data-fixed-row-chart")}<div class="sampling-history-scroll" tabindex="0" role="region" aria-label="新しい順の推定区間。スクロールで過去の区間へ。" data-history-signature="${esc(key)}" data-history-trials="${state.trials}">${chartAttributes(svg(`<line data-sampling-truth x1="360" x2="360" y1="0" y2="${height}" stroke="#995b10" stroke-width="2" stroke-dasharray="5 4"/>` + rows, `${state.trials}回の推定区間${paired ? "を2種類の標本数で比較" : ""}。塗りつぶしは母平均を含む区間、白抜きは母平均を含まない区間です。`, 720, height), domain, `data-scroll-chart data-fixed-row-chart style="--sampling-history-height:${height}px"`)}</div></div>`;
 }
 
 export default {
@@ -250,7 +231,7 @@ export default {
     const distributionMetrics = comparing
       ? metrics(
           series.map((s, i) => [
-            `${i ? "◇ ②" : "● ①"} n=${s.n}：平均の標準偏差`,
+            `${i ? "◇ ②" : "● ①"} n=${s.n}：標本平均の標準偏差`,
             s.summary.spread === null
               ? "2回以上で表示"
               : `${fmt(s.summary.spread)}${unit}`,
@@ -277,7 +258,7 @@ export default {
       series[1].summary.spread !== null
         ? series[1].summary.spread / series[0].summary.spread
         : null;
-    root.innerHTML = `<div class="stat-grid"><section class="panel chart-panel"><h2>母集団から${state.n}回選ぶ</h2>${view === 0 ? populationChart(state) : ""}<p class="legend"><span>濃い丸：今回の標本</span><span>白い数字：値</span>${state.method === "with" ? "<span>×：選ばれた回数</span>" : ""}</p>${metrics(
+    root.innerHTML = `<div class="stat-grid"><section class="panel chart-panel"><h2>標本数${state.n}の抽出結果</h2>${view === 0 ? populationChart(state) : ""}<p class="legend"><span>濃い丸：今回の標本</span><span>白い数字：値</span>${state.method === "with" ? "<span>×：選ばれた回数</span>" : ""}</p>${metrics(
       [
         ["今回の標本平均", `${fmt(latest.mean)}${unit}`],
         ["母平均", `${fmt(truth)}${unit}`],
@@ -304,29 +285,29 @@ export default {
         ["with", "重複あり"],
       ],
       state.method,
-    )}${number("sample-seed", "乱数の種", state.seed, 0, 4294967295, 1)}<div class="actions"><button id="sample-one" class="primary" ${state.trials >= 2000 ? "disabled" : ""}>1回抽出</button><button id="sample-many" ${state.trials >= 2000 ? "disabled" : ""}>100回反復</button><button id="sample-replay">1回目に戻す</button></div><p class="sampling-reset-note" role="status">${comparing ? "両方を同じ回数ずつ抽出。" : ""}条件を変えると1回目から開始。</p></aside></div>
-    <section class="panel chart-panel"><h2>${comparing ? `標本数${state.n}と${settings.sizes[1]}・各${state.trials}回` : `標本数${state.n}・${state.trials}回の平均`}</h2>${distributionMetrics}${view === 1 ? (comparing ? sizeComparisonChart(state, comparison) : distributionChart(state, domain)) : ""}<div class="legend sampling-comparison-legend">${comparing ? `<span>● ① n=${state.n}：塗り棒</span><span>◇ ② n=${settings.sizes[1]}：白抜き・破線棒</span>` : ""}<span>橙の破線：母平均 ${fmt(truth)}${unit}</span></div>${ratio === null ? "" : `<p class="annotation" data-size-comparison-reading>②の平均のぶれは①の${fmt(ratio, 2)}倍。</p>`}</section>
+    )}${number("sample-seed", "乱数の種", state.seed, 0, 4294967295, 1)}<div class="actions"><button id="sample-one" class="primary" ${state.trials >= 2000 ? "disabled" : ""}>1回抽出</button><button id="sample-many" ${state.trials >= 2000 ? "disabled" : ""}>100回くり返す</button><button id="sample-replay">1回目に戻す</button></div><p class="sampling-reset-note" role="status">${comparing ? "2つの標本数で同じ回数ずつ抽出します。" : ""}条件を変えると、1回目からやり直します。</p></aside></div>
+    <section class="panel chart-panel"><h2>${comparing ? `標本数${state.n}と${settings.sizes[1]}・各${state.trials}回` : `標本数${state.n}・${state.trials}回の平均`}</h2>${distributionMetrics}${view === 1 ? (comparing ? sizeComparisonChart(state, comparison) : distributionChart(state, domain)) : ""}<div class="legend sampling-comparison-legend">${comparing ? `<span>● ① n=${state.n}：塗り棒</span><span>◇ ② n=${settings.sizes[1]}：白抜き・破線棒</span>` : ""}<span>橙の破線：母平均 ${fmt(truth)}${unit}</span></div>${ratio === null ? "" : `<p class="annotation" data-size-comparison-reading>②の標本平均のばらつきは、①の${fmt(ratio, 2)}倍です。</p>`}</section>
     <section class="panel chart-panel sampling-interval-panel"><h2>${comparing ? `標本数${state.n}と${settings.sizes[1]}の区間・各${state.trials}回` : `95%信頼区間・${state.trials}回`}</h2>${metrics(
       comparing
         ? series.map((s, i) => [
-            `${i ? "◇ ②" : "● ①"} n=${s.n}：母平均を捉えた割合`,
+            `${i ? "◇ ②" : "● ①"} n=${s.n}：母平均を含む割合`,
             `${fmt(s.summary.coverage * 100, 1)}%`,
-            `${s.summary.covered}/${state.trials}回 ・ 外れた${fmt((1 - s.summary.coverage) * 100, 1)}% ・ 幅${fmt(3.92 * s.se)}${unit}`,
+            `${s.summary.covered}/${state.trials}回 ・ 含まない${fmt((1 - s.summary.coverage) * 100, 1)}% ・ 幅${fmt(3.92 * s.se)}${unit}`,
           ])
         : [
             [
-              "母平均を捉えた区間",
+              "母平均を含む区間",
               `${fmt(summary.coverage * 100, 1)}%`,
               `${summary.covered}/${state.trials}回`,
             ],
             [
-              "母平均を捉えなかった区間",
+              "母平均を含まない区間",
               `${fmt((1 - summary.coverage) * 100, 1)}%`,
               `${summary.missed}/${state.trials}回`,
             ],
           ],
-    )}<div class="legend sampling-interval-legend">${comparing ? `<span>● ① n=${state.n} ／ ◇ ② n=${settings.sizes[1]}</span>` : ""}<span>塗りマーク：母平均を捉えた</span><span>白抜き：母平均を外れた</span><span>橙の破線：母平均</span><span>新しい順。スクロールで過去へ。</span></div>${view === 2 ? intervalChart(state, domain, series) : ""}</section>
-    ${reflection(state, people, summary, se)}`;
+    )}<div class="legend sampling-interval-legend">${comparing ? `<span>● ① n=${state.n}：緑の実線</span><span>◇ ② n=${settings.sizes[1]}：オレンジの点線</span>` : ""}<span>塗りつぶし：母平均を含む</span><span>白抜き：母平均を含まない</span><span>橙の縦破線：母平均</span><span>新しい順に表示。スクロールで過去の結果へ。</span></div>${view === 2 ? intervalChart(state, domain, series) : ""}</section>
+    `;
     const reset = (patch) => {
       if (Object.entries(patch).some(([key, value]) => state[key] !== value))
         ctx.replace(newExperiment({ ...state, ...patch }));
@@ -367,8 +348,6 @@ export default {
       ctx.replace(addTrials(state, 100));
     root.querySelector("#sample-replay").onclick = () =>
       ctx.replace(newExperiment(state));
-    root.querySelector("#sampling-try-other").onclick = () =>
-      reset({ method: state.method === "with" ? "without" : "with" });
     const viewport = root.querySelector(".sampling-history-scroll"),
       saved = positions.get(root);
     const offset =

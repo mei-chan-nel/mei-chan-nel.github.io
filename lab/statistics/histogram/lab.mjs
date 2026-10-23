@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-centered-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-interval-style";
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261023-centered-data";
+import { render } from "./view.mjs?v=20261023-sampling-interval-style";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

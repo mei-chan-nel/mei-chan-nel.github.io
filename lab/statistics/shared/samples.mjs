@@ -1,5 +1,5 @@
 import { rng, normal, clamp } from "./math.mjs";
-import { applyData, currentData } from "./data-model.mjs?v=20261023-centered-data";
+import { applyData, currentData } from "./data-model.mjs?v=20261023-sampling-interval-style";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);

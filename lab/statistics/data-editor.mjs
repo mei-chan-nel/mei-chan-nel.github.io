@@ -4,8 +4,8 @@ import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261023-centered-data";
-import { experiences } from "./experience.mjs?v=20261023-centered-data";
+} from "./shared/data-model.mjs?v=20261023-sampling-interval-style";
+import { experiences } from "./experience.mjs?v=20261023-sampling-interval-style";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

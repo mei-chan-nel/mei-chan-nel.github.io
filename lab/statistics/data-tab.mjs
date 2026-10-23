@@ -1,14 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261023-centered-data";
+import { currentData } from "./shared/data-model.mjs?v=20261023-sampling-interval-style";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261023-centered-data";
+} from "./shared/table-data.mjs?v=20261023-sampling-interval-style";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261023-centered-data";
+} from "./data-editor.mjs?v=20261023-sampling-interval-style";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

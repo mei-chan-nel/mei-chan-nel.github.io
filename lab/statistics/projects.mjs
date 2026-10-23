@@ -1,10 +1,10 @@
 import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
 import { esc, table, metrics } from "./shared/ui.mjs";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261023-centered-data";
-import { renderStepNavigation } from "./learning.mjs?v=20261023-centered-data";
-import correlation from "./correlation/lab.mjs?v=20261023-centered-data";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-centered-data";
+import { renderDataTab } from "./data-tab.mjs?v=20261023-sampling-interval-style";
+import { renderStepNavigation } from "./learning.mjs?v=20261023-sampling-interval-style";
+import correlation from "./correlation/lab.mjs?v=20261023-sampling-interval-style";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-sampling-interval-style";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261023-centered-data";
-import { readingNotes } from "./shared/reading.mjs?v=20261023-centered-data";
+import { learningViews } from "./learning.mjs?v=20261023-sampling-interval-style";
+import { readingNotes } from "./shared/reading.mjs?v=20261023-sampling-interval-style";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {
@@ -32,7 +32,7 @@ export function composeWorkbench(root, id, ui, onChange) {
     controls = [panels[1]];
   }
   if (id === "sampling") {
-    main = [panels[0], panels[2], panels[3], panels[4]];
+    main = [panels[0], panels[2], panels[3]];
     controls = [panels[1]];
   }
   if (id === "crosstab") {
@@ -143,7 +143,6 @@ export function composeWorkbench(root, id, ui, onChange) {
         "sample-one",
         "sample-many",
       ],
-      ["sample-n", "sample-method", "sample-one", "sample-many"],
     ],
     crosstab: [
       ["ct-mode", "ct-view"],

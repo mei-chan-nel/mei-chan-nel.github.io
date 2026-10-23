@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-centered-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-interval-style";
 import {
   sum,
   mean,
