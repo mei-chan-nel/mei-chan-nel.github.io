@@ -21,16 +21,12 @@ const help = {
     "点や紫の予測点はドラッグできます。点を選んでDeleteキーで削除し、空白をクリックすると選択を解除します。",
     "残差は、点の実測値と回帰直線の予測値の差です。相関係数と直線の式を確かめながら、点を動かしてみましょう。",
   ],
-  histogram: [
-    "階級の幅や縦軸を変えて、積み上げた棒・箱ひげ図・元の値を見比べます。",
-    "棒・箱ひげ図の外れ値・元の点を選ぶと、対応する階級を強調します。空白をクリックすると選択を解除します。",
-  ],
 };
 
 export function arrangeFullscreenExplanations(root, desktop) {
   const scene = root.querySelector(":scope > .workbench");
   const current = layouts.get(root);
-  if (!desktop || !scene) {
+  if (!desktop || !scene || root.querySelector(".distribution-composite")) {
     clearFullscreenExplanations(root);
     return;
   }

@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261023-shared-axis";
-import { describe } from "./descriptive.mjs";
-import { renderCalculations } from "./calculations.mjs";
+} from "./model.mjs?v=20261023-distribution-reading";
+import { describe } from "./descriptive.mjs?v=20261023-distribution-reading";
+import { renderCalculations } from "./calculations.mjs?v=20261023-distribution-reading";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>
@@ -35,15 +35,11 @@ function boxPlots(s, bins) {
   const groups = ["A", "B"].filter((g) => s.rows.some((r) => r.group === g));
   const height = groups.length * 44;
   let drawing = pattern("boxplot-group-b-pattern");
-  const summary = [];
   groups.forEach((g, j) => {
     const d = describe(s.rows.filter((r) => r.group === g).map((r) => r.value));
     const y = 22 + j * 44,
       dash = g === "B" ? 'stroke-dasharray="5 3"' : "";
-    summary.push(
-      `${groupLabel(s, g)}：中央値 ${value(d.q2)}、外れ値候補 ${d.outliers.length}件`,
-    );
-    drawing += `<text x="7" y="${y + 4}" font-size="12">${g === "A" ? "● A" : "◆ B"}</text><line x1="${x(d.lower)}" x2="${x(d.q1)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q3)}" x2="${x(d.upper)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><path d="M${x(d.lower)},${y - 9}V${y + 9}M${x(d.upper)},${y - 9}V${y + 9}" stroke="${colors[g]}" stroke-width="2"/><rect data-box-group="${g}" x="${x(d.q1)}" y="${y - 12}" width="${Math.max(0, x(d.q3) - x(d.q1))}" height="24" fill="${g === "B" ? "url(#boxplot-group-b-pattern)" : colors.A}" fill-opacity="0.3" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q2)}" x2="${x(d.q2)}" y1="${y - 12}" y2="${y + 12}" stroke="#183b38" stroke-width="2.5"/>`;
+    drawing += `<line x1="${x(d.lower)}" x2="${x(d.q1)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q3)}" x2="${x(d.upper)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><path d="M${x(d.lower)},${y - 9}V${y + 9}M${x(d.upper)},${y - 9}V${y + 9}" stroke="${colors[g]}" stroke-width="2"/><rect data-box-group="${g}" x="${x(d.q1)}" y="${y - 12}" width="${Math.max(0, x(d.q3) - x(d.q1))}" height="24" fill="${g === "B" ? "url(#boxplot-group-b-pattern)" : colors.A}" fill-opacity="0.3" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q2)}" x2="${x(d.q2)}" y1="${y - 12}" y2="${y + 12}" stroke="#183b38" stroke-width="2.5"/>`;
     s.rows.forEach((r, i) => {
       if (r.group !== g || (r.value >= d.lowerFence && r.value <= d.upperFence))
         return;
@@ -57,7 +53,7 @@ function boxPlots(s, bins) {
       );
     });
   });
-  return `<section class="histogram-boxplots" style="--boxplot-height:${height}px" aria-label="群別の箱ひげ図">${svg(drawing, "ヒストグラムと共通の横軸で比較するA・Bの箱ひげ図。ひげの外側の観測は個別の記号で表示。", 900, height).replace("<svg", "<svg data-fixed-row-chart")}<p class="boxplot-summary">${summary.map(esc).join(" ／ ")}</p><details class="boxplot-help"><summary>箱ひげ図の読み方</summary><p class="boxplot-rule">横軸の値は上のヒストグラムと共通です。箱はQ₁〜Q₃、箱の中の線は中央値。ひげは Q₁−1.5IQR〜Q₃＋1.5IQR の内側の実測値まで。範囲外は別の点で示します。外れ値候補は誤りと断定するものではありません。</p></details></section>`;
+  return `<section class="histogram-boxplots" style="--boxplot-height:${height}px" aria-label="群別の箱ひげ図">${svg(drawing, "ヒストグラムと共通の横軸で比較するA・Bの箱ひげ図。ひげの外側の観測は個別の記号で表示。", 900, height).replace("<svg", "<svg data-fixed-row-chart")}</section>`;
 }
 
 function settings(s, tableView) {
@@ -74,36 +70,34 @@ function rawDots(s, bins, width, selected, n) {
     xmin = bins[0].lo,
     xmax = bins.at(-1).hi;
   const x = (v) => left + ((v - xmin) / (xmax - xmin)) * (right - left);
-  const names = s.groupNames || ["A", "B"];
-  return `<div class="histogram-raw" data-screen-group><h3>階級に入った元の値</h3>${svg(
-    ["A", "B"]
+  const guides =
+    bins
       .map(
-        (g, j) =>
-          `<text x="8" y="${27 + j * 29}" font-size="12">${g === "A" ? "● A" : "◆ B"}</text>`,
+        (b) =>
+          `<line x1="${x(b.lo)}" x2="${x(b.lo)}" y1="3" y2="69" stroke="#d5e0db" stroke-dasharray="2 4"/>`,
       )
       .join("") +
-      s.rows
-        .map((r, i) => {
-          const chosen =
-            selected &&
-            binIndex(r.value, width, s.start) ===
-              binIndex(selected.lo, width, s.start);
-          return point(
-            r.group,
-            x(r.value),
-            23 + (r.group === "B" ? 29 : 0),
-            chosen ? 5 : 3.5,
-            `data-raw="${i}" tabindex="0" role="button" aria-label="${esc(groupLabel(s, r.group))}、${value(r.value)}" fill="${colors[r.group]}" opacity="${selected && !chosen ? 0.18 : 0.85}"`,
-            `${groupLabel(s, r.group)}: ${value(r.value)}`,
-          );
-        })
-        .join("") +
-      `<line x1="${left}" x2="${right}" y1="72" y2="72" stroke="#8aa"/><text x="${left}" y="89" font-size="12">${value(xmin)}</text><text x="${right}" y="89" text-anchor="end" font-size="12">${value(xmax)}</text>`,
-    "階級の選択と連動する元のデータ",
-    900,
-    94,
-  )}
-    <p class="histogram-selection" aria-live="polite">${selected ? `${interval(selected)}：${selected.count} / ${n}件（${fmt(selected.relative * 100, 1)}%）` : "階級・棒・点を選ぶと、対応する値を強調します。"}</p></div>`;
+    `<line x1="${right}" x2="${right}" y1="3" y2="69" stroke="#d5e0db" stroke-dasharray="2 4"/>`;
+  const highlight = selected
+    ? `<rect data-selected-range x="${x(selected.lo)}" y="0" width="${x(selected.hi) - x(selected.lo)}" height="72" fill="#175f55" fill-opacity="0.08"/>`
+    : "";
+  const drawing = s.rows
+    .map((r, i) => {
+      const chosen =
+        selected &&
+        binIndex(r.value, width, s.start) ===
+          binIndex(selected.lo, width, s.start);
+      return point(
+        r.group,
+        x(r.value),
+        r.group === "B" ? 51 : 21,
+        chosen ? 5 : 3.5,
+        `data-raw="${i}" data-raw-value="${r.value}" data-raw-bin="${binIndex(r.value, width, s.start) - binIndex(xmin, width, s.start)}" tabindex="0" role="button" aria-label="${esc(groupLabel(s, r.group))}、${value(r.value)}" fill="${colors[r.group]}" opacity="${selected && !chosen ? 0.18 : 0.85}"`,
+        `${groupLabel(s, r.group)}: ${value(r.value)}`,
+      );
+    })
+    .join("");
+  return `<div class="histogram-raw" data-screen-group>${svg(highlight + guides + drawing, "ヒストグラムと同じ横軸・階級の元データ。Aは丸、Bはひし形。", 900, 72).replace("<svg", "<svg data-fixed-row-chart")}<p class="histogram-selection" aria-live="polite" ${selected ? "" : "hidden"}>${selected ? `${interval(selected)}：${selected.count} / ${n}件（${fmt(selected.relative * 100, 1)}%）` : ""}</p></div>`;
 }
 
 function chart(s, bins, n) {
@@ -178,7 +172,6 @@ export function render(root, ctx) {
     <div class="histogram-tools"><header class="histogram-heading"><h2>${tableView ? "度数分布表" : "分布と箱ひげ図"}<small>${n}件</small></h2>
     ${multiple ? `<label class="histogram-group-toggle"><input id="display-mode" type="checkbox" role="switch" ${s.mode === "split" ? "checked" : ""}><span>群別に表示</span></label>` : ""}</header>
     ${settings(s, tableView)}</div>
-    ${tableView ? "" : legend}
     ${tableView ? `<div class="histogram-frequency-table"><table class="stat-table"><thead><tr><th scope="col">階級<br>以上〜未満</th>${s.mode === "split" ? `<th scope="col">${esc(groupLabel(s, "A"))}</th><th scope="col">${esc(groupLabel(s, "B"))}</th>` : ""}<th scope="col">度数</th><th scope="col">相対度数</th><th scope="col">累積相対度数</th></tr></thead><tbody>${bins.map((b, i) => `<tr data-bin="${i}" tabindex="0" role="button" aria-label="${interval(b)}、${b.count}件" aria-selected="${i === s.selected}"><th scope="row">${value(b.lo)}〜${value(b.hi)}</th>${s.mode === "split" ? `<td>${b.a}</td><td>${b.b}</td>` : ""}<td>${b.count}</td><td>${fmt(b.relative * 100, 1)}%</td><td>${fmt(b.cumulative * 100, 1)}%</td></tr>`).join("")}</tbody><tfoot><tr><th>合計</th>${s.mode === "split" ? `<td>${rows.filter((r) => r.group === "A").length}</td><td>${rows.filter((r) => r.group === "B").length}</td>` : ""}<td>${n}</td><td>100%</td><td>—</td></tr></tfoot></table></div>` : chart(s, bins, n)}
     ${tableView ? legend : ""}
     ${tableView ? "" : boxPlots(s, bins)}

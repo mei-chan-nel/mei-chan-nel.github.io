@@ -1045,17 +1045,12 @@ body[data-statistics]
   color: #597067;
 }
 .histogram-raw {
-  border-top: 1px solid #e2e8e3;
-  margin-top: 16px;
-  padding-top: 10px;
-}
-.histogram-raw h3 {
-  font-size: 0.84rem;
-  margin: 0 0 4px;
+  margin: 0;
+  padding: 0;
 }
 .histogram-raw .stat-chart {
-  height: 100px;
-  min-height: 0;
+  height: 72px;
+  min-height: 72px;
 }
 .histogram-selection {
   font-size: 0.8rem;
@@ -1920,10 +1915,11 @@ html.statistics-immersive body {
 }
 
 .statistics-chart-fullscreen .histogram-raw[data-screen-chart-flow] {
-  flex: 0 0 110px;
+  flex: 0 0 auto;
   box-sizing: border-box;
-  padding: 4px 0;
-  border-top: 1px solid #d5e0d6;
+  margin: 0;
+  padding: 0;
+  border: 0;
 }
 .statistics-chart-fullscreen
   :is(.histogram-boxplots, .histogram-raw)
@@ -2010,7 +2006,7 @@ html.statistics-immersive body {
     padding-bottom: 6px;
   }
   .statistics-chart-fullscreen .histogram-raw[data-screen-chart-flow] {
-    flex-basis: 98px;
+    flex-basis: auto;
   }
   .statistics-chart-fullscreen .metrics > div {
     padding: 4px 7px;
@@ -2057,4 +2053,68 @@ html.statistics-immersive body {
   .statistics-fullscreen .data-view-heading {
     display: block;
   }
+}
+
+/* Preserve the shared horizontal axis even when the observation strip is short. */
+.statistics-chart-fullscreen .histogram-raw [data-screen-chart] {
+  flex: 0 0 72px;
+  height: 72px !important;
+  min-height: 72px !important;
+}
+.quartile-calculations > section {
+  border-top: 3px solid #325e55;
+}
+.quartile-calculations h4 {
+  margin: 14px 0 8px;
+}
+.quartile-ranks {
+  font-weight: 700;
+}
+.quartile-half {
+  margin: 20px 0;
+}
+.quartile-half h4 {
+  margin-bottom: 8px;
+  font-size: 0.88rem;
+}
+.ordered-values .quartile-source {
+  border: 2px solid #234f49;
+  background: #f1f6ee;
+}
+.quartile-markers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  min-height: 24px;
+  margin-top: 5px;
+}
+.quartile-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid #365e55;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #244b43;
+  background: #edf4e7;
+}
+.quartile-badge[data-quartile="q2"] {
+  border-style: double;
+  border-width: 3px;
+  padding: 0 4px;
+  background: #fff;
+}
+.quartile-badge[data-quartile="q3"] {
+  border-style: dashed;
+  background: #f8efe5;
+}
+.anova-interpretation {
+  margin: 20px 0;
+  padding: 0 18px 8px;
+  border: 1px solid #b4cabb;
+  border-left: 4px solid #325e55;
+  border-radius: 6px;
+  background: #f5f8f1;
 }

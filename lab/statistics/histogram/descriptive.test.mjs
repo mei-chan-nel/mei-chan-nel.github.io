@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { describe, oneWayAnova, fSurvival } from "./descriptive.mjs";
+import {
+  describe,
+  oneWayAnova,
+  fSurvival,
+  quartileRanks,
+} from "./descriptive.mjs";
 const near = (a, b, tol = 1e-11) =>
   assert.ok(Math.abs(a - b) <= tol * Math.max(1, Math.abs(b)), `${a} != ${b}`);
 test("distribution statistics use median-of-halves quartiles and distinguish fences from actual whiskers", () => {
@@ -131,4 +136,29 @@ test("table edits preserve the selected histogram width and old saved records re
     "histogram",
     config.initial(),
   );
+});
+
+test("quartile source ranks identify the exact observations for odd, even and single values", () => {
+  const fixtures = [
+    [1, { q1: [1], q2: [1], q3: [1] }],
+    [2, { q1: [1], q2: [1, 2], q3: [2] }],
+    [3, { q1: [1], q2: [2], q3: [3] }],
+    [5, { q1: [1, 2], q2: [3], q3: [4, 5] }],
+    [6, { q1: [2], q2: [3, 4], q3: [5] }],
+    [60, { q1: [15, 16], q2: [30, 31], q3: [45, 46] }],
+  ];
+  for (const [count, expected] of fixtures) {
+    assert.deepEqual(quartileRanks(count), expected);
+    const values = Array.from({ length: count }, (_, i) => (i + 1) ** 2);
+    const d = describe(values);
+    for (const key of ["q1", "q2", "q3"]) {
+      const ranks = quartileRanks(count)[key];
+      near(
+        ranks.reduce((total, rank) => total + values[rank - 1], 0) /
+          ranks.length,
+        d[key],
+      );
+    }
+  }
+  assert.deepEqual(quartileRanks(0), { q1: [], q2: [], q3: [] });
 });

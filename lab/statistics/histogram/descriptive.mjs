@@ -31,6 +31,22 @@ export function describe(values) {
   };
 }
 
+// One-based ranks in the complete sorted data, using medians of halves.
+export function quartileRanks(n) {
+  const central = (length, offset = 0) =>
+    length % 2
+      ? [offset + (length + 1) / 2]
+      : [offset + length / 2, offset + length / 2 + 1];
+  if (!Number.isInteger(n) || n < 1) return { q1: [], q2: [], q3: [] };
+  if (n === 1) return { q1: [1], q2: [1], q3: [1] };
+  const half = Math.floor(n / 2);
+  return {
+    q1: central(half),
+    q2: central(n),
+    q3: central(half, Math.ceil(n / 2)),
+  };
+}
+
 // Lanczos log-gamma and Lentz's beta fraction avoid subtracting a tiny F tail
 // from 1. Used for the upper-tail probability of the classical ANOVA F test.
 function logGamma(z) {
