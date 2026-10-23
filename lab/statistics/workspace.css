@@ -347,6 +347,7 @@
 }
 .data-table .editable-data-table :is(th, td) {
   vertical-align: middle;
+  text-align: center;
 }
 .data-table .editable-data-table td {
   padding: 5px;
@@ -361,6 +362,19 @@
   padding: 8px;
   font-size: 0.84rem;
   line-height: 1.5;
+  text-align: center;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.stat-page .data-table input.data-cell[data-decimal-aligned] {
+  font-family:
+    ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  min-width: calc(var(--decimal-slots) * 1ch + 16px);
+  padding-left: calc(8px + var(--decimal-leading));
+  padding-right: calc(8px + var(--decimal-trailing));
+}
+.stat-page .data-table input.data-cell[data-decimal-aligned]:focus {
+  padding-left: 8px;
+  padding-right: 8px;
 }
 .data-table .data-row-action {
   width: 48px;

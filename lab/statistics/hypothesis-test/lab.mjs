@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-unified-notes";
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-centered-data";
 import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 import {
   esc,

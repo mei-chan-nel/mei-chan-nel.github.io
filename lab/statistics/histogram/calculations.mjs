@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261023-sampling-unified-notes";
+} from "./descriptive.mjs?v=20261023-centered-data";
 
 const n = (value) =>
   value === null || value === undefined

@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261023-sampling-unified-notes";
-import { readingNotes } from "./shared/reading.mjs?v=20261023-sampling-unified-notes";
+import { learningViews } from "./learning.mjs?v=20261023-centered-data";
+import { readingNotes } from "./shared/reading.mjs?v=20261023-centered-data";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (id === "correlation" || id === "histogram") {

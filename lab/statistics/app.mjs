@@ -1,24 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261023-sampling-unified-notes";
+import { validateDocument } from "./shared/validation.mjs?v=20261023-centered-data";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261023-sampling-unified-notes";
-import { composeWorkbench } from "./workbench.mjs?v=20261023-sampling-unified-notes";
-import { renderDataTab } from "./data-tab.mjs?v=20261023-sampling-unified-notes";
-import { sampleState } from "./shared/samples.mjs?v=20261023-sampling-unified-notes";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261023-sampling-unified-notes";
+} from "./shared/data-model.mjs?v=20261023-centered-data";
+import { composeWorkbench } from "./workbench.mjs?v=20261023-centered-data";
+import { renderDataTab } from "./data-tab.mjs?v=20261023-centered-data";
+import { sampleState } from "./shared/samples.mjs?v=20261023-centered-data";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261023-centered-data";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261023-sampling-unified-notes";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-unified-notes";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-sampling-unified-notes";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-sampling-unified-notes";
+} from "./learning.mjs?v=20261023-centered-data";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-centered-data";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261023-centered-data";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-centered-data";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261023-sampling-unified-notes`))
+const config = (await import(`./${id}/lab.mjs?v=20261023-centered-data`))
   .default;
 const ui = {
   view: 0,

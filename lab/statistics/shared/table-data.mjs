@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261023-sampling-unified-notes";
+import { applyData } from "./data-model.mjs?v=20261023-centered-data";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-sampling-unified-notes";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-centered-data";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261023-sampling-unified-notes";
+} from "./shared/fullscreen-layout.mjs?v=20261023-centered-data";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

@@ -1,15 +1,30 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261023-sampling-unified-notes";
+import { currentData } from "./shared/data-model.mjs?v=20261023-centered-data";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261023-sampling-unified-notes";
+} from "./shared/table-data.mjs?v=20261023-centered-data";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261023-sampling-unified-notes";
+} from "./data-editor.mjs?v=20261023-centered-data";
 import { asNumber } from "./shared/csv.mjs";
+
+// Align decimal positions inside a centered, fixed-width numeric block.
+// Only padding changes: values, precision and native editing stay untouched.
+const decimalParts = (value) => {
+  const text = String(value).trim();
+  if (!text) return null;
+  if (text !== String(value)) return false;
+  if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(text)) return false;
+  const [integer, fraction = ""] = text.split(".");
+  return {
+    integer: integer.length,
+    fraction: fraction.length,
+    dot: text.includes(".") ? 1 : 0,
+  };
+};
 export function renderDataTab(root, options) {
   const {
     id,
@@ -89,6 +104,36 @@ export function renderDataTab(root, options) {
       )}</select></label>${pageCount > 1 ? `<button id="data-prev" type="button" ${page ? "" : "disabled"}>前へ</button>` : ""}<span>${draft.rows.length ? from + 1 : 0}〜${Math.min(draft.rows.length, from + pageSize)}行 / ${draft.rows.length}行</span>${pageCount > 1 ? `<button id="data-next" type="button" ${page + 1 < pageCount ? "" : "disabled"}>次へ</button>` : ""}</div>
     ${id === "histogram" ? `<details class="data-bulk-edit"><summary>集団の値をまとめて変える</summary><div class="data-bulk-controls"><label for="data-shift-group">集団<select id="data-shift-group">${[...new Set(draft.rows.map((r) => r[1]))].map((g) => `<option>${esc(g)}</option>`).join("")}</select></label><label for="data-shift-amount">各値に足す数<input id="data-shift-amount" type="number" step="any" value="0" inputmode="decimal"></label><button id="data-shift-apply" type="button">表の値を変更</button><span>負の数なら小さくなります。</span></div></details>` : ""}
     <p class="data-operation"><strong>このデータで行う分析：</strong>${esc(data.operation || "同じデータを分布・代表値・散布図で調べる")}</p><div class="data-next"><button id="analyze-data" type="button">次へ：${esc(nextLabel)} →</button></div><div id="data-upload" hidden></div></section>`;
+  const alignNumbers = (column) => {
+    if (!numericTableColumn(id, column)) return;
+    const parts = draft.rows.map((row) => decimalParts(row[column]));
+    const valid = parts.filter(Boolean);
+    const integers = Math.max(0, ...valid.map((p) => p.integer));
+    const fractions = Math.max(0, ...valid.map((p) => p.fraction));
+    // Very long or exponential notation remains centered without squeezing.
+    const aligned =
+      !parts.includes(false) &&
+      valid.some((p) => p.dot) &&
+      integers + fractions + 1 <= 12;
+    for (const input of root.querySelectorAll(
+      `.data-cell[data-column="${column}"]`,
+    )) {
+      const p = parts[Number(input.dataset.row)];
+      input.removeAttribute("data-decimal-aligned");
+      for (const name of ["slots", "leading", "trailing"])
+        input.style.removeProperty(`--decimal-${name}`);
+      if (!aligned || !p) continue;
+      const shift = integers - p.integer - (fractions - p.fraction) + p.dot - 1;
+      input.setAttribute("data-decimal-aligned", "");
+      input.style.setProperty(
+        "--decimal-slots",
+        String(integers + fractions + 1),
+      );
+      input.style.setProperty("--decimal-leading", `${Math.max(0, shift)}ch`);
+      input.style.setProperty("--decimal-trailing", `${Math.max(0, -shift)}ch`);
+    }
+  };
+  data.headers.forEach((_, column) => alignNumbers(column));
   const message = root.querySelector("#data-message");
   const mark = () => {
     draft.dirty =
@@ -157,6 +202,9 @@ export function renderDataTab(root, options) {
     }
   });
   root.querySelectorAll(".data-cell").forEach((input) => {
+    input.addEventListener("blur", () =>
+      alignNumbers(Number(input.dataset.column)),
+    );
     input.addEventListener("input", () => {
       draft.rows[Number(input.dataset.row)][Number(input.dataset.column)] =
         input.value;

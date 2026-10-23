@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261023-sampling-unified-notes";
+import { academicExplanation } from "../shared/reading.mjs?v=20261023-centered-data";
 import { mean, fmt } from "../shared/math.mjs";
 import { esc, number, select, metrics, svg, bind } from "../shared/ui.mjs";
 import {
@@ -11,7 +11,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261023-sampling-unified-notes";
+} from "./model.mjs?v=20261023-centered-data";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");

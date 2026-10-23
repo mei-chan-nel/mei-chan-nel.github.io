@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261023-sampling-unified-notes";
-import { describe } from "./descriptive.mjs?v=20261023-sampling-unified-notes";
-import { renderCalculations } from "./calculations.mjs?v=20261023-sampling-unified-notes";
+} from "./model.mjs?v=20261023-centered-data";
+import { describe } from "./descriptive.mjs?v=20261023-centered-data";
+import { renderCalculations } from "./calculations.mjs?v=20261023-centered-data";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>
