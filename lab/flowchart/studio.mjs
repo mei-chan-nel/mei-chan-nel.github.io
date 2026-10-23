@@ -4,7 +4,7 @@ export {
   initialState,
   step,
   finish,
-} from "../../program-trace/studio/runtime.js?v=20261009-function-help3";
+} from "../../program-trace/studio/runtime.js?v=20261023-range";
 export { parseProgram } from "../../program-trace/studio/parser.js?v=20261009-function-help3";
 export { statement } from "../../program-trace/studio/builder-model.js?v=20261009-function-help3";
 export { expressionText } from "../../program-trace/studio/expressions.js?v=20261009-function-help3";

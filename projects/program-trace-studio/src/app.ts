@@ -50,7 +50,8 @@ function errorMessage(error: unknown): string { return error instanceof Error ? 
 function guarded(action: () => void): void { try { action(); } catch (error) { showMessage(errorMessage(error), true); } }
 function clearShareLocation(): void {
   if (document.body.dataset.studioEntry !== 'shared' && !/^#v\d/u.test(location.hash)) return;
-  history.replaceState(null, '', new URL('./', location.href).pathname + location.search); document.body.dataset.studioEntry = 'editor';
+  const url = new URL('./', location.href); url.search = location.search; url.searchParams.delete('edit');
+  history.replaceState(null, '', url.pathname + url.search); document.body.dataset.studioEntry = 'editor';
 }
 function edited(): void {
   sharedSource = false; clearShareLocation();
@@ -135,7 +136,7 @@ function schedule(): void { window.clearTimeout(timer); if (running && !busy && 
 function createWorker(): Worker {
   if (typeof Worker !== 'function') throw new StudioError('このブラウザでは実行機能を利用できません。新しいブラウザで開いてください。');
   worker?.terminate();
-  const nextWorker = new Worker(new URL('./worker.js?v=20261009-function-help3', import.meta.url), { type: 'module' });
+  const nextWorker = new Worker(new URL('./worker.js?v=20261023-range', import.meta.url), { type: 'module' });
   nextWorker.addEventListener('message', (event: MessageEvent<WorkerResponse>) => receive(event.data));
   nextWorker.addEventListener('error', () => failWorker('実行処理を読み込めませんでした。ページを再読み込みしてください。'));
   worker = nextWorker; return nextWorker;
@@ -159,6 +160,7 @@ function prepare(fromShare = false): void {
 function showRunner(): void {
   runnerVisible = true; byId('editor-view').hidden = true; byId('runner-view').hidden = false; byId('to-editor').hidden = false;
   byId('runner-document-tools').append(byId('document-tools'));
+  byId('fullscreen-button').before(byId('flowchart-button'));
   document.body.classList.add('is-tracing'); byId('studio-title').textContent = activeDraft.title;
   byId('studio-title').focus({ preventScroll: true });
 }
@@ -167,6 +169,7 @@ function showEditor(): void {
   pause(); worker?.terminate(); worker = undefined; generation++; busy = preparing = false; window.clearTimeout(watchdog);
   runnerVisible = false; byId('editor-view').hidden = false; byId('runner-view').hidden = true; byId('to-editor').hidden = true;
   byId('editor-document-tools').append(byId('document-tools'));
+  byId('document-tools').append(byId('flowchart-button'));
   document.body.classList.remove('is-tracing'); byId('studio-title').replaceChildren(document.createTextNode('プログラムを、'), element('em', '', '書いて動かす。'));
   controls(); editor.focus();
 }
@@ -358,6 +361,11 @@ byId('native-share').addEventListener('click', async () => {
 });
 byId('recover-draft').addEventListener('click', () => guarded(() => { if (recoveryDraft) openExport(recoveryDraft, true); }));
 window.addEventListener('pagehide', () => { pause(); if (!sharedSource && !recoveryDraft) autosave(); });
+function openSharedProgram(): void {
+  if (new URLSearchParams(location.search).get('edit') === '1') {
+    showMessage('プログラムをコピーしました。編集して「実行画面へ」で実行できます。元のプログラムは変更されません。');
+  } else prepare(true);
+}
 window.addEventListener('hashchange', async () => {
   if (!/^#v\d/u.test(location.hash) && document.body.dataset.studioEntry !== 'shared') return;
   protectSharedPage();
@@ -365,7 +373,7 @@ window.addEventListener('hashchange', async () => {
   for (const openDialog of document.querySelectorAll<HTMLDialogElement>('dialog[open]')) openDialog.close();
   try {
     const decoded = await decodeShare(location.hash); if (token !== shareGeneration) return;
-    showEditor(); editor.set(decoded); savedId = undefined; sharedSource = true; savedFingerprint = draftFingerprint(currentDraft()); prepare(true);
+    showEditor(); editor.set(decoded); savedId = undefined; sharedSource = true; savedFingerprint = draftFingerprint(currentDraft()); openSharedProgram();
   } catch (error) { if (token === shareGeneration) { showEditor(); showMessage(errorMessage(error), true); } }
 });
 async function start(): Promise<void> {
@@ -391,7 +399,7 @@ async function start(): Promise<void> {
       if (saved) { savedId = saved.id; savedFingerprint = current; }
     } catch { /* An unreadable named-save list must not discard the recovered draft. */ }
   }
-  if (sharedSource) prepare(true);
+  if (sharedSource) openSharedProgram();
   else if (error) showMessage(error, true);
   else byId('draft-status').textContent = '下書きはこのブラウザに自動保存されます';
 }

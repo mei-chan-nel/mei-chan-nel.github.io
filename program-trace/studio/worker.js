@@ -1,4 +1,4 @@
-import { compile, initialState, step, finish } from './runtime.js?v=20261009-function-help3';
+import { compile, initialState, step, finish } from './runtime.js?v=20261023-range';
 import { defaultInput, validateDraft, validateInput } from './documents.js?v=20261009-function-help3';
 import { diagnostic, StudioError } from './errors.js';
 let compiled, state, draft;

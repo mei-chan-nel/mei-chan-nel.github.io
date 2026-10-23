@@ -38,7 +38,7 @@
   <link rel="stylesheet" href="./studio.css?v=20261009-function-help3">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
   <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
-  <script type="module" src="./app.js?v=20261009-flowchart2"></script>
+  <script type="module" src="./app.js?v=20261023-range"></script>
   <script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"プログラムトレース Studio","url":"https://mei-chan-nel.com/program-trace/studio/share.html","applicationCategory":"EducationalApplication","operatingSystem":"Web browser","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"}},{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"情報Ⅰ Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"プログラムトレース","item":"https://mei-chan-nel.com/program-trace/"},{"@type":"ListItem","position":3,"name":"Studio","item":"https://mei-chan-nel.com/program-trace/studio/share.html"}]}]</script>
 </head>
 <body class="studio-page" data-studio-entry="shared">
@@ -147,6 +147,7 @@ x &lt; 10 の間繰り返す：
       <li>同じ行で <code>x = 1, y = x + 1</code> のように複数代入すると、左から順に処理します。文字列と数値を表示するときは <code>表示する("値は", x)</code> のように分けます。</li>
       <li>一次元配列は <code>[3, 5, 9]</code>、二次元配列は <code>[[1, 2], [3, 4]]</code> と書きます。二次元では全行の列数をそろえます。要素は <code>Data[i]</code>・<code>Table[i, j]</code> で指定し、存在する番号の範囲内で使います。</li>
       <li>範囲を決めた繰り返しは終了値を含みます。開始・終了・増減する値は整数にし、増減する値は1以上にします。減らす場合は「ずつ減らしながら繰り返す：」にします。</li>
+      <li>開始・終了・増減する値は入るときに一度だけ計算し、その数列の値を各回の先頭で変数へ代入します。内側で変数を変えても次回の値や回数は変わりません。終了判定では変数を変更せず、最後の処理後の値が残ります。一度も繰り返さない場合は従前の値を保持し、未代入なら未代入のままです。</li>
       <li><code>#</code> 以降はコメントです。引用符の中の <code>#</code> は文字として扱います。break・continue・三次元以上の配列は使えません。</li>
     </ul>
 

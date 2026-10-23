@@ -55,3 +55,25 @@ test('previous lets external input be entered again and clears failed execution 
   const restored = send({ generation: 12, action: 'previous' }); assert.equal(restored.kind, 'state'); assert.equal(restored.state.steps, 0);
   assert.equal(send({ generation: 11, action: 'previous' }), undefined);
 });
+test('previous and reset restore the sequence cursor even after the body overwrites its counter', () => {
+  const source = 'i を 1 から 5 まで 1 ずつ増やしながら繰り返す：\n  表示する(i)\n  i = i + 10\n表示する(i)';
+  let response = send({ generation: 20, action: 'prepare', draft: document(source) });
+  const states = [response.state]; let output = [];
+  while (!response.state.completed) {
+    response = send({ generation: 20, action: 'step' });
+    assert.equal(response.kind, 'state'); states.push(response.state); output.push(...response.outputAppend);
+  }
+  assert.deepEqual(output, ['1', '2', '3', '4', '5', '15']);
+  assert.equal(response.state.variables.i, 15);
+  for (let index = states.length - 2; index >= 0; index--) {
+    assert.deepEqual(send({ generation: 20, action: 'previous' }).state, states[index]);
+    assert.deepEqual(send({ generation: 20, action: 'step' }).state, states[index + 1]);
+    assert.deepEqual(send({ generation: 20, action: 'previous' }).state, states[index]);
+  }
+  response = send({ generation: 20, action: 'reset' }); output = [];
+  assert.equal(response.state.steps, 0); assert.equal(response.canGoBack, false);
+  while (!response.state.completed) {
+    response = send({ generation: 20, action: 'step' }); output.push(...response.outputAppend);
+  }
+  assert.deepEqual(output, ['1', '2', '3', '4', '5', '15']);
+});

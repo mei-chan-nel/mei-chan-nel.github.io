@@ -50,7 +50,7 @@ test('else-if branches evaluate in order and skip nonselected bodies', () => {
 test('nested loops restart inner counter and build a two-dimensional array', () => {
   const source = 'Table = [[0, 0, 0], [0, 0, 0]]\ni を 0 から 1 まで 1 ずつ増やしながら繰り返す：\n  j を 0 から 2 まで 1 ずつ増やしながら繰り返す：\n    Table[i, j] = (i + 1) * (j + 1)\n表示する(Table)';
   const { state, trace } = execute(source); assert.deepEqual(state.variables.Table, [[1, 2, 3], [2, 4, 6]]);
-  assert.equal(trace.filter(item => item.currentLine === 4).length, 6); assert.equal(state.variables.i, 2); assert.equal(state.variables.j, 3);
+  assert.equal(trace.filter(item => item.currentLine === 4).length, 6); assert.equal(state.variables.i, 1); assert.equal(state.variables.j, 2);
 });
 test('array references accept chained syntax and one-based indexing; assignment copies values', () => {
   const { state } = execute('A = [[1, 2], [3, 4]]\nB = A\nB[2][1] = 9\nx = A[2, 1]\ny = 要素数(A) + 要素数(A[1])', {}, { ...settings, indexBase: 1 });

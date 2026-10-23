@@ -188,16 +188,25 @@ export function step(compiled: Compiled, previous: State, settings: Settings, in
         const loop = previous.loops[previous.pc];
         const end = loop?.end ?? numeric(evaluateHere(instruction.end, 'end').value);
         const amount = loop ? Math.abs(loop.increment) : numeric(evaluateHere(instruction.step, 'step').value);
-        const candidate = loop ? numeric(readVariable(state.variables, instruction.name)) + loop.increment : numeric(evaluateHere(instruction.start, 'start').value);
-        if (![end, amount, candidate].every(Number.isSafeInteger) || amount <= 0) throw new StudioError('繰り返しの開始・終了は整数にし、増減する値は1以上の整数にしてください。');
-        const increment = amount * instruction.direction, result = increment > 0 ? candidate <= end : candidate >= end;
-        write({ name: instruction.name, indices: [] }, candidate, state, settings, compiled, 'counter');
-        if (result) { state.loops[previous.pc] = { end, increment, iteration: (loop?.iteration ?? 0) + 1 }; state.pc = instruction.bodyEntry; }
+        // A lazy sequence cursor belongs to the loop, not to its visible variable.
+        // null marks exhaustion without writing an out-of-range (or unsafe) value.
+        const candidate = loop ? loop.nextValue : numeric(evaluateHere(instruction.start, 'start').value);
+        if (![end, amount].every(Number.isSafeInteger) || !loop && !Number.isSafeInteger(candidate) || amount <= 0) throw new StudioError('繰り返しの開始・終了は整数にし、増減する値は1以上の整数にしてください。');
+        const increment = amount * instruction.direction, result = candidate !== null && (increment > 0 ? candidate <= end : candidate >= end);
+        if (result) {
+          write({ name: instruction.name, indices: [] }, candidate, state, settings, compiled, 'counter');
+          const nextValue = candidate + increment;
+          state.loops[previous.pc] = { end, increment, iteration: (loop?.iteration ?? 0) + 1,
+            nextValue: (increment > 0 ? nextValue <= end : nextValue >= end) ? nextValue : null };
+          state.pc = instruction.bodyEntry;
+        }
         else { delete state.loops[previous.pc]; state.pc = instruction.next; if (!loop) state.skippedLines = instruction.bodyLines; }
-        const comparison = `${candidate} ${increment > 0 ? '≤' : '≥'} ${end}`;
-        state.event = { title: result ? '範囲内 → 繰り返す' : '範囲を超えた → 繰り返しを終了',
-          explanation: `${instruction.name} を ${candidate} にしました。${comparison} は「${result ? '真' : '偽'}」です。${result ? `内側を実行します（${state.loops[previous.pc].iteration}回目）。` : '繰り返しの次の行へ進みます。'}`,
-          condition: { resolved: comparison, result } }; break;
+        state.event = { title: result ? '次の値を代入 → 繰り返す' : '次の値がない → 繰り返しを終了',
+          explanation: result
+            ? `数列の${loop ? '次の値' : '開始値'} ${candidate} を ${instruction.name} に代入しました。内側の処理を実行します（${state.loops[previous.pc].iteration}回目）。`
+            : `${loop ? '数列の値をすべて使いました。' : '指定した範囲に値がないため、一度も繰り返しません。'}${instruction.name} の値は変更せず、繰り返しの次の行へ進みます。`,
+          condition: { resolved: result ? `数列に次の値がある（${candidate}）` : '数列に次の値がある', result },
+          assignments: result ? [{ name: instruction.name, indices: [], sources: [] }] : [], sources: [] }; break;
       }
       case 'call': {
         if (instruction.expression.kind !== 'call') throw new StudioError('呼び出す関数を指定してください。');

@@ -156,6 +156,42 @@ test("input validation, undo and deterministic random replay", () => {
   assert.equal(r.history.length, 0);
   assert.deepEqual(r.state, initialState(r.compiled, 12345));
 });
+for (const [name, source, expected, final] of [
+  ['body assignments', 'i を 1 から 5 まで 1 ずつ増やしながら繰り返す：\n  表示する(i)\n  i = i + 10', ['1', '2', '3', '4', '5'], 15],
+  ['descending', 'i を 5 から 1 まで 2 ずつ減らしながら繰り返す：\n  表示する(i)', ['5', '3', '1'], 1],
+  ['empty', 'i = 42\ni を 5 から 1 まで 1 ずつ増やしながら繰り返す：\n  表示する(i)', [], 42],
+  ['same-name nested counters', 'i を 1 から 2 まで 1 ずつ増やしながら繰り返す：\n  表示する("outer", i)\n  i を 5 から 3 まで 2 ずつ減らしながら繰り返す：\n    表示する(i)', ['outer1', '5', '3', 'outer2', '5', '3'], 3],
+]) {
+  test(`flowchart range sequence and undo: ${name}`, () => {
+    const runner = new FlowRunner(fromProgram(draft(source)).graph, 12345);
+    const states = [runner.state];
+    while (!runner.state.completed) {
+      assert.ok(states.length < 100);
+      const before = JSON.stringify(runner.state);
+      runner.next();
+      assert.equal(JSON.stringify(states.at(-1)), before);
+      states.push(runner.state);
+    }
+    assert.deepEqual(runner.state.output, expected);
+    assert.equal(runner.state.variables.i, final);
+    const exits = states.filter(state => state.event?.title === '次の値がない → 繰り返しを終了');
+    assert.ok(exits.length > 0);
+    for (const exit of exits) {
+      assert.deepEqual(exit.changes, []);
+      assert.deepEqual(exit.event.assignments, []);
+      assert.match(exit.event.explanation, /値は変更せず/u);
+    }
+    for (let index = states.length - 2; index >= 0; index--) {
+      runner.previous(); assert.deepEqual(runner.state, states[index]);
+      runner.next(); assert.deepEqual(runner.state, states[index + 1]);
+      runner.previous(); assert.deepEqual(runner.state, states[index]);
+    }
+    runner.reset();
+    while (!runner.state.completed) runner.next();
+    assert.deepEqual(runner.state.output, expected);
+    assert.equal(runner.state.variables.i, final);
+  });
+}
 test("source outlets replace old wires and decision paths merge", () => {
   const g = emptyGraph(),
     p = addNode(g, "process", "main", 400, 180);
