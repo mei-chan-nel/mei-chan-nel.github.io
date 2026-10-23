@@ -1793,22 +1793,20 @@ html.statistics-immersive body {
   overflow: auto;
 }
 
-/* Desktop explanations use the horizontal room beside the active graph. */
+/* One shared sidebar keeps the legend above its explanation on every plot. */
 @media (min-width: 900px) {
   .statistics-chart-fullscreen #experiment.screen-with-explanations {
     display: grid !important;
-    grid-template-columns: var(--screen-left-width) minmax(0, 1fr) var(
-        --screen-right-width
-      );
+    grid-template-columns: minmax(0, 1fr) var(--screen-explanation-width);
     grid-template-rows: minmax(0, 1fr) auto;
     column-gap: 12px;
   }
   .statistics-chart-fullscreen .screen-with-explanations > .workbench {
-    grid-column: 2;
+    grid-column: 1;
     grid-row: 1;
   }
   .statistics-chart-fullscreen .screen-with-explanations > .screen-details-bar {
-    grid-column: 2;
+    grid-column: 1;
     grid-row: 2;
   }
   .screen-with-explanations > .screen-explanation-rail {
@@ -1824,11 +1822,13 @@ html.statistics-immersive body {
     background: #edf3ec;
     color: #38584c;
   }
-  .screen-with-explanations > .screen-explanation-left {
-    grid-column: 1;
-  }
   .screen-with-explanations > .screen-explanation-right {
-    grid-column: 3;
+    grid-column: 2;
+  }
+  .screen-explanation-section + .screen-explanation-section {
+    border-top: 1px solid #cbd9cc;
+    margin-top: 14px;
+    padding-top: 14px;
   }
   .statistics-fullscreen .screen-explanation-rail h3 {
     margin: 0 0 12px;
@@ -1854,11 +1854,6 @@ html.statistics-immersive body {
   .statistics-fullscreen .screen-explanation-rail .annotation {
     padding: 8px;
     background: #fff;
-  }
-  .statistics-chart-fullscreen
-    .screen-with-explanations
-    .histogram-raw[data-screen-chart-flow] {
-    flex-basis: 82px;
   }
 }
 

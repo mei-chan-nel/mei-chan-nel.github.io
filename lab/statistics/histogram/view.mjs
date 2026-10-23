@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261023-distribution-reading";
-import { describe } from "./descriptive.mjs?v=20261023-distribution-reading";
-import { renderCalculations } from "./calculations.mjs?v=20261023-distribution-reading";
+} from "./model.mjs?v=20261023-single-sidebar";
+import { describe } from "./descriptive.mjs?v=20261023-single-sidebar";
+import { renderCalculations } from "./calculations.mjs?v=20261023-single-sidebar";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>

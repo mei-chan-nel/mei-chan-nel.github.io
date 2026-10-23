@@ -12,8 +12,7 @@ export function clearFullscreenExplanations(root) {
     layouts.delete(root);
   }
   root.classList.remove("screen-with-explanations");
-  root.style.removeProperty("--screen-left-width");
-  root.style.removeProperty("--screen-right-width");
+  root.style.removeProperty("--screen-explanation-width");
 }
 
 const help = {
@@ -33,45 +32,53 @@ export function arrangeFullscreenExplanations(root, desktop) {
   if (current?.scene === scene) return;
   clearFullscreenExplanations(root);
   const doc = root.ownerDocument;
-  const makeRail = (side, label) => {
-    const rail = doc.createElement("aside");
-    rail.className = `screen-explanation-rail screen-explanation-${side}`;
-    rail.setAttribute("aria-label", label);
-    rail.tabIndex = 0;
+  const rail = doc.createElement("aside");
+  rail.className = "screen-explanation-rail screen-explanation-right";
+  rail.setAttribute("aria-label", "凡例と解説");
+  rail.tabIndex = 0;
+  const makeSection = (label) => {
+    const section = doc.createElement("section");
+    section.className = "screen-explanation-section";
+    section.setAttribute("aria-label", label);
     const heading = doc.createElement("h3");
     heading.textContent = label;
-    rail.append(heading);
-    return rail;
+    section.append(heading);
+    return section;
   };
-  const left = makeRail("left", "操作・考え方");
-  const right = makeRail("right", "凡例・読み取り");
-  const layout = { scene, moves: [], hidden: [], rails: [left, right] };
-  const move = (node, rail) => {
+  const legendSection = makeSection("凡例");
+  const explanationSection = makeSection("解説");
+  const layout = { scene, moves: [], hidden: [], rails: [rail] };
+  const move = (node, section) => {
     const marker = doc.createComment("fullscreen explanation");
     node.before(marker);
     layout.moves.push({ node, marker });
-    rail.append(node);
+    section.append(node);
   };
-  const notes = [...root.querySelectorAll(".analysis-notes > p")];
-  const context = [
-    ...root.querySelectorAll(
-      ".legend, .corr-legend, .histogram-legend, .boxplot-summary, .boxplot-rule, .histogram-selection, p.annotation",
-    ),
+  const visible = (node) =>
+    !node.closest(
+      "[hidden], .workbench-stash, .analysis-settings, .corr-details",
+    ) && !node.querySelector("input, select, button, textarea");
+  const legends = [
+    ...root.querySelectorAll(".legend, .corr-legend, .histogram-legend"),
+  ].filter(visible);
+  const paragraphs = [
+    ...new Set([
+      ...root.querySelectorAll(".analysis-notes > p"),
+      ...root.querySelectorAll("p.annotation"),
+    ]),
   ].filter(
-    (node) =>
-      !node.closest(
-        "[hidden], .workbench-stash, .analysis-settings, .corr-details",
-      ) && !node.querySelector("input, select, button, textarea"),
+    (node) => visible(node) && !legends.some((legend) => legend.contains(node)),
   );
-  const split = context.length ? notes.length : Math.ceil(notes.length / 2);
-  notes.forEach((node, i) => move(node, i < split ? left : right));
-  context.forEach((node) => move(node, right));
+  legends.forEach((node) => move(node, legendSection));
+  paragraphs.forEach((node) => move(node, explanationSection));
   for (const text of help[doc.body.dataset.statLab] || []) {
     const paragraph = doc.createElement("p");
     paragraph.textContent = text;
-    left.append(paragraph);
+    explanationSection.append(paragraph);
   }
-  if (left.children.length === 1 && right.children.length === 1) return;
+  for (const section of [legendSection, explanationSection])
+    if (section.children.length > 1) rail.append(section);
+  if (!rail.children.length) return;
   for (const details of root.querySelectorAll(
     ".analysis-notes, .boxplot-help",
   )) {
@@ -80,17 +87,11 @@ export function arrangeFullscreenExplanations(root, desktop) {
       layout.hidden.push(details);
     }
   }
-  for (const [side, rail] of [
-    ["left", left],
-    ["right", right],
-  ]) {
-    const populated = rail.children.length > 1;
-    root.style.setProperty(
-      `--screen-${side}-width`,
-      populated ? "clamp(160px, 16vw, 220px)" : "0px",
-    );
-    if (populated) root.append(rail);
-  }
+  root.style.setProperty(
+    "--screen-explanation-width",
+    "clamp(210px, 22vw, 280px)",
+  );
+  root.append(rail);
   layouts.set(root, layout);
   root.classList.add("screen-with-explanations");
 }
