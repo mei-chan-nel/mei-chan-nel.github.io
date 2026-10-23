@@ -1057,6 +1057,12 @@ body[data-statistics]
   margin: 4px 0 0;
   min-height: 1.6em;
 }
+.histogram-reading {
+  display: none;
+}
+.statistics-fullscreen .histogram-reading:not([hidden]) {
+  display: block;
+}
 .histogram-frequency-table .stat-table {
   width: 100%;
   font-size: 0.87rem;

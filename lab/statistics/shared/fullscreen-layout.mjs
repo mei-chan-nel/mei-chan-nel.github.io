@@ -25,7 +25,7 @@ const help = {
 export function arrangeFullscreenExplanations(root, desktop) {
   const scene = root.querySelector(":scope > .workbench");
   const current = layouts.get(root);
-  if (!desktop || !scene || root.querySelector(".distribution-composite")) {
+  if (!desktop || !scene) {
     clearFullscreenExplanations(root);
     return;
   }
@@ -64,7 +64,7 @@ export function arrangeFullscreenExplanations(root, desktop) {
   const paragraphs = [
     ...new Set([
       ...root.querySelectorAll(".analysis-notes > p"),
-      ...root.querySelectorAll("p.annotation"),
+      ...root.querySelectorAll("p.annotation, .histogram-selection"),
     ]),
   ].filter(
     (node) => visible(node) && !legends.some((legend) => legend.contains(node)),

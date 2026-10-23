@@ -4,7 +4,7 @@ import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
 import { renderDataTab } from "./data-tab.mjs";
 import { renderStepNavigation } from "./learning.mjs";
 import correlation from "./correlation/lab.mjs";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261023-single-sidebar";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261023-distribution-sidebar";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261023-single-sidebar";
+} from "./descriptive.mjs?v=20261023-distribution-sidebar";
 
 const n = (value) =>
   value === null || value === undefined

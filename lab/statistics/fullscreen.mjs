@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-single-sidebar";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261023-distribution-sidebar";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261023-single-sidebar";
+} from "./shared/fullscreen-layout.mjs?v=20261023-distribution-sidebar";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.
