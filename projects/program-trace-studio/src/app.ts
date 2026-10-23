@@ -189,7 +189,6 @@ function receive(message: WorkerResponse): void {
     }
     controls(); return;
   }
-  const prepared = preparing;
   if (message.info) info = message.info;
   if (message.state) state = message.state;
   if (preparing) { preparing = false; if (!info || !state) return; view.prepare(info, activeDraft); showRunner(); }
@@ -199,7 +198,6 @@ function receive(message: WorkerResponse): void {
   renderView(message.outputAppend ?? [], message.kind === 'ready' || !!message.outputReset);
   controls();
   if (message.request) { openInput(message.request); return; }
-  if (prepared && sharedSource) showMessage('共有されたプログラムです。「次へ」で実行できます。');
   if (state && !running && !message.request) byId('execution-announcement').textContent = `${state.currentLine === null ? '実行前' : `${state.currentLine}行目を実行`}${state.completed ? '。実行が終わりました。' : ''}`;
   // Restarting autoplay after completion first resets the Worker, then steps.
   if (message.kind === 'ready' && running && !state?.completed) { next(); return; }
@@ -362,9 +360,7 @@ byId('native-share').addEventListener('click', async () => {
 byId('recover-draft').addEventListener('click', () => guarded(() => { if (recoveryDraft) openExport(recoveryDraft, true); }));
 window.addEventListener('pagehide', () => { pause(); if (!sharedSource && !recoveryDraft) autosave(); });
 function openSharedProgram(): void {
-  if (new URLSearchParams(location.search).get('edit') === '1') {
-    showMessage('プログラムをコピーしました。編集して「実行画面へ」で実行できます。元のプログラムは変更されません。');
-  } else prepare(true);
+  if (new URLSearchParams(location.search).get('edit') !== '1') prepare(true);
 }
 window.addEventListener('hashchange', async () => {
   if (!/^#v\d/u.test(location.hash) && document.body.dataset.studioEntry !== 'shared') return;
