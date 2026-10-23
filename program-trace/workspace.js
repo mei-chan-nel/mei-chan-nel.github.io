@@ -1,4 +1,4 @@
-import { createState, step, inputRequest } from "./interpreter.js?v=20261003-arrows";
+import { createState, step, inputRequest } from "./interpreter.js?v=20261023-range";
 import { formatValue } from "./values.js?v=20261003-video";
 import { renderValue, renderChange } from "./value-view.js?v=20261004-mobile";
 import { inputCandidate } from "./video-programs.js?v=20261003-perf";

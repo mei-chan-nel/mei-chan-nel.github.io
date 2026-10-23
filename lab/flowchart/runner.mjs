@@ -4,7 +4,7 @@ import {
   finish,
   validateInput,
   defaultInput,
-} from "./studio.mjs";
+} from "./studio.mjs?v=20261023-range";
 import {
   flowDocument,
   syntax,

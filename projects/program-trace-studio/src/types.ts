@@ -56,7 +56,7 @@ export interface TraceEvent {
   title: string; explanation: string; condition?: { resolved: string; result: boolean };
   assignments?: TraceAssignment[]; sources?: Read[];
 }
-export interface Loop { end: number; increment: number; iteration: number }
+export interface Loop { end: number; increment: number; iteration: number; nextValue: number | null }
 export interface Evaluation { value: Value; resolved: string; sources: Read[] }
 export interface Pending {
   cache: Record<string, Evaluation>; awaiting?: string; assignmentIndex: number;

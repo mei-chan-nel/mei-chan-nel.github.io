@@ -300,7 +300,7 @@ test("外部入力は確定まで状態を進めず、範囲外・空欄・小�
 test("for の各行で i と sum が進み、過去の出力を順に蓄積する", () => {
   const { state, trace } = execute("for-loop");
   assert.deepEqual(trace.map((state) => state.currentLine), [1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 5]);
-  assert.deepEqual(trace.filter((state) => state.currentLine === 2).map((state) => state.variables.i), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(trace.filter((state) => state.currentLine === 2).map((state) => state.variables.i), [1, 2, 3, 4, 5, 5]);
   assert.deepEqual(trace.filter((state) => state.currentLine === 3).map((state) => state.variables.sum), [1, 3, 6, 10, 15]);
   assert.deepEqual(output(state), ["現在の合計は1", "現在の合計は3", "現在の合計は6", "現在の合計は10", "現在の合計は15", "最終的な合計は15"]);
   assert.equal(trace.at(-2).event.condition.result, false);
@@ -308,7 +308,7 @@ test("for の各行で i と sum が進み、過去の出力を順に蓄積す�
 
 test("for の範囲・増分を変更でき、空の範囲や1回だけの範囲も扱う", () => {
   const changed = execute("for-loop", { sum: 10, start: 0, end: 5, step: 2 });
-  assert.deepEqual(changed.trace.filter((state) => state.currentLine === 2).map((state) => state.variables.i), [0, 2, 4, 6]);
+  assert.deepEqual(changed.trace.filter((state) => state.currentLine === 2).map((state) => state.variables.i), [0, 2, 4, 4]);
   assert.equal(changed.state.variables.sum, 16);
   const empty = execute("for-loop", { start: 5, end: 1 });
   assert.deepEqual(empty.trace.map((state) => state.currentLine), [1, 2, 5]);
@@ -321,7 +321,7 @@ test("平均点は要素数に合わせて繰り返し、1要素・20要素・�
   assert.equal(execute("average", { Tokuten: [90] }).state.variables.average, 90);
   const changed = execute("average", { Tokuten: [1, 2, 2] });
   assert.equal(changed.state.variables.average, 5 / 3);
-  assert.equal(changed.state.variables.i, 3);
+  assert.equal(changed.state.variables.i, 2);
   assert.match(output(changed.state)[0], /^平均点は1\.666666667点です$/);
   assert.equal(execute("average", { Tokuten: Array(20).fill(100) }).state.variables.average, 100);
 });
@@ -452,7 +452,7 @@ test("1000回の乱数試行は0以上1未満の値を使い、条件が真の�
   const inside = points.filter((state) => state.variables.x ** 2 + state.variables.y ** 2 <= 1).length;
   assert.equal(state.variables.kosu, inside);
   assert.equal(trace.filter((state) => state.currentLine === 7).length, inside);
-  assert.equal(state.variables.i, 1001);
+  assert.equal(state.variables.i, 1000);
   assert.deepEqual(output(state), [`円周率の推定値は${4 * inside / 1000}`]);
   assert.ok(4 * inside / 1000 > 2.9 && 4 * inside / 1000 < 3.4);
   assert.equal(execute("monte-carlo", { kaisu: 1500 }).trace.filter((state) => state.currentLine === 6).length, 1500);

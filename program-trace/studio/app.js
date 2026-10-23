@@ -193,7 +193,7 @@ function createWorker() {
     if (typeof Worker !== 'function')
         throw new StudioError('このブラウザでは実行機能を利用できません。新しいブラウザで開いてください。');
     worker?.terminate();
-    const nextWorker = new Worker(new URL('./worker.js?v=20261009-function-help3', import.meta.url), { type: 'module' });
+    const nextWorker = new Worker(new URL('./worker.js?v=20261023-range', import.meta.url), { type: 'module' });
     nextWorker.addEventListener('message', (event) => receive(event.data));
     nextWorker.addEventListener('error', () => failWorker('実行処理を読み込めませんでした。ページを再読み込みしてください。'));
     worker = nextWorker;
