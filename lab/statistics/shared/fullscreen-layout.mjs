@@ -5,6 +5,7 @@ const preferences = new WeakMap();
 export function clearFullscreenExplanations(root) {
   const layout = layouts.get(root);
   if (layout) {
+    layout.finishResize?.();
     for (const { node, marker } of layout.moves)
       if (root.contains(marker) && root.contains(node))
         marker.replaceWith(node);
@@ -17,8 +18,10 @@ export function clearFullscreenExplanations(root) {
     "screen-with-explanations",
     "screen-navigation-collapsed",
     "screen-navigation-narrow",
+    "screen-navigation-resizing",
   );
   root.style.removeProperty("--screen-explanation-width");
+  root.style.removeProperty("--screen-navigation-width");
 }
 
 const help = {
@@ -28,8 +31,41 @@ const help = {
   ],
 };
 
+function navigationWidths(root, desktop, requested) {
+  const view = root.ownerDocument.defaultView;
+  const available =
+    root.getBoundingClientRect().width ||
+    root.clientWidth ||
+    Math.max(0, view.innerWidth - 32);
+  // Leave a useful plot beside a desktop rail, and an uncovered edge on phones.
+  const max = Math.max(
+    80,
+    Math.floor(Math.min(640, available - (desktop ? 332 : 48))),
+  );
+  const min = Math.min(200, max);
+  const preferred =
+    requested ?? Math.max(210, Math.min(280, view.innerWidth * 0.22));
+  return {
+    min,
+    max,
+    width: Math.round(Math.max(min, Math.min(max, preferred))),
+  };
+}
+
 function applyNavigationState(root, layout, desktop) {
   const collapsed = layout.preference.collapsed ?? !desktop;
+  if (collapsed) layout.finishResize?.();
+  const { min, max, width } = navigationWidths(
+    root,
+    desktop,
+    layout.preference.width,
+  );
+  layout.resize.hidden = collapsed;
+  layout.resize.setAttribute("aria-valuemin", String(min));
+  layout.resize.setAttribute("aria-valuemax", String(max));
+  layout.resize.setAttribute("aria-valuenow", String(width));
+  layout.resize.setAttribute("aria-valuetext", `${width}ピクセル`);
+  root.style.setProperty("--screen-navigation-width", `${width}px`);
   root.classList.toggle("screen-navigation-collapsed", collapsed);
   root.classList.toggle("screen-navigation-narrow", !desktop);
   layout.rail.classList.toggle("screen-navigation-collapsed", collapsed);
@@ -43,7 +79,7 @@ function applyNavigationState(root, layout, desktop) {
   if (layout.toggle.textContent !== glyph) layout.toggle.textContent = glyph;
   root.style.setProperty(
     "--screen-explanation-width",
-    collapsed ? "40px" : "clamp(210px, 22vw, 280px)",
+    collapsed ? "40px" : `${width}px`,
   );
 }
 
@@ -66,7 +102,7 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
     owner = root.closest(".statistics-fullscreen") || root;
   let preference = preferences.get(owner);
   if (!preference) {
-    preference = { collapsed: null, scrollTop: 0, tab: "" };
+    preference = { collapsed: null, width: null, scrollTop: 0, tab: "" };
     preferences.set(owner, preference);
   }
   const tab =
@@ -93,6 +129,15 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
   content.setAttribute("aria-label", "数値集計・凡例・解説");
   toggle.setAttribute("aria-controls", content.id);
   header.append(label, toggle);
+  const resize = doc.createElement("div");
+  resize.className = "screen-navigation-resize";
+  resize.setAttribute("data-screen-nav-resize", "");
+  resize.setAttribute("role", "separator");
+  resize.setAttribute("aria-orientation", "vertical");
+  resize.setAttribute("aria-label", "ナビ欄の幅");
+  resize.setAttribute("aria-controls", content.id);
+  resize.tabIndex = 0;
+  resize.title = "ドラッグでナビ欄の幅を変更（←→キーでも調整）";
   const makeSection = (label) => {
     const section = doc.createElement("section");
     section.className = "screen-explanation-section";
@@ -114,6 +159,7 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
     content,
     label,
     toggle,
+    resize,
     preference,
     onLayout,
   };
@@ -163,7 +209,7 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
       layout.hidden.push(details);
     }
   }
-  rail.append(header, content);
+  rail.append(resize, header, content);
   scene.setAttribute("data-screen-navigation-scene", "");
   root.append(rail);
   layouts.set(root, layout);
@@ -177,6 +223,63 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
       root.ownerDocument.defaultView.innerWidth >= 760,
     );
     layout.onLayout?.();
+  });
+  const setWidth = (value) => {
+    const desktop = doc.defaultView.innerWidth >= 760;
+    preference.width = navigationWidths(root, desktop, value).width;
+    applyNavigationState(root, layout, desktop);
+    layout.onLayout?.();
+  };
+  let drag = null;
+  layout.finishResize = () => {
+    const active = drag;
+    drag = null;
+    root.classList.remove("screen-navigation-resizing");
+    if (active && resize.hasPointerCapture?.(active.id))
+      resize.releasePointerCapture(active.id);
+  };
+  resize.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0 || resize.hidden || drag) return;
+    // A navigation drag must not trigger the plot's empty-space deselection.
+    event.stopPropagation();
+    event.preventDefault();
+    const width =
+      rail.getBoundingClientRect().width ||
+      Number(resize.getAttribute("aria-valuenow"));
+    drag = { id: event.pointerId, x: event.clientX, width };
+    resize.setPointerCapture(event.pointerId);
+    root.classList.add("screen-navigation-resizing");
+    resize.focus({ preventScroll: true });
+  });
+  resize.addEventListener("pointermove", (event) => {
+    if (!drag || drag.id !== event.pointerId) return;
+    event.preventDefault();
+    setWidth(drag.width + drag.x - event.clientX);
+  });
+  for (const type of ["pointerup", "pointercancel", "lostpointercapture"])
+    resize.addEventListener(type, (event) => {
+      if (drag?.id === event.pointerId) layout.finishResize();
+    });
+  resize.addEventListener("keydown", (event) => {
+    if (
+      resize.hidden ||
+      !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
+    )
+      return;
+    event.preventDefault();
+    const { min, max, width } = navigationWidths(
+      root,
+      doc.defaultView.innerWidth >= 760,
+      preference.width,
+    );
+    const step = event.shiftKey ? 50 : 10;
+    setWidth(
+      event.key === "Home"
+        ? min
+        : event.key === "End"
+          ? max
+          : width + (event.key === "ArrowLeft" ? step : -step),
+    );
   });
   content.addEventListener(
     "scroll",

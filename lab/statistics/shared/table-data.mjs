@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-crosstab-layout";
+import { applyData } from "./data-model.mjs?v=20261024-resizable-navigation";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

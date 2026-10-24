@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261024-crosstab-layout";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-crosstab-layout";
+import { learningViews } from "./learning.mjs?v=20261024-resizable-navigation";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-resizable-navigation";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (["correlation", "histogram", "crosstab"].includes(id)) {

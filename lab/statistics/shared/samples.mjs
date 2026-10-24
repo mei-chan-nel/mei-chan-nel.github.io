@@ -2,7 +2,7 @@ import { rng, normal, clamp } from "./math.mjs";
 import {
   applyData,
   currentData,
-} from "./data-model.mjs?v=20261024-crosstab-layout";
+} from "./data-model.mjs?v=20261024-resizable-navigation";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);

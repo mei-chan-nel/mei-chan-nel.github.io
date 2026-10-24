@@ -2,10 +2,10 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-crosstab-layout";
+} from "../crosstab/records.mjs?v=20261024-resizable-navigation";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-crosstab-layout";
-import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-crosstab-layout";
+import { population } from "../sampling/model.mjs?v=20261024-resizable-navigation";
+import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-resizable-navigation";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";

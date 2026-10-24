@@ -93,3 +93,28 @@ export function tableValues(matrix, mode) {
     }),
   );
 }
+
+// The full population stays in place; only membership in the fraction changes.
+export function denominatorRegions(strata, scope, method, outcome, mode) {
+  return strata.flatMap((stratum, s) =>
+    stratum.counts.flatMap((row, r) =>
+      row.map((count, c) => {
+        const inScope = scope === "all" || Number(scope) === s;
+        return {
+          stratum: s,
+          method: r,
+          outcome: c,
+          count,
+          inNumerator: inScope && r === method && c === outcome,
+          inDenominator:
+            inScope &&
+            (mode === "row"
+              ? r === method
+              : mode === "column"
+                ? c === outcome
+                : true),
+        };
+      }),
+    ),
+  );
+}

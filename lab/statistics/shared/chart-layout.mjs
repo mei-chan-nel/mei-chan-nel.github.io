@@ -20,6 +20,49 @@ export function fitWorkspaceCharts(container) {
       Math.abs(Number(svg.dataset.layoutHeight) - height) < 0.5
     )
       continue;
+    if (
+      svg.matches("[data-sampling-population]") &&
+      svg.closest(".statistics-chart-fullscreen")
+    ) {
+      // Reflow this pictogram grid instead of squeezing neighboring pupils
+      // together when the shared navigation takes more horizontal space.
+      const people = [...svg.querySelectorAll("[data-population-id]")];
+      const columns = Math.max(
+        1,
+        Math.min(
+          people.length,
+          Math.ceil(Math.sqrt((people.length * width) / height)),
+        ),
+      );
+      const rows = Math.max(1, Math.ceil(people.length / columns));
+      const dx = width / columns,
+        dy = height / rows;
+      const scale = Math.min(1, Math.min(dx, dy) / 36);
+      people.forEach((person, index) => {
+        const x = ((index % columns) + 0.5) * dx;
+        const y = (Math.floor(index / columns) + 0.5) * dy;
+        const count = Number(person.dataset.drawCount);
+        const circle = person.querySelector("circle");
+        circle.setAttribute("cx", String(x));
+        circle.setAttribute("cy", String(y));
+        circle.setAttribute(
+          "r",
+          String((count > 1 ? 16 : count ? 14 : 8) * scale),
+        );
+        for (const label of person.querySelectorAll("text")) {
+          label.setAttribute("x", String(x));
+          label.setAttribute(
+            "y",
+            String(y + Number(label.dataset.labelOffset || 0) * scale),
+          );
+          label.style.fontSize = `${(label.classList.contains("sampling-repeat-count") ? 9 : 12) * scale}px`;
+        }
+      });
+      svg.dataset.layoutWidth = String(width);
+      svg.dataset.layoutHeight = String(height);
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      continue;
+    }
     const totalX = Number(svg.dataset.scaleX || 1) * sx;
     const totalY = Number(svg.dataset.scaleY || 1) * sy;
     svg.dataset.layoutWidth = String(width);

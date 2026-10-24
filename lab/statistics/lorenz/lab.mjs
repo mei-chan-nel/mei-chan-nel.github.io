@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-layout";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-resizable-navigation";
 import {
   sum,
   mean,

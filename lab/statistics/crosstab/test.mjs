@@ -251,3 +251,51 @@ test("individual records reject blank or third categories and support a ten-thou
     ["達成", "未達成"],
   );
 });
+
+import { denominatorRegions } from "./records.mjs";
+test("fixed population regions select the exact numerator and denominator for every scope and ratio", () => {
+  const strata = makeInitial().strata;
+  for (const scope of ["all", "0", "1"])
+    for (const method of [0, 1])
+      for (const outcome of [0, 1])
+        for (const mode of ["row", "column", "cell"]) {
+          const regions = denominatorRegions(
+            strata,
+            scope,
+            method,
+            outcome,
+            mode,
+          );
+          const fraction = cellSummary(
+            matrixFor(strata, scope),
+            method,
+            outcome,
+            mode,
+          );
+          assert.equal(
+            regions.length,
+            8,
+            "all difficulty/method/outcome regions remain present",
+          );
+          assert.equal(
+            regions.reduce((sum, r) => sum + r.count, 0),
+            200,
+            "population stays fixed",
+          );
+          assert.equal(
+            regions
+              .filter((r) => r.inNumerator)
+              .reduce((sum, r) => sum + r.count, 0),
+            fraction.numerator,
+          );
+          assert.equal(
+            regions
+              .filter((r) => r.inDenominator)
+              .reduce((sum, r) => sum + r.count, 0),
+            fraction.denominator,
+          );
+          assert.ok(
+            regions.filter((r) => r.inNumerator).every((r) => r.inDenominator),
+          );
+        }
+});

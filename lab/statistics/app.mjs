@@ -1,24 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-crosstab-layout";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-resizable-navigation";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-crosstab-layout";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-crosstab-layout";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-crosstab-layout";
-import { sampleState } from "./shared/samples.mjs?v=20261024-crosstab-layout";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-crosstab-layout";
+} from "./shared/data-model.mjs?v=20261024-resizable-navigation";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-resizable-navigation";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-resizable-navigation";
+import { sampleState } from "./shared/samples.mjs?v=20261024-resizable-navigation";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-resizable-navigation";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-crosstab-layout";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-crosstab-layout";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-crosstab-layout";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-crosstab-layout";
+} from "./learning.mjs?v=20261024-resizable-navigation";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-resizable-navigation";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-resizable-navigation";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-resizable-navigation";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-crosstab-layout`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-resizable-navigation`))
   .default;
 const ui = {
   view: 0,

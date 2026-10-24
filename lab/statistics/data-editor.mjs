@@ -4,8 +4,8 @@ import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-crosstab-layout";
-import { experiences } from "./experience.mjs?v=20261024-crosstab-layout";
+} from "./shared/data-model.mjs?v=20261024-resizable-navigation";
+import { experiences } from "./experience.mjs?v=20261024-resizable-navigation";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

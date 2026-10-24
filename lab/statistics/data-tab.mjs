@@ -1,14 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261024-crosstab-layout";
+import { currentData } from "./shared/data-model.mjs?v=20261024-resizable-navigation";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-crosstab-layout";
+} from "./shared/table-data.mjs?v=20261024-resizable-navigation";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-crosstab-layout";
+} from "./data-editor.mjs?v=20261024-resizable-navigation";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

@@ -1830,6 +1830,7 @@ html.statistics-immersive body {
   grid-row: 2;
 }
 .screen-with-explanations > .screen-explanation-rail {
+  position: relative;
   grid-column: 2;
   grid-row: 1 / -1;
   display: flex;
@@ -1844,6 +1845,35 @@ html.statistics-immersive body {
   border-radius: 10px;
   background: #edf3ec;
   color: #38584c;
+}
+.screen-navigation-resize {
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 10;
+  width: 9px;
+  touch-action: none;
+  cursor: col-resize;
+  border-radius: 10px 0 0 10px;
+}
+.screen-navigation-resize::after {
+  content: "";
+  position: absolute;
+  top: calc(50% - 24px);
+  left: 3px;
+  height: 48px;
+  width: 3px;
+  border-radius: 2px;
+  background: #8da89a;
+}
+.screen-navigation-resize:is(:hover, :focus-visible) {
+  background: #17666022;
+  outline: 2px solid #176660;
+  outline-offset: -2px;
+}
+.screen-navigation-resizing,
+.screen-navigation-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
 }
 .screen-navigation-header {
   display: flex;
@@ -1943,7 +1973,7 @@ html.statistics-immersive body {
   top: 0;
   right: 0;
   bottom: 0;
-  width: min(280px, calc(100% - 48px));
+  width: var(--screen-navigation-width);
   box-shadow: 0 4px 20px #163b3c33;
 }
 
