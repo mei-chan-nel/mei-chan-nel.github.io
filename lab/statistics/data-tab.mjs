@@ -1,14 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261024-proportional-area";
+import { currentData } from "./shared/data-model.mjs?v=20261024-guided-counts";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-proportional-area";
+} from "./shared/table-data.mjs?v=20261024-guided-counts";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-proportional-area";
+} from "./data-editor.mjs?v=20261024-guided-counts";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

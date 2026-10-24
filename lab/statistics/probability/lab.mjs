@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-proportional-area";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
 import { fmt, sd } from "../shared/math.mjs";
 import {
   range,

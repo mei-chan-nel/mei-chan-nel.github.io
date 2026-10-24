@@ -1,7 +1,7 @@
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-proportional-area";
+} from "../shared/reading.mjs?v=20261024-guided-counts";
 import { esc, svg } from "../shared/ui.mjs";
 
 const METHOD = ["A方式", "B方式"];
@@ -11,7 +11,7 @@ import {
   areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261024-proportional-area";
+} from "./records.mjs?v=20261024-guided-counts";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -89,8 +89,8 @@ export function normalizeState(state = {}) {
     selectedScope: ["all", "0", "1"].includes(String(state.selectedScope))
       ? String(state.selectedScope)
       : "all",
-    selectedRow: [-1, 0, 1].includes(state.selectedRow) ? state.selectedRow : 0,
-    selectedCol: [-1, 0, 1].includes(state.selectedCol) ? state.selectedCol : 0,
+    selectedRow: state.selectedRow === 1 ? 1 : 0,
+    selectedCol: state.selectedCol === 1 ? 1 : 0,
     equalShare: bounded(state.equalShare ?? 50, 0, 100),
   };
 }
@@ -258,6 +258,49 @@ function comparisonChart(state) {
   });
   return svg(content, `合計・${STRATA.join("・")}の${OUTCOME[0]}率`, 720, 365);
 }
+export function comparisonQuestion(input) {
+  const state = normalizeState(input),
+    { METHOD, STRATA, OUTCOME } = displayLabels(state);
+  const mode = ["row", "column", "cell"].includes(state.mode)
+    ? state.mode
+    : "row";
+  const specific = state.selectedScope !== "all",
+    task = specific ? STRATA[Number(state.selectedScope)] : "";
+  const method = METHOD[state.selectedRow],
+    outcome = OUTCOME[state.selectedCol];
+  const resultPeople =
+    outcome === "達成"
+      ? "達成した人"
+      : outcome === "未達成"
+        ? "未達成だった人"
+        : `結果が「${outcome}」だった人`;
+  const scopePrefix = specific ? `${task}で` : "";
+  const base =
+    mode === "row"
+      ? `${scopePrefix}${method}を使った人`
+      : mode === "column"
+        ? `${scopePrefix}${resultPeople}`
+        : specific
+          ? `${task}に取り組んだ全員`
+          : "全員";
+  const focus =
+    mode === "row"
+      ? resultPeople
+      : mode === "column"
+        ? `${method}を使った人`
+        : `${method}で${resultPeople}`;
+  const numeratorText =
+    mode === "cell"
+      ? `${specific ? task + "の" : ""}${method}で${resultPeople}`
+      : `${base}のうち、${focus}`;
+  return {
+    mode,
+    base,
+    focus,
+    numeratorText,
+    sentence: `全体を「${base}」としたときの、「${focus}」の割合`,
+  };
+}
 function denominatorDiagram(state) {
   const { METHOD, STRATA, OUTCOME } = displayLabels(state),
     matrix = matrixFor(state.strata, state.selectedScope);
@@ -267,25 +310,7 @@ function denominatorDiagram(state) {
     state.selectedCol,
     state.mode,
   );
-  const scope =
-    state.selectedScope === "all"
-      ? "全体"
-      : STRATA[Number(state.selectedScope)];
-  const describePeople = (method, outcome) => {
-    const prefix = scope === "全体" ? "" : `${scope}の`;
-    if (outcome < 0)
-      return method < 0 ? `${prefix}全員` : `${prefix}${METHOD[method]}の全員`;
-    return method < 0
-      ? `${scope === "全体" ? "" : scope + "で"}${OUTCOME[outcome]}した人`
-      : `${prefix}${METHOD[method]}で${OUTCOME[outcome]}した人`;
-  };
-  const numeratorText = describePeople(state.selectedRow, state.selectedCol);
-  const base =
-    state.mode === "row"
-      ? describePeople(state.selectedRow, -1)
-      : state.mode === "column"
-        ? describePeople(-1, state.selectedCol)
-        : describePeople(-1, -1);
+  const { base, focus, numeratorText } = comparisonQuestion(state);
   const regions = denominatorRegions(
     state.strata,
     state.selectedScope,
@@ -298,7 +323,7 @@ function denominatorDiagram(state) {
   let content =
     '<defs><pattern id="ct-numerator" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#8d3c0b"/><path d="M-2 2L2-2M0 8L8 0M6 10L10 6" stroke="#fff" stroke-opacity=".3" stroke-width="1.5"/></pattern></defs>';
   for (const band of layout.methods)
-    content += `<text x="68" y="${band.y + band.height / 2 + 5}" text-anchor="end" class="ct-method-label">${esc(METHOD[band.method])}</text>`;
+    content += `<text x="68" y="${band.y + band.height / 2 + 5}" text-anchor="end" class="ct-method-label" data-ct-method-y="${band.y + band.height / 2}">${esc(METHOD[band.method])}</text>`;
   for (const box of layout.regions) {
     const {
       stratum: s,
@@ -321,24 +346,38 @@ function denominatorDiagram(state) {
     const id = `${s},${r},${c}`,
       clip = `ct-region-clip-${s}-${r}-${c}`;
     const text = `${shortTask(STRATA[s])}・${OUTCOME[c]} ${count}人`;
-    content += `<clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath><rect x="${x}" y="${y}" width="${width}" height="${height}" data-ct-region="${id}" data-ct-count="${count}" data-ct-numerator="${region.inNumerator}" data-ct-denominator="${region.inDenominator}" fill="${fill}" stroke="#839b91" stroke-width="1" role="img" aria-label="${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人"><title>${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人（${region.inNumerator ? "分子・分母に含む" : region.inDenominator ? "分母に含む" : "分母に含まない"}）</title></rect><text x="${x + width / 2}" y="${y + height / 2 - 4}" data-ct-region-label="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})" aria-label="${esc(text)}">${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}</text><text x="${x + width / 2}" y="${y + height / 2 + 12}" data-ct-region-number="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})">${count}人</text>`;
+    content += `<clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath><rect x="${x}" y="${y}" width="${width}" height="${height}" data-ct-region="${id}" data-ct-x="${x}" data-ct-y="${y}" data-ct-width="${width}" data-ct-height="${height}" data-ct-count="${count}" data-ct-numerator="${region.inNumerator}" data-ct-denominator="${region.inDenominator}" fill="${fill}" stroke="#839b91" stroke-width="1" role="img" aria-label="${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人"><title>${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人（${region.inNumerator ? "分子・分母に含む" : region.inDenominator ? "分母に含む" : "分母に含まない"}）</title></rect><text x="${x + width / 2}" y="${y + height / 2 - 4}" data-ct-region-label="${id}" data-ct-label-name="${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})" aria-label="${esc(text)}">${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}</text><text x="${x + width / 2}" y="${y + height / 2 + 12}" data-ct-region-number="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})">${count}人</text>`;
   }
-  const smallRegions = layout.regions.filter(
-    (box) => box.width < 96 - 1e-8 || box.height < 36 - 1e-8,
-  );
-  const smallLabels = smallRegions
+  const smallLabels = layout.regions
     .map(
       (box) =>
-        `<span class="ct-small-region-label">${esc(METHOD[box.method])}・${esc(shortTask(STRATA[box.stratum]))}・${esc(OUTCOME[box.outcome])} ${box.count}人</span>`,
+        `<span class="ct-small-region-label" data-ct-region-legend="${box.stratum},${box.method},${box.outcome}">${esc(METHOD[box.method])}・${esc(shortTask(STRATA[box.stratum]))}・${esc(OUTCOME[box.outcome])} ${box.count}人</span>`,
     )
     .join("");
+  const boundaries = [
+    ...new Set(
+      layout.regions
+        .filter((box) => box.outcome === 0)
+        .map((box) => box.y + box.height),
+    ),
+  ].filter((y) => y > 12 + 1e-8 && y < 12 + layout.plotHeight - 1e-8);
+  for (const y of boundaries)
+    content += `<line data-ct-row-divider data-ct-line-y="${y}" x1="80" x2="${80 + layout.plotWidth}" y1="${y}" y2="${y}" stroke="#526f62" stroke-width="${Math.abs(y - layout.methods[1].y) < 1e-8 ? 3 : 2}" vector-effect="non-scaling-stroke"/>`;
   const calculation = denominator
     ? `${numerator}人 ÷ ${denominator}人 × 100 = ${pct(ratio)}`
     : "分母が0人のため割合は求められません";
-  return `<section class="panel chart-panel crosstab-denominator"><h3>分子と分母</h3><div class="ct-formula"><span>分子：${esc(numeratorText)} <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${`<div class="ct-diagram-scroll" style="--ct-diagram-width:${layout.width}px;--ct-diagram-height:${layout.height}px" tabindex="0" role="region" aria-label="人数に面積が比例する分子と分母の図。スクロールできます。">${svg(content, `${METHOD[0]}と${METHOD[1]}の人数に面積が比例する図。初級は上、応用は下、達成は左、未達成は右。`, layout.width, layout.height)}</div>`}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span>${smallLabels}</div></section>`;
+  return `<section class="panel chart-panel crosstab-denominator"><h3>実数を比べる</h3><div class="ct-formula"><p class="ct-question-summary" role="status">全体を<strong>${esc(base)}</strong>としたときの、<strong>${esc(focus)}</strong>の割合</p><span>分子：${esc(numeratorText)} <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${`<div class="ct-diagram-scroll" tabindex="0" role="region" aria-label="実数を比べる図。区画の面積は人数に比例します。">${svg(content, `${METHOD[0]}と${METHOD[1]}の人数に面積が比例する図。初級は上、応用は下、達成は左、未達成は右。`, layout.width, layout.height).replace("<svg", `<svg style="aspect-ratio:${layout.width} / ${layout.height}" data-ct-mosaic data-ct-plot-width="${layout.plotWidth}" data-ct-plot-height="${layout.plotHeight}"`)}</div>`}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span>${smallLabels}</div></section>`;
 }
-function choices(id, label, options, value, key, numeric = false) {
-  return `<fieldset class="ct-choice-group"><legend>${esc(label)}</legend><div class="ct-choice-options">${options.map(([v, text]) => `<label class="ct-choice"><input type="radio" id="${id}-${esc(v)}" name="${id}" value="${esc(v)}" data-ct-state="${key}" ${numeric ? "data-ct-number" : ""} ${String(v) === String(value) ? "checked" : ""}><span>${esc(text)}</span></label>`).join("")}</div></fieldset>`;
+function choices(
+  id,
+  label,
+  options,
+  value,
+  key,
+  numeric = false,
+  className = "",
+) {
+  return `<fieldset class="ct-choice-group ${className}"><legend>${esc(label)}</legend><div class="ct-choice-options">${options.map(([v, text]) => `<label class="ct-choice"><input type="radio" id="${id}-${esc(v)}" name="${id}" value="${esc(v)}" data-ct-state="${key}" ${numeric ? "data-ct-number" : ""} ${String(v) === String(value) ? "checked" : ""}><span>${esc(text)}</span></label>`).join("")}</div></fieldset>`;
 }
 export default {
   id: "crosstab",
@@ -377,44 +416,47 @@ export default {
     } else {
       const ratioMode = state.mode === "count" ? "row" : state.mode;
       state.mode = ratioMode;
+      const scopeControl = choices(
+        "ct-scope",
+        "課題難度",
+        scopes.map(([v, label]) => [v, v === "all" ? "全体" : label]),
+        state.selectedScope,
+        "selectedScope",
+      );
+      const methodControl = choices(
+        "ct-row",
+        ratioMode === "row" ? "基準にする方式" : "調べる方式",
+        METHOD.map((label, i) => [String(i), label]),
+        state.selectedRow,
+        "selectedRow",
+        true,
+      );
+      const resultControl = choices(
+        "ct-col",
+        ratioMode === "column" ? "基準にする結果" : "調べる結果",
+        OUTCOME.map((label, i) => [String(i), label]),
+        state.selectedCol,
+        "selectedCol",
+        true,
+      );
       toolbar =
         choices(
-          "ct-scope",
-          "課題難度",
-          scopes.map(([value, label]) => [
-            value,
-            value === "all" ? "全体" : label,
-          ]),
-          state.selectedScope,
-          "selectedScope",
-        ) +
-        choices(
-          "ct-row",
-          "方式",
-          [["-1", "全体"], ...METHOD.map((name, i) => [String(i), name])],
-          state.selectedRow,
-          "selectedRow",
-          true,
-        ) +
-        choices(
-          "ct-col",
-          "結果",
-          [["-1", "全体"], ...OUTCOME.map((name, i) => [String(i), name])],
-          state.selectedCol,
-          "selectedCol",
-          true,
-        ) +
-        choices(
-          "ct-mode",
-          "割合の分母",
+          "ct-question",
+          "調べること",
           [
-            ["cell", "全体"],
-            ["row", "方式ごと"],
-            ["column", "結果ごと"],
+            ["row", "方式別の結果"],
+            ["column", "結果別の方式"],
+            ["cell", "全員に占める組み合わせ"],
           ],
           ratioMode,
           "mode",
-        );
+          false,
+          "ct-question-group",
+        ) +
+        scopeControl +
+        (ratioMode === "column"
+          ? resultControl + methodControl
+          : methodControl + resultControl);
       content = denominatorDiagram(state);
     }
     const notes = readingNotes("crosstab", view, state);
@@ -422,8 +464,8 @@ export default {
     root.querySelectorAll("input[data-ct-state]").forEach((input) => {
       input.addEventListener("change", () => {
         if (!input.checked) return;
-        const view = root.ownerDocument.defaultView;
-        const position = { left: view.scrollX, top: view.scrollY };
+        const page = root.ownerDocument.defaultView;
+        const position = { left: page.scrollX, top: page.scrollY };
         const previousPlot = root.querySelector(".ct-diagram-scroll");
         const plotPosition = {
           left: previousPlot?.scrollLeft || 0,
@@ -433,6 +475,13 @@ export default {
           root.closest(".statistics-fullscreen")?.open,
         );
         ctx.update({
+          ...(view === 2
+            ? {
+                mode: state.mode,
+                selectedRow: state.selectedRow,
+                selectedCol: state.selectedCol,
+              }
+            : {}),
           [input.dataset.ctState]: input.hasAttribute("data-ct-number")
             ? Number(input.value)
             : input.value,
@@ -448,12 +497,12 @@ export default {
           }
           if (
             !fullscreen &&
-            (view.scrollX !== position.left || view.scrollY !== position.top)
+            (page.scrollX !== position.left || page.scrollY !== position.top)
           )
-            view.scrollTo({ ...position, behavior: "instant" });
+            page.scrollTo({ ...position, behavior: "instant" });
         };
         restorePosition();
-        view.requestAnimationFrame(restorePosition);
+        page.requestAnimationFrame(restorePosition);
       });
     });
   },

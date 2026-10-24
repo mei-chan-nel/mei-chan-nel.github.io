@@ -1,3 +1,84 @@
+const labelWidth = (text) =>
+  [...text].reduce(
+    (sum, char) => sum + (/[\u0000-\u00ff]/.test(char) ? 7 : 12),
+    0,
+  );
+
+function fitMosaicLabels(svg) {
+  const root =
+    svg.closest("#experiment") || svg.closest(".crosstab-denominator");
+  for (const box of svg.querySelectorAll("[data-ct-region]")) {
+    const key = box.dataset.ctRegion;
+    const name = svg.querySelector(`[data-ct-region-label="${key}"]`),
+      number = svg.querySelector(`[data-ct-region-number="${key}"]`);
+    const legend = root?.querySelector(`[data-ct-region-legend="${key}"]`);
+    const x = Number(box.getAttribute("x")),
+      y = Number(box.getAttribute("y")),
+      width = Number(box.getAttribute("width")),
+      height = Number(box.getAttribute("height"));
+    const title = name.dataset.ctLabelName,
+      count = `${box.dataset.ctCount}人`;
+    const twoLines =
+      height >= 34 &&
+      width >= Math.max(labelWidth(title), labelWidth(count)) + 8;
+    const oneLine =
+      !twoLines &&
+      height >= 18 &&
+      width >= labelWidth(title) + labelWidth(count) + 18;
+    const countOnly =
+      !twoLines && !oneLine && height >= 18 && width >= labelWidth(count) + 6;
+    const shownTitle = oneLine ? `${title} ${count}` : title;
+    if (name.textContent !== shownTitle) name.textContent = shownTitle;
+    name.style.display = twoLines || oneLine ? "" : "none";
+    number.style.display = twoLines || countOnly ? "" : "none";
+    for (const label of [name, number]) {
+      label.setAttribute("x", String(x + width / 2));
+      label.style.fontSize = "12px";
+    }
+    name.setAttribute("y", String(y + height / 2 + (twoLines ? -4 : 4)));
+    number.setAttribute("y", String(y + height / 2 + (twoLines ? 12 : 4)));
+    if (legend) legend.hidden = twoLines || oneLine;
+  }
+}
+
+function fitMosaic(svg, width, height) {
+  const left = Math.min(80, Math.max(55, width * 0.09)),
+    top = 12;
+  const plotWidth = Math.max(1, width - left - 8),
+    plotHeight = Math.max(1, height - 20);
+  const sx = plotWidth / Number(svg.dataset.ctPlotWidth),
+    sy = plotHeight / Number(svg.dataset.ctPlotHeight);
+  for (const box of svg.querySelectorAll("[data-ct-region]")) {
+    const key = box.dataset.ctRegion.replaceAll(",", "-");
+    const clip = svg.querySelector(`#ct-region-clip-${key} rect`);
+    const geometry = {
+      x: left + (Number(box.dataset.ctX) - 80) * sx,
+      y: top + (Number(box.dataset.ctY) - 12) * sy,
+      width: Number(box.dataset.ctWidth) * sx,
+      height: Number(box.dataset.ctHeight) * sy,
+    };
+    for (const node of [box, clip])
+      for (const [name, value] of Object.entries(geometry))
+        node.setAttribute(name, String(value));
+  }
+  for (const label of svg.querySelectorAll("[data-ct-method-y]")) {
+    label.setAttribute("x", String(left - 8));
+    label.setAttribute(
+      "y",
+      String(top + (Number(label.dataset.ctMethodY) - 12) * sy + 5),
+    );
+  }
+  for (const line of svg.querySelectorAll("[data-ct-row-divider]")) {
+    const y = top + (Number(line.dataset.ctLineY) - 12) * sy;
+    line.setAttribute("x1", String(left));
+    line.setAttribute("x2", String(left + plotWidth));
+    line.setAttribute("y1", String(y));
+    line.setAttribute("y2", String(y));
+  }
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  fitMosaicLabels(svg);
+}
+
 // Reflow coordinates to keep text and handles readable at the displayed chart size.
 // Points keep their hit area and text keeps its readable font size.
 export function fitWorkspaceCharts(container) {
@@ -20,6 +101,12 @@ export function fitWorkspaceCharts(container) {
       Math.abs(Number(svg.dataset.layoutHeight) - height) < 0.5
     )
       continue;
+    if (svg.hasAttribute("data-ct-mosaic")) {
+      fitMosaic(svg, width, height);
+      svg.dataset.layoutWidth = String(width);
+      svg.dataset.layoutHeight = String(height);
+      continue;
+    }
     if (
       svg.matches("[data-sampling-population]") &&
       svg.closest(".statistics-chart-fullscreen")

@@ -2508,16 +2508,16 @@ html.statistics-immersive body {
   }
 }
 
-/* Keep every fraction label readable; narrow viewports can pan the whole diagram. */
+/* The mosaic follows the available width without changing population area shares. */
 .ct-diagram-scroll {
   width: 100%;
   min-width: 0;
   overflow: auto;
 }
 .crosstab-denominator .ct-diagram-scroll .stat-chart {
-  min-width: var(--ct-diagram-width);
-  min-height: var(--ct-diagram-height) !important;
-  max-width: none;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 .statistics-chart-fullscreen .crosstab-denominator .ct-diagram-scroll {
   overflow: auto;
@@ -2526,9 +2526,9 @@ html.statistics-immersive body {
   .crosstab-denominator
   .ct-diagram-scroll
   [data-screen-chart] {
-  min-width: var(--ct-diagram-width);
-  min-height: var(--ct-diagram-height) !important;
-  max-width: none;
+  min-width: 0;
+  min-height: 160px !important;
+  max-width: 100%;
 }
 /* Fullscreen scroll regions keep wheel, touch and keyboard scrolling available. */
 .statistics-fullscreen,
@@ -2545,4 +2545,26 @@ html.statistics-immersive body {
 
 [data-stat-lab="crosstab"] #experiment {
   overflow-anchor: none;
+}
+
+.ct-controls .ct-question-group {
+  flex-basis: 100%;
+}
+.ct-question-summary {
+  flex-basis: 100%;
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+.ct-question-summary strong {
+  color: #154f43;
+  margin: 0 3px;
+}
+.ct-area-legend [hidden] {
+  display: none !important;
+}
+.ct-area-legend > span {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }

@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-proportional-area";
+} from "./descriptive.mjs?v=20261024-guided-counts";
 
 const n = (value) =>
   value === null || value === undefined

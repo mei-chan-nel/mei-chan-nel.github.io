@@ -47,7 +47,7 @@ export const experiences = {
     purpose: "割合の分母を確かめ、課題別と合計の達成率を比べる。",
     input: "1人ごとの課題難度・方式・結果",
     result: "クロス集計表・割合の比較",
-    views: ["クロス集計表", "割合を比べる", "分子・分母"],
+    views: ["クロス集計表", "割合を比べる", "実数を比べる"],
   },
   "time-series": {
     intro:

@@ -137,25 +137,10 @@ export function areaDiagram(strata) {
       count: strata[stratum].counts[method].reduce((a, b) => a + b, 0),
     })),
   );
-  // Expand the complete canvas, never individual cells, to preserve area ratios.
-  const plotWidth = Math.min(
-    6000,
-    Math.max(
-      900,
-      ...rows.flatMap((row) =>
-        row.counts.filter((n) => n > 0).map((n) => (96 * row.count) / n),
-      ),
-    ),
-  );
-  const plotHeight = Math.min(
-    2400,
-    Math.max(
-      320,
-      ...rows
-        .filter((row) => row.count > 0)
-        .map((row) => (36 * total) / row.count),
-    ),
-  );
+  // Use one normalized coordinate system. Responsive rendering scales every
+  // region by the same factors, so its area share always equals its count share.
+  const plotWidth = 900,
+    plotHeight = 360;
   const left = 80,
     top = 12,
     regions = [],

@@ -1,10 +1,10 @@
 import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
 import { esc, table, metrics } from "./shared/ui.mjs";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-proportional-area";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-proportional-area";
-import correlation from "./correlation/lab.mjs?v=20261024-proportional-area";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-proportional-area";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-guided-counts";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-guided-counts";
+import correlation from "./correlation/lab.mjs?v=20261024-guided-counts";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-guided-counts";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

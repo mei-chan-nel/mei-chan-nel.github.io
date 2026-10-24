@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-proportional-area";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261024-proportional-area";
+import { render } from "./view.mjs?v=20261024-guided-counts";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

@@ -300,7 +300,7 @@ test("fixed population regions select the exact numerator and denominator for ev
         }
 });
 
-test("overall method and outcome choices calculate actual marginal counts", () => {
+test("marginal counts remain correct while obsolete overall-axis choices migrate", () => {
   const matrix = matrixFor(makeInitial().strata);
   assert.deepEqual(cellSummary(matrix, -1, 0, "cell"), {
     numerator: 110,
@@ -334,8 +334,8 @@ test("overall method and outcome choices calculate actual marginal counts", () =
     selectedRow: -1,
     selectedCol: -1,
   });
-  assert.equal(state.selectedRow, -1);
-  assert.equal(state.selectedCol, -1);
+  assert.equal(state.selectedRow, 0);
+  assert.equal(state.selectedCol, 0);
 });
 
 import { areaDiagram } from "./records.mjs";
@@ -436,4 +436,78 @@ test("fraction mosaics use population area ratios, fixed orientation and touchin
         }
       }
   }
+});
+
+import { comparisonQuestion } from "./lab.mjs";
+test("guided questions state a distinct population and target without configuration-forced 100 percent", () => {
+  const initial = makeInitial(),
+    before = JSON.stringify(initial),
+    sentences = new Set();
+  for (const mode of ["row", "column", "cell"])
+    for (const selectedScope of ["all", "0", "1"])
+      for (const selectedRow of [0, 1])
+        for (const selectedCol of [0, 1]) {
+          const state = {
+              ...initial,
+              mode,
+              selectedScope,
+              selectedRow,
+              selectedCol,
+            },
+            q = comparisonQuestion(state);
+          assert.ok(q.base && q.focus && q.numeratorText);
+          assert.ok(q.sentence.startsWith("全体を「"));
+          assert.ok(!/undefined|NaN|未達成した/.test(q.sentence));
+          const result = cellSummary(
+            matrixFor(state.strata, selectedScope),
+            selectedRow,
+            selectedCol,
+            mode,
+          );
+          assert.ok(
+            result.numerator > 0 && result.numerator < result.denominator,
+            "no purpose-picker combination is a tautological whole/whole ratio",
+          );
+          sentences.add(q.sentence);
+        }
+  assert.equal(sentences.size, 36);
+  assert.equal(JSON.stringify(initial), before);
+  const example = {
+    ...initial,
+    mode: "column",
+    selectedScope: "1",
+    selectedRow: 1,
+    selectedCol: 1,
+  };
+  example.strata[1].counts[0] = [21, 50];
+  assert.equal(
+    comparisonQuestion(example).sentence,
+    "全体を「応用課題で未達成だった人」としたときの、「B方式を使った人」の割合",
+  );
+  assert.equal(
+    cellSummary(matrixFor(example.strata, "1"), 1, 1, "column").ratio,
+    16 / 66,
+  );
+  const census = {
+    ...makeInitial(),
+    strata: [
+      {
+        counts: [
+          [1, 0],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+    ],
+  };
+  assert.equal(
+    cellSummary(matrixFor(census.strata), 0, 0, "row").ratio,
+    1,
+    "genuine 100 percent observations remain valid",
+  );
 });

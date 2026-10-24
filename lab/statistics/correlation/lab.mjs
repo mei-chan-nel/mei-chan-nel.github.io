@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-proportional-area";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
 import { esc, metrics, table, svg, drag } from "../shared/ui.mjs";
 import { readDataset } from "../shared/data.mjs";

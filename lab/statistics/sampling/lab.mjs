@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-proportional-area";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
 import { mean, fmt } from "../shared/math.mjs";
 import { esc, number, select, metrics, svg, bind } from "../shared/ui.mjs";
 import {
@@ -11,7 +11,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-proportional-area";
+} from "./model.mjs?v=20261024-guided-counts";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");
