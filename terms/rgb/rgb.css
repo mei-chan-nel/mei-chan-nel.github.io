@@ -1,0 +1,112 @@
+.rgb-mixer {
+  min-width: 0;
+  margin: 30px 0 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--ink);
+}
+
+.rgb-mixer__preview {
+  min-height: 122px;
+  margin-bottom: 10px;
+  padding: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgb(190, 128, 52);
+}
+
+.rgb-mixer__value {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: .95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+
+.rgb-mixer__row {
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr) 3ch;
+  align-items: center;
+  gap: 14px;
+  font-size: .9rem;
+}
+
+.rgb-mixer__row label {
+  white-space: nowrap;
+}
+
+.rgb-mixer__row output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.rgb-mixer input[type="range"] {
+  width: 100%;
+  min-width: 0;
+  height: 28px;
+  margin: 0;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.rgb-mixer input[type="range"]::-webkit-slider-runnable-track {
+  height: 24px;
+  border-radius: 999px;
+  background: #f1f1ef;
+}
+
+.rgb-mixer input[type="range"]::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(16 47 53 / 12%);
+}
+
+.rgb-mixer input[type="range"]::-moz-range-track {
+  height: 24px;
+  border-radius: 999px;
+  background: #f1f1ef;
+}
+
+.rgb-mixer input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(16 47 53 / 12%);
+}
+
+.rgb-mixer input[type="range"]:focus-visible {
+  border-radius: 999px;
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.rgb-mixer input[type="range"]:disabled {
+  opacity: .6;
+  cursor: default;
+}
+
+@media (max-width: 480px) {
+  .rgb-mixer__row {
+    grid-template-columns: 62px minmax(0, 1fr) 3ch;
+    gap: 10px;
+    font-size: .82rem;
+  }
+}

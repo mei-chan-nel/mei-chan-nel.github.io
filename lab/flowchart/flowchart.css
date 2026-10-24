@@ -1,0 +1,499 @@
+.flow-question-navigation {
+  margin: 0 0 10px;
+  font-size: 0.8rem;
+}
+.flow-video-status {
+  padding: 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+}
+.flow-video-status p {
+  margin: 0 0 8px;
+}
+.flow-question-navigation[hidden],
+.flow-video-status[hidden],
+.flowchart-lab[hidden] {
+  display: none;
+}
+.flowchart-lab .part-button {
+  min-height: 58px;
+  padding: 5px 6px;
+  gap: 4px;
+}
+.flowchart-lab .part-icon {
+  width: 62px;
+  height: 32px;
+}
+.flowchart-lab .part-button > span:last-child {
+  font-size: 0.68rem;
+}
+.flowchart-lab .extra-part .part-icon {
+  width: 38px;
+  height: 22px;
+}
+.flowchart-lab .circuit-stage {
+  height: clamp(560px, 72vh, 780px);
+}
+.flowchart-lab .circuit-toolbar {
+  flex-wrap: wrap;
+}
+.flowchart-lab .circuit-document-actions {
+  flex-wrap: wrap;
+}
+.flow-scope-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  flex-wrap: wrap;
+}
+.flow-scope-bar select {
+  max-width: 220px;
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: white;
+  color: var(--ink);
+}
+.flow-scope-bar button {
+  padding: 5px 9px;
+}
+.flow-index {
+  margin-left: auto;
+}
+.flow-run-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.flow-run-actions[hidden],
+#edit-actions[hidden] {
+  display: none;
+}
+.flow-run-actions label {
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+#speed-input {
+  width: 58px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.flowchart-lab button.flow-primary {
+  background: var(--blue-strong);
+  color: #fff;
+  border-color: var(--blue-strong);
+}
+#flow-board {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  user-select: none;
+}
+.flow-node-body {
+  cursor: grab;
+}
+.flow-node-body > rect,
+.flow-node-body > path,
+.flow-node-body > circle {
+  fill: white;
+  stroke: var(--ink);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.flow-node.is-selected .flow-node-body > rect,
+.flow-node.is-selected .flow-node-body > path,
+.flow-node.is-selected .flow-node-body > circle {
+  stroke: var(--blue-strong);
+  stroke-width: 3;
+}
+.flow-node.is-current .flow-node-body > rect,
+.flow-node.is-current .flow-node-body > path,
+.flow-node.is-current .flow-node-body > circle {
+  fill: #e0eff7;
+  stroke: var(--blue-strong);
+  stroke-width: 3;
+}
+.flow-node.is-next .flow-node-body > rect,
+.flow-node.is-next .flow-node-body > path,
+.flow-node.is-next .flow-node-body > circle {
+  stroke: #317c67;
+  stroke-dasharray: 5 3;
+}
+.flow-node-code {
+  text-anchor: middle;
+  font-size: 15px;
+  font-weight: 650;
+  fill: var(--ink);
+  pointer-events: none;
+}
+.flow-node-number {
+  text-anchor: end;
+  font-size: 12px;
+  fill: var(--ink-soft);
+}
+.flowchart-lab
+  .flow-node[data-type="connector"]
+  .flow-node-body
+  > .flow-merge-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+}
+.flow-node[data-type="connector"] .flow-node-code {
+  text-anchor: end;
+  font-size: 12px;
+}
+.flow-node[data-type="connector"].is-selected .flow-node-body > .flow-merge-hit,
+.flow-node[data-type="connector"]
+  .flow-node-body:focus-visible
+  > .flow-merge-hit {
+  fill: #e0eff733;
+  stroke: #255e77;
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.flow-branch-label {
+  text-anchor: middle;
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+.flow-port {
+  cursor: crosshair;
+}
+.flow-port circle:not(.flow-port-hit) {
+  fill: white;
+  stroke: var(--blue-strong);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.flow-port .flow-port-hit {
+  fill: transparent;
+  stroke: none;
+}
+.flow-port.is-pending circle:not(.flow-port-hit),
+.flow-port:hover circle:not(.flow-port-hit) {
+  fill: var(--blue-strong);
+}
+.flow-wire {
+  cursor: pointer;
+}
+.flow-wire-line {
+  fill: none;
+  stroke: #607e83;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.flow-wire-hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 18;
+  vector-effect: non-scaling-stroke;
+}
+.flow-wire.is-current .flow-wire-line,
+.flow-wire.is-selected .flow-wire-line {
+  stroke: #255e77;
+  stroke-width: 3;
+}
+.flow-wire:focus-visible .flow-wire-line,
+.flow-node-body:focus-visible > rect,
+.flow-node-body:focus-visible > path,
+.flow-node-body:focus-visible > circle,
+.flow-port:focus-visible circle:not(.flow-port-hit) {
+  stroke: #255e77;
+  stroke-width: 3;
+  outline: none;
+}
+.flow-loop-pair {
+  fill: none;
+  stroke: #317c67;
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.flow-pair-label {
+  text-anchor: end;
+  fill: #317c67;
+  font-size: 12px;
+}
+#flow-preview {
+  fill: none;
+  stroke: #255e77;
+  stroke-width: 2;
+  stroke-dasharray: 6 3;
+  pointer-events: none;
+}
+#flow-join-preview {
+  fill: #e0eff7;
+  stroke: #255e77;
+  stroke-width: 2;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
+}
+#flow-join-preview[hidden] {
+  display: none;
+}
+.flow-wire.is-target .flow-wire-line {
+  stroke: #255e77;
+  stroke-width: 3;
+}
+.flow-edge-end {
+  cursor: grab;
+}
+.flow-edge-end circle {
+  fill: white;
+  stroke: #255e77;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.flow-edge-end .flow-end-hit {
+  fill: transparent;
+  stroke: none;
+}
+.flow-wire.is-invalid .flow-wire-line,
+#flow-preview.is-invalid {
+  stroke: #b95847;
+  stroke-dasharray: 5 3;
+}
+.flow-results {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 0.9fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+.flow-results[hidden] {
+  display: none;
+}
+.flow-result {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: white;
+  min-width: 0;
+  font-size: 0.76rem;
+  line-height: 1.7;
+}
+.flow-result h2 {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+}
+.flow-result h3 {
+  margin: 0 0 6px;
+  font-size: 0.82rem;
+}
+.flow-result h2 span {
+  font-size: 0.68rem;
+  color: var(--ink-soft);
+  font-weight: 400;
+}
+.flow-result p {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+.flow-result-scroll {
+  max-height: 230px;
+  overflow: auto;
+}
+#variable-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.72rem;
+}
+#variable-table th,
+#variable-table td {
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+#variable-table tr.is-changed {
+  background: #e0eff7;
+}
+#variable-table tr.is-read {
+  background: #e9f2ee;
+}
+#variable-table .value-before {
+  color: var(--ink-soft);
+}
+.flow-output-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  align-items: start;
+}
+.flow-output-heading button {
+  font-size: 0.65rem;
+  padding: 3px 5px;
+}
+#output-lines {
+  margin: 0;
+  padding-left: 20px;
+  overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow: auto;
+}
+#flow-step-count {
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+#condition-result {
+  padding: 5px;
+  background: #e9f2ee;
+  border-radius: 5px;
+}
+.flow-input-bounds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+.flow-input-bounds input[type="number"] {
+  width: 100px;
+}
+.circuit-dialog textarea {
+  font: inherit;
+  line-height: 1.6;
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: white;
+  color: var(--ink);
+}
+#program-source {
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  white-space: pre;
+}
+.flow-open-program {
+  padding: 7px 10px;
+  border-radius: 7px;
+  background: var(--blue-strong);
+  color: white;
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+#all-outputs {
+  max-height: 60vh;
+  overflow: auto;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 820px) {
+  .flowchart-lab .circuit-stage {
+    height: 420px;
+  }
+  .flowchart-lab .parts-bar {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+  .flow-results {
+    grid-template-columns: 1fr 1fr;
+  }
+  .flow-result:first-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 600px) {
+  .flowchart-lab .parts-bar {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .flowchart-lab .part-button {
+    min-height: 58px;
+  }
+  .flowchart-lab .part-icon {
+    width: 48px;
+    height: 28px;
+  }
+  .flowchart-lab .part-button > span:last-child {
+    font-size: 0.57rem;
+  }
+  .flowchart-lab .extra-part {
+    grid-column: auto;
+  }
+  .flowchart-lab .circuit-stage {
+    height: 360px;
+  }
+  .flowchart-lab .circuit-toolbar button {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+  .flow-index {
+    margin-left: 0;
+  }
+  .flow-results {
+    grid-template-columns: 1fr;
+  }
+  .flow-result:first-child {
+    grid-column: auto;
+  }
+  .flowchart-lab .circuit-document-bar {
+    gap: 7px;
+  }
+  .flowchart-lab .circuit-document-actions button {
+    font-size: 0.68rem;
+  }
+  .flowchart-lab .circuit-document-actions {
+    justify-content: flex-start;
+  }
+}
+
+.flowchart-lab button.flow-primary:hover:not(:disabled) {
+  background: #255e77;
+  border-color: #255e77;
+}
+#input-spec-fields .input-setting {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 0.8rem;
+}
+#input-spec-fields .spec-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+#input-spec-fields .spec-wide {
+  grid-column: 1/-1;
+}
+#input-spec-fields label {
+  display: block;
+}
+#input-spec-fields select,
+#input-spec-fields input {
+  width: 100%;
+  min-width: 0;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--ink);
+  background: white;
+  font: inherit;
+}
+#input-spec-fields .spec-fields [hidden] {
+  display: none;
+}
+
+.flowchart-lab .part-button > span:last-child {
+  white-space: normal;
+  text-align: center;
+  line-height: 1.4;
+  max-width: 100%;
+}
+@media (max-width: 600px) {
+  .flowchart-lab .circuit-document-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .flowchart-lab.is-executing .parts-bar {
+    display: none;
+  }
+}

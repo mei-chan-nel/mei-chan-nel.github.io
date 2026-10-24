@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>量子化とは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="量子化の意味とデジタル化の手順、量子化誤差、量子化ビット数と段階数、標本化周波数との違い、音声データ量、画像の量子化を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="量子化" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="量子化とは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="量子化の意味とデジタル化の手順、量子化誤差、量子化ビット数と段階数、標本化周波数との違い、音声データ量、画像の量子化を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/quantization/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/quantization/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">量子化</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">量子化</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「量子化」とは</h2>
+          <p><strong>量子化（quantization）</strong>とは、連続的に変化する値を、あらかじめ決められた有限個の段階のいずれかに対応させる処理です。</p>
+          <p>例えば、音声の振幅（波形の高さ）は連続的に変化しますが、コンピュータでは無限に細かい値をそのまま記録することはできません。そこで、取り出した振幅を最も近い段階の値に置き換えます。この処理を量子化といいます。</p>
+          <p>量子化は、音声や画像などのアナログ情報をデジタルデータに変換する際に用いられます。</p>
+        </section>
+
+        <section>
+          <h2>デジタル化の3つの手順</h2>
+          <p>アナログ情報をデジタル化する基本的な手順は、<strong>標本化→量子化→符号化</strong>です。</p>
+
+          <h3>① 標本化（サンプリング）</h3>
+          <p>連続的に変化する信号から、一定の間隔で値を取り出す処理です。</p>
+          <p>音声の場合は、一定の時間間隔で振幅を測定します。例えば、1秒間に44,100回測定する場合、標本化周波数は44,100Hz（44.1kHz）となります。</p>
+          <p>標本化によって、時間方向に連続していた信号が、一定間隔で並んだ測定値になります。</p>
+
+          <h3>② 量子化</h3>
+          <p>標本化によって取り出した値を、あらかじめ決められた有限個の段階に対応させる処理です。</p>
+          <p>例えば、振幅が0.43で、使用できる段階が0、0.25、0.50、0.75、1.00であれば、最も近い0.50に置き換えます。</p>
+          <p>量子化によって、連続的な振幅が離散的な値になります。</p>
+
+          <h3>③ 符号化</h3>
+          <p>量子化した値を、0と1の組合せであるビット列として表す処理です。</p>
+          <p>例えば、8段階に量子化した値は、000から111までの3ビットのビット列で表現できます。</p>
+          <p>この3つの処理によって、アナログ情報をコンピュータで記録・処理できるデジタルデータに変換します。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">処理</th><th scope="col">役割</th><th scope="col">音声の場合</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>標本化</td><td>一定間隔で値を取り出す</td><td>時間方向を区切る</td></tr>
+              <tr><td>量子化</td><td>値を有限個の段階に対応させる</td><td>振幅方向を区切る</td></tr>
+              <tr><td>符号化</td><td>値をビット列にする</td><td>0と1で表す</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <h2>量子化の具体例と量子化誤差</h2>
+          <p>音声の振幅を−1.0から1.0の範囲で表すことにします。</p>
+          <p>量子化に使用できる段階を、次の5つに限定します。</p>
+          <p class="term-formula"><strong>−1.0、−0.5、0.0、0.5、1.0</strong></p>
+          <p>このとき、測定した振幅は最も近い段階に置き換えられます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">元の振幅</th><th scope="col">量子化後の値</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>−0.82</td><td>−1.0</td></tr>
+              <tr><td>−0.42</td><td>−0.5</td></tr>
+              <tr><td>0.13</td><td>0.0</td></tr>
+              <tr><td>0.38</td><td>0.5</td></tr>
+              <tr><td>0.91</td><td>1.0</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、−0.42は−0.5に置き換えられます。</p>
+          <p>このように、量子化では元の値と量子化後の値に差が生じます。この差を<strong>量子化誤差</strong>といいます。</p>
+          <p>上の例では、</p>
+          <p class="term-formula">−0.42 − (−0.5) ＝ 0.08</p>
+          <p>となり、量子化誤差は0.08です。</p>
+          <p>量子化によって生じた誤差は、音声を再生したときに量子化雑音（量子化ノイズ）として現れることがあります。</p>
+          <p>量子化の段階数を増やすと、より細かな値を表現できるため、一般に量子化誤差を小さくできます。</p>
+        </section>
+
+        <section>
+          <h2>量子化ビット数と量子化段階数</h2>
+          <p><strong>量子化ビット数</strong>とは、1回の標本化で得られた値を何ビットで表すかを示すものです。</p>
+          <p>量子化ビット数がnビットのとき、区別できる段階数は次の式で求められます。</p>
+          <p class="term-formula"><strong>量子化段階数 ＝ 2<sup>n</sup></strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">量子化ビット数</th><th scope="col">量子化段階数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1ビット</td><td>2段階</td></tr>
+              <tr><td>2ビット</td><td>4段階</td></tr>
+              <tr><td>3ビット</td><td>8段階</td></tr>
+              <tr><td>4ビット</td><td>16段階</td></tr>
+              <tr><td>8ビット</td><td>256段階</td></tr>
+              <tr><td>12ビット</td><td>4,096段階</td></tr>
+              <tr><td>16ビット</td><td>65,536段階</td></tr>
+            </tbody>
+          </table>
+          <p>量子化ビット数が1ビット増えると、段階数は2倍になります。</p>
+          <p>例えば、8ビットから12ビットに増やす場合、</p>
+          <p class="term-formula">2<sup>12</sup> ÷ 2<sup>8</sup> ＝ 2<sup>4</sup> ＝ 16</p>
+          <p>となり、段階数は16倍になります。</p>
+          <p>一般に、量子化ビット数をdビット増やすと、段階数は2<sup>d</sup>倍になります。</p>
+          <p>量子化ビット数が大きいほど、同じ振幅範囲を細かい段階に分けられるため、元の振幅をより正確に表現しやすくなります。</p>
+        </section>
+
+        <section>
+          <h2>標本化周波数と量子化ビット数の違い</h2>
+          <p>デジタル音声の品質には、標本化周波数と量子化ビット数が関係します。</p>
+          <p>この2つは、信号を細かく表現する方向が異なります。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">項目</th><th scope="col">標本化周波数</th><th scope="col">量子化ビット数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>意味</td><td>1秒間に測定する回数</td><td>1回の測定値を表すビット数</td></tr>
+              <tr><td>細かくなる方向</td><td>時間方向</td><td>振幅方向</td></tr>
+              <tr><td>値を大きくすると</td><td>測定間隔が短くなる</td><td>表現できる振幅の段階が増える</td></tr>
+              <tr><td>主な効果</td><td>より高い周波数まで記録できる</td><td>量子化誤差を小さくしやすい</td></tr>
+            </tbody>
+          </table>
+          <p>標本化周波数が高いほど、短い時間間隔で信号を測定できます。</p>
+          <p>一方、量子化ビット数が大きいほど、それぞれの測定時点で振幅を細かく表現できます。</p>
+          <p>したがって、一般に元の波形をより細かく表現するには、<strong>標本化周波数を高くし、量子化ビット数を大きくする</strong>ことが有効です。</p>
+        </section>
+
+        <section>
+          <h2>量子化ビット数とデータ量</h2>
+          <p>量子化ビット数を増やすと、1回の標本化で得た値を記録するために必要なデータ量も増えます。</p>
+          <p>非圧縮のPCM（パルス符号変調）方式では、音声のデータ量は次の式で求められます。</p>
+          <p class="term-formula"><strong>データ量（ビット）＝標本化周波数（Hz）×量子化ビット数×チャネル数×録音時間（秒）</strong></p>
+          <p>チャネル数は、モノラルなら1、ステレオなら2です。</p>
+          <p>例えば、標本化周波数44,100Hz、量子化ビット数16ビット、ステレオで10秒間録音した場合、</p>
+          <p class="term-formula">44,100 × 16 × 2 × 10<br />＝ 14,112,000ビット</p>
+          <p>となります。</p>
+          <p>ここで、標本化周波数・チャネル数・録音時間を変えずに、量子化ビット数を8ビットから16ビットへ増やす場合を考えます。</p>
+          <ul>
+            <li>データ量：16 ÷ 8 ＝ <strong>2倍</strong></li>
+            <li>量子化段階数：2<sup>16</sup> ÷ 2<sup>8</sup> ＝ <strong>256倍</strong></li>
+          </ul>
+          <p>つまり、量子化ビット数を2倍にすると、非圧縮PCMのデータ量は2倍になりますが、量子化段階数は256倍になります。</p>
+          <p><strong>データ量は量子化ビット数に比例し、量子化段階数は2のビット数乗で増えます</strong>。</p>
+          <p>なお、音声圧縮を行った場合、データ量は圧縮方式によっても変わります。</p>
+        </section>
+
+        <section>
+          <h2>画像における量子化</h2>
+          <p>量子化は音声だけでなく、画像のデジタル化でも利用されます。</p>
+          <p>例えば、紙の写真をデジタル画像に変換する場合も、標本化・量子化・符号化の3つの処理を考えることができます。</p>
+          <p><strong>① 標本化</strong></p>
+          <p>画像を格子状に区切り、それぞれの位置の明るさや色を取り出します。画像を構成する一つ一つの小さな領域が画素（ピクセル）に対応します。</p>
+          <p><strong>② 量子化</strong></p>
+          <p>取り出した明るさや色を、有限個の段階に対応させます。</p>
+          <p>例えば、白から黒までの明るさを8ビットで量子化する場合、0～255の256段階で表現できます。</p>
+          <p><strong>③ 符号化</strong></p>
+          <p>量子化した明るさや色の値を、ビット列で表します。</p>
+          <p>例えば、一般的なRGB画像では、赤（R）・緑（G）・青（B）の各成分をそれぞれ8ビットで表し、1画素を合計24ビットで表現できます。</p>
+          <p>画像では、画素数を増やすと細かな形状を表現しやすくなり、量子化段階数を増やすと色や明るさの微妙な違いを表現しやすくなります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>量子化 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>量子化ビット数を8ビットから12ビットへ増やしたとき、1標本で表せる量子化段階数は元の何倍になるかを次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>1.5倍</p></li>
+            <li><span>1</span><p>4倍</p></li>
+            <li><span>2</span><p>16倍</p></li>
+            <li><span>3</span><p>256倍</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．16倍</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>量子化段階数は2のビット数乗で増えます。ビット数をdだけ増やすと段階数は2<sup>d</sup>倍になり、8から12ビットでは16倍です。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：量子化／量子化ビット数</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">量子化の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="量子化"
+          data-limit="5"
+          data-exclude-stem="量子化ビット数を8ビットから12ビットへ増やしたとき、1標本で表せる量子化段階数は元の何倍になるかを次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=量子化">量子化の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"量子化とは","description":"量子化の意味とデジタル化の手順、量子化誤差、量子化ビット数と段階数、標本化周波数との違い、音声データ量、画像の量子化を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/quantization/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"量子化","item":"https://mei-chan-nel.com/terms/quantization/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026101201"></script>
+  </body>
+</html>

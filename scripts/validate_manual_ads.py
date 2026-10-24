@@ -210,6 +210,20 @@ def main() -> int:
         ("program-trace/studio/index.html", "after-program-studio-main"),
         ("program-trace/studio/share.html", "after-program-studio-main"),
         ("program-trace/studio/guide.html", "after-program-studio-guide-main"),
+        ("lab/index.html", "after-interactive-lab-main"),
+        ("lab/cpu-memory/index.html", "after-interactive-lab-main"),
+        ("lab/os-work/index.html", "after-interactive-lab-main"),
+        ("lab/color-vision/index.html", "after-interactive-lab-main"),
+        ("lab/thinking-tools/index.html", "after-interactive-lab-main"),
+        ("lab/radix-conversion/index.html", "after-interactive-lab-main"),
+        ("lab/digital-image/index.html", "after-interactive-lab-main"),
+        ("lab/image-compression/index.html", "after-interactive-lab-main"),
+        ("lab/digital-audio/index.html", "after-interactive-lab-main"),
+        ("lab/logic-circuit/index.html", "after-interactive-lab-main"),
+        ("lab/flowchart/index.html", "after-interactive-lab-main"),
+        ("lab/packet-routing/index.html", "after-interactive-lab-main"),
+        ("lab/relational-database/index.html", "after-interactive-lab-main"),
+        ("lab/question-map/index.html", "after-interactive-lab-main"),
     ):
         trace_path = ROOT / relative
         trace_text = trace_path.read_text(encoding="utf-8")
@@ -227,7 +241,7 @@ def main() -> int:
             "format": "responsive-display",
             "content_count": None,
             "ad_count": trace_text.count('data-manual-ad="display"'),
-            "positions_after": ["program trace main"],
+            "positions_after": ["interactive lab main" if relative.startswith("lab/") else "program trace main"],
         })
 
     for repository_root in (ROOT, APP_ROOT):
