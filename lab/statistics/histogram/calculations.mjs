@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs";
+import { esc, table } from "../shared/ui.mjs?v=20261024-simpson-theme";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-guided-counts";
+} from "./descriptive.mjs?v=20261024-simpson-theme";
 
 const n = (value) =>
   value === null || value === undefined

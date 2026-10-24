@@ -438,76 +438,96 @@ test("fraction mosaics use population area ratios, fixed orientation and touchin
   }
 });
 
-import { comparisonQuestion } from "./lab.mjs";
-test("guided questions state a distinct population and target without configuration-forced 100 percent", () => {
-  const initial = makeInitial(),
-    before = JSON.stringify(initial),
-    sentences = new Set();
-  for (const mode of ["row", "column", "cell"])
-    for (const selectedScope of ["all", "0", "1"])
-      for (const selectedRow of [0, 1])
-        for (const selectedCol of [0, 1]) {
-          const state = {
-              ...initial,
-              mode,
-              selectedScope,
-              selectedRow,
-              selectedCol,
-            },
-            q = comparisonQuestion(state);
-          assert.ok(q.base && q.focus && q.numeratorText);
-          assert.ok(q.sentence.startsWith("全体を「"));
-          assert.ok(!/undefined|NaN|未達成した/.test(q.sentence));
-          const result = cellSummary(
-            matrixFor(state.strata, selectedScope),
-            selectedRow,
-            selectedCol,
-            mode,
-          );
-          assert.ok(
-            result.numerator > 0 && result.numerator < result.denominator,
-            "no purpose-picker combination is a tautological whole/whole ratio",
-          );
-          sentences.add(q.sentence);
-        }
-  assert.equal(sentences.size, 36);
-  assert.equal(JSON.stringify(initial), before);
-  const example = {
-    ...initial,
-    mode: "column",
-    selectedScope: "1",
-    selectedRow: 1,
-    selectedCol: 1,
-  };
-  example.strata[1].counts[0] = [21, 50];
-  assert.equal(
-    comparisonQuestion(example).sentence,
-    "全体を「応用課題で未達成だった人」としたときの、「B方式を使った人」の割合",
-  );
-  assert.equal(
-    cellSummary(matrixFor(example.strata, "1"), 1, 1, "column").ratio,
-    16 / 66,
-  );
-  const census = {
-    ...makeInitial(),
-    strata: [
-      {
-        counts: [
-          [1, 0],
-          [0, 0],
-        ],
-      },
-      {
-        counts: [
-          [0, 0],
-          [0, 0],
-        ],
-      },
+import { simpsonComparison } from "./lab.mjs";
+test("paired counts expose the Simpson reversal and separate actual composition from equal-composition rates", () => {
+  const state = makeInitial(),
+    before = JSON.stringify(state),
+    view = simpsonComparison(state);
+  assert.deepEqual(
+    view.rows.map((row) => row.methods.map((m) => [m.achieved, m.total])),
+    [
+      [
+        [42, 100],
+        [68, 100],
+      ],
+      [
+        [18, 20],
+        [64, 80],
+      ],
+      [
+        [24, 80],
+        [4, 20],
+      ],
     ],
-  };
-  assert.equal(
-    cellSummary(matrixFor(census.strata), 0, 0, "row").ratio,
-    1,
-    "genuine 100 percent observations remain valid",
   );
+  assert.deepEqual(
+    view.composition.map((m) => m.counts),
+    [
+      [20, 80],
+      [80, 20],
+    ],
+  );
+  assert.deepEqual(
+    view.composition.map((m) => m.shares),
+    [
+      [0.2, 0.8],
+      [0.8, 0.2],
+    ],
+  );
+  assert.equal(view.reversed, true);
+  assert.equal(view.withinWinner, 0);
+  assert.equal(view.overallWinner, 1);
+  assert.equal(view.easier, 0);
+  assert.ok(Math.abs(view.standardized[0] - 0.6) < 1e-12);
+  assert.ok(Math.abs(view.standardized[1] - 0.5) < 1e-12);
+  for (const selectedScope of ["all", "0", "1"])
+    assert.deepEqual(
+      simpsonComparison({ ...state, selectedScope }).rows,
+      view.rows,
+    );
+  assert.equal(
+    JSON.stringify(state),
+    before,
+    "display and standardization never rewrite the observational counts",
+  );
+});
+test("paired comparisons handle ties and missing populations without inventing a reversal", () => {
+  const state = makeInitial();
+  state.strata = [
+    {
+      counts: [
+        [1, 1],
+        [1, 1],
+      ],
+    },
+    {
+      counts: [
+        [1, 1],
+        [1, 1],
+      ],
+    },
+  ];
+  const tied = simpsonComparison(state);
+  assert.equal(tied.reversed, false);
+  assert.equal(tied.overallWinner, null);
+  assert.deepEqual(tied.standardized, [0.5, 0.5]);
+  state.strata = [
+    {
+      counts: [
+        [0, 0],
+        [3, 1],
+      ],
+    },
+    {
+      counts: [
+        [0, 0],
+        [0, 0],
+      ],
+    },
+  ];
+  const empty = simpsonComparison(state);
+  assert.equal(empty.rows[0].methods[0].rate, null);
+  assert.equal(empty.standardized[0], null);
+  assert.equal(empty.standardized[1], null);
+  assert.equal(empty.reversed, false);
 });

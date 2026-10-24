@@ -1,6 +1,5 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
-import { fmt, sd } from "../shared/math.mjs";
 import {
+  chartKey,
   range,
   number,
   metrics,
@@ -9,7 +8,10 @@ import {
   axes,
   line,
   bind,
-} from "../shared/ui.mjs";
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
+import { fmt, sd } from "../shared/math.mjs";
+
 import {
   coinExperiment,
   binomialExperiment,
@@ -43,7 +45,7 @@ function coinView(state) {
     xlabel: "コインを投げた回数",
     ylabel: "表の相対度数",
   });
-  const target = `<line x1="${a.x(0)}" x2="${a.x(xmax)}" y1="${a.y(state.p)}" y2="${a.y(state.p)}" stroke="#bb731e" stroke-width="2" stroke-dasharray="6 4"/><text x="${a.x(xmax) - 4}" y="${Math.max(23, a.y(state.p) - 9)}" fill="#985d16" text-anchor="end" font-size="12">設定した確率 p = ${fmt(state.p, 2)}</text>`;
+  const target = `<line x1="${a.x(0)}" x2="${a.x(xmax)}" y1="${a.y(state.p)}" y2="${a.y(state.p)}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="6 4"/><text x="${a.x(xmax) - 4}" y="${Math.max(23, a.y(state.p) - 9)}" fill="var(--chart-reference)" text-anchor="end" font-size="12">設定した確率 p = ${fmt(state.p, 2)}</text>`;
   const last = shown.at(-1);
   const endpoint = last
     ? `<circle class="point" cx="${a.x(last.x)}" cy="${a.y(last.y)}" r="4"><title>${last.x}回時点：${fmt(last.y, 4)}</title></circle>`
@@ -52,7 +54,7 @@ function coinView(state) {
     .slice(-40)
     .map(
       (success, i) =>
-        `<span title="第${Math.max(0, result.tosses.length - 40) + i + 1}回：${success ? "表" : "裏"}" style="display:inline-block;width:1.7em;height:1.7em;line-height:1.7;text-align:center;border-radius:50%;margin:3px;background:${success ? "#247b77" : "#e4e8eb"};color:${success ? "white" : "#334553"}">${success ? "表" : "裏"}</span>`,
+        `<span title="第${Math.max(0, result.tosses.length - 40) + i + 1}回：${success ? "表" : "裏"}" style="display:inline-block;width:1.7em;height:1.7em;line-height:1.7;text-align:center;border-radius:50%;margin:3px;background:${success ? "var(--chart-primary)" : "var(--chart-context)"};color:${success ? "white" : "var(--chart-text)"}">${success ? "表" : "裏"}</span>`,
     )
     .join("");
   return `<div class="stat-grid"><section class="panel chart-panel"><h2>1回ずつの偶然を、相対度数で追う</h2>
@@ -122,13 +124,13 @@ function binomialView(state) {
     points
       .map(
         (point) =>
-          `<circle cx="${a.x(point.x)}" cy="${a.y(point.y)}" r="3" fill="#bb731e"/>`,
+          `<circle cx="${a.x(point.x)}" cy="${a.y(point.y)}" r="3" fill="var(--chart-secondary)"/>`,
       )
       .join("");
   return `<div class="stat-grid"><section class="panel chart-panel"><h2>「${state.n}回投げる」を1セットとして繰り返す</h2>
     <p class="muted">たとえば表が${Math.round(state.n * state.p)}回出たセットを、棒の1か所に積み上げます。セットごとの表の回数が二項分布を作ります。</p>
     ${svg(a.markup + bars + theory, "二項分布。棒は反復実験の相対度数、橙の点と線は理論確率。", 720, 350)}
-    <p class="legend"><span style="color:#247b77">■ 実験の相対度数</span>　<span style="color:#bb731e">● 理論上の確率</span>（離散値の点を読みやすく結んでいます）</p>
+    <p class="legend">${chartKey("実験の相対度数", "var(--chart-primary)", "bar")}${chartKey("理論上の確率", "var(--chart-secondary)", "point")}（離散値の点を読みやすく結んでいます）</p>
     ${metrics([
       [
         "実験したセット数",
@@ -192,16 +194,16 @@ function normalChart(mu, sigma, low, high, standardized = false, values = []) {
       const x = left + ((right - left) * i) / 160;
       return `${a.x(x)},${a.y(normalDensity(x, mu, sigma))}`;
     });
-    area = `<polygon points="${a.x(left)},${a.y(0)} ${points.join(" ")} ${a.x(right)},${a.y(0)}" fill="#247b77" opacity="0.28"/>`;
+    area = `<polygon points="${a.x(left)},${a.y(0)} ${points.join(" ")} ${a.x(right)},${a.y(0)}" fill="var(--chart-primary)" opacity="0.28"/>`;
   }
   const boundaries = [low, high]
     .filter((value) => value >= xmin && value <= xmax)
     .map(
       (value) =>
-        `<line x1="${a.x(value)}" x2="${a.x(value)}" y1="${a.y(0)}" y2="${a.y(normalDensity(value, mu, sigma))}" stroke="#247b77" stroke-width="2"/>`,
+        `<line x1="${a.x(value)}" x2="${a.x(value)}" y1="${a.y(0)}" y2="${a.y(normalDensity(value, mu, sigma))}" stroke="var(--chart-primary)" stroke-width="2"/>`,
     )
     .join("");
-  const mean = `<line x1="${a.x(mu)}" x2="${a.x(mu)}" y1="${a.y(0)}" y2="${a.y(normalDensity(mu, mu, sigma))}" stroke="#bb731e" stroke-dasharray="5 4"/><text x="${a.x(mu) + 6}" y="${a.y(ymax) + 16}" font-size="12" fill="#985d16">${standardized ? "平均 0" : `平均 μ = ${measurement(mu, 1)}`}</text>`;
+  const mean = `<line x1="${a.x(mu)}" x2="${a.x(mu)}" y1="${a.y(0)}" y2="${a.y(normalDensity(mu, mu, sigma))}" stroke="var(--chart-reference)" stroke-dasharray="5 4"/><text x="${a.x(mu) + 6}" y="${a.y(ymax) + 16}" font-size="12" fill="var(--chart-reference)">${standardized ? "平均 0" : `平均 μ = ${measurement(mu, 1)}`}</text>`;
   return svg(
     a.markup +
       area +
@@ -212,7 +214,7 @@ function normalChart(mu, sigma, low, high, standardized = false, values = []) {
         .filter((v) => v >= xmin && v <= xmax)
         .map(
           (v) =>
-            `<line x1="${a.x(v)}" x2="${a.x(v)}" y1="${a.y(0)}" y2="${a.y(0) - 9}" stroke="${v >= low && v <= high ? "#ba672a" : "#a5b8ad"}" opacity=".6"/>`,
+            `<line x1="${a.x(v)}" x2="${a.x(v)}" y1="${a.y(0)}" y2="${a.y(0) - 9}" stroke="${v >= low && v <= high ? "var(--chart-secondary)" : "var(--chart-axis)"}" opacity=".6"/>`,
         )
         .join(""),
     `${standardized ? "標準正規分布" : "正規分布"}。色の面積は指定した区間の確率。表示は平均の前後4標準偏差。`,

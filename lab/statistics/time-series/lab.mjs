@@ -1,6 +1,5 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
-import { mean, rng, normal, fmt, clamp } from "../shared/math.mjs";
 import {
+  chartKey,
   esc,
   range,
   select,
@@ -10,7 +9,9 @@ import {
   axes,
   line,
   bind,
-} from "../shared/ui.mjs";
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
+import { mean, rng, normal, fmt, clamp } from "../shared/math.mjs";
 
 const MONTHS = 48;
 const TRAIN = 36;
@@ -21,10 +22,10 @@ const METHODS = [
   ["seasonal", "前年同月＋年変化"],
 ];
 const COLORS = {
-  last: "#8a6d52",
-  ma: "#8b5cf6",
-  trend: "#db6a3b",
-  seasonal: "#087f8c",
+  last: "var(--chart-blue)",
+  ma: "var(--chart-purple)",
+  trend: "var(--chart-secondary)",
+  seasonal: "var(--chart-primary)",
 };
 
 // Original, fully synthetic monthly demand. The random component is reproducible.
@@ -174,12 +175,12 @@ export default {
     const selectedForecast =
       selected >= TRAIN ? prediction[selected - TRAIN] : null;
     const chart = svg(
-      `<rect x="${a.x(35.5)}" y="16" width="${a.x(47) - a.x(35.5)}" height="${a.y(0) - 16}" fill="#eef1f3"/>${monthlyAxes(a)}${line(points.slice(0, TRAIN), a.x, a.y)}<g style="stroke:#d96d39;stroke-dasharray:5 4;fill:none">${line(points.slice(TRAIN - 1), a.x, a.y, "warm")}</g><g style="stroke:#8b5cf6;fill:none;opacity:.65">${line(
+      `<rect x="${a.x(35.5)}" y="16" width="${a.x(47) - a.x(35.5)}" height="${a.y(0) - 16}" fill="var(--chart-context)"/>${monthlyAxes(a)}${line(points.slice(0, TRAIN), a.x, a.y)}<g style="stroke:var(--chart-secondary);stroke-dasharray:5 4;fill:none">${line(points.slice(TRAIN - 1), a.x, a.y, "warm")}</g><g style="stroke:var(--chart-purple);fill:none;opacity:.65">${line(
         ma.map((y, x) => ({ x, y })).filter((p) => p.y !== null),
         a.x,
         a.y,
         "moving-average",
-      )}</g><g style="stroke:${COLORS[method]};stroke-width:3;fill:none">${line([{ x: TRAIN - 1, y: values[TRAIN - 1] }, ...marked], a.x, a.y, "forecast-line")}</g>${points.map((p) => `<circle data-month="${p.x}" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${p.x === selected ? 7 : 4}" fill="${p.x >= TRAIN ? "#d96d39" : "#087f8c"}" stroke="white" tabindex="0" role="button" aria-label="${esc(month(p.x, s))} ${fmt(p.y, 1)}${valueUnit}を詳しく見る"><title>${esc(month(p.x, s))}：${fmt(p.y, 1)}${valueUnit}</title></circle>`).join("")}${selectedForecast === null ? "" : `<line x1="${a.x(selected)}" y1="${a.y(values[selected])}" x2="${a.x(selected)}" y2="${a.y(selectedForecast)}" stroke="#ba4c26" stroke-width="4"/><rect x="${a.x(selected) - 4}" y="${a.y(selectedForecast) - 4}" width="8" height="8" fill="${COLORS[method]}"/>`}<text x="${a.x(36) + 5}" y="30" font-size="11">検証用12か月</text>${tickLabels(a, 370, s)}`,
+      )}</g><g style="stroke:${COLORS[method]};stroke-width:3;fill:none">${line([{ x: TRAIN - 1, y: values[TRAIN - 1] }, ...marked], a.x, a.y, "forecast-line")}</g>${points.map((p) => `<circle data-month="${p.x}" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${p.x === selected ? 7 : 4}" fill="${p.x >= TRAIN ? "var(--chart-secondary)" : "var(--chart-primary)"}" stroke="white" tabindex="0" role="button" aria-label="${esc(month(p.x, s))} ${fmt(p.y, 1)}${valueUnit}を詳しく見る"><title>${esc(month(p.x, s))}：${fmt(p.y, 1)}${valueUnit}</title></circle>`).join("")}${selectedForecast === null ? "" : `<line x1="${a.x(selected)}" y1="${a.y(values[selected])}" x2="${a.x(selected)}" y2="${a.y(selectedForecast)}" stroke="var(--chart-secondary-dark)" stroke-width="4"/><rect x="${a.x(selected) - 4}" y="${a.y(selectedForecast) - 4}" width="8" height="8" fill="${COLORS[method]}"/>`}<text x="${a.x(36) + 5}" y="30" font-size="11">検証用12か月</text>${tickLabels(a, 370, s)}`,
       "月別の注文数、移動平均、訓練期間だけで作った12か月予測",
       760,
       370,
@@ -206,11 +207,11 @@ export default {
     });
     const baseline = s.indicator === "index" ? 100 : 0;
     const indicatorChart = svg(
-      `${monthlyAxes(b)}<line x1="${b.x(0)}" x2="${b.x(47)}" y1="${b.y(baseline)}" y2="${b.y(baseline)}" stroke="#869198" stroke-dasharray="4 3"/>${line(
+      `${monthlyAxes(b)}<line x1="${b.x(0)}" x2="${b.x(47)}" y1="${b.y(baseline)}" y2="${b.y(baseline)}" stroke="var(--chart-reference)" stroke-dasharray="4 3"/>${line(
         indicators.map((y, x) => ({ x, y })).filter((p) => p.y !== null),
         b.x,
         b.y,
-      )}${indicators[selected] === null ? "" : `<circle cx="${b.x(selected)}" cy="${b.y(indicators[selected])}" r="6" fill="#d96d39"/>`}${tickLabels(b, 245, s)}`,
+      )}${indicators[selected] === null ? "" : `<circle cx="${b.x(selected)}" cy="${b.y(indicators[selected])}" r="6" fill="var(--chart-secondary)"/>`}${tickLabels(b, 245, s)}`,
       "同じ月別データを、選んだ比較基準で読み替えた折れ線",
       760,
       245,
@@ -229,7 +230,7 @@ export default {
         : s.indicator === "index"
           ? `${fmt(values[selected], 1)} ÷ ${fmt(denominator, 1)} × 100 ＝ ${fmt(currentIndicator, 1)}`
           : `(${fmt(values[selected], 1)} ÷ ${fmt(denominator, 1)} − 1) × 100 ＝ ${fmt(currentIndicator, 1)}%`;
-    root.innerHTML = `<div class="stat-grid"><div><section class="panel chart-panel"><h2>未来を隠して、予測を比べる</h2><p class="hint">${s.customValues ? "読み込んだ48か月のデータ。" : "2022〜2025年の架空データ。"}点を選ぶとその月の計算を確認できます。すべての値は小数のまま計算しています。</p>${chart}<div class="legend"><span>● 実測（訓練）</span><span style="color:#d96d39">● 実測（検証）</span><span style="color:#8b5cf6">─ 後方移動平均</span><span style="color:${COLORS[method]}">━ 選択した予測</span></div>${metrics(
+    root.innerHTML = `<div class="stat-grid"><div><section class="panel chart-panel"><h2>未来を隠して、予測を比べる</h2><p class="hint">${s.customValues ? "読み込んだ48か月のデータ。" : "2022〜2025年の架空データ。"}点を選ぶとその月の計算を確認できます。すべての値は小数のまま計算しています。</p>${chart}<div class="legend">${chartKey("実測（訓練）", "var(--chart-primary)", "point")}${chartKey("実測（検証）", "var(--chart-secondary)", "point")}${chartKey("後方移動平均", "var(--chart-purple)", "line-dashed")}${chartKey("選択した予測", COLORS[method], "line")}</div>${metrics(
       [
         [
           "12か月のMAE",

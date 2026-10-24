@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs";
+import { esc } from "./shared/ui.mjs?v=20261024-simpson-theme";
 const step = (title, level, purpose, action) => ({
   title,
   level,
@@ -90,8 +90,8 @@ export const learning = {
     step(
       "実数を比べる",
       "基本",
-      "人数を面積で比べ、基準を変えた割合を確かめる。",
-      "最初に調べることを選び、何人を全体として誰の割合を求めるか、文章・式・図で確かめます。",
+      "A・Bの課題別人数を見比べ、合計で逆転する理由を読む。",
+      "合計・初級・応用を選び、両方式の達成人数と対象人数を同時に比べます。課題ごとの人数の偏りに注目します。",
     ),
   ],
   "time-series": [

@@ -1,14 +1,5 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
 import {
-  sum,
-  mean,
-  median,
-  gini,
-  lorenz,
-  fmt,
-  clamp,
-} from "../shared/math.mjs";
-import {
+  chartKey,
   esc,
   number,
   select,
@@ -19,7 +10,17 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs";
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
+import {
+  sum,
+  mean,
+  median,
+  gini,
+  lorenz,
+  fmt,
+  clamp,
+} from "../shared/math.mjs";
 
 const ORIGINAL = [8, 10, 12, 16, 20, 24, 30, 40, 60, 80];
 export function redistribute(values, index, target, locked = true) {
@@ -118,10 +119,10 @@ function render(root, ctx) {
     xlabel: "所得の低い方からの累積人数比率",
     ylabel: "累積所得比率",
   });
-  const equality = `<line x1="${a.x(0)}" y1="${a.y(0)}" x2="${a.x(1)}" y2="${a.y(1)}" stroke="#64748b" stroke-dasharray="6 5"/><text x="${a.x(0.57)}" y="${a.y(0.67)}" fill="#64748b" font-size="12">完全平等線</text>`;
+  const equality = `<line x1="${a.x(0)}" y1="${a.y(0)}" x2="${a.x(1)}" y2="${a.y(1)}" stroke="var(--chart-reference)" stroke-dasharray="6 5"/><text x="${a.x(0.57)}" y="${a.y(0.67)}" fill="var(--chart-reference)" font-size="12">完全平等線</text>`;
   const shade =
     total > 0
-      ? `<polygon points="${[{ x: 0, y: 0 }, { x: 1, y: 1 }, ...curve.slice().reverse()].map((p) => `${a.x(p.x)},${a.y(p.y)}`).join(" ")}" fill="#168b8718"/>`
+      ? `<polygon points="${[{ x: 0, y: 0 }, { x: 1, y: 1 }, ...curve.slice().reverse()].map((p) => `${a.x(p.x)},${a.y(p.y)}`).join(" ")}" fill="var(--chart-primary-pale)"/>`
       : "";
   const reference =
     ref && sum(ref) > 0 ? line(lorenz(ref), a.x, a.y, "series warm") : "";
@@ -131,7 +132,7 @@ function render(root, ctx) {
       ? data
           .map(
             (r) =>
-              `<circle data-person="${r.id}" tabindex="0" role="button" aria-label="${person(r.id)}までの累積所得${fmt(r.share * 100, 1)}%" cx="${a.x(r.population)}" cy="${a.y(r.share)}" r="${r.id === s.selected ? 6 : 3.5}" fill="${r.id === s.selected ? "#de7c35" : "#168b87"}"><title>${person(r.id)}まで: ${fmt(r.share * 100, 1)}%</title></circle>`,
+              `<circle data-person="${r.id}" tabindex="0" role="button" aria-label="${person(r.id)}までの累積所得${fmt(r.share * 100, 1)}%" cx="${a.x(r.population)}" cy="${a.y(r.share)}" r="${r.id === s.selected ? 6 : 3.5}" fill="${r.id === s.selected ? "var(--chart-secondary)" : "var(--chart-primary)"}"><title>${person(r.id)}まで: ${fmt(r.share * 100, 1)}%</title></circle>`,
           )
           .join("")
       : "";
@@ -141,7 +142,7 @@ function render(root, ctx) {
     .map((v, i) => {
       const x = 70 + (v / dragMax) * 535,
         y = 26 + i * 34;
-      return `<text x="8" y="${y + 4}" font-size="13" fill="currentColor">${person(i)}</text><line x1="70" y1="${y}" x2="605" y2="${y}" stroke="#e2e8f0" stroke-width="16"/><line x1="70" y1="${y}" x2="${x}" y2="${y}" stroke="${i === s.selected ? "#de7c35" : "#168b87"}" stroke-width="16"/><circle class="income-handle" data-person="${i}" cx="${x}" cy="${y}" r="8" fill="${i === s.selected ? "#de7c35" : "#168b87"}" stroke="white" stroke-width="2" style="cursor:ew-resize;touch-action:none"><title>${person(i)} ${fmt(v)}${unit}。横にドラッグして変更</title></circle><text x="620" y="${y + 4}" font-size="13" fill="currentColor">${esc(fmt(v, 1))}${unit}</text>`;
+      return `<text x="8" y="${y + 4}" font-size="13" fill="currentColor">${person(i)}</text><line x1="70" y1="${y}" x2="605" y2="${y}" stroke="var(--chart-context)" stroke-width="16"/><line x1="70" y1="${y}" x2="${x}" y2="${y}" stroke="${i === s.selected ? "var(--chart-secondary)" : "var(--chart-primary)"}" stroke-width="16"/><circle class="income-handle" data-person="${i}" cx="${x}" cy="${y}" r="8" fill="${i === s.selected ? "var(--chart-secondary)" : "var(--chart-primary)"}" stroke="white" stroke-width="2" style="cursor:ew-resize;touch-action:none"><title>${person(i)} ${fmt(v)}${unit}。横にドラッグして変更</title></circle><text x="620" y="${y + 4}" font-size="13" fill="currentColor">${esc(fmt(v, 1))}${unit}</text>`;
     })
     .join("");
   const area = coeff === null ? null : (1 - coeff) / 2;
@@ -158,7 +159,7 @@ function render(root, ctx) {
     ["ジニ係数", f(coeff, 3)],
   ])}
   ${svg(a.markup + shade + equality + reference + current + dots, "所得の分配とローレンツ曲線。破線は完全平等線", 720, 360)}
-  <div class="legend"><span style="color:#168b87">● 現在の分配</span>${ref ? '　<span style="color:#de7c35">● 比較用の分配</span>' : ""}</div>
+  <div class="legend">${chartKey("現在の分配", "var(--chart-primary)", "line")}${ref ? chartKey("比較用の分配", "var(--chart-secondary)", "line") : ""}${chartKey("完全平等線", "var(--chart-reference)", "line-dashed")}</div>
   ${total === 0 ? '<p class="annotation" role="status">所得総額が0なので所得比率、ローレンツ曲線、ジニ係数は定義できません。1人以上の所得を増やしてください。総額固定中は先に固定を解除してください。</p>' : `<p class="annotation">${person(selected.id)}までの ${selected.rank}/${n}人（${fmt(selected.population * 100, 1)}%）が持つ所得は ${fmt(selected.cumulative)} / ${fmt(total)}${unit}（${fmt(selected.share * 100, 1)}%）です。</p>`}
   ${referenceMetrics}
   <div class="actions"><button type="button" data-action="same-gini">同じ平均・同じジニの2分布</button>${ref ? '<button type="button" data-action="clear-reference">曲線を1本に戻す</button>' : ""}</div>
@@ -184,7 +185,7 @@ function render(root, ctx) {
   ${number("transfer-amount", `移す所得${unit ? "（" + unit + "）" : ""}`, s.amount, 0, Math.max(total, 1), 0.1)}
   <button type="button" data-action="transfer" class="primary">所得を移す</button><p class="hint" role="status" aria-live="polite">${esc(s.message || "移転では、所得総額はいつも保たれます。")}</p>
   </section></div>
-  <section class="panel"><h2>累積と面積の計算をたどる</h2><p>所得の小さい順に並べて、人数と所得を積み上げます。人の名前を並べ替えても分配が同じなら曲線は変わりません。</p><div style="overflow-x:auto"><table class="stat-table"><thead><tr><th>順位・人</th><th>所得</th><th>累積人数比率</th><th>累積所得</th><th>累積所得比率</th><th>この区間の台形面積</th></tr></thead><tbody>${data.map((r) => `<tr data-person="${r.id}" tabindex="0" role="button" aria-label="${person(r.id)}を選択" style="${r.id === s.selected ? "background:#168b871a" : ""}"><th>${r.rank}・${person(r.id)}</th><td>${fmt(r.value)}</td><td>${r.rank}/${n} = ${fmt(r.population * 100, 1)}%</td><td>${fmt(r.cumulative)}</td><td>${r.share === null ? "—" : `${fmt(r.cumulative)}/${fmt(total)} = ${fmt(r.share * 100, 1)}%`}</td><td>${r.area === null ? "—" : fmt(r.area, 4)}</td></tr>`).join("")}</tbody></table></div>
+  <section class="panel"><h2>累積と面積の計算をたどる</h2><p>所得の小さい順に並べて、人数と所得を積み上げます。人の名前を並べ替えても分配が同じなら曲線は変わりません。</p><div style="overflow-x:auto"><table class="stat-table"><thead><tr><th>順位・人</th><th>所得</th><th>累積人数比率</th><th>累積所得</th><th>累積所得比率</th><th>この区間の台形面積</th></tr></thead><tbody>${data.map((r) => `<tr data-person="${r.id}" tabindex="0" role="button" aria-label="${person(r.id)}を選択" style="${r.id === s.selected ? "background:var(--chart-primary-pale)" : ""}"><th>${r.rank}・${person(r.id)}</th><td>${fmt(r.value)}</td><td>${r.rank}/${n} = ${fmt(r.population * 100, 1)}%</td><td>${fmt(r.cumulative)}</td><td>${r.share === null ? "—" : `${fmt(r.cumulative)}/${fmt(total)} = ${fmt(r.share * 100, 1)}%`}</td><td>${r.area === null ? "—" : fmt(r.area, 4)}</td></tr>`).join("")}</tbody></table></div>
   <p class="annotation">${area === null ? "総額が0なので比率と面積は計算できません。" : `各区間の面積 =（左端の累積所得比率 + 右端の累積所得比率）× (1/${n}) ÷ 2。台形面積の合計 = ${fmt(area, 4)}。ジニ係数 = 1 − 2 × ${fmt(area, 4)} = ${fmt(coeff, 3)}（丸め前の値で計算）。`}</p></section>`;
   root.querySelector("#lock-total").onchange = (e) =>
     ctx.update({ locked: e.target.checked, message: "" });

@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261024-guided-counts";
+import { esc } from "./shared/ui.mjs?v=20261024-simpson-theme";
+import { currentData } from "./shared/data-model.mjs?v=20261024-simpson-theme";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-guided-counts";
+} from "./shared/table-data.mjs?v=20261024-simpson-theme";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-guided-counts";
+} from "./data-editor.mjs?v=20261024-simpson-theme";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

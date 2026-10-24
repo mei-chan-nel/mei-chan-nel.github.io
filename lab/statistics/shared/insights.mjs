@@ -1,11 +1,11 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-guided-counts";
+import { currentData } from "./data-model.mjs?v=20261024-simpson-theme";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-guided-counts";
-import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-guided-counts";
-import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-guided-counts";
+} from "../sampling/model.mjs?v=20261024-simpson-theme";
+import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-simpson-theme";
+import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-simpson-theme";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),

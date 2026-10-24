@@ -93,7 +93,7 @@ test("project data rejects nonfinite and preserves original fictional records", 
   );
 });
 import { validateState, validateDocument } from "./validation.mjs";
-import { number } from "./ui.mjs";
+import { number } from "./ui.mjs?v=20261024-simpson-theme";
 test("saved experiments validate types and escape all number attributes", () => {
   const template = { n: 2, rows: [{ id: "a", x: 1 }], reference: null };
   validateDocument(

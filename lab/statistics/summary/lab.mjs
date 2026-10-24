@@ -17,7 +17,7 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs";
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
 import { readDataset } from "../shared/data.mjs";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];
@@ -152,12 +152,12 @@ function render(root, ctx) {
   const ticks = Array.from(
     { length: 11 },
     (_, i) =>
-      `<line x1="${x(s.min + (span * i) / 10)}" x2="${x(s.min + (span * i) / 10)}" y1="168" y2="174" stroke="#94a3a3"/><text x="${x(s.min + (span * i) / 10)}" y="192" text-anchor="middle" fill="currentColor" font-size="12">${fmt(s.min + (span * i) / 10, 0)}</text>`,
+      `<line x1="${x(s.min + (span * i) / 10)}" x2="${x(s.min + (span * i) / 10)}" y1="168" y2="174" stroke="var(--chart-axis)"/><text x="${x(s.min + (span * i) / 10)}" y="192" text-anchor="middle" fill="currentColor" font-size="12">${fmt(s.min + (span * i) / 10, 0)}</text>`,
   ).join("");
-  let drawing = `<text x="55" y="23" fill="currentColor" font-size="14">1点 = 1件。点を左右に動かせます</text><line x1="55" x2="680" y1="168" y2="168" stroke="#7c9696"/>${ticks}`;
+  let drawing = `<text x="55" y="23" fill="currentColor" font-size="14">1点 = 1件。点を左右に動かせます</text><line x1="55" x2="680" y1="168" y2="168" stroke="var(--chart-axis)"/>${ticks}`;
   if (s.showSD && Number.isFinite(deviation))
-    drawing += `<rect x="${x(Math.max(s.min, avg - deviation))}" y="37" width="${x(Math.min(s.max, avg + deviation)) - x(Math.max(s.min, avg - deviation))}" height="113" fill="#d9873215"/><text x="367" y="49" text-anchor="middle" fill="#98551d" font-size="11">平均 ± 標準偏差（目盛の範囲内）</text>`;
-  drawing += `<line x1="${x(avg)}" x2="${x(avg)}" y1="48" y2="166" stroke="#ba622a" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="48" y2="166" stroke="#237b78" stroke-width="2" stroke-dasharray="5 4"/>`;
+    drawing += `<rect x="${x(Math.max(s.min, avg - deviation))}" y="37" width="${x(Math.min(s.max, avg + deviation)) - x(Math.max(s.min, avg - deviation))}" height="113" fill="var(--chart-secondary-pale)"/><text x="367" y="49" text-anchor="middle" fill="var(--chart-secondary-dark)" font-size="11">平均 ± 標準偏差（目盛の範囲内）</text>`;
+  drawing += `<line x1="${x(avg)}" x2="${x(avg)}" y1="48" y2="166" stroke="var(--chart-secondary)" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="48" y2="166" stroke="var(--chart-primary)" stroke-width="2" stroke-dasharray="5 4"/>`;
   const placed = [];
   s.points.forEach((p, i) => {
     const px = x(p.value);
@@ -167,9 +167,9 @@ function render(root, ctx) {
   });
   const dotStep = Math.min(19, 85 / Math.max(1, ...placed.map((p) => p.row)));
   s.points.forEach((p, i) => {
-    drawing += `<circle class="point" data-id="${esc(p.id)}" cx="${placed[i].x}" cy="${143 - placed[i].row * dotStep}" r="${Math.min(8, Math.max(3, dotStep / 2 - 1))}" style="fill:${p.id === selected?.id ? "#d98732" : "#237b78"};stroke:${p.id === selected?.id ? "#9d4c15" : "#fff"};stroke-width:2" tabindex="0" role="button" aria-label="データ${i + 1}、${fmt(p.value)}。選択して数値で編集可能"><title>データ${i + 1}: ${fmt(p.value)}</title></circle>`;
+    drawing += `<circle class="point" data-id="${esc(p.id)}" cx="${placed[i].x}" cy="${143 - placed[i].row * dotStep}" r="${Math.min(8, Math.max(3, dotStep / 2 - 1))}" style="fill:${p.id === selected?.id ? "var(--chart-secondary)" : "var(--chart-primary)"};stroke:${p.id === selected?.id ? "var(--chart-secondary-dark)" : "#fff"};stroke-width:2" tabindex="0" role="button" aria-label="データ${i + 1}、${fmt(p.value)}。選択して数値で編集可能"><title>データ${i + 1}: ${fmt(p.value)}</title></circle>`;
   });
-  drawing += `<text x="55" y="226" fill="currentColor" font-size="14">${s.boxMode === "iqr" ? "発展：箱ひげ図（1.5IQR方式）" : "箱ひげ図（最小値〜最大値）"}</text><line x1="${x(lower)}" x2="${x(upper)}" y1="264" y2="264" stroke="#567373" stroke-width="2"/><line x1="${x(lower)}" x2="${x(lower)}" y1="251" y2="277" stroke="#567373" stroke-width="2"/><line x1="${x(upper)}" x2="${x(upper)}" y1="251" y2="277" stroke="#567373" stroke-width="2"/><rect x="${x(q.q1)}" y="244" width="${Math.max(0, x(q.q3) - x(q.q1))}" height="40" fill="#237b7825" stroke="#237b78" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="244" y2="284" stroke="#237b78" stroke-width="4"/>${outliers.map((v) => `<circle cx="${x(v)}" cy="264" r="5" fill="#d98732"><title>1.5IQRの範囲外: ${fmt(v)}</title></circle>`).join("")}<text x="${x(q.q1)}" y="310" text-anchor="end" fill="currentColor" font-size="12">Q₁</text><text x="${x(med)}" y="333" text-anchor="middle" fill="currentColor" font-size="12">中央値</text><text x="${x(q.q3)}" y="310" text-anchor="start" fill="currentColor" font-size="12">Q₃</text><text x="680" y="353" text-anchor="end" fill="currentColor" font-size="12">${esc(s.label)}</text>`;
+  drawing += `<text x="55" y="226" fill="currentColor" font-size="14">${s.boxMode === "iqr" ? "発展：箱ひげ図（1.5IQR方式）" : "箱ひげ図（最小値〜最大値）"}</text><line x1="${x(lower)}" x2="${x(upper)}" y1="264" y2="264" stroke="var(--chart-primary-dark)" stroke-width="2"/><line x1="${x(lower)}" x2="${x(lower)}" y1="251" y2="277" stroke="var(--chart-primary-dark)" stroke-width="2"/><line x1="${x(upper)}" x2="${x(upper)}" y1="251" y2="277" stroke="var(--chart-primary-dark)" stroke-width="2"/><rect x="${x(q.q1)}" y="244" width="${Math.max(0, x(q.q3) - x(q.q1))}" height="40" fill="var(--chart-primary-pale)" stroke="var(--chart-primary)" stroke-width="2"/><line x1="${x(med)}" x2="${x(med)}" y1="244" y2="284" stroke="var(--chart-primary)" stroke-width="4"/>${outliers.map((v) => `<circle cx="${x(v)}" cy="264" r="5" fill="var(--chart-secondary)"><title>1.5IQRの範囲外: ${fmt(v)}</title></circle>`).join("")}<text x="${x(q.q1)}" y="310" text-anchor="end" fill="currentColor" font-size="12">Q₁</text><text x="${x(med)}" y="333" text-anchor="middle" fill="currentColor" font-size="12">中央値</text><text x="${x(q.q3)}" y="310" text-anchor="start" fill="currentColor" font-size="12">Q₃</text><text x="680" y="353" text-anchor="end" fill="currentColor" font-size="12">${esc(s.label)}</text>`;
   const selectedD = selected ? selected.value - avg : NaN;
   const denom = s.sample ? values.length - 1 : values.length;
   const sse = values.reduce((t, v) => t + (v - avg) ** 2, 0);
@@ -219,7 +219,7 @@ function render(root, ctx) {
     </section></div>
     <div class="stat-grid"><section class="panel"><h2>偏差から分散・標準偏差へ</h2>
       <p>選択したデータ：${selected ? fmt(selected.value) : "—"} ／ 平均：${fmt(avg)}</p><p class="annotation">偏差 = ${selected ? fmt(selected.value) : "—"} − ${fmt(avg)} = <strong>${fmt(selectedD)}</strong><br>偏差の二乗 = <strong>${fmt(selectedD ** 2)}</strong></p>
-      ${svg(`<line x1="55" x2="680" y1="70" y2="70" stroke="#8aa"/><line x1="${x(avg)}" x2="${x(avg)}" y1="30" y2="105" stroke="#ba622a" stroke-width="2"/><rect x="${x(Math.min(avg, selected?.value ?? avg))}" y="54" width="${Math.abs(x(selected?.value ?? avg) - x(avg))}" height="32" fill="#237b7840"/><circle cx="${x(selected?.value ?? avg)}" cy="70" r="7" fill="#237b78"/><text x="${clamp(x(avg), 110, 625)}" y="125" text-anchor="middle" font-size="12" fill="currentColor">平均 ${fmt(avg)}</text><text x="${clamp(x(selected?.value ?? avg), 110, 625)}" y="23" text-anchor="middle" font-size="12" fill="currentColor">選択点 ${fmt(selected?.value ?? avg)}</text>`, "選択した点と平均の距離、すなわち偏差", 720, 150)}
+      ${svg(`<line x1="55" x2="680" y1="70" y2="70" stroke="var(--chart-axis)"/><line x1="${x(avg)}" x2="${x(avg)}" y1="30" y2="105" stroke="var(--chart-secondary)" stroke-width="2"/><rect x="${x(Math.min(avg, selected?.value ?? avg))}" y="54" width="${Math.abs(x(selected?.value ?? avg) - x(avg))}" height="32" fill="var(--chart-primary-pale)"/><circle cx="${x(selected?.value ?? avg)}" cy="70" r="7" fill="var(--chart-primary)"/><text x="${clamp(x(avg), 110, 625)}" y="125" text-anchor="middle" font-size="12" fill="currentColor">平均 ${fmt(avg)}</text><text x="${clamp(x(selected?.value ?? avg), 110, 625)}" y="23" text-anchor="middle" font-size="12" fill="currentColor">選択点 ${fmt(selected?.value ?? avg)}</text>`, "選択した点と平均の距離、すなわち偏差", 720, 150)}
       <p>偏差の合計 = ${fmt(
         values.reduce((t, v) => t + v - avg, 0),
         6,

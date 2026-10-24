@@ -2,10 +2,10 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-guided-counts";
+} from "../crosstab/records.mjs?v=20261024-simpson-theme";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-guided-counts";
-import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-guided-counts";
+import { population } from "../sampling/model.mjs?v=20261024-simpson-theme";
+import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-simpson-theme";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";

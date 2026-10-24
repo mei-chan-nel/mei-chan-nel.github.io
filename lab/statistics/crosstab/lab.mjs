@@ -1,8 +1,13 @@
 import {
+  chartKey,
+  groupPattern,
+  esc,
+  svg,
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-guided-counts";
-import { esc, svg } from "../shared/ui.mjs";
+} from "../shared/reading.mjs?v=20261024-simpson-theme";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
@@ -11,7 +16,7 @@ import {
   areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261024-guided-counts";
+} from "./records.mjs?v=20261024-simpson-theme";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -238,11 +243,10 @@ function comparisonChart(state) {
   ];
   const left = 145,
     width = 470;
-  let content =
-    '<defs><pattern id="ct-method-b" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#b85614"/><path d="M-2 2L2-2M0 7L7 0M5 9L9 5" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/></pattern></defs>';
+  let content = groupPattern("ct-method-b");
   for (const p of [0, 25, 50, 75, 100]) {
     const x = left + (width * p) / 100;
-    content += `<line x1="${x}" x2="${x}" y1="20" y2="320" stroke="#dbe2e8"/><text x="${x}" y="345" text-anchor="middle">${p}%</text>`;
+    content += `<line x1="${x}" x2="${x}" y1="20" y2="320" stroke="var(--chart-grid)"/><text x="${x}" y="345" text-anchor="middle">${p}%</text>`;
   }
   sections.forEach(([name, matrix], s) => {
     const y = 35 + s * 100;
@@ -250,78 +254,131 @@ function comparisonChart(state) {
     for (const r of [0, 1]) {
       const rate = successRate(matrix, r),
         yy = y + r * 32;
-      content += `<text x="135" y="${yy + 18}" text-anchor="end">${esc(METHOD[r])}</text><rect x="${left}" y="${yy}" width="${width}" height="23" rx="3" fill="#e7ecf0"/>`;
+      content += `<text x="135" y="${yy + 18}" text-anchor="end">${esc(METHOD[r])}</text><rect x="${left}" y="${yy}" width="${width}" height="23" rx="3" fill="var(--chart-context)"/>`;
       if (rate !== null)
-        content += `<rect x="${left}" y="${yy}" width="${width * rate}" height="23" rx="3" fill="${r ? "url(#ct-method-b)" : "#176660"}"/>`;
+        content += `<rect x="${left}" y="${yy}" width="${width * rate}" height="23" rx="3" fill="${r ? "url(#ct-method-b)" : "var(--chart-primary)"}"/>`;
       content += `<text x="630" y="${yy + 18}">${pct(rate)}</text>`;
     }
   });
   return svg(content, `合計・${STRATA.join("・")}の${OUTCOME[0]}率`, 720, 365);
 }
-export function comparisonQuestion(input) {
+export function simpsonComparison(input) {
   const state = normalizeState(input),
-    { METHOD, STRATA, OUTCOME } = displayLabels(state);
-  const mode = ["row", "column", "cell"].includes(state.mode)
-    ? state.mode
-    : "row";
-  const specific = state.selectedScope !== "all",
-    task = specific ? STRATA[Number(state.selectedScope)] : "";
-  const method = METHOD[state.selectedRow],
-    outcome = OUTCOME[state.selectedCol];
-  const resultPeople =
-    outcome === "達成"
-      ? "達成した人"
-      : outcome === "未達成"
-        ? "未達成だった人"
-        : `結果が「${outcome}」だった人`;
-  const scopePrefix = specific ? `${task}で` : "";
-  const base =
-    mode === "row"
-      ? `${scopePrefix}${method}を使った人`
-      : mode === "column"
-        ? `${scopePrefix}${resultPeople}`
-        : specific
-          ? `${task}に取り組んだ全員`
-          : "全員";
-  const focus =
-    mode === "row"
-      ? resultPeople
-      : mode === "column"
-        ? `${method}を使った人`
-        : `${method}で${resultPeople}`;
-  const numeratorText =
-    mode === "cell"
-      ? `${specific ? task + "の" : ""}${method}で${resultPeople}`
-      : `${base}のうち、${focus}`;
+    labels = displayLabels(state);
+  const scopes = [
+    ["all", "合計"],
+    ...labels.STRATA.map((name, i) => [String(i), name]),
+  ];
+  const rows = scopes.map(([scope, label]) => ({
+    scope,
+    label,
+    methods: [0, 1].map((method) => {
+      const matrix = matrixFor(state.strata, scope),
+        achieved = matrix[method][0],
+        total = matrix[method][0] + matrix[method][1];
+      return { method, achieved, total, rate: total ? achieved / total : null };
+    }),
+  }));
+  const composition = [0, 1].map((method) => {
+    const counts = state.strata.map(
+        (s) => s.counts[method][0] + s.counts[method][1],
+      ),
+      total = counts[0] + counts[1];
+    return {
+      method,
+      counts,
+      total,
+      shares: counts.map((n) => (total ? n / total : null)),
+    };
+  });
+  const withinWinner = [0, 1].find((method) =>
+    rows
+      .slice(1)
+      .every(
+        (row) =>
+          row.methods.every((m) => m.rate !== null) &&
+          row.methods[method].rate > row.methods[1 - method].rate,
+      ),
+  );
+  const overallWinner =
+    rows[0].methods.every((m) => m.rate !== null) &&
+    rows[0].methods[0].rate !== rows[0].methods[1].rate
+      ? rows[0].methods[0].rate > rows[0].methods[1].rate
+        ? 0
+        : 1
+      : null;
+  const reversed =
+    withinWinner !== undefined &&
+    overallWinner !== null &&
+    withinWinner !== overallWinner;
+  const easier = [0, 1].find((task) =>
+    [0, 1].every(
+      (method) =>
+        rows[task + 1].methods[method].rate !== null &&
+        rows[2 - task].methods[method].rate !== null &&
+        rows[task + 1].methods[method].rate >
+          rows[2 - task].methods[method].rate,
+    ),
+  );
   return {
-    mode,
-    base,
-    focus,
-    numeratorText,
-    sentence: `全体を「${base}」としたときの、「${focus}」の割合`,
+    rows,
+    composition,
+    standardized: equalCompositionRates(state.strata, 0.5),
+    withinWinner: withinWinner ?? null,
+    overallWinner,
+    reversed,
+    easier: easier ?? null,
+    labels,
   };
 }
+
+function countComparisonPanel(state, comparison) {
+  const { METHOD, STRATA, OUTCOME } = comparison.labels;
+  const tableRows = comparison.rows
+    .map((row) => {
+      const [a, b] = row.methods;
+      return `<tr data-count-scope="${row.scope}" ${row.scope === state.selectedScope ? 'aria-current="true"' : ""}><th scope="row">${esc(row.label)}</th>${row.methods.map((m, i) => `<td data-count-method="${i}"><span>${m.achieved} / ${m.total}人</span><strong class="${m.rate !== null && row.methods[1 - i].rate !== null && m.rate > row.methods[1 - i].rate ? "ct-rate-ahead" : ""}">${pct(m.rate)}</strong></td>`).join("")}</tr>`;
+    })
+    .join("");
+  const mixture = comparison.composition
+    .map(
+      (m) =>
+        `<p class="ct-mix-detail" data-method-composition="${m.method}"><strong>${esc(METHOD[m.method])}</strong>：${STRATA.map((name, i) => `${esc(name)} ${m.counts[i]}人（${pct(m.shares[i])}）`).join(" ／ ")}</p>`,
+    )
+    .join("");
+  let reason = `合計の率は、人数の多い課題の影響を強く受けます。`;
+  if (comparison.easier !== null) {
+    const easy = comparison.easier;
+    reason = `${esc(STRATA[easy])}は両方式とも${esc(OUTCOME[0])}率が高い課題です。${comparison.reversed ? `${esc(METHOD[comparison.overallWinner])}はこの課題の割合が${pct(comparison.composition[comparison.overallWinner].shares[easy])}と多いため、合計の率が高くなっています。` : "この課題に取り組んだ人の割合も合わせて比べましょう。"}`;
+  }
+  const equal = comparison.standardized
+    .map((rate, i) => `${esc(METHOD[i])} ${pct(rate)}`)
+    .join(" ／ ");
+  return `<section class="ct-count-comparison" data-screen-nav-section="人数で比べる"><h3>人数で比べる</h3><table class="stat-table ct-comparison-table"><caption>${esc(OUTCOME[0])}した人数 / 対象人数・${esc(OUTCOME[0])}率（下線は高い方）</caption><thead><tr><th scope="col">範囲</th>${METHOD.map((name, i) => `<th scope="col">${chartKey(name, i ? "var(--chart-secondary)" : "var(--chart-primary)", i ? "diamond" : "point")}</th>`).join("")}</tr></thead><tbody>${tableRows}</tbody></table><div class="ct-composition"><h4>課題ごとの人数の偏り</h4>${mixture}<p class="ct-mix-reason">${reason}</p><p class="ct-equal-mix" data-equal-composition>${esc(STRATA[0])}と${esc(STRATA[1])}が両方式とも半分ずつなら、<strong>${equal}</strong>（比較用の計算）。</p></div></section>`;
+}
+
 function denominatorDiagram(state) {
-  const { METHOD, STRATA, OUTCOME } = displayLabels(state),
-    matrix = matrixFor(state.strata, state.selectedScope);
-  const { numerator, denominator, ratio } = cellSummary(
-    matrix,
-    state.selectedRow,
-    state.selectedCol,
-    state.mode,
-  );
-  const { base, focus, numeratorText } = comparisonQuestion(state);
+  const comparison = simpsonComparison(state),
+    { METHOD, STRATA, OUTCOME } = comparison.labels;
+  const scope =
+    state.selectedScope === "all"
+      ? "合計"
+      : STRATA[Number(state.selectedScope)];
   const regions = denominatorRegions(
-    state.strata,
-    state.selectedScope,
-    state.selectedRow,
-    state.selectedCol,
-    state.mode,
-  );
-  const layout = areaDiagram(state.strata);
+      state.strata,
+      state.selectedScope,
+      -1,
+      0,
+      "row",
+    ),
+    layout = areaDiagram(state.strata);
   const shortTask = (name) => name.replace(/課題$/, "");
   let content =
-    '<defs><pattern id="ct-numerator" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#8d3c0b"/><path d="M-2 2L2-2M0 8L8 0M6 10L10 6" stroke="#fff" stroke-opacity=".3" stroke-width="1.5"/></pattern></defs>';
+    groupPattern("ct-count-b-hit") +
+    groupPattern("ct-count-b-base", {
+      background: "var(--chart-secondary-pale)",
+      opacity: 0.2,
+    });
   for (const band of layout.methods)
     content += `<text x="68" y="${band.y + band.height / 2 + 5}" text-anchor="end" class="ct-method-label" data-ct-method-y="${band.y + band.height / 2}">${esc(METHOD[band.method])}</text>`;
   for (const box of layout.regions) {
@@ -338,22 +395,20 @@ function denominatorDiagram(state) {
     const region = regions.find(
       (part) => part.stratum === s && part.method === r && part.outcome === c,
     );
-    const fill = region.inNumerator
-      ? "url(#ct-numerator)"
-      : region.inDenominator
-        ? "#c9e6de"
-        : "#edf0f2";
+    const fill = !region.inDenominator
+      ? "var(--chart-context)"
+      : r === 1
+        ? c === 0
+          ? "url(#ct-count-b-hit)"
+          : "url(#ct-count-b-base)"
+        : c === 0
+          ? "var(--chart-primary)"
+          : "var(--chart-primary-pale)";
     const id = `${s},${r},${c}`,
-      clip = `ct-region-clip-${s}-${r}-${c}`;
-    const text = `${shortTask(STRATA[s])}・${OUTCOME[c]} ${count}人`;
-    content += `<clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath><rect x="${x}" y="${y}" width="${width}" height="${height}" data-ct-region="${id}" data-ct-x="${x}" data-ct-y="${y}" data-ct-width="${width}" data-ct-height="${height}" data-ct-count="${count}" data-ct-numerator="${region.inNumerator}" data-ct-denominator="${region.inDenominator}" fill="${fill}" stroke="#839b91" stroke-width="1" role="img" aria-label="${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人"><title>${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人（${region.inNumerator ? "分子・分母に含む" : region.inDenominator ? "分母に含む" : "分母に含まない"}）</title></rect><text x="${x + width / 2}" y="${y + height / 2 - 4}" data-ct-region-label="${id}" data-ct-label-name="${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})" aria-label="${esc(text)}">${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}</text><text x="${x + width / 2}" y="${y + height / 2 + 12}" data-ct-region-number="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})">${count}人</text>`;
+      clip = `ct-region-clip-${s}-${r}-${c}`,
+      text = `${shortTask(STRATA[s])}・${OUTCOME[c]} ${count}人`;
+    content += `<clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath><rect x="${x}" y="${y}" width="${width}" height="${height}" data-ct-region="${id}" data-ct-x="${x}" data-ct-y="${y}" data-ct-width="${width}" data-ct-height="${height}" data-ct-count="${count}" data-ct-numerator="${region.inNumerator}" data-ct-denominator="${region.inDenominator}" data-chart-series="${r ? "B" : "A"}" fill="${fill}" stroke="var(--chart-axis)" stroke-width="1" role="img" aria-label="${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人"><title>${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人</title></rect><text x="${x + width / 2}" y="${y + height / 2 - 4}" data-ct-region-label="${id}" data-ct-label-name="${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})" aria-label="${esc(text)}">${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}</text><text x="${x + width / 2}" y="${y + height / 2 + 12}" data-ct-region-number="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})">${count}人</text>`;
   }
-  const smallLabels = layout.regions
-    .map(
-      (box) =>
-        `<span class="ct-small-region-label" data-ct-region-legend="${box.stratum},${box.method},${box.outcome}">${esc(METHOD[box.method])}・${esc(shortTask(STRATA[box.stratum]))}・${esc(OUTCOME[box.outcome])} ${box.count}人</span>`,
-    )
-    .join("");
   const boundaries = [
     ...new Set(
       layout.regions
@@ -362,11 +417,27 @@ function denominatorDiagram(state) {
     ),
   ].filter((y) => y > 12 + 1e-8 && y < 12 + layout.plotHeight - 1e-8);
   for (const y of boundaries)
-    content += `<line data-ct-row-divider data-ct-line-y="${y}" x1="80" x2="${80 + layout.plotWidth}" y1="${y}" y2="${y}" stroke="#526f62" stroke-width="${Math.abs(y - layout.methods[1].y) < 1e-8 ? 3 : 2}" vector-effect="non-scaling-stroke"/>`;
-  const calculation = denominator
-    ? `${numerator}人 ÷ ${denominator}人 × 100 = ${pct(ratio)}`
-    : "分母が0人のため割合は求められません";
-  return `<section class="panel chart-panel crosstab-denominator"><h3>実数を比べる</h3><div class="ct-formula"><p class="ct-question-summary" role="status">全体を<strong>${esc(base)}</strong>としたときの、<strong>${esc(focus)}</strong>の割合</p><span>分子：${esc(numeratorText)} <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${`<div class="ct-diagram-scroll" tabindex="0" role="region" aria-label="実数を比べる図。区画の面積は人数に比例します。">${svg(content, `${METHOD[0]}と${METHOD[1]}の人数に面積が比例する図。初級は上、応用は下、達成は左、未達成は右。`, layout.width, layout.height).replace("<svg", `<svg style="aspect-ratio:${layout.width} / ${layout.height}" data-ct-mosaic data-ct-plot-width="${layout.plotWidth}" data-ct-plot-height="${layout.plotHeight}"`)}</div>`}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span>${smallLabels}</div></section>`;
+    content += `<line data-ct-row-divider data-ct-line-y="${y}" x1="80" x2="${80 + layout.plotWidth}" y1="${y}" y2="${y}" stroke="var(--chart-reference)" stroke-width="${Math.abs(y - layout.methods[1].y) < 1e-8 ? 3 : 2}" vector-effect="non-scaling-stroke"/>`;
+  const smallLabels = layout.regions
+    .map(
+      (box) =>
+        `<span class="ct-small-region-label" data-ct-region-legend="${box.stratum},${box.method},${box.outcome}">${esc(METHOD[box.method])}・${esc(shortTask(STRATA[box.stratum]))}・${esc(OUTCOME[box.outcome])} ${box.count}人</span>`,
+    )
+    .join("");
+  const description =
+    state.selectedScope === "all"
+      ? `各方式の全員を分母にして、${OUTCOME[0]}した人数と割合を比べます。`
+      : `${scope}に取り組んだ人を方式ごとに分け、${OUTCOME[0]}した人数と割合を比べます。`;
+  const figure = svg(
+    content,
+    `${METHOD[0]}と${METHOD[1]}を同時に比較する人数の面積図。初級は上、応用は下、達成は左、未達成は右。`,
+    layout.width,
+    layout.height,
+  ).replace(
+    "<svg",
+    `<svg style="aspect-ratio:${layout.width} / ${layout.height}" data-ct-mosaic data-ct-plot-width="${layout.plotWidth}" data-ct-plot-height="${layout.plotHeight}"`,
+  );
+  return `<section class="panel chart-panel crosstab-denominator"><h3>実数を比べる</h3><p class="ct-question-summary" role="status">${esc(description)}</p><div class="ct-diagram-scroll" tabindex="0" role="region" aria-label="A方式とB方式の人数を同時に比べる図">${figure}</div><div class="legend ct-area-legend">${chartKey(METHOD[0], "var(--chart-primary)", "point")}${chartKey(METHOD[1], "var(--chart-secondary)", "diamond")}<span>濃い色：${esc(OUTCOME[0])} ／ 薄い色：${esc(OUTCOME[1])}</span>${smallLabels}</div>${countComparisonPanel(state, comparison)}</section>`;
 }
 function choices(
   id,
@@ -414,51 +485,16 @@ export default {
     } else if (view === 1) {
       content = `<section class="chart-panel"><h3>合計と課題別の${esc(OUTCOME[0])}率</h3>${comparisonChart(state)}<p class="annotation" role="status">${esc(reversalExplanation(state))}</p></section>`;
     } else {
-      const ratioMode = state.mode === "count" ? "row" : state.mode;
-      state.mode = ratioMode;
-      const scopeControl = choices(
+      toolbar = choices(
         "ct-scope",
-        "課題難度",
-        scopes.map(([v, label]) => [v, v === "all" ? "全体" : label]),
+        "比べる範囲",
+        scopes,
         state.selectedScope,
         "selectedScope",
       );
-      const methodControl = choices(
-        "ct-row",
-        ratioMode === "row" ? "基準にする方式" : "調べる方式",
-        METHOD.map((label, i) => [String(i), label]),
-        state.selectedRow,
-        "selectedRow",
-        true,
-      );
-      const resultControl = choices(
-        "ct-col",
-        ratioMode === "column" ? "基準にする結果" : "調べる結果",
-        OUTCOME.map((label, i) => [String(i), label]),
-        state.selectedCol,
-        "selectedCol",
-        true,
-      );
-      toolbar =
-        choices(
-          "ct-question",
-          "調べること",
-          [
-            ["row", "方式別の結果"],
-            ["column", "結果別の方式"],
-            ["cell", "全員に占める組み合わせ"],
-          ],
-          ratioMode,
-          "mode",
-          false,
-          "ct-question-group",
-        ) +
-        scopeControl +
-        (ratioMode === "column"
-          ? resultControl + methodControl
-          : methodControl + resultControl);
       content = denominatorDiagram(state);
     }
+
     const notes = readingNotes("crosstab", view, state);
     root.innerHTML = `<div class="analysis-toolbar ct-controls" role="group" aria-label="このタブの操作">${toolbar}</div>${content}<details class="analysis-notes"><summary>解説</summary>${notes.map((t) => `<p>${esc(t)}</p>`).join("")}</details>`;
     root.querySelectorAll("input[data-ct-state]").forEach((input) => {
@@ -475,13 +511,6 @@ export default {
           root.closest(".statistics-fullscreen")?.open,
         );
         ctx.update({
-          ...(view === 2
-            ? {
-                mode: state.mode,
-                selectedRow: state.selectedRow,
-                selectedCol: state.selectedCol,
-              }
-            : {}),
           [input.dataset.ctState]: input.hasAttribute("data-ct-number")
             ? Number(input.value)
             : input.value,

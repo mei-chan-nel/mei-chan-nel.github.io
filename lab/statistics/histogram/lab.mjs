@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261024-guided-counts";
+import { render } from "./view.mjs?v=20261024-simpson-theme";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

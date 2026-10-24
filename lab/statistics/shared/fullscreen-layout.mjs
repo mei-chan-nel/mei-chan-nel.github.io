@@ -190,6 +190,13 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
   ].filter(
     (node) => visible(node) && !legends.some((legend) => legend.contains(node)),
   );
+  const extraSections = [...root.querySelectorAll("[data-screen-nav-section]")]
+    .filter(visible)
+    .map((node) => {
+      const section = makeSection(node.dataset.screenNavSection);
+      move(node, section);
+      return section;
+    });
   metrics.forEach((node) => move(node, metricsSection));
   legends.forEach((node) => move(node, legendSection));
   paragraphs.forEach((node) => move(node, explanationSection));
@@ -198,7 +205,12 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
     paragraph.textContent = text;
     explanationSection.append(paragraph);
   }
-  for (const section of [metricsSection, legendSection, explanationSection])
+  for (const section of [
+    metricsSection,
+    ...extraSections,
+    legendSection,
+    explanationSection,
+  ])
     if (section.children.length > 1) content.append(section);
   if (!content.children.length) return;
   for (const details of root.querySelectorAll(

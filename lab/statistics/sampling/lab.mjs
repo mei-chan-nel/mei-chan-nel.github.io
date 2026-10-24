@@ -1,6 +1,15 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
+import {
+  chartKey,
+  esc,
+  number,
+  select,
+  metrics,
+  svg,
+  bind,
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
 import { mean, fmt } from "../shared/math.mjs";
-import { esc, number, select, metrics, svg, bind } from "../shared/ui.mjs";
+
 import {
   population,
   samplingSE,
@@ -11,7 +20,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-guided-counts";
+} from "./model.mjs?v=20261024-simpson-theme";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");
@@ -33,7 +42,7 @@ function xTicks(domain, y, labelsY) {
   ) {
     const v = i * domain.tick || 0;
     ticks.push(
-      `<line x1="${x(v)}" x2="${x(v)}" y1="${y}" y2="${y + 5}" stroke="#6b8279"/><text x="${x(v)}" y="${labelsY}" text-anchor="middle">${axisValue(v, domain.tick)}</text>`,
+      `<line x1="${x(v)}" x2="${x(v)}" y1="${y}" y2="${y + 5}" stroke="var(--chart-muted)"/><text x="${x(v)}" y="${labelsY}" text-anchor="middle">${axisValue(v, domain.tick)}</text>`,
     );
   }
   return ticks.join("");
@@ -61,7 +70,7 @@ function populationChart(state) {
       const count = counts.get(person.id) || 0,
         x = 27 + (i % columns) * 36,
         y = 27 + Math.floor(i / columns) * 36;
-      return `<g data-population-id="${person.id}" data-selected="${count > 0}" data-draw-count="${count}"><circle cx="${x}" cy="${y}" r="${count > 1 ? 16 : count ? 14 : 8}" fill="${count ? "#0d514f" : "#e0ece7"}" stroke="${count ? "#172f35" : "#b7c8bd"}" stroke-width="${count ? 2 : 1}"><title>${person.id + 1}番：${person.value}${unitOf(state)}・今回${count}回選択</title></circle>${count ? `<text class="sampling-value" x="${x}" y="${y + (count > 1 ? -5 : 0)}" ${count > 1 ? 'data-label-offset="-5"' : ""} dominant-baseline="central" fill="white" font-size="12" font-weight="700" text-anchor="middle">${esc(person.value)}</text>${count > 1 ? `<text class="sampling-repeat-count" x="${x}" y="${y + 8}" data-label-offset="8" dominant-baseline="central" text-anchor="middle">×${count}</text>` : ""}` : ""}</g>`;
+      return `<g data-population-id="${person.id}" data-selected="${count > 0}" data-draw-count="${count}"><circle cx="${x}" cy="${y}" r="${count > 1 ? 16 : count ? 14 : 8}" fill="${count ? "var(--chart-primary-dark)" : "var(--chart-primary-pale)"}" stroke="${count ? "var(--chart-text)" : "var(--chart-axis)"}" stroke-width="${count ? 2 : 1}"><title>${person.id + 1}番：${person.value}${unitOf(state)}・今回${count}回選択</title></circle>${count ? `<text class="sampling-value" x="${x}" y="${y + (count > 1 ? -5 : 0)}" ${count > 1 ? 'data-label-offset="-5"' : ""} dominant-baseline="central" fill="white" font-size="12" font-weight="700" text-anchor="middle">${esc(person.value)}</text>${count > 1 ? `<text class="sampling-repeat-count" x="${x}" y="${y + 8}" data-label-offset="8" dominant-baseline="central" text-anchor="middle">×${count}</text>` : ""}` : ""}</g>`;
     })
     .join("");
   return svg(
@@ -100,7 +109,7 @@ function distributionChart(state, domain) {
         `<rect class="bar" x="${x(b.lo) + 0.5}" y="${y(b.count)}" width="${Math.max(0.5, x(b.hi) - x(b.lo) - 1)}" height="${bottom - y(b.count)}"><title>${fmt(b.lo)}以上${fmt(b.hi)}未満：${b.count}回</title></rect>`,
     )
     .join("");
-  drawing += `<path class="axis" d="M56,36V252H664"/>${xTicks(domain, 252, 273)}<text x="360" y="297" text-anchor="middle">${esc(axisLabel(state, "標本平均"))}</text><text x="56" y="17">回数</text><line data-sampling-truth x1="360" x2="360" y1="36" y2="252" stroke="#995b10" stroke-width="2" stroke-dasharray="6 4"/><text x="360" y="20" text-anchor="middle">母平均 ${fmt(domain.truth)}${unitOf(state)}</text>`;
+  drawing += `<path class="axis" d="M56,36V252H664"/>${xTicks(domain, 252, 273)}<text x="360" y="297" text-anchor="middle">${esc(axisLabel(state, "標本平均"))}</text><text x="56" y="17">回数</text><line data-sampling-truth x1="360" x2="360" y1="36" y2="252" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="6 4"/><text x="360" y="20" text-anchor="middle">母平均 ${fmt(domain.truth)}${unitOf(state)}</text>`;
   return chartAttributes(
     svg(
       drawing,
@@ -134,7 +143,7 @@ function sizeComparisonChart(state, comparison) {
     const top = 35 + index * 180,
       bottom = top + 122,
       y = (count) => bottom - (count / ymax) * (bottom - top),
-      color = index ? "#c5651c" : "#176660";
+      color = index ? "var(--chart-secondary)" : "var(--chart-primary)";
     drawing += `<g data-comparison-series="${index}" data-sample-size="${n}" data-y-max="${ymax}"><text x="56" y="${top - 13}" fill="${color}" font-weight="700">${index ? "◇" : "●"} 標本数 ${n} ・ ${comparison.trials}回</text>`;
     for (let i = 0; i <= 4; i++)
       drawing += `<line class="gridline" x1="56" x2="664" y1="${y(i * step)}" y2="${y(i * step)}"/><text x="47" y="${y(i * step) + 4}" text-anchor="end">${i * step}</text>`;
@@ -142,9 +151,9 @@ function sizeComparisonChart(state, comparison) {
       if (!count) return;
       const lo = domain.xmin + bin * binWidth,
         hi = lo + binWidth;
-      drawing += `<rect data-bin-count="${count}" x="${x(lo) + 0.5}" y="${y(count)}" width="${Math.max(0.5, x(hi) - x(lo) - 1)}" height="${bottom - y(count)}" fill="${index ? "#fffaf1" : color}" stroke="${color}" stroke-width="1.5" ${index ? 'stroke-dasharray="4 2"' : ""}><title>標本数${n}：${fmt(lo)}以上${fmt(hi)}未満 ${count}回</title></rect>`;
+      drawing += `<rect data-bin-count="${count}" x="${x(lo) + 0.5}" y="${y(count)}" width="${Math.max(0.5, x(hi) - x(lo) - 1)}" height="${bottom - y(count)}" fill="${index ? "var(--chart-secondary-pale)" : color}" stroke="${color}" stroke-width="1.5" ${index ? 'stroke-dasharray="4 2"' : ""}><title>標本数${n}：${fmt(lo)}以上${fmt(hi)}未満 ${count}回</title></rect>`;
     });
-    drawing += `<path class="axis" d="M56,${top}V${bottom}H664"/>${xTicks(domain, bottom, bottom + 21)}<line data-sampling-truth x1="360" x2="360" y1="${top}" y2="${bottom}" stroke="#995b10" stroke-width="2" stroke-dasharray="6 4"/></g>`;
+    drawing += `<path class="axis" d="M56,${top}V${bottom}H664"/>${xTicks(domain, bottom, bottom + 21)}<line data-sampling-truth x1="360" x2="360" y1="${top}" y2="${bottom}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="6 4"/></g>`;
   });
   drawing += `<text x="360" y="391" text-anchor="middle">${esc(axisLabel(state, "標本平均（共通の目盛り）"))}</text>`;
   return chartAttributes(
@@ -168,7 +177,7 @@ function intervalChart(state, domain, series) {
     rowHeight = paired ? 52 : 26,
     height = Math.max(286, state.trials * rowHeight),
     x = xScale(domain);
-  const axis = `<text x="360" y="16" text-anchor="middle">母平均 ${fmt(domain.truth)}${unitOf(state)}</text><line data-sampling-truth x1="360" x2="360" y1="24" y2="36" stroke="#995b10" stroke-width="2" stroke-dasharray="5 3"/><path class="axis" d="M56,36H664"/>${xTicks(domain, 36, 55)}<text x="360" y="74" text-anchor="middle">${esc(axisLabel(state, "母平均の推定区間"))}</text>`;
+  const axis = `<text x="360" y="16" text-anchor="middle">母平均 ${fmt(domain.truth)}${unitOf(state)}</text><line data-sampling-truth x1="360" x2="360" y1="24" y2="36" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="5 3"/><path class="axis" d="M56,36H664"/>${xTicks(domain, 36, 55)}<text x="360" y="74" text-anchor="middle">${esc(axisLabel(state, "母平均の推定区間"))}</text>`;
   let rows = "";
   for (let i = state.trials - 1; i >= 0; i--) {
     series.forEach(({ n, history }, index) => {
@@ -177,11 +186,11 @@ function intervalChart(state, domain, series) {
         covers = result.low <= domain.truth && domain.truth <= result.high,
         color = paired
           ? index
-            ? "#c5651c"
-            : "#176660"
+            ? "var(--chart-secondary)"
+            : "var(--chart-primary)"
           : covers
-            ? "#176660"
-            : "#a63c42",
+            ? "var(--chart-primary)"
+            : "var(--chart-danger)",
         dash = paired ? (index ? "1 5" : "") : covers ? "" : "5 3",
         cx = x(result.mean),
         fill = covers ? color : "white";
@@ -192,7 +201,7 @@ function intervalChart(state, domain, series) {
     });
   }
   const key = `${state.signature}/${paired ? series[1].n : "single"}`;
-  return `<div class="sampling-intervals">${chartAttributes(svg(axis, "共通の横軸。中央は母平均。", 720, 80), domain, "data-sampling-axis data-fixed-row-chart")}<div class="sampling-history-scroll" tabindex="0" role="region" aria-label="新しい順の推定区間。スクロールで過去の区間へ。" data-history-signature="${esc(key)}" data-history-trials="${state.trials}">${chartAttributes(svg(`<line data-sampling-truth x1="360" x2="360" y1="0" y2="${height}" stroke="#995b10" stroke-width="2" stroke-dasharray="5 4"/>` + rows, `${state.trials}回の推定区間${paired ? "を2種類の標本数で比較" : ""}。塗りつぶしは母平均を含む区間、白抜きは母平均を含まない区間です。`, 720, height), domain, `data-scroll-chart data-fixed-row-chart style="--sampling-history-height:${height}px"`)}</div></div>`;
+  return `<div class="sampling-intervals">${chartAttributes(svg(axis, "共通の横軸。中央は母平均。", 720, 80), domain, "data-sampling-axis data-fixed-row-chart")}<div class="sampling-history-scroll" tabindex="0" role="region" aria-label="新しい順の推定区間。スクロールで過去の区間へ。" data-history-signature="${esc(key)}" data-history-trials="${state.trials}">${chartAttributes(svg(`<line data-sampling-truth x1="360" x2="360" y1="0" y2="${height}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="5 4"/>` + rows, `${state.trials}回の推定区間${paired ? "を2種類の標本数で比較" : ""}。塗りつぶしは母平均を含む区間、白抜きは母平均を含まない区間です。`, 720, height), domain, `data-scroll-chart data-fixed-row-chart style="--sampling-history-height:${height}px"`)}</div></div>`;
 }
 
 export default {
@@ -258,7 +267,7 @@ export default {
       series[1].summary.spread !== null
         ? series[1].summary.spread / series[0].summary.spread
         : null;
-    root.innerHTML = `<div class="stat-grid"><section class="panel chart-panel"><h2>標本数${state.n}の抽出結果</h2>${view === 0 ? populationChart(state) : ""}<p class="legend"><span>濃い丸：今回の標本</span><span>白い数字：値</span>${state.method === "with" ? "<span>×：選ばれた回数</span>" : ""}</p>${metrics(
+    root.innerHTML = `<div class="stat-grid"><section class="panel chart-panel"><h2>標本数${state.n}の抽出結果</h2>${view === 0 ? populationChart(state) : ""}<p class="legend">${chartKey("今回の標本", "var(--chart-primary-dark)", "point")}<span>白い数字：値</span>${state.method === "with" ? "<span>×：選ばれた回数</span>" : ""}</p>${metrics(
       [
         ["今回の標本平均", `${fmt(latest.mean)}${unit}`],
         ["母平均", `${fmt(truth)}${unit}`],
@@ -286,7 +295,7 @@ export default {
       ],
       state.method,
     )}${number("sample-seed", "乱数の種", state.seed, 0, 4294967295, 1)}<div class="actions"><button id="sample-one" class="primary" ${state.trials >= 2000 ? "disabled" : ""}>1回抽出</button><button id="sample-many" ${state.trials >= 2000 ? "disabled" : ""}>100回くり返す</button><button id="sample-replay">1回目に戻す</button></div><p class="sampling-reset-note" role="status">${comparing ? "2つの標本数で同じ回数ずつ抽出します。" : ""}条件を変えると、1回目からやり直します。</p></aside></div>
-    <section class="panel chart-panel"><h2>${comparing ? `標本数${state.n}と${settings.sizes[1]}・各${state.trials}回` : `標本数${state.n}・${state.trials}回の平均`}</h2>${distributionMetrics}${view === 1 ? (comparing ? sizeComparisonChart(state, comparison) : distributionChart(state, domain)) : ""}<div class="legend sampling-comparison-legend">${comparing ? `<span>● ① n=${state.n}：塗り棒</span><span>◇ ② n=${settings.sizes[1]}：白抜き・破線棒</span>` : ""}<span>橙の破線：母平均 ${fmt(truth)}${unit}</span></div>${ratio === null ? "" : `<p class="annotation" data-size-comparison-reading>②の標本平均のばらつきは、①の${fmt(ratio, 2)}倍です。</p>`}</section>
+    <section class="panel chart-panel"><h2>${comparing ? `標本数${state.n}と${settings.sizes[1]}・各${state.trials}回` : `標本数${state.n}・${state.trials}回の平均`}</h2>${distributionMetrics}${view === 1 ? (comparing ? sizeComparisonChart(state, comparison) : distributionChart(state, domain)) : ""}<div class="legend sampling-comparison-legend">${comparing ? `${chartKey(`① n=${state.n}：塗り棒`, "var(--chart-primary)", "bar")}${chartKey(`② n=${settings.sizes[1]}：白抜き・破線棒`, "var(--chart-secondary)", "bar-open")}` : ""}${chartKey(`母平均 ${fmt(truth)}${unit}`, "var(--chart-reference)", "line-dashed")}</div>${ratio === null ? "" : `<p class="annotation" data-size-comparison-reading>②の標本平均のばらつきは、①の${fmt(ratio, 2)}倍です。</p>`}</section>
     <section class="panel chart-panel sampling-interval-panel"><h2>${comparing ? `標本数${state.n}と${settings.sizes[1]}の区間・各${state.trials}回` : `95%信頼区間・${state.trials}回`}</h2>${metrics(
       comparing
         ? series.map((s, i) => [
@@ -306,7 +315,7 @@ export default {
               `${summary.missed}/${state.trials}回`,
             ],
           ],
-    )}<div class="legend sampling-interval-legend">${comparing ? `<span>● ① n=${state.n}：緑の実線</span><span>◇ ② n=${settings.sizes[1]}：オレンジの点線</span>` : ""}<span>塗りつぶし：母平均を含む</span><span>白抜き：母平均を含まない</span><span>橙の縦破線：母平均</span><span>新しい順に表示。スクロールで過去の結果へ。</span></div>${view === 2 ? intervalChart(state, domain, series) : ""}</section>
+    )}<div class="legend sampling-interval-legend">${comparing ? `${chartKey(`① n=${state.n}：実線`, "var(--chart-primary)", "point")}${chartKey(`② n=${settings.sizes[1]}：点線`, "var(--chart-secondary)", "diamond")}` : ""}<span>塗りつぶし：母平均を含む</span><span>白抜き：母平均を含まない</span>${chartKey("母平均（縦の破線）", "var(--chart-reference)", "line-dashed")}<span>新しい順に表示。スクロールで過去の結果へ。</span></div>${view === 2 ? intervalChart(state, domain, series) : ""}</section>
     `;
     const reset = (patch) => {
       if (Object.entries(patch).some(([key, value]) => state[key] !== value))

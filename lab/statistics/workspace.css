@@ -79,9 +79,9 @@
   font-size: 0.82rem;
 }
 .stat-page .view-tabs button[aria-pressed="true"] {
-  background: #175f55;
+  background: var(--chart-primary-dark);
   color: #fff;
-  border-color: #175f55;
+  border-color: var(--chart-primary-dark);
   font-weight: 650;
 }
 .lab-lead {
@@ -133,7 +133,7 @@
   display: block;
 }
 .workbench-display .stat-chart text {
-  font-size: 13px;
+  font-size: 12px;
 }
 .workbench-display > .panel > p,
 .workbench-display > .chart-panel > p {
@@ -1291,15 +1291,15 @@ body[data-statistics]
 /* A shared horizontal scale connects histogram, grouped boxplots and observations. */
 .histogram-legend .group-key-a {
   border-radius: 50%;
-  background: #168b87;
+  background: var(--chart-primary);
 }
 .histogram-legend .group-key-b {
-  border: 1px dashed #513622;
+  border: 1px dashed var(--chart-secondary-dark);
   background: repeating-linear-gradient(
     135deg,
-    #de7c35 0 4px,
-    #513622 4px 5px,
-    #de7c35 5px 8px
+    var(--chart-secondary) 0 4px,
+    var(--chart-secondary-dark) 4px 5px,
+    var(--chart-secondary) 5px 8px
   );
   transform: rotate(45deg);
 }
@@ -1334,8 +1334,8 @@ body[data-statistics]
 }
 .calculation-tabs button[aria-pressed="true"] {
   color: #fff;
-  background: #175f55;
-  border-color: #175f55;
+  background: var(--chart-primary-dark);
+  border-color: var(--chart-primary-dark);
 }
 .calculation-context {
   display: flex;
@@ -1867,7 +1867,7 @@ html.statistics-immersive body {
 }
 .screen-navigation-resize:is(:hover, :focus-visible) {
   background: #17666022;
-  outline: 2px solid #176660;
+  outline: 2px solid var(--chart-primary);
   outline-offset: -2px;
 }
 .screen-navigation-resizing,
@@ -2362,7 +2362,7 @@ html.statistics-immersive body {
 }
 .sampling-reset-note {
   font-size: 0.78rem;
-  color: #536e66;
+  color: var(--chart-muted);
 }
 
 /* Cross-tabulation uses individual records and read-only results. */
@@ -2440,10 +2440,10 @@ html.statistics-immersive body {
 .ct-choice:has(input:checked) {
   color: #154f43;
   background: #e7f2ec;
-  border-color: #176660;
+  border-color: var(--chart-primary);
 }
 .ct-choice:focus-within {
-  outline: 2px solid #176660;
+  outline: 2px solid var(--chart-primary);
   outline-offset: 2px;
 }
 .ct-choice input[type="radio"] {
@@ -2452,7 +2452,7 @@ html.statistics-immersive body {
   height: 14px;
   min-height: 14px;
   margin: 0;
-  accent-color: #176660;
+  accent-color: var(--chart-primary);
 }
 .unified-workbench .ct-controls {
   gap: 10px 14px;
@@ -2469,10 +2469,10 @@ html.statistics-immersive body {
 .ct-formula > strong {
   flex-basis: 100%;
   font-size: 1rem;
-  color: #183d34;
+  color: var(--chart-text);
 }
 [data-stat-lab="crosstab"] .stat-chart .ct-area-label {
-  fill: #183d34;
+  fill: var(--chart-text);
   font-weight: 650;
 }
 [data-stat-lab="crosstab"] .stat-chart .ct-area-selected {
@@ -2489,17 +2489,21 @@ html.statistics-immersive body {
 .ct-key {
   width: 18px;
   height: 14px;
-  border: 1px solid #839b91;
+  border: 1px solid var(--chart-axis);
   display: inline-block;
 }
 .ct-key-numerator {
-  background: repeating-linear-gradient(135deg, #8d3c0b 0 4px, #b76c3d 4px 5px);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--chart-secondary-dark) 0 4px,
+    #b76c3d 4px 5px
+  );
 }
 .ct-key-base {
-  background: #c9e6de;
+  background: var(--chart-primary-pale);
 }
 .ct-key-excluded {
-  background: #edf0f2;
+  background: var(--chart-context);
 }
 @media (max-width: 520px) {
   .crosstab-table :is(th, td) {
@@ -2567,4 +2571,69 @@ html.statistics-immersive body {
   min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+/* Read-only counts explain the reversal while the mosaic retains every person. */
+.ct-count-comparison {
+  margin-top: 16px;
+  border-top: 1px solid var(--chart-grid);
+  padding-top: 14px;
+  color: var(--chart-text);
+}
+.ct-comparison-table {
+  width: 100%;
+  table-layout: fixed;
+  font-variant-numeric: tabular-nums;
+}
+.ct-comparison-table :is(th, td) {
+  text-align: center;
+  padding: 8px 5px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.ct-comparison-table td {
+  background: #fff;
+}
+.ct-comparison-table td :is(span, strong) {
+  display: block;
+}
+.ct-comparison-table td strong {
+  margin-top: 3px;
+}
+.ct-comparison-table .ct-rate-ahead {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.ct-comparison-table tr[aria-current="true"] th {
+  border-left: 3px solid var(--chart-primary);
+}
+.ct-composition h4 {
+  margin: 14px 0 6px;
+  font-size: 0.85rem;
+}
+.ct-composition p {
+  margin: 8px 0;
+  font-size: 0.82rem;
+  line-height: 1.8;
+}
+.screen-explanation-rail .ct-count-comparison {
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+.screen-explanation-rail .ct-count-comparison > h3 {
+  display: none;
+}
+.screen-explanation-rail .ct-comparison-table {
+  font-size: 0.72rem;
+}
+.screen-explanation-rail .ct-comparison-table caption {
+  font-size: 0.69rem;
+}
+.screen-explanation-rail .ct-comparison-table :is(th, td) {
+  padding: 6px 3px;
+}
+.screen-explanation-rail .ct-composition p {
+  font-size: 0.74rem;
 }

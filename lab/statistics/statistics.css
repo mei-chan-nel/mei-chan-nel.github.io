@@ -1,7 +1,27 @@
+/* One color vocabulary for every statistical chart. */
+:root {
+  --chart-primary: #176660;
+  --chart-primary-dark: #0f5146;
+  --chart-primary-pale: #dceee7;
+  --chart-secondary: #b65a18;
+  --chart-secondary-dark: #814113;
+  --chart-secondary-pale: #fae8da;
+  --chart-secondary-soft: #edc3a4;
+  --chart-purple: #7650a6;
+  --chart-purple-pale: #eee8f5;
+  --chart-blue: #416f9c;
+  --chart-danger: #a63c42;
+  --chart-text: #193d32;
+  --chart-muted: #526d62;
+  --chart-axis: #96aea2;
+  --chart-grid: #dce5df;
+  --chart-context: #e8eeeb;
+  --chart-reference: #73857c;
+}
 .stat-page {
-  --stat-teal: #12665f;
-  --stat-orange: #b75528;
-  --stat-soft: #edf5f1;
+  --stat-teal: var(--chart-primary);
+  --stat-orange: var(--chart-secondary);
+  --stat-soft: var(--chart-primary-pale);
   max-width: 1320px;
 }
 .stat-hero {
@@ -86,9 +106,9 @@
 }
 .stat-page button.primary,
 .stat-page .primary {
-  background: #175f55;
+  background: var(--chart-primary-dark);
   color: #fff;
-  border-color: #175f55;
+  border-color: var(--chart-primary-dark);
 }
 .stat-page button:disabled {
   opacity: 0.45;
@@ -210,47 +230,46 @@
   display: block;
   overflow: hidden;
   touch-action: pan-y;
+  fill: var(--chart-muted);
 }
 .stat-chart text {
-  fill: #536e66;
-  font:
-    11px system-ui,
-    sans-serif;
+  font-family: system-ui, sans-serif;
+  font-size: 12px;
 }
 .stat-chart .gridline {
-  stroke: #e5ece7;
+  stroke: var(--chart-grid);
   stroke-width: 1;
 }
 .stat-chart .axis {
   fill: none;
-  stroke: #9bb3a9;
+  stroke: var(--chart-axis);
   stroke-width: 1;
 }
 .stat-chart .series {
   fill: none;
-  stroke: #16786b;
+  stroke: var(--chart-primary);
   stroke-width: 2.5;
 }
 .stat-chart .warm {
-  stroke: #bb632d;
+  stroke: var(--chart-secondary);
   stroke-width: 2.5;
   fill: none;
 }
 .stat-chart .point {
-  fill: #277c70;
+  fill: var(--chart-primary);
   stroke: #fff;
   stroke-width: 1.8;
   cursor: grab;
   touch-action: none;
 }
 .stat-chart .point:hover {
-  fill: #b85b2d;
+  fill: var(--chart-secondary);
 }
 .stat-chart .bar {
-  fill: #4d9487;
+  fill: var(--chart-primary);
 }
 .stat-chart .teal {
-  fill: #207665;
+  fill: var(--chart-primary);
 }
 .stat-chart [data-point],
 .stat-chart [data-income],
@@ -598,4 +617,86 @@
   .project-steps {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Shared legend keys mirror the same shapes, patterns and line roles in plots. */
+.legend,
+.corr-legend,
+.histogram-legend {
+  gap: 8px 18px;
+  align-items: center;
+  color: var(--chart-muted);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+.chart-legend-key {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.chart-key {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  background: var(--key-color, var(--chart-primary));
+  border: 1px solid var(--key-color, var(--chart-primary));
+}
+.chart-key-point {
+  border-radius: 50%;
+}
+.chart-key-diamond {
+  width: 10px;
+  height: 10px;
+  margin: 1px;
+  transform: rotate(45deg);
+}
+.chart-key-open {
+  border-radius: 50%;
+  background: #fff;
+  border-width: 2px;
+}
+.chart-key-bar-hatched {
+  background: repeating-linear-gradient(
+    135deg,
+    var(--key-color) 0 4px,
+    var(--chart-secondary-dark) 4px 5px,
+    var(--key-color) 5px 8px
+  );
+}
+.chart-key-line,
+.chart-key-line-dashed,
+.chart-key-line-dotted {
+  width: 22px;
+  height: 0;
+  background: none;
+  border: 0;
+  border-top: 2px solid var(--key-color);
+}
+.chart-key-line-dashed {
+  border-top-style: dashed;
+}
+.chart-key-line-dotted {
+  border-top-style: dotted;
+}
+.stat-chart .gridline {
+  stroke-width: 1;
+}
+.stat-chart .axis {
+  stroke-width: 1.2;
+}
+.stat-chart text {
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-key-bar-open {
+  background: #fff;
+  border: 2px dashed var(--key-color);
+}
+.stat-chart .moving-average {
+  stroke: var(--chart-purple);
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  fill: none;
 }

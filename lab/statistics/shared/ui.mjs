@@ -136,3 +136,15 @@ export function drag(el, selector, callback) {
     document.addEventListener("pointercancel", up, { once: true });
   });
 }
+
+export const chartKey = (
+  label,
+  color = "var(--chart-primary)",
+  kind = "point",
+) =>
+  `<span class="chart-legend-key"><i class="chart-key chart-key-${kind}" style="--key-color:${esc(color)}" aria-hidden="true"></i>${esc(label)}</span>`;
+export const groupPattern = (
+  id,
+  { background = "var(--chart-secondary)", opacity = 0.45 } = {},
+) =>
+  `<defs><pattern id="${esc(id)}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${background}"/><path d="M-2 2L2-2M0 8L8 0M6 10L10 6" stroke="var(--chart-secondary-dark)" stroke-opacity="${opacity}" stroke-width="1.3"/></pattern></defs>`;

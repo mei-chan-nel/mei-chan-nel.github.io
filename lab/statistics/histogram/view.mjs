@@ -1,14 +1,24 @@
+import {
+  groupPattern,
+  esc,
+  svg,
+  bind,
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
 import { fmt } from "../shared/math.mjs";
-import { esc, svg, bind } from "../shared/ui.mjs";
+
 import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-guided-counts";
-import { describe } from "./descriptive.mjs?v=20261024-guided-counts";
-import { renderCalculations } from "./calculations.mjs?v=20261024-guided-counts";
+} from "./model.mjs?v=20261024-simpson-theme";
+import { describe } from "./descriptive.mjs?v=20261024-simpson-theme";
+import { renderCalculations } from "./calculations.mjs?v=20261024-simpson-theme";
 
-const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
+const colors = {
+  A: "var(--chart-primary)",
+  B: "var(--chart-secondary)",
+  all: "var(--chart-primary)",
+};
 const value = (v) =>
   v === 0
     ? "0"
@@ -24,8 +34,7 @@ function point(group, x, y, r, attributes, title) {
 }
 const groupLabel = (s, g) =>
   `${g === "A" ? "● A" : "◆ B"}${s.groupNames?.[g === "B" ? 1 : 0] && s.groupNames[g === "B" ? 1 : 0] !== g ? `：${s.groupNames[g === "B" ? 1 : 0]}` : ""}`;
-const pattern = (id) =>
-  `<defs><pattern id="${id}" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="${colors.B}"/><path d="M-2,2L2,-2M0,8L8,0M6,10L10,6" stroke="#513622" stroke-width="1.3"/></pattern></defs>`;
+const pattern = (id) => groupPattern(id);
 function boxPlots(s, bins) {
   const left = 66,
     right = 876,
@@ -39,7 +48,7 @@ function boxPlots(s, bins) {
     const d = describe(s.rows.filter((r) => r.group === g).map((r) => r.value));
     const y = 22 + j * 44,
       dash = g === "B" ? 'stroke-dasharray="5 3"' : "";
-    drawing += `<line x1="${x(d.lower)}" x2="${x(d.q1)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q3)}" x2="${x(d.upper)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><path d="M${x(d.lower)},${y - 9}V${y + 9}M${x(d.upper)},${y - 9}V${y + 9}" stroke="${colors[g]}" stroke-width="2"/><rect data-box-group="${g}" x="${x(d.q1)}" y="${y - 12}" width="${Math.max(0, x(d.q3) - x(d.q1))}" height="24" fill="${g === "B" ? "url(#boxplot-group-b-pattern)" : colors.A}" fill-opacity="0.3" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q2)}" x2="${x(d.q2)}" y1="${y - 12}" y2="${y + 12}" stroke="#183b38" stroke-width="2.5"/>`;
+    drawing += `<line x1="${x(d.lower)}" x2="${x(d.q1)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q3)}" x2="${x(d.upper)}" y1="${y}" y2="${y}" stroke="${colors[g]}" stroke-width="2" ${dash}/><path d="M${x(d.lower)},${y - 9}V${y + 9}M${x(d.upper)},${y - 9}V${y + 9}" stroke="${colors[g]}" stroke-width="2"/><rect data-box-group="${g}" x="${x(d.q1)}" y="${y - 12}" width="${Math.max(0, x(d.q3) - x(d.q1))}" height="24" fill="${g === "B" ? "url(#boxplot-group-b-pattern)" : colors.A}" fill-opacity="0.3" stroke="${colors[g]}" stroke-width="2" ${dash}/><line x1="${x(d.q2)}" x2="${x(d.q2)}" y1="${y - 12}" y2="${y + 12}" stroke="var(--chart-text)" stroke-width="2.5"/>`;
     s.rows.forEach((r, i) => {
       if (r.group !== g || (r.value >= d.lowerFence && r.value <= d.upperFence))
         return;
@@ -74,12 +83,12 @@ function rawDots(s, bins, width, selected, n) {
     bins
       .map(
         (b) =>
-          `<line x1="${x(b.lo)}" x2="${x(b.lo)}" y1="3" y2="69" stroke="#d5e0db" stroke-dasharray="2 4"/>`,
+          `<line x1="${x(b.lo)}" x2="${x(b.lo)}" y1="3" y2="69" stroke="var(--chart-grid)" stroke-dasharray="2 4"/>`,
       )
       .join("") +
-    `<line x1="${right}" x2="${right}" y1="3" y2="69" stroke="#d5e0db" stroke-dasharray="2 4"/>`;
+    `<line x1="${right}" x2="${right}" y1="3" y2="69" stroke="var(--chart-grid)" stroke-dasharray="2 4"/>`;
   const highlight = selected
-    ? `<rect data-selected-range x="${x(selected.lo)}" y="0" width="${x(selected.hi) - x(selected.lo)}" height="72" fill="#175f55" fill-opacity="0.08"/>`
+    ? `<rect data-selected-range x="${x(selected.lo)}" y="0" width="${x(selected.hi) - x(selected.lo)}" height="72" fill="var(--chart-primary-dark)" fill-opacity="0.08"/>`
     : "";
   const drawing = s.rows
     .map((r, i) => {
@@ -132,17 +141,17 @@ function chart(s, bins, n) {
   for (let i = 0; i <= bins.length; i++) {
     const boundary = i === bins.length ? xmax : bins[i].lo,
       xx = x(boundary);
-    markup += `<line x1="${xx}" x2="${xx}" y1="${bottom}" y2="${bottom + 5}" stroke="#647b73"/>`;
+    markup += `<line x1="${xx}" x2="${xx}" y1="${bottom}" y2="${bottom + 5}" stroke="var(--chart-muted)"/>`;
     if (i % labelEvery === 0 || i === bins.length)
       markup += `<text x="${xx}" y="${bottom + 22}" text-anchor="middle">${value(boundary)}</text>`;
   }
   for (const bar of stackedBars(bins, n, s.mode, s.measure)) {
     if (!bar.count) continue;
-    markup += `<rect class="histogram-bar" data-bin="${bar.index}" data-group="${bar.group}" data-count="${bar.count}" data-bottom="${bar.bottom}" data-top="${bar.top}" tabindex="0" role="button" aria-label="${esc(interval(bins[bar.index]))}、${bar.group === "all" ? "全体" : esc(s.groupNames?.[bar.group === "B" ? 1 : 0] || bar.group)}、${bar.count}件" x="${x(bar.lo)}" y="${y(bar.top)}" width="${x(bar.hi) - x(bar.lo)}" height="${y(bar.bottom) - y(bar.top)}" fill="${bar.group === "B" ? "url(#histogram-group-b-pattern)" : colors[bar.group]}" stroke="${bar.group === "B" ? "#513622" : "#fff"}" ${bar.group === "B" ? 'stroke-dasharray="4 2"' : ""} stroke-width="0.7" opacity="${s.selected >= 0 && bar.index !== s.selected ? 0.3 : 0.9}"><title>${interval(bins[bar.index])}：${bar.count}件</title></rect>`;
+    markup += `<rect class="histogram-bar" data-bin="${bar.index}" data-group="${bar.group}" data-count="${bar.count}" data-bottom="${bar.bottom}" data-top="${bar.top}" tabindex="0" role="button" aria-label="${esc(interval(bins[bar.index]))}、${bar.group === "all" ? "全体" : esc(s.groupNames?.[bar.group === "B" ? 1 : 0] || bar.group)}、${bar.count}件" x="${x(bar.lo)}" y="${y(bar.top)}" width="${x(bar.hi) - x(bar.lo)}" height="${y(bar.bottom) - y(bar.top)}" fill="${bar.group === "B" ? "url(#histogram-group-b-pattern)" : colors[bar.group]}" stroke="${bar.group === "B" ? "var(--chart-secondary-dark)" : "#fff"}" ${bar.group === "B" ? 'stroke-dasharray="4 2"' : ""} stroke-width="0.7" opacity="${s.selected >= 0 && bar.index !== s.selected ? 0.3 : 0.9}"><title>${interval(bins[bar.index])}：${bar.count}件</title></rect>`;
   }
   const selected = bins[s.selected];
   if (selected)
-    markup += `<rect x="${x(selected.lo)}" y="${top}" width="${x(selected.hi) - x(selected.lo)}" height="${bottom - top}" fill="none" stroke="#143b39" stroke-width="2" pointer-events="none"/>`;
+    markup += `<rect x="${x(selected.lo)}" y="${top}" width="${x(selected.hi) - x(selected.lo)}" height="${bottom - top}" fill="none" stroke="var(--chart-text)" stroke-width="2" pointer-events="none"/>`;
   markup += `<path class="axis" d="M${left},${top}V${bottom}H${right}"/><text x="${(left + right) / 2}" y="382" text-anchor="middle">${esc(s.label)}</text>`;
   return svg(
     markup,

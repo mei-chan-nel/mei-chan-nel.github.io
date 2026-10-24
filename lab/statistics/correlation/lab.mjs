@@ -1,6 +1,14 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
+import {
+  chartKey,
+  esc,
+  metrics,
+  table,
+  svg,
+  drag,
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
-import { esc, metrics, table, svg, drag } from "../shared/ui.mjs";
+
 import { readDataset } from "../shared/data.mjs";
 
 const basePoints = () =>
@@ -116,12 +124,12 @@ function equation(a, b) {
 }
 
 const colors = {
-  data: "#207d79",
-  selected: "#d98732",
-  selectedEdge: "#9d4c15",
-  prediction: "#815dab",
-  residual: "#cc7435",
-  reference: "#819090",
+  data: "var(--chart-primary)",
+  selected: "var(--chart-secondary)",
+  selectedEdge: "var(--chart-secondary-dark)",
+  prediction: "var(--chart-purple)",
+  residual: "var(--chart-secondary)",
+  reference: "var(--chart-reference)",
 };
 const coordinate = (value, span) => {
   if (value !== 0 && (Math.abs(value) >= 1e5 || Math.abs(value) < 0.001))
@@ -295,7 +303,7 @@ function render(root, ctx) {
           py = a.y(p.predicted),
           size = Math.abs(y - py);
         if (s.showSquares)
-          drawing += `<rect x="${x}" y="${Math.min(y, py)}" width="${size}" height="${size}" fill="#d9873218" stroke="#d9873266"><title>残差² = ${fmt(p.residual ** 2)}</title></rect>`;
+          drawing += `<rect x="${x}" y="${Math.min(y, py)}" width="${size}" height="${size}" fill="var(--chart-secondary-pale)" stroke="var(--chart-secondary-soft)"><title>残差² = ${fmt(p.residual ** 2)}</title></rect>`;
         drawing += `<line data-residual="${esc(p.id)}" x1="${x}" x2="${x}" y1="${y}" y2="${py}" stroke="${colors.residual}" stroke-width="1.5" stroke-dasharray="4 3"/>`;
       });
     const segment = (m, b, attrs) => {
@@ -330,11 +338,11 @@ function render(root, ctx) {
   if (prediction) {
     const x = a.x(prediction.x),
       y = a.y(prediction.y);
-    drawing += `<g class="corr-projections" pointer-events="none"><line data-prediction-guide="x" x1="${x}" x2="${x}" y1="${y}" y2="${bottom}" stroke="${colors.prediction}" stroke-width="1.5" stroke-dasharray="5 4"/><line data-prediction-guide="y" x1="${left}" x2="${x}" y1="${y}" y2="${y}" stroke="${colors.prediction}" stroke-width="1.5" stroke-dasharray="5 4"/><rect x="${x - 34}" y="${bottom + 6}" width="68" height="22" rx="3" fill="#f3edf9"/><text data-prediction-axis="x" x="${x}" y="${bottom + 22}" text-anchor="middle" style="fill:${colors.prediction};font-weight:700">${coordinate(prediction.x, xSpan)}</text><rect x="${left - 70}" y="${y - 12}" width="64" height="23" rx="3" fill="#f3edf9"/><text data-prediction-axis="y" x="${left - 10}" y="${y + 4}" text-anchor="end" style="fill:${colors.prediction};font-weight:700">${coordinate(prediction.y, ySpan)}</text></g>`;
+    drawing += `<g class="corr-projections" pointer-events="none"><line data-prediction-guide="x" x1="${x}" x2="${x}" y1="${y}" y2="${bottom}" stroke="${colors.prediction}" stroke-width="1.5" stroke-dasharray="5 4"/><line data-prediction-guide="y" x1="${left}" x2="${x}" y1="${y}" y2="${y}" stroke="${colors.prediction}" stroke-width="1.5" stroke-dasharray="5 4"/><rect x="${x - 34}" y="${bottom + 6}" width="68" height="22" rx="3" fill="var(--chart-purple-pale)"/><text data-prediction-axis="x" x="${x}" y="${bottom + 22}" text-anchor="middle" style="fill:${colors.prediction};font-weight:700">${coordinate(prediction.x, xSpan)}</text><rect x="${left - 70}" y="${y - 12}" width="64" height="23" rx="3" fill="var(--chart-purple-pale)"/><text data-prediction-axis="y" x="${left - 10}" y="${y + 4}" text-anchor="end" style="fill:${colors.prediction};font-weight:700">${coordinate(prediction.y, ySpan)}</text></g>`;
     drawing += `<g id="corr-prediction" class="corr-drag-handle" data-corr-drag="prediction" role="slider" tabindex="0" aria-label="予測点。左右に動かしてxを指定" aria-orientation="horizontal" aria-valuemin="${prediction.low}" aria-valuemax="${prediction.high}" aria-valuenow="${prediction.x}" aria-valuetext="x ${coordinate(prediction.x, xSpan)}、予測y ${coordinate(prediction.y, ySpan)}"><circle cx="${x}" cy="${y}" r="19" fill="transparent"/><circle data-prediction-point cx="${x}" cy="${y}" r="8" fill="${colors.prediction}" stroke="#fff" stroke-width="2"/><title>予測点: x ${coordinate(prediction.x, xSpan)}、ŷ ${coordinate(prediction.y, ySpan)}</title></g>`;
   }
   const key = (label, color, hollow = false, line = false) =>
-    `<li><span class="${line ? "corr-line-key" : "corr-point-key"}" style="${line ? `border-color:${color};border-top-style:${/破線|点線/.test(label) ? "dashed" : "solid"}` : `background:${hollow ? "#fff" : color};border-color:${hollow || color === colors.selected ? colors.selectedEdge : "#fff"}`}" aria-hidden="true"></span>${label}</li>`;
+    `<li>${chartKey(label, color, line ? (/点線/.test(label) ? "line-dotted" : /破線/.test(label) ? "line-dashed" : "line") : hollow ? "open" : "point")}</li>`;
   const selectedResidual =
     selected && lineOK ? selected.y - (slope * selected.x + intercept) : null;
   const error = !lineOK

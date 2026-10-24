@@ -1,24 +1,24 @@
-import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-guided-counts";
+import { esc } from "./shared/ui.mjs?v=20261024-simpson-theme";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-simpson-theme";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-guided-counts";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-guided-counts";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-guided-counts";
-import { sampleState } from "./shared/samples.mjs?v=20261024-guided-counts";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-guided-counts";
+} from "./shared/data-model.mjs?v=20261024-simpson-theme";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-simpson-theme";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-simpson-theme";
+import { sampleState } from "./shared/samples.mjs?v=20261024-simpson-theme";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-simpson-theme";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-guided-counts";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-guided-counts";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-guided-counts";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-guided-counts";
+} from "./learning.mjs?v=20261024-simpson-theme";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-simpson-theme";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-simpson-theme";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-simpson-theme";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-guided-counts`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-simpson-theme`))
   .default;
 const ui = {
   view: 0,

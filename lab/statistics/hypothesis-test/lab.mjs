@@ -1,6 +1,5 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-guided-counts";
-import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 import {
+  chartKey,
   esc,
   number,
   range,
@@ -9,7 +8,9 @@ import {
   svg,
   axes,
   bind,
-} from "../shared/ui.mjs";
+} from "../shared/ui.mjs?v=20261024-simpson-theme";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
+import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 
 export function sampleBinomial(n, probability, random) {
   let successes = 0;
@@ -245,16 +246,16 @@ export default {
     const tailRight =
       critical === null ? maxAbs * 100 : Math.min(maxAbs, critical) * 100;
     const chart = svg(
-      `<rect x="${a.x(-maxAbs * 100)}" y="16" width="${Math.max(0, a.x(tailLeft) - a.x(-maxAbs * 100))}" height="${a.y(0) - 16}" fill="#ede7fc"/><rect x="${a.x(tailRight)}" y="16" width="${Math.max(0, a.x(maxAbs * 100) - a.x(tailRight))}" height="${a.y(0) - 16}" fill="#ede7fc"/>${a.markup}${bins
+      `<rect x="${a.x(-maxAbs * 100)}" y="16" width="${Math.max(0, a.x(tailLeft) - a.x(-maxAbs * 100))}" height="${a.y(0) - 16}" fill="var(--chart-purple-pale)"/><rect x="${a.x(tailRight)}" y="16" width="${Math.max(0, a.x(maxAbs * 100) - a.x(tailRight))}" height="${a.y(0) - 16}" fill="var(--chart-purple-pale)"/>${a.markup}${bins
         .map((b) => {
           const center = (b.lo + b.hi) / 2;
           const tail =
             Math.abs(center) + (b.hi - b.lo) / 2 >= Math.abs(observed);
-          return `<rect x="${a.x(b.lo * 100) + 0.5}" y="${a.y(b.count)}" width="${Math.max(0, a.x(b.hi * 100) - a.x(b.lo * 100) - 1)}" height="${a.y(0) - a.y(b.count)}" fill="${tail ? "#d96d39" : "#087f8c"}"><title>${fmt(b.lo * 100, 1)}〜${fmt(b.hi * 100, 1)}ポイント：${b.count}回</title></rect>`;
+          return `<rect x="${a.x(b.lo * 100) + 0.5}" y="${a.y(b.count)}" width="${Math.max(0, a.x(b.hi * 100) - a.x(b.lo * 100) - 1)}" height="${a.y(0) - a.y(b.count)}" fill="${tail ? "var(--chart-secondary)" : "var(--chart-primary)"}"><title>${fmt(b.lo * 100, 1)}〜${fmt(b.hi * 100, 1)}ポイント：${b.count}回</title></rect>`;
         })
         .join(
           "",
-        )}${[-1, 1].map((sign) => `<line x1="${a.x(sign * Math.abs(observed) * 100)}" x2="${a.x(sign * Math.abs(observed) * 100)}" y1="16" y2="${a.y(0)}" stroke="#b54d27" stroke-width="2" stroke-dasharray="5 3"/>${critical === null ? "" : `<line x1="${a.x(sign * critical * 100)}" x2="${a.x(sign * critical * 100)}" y1="16" y2="${a.y(0)}" stroke="#8054b4" stroke-width="1.5" stroke-dasharray="2 4"/>`}`).join("")}<text x="${a.x(observed * 100)}" y="30" text-anchor="${observed >= 0 ? "end" : "start"}" fill="#b54d27" font-size="12">今回 ${fmt(observed * 100, 1)} pt</text>`,
+        )}${[-1, 1].map((sign) => `<line x1="${a.x(sign * Math.abs(observed) * 100)}" x2="${a.x(sign * Math.abs(observed) * 100)}" y1="16" y2="${a.y(0)}" stroke="var(--chart-secondary-dark)" stroke-width="2" stroke-dasharray="5 3"/>${critical === null ? "" : `<line x1="${a.x(sign * critical * 100)}" x2="${a.x(sign * critical * 100)}" y1="16" y2="${a.y(0)}" stroke="var(--chart-purple)" stroke-width="1.5" stroke-dasharray="2 4"/>`}`).join("")}<text x="${a.x(observed * 100)}" y="30" text-anchor="${observed >= 0 ? "end" : "start"}" fill="var(--chart-secondary-dark)" font-size="12">今回 ${fmt(observed * 100, 1)} pt</text>`,
       "真の登録率に差がないと仮定したときの差の分布。橙は今回以上の絶対差、紫の背景は有意水準に対応する両側の裾。",
       760,
       360,
@@ -294,7 +295,7 @@ export default {
         .map((row, i) => {
           const y = 25 + i * 91,
             w = (row.count / trials) * 650;
-          return `<text x="32" y="${y}" font-size="14">${row.label}：有意 ${row.count} / ${trials}回（${fmt((row.count / trials) * 100, 1)}%）</text><rect x="32" y="${y + 13}" width="650" height="28" rx="4" fill="#dcebed"/>${w > 0 ? `<rect x="32" y="${y + 13}" width="${w}" height="28" rx="4" fill="${i === 0 || effect === 0 ? "#d96d39" : "#8054b4"}"/>` : ""}<text x="32" y="${y + 60}" font-size="11">色付き：${row.positive}　／　薄色：${row.negative}</text>`;
+          return `<text x="32" y="${y}" font-size="14">${row.label}：有意 ${row.count} / ${trials}回（${fmt((row.count / trials) * 100, 1)}%）</text><rect x="32" y="${y + 13}" width="650" height="28" rx="4" fill="var(--chart-primary-pale)"/>${w > 0 ? `<rect x="32" y="${y + 13}" width="${w}" height="28" rx="4" fill="${i === 0 || effect === 0 ? "var(--chart-secondary)" : "var(--chart-purple)"}"/>` : ""}<text x="32" y="${y + 60}" font-size="11">色付き：${row.positive}　／　薄色：${row.negative}</text>`;
         })
         .join(""),
       "差なし・差ありの世界で同じ実験を繰り返したとき、有意と判定した割合",
@@ -313,7 +314,7 @@ export default {
           "割合の差（相対的な伸び率ではない）",
         ],
       ],
-    )}${chart}<div class="legend"><span style="color:#087f8c">■ 帰無仮説の分布</span><span style="color:#d96d39">■ 今回以上の絶対差</span><span style="color:#8054b4">■ αに対応する両側の裾</span></div>${metrics(
+    )}${chart}<div class="legend">${chartKey("帰無仮説の分布", "var(--chart-primary)", "bar")}${chartKey("今回以上の絶対差", "var(--chart-secondary)", "bar")}${chartKey("αに対応する両側の裾", "var(--chart-purple)", "line-dotted")}</div>${metrics(
       [
         [
           "両側p値（推定）",
