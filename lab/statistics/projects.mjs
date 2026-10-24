@@ -1,10 +1,10 @@
 import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
 import { esc, table, metrics } from "./shared/ui.mjs";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-resizable-navigation";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-resizable-navigation";
-import correlation from "./correlation/lab.mjs?v=20261024-resizable-navigation";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-resizable-navigation";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-fraction-labels";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-fraction-labels";
+import correlation from "./correlation/lab.mjs?v=20261024-fraction-labels";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-fraction-labels";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

@@ -4,8 +4,8 @@ import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-resizable-navigation";
-import { experiences } from "./experience.mjs?v=20261024-resizable-navigation";
+} from "./shared/data-model.mjs?v=20261024-fraction-labels";
+import { experiences } from "./experience.mjs?v=20261024-fraction-labels";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

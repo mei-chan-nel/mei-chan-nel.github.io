@@ -105,13 +105,16 @@ export function denominatorRegions(strata, scope, method, outcome, mode) {
           method: r,
           outcome: c,
           count,
-          inNumerator: inScope && r === method && c === outcome,
+          inNumerator:
+            inScope &&
+            (method < 0 || r === method) &&
+            (outcome < 0 || c === outcome),
           inDenominator:
             inScope &&
             (mode === "row"
-              ? r === method
+              ? method < 0 || r === method
               : mode === "column"
-                ? c === outcome
+                ? outcome < 0 || c === outcome
                 : true),
         };
       }),

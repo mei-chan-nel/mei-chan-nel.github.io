@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-resizable-navigation";
+import { applyData } from "./data-model.mjs?v=20261024-fraction-labels";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

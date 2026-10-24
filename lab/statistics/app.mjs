@@ -1,24 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-resizable-navigation";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-fraction-labels";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-resizable-navigation";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-resizable-navigation";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-resizable-navigation";
-import { sampleState } from "./shared/samples.mjs?v=20261024-resizable-navigation";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-resizable-navigation";
+} from "./shared/data-model.mjs?v=20261024-fraction-labels";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-fraction-labels";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-fraction-labels";
+import { sampleState } from "./shared/samples.mjs?v=20261024-fraction-labels";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-fraction-labels";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-resizable-navigation";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-resizable-navigation";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-resizable-navigation";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-resizable-navigation";
+} from "./learning.mjs?v=20261024-fraction-labels";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-fraction-labels";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-fraction-labels";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-fraction-labels";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-resizable-navigation`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-fraction-labels`))
   .default;
 const ui = {
   view: 0,

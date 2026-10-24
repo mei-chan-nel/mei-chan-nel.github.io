@@ -2507,3 +2507,41 @@ html.statistics-immersive body {
     font-size: 0.8rem;
   }
 }
+
+/* Keep every fraction label readable; narrow viewports can pan the whole diagram. */
+.ct-diagram-scroll {
+  width: 100%;
+  min-width: 0;
+  overflow: auto;
+}
+.crosstab-denominator .ct-diagram-scroll .stat-chart {
+  min-width: 640px;
+  max-width: none;
+}
+.statistics-chart-fullscreen .crosstab-denominator .ct-diagram-scroll {
+  overflow: auto;
+}
+.statistics-chart-fullscreen
+  .crosstab-denominator
+  .ct-diagram-scroll
+  [data-screen-chart] {
+  min-width: 640px;
+  min-height: 180px !important;
+  max-width: none;
+}
+/* Fullscreen scroll regions keep wheel, touch and keyboard scrolling available. */
+.statistics-fullscreen,
+.statistics-fullscreen * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none;
+}
+.statistics-fullscreen::-webkit-scrollbar,
+.statistics-fullscreen *::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+[data-stat-lab="crosstab"] #experiment {
+  overflow-anchor: none;
+}

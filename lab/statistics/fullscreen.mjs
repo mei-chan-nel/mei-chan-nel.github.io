@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-resizable-navigation";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-fraction-labels";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261024-resizable-navigation";
+} from "./shared/fullscreen-layout.mjs?v=20261024-fraction-labels";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

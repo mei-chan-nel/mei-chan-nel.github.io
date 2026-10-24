@@ -1,4 +1,4 @@
-import { downloadCSV } from "./data-editor.mjs?v=20261024-resizable-navigation";
+import { downloadCSV } from "./data-editor.mjs?v=20261024-fraction-labels";
 const target = new URL("./histogram/", new URL("../", location.href));
 target.protocol = location.protocol;
 target.host = location.host;

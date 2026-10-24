@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-resizable-navigation";
+} from "./descriptive.mjs?v=20261024-fraction-labels";
 
 const n = (value) =>
   value === null || value === undefined

@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-resizable-navigation";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-fraction-labels";
 import { mean, rng, normal, fmt, clamp } from "../shared/math.mjs";
 import {
   esc,

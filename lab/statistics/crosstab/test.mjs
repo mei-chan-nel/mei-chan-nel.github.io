@@ -256,8 +256,8 @@ import { denominatorRegions } from "./records.mjs";
 test("fixed population regions select the exact numerator and denominator for every scope and ratio", () => {
   const strata = makeInitial().strata;
   for (const scope of ["all", "0", "1"])
-    for (const method of [0, 1])
-      for (const outcome of [0, 1])
+    for (const method of [-1, 0, 1])
+      for (const outcome of [-1, 0, 1])
         for (const mode of ["row", "column", "cell"]) {
           const regions = denominatorRegions(
             strata,
@@ -298,4 +298,42 @@ test("fixed population regions select the exact numerator and denominator for ev
             regions.filter((r) => r.inNumerator).every((r) => r.inDenominator),
           );
         }
+});
+
+test("overall method and outcome choices calculate actual marginal counts", () => {
+  const matrix = matrixFor(makeInitial().strata);
+  assert.deepEqual(cellSummary(matrix, -1, 0, "cell"), {
+    numerator: 110,
+    denominator: 200,
+    ratio: 0.55,
+    count: false,
+  });
+  assert.deepEqual(cellSummary(matrix, 0, -1, "column"), {
+    numerator: 100,
+    denominator: 200,
+    ratio: 0.5,
+    count: false,
+  });
+  assert.equal(cellSummary(matrix, -1, -1, "row").ratio, 1);
+  assert.equal(cellSummary(matrix, 0, -1, "row").ratio, 1);
+  assert.equal(cellSummary(matrix, -1, 0, "column").ratio, 1);
+  assert.equal(
+    cellSummary(
+      [
+        [0, 0],
+        [0, 0],
+      ],
+      -1,
+      -1,
+      "cell",
+    ).ratio,
+    null,
+  );
+  const state = normalizeState({
+    ...makeInitial(),
+    selectedRow: -1,
+    selectedCol: -1,
+  });
+  assert.equal(state.selectedRow, -1);
+  assert.equal(state.selectedCol, -1);
 });
