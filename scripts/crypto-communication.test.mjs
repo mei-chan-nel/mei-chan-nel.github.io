@@ -690,7 +690,11 @@ test("page offers four rounds, single shared panel and no confirmation or CA byp
   assert.match(html, /ROUND 4/);
   assert.match(html, /ROUND 3<\/span>認証局 CA/);
   assert.match(html, /aria-live="polite"/);
-  assert.match(html, /noindex, nofollow/);
+  assert.doesNotMatch(html, /<meta name="robots" content="[^"]*noindex/);
+  assert.match(
+    html,
+    /rel="canonical" href="https:\/\/mei-chan-nel\.com\/lab\/crypto-communication\/"/,
+  );
   assert.match(html, /id="fullscreen"/);
 });
 
