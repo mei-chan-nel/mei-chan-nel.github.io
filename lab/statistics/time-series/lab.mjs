@@ -196,7 +196,7 @@ function acfView(s, values) {
     '<text x="380" y="354" text-anchor="middle">何か月ずらすか</text>';
   return panel(
     "何か月ずらすと、似た動きになる？",
-    `<p class="ts-instruction">長期的な増減を除いて比較します。棒を選ぶと、ずらす月数を確認できます。</p>${svg(drawing, "長期の直線的な増減を除いた、1〜24か月ずらした自己相関", 760, 360)}${detail(`${s.lag}か月ずらした比較`, `<dl><div><dt>自己相関</dt><dd data-ts-acf>${acf[s.lag] === null ? "—" : fmt(acf[s.lag], 2)}</dd></div></dl><p>${acf[s.lag] === null ? "長期的な増減を除くと変動がないため、自己相関を計算できません。" : `同じデータを${s.lag}か月ずらし、重なる${48 - s.lag}組の値の動きが似ているかを調べています。`}</p><p data-ts-annual-acf>12か月ずらした自己相関：${acf[12] === null ? "—" : fmt(acf[12], 2)}。${annualPeak(acf) ? "1年周期の手がかりがあります。12か月で平均すると、この繰り返しをならしやすくなります。" : "1年周期が明瞭か、グラフも合わせて確かめましょう。"}</p><p class="ts-small">自己相関だけで平均する月数が決まるわけではありません。ならしたい周期と、変化への反応を比べます。</p>`)}`,
+    `<p class="ts-instruction">長期的な増減を除いて比較します。棒を選ぶと、ずらす月数を確認できます。</p>${svg(drawing, "長期の直線的な増減を除いた、1〜24か月ずらした自己相関", 760, 360)}${detail(`${s.lag}か月ずらした比較`, `<dl><div><dt>自己相関</dt><dd data-ts-acf>${acf[s.lag] === null ? "—" : fmt(acf[s.lag], 2)}</dd></div></dl><p>${acf[s.lag] === null ? "長期的な増減を除くと変動がないため、自己相関を計算できません。" : `${monthLabel(s.lag, s)}と${monthLabel(0, s)}など、${s.lag}か月離れた${48 - s.lag}組の値を比べています。`}</p><p data-ts-annual-acf>12か月ずらした自己相関：${acf[12] === null ? "—" : fmt(acf[12], 2)}。${annualPeak(acf) ? "1年周期の手がかりがあります。12か月で平均すると、この繰り返しをならしやすくなります。" : "1年周期が明瞭か、グラフも合わせて確かめましょう。"}</p><p class="ts-small">自己相関だけで平均する月数が決まるわけではありません。ならしたい周期と、変化への反応を比べます。</p>`)}`,
   );
 }
 function adjustmentView(s, values, decomp, unit) {
@@ -277,7 +277,16 @@ function indicatorView(s, values, decomp, unit) {
         : `<strong class="ts-reading-value" data-ts-indicator>${pct(v)}</strong><p>${s.indicator === "growth" ? "前月" : "前年の同じ月"}より${num(Math.abs(v))}%${v >= 0 ? "増えました" : "減りました"}。</p><p data-ts-indicator-formula>（${num(source[i])} − ${num(den)}）÷ ${num(den)} × 100 ＝ ${pct(v)}</p>`;
   return panel(
     "何と比べた変化なのかを読む",
-    `<p class="ts-instruction">点を選ぶと、比べた2か月の値と計算を表示します。</p>${chart}${detail(monthLabel(i, s), `<p>${s.indicatorSource === "adjusted" ? "季節調整後の値" : "元の値"}で比較しています。</p><dl><div><dt>${base >= 0 ? esc(monthLabel(base, s)) : "比較する月"}</dt><dd>${num(den)}${esc(unit)}${isIndex ? "（基準）" : ""}</dd></div><div><dt>${esc(monthLabel(i, s))}</dt><dd>${num(source[i])}${esc(unit)}</dd></div></dl>${result}<p class="ts-small">${isIndex ? "指数100が基準と同じ大きさ。指数120は20%増を表します。" : "伸び率0%が増減なし。元の値の前月比には、季節の影響も含まれます。"}</p>`)}`,
+    `<p class="ts-instruction">点を選ぶと、比べた2か月の値と計算を表示します。</p>${chart}${legend(
+      [
+        [
+          isIndex ? "基準月＝100の指数" : "比べる月からの伸び率",
+          "var(--chart-primary)",
+          "point",
+        ],
+        ["白抜き：計算できない月", "var(--chart-reference)", "open"],
+      ],
+    )}${detail(monthLabel(i, s), `<p>${s.indicatorSource === "adjusted" ? "季節調整後の値" : "元の値"}で比較しています。</p><dl><div><dt>${base >= 0 ? esc(monthLabel(base, s)) : "比較する月"}</dt><dd>${num(den)}${esc(unit)}${isIndex ? "（基準）" : ""}</dd></div><div><dt>${esc(monthLabel(i, s))}</dt><dd>${num(source[i])}${esc(unit)}</dd></div></dl>${result}<p class="ts-small">${isIndex ? "指数100が基準と同じ大きさ。指数120は20%増を表します。" : "伸び率0%が増減なし。元の値の前月比には、季節の影響も含まれます。"}</p>`)}`,
   );
 }
 function summaryView(s, values, d, unit) {
