@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs?v=20261025-remove-probability";
+import { esc, table } from "../shared/ui.mjs?v=20261025-basic-test";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261025-remove-probability";
+} from "./descriptive.mjs?v=20261025-basic-test";
 
 const n = (value) =>
   value === null || value === undefined

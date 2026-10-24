@@ -69,11 +69,9 @@ const info = {
     links: [admissions],
   },
   "hypothesis-test": {
-    scope:
-      "同大学の1973年・学科F。男性22/373人、女性24/341人の合格者数。公表された観測集計です。",
-    interpretation:
-      "学科をそろえて合格率の差を比べます。「差なし」の反復と検出力のタブは確率モデルによるシミュレーションです。無作為割付の実験ではないため、検定で性別の因果効果を判断することはできません。",
-    links: [admissions],
+    scope: "メンデル『植物の雑種に関する実験』（1866年公刊）、種子の形の実験。253株から得た種子7,324個のうち、丸いもの5,474個、しわのあるもの1,850個。原論文に掲載された合計を使い、個票や観測順序は作っていません。",
+    interpretation: "丸い種子が3/4になるという予想と、観測された個数を比べます。種子ごとの結果が独立で同じ確率に従う二項モデルを仮定した教材上の検定で、歴史的研究全体を評価するものではありません。棄却しない結果も、遺伝のしくみが証明されたことを意味しません。「判断の誤り」は別の調査計画の理論上の比較です。",
+    links: [["Mendel原論文英訳（Brown University・MendelWeb）", "https://cs.brown.edu/people/rblumber/MendelWeb/Mendel.html"], ["2016年再刊訳・Genetics", "https://pmc.ncbi.nlm.nih.gov/articles/PMC5068836/"]],
   },
   lorenz: {
     scope:

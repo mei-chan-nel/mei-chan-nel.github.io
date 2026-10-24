@@ -39,3 +39,6 @@ export const observationDates = Array.from(
   (_, i) =>
     `${2016 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}`,
 );
+
+// Mendel (1866), seed shape: published totals, not expanded individual records.
+export const mendelSeeds = { total: 7324, round: 5474, wrinkled: 1850 };

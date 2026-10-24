@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-remove-probability";
-import { readDataset } from "../shared/data.mjs?v=20261025-remove-probability";
-import { render } from "./view.mjs?v=20261025-remove-probability";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-basic-test";
+import { readDataset } from "../shared/data.mjs?v=20261025-basic-test";
+import { render } from "./view.mjs?v=20261025-basic-test";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

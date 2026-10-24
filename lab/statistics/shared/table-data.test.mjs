@@ -74,7 +74,7 @@ test("analyses reject incomplete or too-short table drafts without modifying val
         id,
         state,
         data,
-        cells(data).slice(0, id === "time-series" ? 23 : 1),
+        cells(data).slice(0, id === "time-series" ? 23 : 0),
       ),
     );
     assert.throws(() =>
@@ -194,6 +194,6 @@ test("invalid table cells identify the displayed row and cannot silently replace
           ["A", "100", "20"],
         ],
       ),
-    /異なる名前/,
+    /3列・1行/,
   );
 });

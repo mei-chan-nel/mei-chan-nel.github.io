@@ -19,7 +19,7 @@ test("published defaults round-trip across all active labs", async () => {
       b = sampleState(id, config.initial(), 101);
     assert.deepEqual(a, sampleState(id, config.initial(), 100));
     const d = currentData(id, a);
-    assert.ok(d.rows.length >= 2);
+    assert.ok(d.rows.length >= (id === "hypothesis-test" ? 1 : 2));
     assert.deepEqual(d.rows, currentData(id, b).rows);
     assert.ok(
       d.rows.every((r) =>
@@ -146,7 +146,7 @@ test("replacing a population updates its numeric label instead of retaining the 
   assert.deepEqual(currentData("sampling", next).headers, ["気温（℃）"]);
 });
 
-test("cross-tab, A/B and month labels retain the uploaded column names in CSV output", async () => {
+test("cross-tab, one-sample and month labels retain the uploaded column names in CSV output", async () => {
   for (const [id, headers, rows, options] of [
     [
       "crosstab",
@@ -164,7 +164,6 @@ test("cross-tab, A/B and month labels retain the uploaded column names in CSV ou
       ["案内", "訪問数", "登録数"],
       [
         ["X", 100, 40],
-        ["Y", 100, 60],
       ],
       {},
     ],
@@ -196,7 +195,7 @@ test("published defaults match their source extracts and user uploads lose publi
     dailyTemperatures,
     admissions,
     incomeQuintiles,
-  } = await import("./public-data.mjs?v=20261025-remove-probability");
+  } = await import("./public-data.mjs?v=20261025-basic-test");
   for (const [file, values, column] of [
     ["tokyo-monthly-temperature.csv", monthlyTemperatures, 1],
     ["tokyo-daily-temperature.csv", dailyTemperatures.flat(), 1],

@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261025-remove-probability";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-remove-probability";
+import { esc } from "./shared/ui.mjs?v=20261025-basic-test";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-basic-test";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-remove-probability";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-remove-probability";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-remove-probability";
-import { sampleState } from "./shared/samples.mjs?v=20261025-remove-probability";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-remove-probability";
-import { readDataset } from "./shared/data.mjs?v=20261025-remove-probability";
+} from "./shared/data-model.mjs?v=20261025-basic-test";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-basic-test";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-basic-test";
+import { sampleState } from "./shared/samples.mjs?v=20261025-basic-test";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-basic-test";
+import { readDataset } from "./shared/data.mjs?v=20261025-basic-test";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-remove-probability";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-remove-probability";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-remove-probability";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-remove-probability";
-import { renderSources } from "./shared/sources.mjs?v=20261025-remove-probability";
+} from "./learning.mjs?v=20261025-basic-test";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-basic-test";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-basic-test";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-basic-test";
+import { renderSources } from "./shared/sources.mjs?v=20261025-basic-test";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-remove-probability`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-basic-test`))
   .default;
 const ui = {
   view: 0,
@@ -27,7 +27,7 @@ const ui = {
   openSections: {},
   dataPage: 0,
 };
-const key = `study-atlas-statistics-${id}-v1`;
+const key = `study-atlas-statistics-${id}-${id === "hypothesis-test" ? "v2" : "v1"}`;
 const project =
   new URLSearchParams(location.search).get("dataset") === "project";
 function prepare(next) {
@@ -208,6 +208,7 @@ function draw() {
         analyze: () => activate(1, true),
         nextLabel: steps[1].title,
       });
+      config.renderDataExtras?.(root);
     } else {
       fitWorkspaceCharts(root.querySelector(".workbench-display"));
     }

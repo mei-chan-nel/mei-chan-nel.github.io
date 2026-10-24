@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261025-remove-probability";
+import { applyData } from "./data-model.mjs?v=20261025-basic-test";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {
@@ -14,7 +14,7 @@ export function tableConstraint(id, state) {
   if (id === "crosstab")
     return "1行が1人分です。3つの属性を入力します。各項目は2種類まで、1〜10,000人分を使えます。";
   if (id === "hypothesis-test")
-    return "分析には比較する2群の2行が必要です。対象数は各10〜1,000人、成功数は0〜対象数の整数にします。";
+    return "「対象・総数・該当数」の1行です。総数は1〜10,000、該当数は0〜総数の整数にします。基準の割合は分析画面で設定します。";
   if (id === "probability")
     return `1〜10,000行。${state.mode === "coin" ? "表=1・裏=0を試行順に入力します。" : state.mode === "binomial" ? `1セットの成功回数を0〜${state.n}の整数で入力します。` : "測定した数値を入力します。正規分布に従うことを保証するものではありません。"}`;
   if (id === "lorenz") return "2〜300行。所得は0以上の数値にします。";
@@ -35,12 +35,6 @@ export function applyTableRows(id, state, data, rows, allowGroup = false) {
         throw Error(`${r + 1}行目「${header}」を入力してください。`);
     }),
   );
-  if (
-    id === "hypothesis-test" &&
-    rows.length === 2 &&
-    String(rows[0][0]).trim() === String(rows[1][0]).trim()
-  )
-    throw Error("比較する2群には、異なる名前を付けてください。");
   const next = applyData(id, state, {
     headers: data.headers,
     rows,

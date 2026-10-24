@@ -1,14 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261025-remove-probability";
+import { currentData } from "./data-model.mjs?v=20261025-basic-test";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261025-remove-probability";
+} from "../sampling/model.mjs?v=20261025-basic-test";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261025-remove-probability";
-import { autocorrelations } from "../time-series/model.mjs?v=20261025-remove-probability";
+} from "../crosstab/lab.mjs?v=20261025-basic-test";
+import { autocorrelations } from "../time-series/model.mjs?v=20261025-basic-test";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -97,7 +97,7 @@ export function insight(id, state) {
       : `${values.length}セットの平均成功回数は ${fmt(mean(values))}、理論平均は ${fmt(state.n * state.p)}。反復数を増やす操作と、1セットの回数を変える操作は、別のものを変えています。`;
   }
   if (id === "hypothesis-test")
-    return `観測された差は ${fmt((state.successB / state.nB - state.successA / state.nA) * 100, 1)}ポイント。割合を保って人数を変えると、差の大きさはほぼ同じでも偶然による揺れの幅が変わります。有意かどうかと、実用上の価値は分けて判断します。`;
+    return `観測された割合は${fmt(state.success / state.n * 100, 1)}%。基準の${fmt(state.p0 * 100, 1)}%からのずれを、二項モデルで比べます。棄却しないことは、基準が正しいという証明ではありません。`;
   if (id === "lorenz") {
     const total = sum(state.incomes),
       coeff = gini(state.incomes);

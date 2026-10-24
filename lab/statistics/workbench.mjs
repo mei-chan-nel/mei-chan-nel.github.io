@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261025-remove-probability";
-import { readingNotes } from "./shared/reading.mjs?v=20261025-remove-probability";
+import { learningViews } from "./learning.mjs?v=20261025-basic-test";
+import { readingNotes } from "./shared/reading.mjs?v=20261025-basic-test";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (
@@ -8,16 +8,17 @@ export function composeWorkbench(root, id, ui, onChange) {
       "histogram",
       "crosstab",
       "time-series",
+      "hypothesis-test",
     ].includes(id)
   ) {
     const nodes = [...root.children];
     const shell = document.createElement("div");
     shell.className =
       "workbench" +
-      (["crosstab", "time-series"].includes(id)
+      (["crosstab", "time-series", "hypothesis-test"].includes(id)
         ? " unified-workbench"
         : "");
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : "散布図と直線"}"></section></div>`;
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : id === "hypothesis-test" ? "基準の割合の検定" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;
@@ -39,10 +40,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   if (id === "sampling") {
     main = [panels[0], panels[2], panels[3]];
     controls = [panels[1]];
-  }
-  if (id === "hypothesis-test") {
-    main = panels.slice(0, 2);
-    controls = [panels[2]];
   }
   if (id === "lorenz") {
     const bars = root.querySelector("[data-income-chart]");
@@ -127,10 +124,6 @@ export function composeWorkbench(root, id, ui, onChange) {
         "sample-one",
         "sample-many",
       ],
-    ],
-    "hypothesis-test": [
-      ["alpha", "practical", "double", "halve"],
-      ["nA", "nB", "alpha", "base", "effect", "trials"],
     ],
     lorenz: [
       [

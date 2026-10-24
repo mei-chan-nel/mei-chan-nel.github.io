@@ -304,16 +304,11 @@ function domain(s, id) {
     );
   if (id === "hypothesis-test")
     need(
-      s.nA > 0 &&
-        s.nB > 0 &&
-        s.successA >= 0 &&
-        s.successA <= s.nA &&
-        s.successB >= 0 &&
-        s.successB <= s.nB &&
-        s.base >= 0 &&
-        s.base <= 1 &&
-        s.alpha > 0 &&
-        s.alpha < 1,
-      "人数・成功数・確率・有意水準を確認してください。",
+      Number.isInteger(s.n) && s.n >= 1 && s.n <= 10000 &&
+      Number.isInteger(s.success) && s.success >= 0 && s.success <= s.n &&
+      typeof s.label === "string" && s.label.trim().length > 0 && s.label.length <= 100 &&
+      s.p0 >= 0 && s.p0 <= 1 && s.alpha > 0 && s.alpha < 1 &&
+      Number.isInteger(s.planN) && s.planN >= 1 && s.planN <= 1000 && s.trueP >= 0 && s.trueP <= 1,
+      "総数・該当数・基準の割合・有意水準を確認してください。",
     );
 }

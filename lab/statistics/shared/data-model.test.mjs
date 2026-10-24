@@ -192,7 +192,7 @@ test("cross-tab import maps named strata/methods and success counts without sile
     }),
   );
 });
-test("income and A/B imports enforce the actual statistical domains", () => {
+test("income and one-sample counts enforce their statistical domains", () => {
   const s = applyData(
     "lorenz",
     lorenz.initial(),
@@ -204,31 +204,10 @@ test("income and A/B imports enforce the actual statistical domains", () => {
   assert.throws(() =>
     applyData("lorenz", lorenz.initial(), input(["所得"], [["-1"], ["2"]])),
   );
-  const ab = applyData(
-    "hypothesis-test",
-    hypothesis.initial(),
-    input(
-      ["群", "対象", "成功"],
-      [
-        ["A", "100", "30"],
-        ["B", "100", "60"],
-      ],
-    ),
-  );
-  assert.equal(ab.successB, 60);
-  assert.throws(() =>
-    applyData(
-      "hypothesis-test",
-      hypothesis.initial(),
-      input(
-        ["群", "対象", "成功"],
-        [
-          ["A", "100", "130"],
-          ["B", "100", "60"],
-        ],
-      ),
-    ),
-  );
+  const one = applyData("hypothesis-test", hypothesis.initial(), input(["対象", "総数", "該当"], [["丸い種子", "100", "60"]]));
+  assert.equal(one.success, 60);
+  assert.equal(one.n, 100);
+  assert.throws(() => applyData("hypothesis-test", hypothesis.initial(), input(["対象", "総数", "該当"], [["丸い種子", "100", "130"]])));
 });
 test("monthly imports preserve chronological data and reject gaps or unsupported lengths", () => {
   const rows = Array.from({ length: 48 }, (_, i) => [

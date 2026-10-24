@@ -3,10 +3,11 @@ import {
   dailyTemperatures,
   admissions,
   incomeQuintiles,
-} from "./public-data.mjs?v=20261025-remove-probability";
-import { householdSeries } from "../time-series/data.mjs?v=20261025-remove-probability";
-import { publicDatasetInfo } from "./sources.mjs?v=20261025-remove-probability";
-import { applyData, currentData } from "./data-model.mjs?v=20261025-remove-probability";
+  mendelSeeds,
+} from "./public-data.mjs?v=20261025-basic-test";
+import { householdSeries } from "../time-series/data.mjs?v=20261025-basic-test";
+import { publicDatasetInfo } from "./sources.mjs?v=20261025-basic-test";
+import { applyData, currentData } from "./data-model.mjs?v=20261025-basic-test";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
@@ -58,13 +59,9 @@ export function sampleState(id, initial, seed = freshSeed()) {
     rows = incomeQuintiles.map((v) => [v]);
     name = "日本の所得五分位階級別の平均所得（2022年分）";
   } else if (id === "hypothesis-test") {
-    headers = ["性別", "志願者数", "合格者数"];
-    rows = [
-      ["男性", 373, 22],
-      ["女性", 341, 24],
-    ];
-    name = "UCバークレー大学大学院・学科Fの合格者（1973年）";
-    base.seed = seed;
+    headers = ["対象", "種子の総数", "丸い種子の個数"];
+    rows = [["丸い種子", mendelSeeds.total, mendelSeeds.round]];
+    name = "メンデルのエンドウの種子（形の実験）";
   } else if (id === "time-series") {
     const next = { ...base };
     const data = currentData(id, next);

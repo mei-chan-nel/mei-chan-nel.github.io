@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261025-remove-probability";
-import { currentData } from "./shared/data-model.mjs?v=20261025-remove-probability";
+import { esc } from "./shared/ui.mjs?v=20261025-basic-test";
+import { currentData } from "./shared/data-model.mjs?v=20261025-basic-test";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261025-remove-probability";
+} from "./shared/table-data.mjs?v=20261025-basic-test";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261025-remove-probability";
+} from "./data-editor.mjs?v=20261025-basic-test";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

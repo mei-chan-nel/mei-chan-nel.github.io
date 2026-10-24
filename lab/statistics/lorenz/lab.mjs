@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-remove-probability";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-remove-probability";
+} from "../shared/ui.mjs?v=20261025-basic-test";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-basic-test";
 import {
   sum,
   mean,

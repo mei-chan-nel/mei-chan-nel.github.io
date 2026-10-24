@@ -1,137 +1,84 @@
-import assert from "node:assert/strict";
-import {
-  sampleBinomial,
-  simulateDifferences,
-  monteCarloP,
-  rejectionThreshold,
-  repeatedExperiments,
-} from "./lab.mjs";
-
-assert.equal(
-  sampleBinomial(100, 0, () => 0.5),
-  0,
-);
-assert.equal(
-  sampleBinomial(100, 1, () => 0.5),
-  100,
-);
-assert.deepEqual(
-  monteCarloP([-0.2, 0.2, 0], 0.2),
-  { extreme: 2, p: 0.75 },
-  "Two-sided p includes ties and the +1 correction.",
-);
-assert.equal(monteCarloP([-0.2, 0.2, 0], 0).p, 1);
-assert.equal(
-  monteCarloP([-0.2, 0.2, 0], 0.3).p,
-  0.25,
-  "Simulation p must not be zero.",
-);
-assert.equal(
-  rejectionThreshold([-0.2, 0.2, 0], 5, 5, 0.1),
-  null,
-  "No rejection region exists below the minimum attainable corrected p.",
-);
-assert.equal(
-  rejectionThreshold(Array(200).fill(1), 10, 10, 0.05),
-  null,
-  "No feasible difference can exceed 1.",
-);
-assert.equal(
-  rejectionThreshold(Array(200).fill(0), 10, 10, 0.05, 0),
-  null,
-  "A degenerate null has only one achievable outcome.",
-);
-const defaultNull = simulateDifferences(80, 80, 0.475, 0.475, 2000, 2027);
-const defaultThreshold = rejectionThreshold(defaultNull, 80, 80, 0.05, 0.475);
-assert.ok(
-  defaultThreshold > 0.15,
-  "The empirical .15 quantile itself is not rejecting when ties give p>.05.",
-);
-assert.ok(monteCarloP(defaultNull, defaultThreshold).p <= 0.05);
-assert.ok(monteCarloP(defaultNull, defaultThreshold - 1 / 80).p > 0.05);
-for (const [nA, nB] of [
-  [3, 4],
-  [10, 10],
-  [7, 9],
-]) {
-  const reference = simulateDifferences(nA, nB, 0.4, 0.4, 500, 178);
-  const threshold = rejectionThreshold(reference, nA, nB, 0.05, 0.4);
-  for (let a = 0; a <= nA; a++)
-    for (let b = 0; b <= nB; b++) {
-      const difference = b / nB - a / nA;
-      assert.equal(
-        threshold !== null && Math.abs(difference) + 1e-12 >= threshold,
-        monteCarloP(reference, difference).p <= 0.05,
-        "Every attainable point in the displayed rejection region must match the actual inclusive-tail decision.",
-      );
-    }
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {binomialModel,exactTest,testPerformance,distributionBins} from './model.mjs';
+import config from './lab.mjs';
+import {currentData,applyData} from '../shared/data-model.mjs';
+import {sampleState} from '../shared/samples.mjs';
+import {validateDocument} from '../shared/validation.mjs';
+function enumerate(n,p){
+ const m=Array(n+1).fill(0);
+ for(let bits=0;bits<2**n;bits++){
+  let k=0;for(let i=0;i<n;i++)k+=(bits>>>i)&1;
+  m[k]+=p**k*(1-p)**(n-k);
+ }
+ return m;
 }
-const distribution = simulateDifferences(2, 2, 0.5, 0.5, 20000, 91);
-const average = distribution.reduce((s, v) => s + v, 0) / distribution.length;
-const variance =
-  distribution.reduce((s, v) => s + (v - average) ** 2, 0) /
-  distribution.length;
-assert.ok(Math.abs(average) < 0.015);
-assert.ok(
-  Math.abs(variance - 0.25) < 0.015,
-  "Difference of independent binomial rates has variance p(1-p)(1/nA+1/nB).",
-);
-assert.deepEqual(
-  simulateDifferences(50, 30, 0.4, 0.6, 100, 14),
-  simulateDifferences(50, 30, 0.4, 0.6, 100, 14),
-);
-assert.deepEqual(simulateDifferences(10, 12, 0, 0, 20, 3), Array(20).fill(0));
-const large = simulateDifferences(1000, 1000, 0.4, 0.4, 20000, 91);
-const largeMean = large.reduce((s, v) => s + v, 0) / large.length;
-const largeVariance =
-  large.reduce((s, v) => s + (v - largeMean) ** 2, 0) / large.length;
-assert.ok(Math.abs(largeMean) < 0.001);
-assert.ok(
-  Math.abs(largeVariance - 0.00048) < 0.000025,
-  "The exact inverse-binomial sampler must retain the correct large-group variance.",
-);
-assert.deepEqual(
-  simulateDifferences(1000, 1000, 1, 1, 20, 3),
-  Array(20).fill(0),
-);
-const experiments = repeatedExperiments({
-  nA: 80,
-  nB: 80,
-  base: 0.4,
-  effect: 0.2,
-  repetitions: 3000,
-  trials: 1500,
-  alpha: 0.05,
-  seed: 2027,
+test('exact one-sample p values equal independent enumeration of all Bernoulli outcomes',()=>{
+ for(let n=1;n<=10;n++)for(const p of [.1,.25,.5,.75,.9]){
+  const m=enumerate(n,p);
+  for(let k=0;k<=n;k++){
+   const want=m.reduce((s,v,x)=>s+(Math.abs(x-n*p)>=Math.abs(k-n*p)-1e-9?v:0),0);
+   const t=exactTest(n,k,p);
+   assert.ok(Math.abs(t.pValue-want)<1e-11,`${n}/${k}/${p}`);
+   assert.equal(t.reject,t.pValue<=.05+1e-12);
+  }
+ }
 });
-assert.ok(
-  experiments.falsePositives / experiments.trials < 0.09,
-  "The calibrated null rejection rate should remain near or below alpha, allowing finite simulation variation.",
-);
-assert.ok(experiments.falsePositives > 0);
-assert.ok(
-  experiments.detected / experiments.trials > 0.65,
-  "A large real effect should usually be detected.",
-);
-assert.equal(experiments.detected + experiments.missed, experiments.trials);
-const conservative = repeatedExperiments({
-  nA: 80,
-  nB: 80,
-  base: 0.4,
-  effect: 0.2,
-  repetitions: 3000,
-  trials: 1500,
-  alpha: 0.01,
-  seed: 2027,
+test('symmetric two-sided tails include ties and both outcomes; zero/one nulls remain valid',()=>{
+ assert.ok(Math.abs(exactTest(10,10,.5).pValue-1/512)<1e-14);
+ for(const p of [0,1]){
+  assert.equal(exactTest(10,p*10,p).pValue,1);
+  assert.equal(exactTest(10,p?0:10,p).pValue,0);
+  assert.equal(exactTest(10,p?0:10,p).reject,true);
+ }
+ assert.ok(Math.abs(exactTest(1,0,.5).pValue-1)<1e-14);
 });
-assert.ok(
-  conservative.falsePositives <= experiments.falsePositives,
-  "Lower alpha should not increase null rejections with identical draws.",
-);
-assert.ok(
-  conservative.detected <= experiments.detected,
-  "Lower alpha should not increase power with identical draws.",
-);
-console.log(
-  "hypothesis-test: exact Bernoulli simulation, two-sided tails, ties, +1 p rule, reproducibility and error/power calibration passed",
-);
+test('every displayed rejection outcome has the same inclusive-tail decision and size is bounded by alpha',()=>{
+ for(const n of [1,2,5,20,40,100,7324])for(const p of [0,.01,.25,.5,.75,.99,1])for(const alpha of [.01,.05,.1]){
+  const t=exactTest(n,0,p,alpha),size=t.mass.reduce((s,v,k)=>s+(t.rejection[k]?v:0),0);
+  assert.ok(size<=alpha+1e-11,`${n}/${p}/${alpha}:${size}`);
+  for(const k of [0,Math.round(n*p),Math.round(n/2),n])assert.equal(t.rejection[k],exactTest(n,k,p,alpha).reject);
+ }
+});
+test('large and very unbalanced binomial models retain probability, mean and variance',()=>{
+ for(const n of [100,7324,10000])for(const p of [.000001,.01,.5,.75,.99,.999999]){
+  const m=binomialModel(n,p),sum=m.mass.reduce((a,b)=>a+b,0),mean=m.mass.reduce((a,b,k)=>a+b*k,0),variance=m.mass.reduce((a,b,k)=>a+b*(k-n*p)**2,0);
+  assert.ok(Math.abs(sum-1)<1e-12);
+  assert.ok(Math.abs(mean-n*p)<1e-8);
+  assert.ok(Math.abs(variance-n*p*(1-p))<1e-7);
+ }
+ const t=exactTest(10000,0,.5);assert.ok(Number.isFinite(t.logP)&&t.logP<-6900);
+});
+test('power uses the fixed null rejection region under both known worlds',()=>{
+ const a=testPerformance(40,.75,.65,.05),b=testPerformance(160,.75,.65,.05);
+ assert.ok(a.falsePositive<=.05);assert.ok(b.detected>a.detected);
+ assert.ok(Math.abs(a.detected+a.missed-1)<1e-12);
+ const same=testPerformance(40,.75,.75,.05);
+ assert.equal(same.hasAlternative,false);assert.equal(same.falsePositive,same.detected);
+ const strict=testPerformance(40,.75,.65,.01);
+ assert.ok(strict.falsePositive<=a.falsePositive&&strict.detected<=a.detected);
+});
+test('chart aggregation preserves exact selected mass and includes observations',()=>{
+ for(const [n,k,p] of [[40,30,.75],[7324,5474,.75],[10000,0,.999999],[1,1,0]]){
+  const t=exactTest(n,k,p),d=distributionBins(t,[t.tail,t.rejection],k);
+  assert.ok(d.lo<=k&&d.hi>=k&&d.bins.length<=90);
+  const shown=d.bins.reduce((s,b)=>s+b.selected[0],0);
+  const direct=t.mass.reduce((s,v,i)=>s+(i>=d.lo&&i<=d.hi&&t.tail[i]?v:0),0);
+  assert.ok(Math.abs(shown-direct)<1e-12);
+ }
+});
+test('published seed counts stay fixed when the reference and decision criterion change',()=>{
+ const s=sampleState('hypothesis-test',config.initial(),42),d=currentData('hypothesis-test',s);
+ assert.deepEqual(d.rows,[['丸い種子',7324,5474]]);
+ assert.deepEqual(currentData('hypothesis-test',{...s,p0:.5,alpha:.01,planN:20}).rows,d.rows);
+ validateDocument({version:1,id:'hypothesis-test',state:s},'hypothesis-test',config.initial());
+ const own=applyData('hypothesis-test',s,{headers:['対象','合計','該当'],rows:[['陽性',25,7]],name:'調査'});
+ assert.equal(own.dataInfo.publicDataset,undefined);
+ assert.deepEqual(currentData('hypothesis-test',own).rows,[['陽性',25,7]]);
+ assert.equal(own.p0,.75);
+});
+test('one-sample data rejects fractional counts, empty totals, extra groups and invalid criteria',()=>{
+ for(const [n,k,p] of [[0,0,.5],[10001,2,.5],[20,21,.5],[20,-1,.5],[20,1.5,.5],[2.2,1,.5],[20,2,NaN],[20,2,1.1]])assert.throws(()=>exactTest(n,k,p));
+ for(const alpha of [0,1,NaN])assert.throws(()=>exactTest(20,10,.5,alpha));
+ for(const rows of [[['X',0,0]],[['X',10,11]],[['X',10,1],['Y',20,2]],[['',20,2]]])assert.throws(()=>applyData('hypothesis-test',config.initial(),{headers:['対象','総数','該当数'],rows,name:'bad'}));
+});

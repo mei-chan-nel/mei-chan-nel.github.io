@@ -2,14 +2,14 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261025-remove-probability";
+} from "../crosstab/records.mjs?v=20261025-basic-test";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261025-remove-probability";
+import { population } from "../sampling/model.mjs?v=20261025-basic-test";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261025-remove-probability";
+} from "../time-series/model.mjs?v=20261025-basic-test";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";
@@ -20,7 +20,7 @@ export const dataKinds = {
   sampling: "population",
   crosstab: "records",
   "time-series": "series",
-  "hypothesis-test": "ab",
+  "hypothesis-test": "binomial-count",
   lorenz: "incomes",
   probability: "probability",
 };
@@ -88,13 +88,10 @@ export function currentData(id, s) {
     operation = `${headers.join("・")}で人数を数える → クロス集計表と割合を比較`;
   }
   if (id === "hypothesis-test") {
-    headers = s.dataInfo?.columns || ["群", "対象数", "成功数"];
-    rows = [
-      [s.groupLabels?.[0] || "A", s.nA, s.successA],
-      [s.groupLabels?.[1] || "B", s.nB, s.successB],
-    ];
-    name = name || "学習アプリ案内A/Bの登録人数";
-    operation = `A ${s.successA}/${s.nA}・B ${s.successB}/${s.nB} → 差なしを${s.repetitions}回生成 → 両側p値`;
+    headers = s.dataInfo?.columns || ["対象", "総数", "該当数"];
+    rows = [[s.label, s.n, s.success]];
+    name = name || "1つの割合の観測結果";
+    operation = `${s.success}/${s.n} → 基準の割合${fmt(s.p0 * 100, 1)}%と比較 → 両側p値`;
   }
   if (id === "probability" && s.experiments?.some((e) => e.id === s.activeId)) {
     const e = s.experiments.find((e) => e.id === s.activeId);
@@ -393,28 +390,16 @@ export function applyData(
     delete s.records;
     s.records = recordsFor(s);
     s.source = name;
-  } else if (kind === "ab") {
-    if (rows.length !== 2 || rows.some((r) => r.length < 3))
-      throw Error("「群,対象数,成功数」の3列・2行で指定してください。");
-    const counts = rows.map((r, i) => [number(r, 1, i), number(r, 2, i)]);
-    if (
-      counts.some(
-        ([n, k]) =>
-          !Number.isInteger(n) ||
-          !Number.isInteger(k) ||
-          n < 10 ||
-          n > 1000 ||
-          k < 0 ||
-          k > n,
-      )
-    )
-      throw Error(
-        "対象数は10〜1,000の整数、成功数は0〜対象数で指定してください。",
-      );
+  } else if (kind === "binomial-count") {
+    if (headers.length !== 3 || rows.length !== 1 || rows[0].length !== 3)
+      throw Error("「対象,総数,該当数」の3列・1行で指定してください。2群の比較ではありません。");
+    const n = number(rows[0], 1, 0), k = number(rows[0], 2, 0);
+    if (!Number.isInteger(n) || n < 1 || n > 10000 || !Number.isInteger(k) || k < 0 || k > n)
+      throw Error("総数は1〜10,000、該当数は0〜総数の整数にしてください。");
+    const label = String(rows[0][0] ?? "").trim();
+    if (!label || label.length > 100) throw Error("対象の名前は1〜100文字にしてください。");
+    s.n = n; s.success = k; s.label = label;
     s.dataInfo = { columns: headers.slice(0, 3) };
-    s.groupLabels = rows.map((r) => String(r[0]).slice(0, 40));
-    [s.nA, s.successA] = counts[0];
-    [s.nB, s.successB] = counts[1];
     s.source = name;
   } else
     throw Error(

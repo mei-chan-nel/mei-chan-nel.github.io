@@ -2785,3 +2785,15 @@ html.statistics-immersive body {
 .data-provenance { margin-block: 1.5rem; padding: 1rem 1.25rem; border-top: 1px solid var(--line); font-size: .88rem; line-height: 1.85; color: var(--muted); }
 .data-provenance h2 { font-size: 1rem; color: var(--ink); margin-block: 0 .5rem; }
 .data-provenance p { margin-block: .45rem; }
+
+/* One-sample tests keep observations in the data tab and hypotheses near the chart. */
+.hyp-controls { display:flex; flex-wrap:wrap; gap:1rem 1.5rem; align-items:end; margin:.75rem 0; }
+.hyp-controls > .control { max-width:210px; }
+.hyp-controls input[type=number] { width:100%; }
+.hyp-radio { border:0; padding:0; margin:0; display:flex; gap:.75rem; flex-wrap:wrap; }
+.hyp-radio legend { font-size:.85rem; margin-bottom:.5rem; }
+.hyp-radio label { display:inline-flex; align-items:center; gap:.25rem; }
+.hyp-question,.hyp-decision { margin:1rem 0; }
+.hyp-details { margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--chart-grid); }
+.hyp-p-value { font-variant-numeric:tabular-nums; }
+.hyp-p-value strong { font-size:1.3rem; color:var(--chart-primary-dark); }

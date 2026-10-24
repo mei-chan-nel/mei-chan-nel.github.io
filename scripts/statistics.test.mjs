@@ -30,7 +30,7 @@ test("all seven integrated labs have real modules, data views and valid nested s
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs?v=20261025-remove-probability"'));
+    assert.ok(html.includes('src="./../app.mjs?v=20261025-basic-test"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));
