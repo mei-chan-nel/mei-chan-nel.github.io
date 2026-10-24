@@ -1,108 +1,70 @@
-import { rng, normal, clamp } from "./math.mjs";
 import {
-  applyData,
-  currentData,
-} from "./data-model.mjs?v=20261024-estat-centered";
+  monthlyTemperatures,
+  dailyTemperatures,
+  admissions,
+  incomeQuintiles,
+} from "./public-data.mjs?v=20261024-real-data";
+import { householdSeries } from "../time-series/data.mjs?v=20261024-real-data";
+import { publicDatasetInfo } from "./sources.mjs?v=20261024-real-data";
+import { applyData, currentData } from "./data-model.mjs?v=20261024-real-data";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
   return bytes[0];
 }
-// Seeded generators keep examples meaningful while producing a fresh dataset on each visit.
+// Published observations stay fixed; seeds change only the simulated draws.
 export function sampleState(id, initial, seed = freshSeed()) {
-  const random = rng(seed);
-  const integer = (lo, hi) => Math.floor(lo + random() * (hi - lo + 1));
-  const bell = (center, spread) => Math.round(center + normal(random) * spread);
   const base = { ...initial, dataInfo: null };
   let headers,
     rows,
     name,
     selection = {};
   if (id === "correlation") {
-    headers = ["1週間の復習時間（分）", "確認テスト（点）"];
-    rows = Array.from({ length: 18 }, () => {
-      const x = integer(8, 110);
-      return [x, clamp(bell(30 + 0.52 * x, 9), 5, 100)];
-    });
-    name = "18人の復習時間と確認テスト";
+    headers = ["東京の月平均気温（℃）", "全国の月別支出金額（円）"];
+    rows = householdSeries.values.map((v, i) => [monthlyTemperatures[i], v]);
+    name = "月平均気温とアイスクリームへの支出（2016〜2025年）";
   } else if (id === "summary") {
-    headers = ["確認テスト（点）"];
-    rows = Array.from({ length: 14 }, () => [
-      clamp(bell(integer(56, 65), 13), 5, 95),
-    ]);
-    name = "14人の確認テスト";
+    headers = ["東京の日最高気温（℃）"];
+    rows = dailyTemperatures[1].map((v) => [v]);
+    name = "東京の日最高気温（2025年7月）";
   } else if (id === "histogram") {
-    headers = ["クイズの所要時間（秒）", "集団"];
-    // Rounded normal-score offsets keep two recognisable, overlapping hills
-    // in this small teaching sample. These are constructed, fictional records.
-    const offsets = [
-      -12, -10, -9, -8, -7, -6, -5, -4, -4, -3, -2, -2, -1, -1, 0, 0, 1, 1, 2,
-      2, 3, 4, 4, 5, 6, 7, 8, 9, 10, 12,
-    ];
-    const centerA = integer(43, 45),
-      centerB = centerA + integer(18, 19);
-    const a = offsets.map(
-      (v) => centerA + v + (Math.abs(v) > 10 ? 0 : integer(-1, 1)),
+    headers = ["東京の日最高気温（℃）", "観測月"];
+    rows = dailyTemperatures.flatMap((values, i) =>
+      values.map((v) => [v, `2025年${i + 6}月`]),
     );
-    const b = offsets
-      .filter((_, i) => i !== 14)
-      .map((v) => centerB + Math.round(v * 0.8));
-    // A very fast pupil in B falls inside A's hill, below B's lower IQR fence.
-    // Neither group receives an artificial high-side outlier.
-    b.push(centerA - 2);
-    const shuffle = (values) => {
-      for (let i = values.length - 1; i > 0; i--) {
-        const j = integer(0, i);
-        [values[i], values[j]] = [values[j], values[i]];
-      }
-      return values;
-    };
-    rows = [
-      ...shuffle(a).map((v) => [v, "A"]),
-      ...shuffle(b).map((v) => [v, "B"]),
-    ];
     selection = { group: 1 };
-    name = "速いB群の生徒を含む60人のクイズ所要時間";
+    name = "東京の日最高気温（2025年6月・7月）";
   } else if (id === "sampling") {
-    headers = ["読書時間（分）"];
-    rows = Array.from({ length: 120 }, () => [Math.max(0, bell(34, 13))]);
-    name = "生徒120人の読書時間";
+    headers = ["東京の月平均気温（℃）"];
+    rows = monthlyTemperatures.map((v) => [v]);
+    name = "東京の月平均気温120か月（2016〜2025年）";
     base.seed = seed;
   } else if (id === "crosstab") {
-    headers = ["課題難度", "方式", "結果"];
-    const total = integer(90, 150),
-      easy = integer(76, 86),
-      hard = integer(18, 28),
-      advantage = integer(7, 12);
-    rows = [];
-    for (const [g, label] of ["初級課題", "応用課題"].entries()) {
-      for (const [j, method] of ["A方式", "B方式"].entries()) {
-        const count = Math.round(total * (g === j ? 0.22 : 0.78));
-        const success = Math.round(
-          (count * ((g ? hard : easy) + (j ? 0 : advantage))) / 100,
-        );
-        for (let k = 0; k < count; k++)
-          rows.push([label, method, k < success ? "達成" : "未達成"]);
-      }
-    }
-    name = "生徒ごとの課題難度・方式・結果";
+    headers = ["学科", "性別", "合否"];
+    rows = admissions.flatMap((matrix, g) =>
+      matrix.flatMap((counts, r) =>
+        counts.flatMap((count, c) =>
+          Array.from({ length: count }, () => [
+            ["学科A", "学科F"][g],
+            ["男性", "女性"][r],
+            ["合格", "不合格"][c],
+          ]),
+        ),
+      ),
+    );
+    name = "UCバークレー大学大学院の志願者（1973年・学科AとF）";
   } else if (id === "lorenz") {
-    headers = ["所得（万円）"];
-    rows = Array.from({ length: 10 }, () => [
-      Math.round(6 + Math.exp(random() * 3) * 5),
-    ]);
-    name = "10人の月の所得";
+    headers = ["1世帯当たり平均所得金額（万円）"];
+    rows = incomeQuintiles.map((v) => [v]);
+    name = "日本の所得五分位階級別の平均所得（2022年分）";
   } else if (id === "hypothesis-test") {
-    headers = ["群", "対象数", "成功数"];
-    const n = integer(6, 14) * 10,
-      p = integer(30, 45) / 100,
-      difference = integer(6, 16) / 100;
+    headers = ["性別", "志願者数", "合格者数"];
     rows = [
-      ["A", n, Math.round(n * p)],
-      ["B", n, Math.round(n * (p + difference))],
+      ["男性", 373, 22],
+      ["女性", 341, 24],
     ];
-    name = "学習アプリ案内A/Bの登録人数";
-    base.seed = integer(1, 999999);
+    name = "UCバークレー大学大学院・学科Fの合格者（1973年）";
+    base.seed = seed;
   } else if (id === "time-series") {
     const next = { ...base };
     const data = currentData(id, next);
@@ -111,17 +73,23 @@ export function sampleState(id, initial, seed = freshSeed()) {
       origin: "sample",
       columns: data.headers,
       baseline: data.rows,
+      publicDataset: publicDatasetInfo(id),
     };
     return next;
   } else if (id === "probability") {
     return { ...base, seed, observed: undefined };
   } else throw Error("このラボのサンプルはありません。");
   const next = applyData(id, base, { headers, rows, name, ...selection });
-  next.dataInfo = { ...next.dataInfo, origin: "sample", seed };
-  if (id === "histogram") next.width = base.width;
+  next.dataInfo = {
+    ...next.dataInfo,
+    origin: "sample",
+    seed,
+    publicDataset: publicDatasetInfo(id),
+  };
+  if (id === "histogram") next.width = 2;
   if (id === "summary") {
     next.min = 0;
-    next.max = 100;
+    next.max = 45;
   }
   return next;
 }

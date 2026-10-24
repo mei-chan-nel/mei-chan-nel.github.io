@@ -1,14 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-estat-centered";
+import { currentData } from "./data-model.mjs?v=20261024-real-data";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-estat-centered";
+} from "../sampling/model.mjs?v=20261024-real-data";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261024-estat-centered";
-import { autocorrelations } from "../time-series/model.mjs?v=20261024-estat-centered";
+} from "../crosstab/lab.mjs?v=20261024-real-data";
+import { autocorrelations } from "../time-series/model.mjs?v=20261024-real-data";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -70,12 +70,14 @@ export function insight(id, state) {
     const within = state.strata.map((_, i) =>
       [0, 1].map((j) => successRate(matrixFor(state.strata, String(i)), j)),
     );
-    const reversal =
-      within.every((r) => Number.isFinite(r[0]) && r[0] > r[1]) &&
-      overall[0] < overall[1];
-    return reversal
-      ? `課題別では${names[0]}の率が高いのに、合計では${names[1]}が高くなっています。初級課題と応用課題の人数の偏りに注目しましょう。`
-      : "合計の達成率は、課題ごとの達成率と参加人数の内訳で決まります。課題難度をそろえた比較も確かめましょう。";
+    const winner = [0, 1].find((i) =>
+      within.every(
+        (r) => r[i] !== null && r[1 - i] !== null && r[i] > r[1 - i],
+      ),
+    );
+    return winner !== undefined && overall[winner] < overall[1 - winner]
+      ? `合計では${names[1 - winner]}の率が高いのに、区分別では${names[winner]}の率が高くなります。区分ごとの人数の偏りに注目しましょう。`
+      : "合計の率は、区分ごとの率と人数の内訳で決まります。区分をそろえた比較も確かめましょう。";
   }
   if (id === "time-series") {
     const values = data.rows.map((r) => r[1]),

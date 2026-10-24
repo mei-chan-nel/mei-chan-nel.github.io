@@ -3,11 +3,11 @@ import {
   groupPattern,
   esc,
   svg,
-} from "../shared/ui.mjs?v=20261024-estat-centered";
+} from "../shared/ui.mjs?v=20261024-real-data";
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-estat-centered";
+} from "../shared/reading.mjs?v=20261024-real-data";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
@@ -16,7 +16,7 @@ import {
   areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261024-estat-centered";
+} from "./records.mjs?v=20261024-real-data";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -197,7 +197,7 @@ function dataTable(state, scope, title) {
   const { METHOD, OUTCOME } = displayLabels(state);
   const values = tableValues(matrixFor(state.strata, scope), state.mode);
   const display = (v) => (state.mode === "count" ? `${v}人` : pct(v));
-  return `<section class="panel crosstab-table-panel" data-crosstab-table="${scope}"><h3>${esc(title)}</h3><table class="stat-table crosstab-table"><caption>${esc(title)}・${esc(MODES.find(([v]) => v === state.mode)[1])}</caption><thead><tr><th scope="col">方式</th>${[...OUTCOME, "合計"].map((v) => `<th scope="col">${esc(v)}</th>`).join("")}</tr></thead><tbody>${values.map((row, r) => `<tr><th scope="row">${esc(r < 2 ? METHOD[r] : "合計")}</th>${row.map((v) => `<td>${display(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`;
+  return `<section class="panel crosstab-table-panel" data-crosstab-table="${scope}"><h3>${esc(title)}</h3><table class="stat-table crosstab-table"><caption>${esc(title)}・${esc(state.mode === "count" ? "人数" : state.mode === "row" ? "行比率" : state.mode === "column" ? "列比率" : "セル比率")}</caption><thead><tr><th scope="col">${esc(state.dataInfo?.labels?.fields?.[1] || "方式")}</th>${[...OUTCOME, "合計"].map((v) => `<th scope="col">${esc(v)}</th>`).join("")}</tr></thead><tbody>${values.map((row, r) => `<tr><th scope="row">${esc(r < 2 ? METHOD[r] : "合計")}</th>${row.map((v) => `<td>${display(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`;
 }
 function reversalExplanation(state) {
   const { METHOD, STRATA, OUTCOME } = displayLabels(state),
@@ -231,9 +231,9 @@ function reversalExplanation(state) {
     const easy = easier >= 0 ? easier : 0,
       shareEasy = (r) =>
         easy === 0 ? share(r) : share(r) === null ? null : 1 - share(r);
-    return `合計では${METHOD[other]}の${OUTCOME[0]}率が高いのに、${STRATA[0]}と${STRATA[1]}に分けると、どちらも${METHOD[other]}の方が低くなります。${METHOD[other]}は${OUTCOME[0]}しやすい${STRATA[easy]}に取り組んだ人が${pct(shareEasy(other))}（${METHOD[winner]}は${pct(shareEasy(winner))}）と多いため、合計の率が高くなっています。このように合計と課題別で大小が逆転する現象を、シンプソンのパラドックスといいます。`;
+    return `合計では${METHOD[other]}の${OUTCOME[0]}率が高いのに、${STRATA[0]}と${STRATA[1]}に分けると、どちらも${METHOD[other]}の方が低くなります。${METHOD[other]}は${OUTCOME[0]}しやすい${STRATA[easy]}に属する人が${pct(shareEasy(other))}（${METHOD[winner]}は${pct(shareEasy(winner))}）と多いため、合計の率が高くなっています。このように合計と区分別で大小が逆転する現象を、シンプソンのパラドックスといいます。`;
   }
-  return `合計の${OUTCOME[0]}率は、課題ごとの${OUTCOME[0]}率を、その課題に取り組んだ人数で重み付けした平均です。${STRATA[0]}と${STRATA[1]}の人数の偏りも合わせて比べましょう。`;
+  return `合計の${OUTCOME[0]}率は、区分ごとの${OUTCOME[0]}率を、その区分に属する人数で重み付けした平均です。${STRATA[0]}と${STRATA[1]}の人数の偏りも合わせて比べましょう。`;
 }
 function comparisonChart(state) {
   const { METHOD, STRATA, OUTCOME } = displayLabels(state);
@@ -346,15 +346,15 @@ function countComparisonPanel(state, comparison) {
         `<p class="ct-mix-detail" data-method-composition="${m.method}"><strong>${esc(METHOD[m.method])}</strong>：${STRATA.map((name, i) => `${esc(name)} ${m.counts[i]}人（${pct(m.shares[i])}）`).join(" ／ ")}</p>`,
     )
     .join("");
-  let reason = `合計の率は、人数の多い課題の影響を強く受けます。`;
+  let reason = `合計の率は、人数の多い区分の影響を強く受けます。`;
   if (comparison.easier !== null) {
     const easy = comparison.easier;
-    reason = `${esc(STRATA[easy])}は両方式とも${esc(OUTCOME[0])}率が高い課題です。${comparison.reversed ? `${esc(METHOD[comparison.overallWinner])}はこの課題の割合が${pct(comparison.composition[comparison.overallWinner].shares[easy])}と多いため、合計の率が高くなっています。` : "この課題に取り組んだ人の割合も合わせて比べましょう。"}`;
+    reason = `${esc(STRATA[easy])}は両群とも${esc(OUTCOME[0])}率が高い区分です。${comparison.reversed ? `${esc(METHOD[comparison.overallWinner])}はこの区分の割合が${pct(comparison.composition[comparison.overallWinner].shares[easy])}と多いため、合計の率が高くなっています。` : "この区分に属する人の割合も合わせて比べましょう。"}`;
   }
   const equal = comparison.standardized
     .map((rate, i) => `${esc(METHOD[i])} ${pct(rate)}`)
     .join(" ／ ");
-  return `<section class="ct-count-comparison" data-screen-nav-section="人数で比べる"><h3>人数で比べる</h3><table class="stat-table ct-comparison-table"><caption>${esc(OUTCOME[0])}した人数 / 対象人数・${esc(OUTCOME[0])}率（下線は高い方）</caption><thead><tr><th scope="col">範囲</th>${METHOD.map((name, i) => `<th scope="col">${chartKey(name, i ? "var(--chart-secondary)" : "var(--chart-primary)", i ? "diamond" : "point")}</th>`).join("")}</tr></thead><tbody>${tableRows}</tbody></table><div class="ct-composition"><h4>課題ごとの人数の偏り</h4>${mixture}<p class="ct-mix-reason">${reason}</p><p class="ct-equal-mix" data-equal-composition>${esc(STRATA[0])}と${esc(STRATA[1])}が両方式とも半分ずつなら、<strong>${equal}</strong>（比較用の計算）。</p></div></section>`;
+  return `<section class="ct-count-comparison" data-screen-nav-section="人数で比べる"><h3>人数で比べる</h3><table class="stat-table ct-comparison-table"><caption>${esc(OUTCOME[0])}した人数 / 対象人数・${esc(OUTCOME[0])}率（下線は高い方）</caption><thead><tr><th scope="col">範囲</th>${METHOD.map((name, i) => `<th scope="col">${chartKey(name, i ? "var(--chart-secondary)" : "var(--chart-primary)", i ? "diamond" : "point")}</th>`).join("")}</tr></thead><tbody>${tableRows}</tbody></table><div class="ct-composition"><h4>区分ごとの人数の偏り</h4>${mixture}<p class="ct-mix-reason">${reason}</p><p class="ct-equal-mix" data-equal-composition>${esc(STRATA[0])}と${esc(STRATA[1])}が両群とも半分ずつなら、<strong>${equal}</strong>（比較用の計算）。</p></div></section>`;
 }
 
 function denominatorDiagram(state) {
@@ -426,18 +426,18 @@ function denominatorDiagram(state) {
     .join("");
   const description =
     state.selectedScope === "all"
-      ? `各方式の全員を分母にして、${OUTCOME[0]}した人数と割合を比べます。`
-      : `${scope}に取り組んだ人を方式ごとに分け、${OUTCOME[0]}した人数と割合を比べます。`;
+      ? `各群の全員を分母にして、${OUTCOME[0]}した人数と割合を比べます。`
+      : `${scope}に属する人を群ごとに分け、${OUTCOME[0]}した人数と割合を比べます。`;
   const figure = svg(
     content,
-    `${METHOD[0]}と${METHOD[1]}を同時に比較する人数の面積図。初級は上、応用は下、達成は左、未達成は右。`,
+    `${METHOD[0]}と${METHOD[1]}を同時に比較する人数の面積図。${STRATA[0]}は上、${STRATA[1]}は下、${OUTCOME[0]}は左、${OUTCOME[1]}は右。`,
     layout.width,
     layout.height,
   ).replace(
     "<svg",
     `<svg style="aspect-ratio:${layout.width} / ${layout.height}" data-ct-mosaic data-ct-plot-width="${layout.plotWidth}" data-ct-plot-height="${layout.plotHeight}"`,
   );
-  return `<section class="panel chart-panel crosstab-denominator"><h3>実数を比べる</h3><p class="ct-question-summary" role="status">${esc(description)}</p><div class="ct-diagram-scroll" tabindex="0" role="region" aria-label="A方式とB方式の人数を同時に比べる図">${figure}</div><div class="legend ct-area-legend">${chartKey(METHOD[0], "var(--chart-primary)", "point")}${chartKey(METHOD[1], "var(--chart-secondary)", "diamond")}<span>濃い色：${esc(OUTCOME[0])} ／ 薄い色：${esc(OUTCOME[1])}</span>${smallLabels}</div>${countComparisonPanel(state, comparison)}</section>`;
+  return `<section class="panel chart-panel crosstab-denominator"><h3>実数を比べる</h3><p class="ct-question-summary" role="status">${esc(description)}</p><div class="ct-diagram-scroll" tabindex="0" role="region" aria-label="${esc(METHOD.join("と"))}の人数を同時に比べる図">${figure}</div><div class="legend ct-area-legend">${chartKey(METHOD[0], "var(--chart-primary)", "point")}${chartKey(METHOD[1], "var(--chart-secondary)", "diamond")}<span>濃い色：${esc(OUTCOME[0])} ／ 薄い色：${esc(OUTCOME[1])}</span>${smallLabels}</div>${countComparisonPanel(state, comparison)}</section>`;
 }
 function choices(
   id,
@@ -454,8 +454,8 @@ export default {
   id: "crosstab",
   title: "クロス集計",
   description:
-    "1人ずつの記録から人数と割合を集計し、課題難度による違いを比べる。",
-  lead: "1人ごとの課題難度・方式・結果を集計します。合計と課題別で達成率が逆転する理由も確かめましょう。",
+    "属性の組み合わせから人数と割合を集計し、区分による違いを比べる。",
+  lead: "属性の組み合わせを集計します。合計と区分別で割合が逆転する理由も確かめましょう。",
   initial: makeInitial,
   normalize: normalizeState,
   render(root, ctx) {
@@ -483,7 +483,7 @@ export default {
       );
       content = `<div class="ct-tables"><div class="ct-table-grid">${scopes.map(([scope, title]) => dataTable(state, scope, title)).join("")}</div></div>`;
     } else if (view === 1) {
-      content = `<section class="chart-panel"><h3>合計と課題別の${esc(OUTCOME[0])}率</h3>${comparisonChart(state)}<p class="annotation" role="status">${esc(reversalExplanation(state))}</p></section>`;
+      content = `<section class="chart-panel"><h3>合計と区分別の${esc(OUTCOME[0])}率</h3>${comparisonChart(state)}<p class="annotation" role="status">${esc(reversalExplanation(state))}</p></section>`;
     } else {
       toolbar = choices(
         "ct-scope",

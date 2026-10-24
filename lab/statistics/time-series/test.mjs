@@ -19,36 +19,36 @@ import { validateDocument } from "../shared/validation.mjs";
 const close = (actual, expected, tol = 1e-9) =>
   assert.ok(Math.abs(actual - expected) < tol, `${actual} != ${expected}`);
 
-test("official ice-cream expenditure is an immutable 120-month extract with a strong annual cycle", () => {
+test("official ice-cream expenditure is an immutable 2016–2025 monthly extract with a strong annual cycle", () => {
   const v = seriesValues(),
     data = currentData(
       "time-series",
       sampleState("time-series", initialSeriesState(), 1),
     );
   assert.equal(v.length, 120);
-  assert.equal(v[0], 351);
-  assert.equal(v.at(-1), 537);
+  assert.equal(v[0], 464);
+  assert.equal(v.at(-1), 834);
   assert.ok(v.every(Number.isInteger));
-  assert.equal(data.rows[0][0], "2009-01");
-  assert.equal(data.rows.at(-1)[0], "2018-12");
+  assert.equal(data.rows[0][0], "2016-01");
+  assert.equal(data.rows.at(-1)[0], "2025-12");
   assert.equal(data.headers[1], "支出金額（円）");
   assert.equal(data.citation.name, "総務省統計局「家計調査」");
   assert.ok(autocorrelations(v, 36)[12] > 0.85);
   assert.ok(autocorrelations(v, 36)[24] > 0.75);
-  assert.ok(autocorrelations(v, 36)[36] > 0.65);
+  assert.ok(autocorrelations(v, 36)[36] > 0.6);
   assert.deepEqual(
     sampleState("time-series", initialSeriesState(), 1),
     sampleState("time-series", initialSeriesState(), 200),
   );
   assert.equal(initialSeriesState().selected, 60);
   v[0] = 0;
-  assert.equal(seriesValues()[0], 351);
-  const totals = [2016, 2017, 2018].map((y) =>
+  assert.equal(seriesValues()[0], 464);
+  const totals = [2023, 2024, 2025].map((y) =>
     data.rows
       .filter((r) => r[0].startsWith(String(y)))
       .reduce((s, r) => s + r[1], 0),
   );
-  assert.deepEqual(totals, [8907, 9047, 9670]);
+  assert.deepEqual(totals, [11578, 12294, 13045]);
 });
 test("odd moving averages are centered on the selected month and keep both incomplete ends undefined", () => {
   assert.deepEqual(centeredMovingAverage([2, 4, 6, 8, 10], 3), [

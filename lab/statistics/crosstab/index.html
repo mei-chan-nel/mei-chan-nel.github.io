@@ -4,9 +4,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <script src="../../../assets/site-analytics.js?v=2026101201" defer></script>
 <title>クロス集計｜Interactive Lab</title>
-<meta name="description" content="割合の分母を確かめ、課題別と合計の達成率を比べる。" />
+<meta name="description" content="割合の分母を確かめ、学科別と合計の合格率を比べる。" />
 <meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
-<meta property="og:title" content="クロス集計｜Interactive Lab" /><meta property="og:description" content="割合の分母を確かめ、課題別と合計の達成率を比べる。" />
+<meta property="og:title" content="クロス集計｜Interactive Lab" /><meta property="og:description" content="割合の分母を確かめ、学科別と合計の合格率を比べる。" />
 <meta property="og:url" content="https://mei-chan-nel.com/lab/statistics/crosstab/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
 <link rel="canonical" href="https://mei-chan-nel.com/lab/statistics/crosstab/" /><meta name="theme-color" content="#102f35" />
 <link rel="icon" href="../../icon.svg" type="image/svg+xml" />
@@ -14,9 +14,9 @@
 <link rel="stylesheet" href="../../lab.css?v=3" />
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"クロス集計","item":"https://mei-chan-nel.com/lab/statistics/crosstab/"}]}</script>
 <link rel="stylesheet" href="./../statistics.css" />
-<link rel="stylesheet" href="./../workspace.css?v=20261024-estat-centered" />
-<link rel="modulepreload" href="./lab.mjs?v=20261024-estat-centered" />
-<script type="module" src="./../app.mjs?v=20261024-estat-centered"></script>
+<link rel="stylesheet" href="./../workspace.css?v=20261024-real-data" />
+<link rel="modulepreload" href="./lab.mjs?v=20261024-real-data" />
+<script type="module" src="./../app.mjs?v=20261024-real-data"></script>
 <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:type" content="image/png" />
@@ -37,7 +37,7 @@
 <a href="../../../LectureNote/">講義ノート</a>
 <a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
 <main id="main-content" class="lab-shell lab-content-page stat-page">
-<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>クロス集計</h1><p class="workspace-purpose">割合の分母を確かめ、課題別と合計の達成率を比べる。</p><p class="workspace-intro">1人ずつの課題難度・方式・結果を数えて、クロス集計表を作ります。割合の分母を確かめ、合計と課題別で結論が逆転する理由を探します。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="correlation" >散布図と相関・回帰</option><option value="histogram" >データの分布</option><option value="sampling" >標本調査と推定</option><option value="crosstab" selected>クロス集計</option><option value="time-series" >時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header>
+<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>クロス集計</h1><p class="workspace-purpose">割合の分母を確かめ、学科別と合計の合格率を比べる。</p><p class="workspace-intro">学科・性別・合否を数えて、クロス集計表を作ります。割合の分母を確かめ、合計と学科別で結論が逆転する理由を探します。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="correlation" >散布図と相関・回帰</option><option value="histogram" >データの分布</option><option value="sampling" >標本調査と推定</option><option value="crosstab" selected>クロス集計</option><option value="time-series" >時系列データの分析</option><option value="probability" >確率と確率分布</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="lorenz" >格差とローレンツ曲線</option><option value="projects" >横断分析課題</option></select></label></header>
 <section id="statistics-workspace" class="statistics-workspace" aria-label="クロス集計の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">クロス集計</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
 <nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
 <p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"><p role="status">データを読み込んでいます…</p></div>
@@ -45,6 +45,7 @@
 <nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
 </section>
 <section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p><div id="explanation-body"></div></section>
+<div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>
 </main>
 <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>

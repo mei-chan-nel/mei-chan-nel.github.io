@@ -6,8 +6,8 @@ import {
   metrics,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-estat-centered";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-estat-centered";
+} from "../shared/ui.mjs?v=20261024-real-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
 import { mean, fmt } from "../shared/math.mjs";
 
 import {
@@ -20,10 +20,12 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-estat-centered";
+} from "./model.mjs?v=20261024-real-data";
 
 const positions = new WeakMap();
-const unitOf = (state) => (state.customPopulation ? "" : "分");
+const unitOf = (state) =>
+  state.dataInfo?.columns?.[0]?.match(/[（(](.*?)[）)]/)?.[1] ||
+  (state.customPopulation ? "" : "分");
 const axisLabel = (state, prefix) =>
   `${prefix}：${state.dataInfo?.columns?.[0] || (state.customPopulation ? "値" : "読書時間（分）")}`;
 const axisValue = (v, tick) =>
@@ -70,12 +72,12 @@ function populationChart(state) {
       const count = counts.get(person.id) || 0,
         x = 27 + (i % columns) * 36,
         y = 27 + Math.floor(i / columns) * 36;
-      return `<g data-population-id="${person.id}" data-selected="${count > 0}" data-draw-count="${count}"><circle cx="${x}" cy="${y}" r="${count > 1 ? 16 : count ? 14 : 8}" fill="${count ? "var(--chart-primary-dark)" : "var(--chart-primary-pale)"}" stroke="${count ? "var(--chart-text)" : "var(--chart-axis)"}" stroke-width="${count ? 2 : 1}"><title>${person.id + 1}番：${person.value}${unitOf(state)}・今回${count}回選択</title></circle>${count ? `<text class="sampling-value" x="${x}" y="${y + (count > 1 ? -5 : 0)}" ${count > 1 ? 'data-label-offset="-5"' : ""} dominant-baseline="central" fill="white" font-size="12" font-weight="700" text-anchor="middle">${esc(person.value)}</text>${count > 1 ? `<text class="sampling-repeat-count" x="${x}" y="${y + 8}" data-label-offset="8" dominant-baseline="central" text-anchor="middle">×${count}</text>` : ""}` : ""}</g>`;
+      return `<g data-population-id="${person.id}" data-selected="${count > 0}" data-draw-count="${count}"><circle cx="${x}" cy="${y}" r="${count > 1 ? 16 : count ? 14 : 8}" fill="${count ? "var(--chart-primary-dark)" : "var(--chart-primary-pale)"}" stroke="${count ? "var(--chart-text)" : "var(--chart-axis)"}" stroke-width="${count ? 2 : 1}"><title>${state.dataInfo?.publicDataset ? `${2016 + Math.floor(person.id / 12)}年${(person.id % 12) + 1}月` : `${person.id + 1}番`}：${person.value}${unitOf(state)}・今回${count}回選択</title></circle>${count ? `<text class="sampling-value" x="${x}" y="${y + (count > 1 ? -5 : 0)}" ${count > 1 ? 'data-label-offset="-5"' : ""} dominant-baseline="central" fill="white" font-size="12" font-weight="700" text-anchor="middle">${esc(person.value)}</text>${count > 1 ? `<text class="sampling-repeat-count" x="${x}" y="${y + 8}" data-label-offset="8" dominant-baseline="central" text-anchor="middle">×${count}</text>` : ""}` : ""}</g>`;
     })
     .join("");
   return svg(
     drawing,
-    `${people.length}人の母集団。濃い丸が今回選ばれた人。白い数字は値、×の数字は選ばれた回数。`,
+    `${people.length}件の母集団。濃い丸が今回選ばれた観測。白い数字は値、×の数字は選ばれた回数。`,
     width,
     height,
   ).replace("<svg", "<svg data-sampling-population");
@@ -272,7 +274,7 @@ export default {
         ["今回の標本平均", `${fmt(latest.mean)}${unit}`],
         ["母平均", `${fmt(truth)}${unit}`],
         ["標本誤差", `${fmt(latest.mean - truth)}${unit}`, "標本平均 − 母平均"],
-        ["選ばれた人数", `${new Set(state.last).size} / ${people.length}人`],
+        ["選ばれた観測数", `${new Set(state.last).size} / ${people.length}件`],
       ],
     )}</section><aside class="panel controls"><h2>調査を設計する</h2>${
       graphical

@@ -180,7 +180,7 @@ test("invalid table cells identify the displayed row and cannot silently replace
   rows[0][1] = "";
   assert.throws(
     () => applyTableRows("histogram", state, data, rows),
-    /1行目「集団」/,
+    /1行目「観測月」/,
   );
   const ab = sampleState("hypothesis-test", hypothesis.initial(), 13);
   assert.throws(

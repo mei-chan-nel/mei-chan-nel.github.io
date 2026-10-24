@@ -12,7 +12,7 @@ import { validateDocument } from "./validation.mjs";
 import { matrixFor, successRate } from "../crosstab/lab.mjs";
 import { parseDelimited, serializeCSV } from "./csv.mjs";
 import { labs } from "../catalog.mjs";
-test("generated samples vary by seed while the official monthly series stays fixed and every dataset round-trips", async () => {
+test("published observations stay fixed across seeds while probability trials vary, and every dataset round-trips", async () => {
   for (const [id] of labs) {
     const config = (await import(`../${id}/lab.mjs`)).default;
     const a = sampleState(id, config.initial(), 100),
@@ -20,7 +20,7 @@ test("generated samples vary by seed while the official monthly series stays fix
     assert.deepEqual(a, sampleState(id, config.initial(), 100));
     const d = currentData(id, a);
     assert.ok(d.rows.length >= 2);
-    if (id === "time-series") assert.deepEqual(d.rows, currentData(id, b).rows);
+    if (id !== "probability") assert.deepEqual(d.rows, currentData(id, b).rows);
     else assert.notDeepEqual(d.rows, currentData(id, b).rows, id);
     assert.ok(
       d.rows.every((r) =>
@@ -32,7 +32,7 @@ test("generated samples vary by seed while the official monthly series stays fix
     assert.equal(csv.length, d.rows.length + 1, id);
   }
 });
-test("generated cross-tabs consistently offer a Simpson reversal without invalid counts", async () => {
+test("published admissions preserve the within-department and aggregate reversal", async () => {
   const config = (await import("../crosstab/lab.mjs")).default;
   for (let seed = 0; seed < 100; seed++) {
     const s = sampleState("crosstab", config.initial(), seed);
@@ -44,12 +44,12 @@ test("generated cross-tabs consistently offer a Simpson reversal without invalid
     assert.ok(
       s.strata.every(
         (_, i) =>
-          successRate(matrixFor(s.strata, String(i)), 0) >
+          successRate(matrixFor(s.strata, String(i)), 0) <
           successRate(matrixFor(s.strata, String(i)), 1),
       ),
     );
     assert.ok(
-      successRate(matrixFor(s.strata, "all"), 0) <
+      successRate(matrixFor(s.strata, "all"), 0) >
         successRate(matrixFor(s.strata, "all"), 1),
     );
   }
@@ -60,7 +60,7 @@ test("CSV values for histogram are exactly the transformed observations shown in
   const old = currentData("histogram", s).rows;
   const next = currentData("histogram", { ...s, shiftB: 10 }).rows;
   next.forEach((r, i) =>
-    assert.equal(r[0], old[i][0] + (old[i][1] === "B" ? 10 : 0)),
+    assert.equal(r[0], old[i][0] + (old[i][1] === s.groupNames[1] ? 10 : 0)),
   );
 });
 test("uploaded probability observations stay fixed when the theoretical model changes", () => {
@@ -188,4 +188,66 @@ test("cross-tab, A/B and month labels retain the uploaded column names in CSV ou
     });
     assert.deepEqual(currentData(id, next).headers, headers, id);
   }
+});
+
+test("published defaults match their source extracts and user uploads lose public attribution", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const {
+    monthlyTemperatures,
+    dailyTemperatures,
+    admissions,
+    incomeQuintiles,
+  } = await import("./public-data.mjs?v=20261024-real-data");
+  for (const [file, values, column] of [
+    ["tokyo-monthly-temperature.csv", monthlyTemperatures, 1],
+    ["tokyo-daily-temperature.csv", dailyTemperatures.flat(), 1],
+    ["ucb-admissions-af.csv", admissions.flat(2), 3],
+    ["income-quintiles.csv", incomeQuintiles, 1],
+  ]) {
+    const records = parseDelimited(
+      await readFile(new URL(`./datasets/${file}`, import.meta.url), "utf8"),
+    );
+    assert.deepEqual(
+      records.slice(1).map((r) => Number(r[column])),
+      values,
+      file,
+    );
+  }
+  for (const id of [
+    "correlation",
+    "histogram",
+    "sampling",
+    "crosstab",
+    "lorenz",
+    "hypothesis-test",
+  ]) {
+    const config = (await import(`../${id}/lab.mjs`)).default;
+    const state = sampleState(id, config.initial(), 1),
+      data = currentData(id, state);
+    assert.ok(data.publicDataset?.links.length, id);
+    const uploaded = applyData(id, state, {
+      headers: data.headers,
+      rows: data.rows,
+      name: "自分のデータ",
+      group: id === "histogram" ? 1 : -1,
+    });
+    assert.equal(currentData(id, uploaded).publicDataset, undefined, id);
+    const prepared =
+      id === "sampling"
+        ? (await import("../sampling/model.mjs")).normalizeExperiment(state)
+        : state;
+    validateDocument({ version: 1, id, state: prepared }, id, config.initial());
+  }
+});
+test("table modifications retain source lineage while being marked as hypothetical", async () => {
+  const config = (await import("../histogram/lab.mjs")).default;
+  const { applyTableRows } = await import("./table-data.mjs");
+  const state = sampleState("histogram", config.initial(), 1),
+    data = currentData("histogram", state);
+  const rows = data.rows.map((r) => [...r]);
+  rows[0][0] += 3;
+  const next = applyTableRows("histogram", state, data, rows);
+  assert.equal(next.dataInfo.origin, "user");
+  assert.equal(next.dataInfo.publicDerived, true);
+  assert.ok(currentData("histogram", next).publicDataset);
 });

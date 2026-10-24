@@ -1,10 +1,11 @@
-import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-estat-centered";
+import { renderSources } from "./shared/sources.mjs?v=20261024-real-data";
+import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261024-real-data";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-real-data";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-estat-centered";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-estat-centered";
-import correlation from "./correlation/lab.mjs?v=20261024-estat-centered";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-estat-centered";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-real-data";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-real-data";
+import correlation from "./correlation/lab.mjs?v=20261024-real-data";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-real-data";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";
@@ -18,8 +19,10 @@ setupFullscreen(document.querySelector("#statistics-workspace"), draw);
 function draw() {
   document.querySelector(".workspace-intro").textContent =
     dataset.origin === "sample"
-      ? "学習時間が長い人ほど高得点でしょうか。架空の24人のデータを、分布・代表値・相関から眺めてみましょう。自分の2列の数値データでも、同じように見比べられます。"
+      ? "気温の高い月ほどアイスクリームへの支出が多いでしょうか。2016〜2025年の120か月を、分布・代表値・相関から眺めてみましょう。自分の2列の数値データでも、同じように見比べられます。"
       : `「${dataset.xLabel}」と「${dataset.yLabel}」には、どんな特徴や関係があるでしょうか。同じデータを各ラボへ持ち込み、分布・代表値・相関から見える違いを試せます。`;
+  const provenance = document.querySelector("#data-provenance");
+  if (provenance) provenance.innerHTML = renderSources(dataset.publicDataset);
   const tabs = document.querySelector("#project-tabs");
   tabs.innerHTML = `${[
     ["data", "データ"],

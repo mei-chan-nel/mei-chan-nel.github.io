@@ -1,28 +1,20 @@
-import { rng, normal, clamp } from "./math.mjs";
-export const studyData = (
-  seed = globalThis.crypto.getRandomValues(new Uint32Array(1))[0],
-) => {
-  const random = rng(seed);
-  return Array.from({ length: 24 }, (_, i) => {
-    const x = Math.round((1 + random() * 7) * 10) / 10;
-    return {
-      id: i + 1,
-      x,
-      y: clamp(
-        Math.round(35 + x * 6 + normal(random) * 9 + (i < 12 ? 0 : 4)),
-        0,
-        100,
-      ),
-      group: i < 12 ? "A組" : "B組",
-    };
-  });
-};
+import { monthlyTemperatures } from "./public-data.mjs?v=20261024-real-data";
+import { householdSeries } from "../time-series/data.mjs?v=20261024-real-data";
+import { publicDatasetInfo } from "./sources.mjs?v=20261024-real-data";
+export const studyData = () =>
+  householdSeries.values.map((y, i) => ({
+    id: i + 1,
+    x: monthlyTemperatures[i],
+    y,
+    group: i < 60 ? "2016〜2020年" : "2021〜2025年",
+  }));
 export const defaultDataset = () => ({
-  name: "学習時間と確認テスト（架空の24人）",
+  name: "月平均気温とアイスクリームへの支出（2016〜2025年）",
   origin: "sample",
-  xLabel: "1週間の学習時間（時間）",
-  yLabel: "確認テストの得点（点）",
+  xLabel: "東京の月平均気温（℃）",
+  yLabel: "全国の月別支出金額（円）",
   rows: studyData(),
+  publicDataset: publicDatasetInfo("correlation"),
 });
 export function validateDataset(d) {
   if (
@@ -47,6 +39,8 @@ export function validateDataset(d) {
     name: d.name.slice(0, 120),
     origin:
       d.origin === "user" ? "user" : d.origin === "sample" ? "sample" : "saved",
+    publicDataset:
+      d.origin === "sample" ? publicDatasetInfo("correlation") : undefined,
     xLabel: String(d.xLabel || "x").slice(0, 100),
     yLabel: String(d.yLabel || "y").slice(0, 100),
     rows: d.rows.map((r, i) => ({
@@ -59,9 +53,12 @@ export function validateDataset(d) {
 }
 export function readDataset() {
   try {
-    return validateDataset(
-      JSON.parse(localStorage.getItem("study-atlas-statistics-dataset-v1")),
+    const saved = JSON.parse(
+      localStorage.getItem("study-atlas-statistics-dataset-v1"),
     );
+    return saved?.origin === "sample"
+      ? defaultDataset()
+      : validateDataset(saved);
   } catch {
     const data = defaultDataset();
     try {

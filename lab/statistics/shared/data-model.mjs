@@ -2,14 +2,14 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-estat-centered";
+} from "../crosstab/records.mjs?v=20261024-real-data";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-estat-centered";
+import { population } from "../sampling/model.mjs?v=20261024-real-data";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261024-estat-centered";
+} from "../time-series/model.mjs?v=20261024-real-data";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";
@@ -85,8 +85,7 @@ export function currentData(id, s) {
     ];
     rows = recordsFor(s);
     name = name || "生徒ごとの課題難度・方式・結果";
-    operation =
-      "1人ずつの記録を課題難度・方式・結果で数える → クロス集計表と達成率を比較";
+    operation = `${headers.join("・")}で人数を数える → クロス集計表と割合を比較`;
   }
   if (id === "hypothesis-test") {
     headers = s.dataInfo?.columns || ["群", "対象数", "成功数"];
@@ -149,6 +148,7 @@ export function currentData(id, s) {
           population: householdSeries.population,
         }
       : {}),
+    publicDataset: info?.publicDataset,
     edits,
   };
 }

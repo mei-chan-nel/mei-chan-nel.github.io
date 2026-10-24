@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261024-estat-centered";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-estat-centered";
+import { learningViews } from "./learning.mjs?v=20261024-real-data";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-real-data";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (["correlation", "histogram", "crosstab", "time-series"].includes(id)) {
@@ -40,7 +40,7 @@ export function composeWorkbench(root, id, ui, onChange) {
     const dragPanel = document.createElement("section");
     dragPanel.className = "panel chart-panel";
     dragPanel.innerHTML =
-      '<h2>所得の取っ手を動かす</h2><p class="hint">1人ずつの所得を横にドラッグします。総額固定中は、残りの人の比率を保って調整します。</p>';
+      '<h2>所得の取っ手を動かす</h2><p class="hint">各行の値を横にドラッグします。合計を固定すると、残りの値の比率を保って調整します。</p>';
     if (bars) dragPanel.append(bars);
     main = [dragPanel, panels[0], panels[2]];
     controls = [panels[1]];

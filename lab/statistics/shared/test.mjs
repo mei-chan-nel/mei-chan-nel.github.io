@@ -80,8 +80,8 @@ test("Lorenz normalized area and undefined all-zero total", () => {
   assert.equal(lorenz([0, 0]), null);
   assert.deepEqual(lorenz([1, 1]).at(-1), { x: 1, y: 1 });
 });
-test("project data rejects nonfinite and preserves original fictional records", () => {
-  assert.equal(validateDataset(defaultDataset()).rows.length, 24);
+test("project data rejects nonfinite and preserves the published monthly pairs", () => {
+  assert.equal(validateDataset(defaultDataset()).rows.length, 120);
   assert.throws(() =>
     validateDataset({
       name: "bad",
@@ -93,7 +93,7 @@ test("project data rejects nonfinite and preserves original fictional records", 
   );
 });
 import { validateState, validateDocument } from "./validation.mjs";
-import { number } from "./ui.mjs?v=20261024-estat-centered";
+import { number } from "./ui.mjs?v=20261024-real-data";
 test("saved experiments validate types and escape all number attributes", () => {
   const template = { n: 2, rows: [{ id: "a", x: 1 }], reference: null };
   validateDocument(

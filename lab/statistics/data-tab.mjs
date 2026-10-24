@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261024-estat-centered";
-import { currentData } from "./shared/data-model.mjs?v=20261024-estat-centered";
+import { esc } from "./shared/ui.mjs?v=20261024-real-data";
+import { currentData } from "./shared/data-model.mjs?v=20261024-real-data";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-estat-centered";
+} from "./shared/table-data.mjs?v=20261024-real-data";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-estat-centered";
+} from "./data-editor.mjs?v=20261024-real-data";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.
@@ -73,9 +73,8 @@ export function renderDataTab(root, options) {
   ui.dataPage = page;
   const redraw = () => renderDataTab(root, options);
   root.innerHTML = `<section class="data-view" aria-label="分析に使っているデータ">
-    <div class="data-view-heading"><div><h2>${esc(data.name)}</h2><p>${state.dataInfo?.tableEdited ? "表で編集したデータ" : data.origin === "user" ? "自分のデータ" : id === "time-series" ? data.population || "月別データ" : "架空のサンプル（各タブで同じ値を使用）"} · <span id="data-row-count">${draft.rows.length}</span>行${data.filename ? ` · ${esc(data.filename)}` : ""}</p></div>
-    <div class="actions data-file-actions"><button id="use-sample" type="button">${id === "time-series" ? "公開データを使用" : "サンプルを使用"}</button><button id="download-csv" type="button">CSVでダウンロード</button><button id="upload-csv" type="button">CSVでアップロード</button></div></div>
-    ${data.citation ? `<p class="ts-citation">出典：<a href="${esc(data.citation.href)}" target="_blank" rel="noopener">${esc(data.citation.name)}（e-Stat）</a> · 2009〜2018年。<a href="./data/README.md" target="_blank" rel="noopener">抽出・照合方法</a></p>` : ""}
+    <div class="data-view-heading"><div><h2>${esc(data.name)}</h2><p>${state.dataInfo?.tableEdited ? "表で編集したデータ" : data.origin === "user" ? "自分のデータ" : data.publicDataset || state.dataInfo?.publicDataset ? "公開データ（各タブで同じ値を使用）" : id === "time-series" ? data.population || "月別データ" : "比較用のモデル（各タブで同じ値を使用）"} · <span id="data-row-count">${draft.rows.length}</span>行${data.filename ? ` · ${esc(data.filename)}` : ""}</p></div>
+    <div class="actions data-file-actions"><button id="use-sample" type="button">${id !== "probability" ? "公開データを使用" : "モデルから生成"}</button><button id="download-csv" type="button">CSVでダウンロード</button><button id="upload-csv" type="button">CSVでアップロード</button></div></div>
     ${id === "probability" ? `<label class="control probability-data-kind">データの種類<select id="probability-data-mode"><option value="coin" ${state.mode === "coin" ? "selected" : ""}>コインの結果（表=1・裏=0）</option><option value="binomial" ${state.mode === "binomial" ? "selected" : ""}>1セットの成功回数（0〜${state.n}）</option><option value="normal" ${state.mode === "normal" ? "selected" : ""}>連続した測定値</option></select></label>` : ""}
     <p class="data-edit-help" id="data-edit-help">セルに入力して編集できます。「変更を反映」または次のタブへ進むと、図表にも反映します。</p>
     <p class="data-constraint">${esc(tableConstraint(id, state))}</p>

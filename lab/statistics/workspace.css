@@ -2781,3 +2781,7 @@ html.statistics-immersive body {
 .screen-explanation-rail .ts-detail dd {
   font-size: 1rem;
 }
+
+.data-provenance { margin-block: 1.5rem; padding: 1rem 1.25rem; border-top: 1px solid var(--line); font-size: .88rem; line-height: 1.85; color: var(--muted); }
+.data-provenance h2 { font-size: 1rem; color: var(--ink); margin-block: 0 .5rem; }
+.data-provenance p { margin-block: .45rem; }

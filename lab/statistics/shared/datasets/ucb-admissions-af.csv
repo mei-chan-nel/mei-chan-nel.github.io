@@ -1,0 +1,9 @@
+学科,性別,合否,人数
+A,Male,Admitted,512
+A,Male,Rejected,313
+A,Female,Admitted,89
+A,Female,Rejected,19
+F,Male,Admitted,22
+F,Male,Rejected,351
+F,Female,Admitted,24
+F,Female,Rejected,317

@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261024-estat-centered";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-estat-centered";
+} from "../shared/ui.mjs?v=20261024-real-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
 import {
   sum,
   mean,
@@ -95,11 +95,17 @@ function f(value, d = 2) {
     ? "定義できません"
     : fmt(value, d);
 }
-function person(i) {
+function modelPerson(i) {
   return i < 26 ? `${String.fromCharCode(65 + i)}さん` : `${i + 1}番`;
 }
 function render(root, ctx) {
-  const unit = ctx.state.dataInfo?.origin === "user" ? "" : "万円";
+  const quintiles =
+    !!ctx.state.dataInfo?.publicDataset && ctx.state.incomes.length === 5;
+  const person = (i) => (quintiles ? `第${i + 1}階級` : modelPerson(i));
+  const entity = quintiles ? "階級" : "人";
+  const unit =
+    ctx.state.incomeLabel?.match(/[（(](.*?)[）)]/)?.[1] ||
+    (ctx.state.dataInfo?.origin === "user" ? "" : "万円");
   const s = ctx.state,
     values = s.incomes,
     total = sum(values),
@@ -116,7 +122,9 @@ function render(root, ctx) {
     ymax: 1,
     w: 720,
     h: 360,
-    xlabel: "所得の低い方からの累積人数比率",
+    xlabel: quintiles
+      ? "所得の低い方からの累積世帯比率"
+      : "所得の低い方からの累積人数比率",
     ylabel: "累積所得比率",
   });
   const equality = `<line x1="${a.x(0)}" y1="${a.y(0)}" x2="${a.x(1)}" y2="${a.y(1)}" stroke="var(--chart-reference)" stroke-dasharray="6 5"/><text x="${a.x(0.57)}" y="${a.y(0.67)}" fill="var(--chart-reference)" font-size="12">完全平等線</text>`;
@@ -151,41 +159,44 @@ function render(root, ctx) {
     ? `<p class="annotation">比較用（橙）：総額 ${fmt(sum(ref))}${unit}、平均 ${fmt(mean(ref))}${unit}、ジニ係数 ${f(refGini, 3)}。現在との差 ${coeff !== null && refGini !== null ? fmt(coeff - refGini, 3) : "—"}。</p>`
     : "";
   root.innerHTML = `
-  <div class="stat-grid"><section class="panel chart-panel"><h2>所得を分けると、曲線はどう動く？</h2><p class="muted">${s.dataInfo?.origin === "user" ? "読み込んだ" : "架空の"}${n}人の所得です。${unit ? "単位は万円。" : "項目名と単位はデータタブで確認できます。"}税や世帯人数を省いたモデルとして比較します。</p>
+  <div class="stat-grid"><section class="panel chart-panel"><h2>所得を分けると、曲線はどう動く？</h2><p class="muted">${quintiles ? "各20%の世帯を代表する5階級の平均所得です。ジニ係数は階級内の差を省いた近似値です。平均を動かすと、仮想の再配分を比較できます。" : `${s.dataInfo?.origin === "user" ? "読み込んだ" : "比較用モデルの"}${n}人の所得です。項目名と単位はデータタブで確認できます。`}</p>
   ${metrics([
-    ["所得総額", `${fmt(total)}${unit}`],
-    ["平均", `${fmt(mean(values))}${unit}`],
-    ["中央値", `${fmt(median(values))}${unit}`],
-    ["ジニ係数", f(coeff, 3)],
+    [quintiles ? "階級平均の合計" : "所得総額", `${fmt(total)}${unit}`],
+    [quintiles ? "5階級の平均" : "平均", `${fmt(mean(values))}${unit}`],
+    [
+      quintiles ? "階級平均の中央値" : "中央値",
+      `${fmt(median(values))}${unit}`,
+    ],
+    [quintiles ? "近似ジニ係数" : "ジニ係数", f(coeff, 3)],
   ])}
   ${svg(a.markup + shade + equality + reference + current + dots, "所得の分配とローレンツ曲線。破線は完全平等線", 720, 360)}
   <div class="legend">${chartKey("現在の分配", "var(--chart-primary)", "line")}${ref ? chartKey("比較用の分配", "var(--chart-secondary)", "line") : ""}${chartKey("完全平等線", "var(--chart-reference)", "line-dashed")}</div>
-  ${total === 0 ? '<p class="annotation" role="status">所得総額が0なので所得比率、ローレンツ曲線、ジニ係数は定義できません。1人以上の所得を増やしてください。総額固定中は先に固定を解除してください。</p>' : `<p class="annotation">${person(selected.id)}までの ${selected.rank}/${n}人（${fmt(selected.population * 100, 1)}%）が持つ所得は ${fmt(selected.cumulative)} / ${fmt(total)}${unit}（${fmt(selected.share * 100, 1)}%）です。</p>`}
+  ${total === 0 ? '<p class="annotation" role="status">所得総額が0なので所得比率、ローレンツ曲線、ジニ係数は定義できません。1人以上の所得を増やしてください。総額固定中は先に固定を解除してください。</p>' : `<p class="annotation">${person(selected.id)}までの ${selected.rank}/${n}${entity}（${fmt(selected.population * 100, 1)}%）までの所得の累積は ${fmt(selected.cumulative)} / ${fmt(total)}${unit}（${fmt(selected.share * 100, 1)}%）です。</p>`}
   ${referenceMetrics}
   <div class="actions"><button type="button" data-action="same-gini">同じ平均・同じジニの2分布</button>${ref ? '<button type="button" data-action="clear-reference">曲線を1本に戻す</button>' : ""}</div>
   <p class="hint">「同じ平均・同じジニ」は4人の別々の分布を重ねます。曲線の交わりと最低所得・最高所得を確認してください。</p>
   </section>
-  <section class="panel controls"><h2>所得を直接動かす</h2><label><input id="lock-total" type="checkbox" ${s.locked ? "checked" : ""}> 所得総額を固定する</label><p class="hint">固定中は1人を増減すると、残りの人の所得比を保って調整します。残りがすべて0の場合は等分します。丸い取っ手は横にドラッグできます。数値欄でも操作できます。</p>
-  <div data-income-chart>${svg(bars, "1人ずつの所得。丸い取っ手を横に動かして変更", 720, barHeight)}</div>
+  <section class="panel controls"><h2>所得を直接動かす</h2><label><input id="lock-total" type="checkbox" ${s.locked ? "checked" : ""}> ${quintiles ? "階級平均の合計を固定する" : "所得総額を固定する"}</label><p class="hint">固定中は1つの値を増減すると、残りの値の比を保って調整します。残りがすべて0の場合は等分します。丸い取っ手は横にドラッグできます。数値欄でも操作できます。</p>
+  <div data-income-chart>${svg(bars, "各行の所得。丸い取っ手を横に動かして変更", 720, barHeight)}</div>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem">${values.map((v, i) => number(`income-${i}`, `${person(i)}${unit ? "（" + unit + "）" : ""}`, Number(v.toFixed(2)), 0, s.locked ? Math.max(total, 0) : 1000000, 0.1)).join("")}</div>
-  <div class="actions"><button type="button" data-action="equal">全員に等分する</button><button type="button" data-action="concentrate">1人に集中する</button></div>
-  <h3>2人の間で再分配する</h3>
+  <div class="actions"><button type="button" data-action="equal">${quintiles ? "5階級を同じ平均にする" : "全員に等分する"}</button><button type="button" data-action="concentrate">1${entity}に集中する</button></div>
+  <h3>2${entity}の間で再分配する</h3>
   ${select(
     "from",
-    "渡す人",
+    `渡す${entity}`,
     values.map((_, i) => [String(i), person(i)]),
     String(s.from),
   )}
   ${select(
     "to",
-    "受け取る人",
+    `受け取る${entity}`,
     values.map((_, i) => [String(i), person(i)]),
     String(s.to),
   )}
   ${number("transfer-amount", `移す所得${unit ? "（" + unit + "）" : ""}`, s.amount, 0, Math.max(total, 1), 0.1)}
   <button type="button" data-action="transfer" class="primary">所得を移す</button><p class="hint" role="status" aria-live="polite">${esc(s.message || "移転では、所得総額はいつも保たれます。")}</p>
   </section></div>
-  <section class="panel"><h2>累積と面積の計算をたどる</h2><p>所得の小さい順に並べて、人数と所得を積み上げます。人の名前を並べ替えても分配が同じなら曲線は変わりません。</p><div style="overflow-x:auto"><table class="stat-table"><thead><tr><th>順位・人</th><th>所得</th><th>累積人数比率</th><th>累積所得</th><th>累積所得比率</th><th>この区間の台形面積</th></tr></thead><tbody>${data.map((r) => `<tr data-person="${r.id}" tabindex="0" role="button" aria-label="${person(r.id)}を選択" style="${r.id === s.selected ? "background:var(--chart-primary-pale)" : ""}"><th>${r.rank}・${person(r.id)}</th><td>${fmt(r.value)}</td><td>${r.rank}/${n} = ${fmt(r.population * 100, 1)}%</td><td>${fmt(r.cumulative)}</td><td>${r.share === null ? "—" : `${fmt(r.cumulative)}/${fmt(total)} = ${fmt(r.share * 100, 1)}%`}</td><td>${r.area === null ? "—" : fmt(r.area, 4)}</td></tr>`).join("")}</tbody></table></div>
+  <section class="panel"><h2>累積と面積の計算をたどる</h2><p>所得の小さい順に並べて、${quintiles ? "各階級が代表する世帯割合20%と所得を積み上げます。" : "人数と所得を積み上げます。名前を並べ替えても分配が同じなら曲線は変わりません。"}</p><div style="overflow-x:auto"><table class="stat-table"><thead><tr><th>順位・${entity}</th><th>所得</th><th>累積${quintiles ? "世帯" : "人数"}比率</th><th>累積所得</th><th>累積所得比率</th><th>この区間の台形面積</th></tr></thead><tbody>${data.map((r) => `<tr data-person="${r.id}" tabindex="0" role="button" aria-label="${person(r.id)}を選択" style="${r.id === s.selected ? "background:var(--chart-primary-pale)" : ""}"><th>${r.rank}・${person(r.id)}</th><td>${fmt(r.value)}</td><td>${r.rank}/${n} = ${fmt(r.population * 100, 1)}%</td><td>${fmt(r.cumulative)}</td><td>${r.share === null ? "—" : `${fmt(r.cumulative)}/${fmt(total)} = ${fmt(r.share * 100, 1)}%`}</td><td>${r.area === null ? "—" : fmt(r.area, 4)}</td></tr>`).join("")}</tbody></table></div>
   <p class="annotation">${area === null ? "総額が0なので比率と面積は計算できません。" : `各区間の面積 =（左端の累積所得比率 + 右端の累積所得比率）× (1/${n}) ÷ 2。台形面積の合計 = ${fmt(area, 4)}。ジニ係数 = 1 − 2 × ${fmt(area, 4)} = ${fmt(coeff, 3)}（丸め前の値で計算）。`}</p></section>`;
   root.querySelector("#lock-total").onchange = (e) =>
     ctx.update({ locked: e.target.checked, message: "" });
@@ -265,7 +276,7 @@ function render(root, ctx) {
       selected: n - 1,
       message:
         total > 0
-          ? `${n}人で1人だけが所得を持つ場合、ジニ係数は (${n}−1)/${n} です。`
+          ? `${n}${entity}で1${entity}だけが所得を持つ場合、ジニ係数は (${n}−1)/${n} です。`
           : "総額が0なので、所得を移すこともジニ係数を計算することもできません。",
     });
   root
@@ -281,6 +292,14 @@ function render(root, ctx) {
       return;
     }
     ctx.update({
+      incomeLabel: "比較用モデルの所得（万円）",
+      dataInfo: {
+        ...s.dataInfo,
+        columns: ["比較用モデルの所得（万円）"],
+        publicDataset: null,
+        origin: "model",
+        name: "同じ平均・同じジニ係数の比較用モデル",
+      },
       incomes: [0, t / 4, t / 4, t / 2],
       reference: [t / 8, t / 8, t / 8, (t * 5) / 8],
       selected: 0,

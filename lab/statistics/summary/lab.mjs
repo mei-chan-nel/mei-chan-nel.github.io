@@ -17,8 +17,8 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261024-estat-centered";
-import { readDataset } from "../shared/data.mjs";
+} from "../shared/ui.mjs?v=20261024-real-data";
+import { readDataset } from "../shared/data.mjs?v=20261024-real-data";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];
 const makePoints = (values) =>

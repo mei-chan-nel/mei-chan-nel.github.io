@@ -84,37 +84,23 @@ test("F upper tails match exact simple distributions and preserve small probabil
   assert.equal(fSurvival(1, 1, 0), null);
 });
 
-test("overlapping teaching samples put one fast B pupil inside A's hill without high-side outliers", async () => {
+test("published Tokyo daily temperatures retain low July outliers and unequal month lengths", async () => {
   const { default: config } = await import("./lab.mjs");
   const { sampleState } = await import("../shared/samples.mjs");
-  for (let seed = 0; seed < 200; seed++) {
-    const s = sampleState("histogram", config.initial(), seed);
-    assert.equal(s.rows.length, 60);
-    assert.equal(s.width, 5);
-    assert.equal(s.mode, "split");
-    const a = describe(
-      s.rows.filter((r) => r.group === "A").map((r) => r.value),
-    );
-    const b = describe(
-      s.rows.filter((r) => r.group === "B").map((r) => r.value),
-    );
-    assert.equal(a.n, 30);
-    assert.equal(b.n, 30);
-    assert.deepEqual(a.outliers, [], `${seed}: A`);
-    assert.equal(b.outliers.length, 1, `${seed}: B`);
-    assert.ok(b.outliers[0] < b.lowerFence, `${seed}: fast B pupil`);
-    assert.ok(
-      b.outliers[0] >= a.q1 && b.outliers[0] <= a.q3,
-      `${seed}: inside A's hill`,
-    );
-    assert.ok(b.lower < a.max, `${seed}: the ordinary groups overlap too`);
-    assert.ok(a.q3 < b.q1, `${seed}: distinct centres`);
-    for (const d of [a, b]) {
-      const middle = d.sorted.filter((v) => Math.abs(v - d.q2) <= 4).length;
-      assert.ok(middle > d.sorted.filter((v) => v < d.q2 - 4).length);
-      assert.ok(middle > d.sorted.filter((v) => v > d.q2 + 4).length);
-    }
-  }
+  const s = sampleState("histogram", config.initial(), 1);
+  assert.equal(s.rows.length, 61);
+  assert.equal(s.width, 2);
+  assert.equal(s.mode, "split");
+  const a = describe(s.rows.filter((r) => r.group === "A").map((r) => r.value));
+  const b = describe(s.rows.filter((r) => r.group === "B").map((r) => r.value));
+  assert.equal(a.n, 30);
+  assert.equal(b.n, 31);
+  assert.deepEqual(a.outliers, []);
+  assert.deepEqual(b.outliers, [25.1, 26.6, 27.8]);
+  assert.ok(
+    b.outliers.every((v) => v < b.lowerFence && v >= a.min && v <= a.max),
+  );
+  assert.ok(a.mean < b.mean);
 });
 test("table edits preserve the selected histogram width and old saved records remain valid", async () => {
   const { default: config } = await import("./lab.mjs");

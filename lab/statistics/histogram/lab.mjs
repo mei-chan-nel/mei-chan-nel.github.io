@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-estat-centered";
-import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261024-estat-centered";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
+import { readDataset } from "../shared/data.mjs?v=20261024-real-data";
+import { render } from "./view.mjs?v=20261024-real-data";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

@@ -1,24 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261024-estat-centered";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-estat-centered";
+import { esc } from "./shared/ui.mjs?v=20261024-real-data";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-real-data";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-estat-centered";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-estat-centered";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-estat-centered";
-import { sampleState } from "./shared/samples.mjs?v=20261024-estat-centered";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-estat-centered";
-import { readDataset } from "./shared/data.mjs";
+} from "./shared/data-model.mjs?v=20261024-real-data";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-real-data";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-real-data";
+import { sampleState } from "./shared/samples.mjs?v=20261024-real-data";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-real-data";
+import { readDataset } from "./shared/data.mjs?v=20261024-real-data";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-estat-centered";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-estat-centered";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-estat-centered";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-estat-centered";
+} from "./learning.mjs?v=20261024-real-data";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-real-data";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-real-data";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-real-data";
+import { renderSources } from "./shared/sources.mjs?v=20261024-real-data";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-estat-centered`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-real-data`))
   .default;
 const ui = {
   view: 0,
@@ -67,6 +68,7 @@ function prepare(next) {
         : data.origin,
       columns: data.headers,
       baseline: data.rows,
+      publicDataset: project ? shared.publicDataset : undefined,
     };
   }
   return next;
@@ -215,6 +217,12 @@ function draw() {
     } else {
       fitWorkspaceCharts(root.querySelector(".workbench-display"));
     }
+    const provenance = document.querySelector("#data-provenance");
+    if (provenance)
+      provenance.innerHTML = renderSources(
+        state.dataInfo?.publicDataset,
+        state.dataInfo?.publicDerived || currentData(id, state).edits > 0,
+      );
     if (focus?.id) {
       const target = document.getElementById(focus.id);
       if (target) {

@@ -1,0 +1,22 @@
+{
+  "verified": "2026-10-24",
+  "iceArchive": {
+    "url": "https://github.com/tail-island/machine-learning-primer/blob/d2bfc058889a43d6ff7c14d677616aee7e0e3cf1/ice_cream/dataset.py",
+    "sha256": "ebd5744800b0cbbf464d4b87c9daa322f30cd3995ecbf92fd9ab66405f215ba6",
+    "rows": 60,
+    "monthlyValuesMatch": true,
+    "temperaturesMatchJma": true
+  },
+  "annualMonthlySums": {
+    "2016": 8908,
+    "2017": 9047,
+    "2018": 9670,
+    "2019": 9701,
+    "2020": 10113,
+    "2021": 10148,
+    "2022": 10848,
+    "2023": 11578,
+    "2024": 12294,
+    "2025": 13045
+  }
+}

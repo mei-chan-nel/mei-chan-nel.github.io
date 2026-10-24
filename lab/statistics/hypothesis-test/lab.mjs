@@ -8,8 +8,8 @@ import {
   svg,
   axes,
   bind,
-} from "../shared/ui.mjs?v=20261024-estat-centered";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-estat-centered";
+} from "../shared/ui.mjs?v=20261024-real-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
 import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 
 export function sampleBinomial(n, probability, random) {
@@ -185,7 +185,7 @@ export default {
   id: "hypothesis-test",
   title: "統計的な判断と仮説検定",
   description: "A/Bテストの差は、偶然だけでどのくらい起こる？",
-  lead: "架空の学習アプリで、案内AとBの登録率を比較。差の大きさ・人数・偶然の関係を、同じ実験の繰り返しから考えます。",
+  lead: "実際の2群の割合を、差がないと仮定した確率モデルと比べます。差の大きさ・人数・偶然の関係を考えます。",
   initial: () => ({
     nA: 80,
     nB: 80,
@@ -203,6 +203,9 @@ export default {
   explanation: academicExplanation("hypothesis-test"),
   render(root, ctx) {
     const s = ctx.state;
+    const groupA = s.groupLabels?.[0] || "A",
+      groupB = s.groupLabels?.[1] || "B";
+    const rateName = s.dataInfo?.publicDataset ? "合格率" : "成功率";
     const nA = clamp(Math.round(s.nA), 10, 1000),
       nB = clamp(Math.round(s.nB), 10, 1000);
     const successA = clamp(Math.round(s.successA), 0, nA),
@@ -236,7 +239,7 @@ export default {
       xmax: maxAbs * 100,
       ymin: 0,
       ymax: maxCount,
-      xlabel: "登録率の差 B − A（ポイント）",
+      xlabel: `${rateName}の差 ${groupB} − ${groupA}（ポイント）`,
       ylabel: "回数",
       w: 760,
       h: 360,
@@ -256,7 +259,7 @@ export default {
         .join(
           "",
         )}${[-1, 1].map((sign) => `<line x1="${a.x(sign * Math.abs(observed) * 100)}" x2="${a.x(sign * Math.abs(observed) * 100)}" y1="16" y2="${a.y(0)}" stroke="var(--chart-secondary-dark)" stroke-width="2" stroke-dasharray="5 3"/>${critical === null ? "" : `<line x1="${a.x(sign * critical * 100)}" x2="${a.x(sign * critical * 100)}" y1="16" y2="${a.y(0)}" stroke="var(--chart-purple)" stroke-width="1.5" stroke-dasharray="2 4"/>`}`).join("")}<text x="${a.x(observed * 100)}" y="30" text-anchor="${observed >= 0 ? "end" : "start"}" fill="var(--chart-secondary-dark)" font-size="12">今回 ${fmt(observed * 100, 1)} pt</text>`,
-      "真の登録率に差がないと仮定したときの差の分布。橙は今回以上の絶対差、紫の背景は有意水準に対応する両側の裾。",
+      "真の成功率に差がないと仮定したときの差の分布。橙は今回以上の絶対差、紫の背景は有意水準に対応する両側の裾。",
       760,
       360,
     );
@@ -306,8 +309,16 @@ export default {
     const approximateMCse = Math.sqrt((mc.p * (1 - mc.p)) / repetitions);
     root.innerHTML = `<div class="stat-grid"><div><section class="panel chart-panel"><h2>観測された差は、どのくらい珍しい？</h2>${metrics(
       [
-        ["Aの登録率", `${fmt(rateA * 100, 1)}%`, `${successA} / ${nA}人`],
-        ["Bの登録率", `${fmt(rateB * 100, 1)}%`, `${successB} / ${nB}人`],
+        [
+          `${groupA}の${rateName}`,
+          `${fmt(rateA * 100, 1)}%`,
+          `${successA} / ${nA}人`,
+        ],
+        [
+          `${groupB}の${rateName}`,
+          `${fmt(rateB * 100, 1)}%`,
+          `${successB} / ${nB}人`,
+        ],
         [
           "B − A",
           `${fmt(observed * 100, 1)} ポイント`,
@@ -332,7 +343,7 @@ export default {
           `最小差 ${fmt(s.practical * 100, 1)}ポイントと絶対差を比較`,
         ],
       ],
-    )}<p class="hint">${critical === null ? "この条件の到達可能な差では、棄却域はありません。" : `p≤αになる到達可能な最小の絶対差：${fmt(critical * 100, 3)}ポイント（この値も棄却域に含む）。`}</p><p class="annotation">差のない世界を${repetitions}回試し、今回以上に大きな差は${mc.extreme}回。共通の成功確率は${fmt(pooled, 3)}です。</p><p class="hint">モンテカルロ誤差の標準誤差の目安：約${fmt(approximateMCse, 4)}。${Math.abs(mc.p - alpha) < 2 * approximateMCse ? "判定の境界に近いので反復数を増やし、結果のゆらぎを確かめましょう。" : "これはp値の推定誤差の目安であり、差の推定誤差とは異なります。"}</p>${pooled === 0 || pooled === 1 ? '<p class="hint">全員失敗／全員成功のため、推定された帰無分布は差0の1点に集中します。このデータだけで母集団の確率が完全に0／1だと断言はできません。</p>' : ""}</section><section class="panel"><h2>本当の差を知っている世界で、判断を試す</h2><p>各群の人数は上と同じ。Aの真の登録率を${fmt(base * 100, 1)}%、差ありのBを${fmt((base + effect) * 100, 1)}%として、それぞれ${trials}回の独立した実験を行います。</p>${bands}${metrics(
+    )}<p class="hint">${critical === null ? "この条件の到達可能な差では、棄却域はありません。" : `p≤αになる到達可能な最小の絶対差：${fmt(critical * 100, 3)}ポイント（この値も棄却域に含む）。`}</p><p class="annotation">差のない世界を${repetitions}回試し、今回以上に大きな差は${mc.extreme}回。共通の成功確率は${fmt(pooled, 3)}です。</p><p class="hint">モンテカルロ誤差の標準誤差の目安：約${fmt(approximateMCse, 4)}。${Math.abs(mc.p - alpha) < 2 * approximateMCse ? "判定の境界に近いので反復数を増やし、結果のゆらぎを確かめましょう。" : "これはp値の推定誤差の目安であり、差の推定誤差とは異なります。"}</p>${pooled === 0 || pooled === 1 ? '<p class="hint">全員失敗／全員成功のため、推定された帰無分布は差0の1点に集中します。このデータだけで母集団の確率が完全に0／1だと断言はできません。</p>' : ""}</section><section class="panel"><h2>本当の差を知っている世界で、判断を試す</h2><p>各群の人数は上と同じ。Aの真の成功率を${fmt(base * 100, 1)}%、差ありのBを${fmt((base + effect) * 100, 1)}%として、それぞれ${trials}回の独立した実験を行います。</p>${bands}${metrics(
       [
         [
           "第1種の誤り率（実験値）",
@@ -364,7 +375,7 @@ export default {
           fmt(effect * 100, 2),
         ],
       ],
-    )}</section></div><aside><section class="panel controls"><h2>A/Bの観測結果を変える</h2>${s.groupLabels ? `<p class="hint">A = ${esc(s.groupLabels[0])} ／ B = ${esc(s.groupLabels[1])}</p>` : ""}${number("nA", "Aの対象人数", nA, 10, 1000, 1)}${number("successA", "Aの登録人数", successA, 0, nA, 1)}${number("nB", "Bの対象人数", nB, 10, 1000, 1)}${number("successB", "Bの登録人数", successB, 0, nB, 1)}<div class="actions"><button id="double">割合を保って人数2倍</button><button id="halve">割合を保って人数半分</button></div><p class="hint">人数は各群10〜1,000人。登録人数は整数に丸めるため、割合が少し変わる場合があります。</p>${range("alpha", "有意水準 α", alpha, 0.01, 0.1, 0.01)}${range("practical", "実用上意味がある最小差", percent(s.practical), 1, 20, 1, "ポイント")}${range("repetitions", "帰無分布のシミュレーション回数", repetitions, 200, 5000, 200, "回")}<h3>反復実験の「真の世界」</h3>${range("base", "真のA登録率", percent(base), 20, 80, 5, "%")}${range("effect", "真の登録率差 B − A", percent(effect), -20, 20, 1, "ポイント")}${range("trials", "世界ごとの反復実験回数", trials, 100, 1500, 100, "回")}<p class="hint">真の確率は、上の観測結果を直接変更しません。反復実験専用の条件です。</p>${number("seed", "再現用シード", seed, 1, 999999, 1)}<div class="actions"><button id="same-seed">同じ条件を再現</button><button id="next-seed">別の乱数で再試行</button></div><p class="hint">条件とシードが同じなら全く同じ結果。反復数の変更では、同じ乱数列を使って計算します。</p></section></aside></div>`;
+    )}</section></div><aside><section class="panel controls"><h2>A/Bの観測結果を変える</h2>${s.groupLabels ? `<p class="hint">A = ${esc(s.groupLabels[0])} ／ B = ${esc(s.groupLabels[1])}</p>` : ""}${number("nA", "Aの対象人数", nA, 10, 1000, 1)}${number("successA", "Aの成功人数", successA, 0, nA, 1)}${number("nB", "Bの対象人数", nB, 10, 1000, 1)}${number("successB", "Bの成功人数", successB, 0, nB, 1)}<div class="actions"><button id="double">割合を保って人数2倍</button><button id="halve">割合を保って人数半分</button></div><p class="hint">人数は各群10〜1,000人。成功人数は整数に丸めるため、割合が少し変わる場合があります。</p>${range("alpha", "有意水準 α", alpha, 0.01, 0.1, 0.01)}${range("practical", "実用上意味がある最小差", percent(s.practical), 1, 20, 1, "ポイント")}${range("repetitions", "帰無分布のシミュレーション回数", repetitions, 200, 5000, 200, "回")}<h3>反復実験の「真の世界」</h3>${range("base", "真のA成功率", percent(base), 20, 80, 5, "%")}${range("effect", "真の成功率差 B − A", percent(effect), -20, 20, 1, "ポイント")}${range("trials", "世界ごとの反復実験回数", trials, 100, 1500, 100, "回")}<p class="hint">真の確率は、上の観測結果を直接変更しません。反復実験専用の条件です。</p>${number("seed", "再現用シード", seed, 1, 999999, 1)}<div class="actions"><button id="same-seed">同じ条件を再現</button><button id="next-seed">別の乱数で再試行</button></div><p class="hint">条件とシードが同じなら全く同じ結果。反復数の変更では、同じ乱数列を使って計算します。</p></section></aside></div>`;
     bind(
       root,
       "nA",

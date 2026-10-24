@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-estat-centered";
+import { applyData } from "./data-model.mjs?v=20261024-real-data";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {
@@ -12,14 +12,14 @@ export function tableConstraint(id, state) {
   if (id === "time-series")
     return "分析には、時間順に並んだ連続する24〜300か月分が必要です。値は0以上にします。";
   if (id === "crosstab")
-    return "1行が1人分です。課題難度・方式・結果を入力します。各項目は2種類まで、1〜10,000人分を使えます。";
+    return "1行が1人分です。3つの属性を入力します。各項目は2種類まで、1〜10,000人分を使えます。";
   if (id === "hypothesis-test")
-    return "分析にはA/Bの2行が必要です。対象数は各10〜1,000人、成功数は0〜対象数の整数にします。";
+    return "分析には比較する2群の2行が必要です。対象数は各10〜1,000人、成功数は0〜対象数の整数にします。";
   if (id === "probability")
     return `1〜10,000行。${state.mode === "coin" ? "表=1・裏=0を試行順に入力します。" : state.mode === "binomial" ? `1セットの成功回数を0〜${state.n}の整数で入力します。` : "測定した数値を入力します。正規分布に従うことを保証するものではありません。"}`;
   if (id === "lorenz") return "2〜300行。所得は0以上の数値にします。";
   if (id === "sampling")
-    return "2〜300行。1行が母集団の1人分です。数値を入力します。";
+    return "2〜300行。1行が母集団の1観測分です。数値を入力します。";
   if (id === "histogram")
     return "2〜300行。数値と、所属する集団名を入力します。集団は2種類まで使えます。";
   return "2〜300行。空欄を埋めてから分析へ進みます。";
@@ -56,5 +56,9 @@ export function applyTableRows(id, state, data, rows, allowGroup = false) {
   });
   if (id === "histogram") next.width = state.width;
   next.dataInfo.tableEdited = true;
+  if (state.dataInfo?.publicDataset) {
+    next.dataInfo.publicDataset = state.dataInfo.publicDataset;
+    next.dataInfo.publicDerived = true;
+  }
   return next;
 }
