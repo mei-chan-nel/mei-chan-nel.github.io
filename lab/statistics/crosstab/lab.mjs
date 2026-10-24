@@ -1,8 +1,15 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-fullscreen-navigation";
-import { esc, range, select, metrics, svg, bind } from "../shared/ui.mjs";
+import {
+  academicExplanation,
+  readingNotes,
+} from "../shared/reading.mjs?v=20261024-crosstab-records";
+import { esc, select, metrics, svg } from "../shared/ui.mjs";
 
 const METHOD = ["A方式", "B方式"];
-const OUTCOME = ["到達", "未到達"];
+const OUTCOME = ["達成", "未達成"];
+import {
+  aggregateRecords,
+  tableValues,
+} from "./records.mjs?v=20261024-crosstab-records";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -60,7 +67,17 @@ export function normalizeState(state = {}) {
   return {
     ...base,
     ...state,
-    strata,
+    strata: Array.isArray(state.records)
+      ? aggregateRecords(
+          state.records,
+          state.dataInfo?.labels || {
+            strata: STRATA,
+            methods: METHOD,
+            outcomes: OUTCOME,
+          },
+        )
+      : strata,
+    tableIndex: Math.round(bounded(state.tableIndex ?? 0, 0, 2)),
     anchors: base.anchors.map((row, s) =>
       row.map((value, r) => bounded(state.anchors?.[s]?.[r] ?? value, 0, 1)),
     ),
@@ -133,6 +150,7 @@ export function setComposition(state, method, easyPercentage) {
     const success = Math.round(count * next.anchors[s][method]);
     next.strata[s].counts[method] = [success, count - success];
   });
+  delete next.records;
   return next;
 }
 
@@ -147,14 +165,8 @@ export function editCount(state, stratum, method, outcome, value) {
   );
   const rate = successRate(next.strata[stratum].counts, method);
   if (rate !== null) next.anchors[stratum][method] = rate;
+  delete next.records;
   return next;
-}
-
-function compositionPercentage(state, method) {
-  const easy = state.strata[0].counts[method].reduce((a, b) => a + b, 0);
-  const total =
-    easy + state.strata[1].counts[method].reduce((a, b) => a + b, 0);
-  return total ? (100 * easy) / total : 0;
 }
 
 function displayLabels(state) {
@@ -166,33 +178,78 @@ function displayLabels(state) {
   };
 }
 function dataTable(state, scope, title) {
-  const { METHOD, STRATA, OUTCOME } = displayLabels(state);
-  const matrix = matrixFor(state.strata, scope);
-  const total = matrix.flat().reduce((a, b) => a + b, 0);
-  return `<section class="panel"><h3>${esc(title)}</h3><p class="muted">数値のセルを選ぶと、「分子・分母」タブで割合の内訳を確認できます。</p><div style="overflow-x:auto"><table class="stat-table"><caption>${esc(title)}・${esc(MODES.find(([v]) => v === state.mode)[1])}</caption><thead><tr><th scope="col">方式</th><th scope="col">${esc(OUTCOME[0])}</th><th scope="col">${esc(OUTCOME[1])}</th><th scope="col">人数計</th></tr></thead><tbody>${matrix
-    .map(
-      (row, r) =>
-        `<tr><th scope="row">${esc(METHOD[r])}</th>${row
-          .map((value, c) => {
-            const selected =
-              state.selectedScope === String(scope) &&
-              state.selectedRow === r &&
-              state.selectedCol === c;
-            const result = cellSummary(matrix, r, c, state.mode);
-            const display =
-              state.mode === "count" ? `${value}人` : pct(result.ratio);
-            return `<td><button type="button" data-cell="${scope},${r},${c}" aria-pressed="${selected}" aria-label="${esc(title)}、${esc(METHOD[r])}、${esc(OUTCOME[c])}、${display}を選択" style="min-width:5.5rem;${selected ? "outline:3px solid var(--accent,#087f8c);outline-offset:1px;" : ""}">${display}</button></td>`;
-          })
-          .join("")}<td>${row[0] + row[1]}人</td></tr>`,
-    )
-    .join(
-      "",
-    )}<tr><th scope="row">人数計</th><td>${matrix[0][0] + matrix[1][0]}人</td><td>${matrix[0][1] + matrix[1][1]}人</td><td>${total}人</td></tr></tbody></table></div></section>`;
+  const { METHOD, OUTCOME } = displayLabels(state);
+  const values = tableValues(matrixFor(state.strata, scope), state.mode);
+  const display = (v) => (state.mode === "count" ? `${v}人` : pct(v));
+  return `<section class="panel crosstab-table-panel" data-crosstab-table="${scope}"><h3>${esc(title)}</h3><table class="stat-table crosstab-table"><caption>${esc(title)}・${esc(MODES.find(([v]) => v === state.mode)[1])}</caption><thead><tr><th scope="col">方式</th>${[...OUTCOME, "合計"].map((v) => `<th scope="col">${esc(v)}</th>`).join("")}</tr></thead><tbody>${values.map((row, r) => `<tr><th scope="row">${esc(r < 2 ? METHOD[r] : "合計")}</th>${row.map((v) => `<td>${display(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></section>`;
 }
-
-function denominatorDiagram(state) {
+function reversalExplanation(state) {
+  const { METHOD, STRATA, OUTCOME } = displayLabels(state),
+    combined = matrixFor(state.strata);
+  const rates = [0, 1].map((r) => successRate(combined, r));
+  const winner = [0, 1].find((r) =>
+    state.strata.every(
+      (s) =>
+        successRate(s.counts, r) !== null &&
+        successRate(s.counts, 1 - r) !== null &&
+        successRate(s.counts, r) > successRate(s.counts, 1 - r),
+    ),
+  );
+  const share = (r) => {
+    const n = combined[r][0] + combined[r][1];
+    return n ? state.strata[0].counts[r].reduce((a, b) => a + b, 0) / n : null;
+  };
+  if (
+    winner !== undefined &&
+    rates.every((v) => v !== null) &&
+    rates[winner] < rates[1 - winner]
+  ) {
+    const other = 1 - winner,
+      easier = state.strata.findIndex((s) =>
+        [0, 1].every(
+          (r) =>
+            successRate(s.counts, r) >
+            successRate(state.strata[1 - state.strata.indexOf(s)].counts, r),
+        ),
+      );
+    const easy = easier >= 0 ? easier : 0,
+      shareEasy = (r) =>
+        easy === 0 ? share(r) : share(r) === null ? null : 1 - share(r);
+    return `${STRATA[0]}でも${STRATA[1]}でも${METHOD[winner]}の${OUTCOME[0]}率が高いのに、合計では${METHOD[other]}が高くなっています。課題ごとに上回る方式が、合計でも上回るとは限らない、という逆転です。${METHOD[other]}は${OUTCOME[0]}しやすい${STRATA[easy]}の割合が${pct(shareEasy(other))}、${METHOD[winner]}は${pct(shareEasy(winner))}と、取り組んだ課題の内訳が違うために起きます。これをシンプソンのパラドックスといいます。`;
+  }
+  return `合計の${OUTCOME[0]}率は、課題ごとの${OUTCOME[0]}率を、その課題に取り組んだ人数で重み付けした平均です。${STRATA[0]}と${STRATA[1]}の人数の偏りも合わせて比べましょう。`;
+}
+function comparisonChart(state) {
   const { METHOD, STRATA, OUTCOME } = displayLabels(state);
-  const matrix = matrixFor(state.strata, state.selectedScope);
+  const sections = [
+    ["合計", matrixFor(state.strata)],
+    ...state.strata.map((s, i) => [STRATA[i], s.counts]),
+  ];
+  const left = 145,
+    width = 470;
+  let content =
+    '<defs><pattern id="ct-method-b" width="7" height="7" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#b85614"/><path d="M-2 2L2-2M0 7L7 0M5 9L9 5" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/></pattern></defs>';
+  for (const p of [0, 25, 50, 75, 100]) {
+    const x = left + (width * p) / 100;
+    content += `<line x1="${x}" x2="${x}" y1="20" y2="320" stroke="#dbe2e8"/><text x="${x}" y="345" text-anchor="middle">${p}%</text>`;
+  }
+  sections.forEach(([name, matrix], s) => {
+    const y = 35 + s * 100;
+    content += `<text x="8" y="${y + 18}" class="ct-section-label">${esc(name)}</text>`;
+    for (const r of [0, 1]) {
+      const rate = successRate(matrix, r),
+        yy = y + r * 32;
+      content += `<text x="135" y="${yy + 18}" text-anchor="end">${esc(METHOD[r])}</text><rect x="${left}" y="${yy}" width="${width}" height="23" rx="3" fill="#e7ecf0"/>`;
+      if (rate !== null)
+        content += `<rect x="${left}" y="${yy}" width="${width * rate}" height="23" rx="3" fill="${r ? "url(#ct-method-b)" : "#176660"}"/>`;
+      content += `<text x="630" y="${yy + 18}">${pct(rate)}</text>`;
+    }
+  });
+  return svg(content, `合計・${STRATA.join("・")}の${OUTCOME[0]}率`, 720, 365);
+}
+function denominatorDiagram(state) {
+  const { METHOD, STRATA, OUTCOME } = displayLabels(state),
+    matrix = matrixFor(state.strata, state.selectedScope);
   const { numerator, denominator, ratio } = cellSummary(
     matrix,
     state.selectedRow,
@@ -201,210 +258,129 @@ function denominatorDiagram(state) {
   );
   const scope =
     state.selectedScope === "all"
-      ? "全体"
+      ? "合計"
       : STRATA[Number(state.selectedScope)];
-  const denominatorText =
+  const base =
     state.mode === "row"
-      ? `${scope}の${METHOD[state.selectedRow]}の人数`
+      ? `${scope}の${METHOD[state.selectedRow]}の全員`
       : state.mode === "column"
-        ? `${scope}で「${OUTCOME[state.selectedCol]}」の人数`
-        : `${scope}の全人数`;
-  const total = matrix.flat().reduce((a, b) => a + b, 0);
-  let content = "";
-  const left = 86,
-    top = 35,
+        ? `${scope}で${OUTCOME[state.selectedCol]}の全員`
+        : `${scope}の全員`;
+  const total = matrix.flat().reduce((a, b) => a + b, 0),
+    left = 115,
     width = 560,
     height = 200;
-  let y = top;
-  if (!total)
-    content +=
-      '<text x="360" y="125" text-anchor="middle" fill="currentColor" font-size="17">全員0人のため、人数の面積図を描けません</text>';
+  let content =
+      '<defs><pattern id="ct-numerator" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#8d3c0b"/><path d="M-2 2L2-2M0 8L8 0M6 10L10 6" stroke="#fff" stroke-opacity=".3" stroke-width="1.5"/></pattern></defs>',
+    y = 25;
   for (let r = 0; total && r < 2; r++) {
-    const rowTotal = matrix[r][0] + matrix[r][1];
-    const h = total ? (height * rowTotal) / total : height / 2;
-    content += `<text x="72" y="${y + h / 2 + 5}" text-anchor="end" fill="currentColor" font-size="15">${esc(METHOD[r])}</text>`;
+    const n = matrix[r][0] + matrix[r][1],
+      h = (height * n) / total;
     let x = left;
+    content += `<text x="100" y="${y + h / 2 + 5}" text-anchor="end">${esc(METHOD[r])}</text>`;
     for (let c = 0; c < 2; c++) {
-      const w = rowTotal ? (width * matrix[r][c]) / rowTotal : width / 2;
-      const selected = r === state.selectedRow && c === state.selectedCol;
-      const inDenominator =
-        state.mode === "row"
-          ? r === state.selectedRow
-          : state.mode === "column"
-            ? c === state.selectedCol
-            : true;
-      const fill = selected ? "#c16620" : inDenominator ? "#167d8d" : "#d5dce3";
-      if (h > 0 && w > 0)
-        content += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="white" stroke-width="2"><title>${esc(METHOD[r])}・${esc(OUTCOME[c])} ${matrix[r][c]}人${selected ? "（分子）" : inDenominator ? "（分母に含む）" : "（分母に含まない）"}</title></rect>`;
-      if (w > 70 && h > 28)
-        content += `<text x="${x + w / 2}" y="${y + h / 2 + 5}" text-anchor="middle" fill="${inDenominator || selected ? "white" : "#344054"}" font-size="15">${esc(OUTCOME[c])} ${matrix[r][c]}</text>`;
+      const w = n ? (width * matrix[r][c]) / n : 0,
+        chosen = r === state.selectedRow && c === state.selectedCol,
+        inside =
+          state.mode === "row"
+            ? r === state.selectedRow
+            : state.mode === "column"
+              ? c === state.selectedCol
+              : true;
+      const fill = chosen
+        ? "url(#ct-numerator)"
+        : inside
+          ? "#c9e6de"
+          : "#edf0f2";
+      if (w > 0 && h > 0)
+        content += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}" stroke="white" stroke-width="2"><title>${esc(METHOD[r])}・${esc(OUTCOME[c])} ${matrix[r][c]}人（${chosen ? "分子・分母に含む" : inside ? "分母に含む" : "分母に含まない"}）</title></rect>`;
+      if (w > 60 && h > 25)
+        content += `<text x="${x + w / 2}" y="${y + h / 2 + 5}" text-anchor="middle" class="ct-area-label ${chosen ? "ct-area-selected" : ""}">${esc(OUTCOME[c])} ${matrix[r][c]}人</text>`;
       x += w;
     }
     y += h;
   }
-  content += `<text x="366" y="270" text-anchor="middle" fill="currentColor" font-size="15">長方形の面積が人数に比例。橙＝選んだ人数、青緑＋橙＝分母</text>`;
-  return `<section class="panel"><h3>選んだセルの分子・分母</h3><p><strong>${esc(scope)}・${esc(METHOD[state.selectedRow])}・${esc(OUTCOME[state.selectedCol])}</strong></p>${state.mode === "count" ? `<p>人数は <strong>${numerator}人</strong>。人数表示自体に分母はありません。図は全${total}人の中での位置を示しています。</p>` : `<p><strong>${numerator}人 ÷ ${denominator}人 ${denominator ? `= ${pct(ratio)}` : "→ 分母が0人なので割合を定義できません"}</strong><br><span class="muted">分母：${esc(denominatorText)}</span></p>`}${svg(content, `${esc(scope)}の人数と選択セルの分子・分母`, 720, 300)}<p class="hint">同じセルでも、「誰の中での割合か」を変えると答えが変わります。表を読む前に分母を言葉にしてみましょう。0人の区画には面積がありません。</p></section>`;
+  if (!total)
+    content +=
+      '<text x="400" y="125" text-anchor="middle">0人のため面積図を描けません</text>';
+  const calculation = denominator
+    ? `${numerator}人 ÷ ${denominator}人 × 100 = ${pct(ratio)}`
+    : "分母が0人のため割合は求められません";
+  return `<section class="panel chart-panel crosstab-denominator"><h3>${esc(scope)}：${esc(METHOD[state.selectedRow])}で${esc(OUTCOME[state.selectedCol])}した割合</h3><div class="ct-formula"><span>分子：${esc(METHOD[state.selectedRow])}で${esc(OUTCOME[state.selectedCol])}した人 <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${svg(content, "面積が人数を表す分子と分母の図", 720, 250)}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span></div></section>`;
 }
-
-function comparisonChart(state) {
-  const { METHOD, STRATA, OUTCOME } = displayLabels(state);
-  const sections = [
-    ...state.strata.map((s, i) => [STRATA[i], s.counts]),
-    ["合計", matrixFor(state.strata)],
-  ];
-  let content = "";
-  const left = 125,
-    width = 500;
-  [0, 25, 50, 75, 100].forEach((p) => {
-    const x = left + (width * p) / 100;
-    content += `<line x1="${x}" x2="${x}" y1="25" y2="330" stroke="#dbe2e8"/><text x="${x}" y="350" text-anchor="middle" font-size="13" fill="currentColor">${p}%</text>`;
-  });
-  sections.forEach(([name, matrix], s) => {
-    const y = 40 + s * 100;
-    content += `<text x="8" y="${y + 18}" font-size="15" fill="currentColor">${esc(name)}</text>`;
-    [0, 1].forEach((r) => {
-      const rate = successRate(matrix, r);
-      const yy = y + r * 32;
-      content += `<text x="115" y="${yy + 18}" text-anchor="end" font-size="14" fill="currentColor">${esc(METHOD[r])}</text><rect x="${left}" y="${yy}" width="${width}" height="23" rx="3" fill="#e7ecf0"/>`;
-      if (rate !== null)
-        content += `<rect x="${left}" y="${yy}" width="${width * rate}" height="23" rx="3" fill="${r ? "#c16620" : "#167d8d"}"/>`;
-      content += `<text x="637" y="${yy + 18}" font-size="14" fill="currentColor">${pct(rate)}</text>`;
-    });
-  });
-  return svg(
-    content,
-    "初級・応用・合計におけるA方式とB方式の到達率比較",
-    720,
-    375,
-  );
-}
-
-function countsEditor(state) {
-  const { METHOD, STRATA, OUTCOME } = displayLabels(state);
-  return `<details id="ct-counts" ${state.showCounts ? "open" : ""}><summary>人数を直接編集する（架空の観測データ）</summary><p class="muted">直接入力は各セル0〜10,000人。再配分後は10,000人を超える場合があります。編集後の到達率を、以降の構成比操作の基準にします。</p>${state.strata.map((stratum, s) => `<h4>${esc(STRATA[s])}</h4><div style="overflow-x:auto"><table class="stat-table"><thead><tr><th>方式</th><th>到達</th><th>未到達</th></tr></thead><tbody>${stratum.counts.map((row, r) => `<tr><th scope="row">${esc(METHOD[r])}</th>${row.map((n, c) => `<td><input id="ct-count-${s}-${r}-${c}" data-count="${s},${r},${c}" type="number" min="0" max="${Math.max(10000, n)}" step="1" value="${n}" aria-label="${esc(STRATA[s])}・${esc(METHOD[r])}・${esc(OUTCOME[c])}の人数" style="width:6.5rem;max-width:100%"></td>`).join("")}</tr>`).join("")}</tbody></table></div>`).join("")}</details>`;
-}
-
-const aligned = setComposition(setComposition(makeInitial(), 0, 50), 1, 50);
-
 export default {
   id: "crosstab",
-  title: "クロス集計とデータの関係",
-  description: "割合の分母を確かめ、集団の構成で結論が逆転する現象を探る。",
-  lead: "架空の学習方法A・Bを比較します。初級と応用ではAの到達率が高いのに、全員を合計するとBが高い。表のセルと集団構成を操作して、理由を見つけましょう。",
+  title: "クロス集計",
+  description:
+    "1人ずつの記録から人数と割合を集計し、課題難度による違いを比べる。",
+  lead: "1人ごとの課題難度・方式・結果を集計します。合計と課題別で達成率が逆転する理由も確かめましょう。",
   initial: makeInitial,
+  normalize: normalizeState,
   render(root, ctx) {
-    const state = normalizeState(ctx.state);
-    const { METHOD, STRATA, OUTCOME } = displayLabels(state);
-    const combined = matrixFor(state.strata);
-    const rates = [0, 1].map((r) => successRate(combined, r));
-    const conditional = state.strata.map((s) =>
-      [0, 1].map((r) => successRate(s.counts, r)),
-    );
-    const difference = rates.some((r) => r === null)
-      ? null
-      : rates[0] - rates[1];
-    const bothA = conditional.every(
-      (row) => row.every((r) => r !== null) && row[0] > row[1],
-    );
-    const bothB = conditional.every(
-      (row) => row.every((r) => r !== null) && row[0] < row[1],
-    );
-    const reversed =
-      difference !== null &&
-      ((bothA && difference < 0) || (bothB && difference > 0));
-    const standardized = equalCompositionRates(
-      state.strata,
-      state.equalShare / 100,
-    );
-    root.innerHTML = `<div class="controls">${select("ct-mode", "表の表示", MODES, state.mode)}${select(
-      "ct-view",
-      "集団の分割・統合",
-      [
-        ["both", "合計と課題別を比べる"],
-        ["all", "合計だけを見る"],
-        ["strata", "課題別に分けて見る"],
-      ],
-      state.view,
-    )}</div>
-      ${metrics([
-        [
-          `${METHOD[0]}の${OUTCOME[0]}率（合計）`,
-          pct(rates[0]),
-          `${combined[0][0]} / ${combined[0][0] + combined[0][1]}人`,
-        ],
-        [
-          `${METHOD[1]}の${OUTCOME[0]}率（合計）`,
-          pct(rates[1]),
-          `${combined[1][0]} / ${combined[1][0] + combined[1][1]}人`,
-        ],
-        [
-          `${METHOD[0]} − ${METHOD[1]}（合計）`,
-          difference === null
-            ? "—"
-            : `${(100 * difference).toFixed(1)}ポイント`,
-          reversed ? "課題別と合計で優劣が逆転中" : "課題別の値とも比較しよう",
-        ],
-      ])}
-      <div class="stat-grid"><div><section class="chart-panel"><h3>分けると見える、到達率の違い</h3>${comparisonChart(state)}<p class="annotation" role="status">${reversed ? "シンプソンのパラドックスが現れています。両方の課題で優位な方式が、合計では逆転しています。" : "合計の到達率は、各課題の到達率と、各課題に取り組んだ人数の組み合わせで決まります。"}</p></section>
-      ${state.view !== "strata" ? dataTable(state, "all", "すべての課題を合計") : ""}${state.view !== "all" ? state.strata.map((_, s) => dataTable(state, String(s), STRATA[s])).join("") : ""}</div>
-      <aside class="panel"><h3>集団構成だけを動かす</h3><p>方式ごとの総人数を保ち、${esc(STRATA[0])}と${esc(STRATA[1])}の人数を配分します。到達率は現在の基準を保って再計算します。</p>
-      ${[0, 1].map((r) => range(`ct-share-${r}`, `${METHOD[r]}で${STRATA[0]}に属する人`, Number(compositionPercentage(state, r).toFixed(1)), 0, 100, 1, "%")).join("")}
-      <p class="hint">到達者数は整数に丸めます。そのため課題別の到達率が少し変わる場合があります。人数0の課題では到達率を計算できません。</p>
-      <h3>同じ構成で比べたら？</h3>${range("ct-equal-share", `共通の${STRATA[0]}の割合`, state.equalShare, 0, 100, 1, "%")}
-      <p>現在の課題別到達率を共通の構成で重み付けすると、<strong>${esc(METHOD[0])} ${pct(standardized[0])} ／ ${esc(METHOD[1])} ${pct(standardized[1])}</strong>。</p><p class="muted">これは比較用の標準化した率です。観測された合計の率とは区別します。</p>
-      <button type="button" id="ct-align" class="primary">両方式の人数構成をこの割合にそろえる</button><p class="muted">上の予測値と、整数の人数に配分した後の実際の率を比べましょう。</p>
-      ${countsEditor(state)}</aside></div>${denominatorDiagram(state)}
-      <section class="panel"><h3>この実験から判断できること</h3><p>到達率だけで学習方法の効果を断定できません。初期データではAに応用課題の参加者が多く、難易度が混ざっています。「同じ集団条件で比較したか」「学習前の力も同じか」を確かめる必要があります。架空データは構造を発見するためのもので、実在する学習法の効果を示すものではありません。</p></section>`;
+    const state = normalizeState(ctx.state),
+      view = ctx.view || 0,
+      { METHOD, STRATA, OUTCOME } = displayLabels(state),
+      combined = matrixFor(state.strata);
+    const scopes = [
+      ["all", "合計"],
+      ...STRATA.map((name, i) => [String(i), name]),
+    ];
+    let toolbar = "",
+      content = "";
+    if (view === 0) {
+      toolbar = select("ct-mode", "表の表示", MODES, state.mode);
+      const index = state.tableIndex;
+      toolbar += `<div class="ct-table-pager" role="group" aria-label="集計表の切り替え"><button id="ct-table-prev" type="button" ${index === 0 ? "disabled" : ""}>← 前</button><span role="status" aria-live="polite">${index + 1} / 3　${esc(scopes[index][1])}</span><button id="ct-table-next" type="button" ${index === 2 ? "disabled" : ""}>次 →</button></div>`;
+      content = `<div class="ct-tables" data-current-table="${index}">${scopes.map(([scope, title]) => dataTable(state, scope, title)).join("")}</div>`;
+    } else if (view === 1) {
+      content = `<section class="chart-panel"><h3>合計と課題別の${esc(OUTCOME[0])}率</h3>${comparisonChart(state)}<p class="annotation" role="status">${esc(reversalExplanation(state))}</p></section>`;
+    } else {
+      const ratioMode = state.mode === "count" ? "row" : state.mode;
+      state.mode = ratioMode;
+      toolbar =
+        select("ct-scope", "課題難度", scopes, state.selectedScope) +
+        select(
+          "ct-row",
+          "方式",
+          METHOD.map((name, i) => [String(i), name]),
+          String(state.selectedRow),
+        ) +
+        select(
+          "ct-col",
+          "結果",
+          OUTCOME.map((name, i) => [String(i), name]),
+          String(state.selectedCol),
+        ) +
+        select(
+          "ct-mode",
+          "割合の分母",
+          MODES.filter(([m]) => m !== "count"),
+          ratioMode,
+        );
+      content = denominatorDiagram(state);
+    }
+    const notes = readingNotes("crosstab", view, state);
+    root.innerHTML = `${metrics([...[0, 1].map((r) => [`${METHOD[r]}の${OUTCOME[0]}率（合計）`, pct(successRate(combined, r)), `${combined[r][0]} / ${combined[r][0] + combined[r][1]}人`]), ["データ人数", `${combined.flat().reduce((a, b) => a + b, 0)}人`]])}<div class="analysis-toolbar" role="group" aria-label="このタブの操作">${toolbar}</div>${content}<details class="analysis-notes"><summary>解説</summary>${notes.map((t) => `<p>${esc(t)}</p>`).join("")}</details>`;
+    const change = (id, key, parse = (v) => v) =>
+      root
+        .querySelector("#" + id)
+        ?.addEventListener("change", (e) =>
+          ctx.update({ [key]: parse(e.target.value) }),
+        );
+    change("ct-mode", "mode");
+    change("ct-scope", "selectedScope");
+    change("ct-row", "selectedRow", Number);
+    change("ct-col", "selectedCol", Number);
     root
-      .querySelector("#ct-mode")
-      .addEventListener("change", (e) => ctx.update({ mode: e.target.value }));
-    root.querySelector("#ct-view").addEventListener("change", (e) => {
-      const view = e.target.value;
-      const selectedScope =
-        view === "all"
-          ? "all"
-          : view === "strata" && state.selectedScope === "all"
-            ? "0"
-            : state.selectedScope;
-      ctx.update({ view, selectedScope });
-    });
-    root.querySelectorAll("[data-cell]").forEach((button) =>
-      button.addEventListener("click", () => {
-        const [selectedScope, r, c] = button.dataset.cell.split(",");
-        ctx.update({
-          selectedScope,
-          selectedRow: Number(r),
-          selectedCol: Number(c),
-        });
-      }),
-    );
-    [0, 1].forEach((r) =>
-      bind(root, `ct-share-${r}`, (v) =>
-        ctx.replace(setComposition(state, r, v)),
-      ),
-    );
-    bind(root, "ct-equal-share", (v) => ctx.update({ equalShare: Number(v) }));
-    root
-      .querySelector("#ct-align")
-      .addEventListener("click", () =>
-        ctx.replace(
-          setComposition(
-            setComposition(state, 0, state.equalShare),
-            1,
-            state.equalShare,
-          ),
-        ),
+      .querySelector("#ct-table-prev")
+      ?.addEventListener("click", () =>
+        ctx.update({ tableIndex: Math.max(0, state.tableIndex - 1) }),
       );
-    root.querySelector("#ct-counts").addEventListener("toggle", (e) => {
-      if (e.target.open !== Boolean(state.showCounts))
-        ctx.update({ showCounts: e.target.open });
-    });
-    root.querySelectorAll("[data-count]").forEach((input) =>
-      input.addEventListener("change", () => {
-        const [s, r, c] = input.dataset.count.split(",").map(Number);
-        ctx.replace(editCount(state, s, r, c, input.value));
-      }),
-    );
+    root
+      .querySelector("#ct-table-next")
+      ?.addEventListener("click", () =>
+        ctx.update({ tableIndex: Math.min(2, state.tableIndex + 1) }),
+      );
   },
   explanation: academicExplanation("crosstab"),
   related: ["sampling", "correlation", "hypothesis-test"],

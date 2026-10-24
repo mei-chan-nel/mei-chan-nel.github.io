@@ -1,14 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261024-fullscreen-navigation";
+import { currentData } from "./shared/data-model.mjs?v=20261024-crosstab-records";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-fullscreen-navigation";
+} from "./shared/table-data.mjs?v=20261024-crosstab-records";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-fullscreen-navigation";
+} from "./data-editor.mjs?v=20261024-crosstab-records";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.
@@ -61,7 +61,7 @@ export function renderDataTab(root, options) {
       preferredSize === "all"
         ? Math.max(1, draft.rows.length)
         : Number(preferredSize),
-    limit = id === "probability" ? 10000 : 300;
+    limit = ["probability", "crosstab"].includes(id) ? 10000 : 300;
   if (ui.previousPageSize && ui.previousPageSize !== pageSize)
     ui.dataPage = Math.floor(
       ((ui.dataPage || 0) * ui.previousPageSize) / pageSize,

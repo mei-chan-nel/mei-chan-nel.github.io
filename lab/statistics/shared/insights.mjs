@@ -1,11 +1,11 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-fullscreen-navigation";
+import { currentData } from "./data-model.mjs?v=20261024-crosstab-records";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-fullscreen-navigation";
-import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-fullscreen-navigation";
-import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-fullscreen-navigation";
+} from "../sampling/model.mjs?v=20261024-crosstab-records";
+import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-crosstab-records";
+import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-crosstab-records";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -71,8 +71,8 @@ export function insight(id, state) {
       within.every((r) => Number.isFinite(r[0]) && r[0] > r[1]) &&
       overall[0] < overall[1];
     return reversal
-      ? `各集団では${names[0]}の率が高いのに、合計では${names[1]}が高くなっています。どの集団の人数が多いかを見てみましょう。`
-      : "割合を比べるときは分母も確認。集団の人数構成を変えると、集団別の率を保っていても合計の率は動きます。";
+      ? `課題別では${names[0]}の率が高いのに、合計では${names[1]}が高くなっています。初級課題と応用課題の人数の偏りに注目しましょう。`
+      : "合計の達成率は、課題ごとの達成率と参加人数の内訳で決まります。課題難度をそろえた比較も確かめましょう。";
   }
   if (id === "time-series") {
     const values = data.rows.map((r) => r[1]),

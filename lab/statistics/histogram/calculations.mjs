@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-fullscreen-navigation";
+} from "./descriptive.mjs?v=20261024-crosstab-records";
 
 const n = (value) =>
   value === null || value === undefined

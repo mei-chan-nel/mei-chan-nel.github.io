@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-fullscreen-navigation";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-records";
 import { readDataset } from "../shared/data.mjs";
-import { render } from "./view.mjs?v=20261024-fullscreen-navigation";
+import { render } from "./view.mjs?v=20261024-crosstab-records";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

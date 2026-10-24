@@ -63,7 +63,6 @@ test("adding and deleting table rows preserves precision, pairings and the origi
 
 test("fixed-shape analyses reject incomplete table drafts without modifying valid state", () => {
   for (const [id, config] of [
-    ["crosstab", crosstab],
     ["hypothesis-test", hypothesis],
     ["time-series", series],
   ]) {

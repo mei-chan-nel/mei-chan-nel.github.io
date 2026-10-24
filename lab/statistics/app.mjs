@@ -1,24 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-fullscreen-navigation";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-crosstab-records";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-fullscreen-navigation";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-fullscreen-navigation";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-fullscreen-navigation";
-import { sampleState } from "./shared/samples.mjs?v=20261024-fullscreen-navigation";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-fullscreen-navigation";
+} from "./shared/data-model.mjs?v=20261024-crosstab-records";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-crosstab-records";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-crosstab-records";
+import { sampleState } from "./shared/samples.mjs?v=20261024-crosstab-records";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-crosstab-records";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-fullscreen-navigation";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-fullscreen-navigation";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-fullscreen-navigation";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-fullscreen-navigation";
+} from "./learning.mjs?v=20261024-crosstab-records";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-crosstab-records";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-crosstab-records";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-crosstab-records";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-fullscreen-navigation`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-crosstab-records`))
   .default;
 const ui = {
   view: 0,
@@ -33,6 +33,27 @@ function prepare(next) {
   if (id === "histogram") next = normalizeHistogram(next);
   if (id === "correlation") next = config.normalize(next);
   if (id === "sampling") next = normalizeExperiment(next);
+  if (id === "crosstab") {
+    if (!next.records) {
+      next = { ...next, records: currentData(id, next).rows };
+      // Migrate a saved aggregate baseline as well as its current counts.
+      if (next.dataInfo?.baseline?.[0]?.length === 4) {
+        const old = next.dataInfo;
+        const migrated = applyData(id, config.initial(), {
+          headers: old.columns,
+          rows: old.baseline,
+          name: old.name,
+          filename: old.filename,
+        });
+        next.dataInfo = {
+          ...old,
+          columns: migrated.dataInfo.columns,
+          baseline: migrated.dataInfo.baseline,
+        };
+      }
+    }
+    next = config.normalize(next);
+  }
   if (!next.dataInfo) {
     const data = currentData(id, next),
       shared = project ? readDataset() : null;

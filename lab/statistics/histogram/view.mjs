@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-fullscreen-navigation";
-import { describe } from "./descriptive.mjs?v=20261024-fullscreen-navigation";
-import { renderCalculations } from "./calculations.mjs?v=20261024-fullscreen-navigation";
+} from "./model.mjs?v=20261024-crosstab-records";
+import { describe } from "./descriptive.mjs?v=20261024-crosstab-records";
+import { renderCalculations } from "./calculations.mjs?v=20261024-crosstab-records";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>

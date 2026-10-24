@@ -102,7 +102,8 @@ function domain(s, id) {
     );
     need(
       Array.isArray(d.baseline) &&
-        d.baseline.length <= (id === "probability" ? 10000 : 300) &&
+        d.baseline.length <=
+          (["probability", "crosstab"].includes(id) ? 10000 : 300) &&
         d.baseline.every((r) => Array.isArray(r) && r.length <= 20),
       "元データの形式を確認してください。",
     );
@@ -114,7 +115,7 @@ function domain(s, id) {
             d.labels[k].length === 2 &&
             d.labels[k].every((v) => typeof v === "string" && v.length <= 100),
         ),
-        "集団・方式・結果のラベルを確認してください。",
+        "課題難度・方式・結果のラベルを確認してください。",
       );
   }
   if (s.monthLabels)
@@ -260,6 +261,26 @@ function domain(s, id) {
       "抽出履歴を確認してください。",
     );
   }
+  if (id === "crosstab" && s.records) {
+    need(
+      rows(s.records, 1, 10000) &&
+        s.records.every(
+          (row) =>
+            Array.isArray(row) &&
+            row.length === 3 &&
+            row.every(
+              (v) =>
+                typeof v === "string" && v.trim().length > 0 && v.length <= 100,
+            ),
+        ),
+      "個人データは課題難度・方式・結果の3列で指定してください。",
+    );
+    for (let i = 0; i < 3; i++)
+      need(
+        new Set(s.records.map((row) => row[i])).size <= 2,
+        "課題難度・方式・結果はそれぞれ2種類までにしてください。",
+      );
+  }
   if (id === "crosstab")
     need(
       s.strata.length === 2 &&
@@ -271,7 +292,7 @@ function domain(s, id) {
                 r.length === 2 && r.every((v) => v >= 0 && Number.isInteger(v)),
             ),
         ),
-      "クロス集計表は2集団の2×2の非負整数にしてください。",
+      "クロス集計表は2種類の課題難度と2方式の人数で指定してください。",
     );
   if (id === "probability")
     need(

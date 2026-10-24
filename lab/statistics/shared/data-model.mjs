@@ -1,6 +1,11 @@
+import {
+  recordsFor,
+  aggregateRecords,
+  labelsForRecords,
+} from "../crosstab/records.mjs?v=20261024-crosstab-records";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-fullscreen-navigation";
-import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-fullscreen-navigation";
+import { population } from "../sampling/model.mjs?v=20261024-crosstab-records";
+import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-crosstab-records";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";
@@ -9,7 +14,7 @@ export const dataKinds = {
   histogram: "groups",
   summary: "values",
   sampling: "population",
-  crosstab: "counts",
+  crosstab: "records",
   "time-series": "series",
   "hypothesis-test": "ab",
   lorenz: "incomes",
@@ -75,20 +80,14 @@ export function currentData(id, s) {
   if (id === "crosstab") {
     const l = s.dataInfo?.labels;
     headers = [
-      l?.fields?.[0] || "集団",
+      l?.fields?.[0] || "課題難度",
       l?.fields?.[1] || "方式",
-      l?.outcomes?.[0] || "到達",
-      l?.outcomes?.[1] || "未到達",
+      l?.fields?.[2] || "結果",
     ];
-    rows = s.strata.flatMap((g, i) =>
-      g.counts.map((r, j) => [
-        l?.strata?.[i] || ["初級課題", "応用課題"][i],
-        l?.methods?.[j] || ["A方式", "B方式"][j],
-        ...r,
-      ]),
-    );
-    name = name || "課題難易度別の学習方法と到達人数";
-    operation = `人数を${{ count: "そのまま", row: "行ごとの人数を分母に", column: "列ごとの人数を分母に", cell: "全体人数を分母に" }[s.mode]}表示 → 集団別と合計を比較`;
+    rows = recordsFor(s);
+    name = name || "生徒ごとの課題難度・方式・結果";
+    operation =
+      "1人ずつの記録を課題難度・方式・結果で数える → クロス集計表と達成率を比較";
   }
   if (id === "hypothesis-test") {
     headers = s.dataInfo?.columns || ["群", "対象数", "成功数"];
@@ -166,10 +165,10 @@ export function applyData(
   if (
     !Array.isArray(rows) ||
     rows.length < 1 ||
-    rows.length > (id === "probability" ? 10000 : 300)
+    rows.length > (["probability", "crosstab"].includes(id) ? 10000 : 300)
   )
     throw Error(
-      id === "probability"
+      ["probability", "crosstab"].includes(id)
         ? "1〜10,000行で指定してください。"
         : "1〜300行のデータを指定してください。",
     );
@@ -306,22 +305,47 @@ export function applyData(
         );
     }
     s.source = name;
-  } else if (kind === "counts") {
+  } else if (kind === "records" && headers.length === 3) {
+    const records = rows.map((row, i) => {
+      if (row.length !== 3)
+        throw Error(
+          `${i + 1}行目は「課題難度,方式,結果」の3列にしてください。`,
+        );
+      return row.map((value) => {
+        const text = String(value ?? "").trim();
+        if (!text || text.length > 100)
+          throw Error(
+            "課題難度・方式・結果は空欄にせず、100文字以内にしてください。",
+          );
+        return text;
+      });
+    });
+    const labels = labelsForRecords(records, base.dataInfo?.labels);
+    s.records = records;
+    s.strata = aggregateRecords(records, labels);
+    s.anchors = s.strata.map((g) =>
+      g.counts.map(([a, b]) => (a + b ? a / (a + b) : 0)),
+    );
+    s.dataInfo = { labels: { ...labels, fields: headers.slice(0, 3) } };
+    s.source = name;
+  } else if (kind === "records") {
     if (rows.length !== 4 || rows.some((r) => r.length < 4))
       throw Error(
-        "「集団,方式,成功数,不成功数」の4列・4行で指定してください。",
+        "「課題難度,方式,結果」の3列で、1行に1人分を指定してください。",
       );
     const strata = [...new Set(rows.map((r) => r[0]))],
       methods = [...new Set(rows.map((r) => r[1]))];
     if ([...strata, ...methods].some((v) => String(v).length > 100))
-      throw Error("集団と方式の名前は100文字以内にしてください。");
+      throw Error("課題難度と方式の名前は100文字以内にしてください。");
     if (strata.length !== 2 || methods.length !== 2)
-      throw Error("集団と方式はそれぞれ2種類にしてください。");
+      throw Error("課題難度と方式はそれぞれ2種類にしてください。");
     s.strata = strata.map((a) => ({
       counts: methods.map((b) => {
         const match = rows.filter((r) => r[0] === a && r[1] === b);
         if (match.length !== 1)
-          throw Error("各集団×方式の組を1行ずつ指定してください。");
+          throw Error(
+            "旧形式の集計データは、各課題難度×方式の組を1行ずつ指定してください。",
+          );
         return [2, 3].map((c) => {
           const v = asNumber(match[0][c], 1, headers[c]);
           if (v < 0 || !Number.isInteger(v))
@@ -345,6 +369,8 @@ export function applyData(
         fields: headers.slice(0, 2),
       },
     };
+    delete s.records;
+    s.records = recordsFor(s);
     s.source = name;
   } else if (kind === "ab") {
     if (rows.length !== 2 || rows.some((r) => r.length < 3))

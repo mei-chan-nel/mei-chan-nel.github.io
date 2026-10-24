@@ -1,8 +1,8 @@
-import { applyData } from "./data-model.mjs?v=20261024-fullscreen-navigation";
+import { applyData } from "./data-model.mjs?v=20261024-crosstab-records";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {
-  if (id === "crosstab") return column >= 2;
+  if (id === "crosstab") return false;
   if (id === "hypothesis-test" || id === "time-series") return column > 0;
   if (["histogram", "sampling"].includes(id)) return column === 0;
   return column < 2 || id !== "correlation";
@@ -12,7 +12,7 @@ export function tableConstraint(id, state) {
   if (id === "time-series")
     return "分析には、時間順に並んだ連続する48か月分が必要です。値は0以上にします。";
   if (id === "crosstab")
-    return "分析には2集団×2方式の4行が必要です。各組を1行ずつにし、人数は0以上の整数にします。";
+    return "1行が1人分です。課題難度・方式・結果を入力します。各項目は2種類まで、1〜10,000人分を使えます。";
   if (id === "hypothesis-test")
     return "分析にはA/Bの2行が必要です。対象数は各10〜1,000人、成功数は0〜対象数の整数にします。";
   if (id === "probability")

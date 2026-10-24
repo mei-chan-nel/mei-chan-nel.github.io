@@ -1,12 +1,13 @@
-import { learningViews } from "./learning.mjs?v=20261024-fullscreen-navigation";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-fullscreen-navigation";
+import { learningViews } from "./learning.mjs?v=20261024-crosstab-records";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-crosstab-records";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
-  if (id === "correlation" || id === "histogram") {
+  if (["correlation", "histogram", "crosstab"].includes(id)) {
     const nodes = [...root.children];
     const shell = document.createElement("div");
-    shell.className = "workbench";
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : "散布図と直線"}"></section></div>`;
+    shell.className =
+      "workbench" + (id === "crosstab" ? " unified-workbench" : "");
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;
@@ -21,12 +22,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   let main = [],
     controls = [],
     prelude = [];
-  const group = (nodes) => {
-    const div = document.createElement("div");
-    div.className = "workbench-group";
-    nodes.filter(Boolean).forEach((n) => div.append(n));
-    return div;
-  };
   if (id === "summary") {
     main = [panels[0], panels[2], panels[3]];
     controls = [panels[1]];
@@ -34,17 +29,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   if (id === "sampling") {
     main = [panels[0], panels[2], panels[3]];
     controls = [panels[1]];
-  }
-  if (id === "crosstab") {
-    const top = root.querySelector(":scope>.controls"),
-      tables = panels.filter((p) => p.querySelector("[data-cell]")),
-      plot = root.querySelector(".chart-panel"),
-      denominator = panels.find(
-        (p) => p.querySelector("h3")?.textContent === "選んだセルの分子・分母",
-      ),
-      inspector = root.querySelector(".stat-grid>aside");
-    main = [group(tables), plot, denominator];
-    controls = [group([top, inspector])];
   }
   if (id === "time-series") {
     main = panels.slice(0, 3);
@@ -111,7 +95,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   if (metrics) display.prepend(metrics);
   side.append(controls[view] || controls[0]);
   side.querySelectorAll("h2,h3").forEach((node) => node.remove());
-  if (id === "crosstab") side.querySelector("#ct-counts").hidden = true;
 
   const primary = {
     summary: [
@@ -143,11 +126,6 @@ export function composeWorkbench(root, id, ui, onChange) {
         "sample-one",
         "sample-many",
       ],
-    ],
-    crosstab: [
-      ["ct-mode", "ct-view"],
-      ["ct-view", "ct-share-0", "ct-share-1"],
-      ["ct-mode", "ct-view"],
     ],
     "time-series": [
       ["period", "forecast", "selected"],

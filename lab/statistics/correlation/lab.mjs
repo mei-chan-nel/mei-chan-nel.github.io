@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-fullscreen-navigation";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-records";
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
 import { esc, metrics, table, svg, drag } from "../shared/ui.mjs";
 import { readDataset } from "../shared/data.mjs";

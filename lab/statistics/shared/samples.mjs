@@ -1,5 +1,8 @@
 import { rng, normal, clamp } from "./math.mjs";
-import { applyData, currentData } from "./data-model.mjs?v=20261024-fullscreen-navigation";
+import {
+  applyData,
+  currentData,
+} from "./data-model.mjs?v=20261024-crosstab-records";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
@@ -66,7 +69,7 @@ export function sampleState(id, initial, seed = freshSeed()) {
     name = "生徒120人の読書時間";
     base.seed = seed;
   } else if (id === "crosstab") {
-    headers = ["集団", "方式", "到達", "未到達"];
+    headers = ["課題難度", "方式", "結果"];
     const total = integer(90, 150),
       easy = integer(76, 86),
       hard = integer(18, 28),
@@ -78,10 +81,11 @@ export function sampleState(id, initial, seed = freshSeed()) {
         const success = Math.round(
           (count * ((g ? hard : easy) + (j ? 0 : advantage))) / 100,
         );
-        rows.push([label, method, success, count - success]);
+        for (let k = 0; k < count; k++)
+          rows.push([label, method, k < success ? "達成" : "未達成"]);
       }
     }
-    name = "課題難易度別の学習方法と到達人数";
+    name = "生徒ごとの課題難度・方式・結果";
   } else if (id === "lorenz") {
     headers = ["所得（万円）"];
     rows = Array.from({ length: 10 }, () => [

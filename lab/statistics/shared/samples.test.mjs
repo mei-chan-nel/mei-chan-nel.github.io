@@ -150,12 +150,12 @@ test("cross-tab, A/B and month labels retain the uploaded column names in CSV ou
   for (const [id, headers, rows, options] of [
     [
       "crosstab",
-      ["地域", "学習方法", "合格", "不合格"],
+      ["課題難度", "学習方法", "結果"],
       [
-        ["東", "X", 9, 1],
-        ["東", "Y", 8, 2],
-        ["西", "X", 3, 7],
-        ["西", "Y", 2, 8],
+        ["初級", "X", "合格"],
+        ["初級", "Y", "不合格"],
+        ["応用", "X", "不合格"],
+        ["応用", "Y", "合格"],
       ],
       {},
     ],

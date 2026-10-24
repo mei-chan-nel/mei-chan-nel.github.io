@@ -2349,3 +2349,101 @@ html.statistics-immersive body {
   font-size: 0.78rem;
   color: #536e66;
 }
+
+/* Cross-tabulation uses individual records and read-only results. */
+.crosstab-display .analysis-toolbar:empty {
+  display: none;
+}
+.crosstab-table {
+  table-layout: fixed;
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+.crosstab-table :is(th, td) {
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  padding: 12px 8px;
+}
+.crosstab-table tbody tr:last-child,
+.crosstab-table :is(th, td):last-child {
+  background: #f0f6f3;
+  font-weight: 700;
+}
+.ct-table-pager {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+.statistics-analysis-fullscreen .ct-table-pager {
+  display: flex;
+}
+.statistics-analysis-fullscreen
+  .ct-tables[data-current-table="0"]
+  > :not([data-crosstab-table="all"]),
+.statistics-analysis-fullscreen
+  .ct-tables[data-current-table="1"]
+  > :not([data-crosstab-table="0"]),
+.statistics-analysis-fullscreen
+  .ct-tables[data-current-table="2"]
+  > :not([data-crosstab-table="1"]) {
+  display: none;
+}
+.statistics-analysis-fullscreen .crosstab-table-panel {
+  margin-bottom: 0;
+}
+.ct-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 24px;
+  padding: 8px 0 12px;
+  font-size: 0.85rem;
+}
+.ct-formula > strong {
+  flex-basis: 100%;
+  font-size: 1rem;
+  color: #183d34;
+}
+[data-stat-lab="crosstab"] .stat-chart .ct-area-label {
+  fill: #183d34;
+  font-weight: 650;
+}
+[data-stat-lab="crosstab"] .stat-chart .ct-area-selected {
+  fill: #fff;
+}
+.ct-area-legend {
+  gap: 8px 20px;
+}
+.ct-area-legend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ct-key {
+  width: 18px;
+  height: 14px;
+  border: 1px solid #839b91;
+  display: inline-block;
+}
+.ct-key-numerator {
+  background: repeating-linear-gradient(135deg, #8d3c0b 0 4px, #b76c3d 4px 5px);
+}
+.ct-key-base {
+  background: #c9e6de;
+}
+.ct-key-excluded {
+  background: #edf0f2;
+}
+@media (max-width: 520px) {
+  .crosstab-table :is(th, td) {
+    padding: 10px 4px;
+    font-size: 0.8rem;
+  }
+  .ct-table-pager {
+    margin-left: 0;
+    gap: 6px;
+    font-size: 0.8rem;
+  }
+}
