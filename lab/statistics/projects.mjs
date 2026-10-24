@@ -1,11 +1,11 @@
-import { renderSources } from "./shared/sources.mjs?v=20261024-ts-axis";
-import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261024-ts-axis";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-ts-axis";
+import { renderSources } from "./shared/sources.mjs?v=20261024-probability-flow";
+import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261024-probability-flow";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-probability-flow";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-ts-axis";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-ts-axis";
-import correlation from "./correlation/lab.mjs?v=20261024-ts-axis";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-ts-axis";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-probability-flow";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-probability-flow";
+import correlation from "./correlation/lab.mjs?v=20261024-probability-flow";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-probability-flow";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

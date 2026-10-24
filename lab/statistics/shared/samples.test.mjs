@@ -12,13 +12,19 @@ import { validateDocument } from "./validation.mjs";
 import { matrixFor, successRate } from "../crosstab/lab.mjs";
 import { parseDelimited, serializeCSV } from "./csv.mjs";
 import { labs } from "../catalog.mjs";
-test("published observations stay fixed across seeds while probability trials vary, and every dataset round-trips", async () => {
+test("published defaults round-trip while probability starts at preparation without generated observations", async () => {
   for (const [id] of labs) {
     const config = (await import(`../${id}/lab.mjs`)).default;
     const a = sampleState(id, config.initial(), 100),
       b = sampleState(id, config.initial(), 101);
     assert.deepEqual(a, sampleState(id, config.initial(), 100));
     const d = currentData(id, a);
+    if (id === "probability") {
+      assert.equal(d.rows.length, 0);
+      assert.equal(a.experiments.length, 0);
+      assert.notEqual(a.seed, b.seed);
+      continue;
+    }
     assert.ok(d.rows.length >= 2);
     if (id !== "probability") assert.deepEqual(d.rows, currentData(id, b).rows);
     else assert.notDeepEqual(d.rows, currentData(id, b).rows, id);
@@ -197,7 +203,7 @@ test("published defaults match their source extracts and user uploads lose publi
     dailyTemperatures,
     admissions,
     incomeQuintiles,
-  } = await import("./public-data.mjs?v=20261024-ts-axis");
+  } = await import("./public-data.mjs?v=20261024-probability-flow");
   for (const [file, values, column] of [
     ["tokyo-monthly-temperature.csv", monthlyTemperatures, 1],
     ["tokyo-daily-temperature.csv", dailyTemperatures.flat(), 1],

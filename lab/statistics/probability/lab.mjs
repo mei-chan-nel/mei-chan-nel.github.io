@@ -1,361 +1,370 @@
 import {
   chartKey,
-  range,
+  esc,
   number,
   metrics,
   table,
   svg,
   axes,
   line,
-  bind,
-} from "../shared/ui.mjs?v=20261024-ts-axis";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
-import { fmt, sd } from "../shared/math.mjs";
-
+} from "../shared/ui.mjs?v=20261024-probability-flow";
+import { fmt } from "../shared/math.mjs?v=20261024-probability-flow";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
+import { normalDensity } from "./model.mjs?v=20261024-probability-flow";
 import {
-  coinExperiment,
-  binomialExperiment,
-  normalInterval,
-  normalDensity,
-  normalizeState,
-  observationValues,
-  observedCoin,
-  observedBinomial,
-} from "./model.mjs";
-
-const measurement = (value, digits = 1) =>
-  value !== 0 && Math.abs(value) < 0.1
-    ? Number(value.toPrecision(3)).toString()
-    : fmt(value, digits);
-
-function coinView(state) {
-  const result =
-    state.observed?.mode === "coin"
-      ? observedCoin(state.observed.values)
-      : coinExperiment(state.p, state.tossCount, state.seed);
-  const shown = state.early ? result.path.slice(0, 50) : result.path;
-  const xmax = Math.max(10, shown.length);
+  normalizeLabState,
+  activeExperiment,
+  startExperiment,
+  experimentSummary,
+  intervalComparison,
+  MAX_TOSSES,
+} from "./experiment.mjs?v=20261024-probability-flow";
+import { downloadCSV } from "../data-editor.mjs?v=20261024-probability-flow";
+const percent = (v) => `${fmt(v * 100, 2)}%`;
+const key = (label, color, kind = "line") =>
+  chartKey(label, `var(--chart-${color})`, kind);
+const detail = (title, body) =>
+  `<section class="prob-detail" data-screen-nav-section="${esc(title)}"><h3>${title}</h3>${body}</section>`;
+const context = (e) =>
+  `実験${e.id}：表の確率 ${fmt(e.p, 2)} ／ 1セット${e.n}回 × ${e.repetitions}セット（計${e.n * e.repetitions}回）`;
+function countAxes(options, n, standardized = false) {
+  const a = axes(options);
+  const rough = Math.max(1, (options.xmax - options.xmin) / 6);
+  const magnitude = 10 ** Math.floor(Math.log10(rough));
+  const step = [1, 2, 5, 10]
+    .map((v) => v * magnitude)
+    .reduce((best, v) =>
+      Math.abs(Math.log(v / rough)) < Math.abs(Math.log(best / rough))
+        ? v
+        : best,
+    );
+  const start = Math.ceil(options.xmin / step) * step;
+  const ticks = standardized
+    ? [-4, -3, -2, -1, 0, 1, 2, 3, 4]
+    : Array.from(
+        { length: Math.max(0, Math.floor((options.xmax - start) / step) + 1) },
+        (_, i) => start + i * step,
+      );
+  a.markup = a.markup.replace(
+    /<text x="[^"]+" y="[^"]+" text-anchor="middle">[^<]*<\/text>/g,
+    "",
+  );
+  a.markup +=
+    ticks
+      .filter((v) => v >= options.xmin && v <= options.xmax)
+      .map(
+        (v) =>
+          `<text x="${a.x(v)}" y="${options.h - 29}" text-anchor="middle">${v}</text>`,
+      )
+      .join("") +
+    `<text x="${(58 + options.w - 24) / 2}" y="${options.h - 5}" text-anchor="middle">${esc(options.xlabel)}</text>`;
+  return a;
+}
+function intervalControls(s, e) {
+  return `<fieldset class="prob-interval"><legend>調べる範囲：表が何回から何回まで？</legend>${number("prob-low", "下限（回）", s.intervalLow, 0, s.intervalHigh, 1)}${number("prob-high", "上限（回）", s.intervalHigh, s.intervalLow, e.n, 1)}<button type="button" id="prob-center">平均付近を見る</button></fieldset>`;
+}
+function comparison(e, c) {
+  return detail(
+    "同じ範囲を比べる",
+    `<p><strong>表が${c.a}〜${c.b}回出る確率・割合</strong></p>${metrics([
+      [
+        "実験の割合",
+        percent(c.observed),
+        `${c.count} / ${e.repetitions}セット`,
+      ],
+      ["二項分布の理論確率", percent(c.exact)],
+      ...(c.normal
+        ? [["正規近似による確率", percent(c.normal.probability)]]
+        : []),
+    ])}<p>実験の割合は実際に得た結果、理論確率は実験条件から求めた値です。</p>`,
+  );
+}
+function coinView(s, e, d) {
+  const shown = s.early ? d.path.slice(0, 50) : d.path;
   const a = axes({
     xmin: 0,
-    xmax,
+    xmax: Math.max(10, shown.length),
     ymin: 0,
     ymax: 1,
-    w: 720,
-    h: 350,
-    xlabel: "コインを投げた回数",
+    w: 760,
+    h: 360,
+    xlabel: "実際に投げた順番（回）",
     ylabel: "表の相対度数",
   });
-  const target = `<line x1="${a.x(0)}" x2="${a.x(xmax)}" y1="${a.y(state.p)}" y2="${a.y(state.p)}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="6 4"/><text x="${a.x(xmax) - 4}" y="${Math.max(23, a.y(state.p) - 9)}" fill="var(--chart-reference)" text-anchor="end" font-size="12">設定した確率 p = ${fmt(state.p, 2)}</text>`;
-  const last = shown.at(-1);
-  const endpoint = last
-    ? `<circle class="point" cx="${a.x(last.x)}" cy="${a.y(last.y)}" r="4"><title>${last.x}回時点：${fmt(last.y, 4)}</title></circle>`
-    : "";
-  const recent = result.tosses
-    .slice(-40)
-    .map(
-      (success, i) =>
-        `<span title="第${Math.max(0, result.tosses.length - 40) + i + 1}回：${success ? "表" : "裏"}" style="display:inline-block;width:1.7em;height:1.7em;line-height:1.7;text-align:center;border-radius:50%;margin:3px;background:${success ? "var(--chart-primary)" : "var(--chart-context)"};color:${success ? "white" : "var(--chart-text)"}">${success ? "表" : "裏"}</span>`,
-    )
-    .join("");
-  return `<div class="stat-grid"><section class="panel chart-panel"><h2>1回ずつの偶然を、相対度数で追う</h2>
-    <p class="muted">各回は独立です。次に表が出る確率は、これまでの結果によらず p です。</p>
-    ${svg(a.markup + target + line(shown, a.x, a.y) + endpoint, "表の相対度数の推移。破線は設定した表の確率。", 720, 350)}
-    ${metrics([
-      ["投げた回数", `${state.tossCount}回`],
-      ["表の回数", `${result.successes}回`],
-      [
-        "表の相対度数",
-        state.tossCount ? fmt(result.successes / state.tossCount, 4) : "未試行",
-        state.tossCount
-          ? `${result.successes} ÷ ${state.tossCount}`
-          : "まず試行を追加しよう",
-      ],
-      [
-        "設定した確率との差",
-        state.tossCount
-          ? fmt(result.successes / state.tossCount - state.p, 4)
-          : "—",
-      ],
-    ])}
-    <p>直近40回まで：<span class="muted">${state.tossCount > 40 ? "左から古い順。前の結果は折れ線に含まれています。" : "左から実験の順。"}</span></p><div aria-label="直近のコイン投げの結果">${recent || '<p class="hint">まだコインを投げていません。</p>'}</div>
-    </section><aside class="panel controls"><h2>コインの実験</h2>${range("prob-p", "表が出る確率 p", state.p, 0, 1, 0.01)}
-    <div class="actions"><button id="coin-10" class="primary" ${state.tossCount >= 10000 ? "disabled" : ""}>10回追加</button><button id="coin-100" ${state.tossCount >= 10000 ? "disabled" : ""}>100回追加</button><button id="coin-1000" ${state.tossCount >= 10000 ? "disabled" : ""}>1000回追加</button><button id="coin-clear">0回から始める</button></div>
-    <label><input id="prob-early" type="checkbox" ${state.early ? "checked" : ""}> 最初の50回を拡大する</label>
-    ${number("prob-seed", "再現用の乱数の種", state.seed, 0, 4294967295, 1)}
-    <button id="prob-new-seed">別の偶然を試す</button>
-    <p class="hint">最大10000回。${state.observed?.mode === "coin" ? "読込データは固定され、pは比較する理論の確率だけを変えます。" : "同じ種なら同じ乱数列で再現します。pを変えると、その乱数列を新しい確率で判定し直すので、同じ条件の偶然を使って比較できます。"}</p>
-    <p class="annotation">${state.p === 0 || state.p === 1 ? "p = 0 または 1 では結果は確定しています。偶然によるばらつきはありません。" : "回数を増やし、相対度数と確率pを比べましょう。"}</p></aside></div>`;
-}
-
-function binomialView(state) {
-  const result =
-    state.observed?.mode === "binomial"
-      ? observedBinomial(state.n, state.p, state.observed.values)
-      : binomialExperiment(state.n, state.p, state.repetitions, state.seed);
-  const relative = result.counts.map((count) =>
-    state.repetitions ? count / state.repetitions : 0,
+  // Preserve every observation for calculations; thin only the drawn polyline.
+  const stride = Math.max(1, Math.ceil(shown.length / 1500));
+  const points = shown.filter(
+    (_, i) => i % stride === 0 || i === shown.length - 1,
   );
-  const ymax = Math.min(
-    1.15,
-    Math.max(0.1, ...relative, ...result.theory) * 1.18,
-  );
-  const a = axes({
-    xmin: -0.6,
-    xmax: state.n + 0.6,
-    ymin: 0,
-    ymax,
-    w: 720,
-    h: 350,
-    xlabel: `1セット${state.n}回のうち、表が出た回数 k`,
-    ylabel: "相対度数・理論確率",
-  });
-  const bars = result.counts
-    .map(
-      (count, k) =>
-        `<rect class="bar" x="${a.x(k - 0.34)}" y="${a.y(relative[k])}" width="${a.x(k + 0.34) - a.x(k - 0.34)}" height="${a.y(0) - a.y(relative[k])}" opacity="0.7"><title>表${k}回：実験${count}セット、相対度数${fmt(relative[k], 4)}、理論確率${fmt(result.theory[k], 4)}</title></rect>`,
-    )
-    .join("");
-  const points = result.theory.map((probability, k) => ({
-    x: k,
-    y: probability,
-  }));
-  const theory =
-    line(points, a.x, a.y, "series warm") +
-    points
-      .map(
-        (point) =>
-          `<circle cx="${a.x(point.x)}" cy="${a.y(point.y)}" r="3" fill="var(--chart-secondary)"/>`,
-      )
-      .join("");
-  return `<div class="stat-grid"><section class="panel chart-panel"><h2>「${state.n}回投げる」を1セットとして繰り返す</h2>
-    <p class="muted">たとえば表が${Math.round(state.n * state.p)}回出たセットを、棒の1か所に積み上げます。セットごとの表の回数が二項分布を作ります。</p>
-    ${svg(a.markup + bars + theory, "二項分布。棒は反復実験の相対度数、橙の点と線は理論確率。", 720, 350)}
-    <p class="legend">${chartKey("実験の相対度数", "var(--chart-primary)", "bar")}${chartKey("理論上の確率", "var(--chart-secondary)", "point")}（離散値の点を読みやすく結んでいます）</p>
-    ${metrics([
-      [
-        "実験したセット数",
-        `${state.repetitions}セット`,
-        `コイン投げ計${state.n * state.repetitions}回`,
-      ],
-      [
-        "表の回数の実験平均",
-        state.repetitions ? `${fmt(result.observedMean)}回` : "未試行",
-      ],
-      ["理論上の平均 np", `${fmt(state.n * state.p)}回`],
-      [
-        "理論上の標準偏差",
-        `${fmt(Math.sqrt(state.n * state.p * (1 - state.p)))}回`,
-        "√(np(1−p))",
-      ],
-    ])}
-    </section><aside class="panel controls"><h2>二項分布の実験</h2>
-    ${range("prob-p", "1回で表が出る確率 p", state.p, 0, 1, 0.01)}
-    ${range("prob-n", "1セットの試行回数 n", state.n, 1, 40, 1, "回")}
-    <div class="actions"><button id="binomial-100" class="primary" ${state.repetitions >= 10000 ? "disabled" : ""}>100セット追加</button><button id="binomial-1000" ${state.repetitions >= 10000 ? "disabled" : ""}>1000セット追加</button><button id="binomial-clear">0セットに戻す</button></div>
-    ${number("prob-seed", "再現用の乱数の種", state.seed, 0, 4294967295, 1)}<button id="prob-new-seed">別の偶然を試す</button>
-    <p class="hint">${state.observed?.mode === "binomial" ? "読込データの成功回数は固定。pやnで変わるのは比較する理論です。nは観測した最大成功回数以上に保ちます。" : "pとnを変えると、同じセット数を新しい条件で実験し直します。最大10000セット。pと各回の独立性は全セットで一定と仮定しています。"}</p>
-    <p class="annotation">${state.p === 0 || state.p === 1 ? `p = ${state.p}なので、表の回数は必ず${state.p * state.n}回です。標準偏差は0になります。` : "nは1セットの試行回数です。反復セット数を増やし、棒と理論確率を比べましょう。"}</p>
-    </aside></div><details class="panel"><summary>表・計算式で確かめる</summary>
-    <p>表がk回出る確率は、P(X = k) = C(n, k) p<sup>k</sup>(1 − p)<sup>n − k</sup>。実験の相対度数は「そのkが出たセット数 ÷ 全セット数」です。p = 0, 1 は端点にすべての確率が集まる分布として処理します。</p>
-    ${table(
-      ["表の回数 k", "実験の度数", "実験の相対度数", "理論確率"],
-      result.counts.map((count, k) => [
-        k,
-        count,
-        state.repetitions ? fmt(relative[k], 4) : "—",
-        fmt(result.theory[k], 4),
-      ]),
-    )}</details>`;
+  const target = `<line x1="58" x2="736" y1="${a.y(e.p)}" y2="${a.y(e.p)}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="6 4"/><text x="730" y="${Math.max(24, a.y(e.p) - 9)}" text-anchor="end">設定した確率 p＝${fmt(e.p, 2)}</text>`;
+  return `<div class="analysis-toolbar"><label><input type="checkbox" id="prob-early" ${s.early ? "checked" : ""}>最初の50回を拡大</label></div><section class="panel chart-panel"><h2>1回ずつの結果から、表の割合を追う</h2><p>実験の全セットを投げた順につなげています。折れ線は、その時点までの表の回数 ÷ 投げた回数です。</p>${svg(a.markup + target + line(points, a.x, a.y), "同じ実験の表の相対度数。破線は設定した確率。", 760, 360)}<div class="legend">${key("実験の相対度数", "primary")}${key("設定した確率", "reference", "line-dashed")}</div>${detail(
+    "実験結果と確率",
+    `${metrics([
+      ["全投数", `${d.tosses.length}回`],
+      ["表の回数", `${d.successes}回`],
+      ["全体の相対度数", fmt(d.successes / d.tosses.length, 4)],
+      ["設定した確率 p", fmt(e.p, 2)],
+    ])}<p>表示範囲を変えても、結果は変わりません。独立な試行なので、表が続いても次の表の確率はpのままです。</p><p>相対度数は確率の近くに安定する傾向がありますが、毎回近づくとは限りません。</p>`,
+  )}</section>`;
 }
-
-function normalChart(mu, sigma, low, high, standardized = false, values = []) {
-  const xmin = mu - 4 * sigma;
-  const xmax = mu + 4 * sigma;
-  const ymax = normalDensity(mu, mu, sigma) * 1.2;
-  const a = axes({
-    xmin,
-    xmax,
-    ymin: 0,
-    ymax,
-    w: 720,
-    h: standardized ? 270 : 340,
-    xlabel: standardized ? "標準化した値 z" : "測定値 x",
-    ylabel: "確率密度",
-  });
-  const curve = Array.from({ length: 241 }, (_, i) => ({
-    x: xmin + ((xmax - xmin) * i) / 240,
-    y: normalDensity(xmin + ((xmax - xmin) * i) / 240, mu, sigma),
-  }));
-  const left = Math.max(xmin, low);
-  const right = Math.min(xmax, high);
-  let area = "";
-  if (right > left) {
-    const points = Array.from({ length: 161 }, (_, i) => {
-      const x = left + ((right - left) * i) / 160;
-      return `${a.x(x)},${a.y(normalDensity(x, mu, sigma))}`;
-    });
-    area = `<polygon points="${a.x(left)},${a.y(0)} ${points.join(" ")} ${a.x(right)},${a.y(0)}" fill="var(--chart-primary)" opacity="0.28"/>`;
-  }
-  const boundaries = [low, high]
-    .filter((value) => value >= xmin && value <= xmax)
+function binomialView(s, e, d, c) {
+  const relative = d.counts.map((k) => k / e.repetitions),
+    max = Math.max(...relative, ...d.theory) * 1.2;
+  const a = countAxes(
+    {
+      xmin: -0.6,
+      xmax: e.n + 0.6,
+      ymin: 0,
+      ymax: Math.max(0.1, max),
+      w: 760,
+      h: 360,
+      xlabel: "1セットで表が出た回数 k",
+      ylabel: "相対度数・理論確率",
+    },
+    e.n,
+  );
+  const bars = d.counts
     .map(
-      (value) =>
-        `<line x1="${a.x(value)}" x2="${a.x(value)}" y1="${a.y(0)}" y2="${a.y(normalDensity(value, mu, sigma))}" stroke="var(--chart-primary)" stroke-width="2"/>`,
+      (v, k) =>
+        `<rect data-prob-count="${k}" role="button" tabindex="0" aria-label="表${k}回の範囲を選ぶ。実験${v}セット" x="${a.x(k - 0.35)}" y="${a.y(relative[k])}" width="${a.x(k + 0.35) - a.x(k - 0.35)}" height="${a.y(0) - a.y(relative[k])}" fill="var(--chart-primary)" opacity="${k >= c.a && k <= c.b ? 1 : 0.35}" stroke="var(--chart-primary)"><title>表${k}回：${v}セット、相対度数${fmt(relative[k], 4)}</title></rect>`,
     )
     .join("");
-  const mean = `<line x1="${a.x(mu)}" x2="${a.x(mu)}" y1="${a.y(0)}" y2="${a.y(normalDensity(mu, mu, sigma))}" stroke="var(--chart-reference)" stroke-dasharray="5 4"/><text x="${a.x(mu) + 6}" y="${a.y(ymax) + 16}" font-size="12" fill="var(--chart-reference)">${standardized ? "平均 0" : `平均 μ = ${measurement(mu, 1)}`}</text>`;
+  const theory = d.theory.map((p, k) => ({ x: k, y: p }));
+  const dots = theory
+    .map(
+      (p) =>
+        `<circle cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="3" fill="var(--chart-secondary)"><title>表${p.x}回の理論確率 ${percent(p.y)}</title></circle>`,
+    )
+    .join("");
+  return `<div class="analysis-toolbar">${intervalControls(s, e)}</div><section class="panel chart-panel"><h2>セットごとの「表の回数」を集計する</h2><p>1つの棒は、表が同じ回数出たセットの割合です。橙の点は、同じn・pから計算した二項分布の理論確率です。</p>${svg(a.markup + bars + line(theory, a.x, a.y, "series warm") + dots, "セットごとの成功回数の分布。棒は実験、橙の点は理論確率。", 760, 360)}<div class="legend">${key("実験の相対度数", "primary", "bar")}${key("二項分布の理論確率", "secondary", "point")}</div>${comparison(e, c)}${detail("分布の中心と広がり", `<p>理論上の平均 np＝${fmt(d.mu, 2)}回。標準偏差 √(np(1−p))＝${fmt(d.sigma, 2)}回。</p><p>実験の平均は${fmt(d.mean, 2)}回。セット数を増やす実験と、1セットの投数nを変える実験では、変えているものが異なります。</p>`)}<details class="prob-table"><summary>回数ごとの度数・理論確率</summary>${table(
+    ["表の回数 k", "実験の度数（セット）", "実験の相対度数", "理論確率"],
+    d.counts.map((v, k) => [k, v, fmt(relative[k], 4), fmt(d.theory[k], 4)]),
+  )}<p>P(K=k)＝C(n,k)pᵏ(1−p)ⁿ⁻ᵏ。橙の点を結ぶ線は読み取りの補助です。</p></details></section>`;
+}
+function normalChart(e, d, c, standardized) {
+  const mu = standardized ? 0 : d.mu,
+    sigma = standardized ? 1 : d.sigma;
+  const low = standardized ? c.normal.zLow : c.low,
+    high = standardized ? c.normal.zHigh : c.high;
+  const xmin = mu - 4 * sigma,
+    xmax = mu + 4 * sigma,
+    ymax = normalDensity(mu, mu, sigma) * 1.22;
+  const a = countAxes(
+    {
+      xmin,
+      xmax,
+      ymin: 0,
+      ymax,
+      w: 760,
+      h: 360,
+      xlabel: standardized ? "標準化した値 z" : "表の回数に対応する値 x",
+      ylabel: "確率密度",
+    },
+    e.n,
+    standardized,
+  );
+  const curve = Array.from({ length: 301 }, (_, i) => ({
+    x: xmin + ((xmax - xmin) * i) / 300,
+    y: normalDensity(xmin + ((xmax - xmin) * i) / 300, mu, sigma),
+  }));
+  const shownLow = Math.max(xmin, low),
+    shownHigh = Math.min(xmax, high);
+  const area =
+    shownHigh > shownLow
+      ? Array.from({ length: 121 }, (_, i) => {
+          const x = shownLow + ((shownHigh - shownLow) * i) / 120;
+          return `${a.x(x)},${a.y(normalDensity(x, mu, sigma))}`;
+        })
+      : [];
+  const bars = standardized
+    ? ""
+    : d.theory
+        .map((p, k) =>
+          k + 0.5 > xmin && k - 0.5 < xmax
+            ? `<rect x="${a.x(Math.max(xmin, k - 0.5))}" y="${a.y(p)}" width="${a.x(Math.min(xmax, k + 0.5)) - a.x(Math.max(xmin, k - 0.5))}" height="${a.y(0) - a.y(p)}" fill="var(--chart-secondary)" opacity=".22" stroke="var(--chart-secondary)"/>`
+            : "",
+        )
+        .join("");
+  const bounds = [low, high]
+    .filter((v) => v >= xmin && v <= xmax)
+    .map(
+      (v) =>
+        `<line x1="${a.x(v)}" x2="${a.x(v)}" y1="${a.y(0)}" y2="${a.y(normalDensity(v, mu, sigma))}" stroke="var(--chart-purple)" stroke-width="2"/>`,
+    )
+    .join("");
   return svg(
     a.markup +
-      area +
-      line(curve, a.x, a.y) +
-      boundaries +
-      mean +
-      values
-        .filter((v) => v >= xmin && v <= xmax)
-        .map(
-          (v) =>
-            `<line x1="${a.x(v)}" x2="${a.x(v)}" y1="${a.y(0)}" y2="${a.y(0) - 9}" stroke="${v >= low && v <= high ? "var(--chart-secondary)" : "var(--chart-axis)"}" opacity=".6"/>`,
-        )
-        .join(""),
-    `${standardized ? "標準正規分布" : "正規分布"}。色の面積は指定した区間の確率。表示は平均の前後4標準偏差。`,
-    720,
-    standardized ? 270 : 340,
+      bars +
+      `<g data-prob-normal-area="${c.normal.probability}">${area.length ? `<polygon points="${a.x(shownLow)},${a.y(0)} ${area.join(" ")} ${a.x(shownHigh)},${a.y(0)}" fill="var(--chart-purple)" opacity=".25"/>` : ""}</g>` +
+      line(curve, a.x, a.y, "prob-normal-curve") +
+      bounds +
+      `<line x1="${a.x(mu)}" x2="${a.x(mu)}" y1="30" y2="${a.y(0)}" stroke="var(--chart-reference)" stroke-dasharray="5 4"/><text x="${a.x(mu) + 5}" y="47">平均 ${standardized ? "0" : fmt(d.mu, 2)}</text>`,
+    standardized
+      ? "同じ区間を標準化した正規分布。色の面積は変わらない。"
+      : "二項分布の棒と正規近似の曲線。色の面積は選択区間の近似確率。",
+    760,
+    360,
   );
 }
-
-function normalView(state) {
-  const interval = normalInterval(state.mu, state.sigma, state.low, state.high);
-  const observations = observationValues(state);
-  const loaded = state.observed?.mode === "normal";
-  const scale = loaded ? sd(observations) || 1 : 10;
-  const inside = observations.filter(
-    (v) => v >= state.low && v <= state.high,
-  ).length;
-  const outside = observations.filter(
-    (v) => Math.abs(v - state.mu) > 4 * state.sigma,
-  ).length;
-  return `<div class="stat-grid"><section class="panel chart-panel"><h2>区間に入る確率は「面積」</h2>
-    <p class="muted">架空の測定値 X が正規分布に従うモデルです。平均と標準偏差を動かし、同じ区間に入る確率を比べましょう。</p>
-    ${normalChart(state.mu, state.sigma, state.low, state.high, false, observations)}
-    <p class="hint">下端の短い線は${state.observed?.mode === "normal" ? "読み込んだ測定値" : "モデルから生成した200件"}。区間内は ${inside}/${observations.length}件（${fmt((inside / observations.length) * 100, 1)}%）です。${outside ? `図の範囲外にも${outside}件あり、割合の計算には含めています。` : ""}</p>
-    ${metrics([
-      [
-        "区間",
-        `${measurement(state.low, 1)} ≤ X ≤ ${measurement(state.high, 1)}`,
-      ],
-      [
-        "区間に入る確率",
-        `${fmt(interval.probability * 100, 2)}%`,
-        `P(${measurement(state.low, 1)} ≤ X ≤ ${measurement(state.high, 1)})`,
-      ],
-      [
-        "左端の標準化",
-        `z = ${fmt(interval.zLow)}`,
-        `(${measurement(state.low, 1)} − ${measurement(state.mu, 1)}) ÷ ${measurement(state.sigma, 1)}`,
-      ],
-      [
-        "右端の標準化",
-        `z = ${fmt(interval.zHigh)}`,
-        `(${measurement(state.high, 1)} − ${measurement(state.mu, 1)}) ÷ ${measurement(state.sigma, 1)}`,
-      ],
-    ])}
-    <p class="hint">曲線の高さは確率密度です。高さそのものを確率と読まず、区間の面積を読みます。図は μ ± 4σ までを表示し、数値は図の外の裾も含めて計算します。</p>
-    </section><aside class="panel controls"><h2>正規分布のモデル</h2>
-    ${range("normal-mu", "平均 μ", state.mu, loaded ? Math.min(...observations) - scale * 2 : -50, loaded ? Math.max(...observations) + scale * 2 : 100, loaded ? Math.max(scale / 20, 1e-8) : 1)}
-    ${range("normal-sigma", "標準偏差 σ", state.sigma, loaded ? Math.max(scale / 100, 1e-8) : 1, loaded ? Math.max(scale * 4, state.sigma) : 30, loaded ? Math.max(scale / 20, 1e-8) : 1)}
-    ${number("normal-low", "区間の左端 a", state.low, loaded ? -1e7 : -200, state.high, loaded ? Math.max(scale / 20, 1e-8) : 0.5)}
-    ${number("normal-high", "区間の右端 b", state.high, state.low, loaded ? 1e7 : 200, loaded ? Math.max(scale / 20, 1e-8) : 0.5)}
-    <div class="actions"><button id="normal-one" class="primary">区間を μ ± σ に</button><button id="normal-two">区間を μ ± 2σ に</button><button id="normal-center">区間を μ−4σ 〜 μ に</button></div>
-    <p class="annotation">μは中心、σは広がりです。μ±σの区間の面積は約68%です。</p>
-    </aside></div><section class="panel chart-panel"><h2>同じ面積を、標準正規分布で読む</h2>
-    <p><strong>Z = (X − μ) / σ</strong> と変換すると、平均0・標準偏差1になります。${measurement(state.low, 1)} ≤ X ≤ ${measurement(state.high, 1)} は、${fmt(interval.zLow)} ≤ Z ≤ ${fmt(interval.zHigh)} に対応します。</p>
-    ${normalChart(0, 1, interval.zLow, interval.zHigh, true)}
-    <p>確率 = Φ(${fmt(interval.zHigh)}) − Φ(${fmt(interval.zLow)}) = <strong>${fmt(interval.probability, 5)}</strong>。Φは標準正規分布の累積分布関数です。連続分布なので端点を含むかどうかで確率は変わらず、1点だけの確率は0です。</p></section>`;
+function normalView(s, e, d, c, standardized) {
+  const toolbar = `<div class="analysis-toolbar">${intervalControls(s, e)}</div>`;
+  if (d.sigma === 0)
+    return `${toolbar}<section class="panel chart-panel"><h2>${standardized ? "標準化" : "正規分布で近似する"}</h2><p class="annotation">p＝${e.p}では、表の回数は必ず${d.mu}回です。標準偏差が0のため、正規分布の曲線や、標準偏差で割る標準化は使えません。</p>${comparison(e, c)}</section>`;
+  const warning = c.adequate
+    ? "この条件では、二項分布の山を正規分布で近似する目安を満たしています。"
+    : "この条件では、正規近似が合いにくくなります。二項分布の理論確率と近似値の差を確認してください。";
+  return `${toolbar}<section class="panel chart-panel"><h2>${standardized ? "同じ区間を、zの尺度に置き換える" : "同じ回数の分布を、正規分布で近似する"}</h2><p>${standardized ? "元の値とzの対応を確かめます。選んだ範囲と、その正規分布の面積は同じです。" : "橙の棒は二項分布、紫の曲線は平均と標準偏差をそろえた正規分布です。曲線の高さではなく、選んだ区間の面積で確率を読みます。"}</p>${normalChart(e, d, c, standardized)}<div class="legend">${!standardized ? key("二項分布（幅1の棒）", "secondary", "bar") : ""}${key(standardized ? "標準正規分布" : "正規近似", "purple")}${key("区間の面積", "purple", "bar")}</div>${comparison(e, c)}${detail(standardized ? "元の区間とzの対応" : "整数の回数を面積に対応させる", `<p>表が${c.a}〜${c.b}回という範囲を、正規近似では${fmt(c.low, 1)}〜${fmt(c.high, 1)}の面積で表します。整数1つを幅1の範囲に対応させるため、両端を0.5回ずつ広げます。</p><p>μ＝np＝${fmt(d.mu, 2)}、σ＝√(np(1−p))＝${fmt(d.sigma, 3)}。</p>${standardized ? `<p><strong>Z＝(X−μ)÷σ</strong></p><p>左端：(${fmt(c.low, 1)}−${fmt(d.mu, 2)})÷${fmt(d.sigma, 3)}＝${fmt(c.normal.zLow, 3)}</p><p>右端：(${fmt(c.high, 1)}−${fmt(d.mu, 2)})÷${fmt(d.sigma, 3)}＝${fmt(c.normal.zHigh, 3)}</p><p>正規分布の区間を標準化すると、平均0・標準偏差1の分布で同じ面積${percent(c.normal.probability)}を読めます。観測データ自体が正規分布に変わるわけではありません。</p>` : ""}<p class="annotation">${warning}</p><p>近似の目安はnpとn(1−p)がともに5以上です。確率の計算は図の外の裾も含めます。図は平均の前後4標準偏差までです。端の棒や裾が範囲外に続く場合もあります。二項分布の理論確率と、正規分布による近似値は別の値です。</p>`)}</section>`;
 }
-
+export function renderPreparation(root, ctx) {
+  const s = normalizeLabState(ctx.state),
+    e = activeExperiment(s),
+    d = e ? experimentSummary(e) : null;
+  root.innerHTML = `<section class="panel prob-preparation"><h2>コインのモデル実験を準備する</h2><p>表が出る確率が一定で、1回ずつ独立に結果が決まるコインを使います。1セットごとに表の回数を記録し、同じ結果を4つのタブで読み解きます。</p><form id="prob-setup"><div class="prob-setup-fields">${number("setup-p", "表が出る確率 p", s.p, 0, 1, 0.01)}${number("setup-n", "1セットの投数 n（回）", s.n, 1, 200, 1)}${number("setup-sets", "実験するセット数", s.repetitions, 1, 1000, 1)}</div><p class="hint">例：20回投げることを200セット行うと、記録は200行、投数は計4,000回です。合計${MAX_TOSSES.toLocaleString("ja-JP")}回まで実験できます。</p><p><output id="prob-setup-total" aria-live="polite">合計${s.n * s.repetitions}回投げます</output></p><button id="prob-run" type="submit" class="primary">${e ? "この条件で新しい実験をする" : "この条件で実験する"}</button><p id="prob-setup-error" role="status" aria-live="polite"></p></form>${
+    e
+      ? `<section class="prob-current"><h3>${context(e)}</h3><p>表は${d.successes}回、裏は${d.tosses.length - d.successes}回。下の各行が1セットです。表＝1、裏＝0で、左から投げた順です。</p><div class="actions"><button id="prob-analyze" class="primary">相対度数を見る →</button><button id="prob-download">この実験をCSVで保存</button></div>${table(
+          ["セット", "1回ずつの結果（1＝表・0＝裏）", "表の回数"],
+          e.sets
+            .slice(0, 30)
+            .map((row, i) => [i + 1, row.join(" "), d.outcomes[i]]),
+        )}${e.repetitions > 30 ? `<p class="hint">最初の30セットを表示。計算とCSVには全${e.repetitions}セットを含みます。</p>` : ""}</section>`
+      : '<p class="prob-empty">条件を決めて「実験する」を押すと、結果と4つの分析タブを見られます。</p>'
+  }${s.experiments.length ? `<details class="prob-history"><summary>実験の履歴（${s.experiments.length}件）</summary><p>新しい条件でも、過去の結果は書き換えません。実験を選ぶと、その記録を読み返せます。</p><div class="prob-history-list">${s.experiments.map((exp) => `<button type="button" data-prob-history="${exp.id}" aria-pressed="${exp.id === s.activeId}">${context(exp)}</button>`).join("")}</div></details>` : ""}${s.legacyData ? '<details><summary>以前このページで保存したデータ</summary><p>以前のデータは保管されています。このモデル実験とは別に、CSVで取り出せます。</p><button id="prob-legacy-download">以前のデータをCSVで保存</button></details>' : ""}</section>`;
+  for (const id of ["setup-n", "setup-sets"])
+    root.querySelector("#" + id).addEventListener("input", () => {
+      const total =
+        Number(root.querySelector("#setup-n").value) *
+        Number(root.querySelector("#setup-sets").value);
+      root.querySelector("#prob-setup-total").textContent = Number.isFinite(
+        total,
+      )
+        ? `合計${total.toLocaleString("ja-JP")}回投げます`
+        : "投数とセット数を入力してください。";
+    });
+  root.querySelector("#prob-setup").onsubmit = (event) => {
+    event.preventDefault();
+    try {
+      const p = Number(root.querySelector("#setup-p").value),
+        n = Number(root.querySelector("#setup-n").value),
+        sets = Number(root.querySelector("#setup-sets").value);
+      if (
+        ["#setup-p", "#setup-n", "#setup-sets"].some(
+          (id) => root.querySelector(id).value.trim() === "",
+        )
+      )
+        throw Error("3つの実験条件を入力してください。");
+      const seed = globalThis.crypto.getRandomValues(new Uint32Array(1))[0];
+      ctx.replace(startExperiment(s, p, n, sets, seed));
+    } catch (error) {
+      root.querySelector("#prob-setup-error").textContent = error.message;
+    }
+  };
+  root.querySelector("#prob-analyze")?.addEventListener("click", ctx.analyze);
+  root.querySelector("#prob-download")?.addEventListener("click", () =>
+    downloadCSV(
+      `コイン実験${e.id}.csv`,
+      [
+        "セット",
+        ...Array.from({ length: e.n }, (_, i) => `第${i + 1}投（表=1・裏=0）`),
+        "表の回数",
+      ],
+      e.sets.map((row, i) => [i + 1, ...row, d.outcomes[i]]),
+    ),
+  );
+  root.querySelector("#prob-legacy-download")?.addEventListener("click", () =>
+    downloadCSV(
+      "以前の確率データ.csv",
+      [s.legacyData.label],
+      s.legacyData.values.map((v) => [v]),
+    ),
+  );
+  root.querySelectorAll("[data-prob-history]").forEach(
+    (button) =>
+      (button.onclick = () => {
+        const e = s.experiments.find(
+          (e) => e.id === Number(button.dataset.probHistory),
+        );
+        ctx.update({
+          activeId: e.id,
+          p: e.p,
+          n: e.n,
+          repetitions: e.repetitions,
+          intervalLow: 0,
+          intervalHigh: e.n,
+          dataInfo: {
+            name: `コインのモデル実験 ${e.id}`,
+            origin: "model",
+            columns: ["セット", "表の回数"],
+            baseline: e.sets.map((row, i) => [
+              i + 1,
+              row.reduce((a, b) => a + b, 0),
+            ]),
+          },
+        });
+      }),
+  );
+}
 export default {
   id: "probability",
   title: "確率と確率分布",
   description:
-    "偶然を繰り返すと、何が安定する？ コインから二項分布、正規分布へ。",
-  lead: "次の1回はわからなくても、繰り返した結果には規則性が現れます。相対度数・回数の分布・区間の面積を、それぞれ操作して比べましょう。",
-  initial: () => normalizeState({}),
+    "同じコイン実験から、相対度数・二項分布・正規近似・標準化を読む。",
+  initial: () => normalizeLabState({ n: 20, repetitions: 200, tossCount: 0 }),
+  normalize: normalizeLabState,
+  renderPreparation,
   render(root, ctx) {
-    const state = normalizeState(ctx.state);
-    root.innerHTML = `<div class="panel actions" role="group" aria-label="確率の実験を選ぶ">${[
-      ["coin", "① コインと相対度数"],
-      ["binomial", "② 二項分布"],
-      ["normal", "③ 正規分布と標準化"],
-    ]
-      .map(
-        ([value, label]) =>
-          `<button data-mode="${value}" aria-pressed="${state.mode === value}" class="${state.mode === value ? "primary" : ""}">${label}</button>`,
-      )
-      .join(
-        "",
-      )}</div>${state.mode === "coin" ? coinView(state) : state.mode === "binomial" ? binomialView(state) : normalView(state)}`;
-    const update = (patch) =>
-      ctx.replace(normalizeState({ ...state, ...patch }));
-    root.querySelectorAll("[data-mode]").forEach((button) => {
-      button.onclick = () => update({ mode: button.dataset.mode });
-    });
-    const loaded = state.observed?.mode === state.mode;
-    if (loaded) {
-      root
-        .querySelectorAll(
-          '[id^="coin-"],[id^="binomial-"],#prob-new-seed,#prob-seed',
-        )
-        .forEach((el) => (el.disabled = true));
-      const note = document.createElement("p");
-      note.className = "hint";
-      note.textContent =
-        "読込データは固定したまま、理論の条件を変えて比べます。新しく試行するにはデータタブで「サンプルを使用」を選びます。";
-      root.querySelector("aside").append(note);
+    const s = normalizeLabState(ctx.state),
+      e = activeExperiment(s),
+      view = Math.max(0, Math.min(3, ctx.view || 0));
+    if (!e) {
+      root.innerHTML =
+        '<section class="panel"><h2>まず実験を準備しましょう</h2><p>「実験の準備」で条件を決めて実験すると、同じ結果を順に読み解けます。</p><button id="prob-return">実験の準備へ</button></section>';
+      root.querySelector("#prob-return").onclick = () =>
+        root.ownerDocument.querySelector("#data-tab").click();
+      return;
     }
-    if (state.mode !== "normal") {
-      bind(root, "prob-p", (value) => update({ p: value }));
-      bind(root, "prob-seed", (value) => update({ seed: value }));
-      root.querySelector("#prob-new-seed").onclick = () =>
-        update({ seed: (state.seed + 104729) >>> 0 });
-    }
-    if (state.mode === "coin") {
-      for (const count of [10, 100, 1000])
-        root.querySelector(`#coin-${count}`).onclick = () =>
-          update({ tossCount: Math.min(10000, state.tossCount + count) });
-      root.querySelector("#coin-clear").onclick = () =>
-        update({ tossCount: 0 });
-      root.querySelector("#prob-early").onchange = (event) =>
-        update({ early: event.target.checked });
-    } else if (state.mode === "binomial") {
-      bind(root, "prob-n", (value) =>
-        update({
-          n: loaded ? Math.max(value, ...state.observed.values) : value,
-        }),
+    const d = experimentSummary(e),
+      c = intervalComparison(e, s.intervalLow, s.intervalHigh);
+    root.innerHTML = `<p class="prob-context" data-screen-nav-section="実験条件">${context(e)}</p>${view === 0 ? coinView(s, e, d) : view === 1 ? binomialView(s, e, d, c) : normalView(s, e, d, c, view === 3)}<p class="prob-change"><button id="prob-return">条件を変える・別の実験をする</button><span>「実験の準備」に戻ります。</span></p>`;
+    root.querySelector("#prob-return").onclick = () =>
+      root.ownerDocument.querySelector("#data-tab").click();
+    root
+      .querySelector("#prob-early")
+      ?.addEventListener("change", (ev) =>
+        ctx.update({ early: ev.target.checked }),
       );
-      for (const count of [100, 1000])
-        root.querySelector(`#binomial-${count}`).onclick = () =>
-          update({ repetitions: Math.min(10000, state.repetitions + count) });
-      root.querySelector("#binomial-clear").onclick = () =>
-        update({ repetitions: 0 });
-    } else {
-      bind(root, "normal-mu", (value) => update({ mu: value }));
-      bind(root, "normal-sigma", (value) => update({ sigma: value }));
-      bind(root, "normal-low", (value) =>
-        update({ low: Math.min(value, state.high) }),
-      );
-      bind(root, "normal-high", (value) =>
-        update({ high: Math.max(value, state.low) }),
-      );
-      root.querySelector("#normal-one").onclick = () =>
-        update({ low: state.mu - state.sigma, high: state.mu + state.sigma });
-      root.querySelector("#normal-two").onclick = () =>
-        update({
-          low: state.mu - 2 * state.sigma,
-          high: state.mu + 2 * state.sigma,
+    for (const [id, key] of [
+      ["prob-low", "intervalLow"],
+      ["prob-high", "intervalHigh"],
+    ])
+      root.querySelector("#" + id)?.addEventListener("change", (ev) => {
+        const v = Math.round(Number(ev.target.value));
+        ctx.update({
+          [key]:
+            id === "prob-low"
+              ? Math.max(0, Math.min(v, s.intervalHigh))
+              : Math.min(e.n, Math.max(v, s.intervalLow)),
         });
-      root.querySelector("#normal-center").onclick = () =>
-        update({ low: state.mu - 4 * state.sigma, high: state.mu });
-    }
+      });
+    root.querySelector("#prob-center")?.addEventListener("click", () =>
+      ctx.update({
+        intervalLow: Math.max(0, Math.ceil(d.mu - d.sigma)),
+        intervalHigh: Math.min(e.n, Math.floor(d.mu + d.sigma)),
+      }),
+    );
+    root.querySelectorAll("[data-prob-count]").forEach((el) => {
+      const choose = () =>
+        ctx.update({
+          intervalLow: +el.dataset.probCount,
+          intervalHigh: +el.dataset.probCount,
+        });
+      el.onclick = choose;
+      el.onkeydown = (ev) => {
+        if (ev.key === "Enter" || ev.key === " ") {
+          ev.preventDefault();
+          choose();
+        }
+      };
+    });
   },
   explanation: academicExplanation("probability"),
   related: ["sampling", "histogram", "hypothesis-test"],

@@ -2,14 +2,14 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-ts-axis";
+} from "../crosstab/records.mjs?v=20261024-probability-flow";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-ts-axis";
+import { population } from "../sampling/model.mjs?v=20261024-probability-flow";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261024-ts-axis";
+} from "../time-series/model.mjs?v=20261024-probability-flow";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";
@@ -96,7 +96,13 @@ export function currentData(id, s) {
     name = name || "学習アプリ案内A/Bの登録人数";
     operation = `A ${s.successA}/${s.nA}・B ${s.successB}/${s.nB} → 差なしを${s.repetitions}回生成 → 両側p値`;
   }
-  if (id === "probability") {
+  if (id === "probability" && s.experiments?.some((e) => e.id === s.activeId)) {
+    const e = s.experiments.find((e) => e.id === s.activeId);
+    headers = ["セット", "表の回数"];
+    rows = e.sets.map((row, i) => [i + 1, row.reduce((a, b) => a + b, 0)]);
+    name = `コインのモデル実験 ${e.id}`;
+    operation = "同じ結果を、相対度数・二項分布・正規近似・標準化で読む";
+  } else if (id === "probability") {
     headers = [
       s.observed?.mode === s.mode
         ? s.observed.label

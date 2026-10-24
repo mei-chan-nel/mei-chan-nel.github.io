@@ -1,14 +1,24 @@
-import { learningViews } from "./learning.mjs?v=20261024-ts-axis";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-ts-axis";
+import { learningViews } from "./learning.mjs?v=20261024-probability-flow";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-probability-flow";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
-  if (["correlation", "histogram", "crosstab", "time-series"].includes(id)) {
+  if (
+    [
+      "correlation",
+      "histogram",
+      "crosstab",
+      "time-series",
+      "probability",
+    ].includes(id)
+  ) {
     const nodes = [...root.children];
     const shell = document.createElement("div");
     shell.className =
       "workbench" +
-      (["crosstab", "time-series"].includes(id) ? " unified-workbench" : "");
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : "散布図と直線"}"></section></div>`;
+      (["crosstab", "time-series", "probability"].includes(id)
+        ? " unified-workbench"
+        : "");
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : id === "probability" ? "確率と確率分布" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;
@@ -44,11 +54,6 @@ export function composeWorkbench(root, id, ui, onChange) {
     if (bars) dragPanel.append(bars);
     main = [dragPanel, panels[0], panels[2]];
     controls = [panels[1]];
-  }
-  if (id === "probability") {
-    prelude = [panels[0]];
-    main = [panels[1], panels[3]];
-    controls = [panels[2]];
   }
   main = main.filter(Boolean);
   if (!main.length) return;
@@ -145,21 +150,7 @@ export function composeWorkbench(root, id, ui, onChange) {
       ["lock-total", '[data-action="equal"]'],
     ],
   };
-  const probability =
-    ui.state?.mode === "normal"
-      ? [
-          "normal-mu",
-          "normal-sigma",
-          "normal-low",
-          "normal-high",
-          "normal-one",
-          "normal-two",
-          "normal-center",
-        ]
-      : ui.state?.mode === "binomial"
-        ? ["prob-p", "prob-n", "binomial-100", "binomial-1000"]
-        : ["prob-p", "coin-10", "coin-100", "coin-1000", "prob-early"];
-  const ids = id === "probability" ? probability : primary[id][view];
+  const ids = primary[id][view];
   for (const key of ids) {
     const input = root.querySelector(key.startsWith("[") ? key : "#" + key);
     if (!input) continue;

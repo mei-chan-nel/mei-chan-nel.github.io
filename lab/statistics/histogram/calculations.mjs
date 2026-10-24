@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs?v=20261024-ts-axis";
+import { esc, table } from "../shared/ui.mjs?v=20261024-probability-flow";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-ts-axis";
+} from "./descriptive.mjs?v=20261024-probability-flow";
 
 const n = (value) =>
   value === null || value === undefined

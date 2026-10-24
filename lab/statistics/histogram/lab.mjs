@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
-import { readDataset } from "../shared/data.mjs?v=20261024-ts-axis";
-import { render } from "./view.mjs?v=20261024-ts-axis";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
+import { readDataset } from "../shared/data.mjs?v=20261024-probability-flow";
+import { render } from "./view.mjs?v=20261024-probability-flow";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

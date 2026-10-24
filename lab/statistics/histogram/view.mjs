@@ -3,16 +3,16 @@ import {
   esc,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-ts-axis";
+} from "../shared/ui.mjs?v=20261024-probability-flow";
 import { fmt } from "../shared/math.mjs";
 
 import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-ts-axis";
-import { describe } from "./descriptive.mjs?v=20261024-ts-axis";
-import { renderCalculations } from "./calculations.mjs?v=20261024-ts-axis";
+} from "./model.mjs?v=20261024-probability-flow";
+import { describe } from "./descriptive.mjs?v=20261024-probability-flow";
+import { renderCalculations } from "./calculations.mjs?v=20261024-probability-flow";
 
 const colors = {
   A: "var(--chart-primary)",

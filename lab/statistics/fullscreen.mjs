@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-ts-axis";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-probability-flow";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261024-ts-axis";
+} from "./shared/fullscreen-layout.mjs?v=20261024-probability-flow";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

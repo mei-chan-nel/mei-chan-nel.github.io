@@ -6,8 +6,8 @@ import {
   metrics,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-ts-axis";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
+} from "../shared/ui.mjs?v=20261024-probability-flow";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
 import { mean, fmt } from "../shared/math.mjs";
 
 import {
@@ -20,7 +20,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-ts-axis";
+} from "./model.mjs?v=20261024-probability-flow";
 
 const positions = new WeakMap();
 const unitOf = (state) =>

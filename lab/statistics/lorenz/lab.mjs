@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261024-ts-axis";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
+} from "../shared/ui.mjs?v=20261024-probability-flow";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
 import {
   sum,
   mean,
