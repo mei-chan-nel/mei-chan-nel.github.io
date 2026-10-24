@@ -2,10 +2,10 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-simpson-theme";
+} from "../crosstab/records.mjs?v=20261024-monthly-series";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-simpson-theme";
-import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-simpson-theme";
+import { population } from "../sampling/model.mjs?v=20261024-monthly-series";
+import { createMonthlySeries } from "../time-series/model.mjs?v=20261024-monthly-series";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";
@@ -64,7 +64,7 @@ export function currentData(id, s) {
   if (id === "time-series") {
     headers = [
       s.dataInfo?.columns?.[0] || "月",
-      s.customLabel || "注文数（件）",
+      s.customLabel || "注文件数（件）",
     ];
     const values = s.customValues || createMonthlySeries(s);
     rows = values.map((v, i) => [
@@ -74,8 +74,8 @@ export function currentData(id, s) {
           : `${2022 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}`),
       v,
     ]);
-    name = name || "学習ノートの月別注文数";
-    operation = `${s.period}か月移動平均 ／ 最初の36か月で予測 → 最後の12か月で誤差を検証`;
+    name = name || "文具通販店の月別注文件数（教材用の架空データ）";
+    operation = `移動平均 → 自己相関 → 季節調整 → 伸び率・指数`;
   }
   if (id === "crosstab") {
     const l = s.dataInfo?.labels;
@@ -272,12 +272,10 @@ export function applyData(
     s.source = name;
   } else if (kind === "series") {
     if (rows.length !== 48)
-      throw Error(
-        "月別データは48か月分を指定してください（最初の36か月で予測、最後の12か月で検証）。",
-      );
+      throw Error("月別データは、時間順に連続する48か月分を指定してください。");
     const values = rows.map((r, i) => number(r, x, i));
     if (values.some((v) => v < 0))
-      throw Error("この予測モデルでは0以上の数値を指定してください。");
+      throw Error("月別の値は0以上の数値を指定してください。");
     s.dataInfo = { columns: [date >= 0 ? headers[date] : "月", headers[x]] };
     s.customValues = values;
     s.customLabel = headers[x];

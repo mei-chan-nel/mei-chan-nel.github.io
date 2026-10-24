@@ -2637,3 +2637,147 @@ html.statistics-immersive body {
 .screen-explanation-rail .ct-composition p {
   font-size: 0.74rem;
 }
+
+/* Time-series views keep the graph prominent and put selected-month results
+   in the common collapsible, resizable fullscreen navigation. */
+.ts-toolbar:empty {
+  display: none;
+}
+.ts-toolbar {
+  align-items: end;
+}
+.ts-toolbar > .control {
+  max-width: 160px;
+}
+.ts-choice {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.ts-choice legend {
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+}
+.ts-choice > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.ts-choice label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 9px;
+  border: 1px solid var(--chart-grid);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.78rem;
+}
+.ts-choice label:has(:checked) {
+  background: var(--chart-primary-pale);
+  border-color: var(--chart-primary);
+}
+.ts-choice input {
+  accent-color: var(--chart-primary);
+  width: 14px;
+  height: 14px;
+  min-height: 0;
+  margin: 0;
+}
+.ts-source,
+.ts-instruction {
+  color: var(--chart-muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+.ts-source {
+  margin: 0 12px 8px;
+}
+.ts-panel {
+  min-width: 0;
+}
+.ts-panel [data-month],
+.ts-panel [data-ts-lag] {
+  cursor: pointer;
+}
+.ts-panel :is([data-month], [data-ts-lag]):focus-visible {
+  outline: 2px solid var(--chart-secondary-dark);
+  outline-offset: 3px;
+}
+.ts-detail {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--chart-grid);
+  font-size: 0.84rem;
+  line-height: 1.8;
+}
+.ts-detail h3 {
+  margin: 0 0 10px;
+  font-size: 0.95rem;
+}
+.ts-detail dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 24px;
+  margin: 0;
+}
+.ts-detail dl > div {
+  min-width: 110px;
+}
+.ts-detail dt {
+  color: var(--chart-muted);
+  font-size: 0.75rem;
+}
+.ts-detail dd {
+  margin: 2px 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+}
+.ts-detail p {
+  margin: 9px 0;
+  overflow-wrap: anywhere;
+}
+.ts-detail .ts-small {
+  color: var(--chart-muted);
+  font-size: 0.74rem;
+}
+.ts-reading-value {
+  font-size: 1.35rem;
+  color: var(--chart-primary-dark);
+}
+.ts-calculation p {
+  font-variant-numeric: tabular-nums;
+}
+.ts-seasonal-detail {
+  margin-top: 12px;
+}
+.ts-summary {
+  padding-left: 1.3em;
+  margin: 0;
+}
+.ts-summary li {
+  margin-bottom: 12px;
+}
+.ts-summary p {
+  margin-top: 3px;
+}
+.screen-explanation-rail .ts-detail {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 0.78rem;
+}
+.screen-explanation-rail .ts-detail > h3 {
+  display: none;
+}
+.screen-explanation-rail .ts-detail dl {
+  display: block;
+}
+.screen-explanation-rail .ts-detail dl > div {
+  margin: 8px 0;
+}
+.screen-explanation-rail .ts-detail dd {
+  font-size: 1rem;
+}

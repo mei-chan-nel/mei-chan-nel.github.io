@@ -6,8 +6,8 @@ import {
   metrics,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-simpson-theme";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
+} from "../shared/ui.mjs?v=20261024-monthly-series";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-monthly-series";
 import { mean, fmt } from "../shared/math.mjs";
 
 import {
@@ -20,7 +20,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-simpson-theme";
+} from "./model.mjs?v=20261024-monthly-series";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");

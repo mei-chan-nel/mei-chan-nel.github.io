@@ -1,10 +1,10 @@
 import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-simpson-theme";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-monthly-series";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-simpson-theme";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-simpson-theme";
-import correlation from "./correlation/lab.mjs?v=20261024-simpson-theme";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-simpson-theme";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-monthly-series";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-monthly-series";
+import correlation from "./correlation/lab.mjs?v=20261024-monthly-series";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-monthly-series";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

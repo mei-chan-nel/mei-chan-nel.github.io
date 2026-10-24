@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261024-simpson-theme";
-import { currentData } from "./shared/data-model.mjs?v=20261024-simpson-theme";
+import { esc } from "./shared/ui.mjs?v=20261024-monthly-series";
+import { currentData } from "./shared/data-model.mjs?v=20261024-monthly-series";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-simpson-theme";
+} from "./shared/table-data.mjs?v=20261024-monthly-series";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-simpson-theme";
+} from "./data-editor.mjs?v=20261024-monthly-series";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

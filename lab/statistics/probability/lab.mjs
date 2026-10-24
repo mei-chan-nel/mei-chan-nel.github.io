@@ -8,8 +8,8 @@ import {
   axes,
   line,
   bind,
-} from "../shared/ui.mjs?v=20261024-simpson-theme";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
+} from "../shared/ui.mjs?v=20261024-monthly-series";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-monthly-series";
 import { fmt, sd } from "../shared/math.mjs";
 
 import {

@@ -1,11 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-simpson-theme";
+import { currentData } from "./data-model.mjs?v=20261024-monthly-series";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-simpson-theme";
-import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-simpson-theme";
-import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-simpson-theme";
+} from "../sampling/model.mjs?v=20261024-monthly-series";
+import {
+  matrixFor,
+  successRate,
+} from "../crosstab/lab.mjs?v=20261024-monthly-series";
+import { autocorrelations } from "../time-series/model.mjs?v=20261024-monthly-series";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -76,12 +79,8 @@ export function insight(id, state) {
   }
   if (id === "time-series") {
     const values = data.rows.map((r) => r[1]),
-      forecasts = makeForecasts(values.slice(0, 36), 12, state.period);
-    const score = evaluateForecast(
-      values.slice(36),
-      forecasts[state.forecast] || forecasts.seasonal,
-    );
-    return `${state.period}か月移動平均は、各月までの直近${state.period}個の値をならします。選んだ予測の平均絶対誤差は ${fmt(score.mae)}。期間を長くすると線は滑らかになりますが、変化への反応は遅れます。`;
+      acf = autocorrelations(values);
+    return `${state.period}か月移動平均で月ごとの変動をならします。12か月ずらした自己相関は ${acf[12] === null ? "計算できません" : fmt(acf[12], 2)}。季節調整後の動きと、比較する月を確かめましょう。`;
   }
   if (id === "probability") {
     const values = observationValues(state);

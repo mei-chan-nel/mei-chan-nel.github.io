@@ -2,7 +2,7 @@ import { rng, normal, clamp } from "./math.mjs";
 import {
   applyData,
   currentData,
-} from "./data-model.mjs?v=20261024-simpson-theme";
+} from "./data-model.mjs?v=20261024-monthly-series";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
@@ -107,9 +107,9 @@ export function sampleState(id, initial, seed = freshSeed()) {
     const next = {
       ...base,
       seed,
-      trend: integer(1, 6) / 2,
-      seasonal: integer(10, 25) * 2,
-      noise: integer(6, 20),
+      trend: 5,
+      seasonal: 140,
+      noise: 45,
     };
     const data = currentData(id, next);
     next.dataInfo = {

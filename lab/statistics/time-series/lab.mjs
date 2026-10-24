@@ -1,297 +1,434 @@
 import {
   chartKey,
   esc,
-  range,
-  select,
-  metrics,
-  table,
+  number,
   svg,
   axes,
   line,
   bind,
-} from "../shared/ui.mjs?v=20261024-simpson-theme";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-simpson-theme";
-import { mean, rng, normal, fmt, clamp } from "../shared/math.mjs";
-
-const MONTHS = 48;
-const TRAIN = 36;
-const METHODS = [
-  ["last", "直近の値"],
-  ["ma", "直近の移動平均"],
-  ["trend", "直線トレンド"],
-  ["seasonal", "前年同月＋年変化"],
-];
-const COLORS = {
-  last: "var(--chart-blue)",
-  ma: "var(--chart-purple)",
-  trend: "var(--chart-secondary)",
-  seasonal: "var(--chart-primary)",
-};
-
-// Original, fully synthetic monthly demand. The random component is reproducible.
-export function createMonthlySeries({
-  trend = 2,
-  seasonal = 32,
-  noise = 16,
-  seed = 1729,
-} = {}) {
-  const random = rng(seed);
-  return Array.from({ length: MONTHS }, (_, i) =>
-    Math.max(
-      1,
-      130 +
-        trend * i +
-        seasonal * Math.sin((2 * Math.PI * (i - 2)) / 12) +
-        noise * normal(random),
-    ),
-  );
+} from "../shared/ui.mjs?v=20261024-monthly-series";
+import {
+  academicExplanation,
+  readingNotes,
+} from "../shared/reading.mjs?v=20261024-monthly-series";
+import { mean, fmt } from "../shared/math.mjs";
+import {
+  SAMPLE_SOURCE,
+  createMonthlySeries,
+  trailingMovingAverage,
+  autocorrelations,
+  seasonalDecomposition,
+  seriesIndicator,
+  initialSeriesState,
+  normalizeSeriesState,
+} from "./model.mjs?v=20261024-monthly-series";
+export {
+  createMonthlySeries,
+  trailingMovingAverage,
+  seriesIndicator,
+  autocorrelations,
+  linearDetrend,
+  seasonalDecomposition,
+  normalizeSeriesState,
+} from "./model.mjs?v=20261024-monthly-series";
+export function monthLabel(i, state = {}) {
+  if (state.monthLabels?.[i])
+    return state.monthLabels[i].replace(
+      /^(\d{4})-(\d{2})$/,
+      (_, y, m) => `${y}年${+m}月`,
+    );
+  return state.customValues
+    ? `${i + 1}か月目`
+    : `${2022 + Math.floor(i / 12)}年${(i % 12) + 1}月`;
 }
-
-export function trailingMovingAverage(values, period) {
-  const k = Math.max(1, Math.min(values.length, Math.floor(period)));
-  return values.map((_, i) =>
-    i + 1 < k ? null : mean(values.slice(i - k + 1, i + 1)),
-  );
+const num = (v) =>
+  v === null || !Number.isFinite(v) ? "—" : fmt(v, Number.isInteger(v) ? 0 : 1);
+const signed = (v) =>
+  v === null || !Number.isFinite(v) ? "—" : `${v > 0 ? "+" : ""}${fmt(v, 1)}`;
+const unitOf = (s) =>
+  s.customValues
+    ? /[（(]([^）)]+)[）)]/.exec(s.customLabel || "")?.[1] || ""
+    : "件";
+const annualPeak = (acf) =>
+  acf[12] !== null && acf[12] > 0.3 && acf[12] > acf[11] && acf[12] > acf[13];
+const pct = (v) => (v === null ? "—" : `${signed(v)}%`);
+function brokenLine(values, a, cls = "series") {
+  let run = [],
+    out = "";
+  for (const [x, y] of values.entries()) {
+    if (y === null || !Number.isFinite(y)) {
+      if (run.length) out += line(run, a.x, a.y, cls);
+      run = [];
+    } else run.push({ x, y });
+  }
+  if (run.length) out += line(run, a.x, a.y, cls);
+  return out;
 }
-
-export function makeForecasts(training, horizon = 12, period = 6) {
-  const n = training.length;
-  if (!n) return { last: [], ma: [], trend: [], seasonal: [] };
-  const xm = (n - 1) / 2;
-  const ym = mean(training);
-  const denominator = training.reduce((s, _, i) => s + (i - xm) ** 2, 0);
-  const slope = denominator
-    ? training.reduce((s, y, i) => s + (i - xm) * (y - ym), 0) / denominator
-    : 0;
-  const last = training[n - 1];
-  const average = mean(training.slice(-Math.max(1, Math.floor(period))));
-  const annualDifferences = training.slice(Math.max(12, n - 12)).map((y, j) => {
-    const i = Math.max(12, n - 12) + j;
-    return y - training[i - 12];
+function calendarAxes(
+  values,
+  state,
+  { zero = true, height = 360, label } = {},
+) {
+  const valid = values.filter((v) => v !== null && Number.isFinite(v)),
+    min = Math.min(0, ...valid),
+    max = Math.max(1, ...valid),
+    span = Math.max(1, max - min);
+  const a = axes({
+    xmin: 0,
+    xmax: 47,
+    ymin: zero ? min : Math.min(...valid, 0) - span * 0.08,
+    ymax:
+      !label && unitOf(state) === "件"
+        ? Math.ceil((max + span * 0.12) / 5) * 5
+        : max + span * 0.12,
+    w: 760,
+    h: height,
+    ylabel: label || state.customLabel || "注文件数（件）",
   });
-  const annualChange = annualDifferences.length ? mean(annualDifferences) : 0;
-  return {
-    last: Array(horizon).fill(last),
-    ma: Array(horizon).fill(average),
-    trend: Array.from({ length: horizon }, (_, h) =>
-      Math.max(0, ym + slope * (n + h - xm)),
-    ),
-    seasonal: Array.from({ length: horizon }, (_, h) =>
-      n >= 12
-        ? Math.max(
-            0,
-            training[n - 12 + (h % 12)] +
-              annualChange * (1 + Math.floor(h / 12)),
-          )
-        : last,
-    ),
-  };
-}
-
-export function evaluateForecast(actual, predicted) {
-  const count = Math.min(actual.length, predicted.length);
-  if (!count) return { mae: null, rmse: null, bias: null };
-  const errors = actual.slice(0, count).map((y, i) => predicted[i] - y);
-  return {
-    mae: mean(errors.map(Math.abs)),
-    rmse: Math.sqrt(mean(errors.map((e) => e * e))),
-    bias: mean(errors),
-  };
-}
-
-export function seriesIndicator(values, mode) {
-  if (mode === "index")
-    return values.map((y) => (values[0] ? (y / values[0]) * 100 : null));
-  const lag = mode === "growth" ? 1 : 12;
-  return values.map((y, i) =>
-    i >= lag && values[i - lag] !== 0 ? (y / values[i - lag] - 1) * 100 : null,
-  );
-}
-
-function month(i, s = {}) {
-  if (s.monthLabels?.[i]) return s.monthLabels[i];
-  if (s.customValues) return `${i + 1}か月目`;
-  return `${2022 + Math.floor(i / 12)}年${(i % 12) + 1}月`;
-}
-function monthlyAxes(axis) {
-  // Replace generic numeric x ticks with calendar labels, retaining the y ticks.
-  return axis.markup.replace(
+  let markup = a.markup.replace(
     /<text x="[^"]+" y="[^"]+" text-anchor="middle">[^<]*<\/text>/g,
     "",
   );
-}
-function tickLabels(axis, h = 360, s = {}) {
-  return [0, 12, 24, 36, 47]
+  markup += [0, 12, 24, 36, 47]
     .map(
       (i) =>
-        `<text x="${axis.x(i)}" y="${h - 15}" text-anchor="${i === 47 ? "end" : "middle"}" font-size="11">${esc(month(i, s).replace("年", ".").replace("月", ""))}</text>`,
+        `<text x="${a.x(i)}" y="${height - 16}" text-anchor="${i === 0 ? "start" : i === 47 ? "end" : "middle"}">${esc(monthLabel(i, state).replace("年", ".").replace("月", ""))}</text>`,
+    )
+    .join("");
+  return { ...a, markup, height };
+}
+function monthPoints(
+  values,
+  a,
+  state,
+  { color = "var(--chart-primary)" } = {},
+) {
+  return values
+    .map(
+      (v, i) =>
+        `<circle id="ts-month-${i}" data-month="${i}" cx="${a.x(i)}" cy="${a.y(v === null ? 0 : v)}" r="${i === state.selected ? 6 : 4}" fill="${v === null ? "white" : color}" stroke="${i === state.selected ? "var(--chart-secondary)" : "white"}" stroke-width="${i === state.selected ? 3 : 1.5}" tabindex="0" role="button" aria-pressed="${i === state.selected}" aria-label="${esc(monthLabel(i, state))}：${v === null ? "比較する月がありません" : num(v)}。選ぶと計算を表示"><title>${esc(monthLabel(i, state))}：${num(v)}</title></circle>`,
     )
     .join("");
 }
-
+function selectedGuide(a, state) {
+  return `<line x1="${a.x(state.selected)}" x2="${a.x(state.selected)}" y1="30" y2="${a.y(0)}" stroke="var(--chart-reference)" stroke-dasharray="4 3"/>`;
+}
+const legend = (items) =>
+  `<div class="legend">${items.map(([label, color, kind]) => chartKey(label, color, kind)).join("")}</div>`;
+const panel = (title, body) =>
+  `<section class="panel chart-panel ts-panel"><h2>${title}</h2>${body}</section>`;
+const detail = (title, body) =>
+  `<section class="ts-detail" data-screen-nav-section="${esc(title)}"><h3>${esc(title)}</h3>${body}</section>`;
+function radio(id, label, options, value) {
+  return `<fieldset class="ts-choice"><legend>${esc(label)}</legend><div>${options.map(([v, l]) => `<label><input type="radio" id="${id}-${v}" name="${id}" value="${v}" ${v === value ? "checked" : ""}><span>${esc(l)}</span></label>`).join("")}</div></fieldset>`;
+}
+function rollingView(s, values, unit) {
+  const ma = trailingMovingAverage(values, s.period),
+    i = s.selected,
+    start = i - s.period + 1,
+    a = calendarAxes(values, s),
+    can = start >= 0;
+  const window = can
+    ? `<rect data-ts-window x="${a.x(Math.max(0, start - 0.35))}" y="30" width="${a.x(Math.min(47, i + 0.35)) - a.x(Math.max(0, start - 0.35))}" height="${a.y(0) - 30}" fill="var(--chart-purple-pale)"/>`
+    : "";
+  const chart = svg(
+    window +
+      a.markup +
+      selectedGuide(a, s) +
+      brokenLine(values, a) +
+      brokenLine(ma, a, "moving-average") +
+      monthPoints(values, a, s),
+    "月ごとの値と、その月までの移動平均。薄紫の範囲が選んだ月の平均に使う期間。",
+    760,
+    360,
+  );
+  return panel(
+    "月ごとの変動をならす",
+    `<p class="ts-instruction">点を選ぶと、その月の平均に使った期間と計算が切り替わります。</p>${chart}${legend(
+      [
+        ["元の値", "var(--chart-primary)", "point"],
+        [`${s.period}か月移動平均`, "var(--chart-purple)", "line-dashed"],
+      ],
+    )}${detail(
+      monthLabel(i, s),
+      `<dl><div><dt>元の値</dt><dd data-ts-current>${num(values[i])}${esc(unit)}</dd></div><div><dt>${s.period}か月移動平均</dt><dd data-ts-average>${num(ma[i])}${esc(unit)}</dd></div></dl><p data-ts-window-label>${can ? `${esc(monthLabel(start, s))}〜${esc(monthLabel(i, s))}の${s.period}か月を平均。` : "平均に必要な月数がまだありません。"}</p>${
+        can
+          ? `<details class="ts-calculation"><summary>この平均の計算</summary><p>（${values
+              .slice(start, i + 1)
+              .map(num)
+              .join(
+                " ＋ ",
+              )}）÷ ${s.period} ＝ ${num(ma[i])}${esc(unit)}</p></details>`
+          : ""
+      }<p>期間を長くすると細かい変動は減りますが、最近の変化への反応は遅くなります。</p>`,
+    )}`,
+  );
+}
+function acfView(s, values) {
+  const acf = autocorrelations(values),
+    a = axes({
+      xmin: 0.5,
+      xmax: 24.5,
+      ymin: -1,
+      ymax: 1,
+      w: 760,
+      h: 360,
+      ylabel: "自己相関",
+    });
+  let drawing =
+    a.markup.replace(
+      /<text x="[^"]+" y="[^"]+" text-anchor="middle">[^<]*<\/text>/g,
+      "",
+    ) +
+    `<line x1="${a.x(0.5)}" x2="${a.x(24.5)}" y1="${a.y(0)}" y2="${a.y(0)}" stroke="var(--chart-reference)"/>`;
+  for (let lag = 1; lag <= 24; lag++) {
+    const v = acf[lag],
+      x = a.x(lag),
+      w = (a.x(2) - a.x(1)) * 0.65;
+    drawing += `<g id="ts-lag-${lag}" data-ts-lag="${lag}" tabindex="0" role="button" aria-pressed="${lag === s.lag}" aria-label="${lag}か月ずらす。自己相関${v === null ? "は計算できません" : fmt(v, 2)}"><rect x="${x - w / 2}" y="30" width="${w}" height="282" fill="transparent"/>${v === null ? "" : `<rect data-ts-acf-value="${v}" x="${x - w / 2}" y="${a.y(Math.max(0, v))}" width="${w}" height="${Math.abs(a.y(v) - a.y(0))}" fill="${lag === s.lag ? "var(--chart-secondary)" : "var(--chart-primary)"}"/>`}</g>`;
+  }
+  drawing +=
+    [1, 6, 12, 18, 24]
+      .map(
+        (k) => `<text x="${a.x(k)}" y="331" text-anchor="middle">${k}</text>`,
+      )
+      .join("") +
+    '<text x="380" y="354" text-anchor="middle">何か月ずらすか</text>';
+  return panel(
+    "何か月ずらすと、似た動きになる？",
+    `<p class="ts-instruction">長期的な増減を除いて比較します。棒を選ぶと、ずらす月数を確認できます。</p>${svg(drawing, "長期の直線的な増減を除いた、1〜24か月ずらした自己相関", 760, 360)}${detail(`${s.lag}か月ずらした比較`, `<dl><div><dt>自己相関</dt><dd data-ts-acf>${acf[s.lag] === null ? "—" : fmt(acf[s.lag], 2)}</dd></div></dl><p>${acf[s.lag] === null ? "長期的な増減を除くと変動がないため、自己相関を計算できません。" : `同じデータを${s.lag}か月ずらし、重なる${48 - s.lag}組の値の動きが似ているかを調べています。`}</p><p data-ts-annual-acf>12か月ずらした自己相関：${acf[12] === null ? "—" : fmt(acf[12], 2)}。${annualPeak(acf) ? "1年周期の手がかりがあります。12か月で平均すると、この繰り返しをならしやすくなります。" : "1年周期が明瞭か、グラフも合わせて確かめましょう。"}</p><p class="ts-small">自己相関だけで平均する月数が決まるわけではありません。ならしたい周期と、変化への反応を比べます。</p>`)}`,
+  );
+}
+function adjustmentView(s, values, decomp, unit) {
+  const i = s.selected,
+    a = calendarAxes([...values, ...decomp.adjusted], s),
+    effect = decomp.seasonal[i % 12];
+  const main = svg(
+    a.markup +
+      selectedGuide(a, s) +
+      brokenLine(values, a) +
+      `<g stroke="var(--chart-secondary)" stroke-width="2.5" fill="none">${brokenLine(decomp.adjusted, a, "ts-adjusted-line")}</g>` +
+      monthPoints(values, a, s),
+    "元の値と、毎年繰り返す季節の影響を引いた季節調整後の値",
+    760,
+    360,
+  );
+  const max = Math.max(
+      1,
+      ...decomp.seasonal.filter((v) => v !== null).map(Math.abs),
+    ),
+    b = axes({
+      xmin: -0.5,
+      xmax: 11.5,
+      ymin: -max * 1.25,
+      ymax: max * 1.25,
+      w: 760,
+      h: 220,
+      ylabel: `推定した季節の影響${unit ? "（" + unit + "）" : ""}`,
+    });
+  let bars = b.markup.replace(
+    /<text x="[^"]+" y="[^"]+" text-anchor="middle">[^<]*<\/text>/g,
+    "",
+  );
+  bars += decomp.seasonal
+    .map(
+      (v, m) =>
+        `<rect x="${b.x(m) - 15}" y="${b.y(Math.max(0, v ?? 0))}" width="30" height="${Math.abs(b.y(v ?? 0) - b.y(0))}" fill="var(--chart-secondary)"/><text x="${b.x(m)}" y="193" text-anchor="middle">${esc(monthLabel(m, s).replace(/^\d{4}年/, ""))}</text>`,
+    )
+    .join("");
+  return panel(
+    "毎年繰り返す季節の影響を取り除く",
+    `<p class="ts-instruction">点を選ぶと、元の値から何を引いたか確認できます。季節調整後は月同士の変化を比べやすくなります。</p>${main}${legend(
+      [
+        ["元の値", "var(--chart-primary)", "point"],
+        ["季節調整後", "var(--chart-secondary)", "line"],
+      ],
+    )}${detail(monthLabel(i, s), `<dl><div><dt>元の値</dt><dd>${num(values[i])}${esc(unit)}</dd></div><div><dt>推定した季節の影響</dt><dd data-ts-seasonal>${signed(effect)}${esc(unit)}</dd></div><div><dt>季節調整後</dt><dd data-ts-adjusted>${num(decomp.adjusted[i])}${esc(unit)}</dd></div></dl><p data-ts-adjustment-formula>${num(values[i])} −（${signed(effect)}）＝ ${num(decomp.adjusted[i])}${esc(unit)}</p><p>季節の影響がマイナスの月は、その分を補って比較します。</p><p class="ts-small">12か月の中心移動平均との差から、月ごとの季節成分を推定する簡易的な加法モデルです。平均・調整後の値は計算値なので小数になります。</p>`)}<details class="ts-seasonal-detail"><summary>月ごとの季節の影響を見る</summary>${svg(bars, "各月に繰り返す上乗せ・下押し分の推定値。12か月の合計は0。", 760, 220)}</details>`,
+  );
+}
+function indicatorView(s, values, decomp, unit) {
+  const source = s.indicatorSource === "adjusted" ? decomp.adjusted : values,
+    ind = seriesIndicator(source, s.indicator),
+    i = s.selected,
+    lag = s.indicator === "growth" ? 1 : 12,
+    base = s.indicator === "index" ? 0 : i - lag,
+    den = base >= 0 ? source[base] : null,
+    v = ind[i],
+    isIndex = s.indicator === "index",
+    label = isIndex ? "指数（基準月＝100）" : "伸び率（%）",
+    a = calendarAxes(isIndex ? [...ind, 100] : ind, s, { label }),
+    baseline = isIndex ? 100 : 0;
+  const chart = svg(
+    a.markup +
+      `<line x1="${a.x(0)}" x2="${a.x(47)}" y1="${a.y(baseline)}" y2="${a.y(baseline)}" stroke="var(--chart-reference)" stroke-dasharray="4 3"/>` +
+      brokenLine(ind, a) +
+      monthPoints(ind, a, s),
+    isIndex
+      ? "最初の月を100とした各月の指数"
+      : "前月または前年同月から、何パーセント増減したか",
+    760,
+    360,
+  );
+  let result =
+    v === null
+      ? "<p>比較する月がないか、基準の値が0以下のため計算できません。</p>"
+      : isIndex
+        ? `<strong class="ts-reading-value" data-ts-indicator>${num(v)}</strong><p>基準月の${fmt(v / 100, 2)}倍。${v >= 100 ? `${num(v - 100)}%多い` : `${num(100 - v)}%少ない`}値です。</p><p data-ts-indicator-formula>${num(source[i])} ÷ ${num(den)} × 100 ＝ ${num(v)}</p>`
+        : `<strong class="ts-reading-value" data-ts-indicator>${pct(v)}</strong><p>${s.indicator === "growth" ? "前月" : "前年の同じ月"}より${num(Math.abs(v))}%${v >= 0 ? "増えました" : "減りました"}。</p><p data-ts-indicator-formula>（${num(source[i])} − ${num(den)}）÷ ${num(den)} × 100 ＝ ${pct(v)}</p>`;
+  return panel(
+    "何と比べた変化なのかを読む",
+    `<p class="ts-instruction">点を選ぶと、比べた2か月の値と計算を表示します。</p>${chart}${detail(monthLabel(i, s), `<p>${s.indicatorSource === "adjusted" ? "季節調整後の値" : "元の値"}で比較しています。</p><dl><div><dt>${base >= 0 ? esc(monthLabel(base, s)) : "比較する月"}</dt><dd>${num(den)}${esc(unit)}${isIndex ? "（基準）" : ""}</dd></div><div><dt>${esc(monthLabel(i, s))}</dt><dd>${num(source[i])}${esc(unit)}</dd></div></dl>${result}<p class="ts-small">${isIndex ? "指数100が基準と同じ大きさ。指数120は20%増を表します。" : "伸び率0%が増減なし。元の値の前月比には、季節の影響も含まれます。"}</p>`)}`,
+  );
+}
+function summaryView(s, values, d, unit) {
+  const first = mean(values.slice(0, 12)),
+    last = mean(values.slice(-12)),
+    change = first > 0 ? (last / first - 1) * 100 : null,
+    acf = autocorrelations(values),
+    ma = trailingMovingAverage(values, s.period),
+    a = calendarAxes([...values, ...d.adjusted], s),
+    i = 47,
+    yoy = seriesIndicator(values, "yoy")[i],
+    mom = seriesIndicator(d.adjusted, "growth")[i];
+  const chart = svg(
+    a.markup +
+      brokenLine(values, a) +
+      brokenLine(ma, a, "moving-average") +
+      `<g stroke="var(--chart-secondary)" stroke-width="2.5" fill="none">${brokenLine(d.adjusted, a, "ts-adjusted-line")}</g>`,
+    "元の値、移動平均、季節調整後を重ねた全体のまとめ",
+    760,
+    360,
+  );
+  return panel(
+    "同じデータを、4つの見方で読む",
+    `${chart}${legend([
+      ["元の値", "var(--chart-primary)", "line"],
+      [`${s.period}か月移動平均`, "var(--chart-purple)", "line-dashed"],
+      ["季節調整後", "var(--chart-secondary)", "line"],
+    ])}${detail("このデータのまとめ", `<ol class="ts-summary"><li><strong>長期の動き</strong><p>最初の12か月の平均 ${num(first)}${esc(unit)} → 最後の12か月の平均 ${num(last)}${esc(unit)}（${pct(change)}）。</p></li><li><strong>繰り返し</strong><p>12か月ずらした自己相関は${acf[12] === null ? "—" : fmt(acf[12], 2)}。${annualPeak(acf) ? "1年周期の手がかりが見られます。" : "1年周期が明瞭とは限りません。"}</p></li><li><strong>季節の影響を分ける</strong><p>季節調整後の線で、毎年の繁閑を除いた動きを見ます。</p></li><li><strong>変化の基準</strong><p>${esc(monthLabel(i, s))}の元の値は前年同月から${pct(yoy)}。季節調整後は前月から${pct(mom)}です。</p></li></ol><p>長期の動き・季節の影響・比べる月を区別して、何が変わったかを読み取りましょう。</p>`)}`,
+  );
+}
 export default {
   id: "time-series",
   title: "時系列データの分析",
-  description: "変動を分けて考え、学習に使わなかった期間で予測を検証する。",
-  lead: "架空の「学習ノート注文数」48か月を実験。最初の36か月だけで次の12か月を予測し、実測値と比べます。",
-  initial: () => ({
-    trend: 2,
-    seasonal: 32,
-    noise: 16,
-    period: 6,
-    forecast: "seasonal",
-    indicator: "yoy",
-    selected: 41,
-    seed: 1729,
-  }),
-  related: ["correlation", "summary", "sampling"],
+  description:
+    "移動平均、自己相関、季節調整、伸び率・指数から月別の変化を読む。",
+  lead: SAMPLE_SOURCE,
+  initial: initialSeriesState,
+  normalize: normalizeSeriesState,
+  related: ["correlation", "histogram", "sampling"],
   explanation: academicExplanation("time-series"),
   render(root, ctx) {
-    const s = ctx.state;
-    const values = s.customValues || createMonthlySeries(s);
-    const valueUnit = s.customValues ? "" : "件";
-    const ma = trailingMovingAverage(values, s.period);
-    const forecasts = makeForecasts(values.slice(0, TRAIN), 12, s.period);
-    const method = METHODS.some(([v]) => v === s.forecast)
-      ? s.forecast
-      : "seasonal";
-    const prediction = forecasts[method];
-    const score = evaluateForecast(values.slice(TRAIN), prediction);
-    const selected = clamp(Math.round(s.selected), 0, 47);
-    const all = [...values, ...Object.values(forecasts).flat()];
-    const maximum = Math.ceil(Math.max(...all) / 50) * 50 + 20;
-    const a = axes({
-      xmin: 0,
-      xmax: 47,
-      ymin: 0,
-      ymax: maximum,
-      xlabel: "",
-      ylabel: s.customLabel || "注文数（件）",
-      w: 760,
-      h: 370,
-    });
-    const points = values.map((y, x) => ({ x, y }));
-    const marked = prediction.map((y, h) => ({ x: TRAIN + h, y }));
-    const selectedForecast =
-      selected >= TRAIN ? prediction[selected - TRAIN] : null;
-    const chart = svg(
-      `<rect x="${a.x(35.5)}" y="16" width="${a.x(47) - a.x(35.5)}" height="${a.y(0) - 16}" fill="var(--chart-context)"/>${monthlyAxes(a)}${line(points.slice(0, TRAIN), a.x, a.y)}<g style="stroke:var(--chart-secondary);stroke-dasharray:5 4;fill:none">${line(points.slice(TRAIN - 1), a.x, a.y, "warm")}</g><g style="stroke:var(--chart-purple);fill:none;opacity:.65">${line(
-        ma.map((y, x) => ({ x, y })).filter((p) => p.y !== null),
-        a.x,
-        a.y,
-        "moving-average",
-      )}</g><g style="stroke:${COLORS[method]};stroke-width:3;fill:none">${line([{ x: TRAIN - 1, y: values[TRAIN - 1] }, ...marked], a.x, a.y, "forecast-line")}</g>${points.map((p) => `<circle data-month="${p.x}" cx="${a.x(p.x)}" cy="${a.y(p.y)}" r="${p.x === selected ? 7 : 4}" fill="${p.x >= TRAIN ? "var(--chart-secondary)" : "var(--chart-primary)"}" stroke="white" tabindex="0" role="button" aria-label="${esc(month(p.x, s))} ${fmt(p.y, 1)}${valueUnit}を詳しく見る"><title>${esc(month(p.x, s))}：${fmt(p.y, 1)}${valueUnit}</title></circle>`).join("")}${selectedForecast === null ? "" : `<line x1="${a.x(selected)}" y1="${a.y(values[selected])}" x2="${a.x(selected)}" y2="${a.y(selectedForecast)}" stroke="var(--chart-secondary-dark)" stroke-width="4"/><rect x="${a.x(selected) - 4}" y="${a.y(selectedForecast) - 4}" width="8" height="8" fill="${COLORS[method]}"/>`}<text x="${a.x(36) + 5}" y="30" font-size="11">検証用12か月</text>${tickLabels(a, 370, s)}`,
-      "月別の注文数、移動平均、訓練期間だけで作った12か月予測",
-      760,
-      370,
-    );
-    const indicators = seriesIndicator(values, s.indicator);
-    const valid = indicators.filter((v) => v !== null);
-    const low =
-      s.indicator === "index"
-        ? Math.min(100, ...valid) * 0.85
-        : Math.min(0, ...valid) - 5;
-    const high =
-      Math.max(s.indicator === "index" ? 100 : 0, ...valid) +
-      (s.indicator === "index" ? 20 : 5);
-    const unit = s.indicator === "index" ? "指数" : "%";
-    const b = axes({
-      xmin: 0,
-      xmax: 47,
-      ymin: low,
-      ymax: high,
-      xlabel: "",
-      ylabel: unit,
-      w: 760,
-      h: 245,
-    });
-    const baseline = s.indicator === "index" ? 100 : 0;
-    const indicatorChart = svg(
-      `${monthlyAxes(b)}<line x1="${b.x(0)}" x2="${b.x(47)}" y1="${b.y(baseline)}" y2="${b.y(baseline)}" stroke="var(--chart-reference)" stroke-dasharray="4 3"/>${line(
-        indicators.map((y, x) => ({ x, y })).filter((p) => p.y !== null),
-        b.x,
-        b.y,
-      )}${indicators[selected] === null ? "" : `<circle cx="${b.x(selected)}" cy="${b.y(indicators[selected])}" r="6" fill="var(--chart-secondary)"/>`}${tickLabels(b, 245, s)}`,
-      "同じ月別データを、選んだ比較基準で読み替えた折れ線",
-      760,
-      245,
-    );
-    const currentIndicator = indicators[selected];
-    const lag = s.indicator === "growth" ? 1 : 12;
-    const denominator =
-      s.indicator === "index"
-        ? values[0]
-        : selected >= lag
-          ? values[selected - lag]
-          : null;
-    const calculation =
-      denominator === null
-        ? "比較する過去の月がないため、この月の比率は計算できません。"
-        : s.indicator === "index"
-          ? `${fmt(values[selected], 1)} ÷ ${fmt(denominator, 1)} × 100 ＝ ${fmt(currentIndicator, 1)}`
-          : `(${fmt(values[selected], 1)} ÷ ${fmt(denominator, 1)} − 1) × 100 ＝ ${fmt(currentIndicator, 1)}%`;
-    root.innerHTML = `<div class="stat-grid"><div><section class="panel chart-panel"><h2>未来を隠して、予測を比べる</h2><p class="hint">${s.customValues ? "読み込んだ48か月のデータ。" : "2022〜2025年の架空データ。"}点を選ぶとその月の計算を確認できます。すべての値は小数のまま計算しています。</p>${chart}<div class="legend">${chartKey("実測（訓練）", "var(--chart-primary)", "point")}${chartKey("実測（検証）", "var(--chart-secondary)", "point")}${chartKey("後方移動平均", "var(--chart-purple)", "line-dashed")}${chartKey("選択した予測", COLORS[method], "line")}</div>${metrics(
-      [
-        [
-          "12か月のMAE",
-          `${fmt(score.mae, 1)}${valueUnit}`,
-          "小さいほど絶対誤差が小さい",
-        ],
-        ["RMSE", `${fmt(score.rmse, 1)} 件`, "大きな誤差を強く評価"],
-        ["平均誤差", `${fmt(score.bias, 1)} 件`, "予測 − 実測"],
-      ],
-    )}</section><section class="panel"><h2>同じデータ、違う比較基準</h2>${select(
-      "indicator",
-      "変化の読み方",
-      [
-        ["growth", "前月比"],
-        ["yoy", "前年同月比"],
-        ["index", "最初の月＝100の指数"],
-      ],
-      s.indicator,
-    )}${indicatorChart}<p class="annotation"><strong>${esc(month(selected, s))}</strong>：${calculation}</p></section><section class="panel"><h2>4つの予測を同じ条件で評価</h2><p class="hint">${esc(month(35, s))}までの36か月だけを使用。残り12か月の実測値は、予測後の答え合わせに使います。</p>${table(
-      ["方法", "MAE（件）", "RMSE（件）", "平均誤差（件）"],
-      METHODS.map(([key, label]) => {
-        const e = evaluateForecast(values.slice(TRAIN), forecasts[key]);
-        return [
-          label + (key === method ? " ◀ 選択中" : ""),
-          fmt(e.mae, 1),
-          fmt(e.rmse, 1),
-          fmt(e.bias, 1),
-        ];
+    const s = normalizeSeriesState(ctx.state),
+      view = ctx.view || 0,
+      values = s.customValues || createMonthlySeries(s),
+      unit = unitOf(s),
+      d = seasonalDecomposition(values);
+    const toolbar =
+      view === 0
+        ? number("period", "平均する月数", s.period, 1, 24, 1)
+        : view === 1
+          ? '<button type="button" id="ts-try-annual">12か月移動平均を見る</button>'
+          : view === 3
+            ? radio(
+                "indicator",
+                "比べる基準",
+                [
+                  ["growth", "前月からの伸び率"],
+                  ["yoy", "前年同月からの伸び率"],
+                  ["index", `${monthLabel(0, s)}＝100の指数`],
+                ],
+                s.indicator,
+              ) +
+              radio(
+                "ts-source",
+                "使う値",
+                [
+                  ["raw", "元の値"],
+                  ["adjusted", "季節調整後"],
+                ],
+                s.indicatorSource,
+              )
+            : "";
+    const content =
+      view === 0
+        ? rollingView(s, values, unit)
+        : view === 1
+          ? acfView(s, values)
+          : view === 2
+            ? adjustmentView(s, values, d, unit)
+            : view === 3
+              ? indicatorView(s, values, d, unit)
+              : summaryView(s, values, d, unit);
+    root.innerHTML = `<div class="analysis-toolbar ts-toolbar" role="group" aria-label="分析の操作">${toolbar}</div><p class="ts-source">${esc(s.customValues ? `データ：${s.dataInfo?.name || s.customLabel || "読み込んだ月別データ"}（月次48件）` : SAMPLE_SOURCE)}</p>${content}<details class="analysis-notes"><summary>解説</summary>${readingNotes(
+      "time-series",
+      view,
+      s,
+    )
+      .map((t) => `<p>${esc(t)}</p>`)
+      .join("")}</details>`;
+    const update = (patch) => {
+      const page = root.ownerDocument.defaultView;
+      const position = { left: page.scrollX, top: page.scrollY };
+      const fullscreen = Boolean(root.closest(".statistics-fullscreen")?.open);
+      ctx.update(patch);
+      const panel = root.querySelector(".ts-panel");
+      const restore = () => {
+        if (
+          !fullscreen &&
+          root.querySelector(".ts-panel") === panel &&
+          (page.scrollX !== position.left || page.scrollY !== position.top)
+        )
+          page.scrollTo({ ...position, behavior: "instant" });
+      };
+      restore();
+      page.requestAnimationFrame(restore);
+    };
+    bind(root, "period", (v) =>
+      update({
+        period: Math.max(1, Math.min(24, Math.round(Number(v)) || 1)),
       }),
-    )}</section></div><aside><section class="panel controls"><h2>分析の操作</h2>${range("trend", "長期トレンド（月当たり）", s.trend, -2, 6, 0.5, "件")}${range("seasonal", "季節変動の振幅", s.seasonal, 0, 60, 2, "件")}${range("noise", "偶然変動の標準偏差", s.noise, 0, 30, 1, "件")}<p class="hint">スライダーを変えても乱数の並びは同じ。条件の影響を比べられます。</p><button id="resample">別の偶然変動を試す</button><p class="muted">再現用シード：${s.seed}</p><h3>分析方法</h3>${range("period", "移動平均の期間", s.period, 1, 12, 1, "か月")}${select("forecast", "グラフで見る予測", METHODS, method)}<p class="hint">直近の移動平均による予測も、この期間を使用します。</p><h3>1か月を詳しく調べる</h3>${range("selected", "注目する月（開始から）", selected + 1, 1, 48, 1, "か月目")}<p><strong>${esc(month(selected, s))}</strong><br>実測 ${fmt(values[selected], 1)}${valueUnit}<br>移動平均 ${ma[selected] === null ? "計算に必要な月数が不足" : `${fmt(ma[selected], 1)}${valueUnit}`}${selectedForecast === null ? "<br>訓練期間のため予測評価の対象外" : `<br>予測 ${fmt(selectedForecast, 1)}${valueUnit}<br>誤差（予測−実測）${fmt(selectedForecast - values[selected], 1)}${valueUnit}`}</p><details><summary>この月の移動平均の計算</summary><p>${
-      ma[selected] === null
-        ? `最初の${s.period - 1}か月は計算できません。`
-        : `${values
-            .slice(selected - s.period + 1, selected + 1)
-            .map((v) => fmt(v, 1))
-            .join(
-              " ＋ ",
-            )} の合計 ÷ ${s.period} ＝ ${fmt(ma[selected], 1)}${valueUnit}（表示前の値で計算）`
-    }</p></details></section></aside></div>`;
-    if (s.customValues)
-      for (const key of ["trend", "seasonal", "noise", "resample"])
-        root.querySelector("#" + key).disabled = true;
-    for (const key of ["trend", "seasonal", "noise", "period"])
-      bind(root, key, (v) => ctx.update({ [key]: Number(v) }));
-    for (const key of ["forecast", "indicator"])
-      bind(root, key, (v) => ctx.update({ [key]: v }), "change");
-    bind(root, "selected", (v) => ctx.update({ selected: Number(v) - 1 }));
+    );
     root
-      .querySelector("#resample")
-      .addEventListener("click", () =>
-        ctx.update({ seed: Number(s.seed) + 1 }),
+      .querySelectorAll('input[name="indicator"],input[name="ts-source"]')
+      .forEach((el) =>
+        el.addEventListener("change", () => {
+          if (el.checked)
+            update({
+              [el.name === "indicator" ? "indicator" : "indicatorSource"]:
+                el.value,
+            });
+        }),
       );
-    root.querySelectorAll("[data-month]").forEach((el) => {
-      const choose = () => ctx.update({ selected: Number(el.dataset.month) });
-      el.addEventListener("click", choose);
+    root.querySelectorAll("[data-month],[data-ts-lag]").forEach((el) => {
+      const isMonth = el.hasAttribute("data-month"),
+        key = isMonth ? "selected" : "lag",
+        current = Number(isMonth ? el.dataset.month : el.dataset.tsLag),
+        choose = (value = current) => update({ [key]: value });
+      el.addEventListener("click", () => choose());
       el.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (["Enter", " "].includes(e.key)) {
           e.preventDefault();
           choose();
+        } else if (["ArrowLeft", "ArrowRight"].includes(e.key)) {
+          e.preventDefault();
+          const value = Math.max(
+            isMonth ? 0 : 1,
+            Math.min(
+              isMonth ? 47 : 24,
+              current + (e.key === "ArrowLeft" ? -1 : 1),
+            ),
+          );
+          choose(value);
+          root
+            .querySelector(`#ts-${isMonth ? "month" : "lag"}-${value}`)
+            ?.focus({ preventScroll: true });
         }
       });
+    });
+    root.querySelector("#ts-try-annual")?.addEventListener("click", () => {
+      update({ period: 12 });
+      root.ownerDocument.querySelector("#view-0")?.click();
     });
   },
 };

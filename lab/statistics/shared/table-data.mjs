@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-simpson-theme";
+import { applyData } from "./data-model.mjs?v=20261024-monthly-series";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

@@ -1,24 +1,24 @@
-import { esc } from "./shared/ui.mjs?v=20261024-simpson-theme";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-simpson-theme";
+import { esc } from "./shared/ui.mjs?v=20261024-monthly-series";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-monthly-series";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-simpson-theme";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-simpson-theme";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-simpson-theme";
-import { sampleState } from "./shared/samples.mjs?v=20261024-simpson-theme";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-simpson-theme";
+} from "./shared/data-model.mjs?v=20261024-monthly-series";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-monthly-series";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-monthly-series";
+import { sampleState } from "./shared/samples.mjs?v=20261024-monthly-series";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-monthly-series";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-simpson-theme";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-simpson-theme";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-simpson-theme";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-simpson-theme";
+} from "./learning.mjs?v=20261024-monthly-series";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-monthly-series";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-monthly-series";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-monthly-series";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-simpson-theme`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-monthly-series`))
   .default;
 const ui = {
   view: 0,
@@ -31,7 +31,8 @@ const project =
   new URLSearchParams(location.search).get("dataset") === "project";
 function prepare(next) {
   if (id === "histogram") next = normalizeHistogram(next);
-  if (id === "correlation") next = config.normalize(next);
+  if (["correlation", "time-series"].includes(id))
+    next = config.normalize(next);
   if (id === "sampling") next = normalizeExperiment(next);
   if (id === "crosstab") {
     if (!next.records) {
@@ -75,6 +76,7 @@ let state;
 try {
   const saved = JSON.parse(localStorage.getItem(key));
   if (saved && !project && saved.state?.dataInfo?.origin === "user") {
+    if (id === "time-series") saved.state = config.normalize(saved.state);
     validateDocument(saved, id, config.initial());
     state = prepare(saved.state);
   }

@@ -17,7 +17,7 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261024-simpson-theme";
+} from "../shared/ui.mjs?v=20261024-monthly-series";
 import { readDataset } from "../shared/data.mjs";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];

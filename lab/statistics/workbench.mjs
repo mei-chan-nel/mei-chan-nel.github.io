@@ -1,13 +1,14 @@
-import { learningViews } from "./learning.mjs?v=20261024-simpson-theme";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-simpson-theme";
+import { learningViews } from "./learning.mjs?v=20261024-monthly-series";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-monthly-series";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
-  if (["correlation", "histogram", "crosstab"].includes(id)) {
+  if (["correlation", "histogram", "crosstab", "time-series"].includes(id)) {
     const nodes = [...root.children];
     const shell = document.createElement("div");
     shell.className =
-      "workbench" + (id === "crosstab" ? " unified-workbench" : "");
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : "散布図と直線"}"></section></div>`;
+      "workbench" +
+      (["crosstab", "time-series"].includes(id) ? " unified-workbench" : "");
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;
@@ -29,10 +30,6 @@ export function composeWorkbench(root, id, ui, onChange) {
   if (id === "sampling") {
     main = [panels[0], panels[2], panels[3]];
     controls = [panels[1]];
-  }
-  if (id === "time-series") {
-    main = panels.slice(0, 3);
-    controls = [panels[3]];
   }
   if (id === "hypothesis-test") {
     main = panels.slice(0, 2);
@@ -126,11 +123,6 @@ export function composeWorkbench(root, id, ui, onChange) {
         "sample-one",
         "sample-many",
       ],
-    ],
-    "time-series": [
-      ["period", "forecast", "selected"],
-      ["indicator", "selected"],
-      ["period", "forecast"],
     ],
     "hypothesis-test": [
       ["alpha", "practical", "double", "halve"],
