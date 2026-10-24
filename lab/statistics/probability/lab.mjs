@@ -96,8 +96,10 @@ function coinView(s, e, d) {
   const points = shown.filter(
     (_, i) => i % stride === 0 || i === shown.length - 1,
   );
+  const last = shown.at(-1);
+  const endpoint = `<circle data-prob-relative-point cx="${a.x(last.x)}" cy="${a.y(last.y)}" r="4" fill="var(--chart-primary)"><title>${last.x}回時点：表の相対度数 ${fmt(last.y, 4)}</title></circle>`;
   const target = `<line x1="58" x2="736" y1="${a.y(e.p)}" y2="${a.y(e.p)}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="6 4"/><text x="730" y="${Math.max(24, a.y(e.p) - 9)}" text-anchor="end">設定した確率 p＝${fmt(e.p, 2)}</text>`;
-  return `<div class="analysis-toolbar"><label><input type="checkbox" id="prob-early" ${s.early ? "checked" : ""}>最初の50回を拡大</label></div><section class="panel chart-panel"><h2>1回ずつの結果から、表の割合を追う</h2><p>実験の全セットを投げた順につなげています。折れ線は、その時点までの表の回数 ÷ 投げた回数です。</p>${svg(a.markup + target + line(points, a.x, a.y), "同じ実験の表の相対度数。破線は設定した確率。", 760, 360)}<div class="legend">${key("実験の相対度数", "primary")}${key("設定した確率", "reference", "line-dashed")}</div>${detail(
+  return `<div class="analysis-toolbar"><label><input type="checkbox" id="prob-early" ${s.early ? "checked" : ""}>最初の50回を拡大</label></div><section class="panel chart-panel"><h2>1回ずつの結果から、表の割合を追う</h2><p>実験の全セットを投げた順につなげています。折れ線は、その時点までの表の回数 ÷ 投げた回数です。</p>${svg(a.markup + target + line(points, a.x, a.y) + endpoint, "同じ実験の表の相対度数。破線は設定した確率。", 760, 360)}<div class="legend">${key("実験の相対度数", "primary")}${key("設定した確率", "reference", "line-dashed")}</div>${detail(
     "実験結果と確率",
     `${metrics([
       ["全投数", `${d.tosses.length}回`],
