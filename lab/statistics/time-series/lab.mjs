@@ -6,11 +6,11 @@ import {
   axes,
   line,
   bind,
-} from "../shared/ui.mjs?v=20261024-real-data";
+} from "../shared/ui.mjs?v=20261024-ts-axis";
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-real-data";
+} from "../shared/reading.mjs?v=20261024-ts-axis";
 import { mean, fmt } from "../shared/math.mjs";
 import {
   householdSeries,
@@ -22,9 +22,10 @@ import {
   autocorrelations,
   seasonalDecomposition,
   seriesIndicator,
+  indicatorScale,
   initialSeriesState,
   normalizeSeriesState,
-} from "./model.mjs?v=20261024-real-data";
+} from "./model.mjs?v=20261024-ts-axis";
 export {
   centeredMovingAverage,
   movingAverageWindow,
@@ -33,7 +34,7 @@ export {
   linearDetrend,
   seasonalDecomposition,
   normalizeSeriesState,
-} from "./model.mjs?v=20261024-real-data";
+} from "./model.mjs?v=20261024-ts-axis";
 export function monthLabel(i, state = {}) {
   return (seriesMonths(state)[i] || `${i + 1}か月目`).replace(
     /^(\d{4})-(\d{2})$/,
@@ -66,7 +67,7 @@ function brokenLine(values, a, cls = "series") {
 function calendarAxes(
   values,
   state,
-  { zero = true, height = 360, label } = {},
+  { zero = true, height = 360, label, scale } = {},
 ) {
   const valid = values.filter((v) => v !== null && Number.isFinite(v)),
     min = Math.min(0, ...valid),
@@ -75,19 +76,28 @@ function calendarAxes(
   const a = axes({
     xmin: 0,
     xmax: seriesLength(state) - 1,
-    ymin: zero ? min : Math.min(...valid, 0) - span * 0.08,
-    ymax:
-      !label && unitOf(state) === "件"
+    ymin: scale ? scale.min : zero ? min : Math.min(...valid, 0) - span * 0.08,
+    ymax: scale
+      ? scale.max
+      : !label && unitOf(state) === "件"
         ? Math.ceil((max + span * 0.12) / 5) * 5
         : max + span * 0.12,
     w: 760,
     h: height,
     ylabel: label || state.customLabel || householdSeries.label,
   });
-  let markup = a.markup.replace(
-    /<text x="[^"]+" y="[^"]+" text-anchor="middle">[^<]*<\/text>/g,
-    "",
-  );
+  let markup = scale
+    ? scale.ticks
+        .map(
+          (v) =>
+            `<line class="gridline" x1="58" x2="736" y1="${a.y(v)}" y2="${a.y(v)}"/><text data-ts-y-tick="${v}" x="49" y="${a.y(v) + 4}" text-anchor="end">${esc(fmt(v, scale.digits))}${state.indicator === "index" ? "" : "%"}</text>`,
+        )
+        .join("") +
+      `<path class="axis" d="M58,30V${height - 48}H736"/><text x="58" y="16">${esc(label)}</text>`
+    : a.markup.replace(
+        /<text x="[^"]+" y="[^"]+" text-anchor="middle">[^<]*<\/text>/g,
+        "",
+      );
   const n = seriesLength(state);
   markup += [
     ...new Set(
@@ -105,12 +115,12 @@ function monthPoints(
   values,
   a,
   state,
-  { color = "var(--chart-primary)" } = {},
+  { color = "var(--chart-primary)", missingValue = 0 } = {},
 ) {
   return values
     .map(
       (v, i) =>
-        `<circle id="ts-month-${i}" data-month="${i}" cx="${a.x(i)}" cy="${a.y(v === null ? 0 : v)}" r="${i === state.selected ? 6 : 4}" fill="${v === null ? "white" : color}" stroke="${i === state.selected ? "var(--chart-secondary)" : "white"}" stroke-width="${i === state.selected ? 3 : 1.5}" tabindex="0" role="button" aria-pressed="${i === state.selected}" aria-label="${esc(monthLabel(i, state))}：${v === null ? "比較する月がありません" : num(v)}。選ぶと計算を表示"><title>${esc(monthLabel(i, state))}：${num(v)}</title></circle>`,
+        `<circle id="ts-month-${i}" data-month="${i}" cx="${a.x(i)}" cy="${a.y(v === null ? missingValue : v)}" r="${i === state.selected ? 6 : 4}" fill="${v === null ? "white" : color}" stroke="${i === state.selected ? "var(--chart-secondary)" : v === null ? "var(--chart-reference)" : "white"}" stroke-width="${i === state.selected ? 3 : 1.5}" tabindex="0" role="button" aria-pressed="${i === state.selected}" aria-label="${esc(monthLabel(i, state))}：${v === null ? "比較する月がありません" : num(v)}。選ぶと計算を表示"><title>${esc(monthLabel(i, state))}：${num(v)}</title></circle>`,
     )
     .join("");
 }
@@ -257,18 +267,26 @@ function indicatorView(s, values, decomp, unit) {
     v = ind[i],
     isIndex = s.indicator === "index",
     label = isIndex ? "指数（基準月＝100）" : "伸び率（%）",
-    a = calendarAxes(isIndex ? [...ind, 100] : ind, s, { label }),
-    baseline = isIndex ? 100 : 0;
+    scale = indicatorScale(ind, s.indicator),
+    a = calendarAxes(ind, s, { label, scale }),
+    baseline = scale.baseline,
+    referenceLabel = isIndex
+      ? "100＝基準月と同じ（1倍）"
+      : "0%＝増減なし（1倍）";
   const chart = svg(
     a.markup +
-      `<line x1="${a.x(0)}" x2="${a.x(values.length - 1)}" y1="${a.y(baseline)}" y2="${a.y(baseline)}" stroke="var(--chart-reference)" stroke-dasharray="4 3"/>` +
+      `<line x1="${a.x(0)}" x2="${a.x(values.length - 1)}" y1="${a.y(baseline)}" y2="${a.y(baseline)}" stroke="var(--chart-reference)" stroke-width="2" stroke-dasharray="4 3"/>` +
       brokenLine(ind, a) +
-      monthPoints(ind, a, s),
+      monthPoints(ind, a, s, { missingValue: baseline }) +
+      `<text data-ts-reference="${baseline}" x="730" y="${a.y(baseline) - 9}" text-anchor="end" font-weight="700" fill="var(--chart-reference)" stroke="white" stroke-width="4" paint-order="stroke">${referenceLabel}</text>`,
     isIndex
       ? "最初の月を100とした各月の指数"
       : "前月または前年同月から、何パーセント増減したか",
     760,
     360,
+  ).replace(
+    "<svg",
+    `<svg data-ts-domain-min="${scale.min}" data-ts-domain-max="${scale.max}"`,
   );
   let result =
     v === null
@@ -285,37 +303,11 @@ function indicatorView(s, values, decomp, unit) {
           "var(--chart-primary)",
           "point",
         ],
-        ["白抜き：計算できない月", "var(--chart-reference)", "open"],
+        ...(ind.some((v) => v === null)
+          ? [["白抜き：計算できない月", "var(--chart-reference)", "open"]]
+          : []),
       ],
     )}${detail(monthLabel(i, s), `<p>${s.indicatorSource === "adjusted" ? "季節調整後の値" : "元の値"}で比較しています。</p><dl><div><dt>${base >= 0 ? esc(monthLabel(base, s)) : "比較する月"}</dt><dd>${num(den)}${esc(unit)}${isIndex ? "（基準）" : ""}</dd></div><div><dt>${esc(monthLabel(i, s))}</dt><dd>${num(source[i])}${esc(unit)}</dd></div></dl>${result}<p class="ts-small">${isIndex ? "指数100が基準と同じ大きさ。指数120は20%増を表します。" : "伸び率0%が増減なし。元の値の前月比には、季節の影響も含まれます。"}</p>`)}`,
-  );
-}
-function summaryView(s, values, d, unit) {
-  const first = mean(values.slice(0, 12)),
-    last = mean(values.slice(-12)),
-    change = first > 0 ? (last / first - 1) * 100 : null,
-    acf = autocorrelations(values),
-    ma = centeredMovingAverage(values, s.period),
-    a = calendarAxes([...values, ...d.adjusted], s),
-    i = values.length - 1,
-    yoy = seriesIndicator(values, "yoy")[i],
-    mom = seriesIndicator(d.adjusted, "growth")[i];
-  const chart = svg(
-    a.markup +
-      brokenLine(values, a) +
-      brokenLine(ma, a, "moving-average") +
-      `<g stroke="var(--chart-secondary)" stroke-width="2.5" fill="none">${brokenLine(d.adjusted, a, "ts-adjusted-line")}</g>`,
-    "元の値、移動平均、季節調整後を重ねた全体のまとめ",
-    760,
-    360,
-  );
-  return panel(
-    "同じデータを、4つの見方で読む",
-    `${chart}${legend([
-      ["元の値", "var(--chart-primary)", "line"],
-      [`${s.period}か月中心移動平均`, "var(--chart-purple)", "line-dashed"],
-      ["季節調整後", "var(--chart-secondary)", "line"],
-    ])}${detail("このデータのまとめ", `<ol class="ts-summary"><li><strong>長期の動き</strong><p>最初の12か月の平均 ${num(first)}${esc(unit)} → 最後の12か月の平均 ${num(last)}${esc(unit)}（${pct(change)}）。</p></li><li><strong>繰り返し</strong><p>12か月ずらした自己相関は${acf[12] === null ? "—" : fmt(acf[12], 2)}。${annualPeak(acf) ? "1年周期の手がかりが見られます。" : "1年周期が明瞭とは限りません。"}</p></li><li><strong>季節の影響を分ける</strong><p>季節調整後の線で、毎年の繁閑を除いた動きを見ます。</p></li><li><strong>変化の基準</strong><p>${esc(monthLabel(i, s))}の元の値は前年同月から${pct(yoy)}。季節調整後は前月から${pct(mom)}です。</p></li></ol><p>長期の動き・季節の影響・比べる月を区別して、何が変わったかを読み取りましょう。</p>`)}`,
   );
 }
 export default {
@@ -330,7 +322,7 @@ export default {
   explanation: academicExplanation("time-series"),
   render(root, ctx) {
     const s = normalizeSeriesState(ctx.state),
-      view = ctx.view || 0,
+      view = Math.min(3, Math.max(0, ctx.view || 0)),
       values = seriesValues(s),
       unit = unitOf(s),
       d = seasonalDecomposition(values);
@@ -372,9 +364,7 @@ export default {
           ? acfView(s, values)
           : view === 2
             ? adjustmentView(s, values, d, unit)
-            : view === 3
-              ? indicatorView(s, values, d, unit)
-              : summaryView(s, values, d, unit);
+            : indicatorView(s, values, d, unit);
     root.innerHTML = `<div class="analysis-toolbar ts-toolbar" role="group" aria-label="分析の操作">${toolbar}</div>${content}<details class="analysis-notes"><summary>解説</summary>${readingNotes(
       "time-series",
       view,

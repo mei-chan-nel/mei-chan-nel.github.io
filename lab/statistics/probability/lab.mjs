@@ -8,8 +8,8 @@ import {
   axes,
   line,
   bind,
-} from "../shared/ui.mjs?v=20261024-real-data";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
+} from "../shared/ui.mjs?v=20261024-ts-axis";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
 import { fmt, sd } from "../shared/math.mjs";
 
 import {

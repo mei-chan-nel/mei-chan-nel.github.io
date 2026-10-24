@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
-import { readDataset } from "../shared/data.mjs?v=20261024-real-data";
-import { render } from "./view.mjs?v=20261024-real-data";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
+import { readDataset } from "../shared/data.mjs?v=20261024-ts-axis";
+import { render } from "./view.mjs?v=20261024-ts-axis";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

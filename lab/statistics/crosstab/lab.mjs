@@ -3,11 +3,11 @@ import {
   groupPattern,
   esc,
   svg,
-} from "../shared/ui.mjs?v=20261024-real-data";
+} from "../shared/ui.mjs?v=20261024-ts-axis";
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-real-data";
+} from "../shared/reading.mjs?v=20261024-ts-axis";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
@@ -16,7 +16,7 @@ import {
   areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261024-real-data";
+} from "./records.mjs?v=20261024-ts-axis";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -250,7 +250,7 @@ function comparisonChart(state) {
   }
   sections.forEach(([name, matrix], s) => {
     const y = 35 + s * 100;
-    content += `<text x="8" y="${y + 18}" class="ct-section-label">${esc(name)}</text>`;
+    content += `<text x="98" y="${y + 18}" text-anchor="end" class="ct-section-label">${esc(name)}</text>`;
     for (const r of [0, 1]) {
       const rate = successRate(matrix, r),
         yy = y + r * 32;

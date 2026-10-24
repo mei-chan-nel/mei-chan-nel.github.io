@@ -1,14 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-real-data";
+import { currentData } from "./data-model.mjs?v=20261024-ts-axis";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-real-data";
+} from "../sampling/model.mjs?v=20261024-ts-axis";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261024-real-data";
-import { autocorrelations } from "../time-series/model.mjs?v=20261024-real-data";
+} from "../crosstab/lab.mjs?v=20261024-ts-axis";
+import { autocorrelations } from "../time-series/model.mjs?v=20261024-ts-axis";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),

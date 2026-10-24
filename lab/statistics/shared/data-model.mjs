@@ -2,14 +2,14 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-real-data";
+} from "../crosstab/records.mjs?v=20261024-ts-axis";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-real-data";
+import { population } from "../sampling/model.mjs?v=20261024-ts-axis";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261024-real-data";
+} from "../time-series/model.mjs?v=20261024-ts-axis";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";

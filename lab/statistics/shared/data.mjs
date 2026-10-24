@@ -1,6 +1,6 @@
-import { monthlyTemperatures } from "./public-data.mjs?v=20261024-real-data";
-import { householdSeries } from "../time-series/data.mjs?v=20261024-real-data";
-import { publicDatasetInfo } from "./sources.mjs?v=20261024-real-data";
+import { monthlyTemperatures } from "./public-data.mjs?v=20261024-ts-axis";
+import { householdSeries } from "../time-series/data.mjs?v=20261024-ts-axis";
+import { publicDatasetInfo } from "./sources.mjs?v=20261024-ts-axis";
 export const studyData = () =>
   householdSeries.values.map((y, i) => ({
     id: i + 1,

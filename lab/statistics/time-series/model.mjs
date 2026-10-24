@@ -2,11 +2,11 @@ import { mean } from "../shared/math.mjs";
 import {
   householdSeries,
   householdMonths,
-} from "./data.mjs?v=20261024-real-data";
+} from "./data.mjs?v=20261024-ts-axis";
 export {
   householdSeries,
   householdMonths,
-} from "./data.mjs?v=20261024-real-data";
+} from "./data.mjs?v=20261024-ts-axis";
 export const MIN_MONTHS = 24;
 export const MAX_MONTHS = 300;
 export function seriesValues(state = {}) {
@@ -118,6 +118,37 @@ export function seriesIndicator(values, mode) {
       ? (y / values[i - lag] - 1) * 100
       : null,
   );
+}
+// A readable scale for changes and indices. Keep the neutral reference in view,
+// without requiring zero for an index whose observations are far above zero.
+export function indicatorScale(values, mode) {
+  const baseline = mode === "index" ? 100 : 0;
+  const finite = values.filter((v) => v !== null && Number.isFinite(v));
+  const low = Math.min(baseline, ...finite),
+    high = Math.max(baseline, ...finite);
+  const span = high - low;
+  const pad = span > 0 ? span * 0.08 : Math.max(1, Math.abs(baseline) * 0.05);
+  const rough = (span + 2 * pad) / 6;
+  const magnitude = 10 ** Math.floor(Math.log10(rough));
+  const factor = [1, 2, 2.5, 5, 10].reduce((best, candidate) =>
+    Math.abs(Math.log(rough / (candidate * magnitude))) <
+    Math.abs(Math.log(rough / (best * magnitude)))
+      ? candidate
+      : best,
+  );
+  const step = factor * magnitude;
+  const clean = (v) => Number(v.toPrecision(12));
+  const min = clean(Math.floor((low - pad) / step) * step);
+  const max = clean(Math.ceil((high + pad) / step) * step);
+  const ticks = Array.from(
+    { length: Math.round((max - min) / step) + 1 },
+    (_, i) => clean(min + step * i),
+  );
+  const digits = Math.max(
+    0,
+    Math.min(10, Math.ceil(-Math.log10(step)) + (factor === 2.5 ? 1 : 0)),
+  );
+  return { min, max, step, ticks, digits, baseline };
 }
 export function initialSeriesState() {
   return {

@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261024-real-data";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-real-data";
+import { esc } from "./shared/ui.mjs?v=20261024-ts-axis";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-ts-axis";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-real-data";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-real-data";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-real-data";
-import { sampleState } from "./shared/samples.mjs?v=20261024-real-data";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-real-data";
-import { readDataset } from "./shared/data.mjs?v=20261024-real-data";
+} from "./shared/data-model.mjs?v=20261024-ts-axis";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-ts-axis";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-ts-axis";
+import { sampleState } from "./shared/samples.mjs?v=20261024-ts-axis";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-ts-axis";
+import { readDataset } from "./shared/data.mjs?v=20261024-ts-axis";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-real-data";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-real-data";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-real-data";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-real-data";
-import { renderSources } from "./shared/sources.mjs?v=20261024-real-data";
+} from "./learning.mjs?v=20261024-ts-axis";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-ts-axis";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-ts-axis";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-ts-axis";
+import { renderSources } from "./shared/sources.mjs?v=20261024-ts-axis";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-real-data`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-ts-axis`))
   .default;
 const ui = {
   view: 0,

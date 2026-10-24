@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs?v=20261024-real-data";
+import { esc } from "./shared/ui.mjs?v=20261024-ts-axis";
 const step = (title, level, purpose, action) => ({
   title,
   level,
@@ -118,12 +118,6 @@ export const learning = {
       "基本",
       "比べる月を確かめ、伸び率と基準100の指数を読む。",
       "点を選び、比較する2か月の値と計算を確認します。",
-    ),
-    step(
-      "全体のまとめ",
-      "まとめ",
-      "長期の動き・季節・変化の基準を結び付けて読む。",
-      "同じデータの4つの見方をまとめます。",
     ),
   ],
   "hypothesis-test": [

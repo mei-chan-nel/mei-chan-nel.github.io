@@ -93,7 +93,7 @@ test("project data rejects nonfinite and preserves the published monthly pairs",
   );
 });
 import { validateState, validateDocument } from "./validation.mjs";
-import { number } from "./ui.mjs?v=20261024-real-data";
+import { number } from "./ui.mjs?v=20261024-ts-axis";
 test("saved experiments validate types and escape all number attributes", () => {
   const template = { n: 2, rows: [{ id: "a", x: 1 }], reference: null };
   validateDocument(

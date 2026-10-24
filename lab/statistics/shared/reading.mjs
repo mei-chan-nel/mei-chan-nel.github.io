@@ -1,4 +1,4 @@
-import { esc } from "./ui.mjs?v=20261024-real-data";
+import { esc } from "./ui.mjs?v=20261024-ts-axis";
 
 const notes = {
   correlation: [

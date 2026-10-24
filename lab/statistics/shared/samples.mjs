@@ -3,10 +3,10 @@ import {
   dailyTemperatures,
   admissions,
   incomeQuintiles,
-} from "./public-data.mjs?v=20261024-real-data";
-import { householdSeries } from "../time-series/data.mjs?v=20261024-real-data";
-import { publicDatasetInfo } from "./sources.mjs?v=20261024-real-data";
-import { applyData, currentData } from "./data-model.mjs?v=20261024-real-data";
+} from "./public-data.mjs?v=20261024-ts-axis";
+import { householdSeries } from "../time-series/data.mjs?v=20261024-ts-axis";
+import { publicDatasetInfo } from "./sources.mjs?v=20261024-ts-axis";
+import { applyData, currentData } from "./data-model.mjs?v=20261024-ts-axis";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);

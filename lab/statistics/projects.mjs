@@ -1,11 +1,11 @@
-import { renderSources } from "./shared/sources.mjs?v=20261024-real-data";
-import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261024-real-data";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-real-data";
+import { renderSources } from "./shared/sources.mjs?v=20261024-ts-axis";
+import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261024-ts-axis";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261024-ts-axis";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-real-data";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-real-data";
-import correlation from "./correlation/lab.mjs?v=20261024-real-data";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-real-data";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-ts-axis";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-ts-axis";
+import correlation from "./correlation/lab.mjs?v=20261024-ts-axis";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-ts-axis";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

@@ -1,11 +1,11 @@
-import { esc, table } from "./shared/ui.mjs?v=20261024-real-data";
+import { esc, table } from "./shared/ui.mjs?v=20261024-ts-axis";
 import { parseDelimited, serializeCSV } from "./shared/csv.mjs";
 import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-real-data";
-import { experiences } from "./experience.mjs?v=20261024-real-data";
+} from "./shared/data-model.mjs?v=20261024-ts-axis";
+import { experiences } from "./experience.mjs?v=20261024-ts-axis";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

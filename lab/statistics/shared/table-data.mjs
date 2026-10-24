@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-real-data";
+import { applyData } from "./data-model.mjs?v=20261024-ts-axis";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

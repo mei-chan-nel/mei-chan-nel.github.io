@@ -8,8 +8,8 @@ import {
   svg,
   axes,
   bind,
-} from "../shared/ui.mjs?v=20261024-real-data";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-real-data";
+} from "../shared/ui.mjs?v=20261024-ts-axis";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-ts-axis";
 import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 
 export function sampleBinomial(n, probability, random) {

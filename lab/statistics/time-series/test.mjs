@@ -297,3 +297,44 @@ test("saved variable-length series require a date label for each observed month"
     /月のラベル/,
   );
 });
+
+test("indicator scales retain the neutral value and all observations with readable, evenly spaced ticks", async () => {
+  const { indicatorScale } = await import("./model.mjs");
+  for (const mode of ["growth", "yoy", "index"]) {
+    for (const input of [
+      [null, -43.5, 21.125, 58.25],
+      [0, 100, 400.75],
+      [99.99, 100, 100.01],
+      [0.00001, -0.00002, null],
+      [100, 100],
+      [null, null],
+    ]) {
+      const scale = indicatorScale(input, mode);
+      assert.ok(scale.min < scale.max);
+      assert.ok(scale.min < scale.baseline && scale.max > scale.baseline);
+      assert.ok(scale.ticks.length >= 4 && scale.ticks.length <= 12);
+      assert.ok(
+        input
+          .filter(Number.isFinite)
+          .every((v) => v >= scale.min && v <= scale.max),
+      );
+      scale.ticks
+        .slice(1)
+        .forEach((v, i) => close(v - scale.ticks[i], scale.step));
+    }
+  }
+});
+test("seasonally adjusted indices use a tight range around their data instead of zero", async () => {
+  const { indicatorScale } = await import("./model.mjs");
+  const indices = seriesIndicator(
+    seasonalDecomposition(seriesValues()).adjusted,
+    "index",
+  );
+  const scale = indicatorScale(indices, "index");
+  assert.equal(scale.baseline, 100);
+  assert.ok(scale.min > 0);
+  assert.ok(scale.ticks.includes(100));
+  assert.ok(
+    scale.max - scale.min < 1.5 * (Math.max(...indices) - Math.min(...indices)),
+  );
+});

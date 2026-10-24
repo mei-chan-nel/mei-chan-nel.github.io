@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261024-real-data";
-import { currentData } from "./shared/data-model.mjs?v=20261024-real-data";
+import { esc } from "./shared/ui.mjs?v=20261024-ts-axis";
+import { currentData } from "./shared/data-model.mjs?v=20261024-ts-axis";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-real-data";
+} from "./shared/table-data.mjs?v=20261024-ts-axis";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-real-data";
+} from "./data-editor.mjs?v=20261024-ts-axis";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.
