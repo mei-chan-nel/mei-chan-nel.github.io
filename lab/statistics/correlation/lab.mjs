@@ -5,8 +5,8 @@ import {
   table,
   svg,
   drag,
-} from "../shared/ui.mjs?v=20261024-monthly-series";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-monthly-series";
+} from "../shared/ui.mjs?v=20261024-estat-centered";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-estat-centered";
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
 
 import { readDataset } from "../shared/data.mjs";

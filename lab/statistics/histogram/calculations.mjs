@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs?v=20261024-monthly-series";
+import { esc, table } from "../shared/ui.mjs?v=20261024-estat-centered";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-monthly-series";
+} from "./descriptive.mjs?v=20261024-estat-centered";
 
 const n = (value) =>
   value === null || value === undefined

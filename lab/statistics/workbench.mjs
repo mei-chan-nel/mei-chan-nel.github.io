@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261024-monthly-series";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-monthly-series";
+import { learningViews } from "./learning.mjs?v=20261024-estat-centered";
+import { readingNotes } from "./shared/reading.mjs?v=20261024-estat-centered";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (["correlation", "histogram", "crosstab", "time-series"].includes(id)) {

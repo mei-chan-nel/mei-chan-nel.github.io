@@ -247,7 +247,7 @@ test("monthly imports preserve chronological data and reject gaps or unsupported
     applyData(
       "time-series",
       timeSeries.initial(),
-      input(["月", "値"], rows.slice(1), { x: 1, date: 0 }),
+      input(["月", "値"], rows.slice(0, 23), { x: 1, date: 0 }),
     ),
   );
   const bad = rows.map((r) => [...r]);

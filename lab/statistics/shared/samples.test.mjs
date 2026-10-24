@@ -12,7 +12,7 @@ import { validateDocument } from "./validation.mjs";
 import { matrixFor, successRate } from "../crosstab/lab.mjs";
 import { parseDelimited, serializeCSV } from "./csv.mjs";
 import { labs } from "../catalog.mjs";
-test("fresh samples vary by seed, remain reproducible and preserve a meaningful dataset for all nine labs", async () => {
+test("generated samples vary by seed while the official monthly series stays fixed and every dataset round-trips", async () => {
   for (const [id] of labs) {
     const config = (await import(`../${id}/lab.mjs`)).default;
     const a = sampleState(id, config.initial(), 100),
@@ -20,7 +20,8 @@ test("fresh samples vary by seed, remain reproducible and preserve a meaningful 
     assert.deepEqual(a, sampleState(id, config.initial(), 100));
     const d = currentData(id, a);
     assert.ok(d.rows.length >= 2);
-    assert.notDeepEqual(d.rows, currentData(id, b).rows, id);
+    if (id === "time-series") assert.deepEqual(d.rows, currentData(id, b).rows);
+    else assert.notDeepEqual(d.rows, currentData(id, b).rows, id);
     assert.ok(
       d.rows.every((r) =>
         r.every((v) => typeof v !== "number" || Number.isFinite(v)),

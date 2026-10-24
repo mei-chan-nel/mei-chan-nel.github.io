@@ -61,7 +61,7 @@ test("adding and deleting table rows preserves precision, pairings and the origi
   );
 });
 
-test("fixed-shape analyses reject incomplete table drafts without modifying valid state", () => {
+test("analyses reject incomplete or too-short table drafts without modifying valid state", () => {
   for (const [id, config] of [
     ["hypothesis-test", hypothesis],
     ["time-series", series],
@@ -69,7 +69,14 @@ test("fixed-shape analyses reject incomplete table drafts without modifying vali
     const state = sampleState(id, config.initial(), 11),
       data = currentData(id, state),
       before = JSON.stringify(state);
-    assert.throws(() => applyTableRows(id, state, data, cells(data).slice(1)));
+    assert.throws(() =>
+      applyTableRows(
+        id,
+        state,
+        data,
+        cells(data).slice(0, id === "time-series" ? 23 : 1),
+      ),
+    );
     assert.throws(() =>
       applyTableRows(id, state, data, [...cells(data), [...cells(data)[0]]]),
     );

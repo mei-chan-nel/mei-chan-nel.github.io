@@ -1,8 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
-  createMonthlySeries,
-  trailingMovingAverage,
+  seriesValues,
+  householdSeries,
+  seriesMonths,
+  movingAverageWindow,
+  centeredMovingAverage,
   linearDetrend,
   autocorrelations,
   seasonalDecomposition,
@@ -12,44 +15,94 @@ import {
 } from "./model.mjs";
 import { applyData, currentData } from "../shared/data-model.mjs";
 import { sampleState } from "../shared/samples.mjs";
+import { validateDocument } from "../shared/validation.mjs";
 const close = (actual, expected, tol = 1e-9) =>
   assert.ok(Math.abs(actual - expected) < tol, `${actual} != ${expected}`);
 
-test("monthly order sample has integer counts, a reproducible irregular annual cycle and a modest trend", () => {
-  const v = createMonthlySeries();
-  assert.equal(v.length, 48);
-  assert.ok(v.every((v) => Number.isInteger(v) && v > 0));
-  assert.deepEqual(v, createMonthlySeries());
-  assert.notDeepEqual(v, createMonthlySeries({ seed: 43 }));
-  assert.ok(autocorrelations(v)[12] > 0.4);
-  assert.ok(
-    v.slice(-12).reduce((a, b) => a + b, 0) >
-      v.slice(0, 12).reduce((a, b) => a + b, 0),
+test("official ice-cream expenditure is an immutable 120-month extract with a strong annual cycle", () => {
+  const v = seriesValues(),
+    data = currentData(
+      "time-series",
+      sampleState("time-series", initialSeriesState(), 1),
+    );
+  assert.equal(v.length, 120);
+  assert.equal(v[0], 351);
+  assert.equal(v.at(-1), 537);
+  assert.ok(v.every(Number.isInteger));
+  assert.equal(data.rows[0][0], "2009-01");
+  assert.equal(data.rows.at(-1)[0], "2018-12");
+  assert.equal(data.headers[1], "支出金額（円）");
+  assert.equal(data.citation.name, "総務省統計局「家計調査」");
+  assert.ok(autocorrelations(v, 36)[12] > 0.85);
+  assert.ok(autocorrelations(v, 36)[24] > 0.75);
+  assert.ok(autocorrelations(v, 36)[36] > 0.65);
+  assert.deepEqual(
+    sampleState("time-series", initialSeriesState(), 1),
+    sampleState("time-series", initialSeriesState(), 200),
   );
-  for (let seed = 1; seed <= 100; seed++) {
-    const s = sampleState("time-series", initialSeriesState(), seed),
-      data = currentData("time-series", s);
-    assert.ok(data.rows.every((r) => Number.isInteger(r[1])));
-    assert.ok(autocorrelations(data.rows.map((r) => r[1]))[12] > 0.35);
+  assert.equal(initialSeriesState().selected, 60);
+  v[0] = 0;
+  assert.equal(seriesValues()[0], 351);
+  const totals = [2016, 2017, 2018].map((y) =>
+    data.rows
+      .filter((r) => r[0].startsWith(String(y)))
+      .reduce((s, r) => s + r[1], 0),
+  );
+  assert.deepEqual(totals, [8907, 9047, 9670]);
+});
+test("odd moving averages are centered on the selected month and keep both incomplete ends undefined", () => {
+  assert.deepEqual(centeredMovingAverage([2, 4, 6, 8, 10], 3), [
+    null,
+    4,
+    6,
+    8,
+    null,
+  ]);
+  assert.deepEqual(centeredMovingAverage([2, 4, 6], 1), [2, 4, 6]);
+  assert.deepEqual(centeredMovingAverage([2, 4], 3), [null, null]);
+});
+test("even moving averages average adjacent windows and half-weight both endpoint months", () => {
+  const v = [0, 10, 100, 1000, 10000],
+    w = movingAverageWindow(v, 2, 2);
+  assert.deepEqual(w.weights, [0.5, 1, 0.5]);
+  assert.equal(w.start, 1);
+  assert.equal(w.end, 3);
+  assert.equal(w.value, 302.5);
+  assert.equal(w.value, ((10 + 100) / 2 + (100 + 1000) / 2) / 2);
+  assert.deepEqual(centeredMovingAverage([0, 2, 4, 6, 8, 10, 12], 4), [
+    null,
+    null,
+    4,
+    6,
+    8,
+    null,
+    null,
+  ]);
+});
+test("all supported widths preserve the timing of a linear trend and use exactly k total weight", () => {
+  const v = Array.from({ length: 120 }, (_, i) => 100 + 2 * i);
+  for (let k = 1; k <= 36; k++) {
+    const ma = centeredMovingAverage(v, k);
+    for (let i = 0; i < v.length; i++) {
+      const w = movingAverageWindow(v, k, i);
+      assert.equal(
+        w.weights.reduce((s, w) => s + w, 0),
+        k,
+      );
+      if (w.available) close(ma[i], v[i]);
+      else assert.equal(ma[i], null);
+    }
   }
 });
-test("trailing average uses only the selected month and the previous k−1 months", () => {
-  assert.deepEqual(trailingMovingAverage([2, 4, 6, 8], 3), [null, null, 4, 6]);
-  assert.deepEqual(trailingMovingAverage([2, 4, 6], 1), [2, 4, 6]);
-  assert.equal(
-    trailingMovingAverage(
-      Array.from({ length: 48 }, (_, i) => i),
-      12,
-    )[11],
-    5.5,
-  );
-  assert.equal(
-    trailingMovingAverage(
-      Array.from({ length: 48 }, (_, i) => i),
-      12,
-    )[47],
-    41.5,
-  );
+test("a wider window need not remove an annual wave: 12 and 24 cancel it while 18 leaves it", () => {
+  const v = Array.from(
+      { length: 120 },
+      (_, i) => 100 + 20 * Math.cos((2 * Math.PI * i) / 12),
+    ),
+    waves = [12, 18, 24].map((k) => centeredMovingAverage(v, k).slice(24, 96));
+  for (const wave of [waves[0], waves[2]])
+    assert.ok(wave.every((v) => Math.abs(v - 100) < 1e-10));
+  assert.ok(Math.max(...waves[1]) - Math.min(...waves[1]) > 5);
 });
 test("detrending removes a straight line and is invariant under an added linear trend", () => {
   const v = Array.from(
@@ -105,7 +158,7 @@ test("seasonal adjustment preserves the total and reconstructs the original seri
   for (const values of [
     Array(48).fill(0),
     Array(48).fill(23),
-    createMonthlySeries(),
+    seriesValues(),
     Array.from({ length: 48 }, (_, i) => (i % 5 ? 0 : 100)),
   ]) {
     const before = [...values],
@@ -114,7 +167,7 @@ test("seasonal adjustment preserves the total and reconstructs the original seri
       d.adjusted.reduce((a, b) => a + b),
       values.reduce((a, b) => a + b),
     );
-    for (let i = 0; i < 48; i++)
+    for (let i = 0; i < values.length; i++)
       close(d.adjusted[i] + d.seasonal[i % 12], values[i]);
     assert.deepEqual(values, before);
   }
@@ -175,6 +228,72 @@ test("legacy series settings gain analysis fields while keeping the user data an
   );
   assert.equal(
     normalizeSeriesState({ period: 0, selected: 100, lag: 40 }).selected,
-    47,
+    100,
+  );
+});
+
+test("variable imported lengths retain consecutive months and center their initial selection", () => {
+  for (const n of [24, 25, 48, 120, 180, 300]) {
+    const rows = Array.from({ length: n }, (_, i) => [
+      `${2000 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}`,
+      10.125 + i / 16,
+    ]);
+    const s = applyData("time-series", initialSeriesState(), {
+      headers: ["月", "金額（円）"],
+      rows,
+      x: 1,
+      date: 0,
+      name: "読込",
+    });
+    assert.equal(s.customValues.length, n);
+    assert.deepEqual(currentData("time-series", s).rows, rows);
+    assert.equal(currentData("time-series", s).citation, undefined);
+    if (n !== 120) assert.equal(s.selected, Math.floor(n / 2));
+  }
+  const invalid = (n) =>
+    Array.from({ length: n }, (_, i) => [`${i + 1}か月目`, 100]);
+  for (const n of [23, 301])
+    assert.throws(
+      () =>
+        applyData("time-series", initialSeriesState(), {
+          headers: ["月", "値"],
+          rows: invalid(n),
+          x: 1,
+          date: 0,
+          name: "不正",
+        }),
+      /24〜300/,
+    );
+});
+
+test("saved variable-length series require a date label for each observed month", () => {
+  const rows = Array.from({ length: 120 }, (_, i) => [
+    `${2000 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}`,
+    100 + i,
+  ]);
+  const s = applyData("time-series", initialSeriesState(), {
+    headers: ["月", "値"],
+    rows,
+    x: 1,
+    date: 0,
+    name: "確認用",
+  });
+  validateDocument(
+    { version: 1, id: "time-series", state: s },
+    "time-series",
+    initialSeriesState(),
+  );
+  assert.throws(
+    () =>
+      validateDocument(
+        {
+          version: 1,
+          id: "time-series",
+          state: { ...s, monthLabels: s.monthLabels.slice(1) },
+        },
+        "time-series",
+        initialSeriesState(),
+      ),
+    /月のラベル/,
   );
 });

@@ -1,11 +1,11 @@
-import { esc, table } from "./shared/ui.mjs?v=20261024-monthly-series";
+import { esc, table } from "./shared/ui.mjs?v=20261024-estat-centered";
 import { parseDelimited, serializeCSV } from "./shared/csv.mjs";
 import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-monthly-series";
-import { experiences } from "./experience.mjs?v=20261024-monthly-series";
+} from "./shared/data-model.mjs?v=20261024-estat-centered";
+import { experiences } from "./experience.mjs?v=20261024-estat-centered";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },
@@ -14,7 +14,7 @@ export function mountDataEditor(
     kind = dataKinds[id];
   const dialog = document.createElement("section");
   dialog.className = "data-editor";
-  dialog.innerHTML = `<h3>CSVの内容と使う列を確認</h3><p class="dialog-purpose">${esc(experiences[id].input)} → ${esc(experiences[id].result)}</p><div class="data-editor-grid"><section><div class="actions"><button type="button" id="csv-file-button">CSV・TSVファイルを選ぶ</button><input type="file" id="csv-file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" hidden><button type="button" id="csv-download">現在のデータをCSV保存</button></div><label class="control" for="csv-text"><span>または、表計算ソフトのセルをここへ貼り付ける</span><textarea id="csv-text" rows="8" spellcheck="false">${esc(serializeCSV(data.headers, data.rows))}</textarea></label><label class="check-line"><input id="csv-header" type="checkbox" checked> 1行目は項目名</label><div id="csv-preview" class="csv-preview"></div></section><aside><label class="control" for="csv-name"><span>データの名前</span><input id="csv-name" type="text" maxlength="120" value="${esc(data.name)}"></label><div id="csv-columns"></div><p class="data-format">${kind === "probability" ? (state.mode === "coin" ? "1列に表=1・裏=0を試行順で指定。理論の確率pと読み込んだ結果を比較します。" : state.mode === "binomial" ? `1列に1セットの成功回数（0〜${state.n}の整数）。理論の二項分布と比較します。` : "1列に測定値。正規分布モデルと、実際に区間へ入った割合を比較します。正規分布への適合を保証するものではありません。") : kind === "series" ? "月別の値を時間順に48か月分。移動平均・自己相関・季節調整・伸び率を同じデータで比べます。" : kind === "records" ? "「課題難度,方式,結果」の3列。1行に1人分を入力し、各項目は2種類まで、1〜10,000行で指定します。" : kind === "ab" ? "「群,対象数,成功数」の3列・2行。対象数は各10〜1,000人。" : kind === "population" ? "各行を母集団の1人分として使います。数値の列を1つ選びます。2〜300行。" : kind === "incomes" ? "2〜300人分。所得は0以上。読込後に総額を保って再分配できます。" : "2〜300行。空欄・文字列・読み込めない行は省略せず、エラーとしてお知らせします。"}</p><p class="muted">データはブラウザ内で処理します。</p><p id="csv-status" role="status"></p><button id="csv-apply" class="primary" type="button">このデータで分析する</button></aside></div>`;
+  dialog.innerHTML = `<h3>CSVの内容と使う列を確認</h3><p class="dialog-purpose">${esc(experiences[id].input)} → ${esc(experiences[id].result)}</p><div class="data-editor-grid"><section><div class="actions"><button type="button" id="csv-file-button">CSV・TSVファイルを選ぶ</button><input type="file" id="csv-file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" hidden><button type="button" id="csv-download">現在のデータをCSV保存</button></div><label class="control" for="csv-text"><span>または、表計算ソフトのセルをここへ貼り付ける</span><textarea id="csv-text" rows="8" spellcheck="false">${esc(serializeCSV(data.headers, data.rows))}</textarea></label><label class="check-line"><input id="csv-header" type="checkbox" checked> 1行目は項目名</label><div id="csv-preview" class="csv-preview"></div></section><aside><label class="control" for="csv-name"><span>データの名前</span><input id="csv-name" type="text" maxlength="120" value="${esc(data.name)}"></label><div id="csv-columns"></div><p class="data-format">${kind === "probability" ? (state.mode === "coin" ? "1列に表=1・裏=0を試行順で指定。理論の確率pと読み込んだ結果を比較します。" : state.mode === "binomial" ? `1列に1セットの成功回数（0〜${state.n}の整数）。理論の二項分布と比較します。` : "1列に測定値。正規分布モデルと、実際に区間へ入った割合を比較します。正規分布への適合を保証するものではありません。") : kind === "series" ? "月別の値を時間順に24〜300か月分。移動平均・自己相関・季節調整・伸び率を同じデータで比べます。" : kind === "records" ? "「課題難度,方式,結果」の3列。1行に1人分を入力し、各項目は2種類まで、1〜10,000行で指定します。" : kind === "ab" ? "「群,対象数,成功数」の3列・2行。対象数は各10〜1,000人。" : kind === "population" ? "各行を母集団の1人分として使います。数値の列を1つ選びます。2〜300行。" : kind === "incomes" ? "2〜300人分。所得は0以上。読込後に総額を保って再分配できます。" : "2〜300行。空欄・文字列・読み込めない行は省略せず、エラーとしてお知らせします。"}</p><p class="muted">データはブラウザ内で処理します。</p><p id="csv-status" role="status"></p><button id="csv-apply" class="primary" type="button">このデータで分析する</button></aside></div>`;
   container.replaceChildren(dialog);
   let headers = [],
     rows = [],

@@ -121,7 +121,9 @@ function domain(s, id) {
   if (s.monthLabels)
     need(
       Array.isArray(s.monthLabels) &&
-        s.monthLabels.length === 48 &&
+        s.monthLabels.length >= 24 &&
+        s.monthLabels.length <= 300 &&
+        (!s.customValues || s.monthLabels.length === s.customValues.length) &&
         s.monthLabels.every((v) => typeof v === "string" && v.length <= 40),
       "月のラベルを確認してください。",
     );
@@ -206,9 +208,10 @@ function domain(s, id) {
   if (s.customValues)
     need(
       Array.isArray(s.customValues) &&
-        s.customValues.length === 48 &&
+        s.customValues.length >= 24 &&
+        s.customValues.length <= 300 &&
         s.customValues.every((v) => Number.isFinite(v) && v >= 0),
-      "月別データは0以上の数値48件にしてください。",
+      "月別データは0以上の数値24〜300件にしてください。",
     );
   if (id === "sampling") {
     if (s.compareSamples !== undefined)

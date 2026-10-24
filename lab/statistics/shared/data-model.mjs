@@ -2,10 +2,14 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-monthly-series";
+} from "../crosstab/records.mjs?v=20261024-estat-centered";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-monthly-series";
-import { createMonthlySeries } from "../time-series/model.mjs?v=20261024-monthly-series";
+import { population } from "../sampling/model.mjs?v=20261024-estat-centered";
+import {
+  seriesValues,
+  seriesMonths,
+  householdSeries,
+} from "../time-series/model.mjs?v=20261024-estat-centered";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";
@@ -64,18 +68,13 @@ export function currentData(id, s) {
   if (id === "time-series") {
     headers = [
       s.dataInfo?.columns?.[0] || "月",
-      s.customLabel || "注文件数（件）",
+      s.customLabel || householdSeries.label,
     ];
-    const values = s.customValues || createMonthlySeries(s);
-    rows = values.map((v, i) => [
-      s.monthLabels?.[i] ||
-        (s.customValues
-          ? `${i + 1}か月目`
-          : `${2022 + Math.floor(i / 12)}-${String((i % 12) + 1).padStart(2, "0")}`),
-      v,
-    ]);
-    name = name || "文具通販店の月別注文件数（教材用の架空データ）";
-    operation = `移動平均 → 自己相関 → 季節調整 → 伸び率・指数`;
+    const values = seriesValues(s),
+      months = seriesMonths(s);
+    rows = values.map((v, i) => [months[i], v]);
+    name = name || householdSeries.name;
+    operation = "中心移動平均 → 自己相関 → 季節調整 → 伸び率・指数";
   }
   if (id === "crosstab") {
     const l = s.dataInfo?.labels;
@@ -141,6 +140,15 @@ export function currentData(id, s) {
     origin: info?.origin || (id === "probability" ? "model" : "sample"),
     filename: info?.filename || "",
     operation,
+    ...(id === "time-series" && !s.customValues
+      ? {
+          citation: {
+            name: householdSeries.sourceName,
+            href: householdSeries.sourceUrl,
+          },
+          population: householdSeries.population,
+        }
+      : {}),
     edits,
   };
 }
@@ -168,9 +176,11 @@ export function applyData(
     rows.length > (["probability", "crosstab"].includes(id) ? 10000 : 300)
   )
     throw Error(
-      ["probability", "crosstab"].includes(id)
-        ? "1〜10,000行で指定してください。"
-        : "1〜300行のデータを指定してください。",
+      id === "time-series"
+        ? "月別データは、時間順に連続する24〜300か月分を指定してください。"
+        : ["probability", "crosstab"].includes(id)
+          ? "1〜10,000行で指定してください。"
+          : "1〜300行のデータを指定してください。",
     );
   const s = { ...base, dataInfo: null };
   let applied;
@@ -271,12 +281,19 @@ export function applyData(
     }
     s.source = name;
   } else if (kind === "series") {
-    if (rows.length !== 48)
-      throw Error("月別データは、時間順に連続する48か月分を指定してください。");
+    if (rows.length < 24 || rows.length > 300)
+      throw Error(
+        "月別データは、時間順に連続する24〜300か月分を指定してください。",
+      );
     const values = rows.map((r, i) => number(r, x, i));
     if (values.some((v) => v < 0))
       throw Error("月別の値は0以上の数値を指定してください。");
     s.dataInfo = { columns: [date >= 0 ? headers[date] : "月", headers[x]] };
+    if (
+      values.length !==
+      (base.customValues?.length || householdSeries.values.length)
+    )
+      s.selected = Math.floor(values.length / 2);
     s.customValues = values;
     s.customLabel = headers[x];
     s.monthLabels =
@@ -299,7 +316,7 @@ export function applyData(
       });
       if (months.some((v, i) => i > 0 && v !== months[i - 1] + 1))
         throw Error(
-          "月のデータは欠けや重複のない48か月を時間順に指定してください。",
+          "月のデータは欠けや重複がないように、時間順に指定してください。",
         );
     }
     s.source = name;

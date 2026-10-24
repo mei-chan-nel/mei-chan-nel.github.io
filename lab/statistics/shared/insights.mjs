@@ -1,14 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-monthly-series";
+import { currentData } from "./data-model.mjs?v=20261024-estat-centered";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-monthly-series";
+} from "../sampling/model.mjs?v=20261024-estat-centered";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261024-monthly-series";
-import { autocorrelations } from "../time-series/model.mjs?v=20261024-monthly-series";
+} from "../crosstab/lab.mjs?v=20261024-estat-centered";
+import { autocorrelations } from "../time-series/model.mjs?v=20261024-estat-centered";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -80,7 +80,7 @@ export function insight(id, state) {
   if (id === "time-series") {
     const values = data.rows.map((r) => r[1]),
       acf = autocorrelations(values);
-    return `${state.period}か月移動平均で月ごとの変動をならします。12か月ずらした自己相関は ${acf[12] === null ? "計算できません" : fmt(acf[12], 2)}。季節調整後の動きと、比較する月を確かめましょう。`;
+    return `${state.period}か月の中心移動平均で、前後の月の変動をならします。12か月ずらした自己相関は ${acf[12] === null ? "計算できません" : fmt(acf[12], 2)}。季節調整後の動きと、比較する月を確かめましょう。`;
   }
   if (id === "probability") {
     const values = observationValues(state);

@@ -1,41 +1,51 @@
-import { mean, rng, normal } from "../shared/math.mjs";
-export const MONTHS = 48;
-export const SAMPLE_SOURCE =
-  "教材用に作成した架空データ：文具通販店の月別注文件数（2022〜2025年）。";
-// Spring purchases and autumn/year-end demand overlap with modest annual growth,
-// correlated month-to-month noise and two one-off events. No real shop is implied.
-export function createMonthlySeries({
-  trend = 5,
-  seasonal = 140,
-  noise = 45,
-  seed = 1729,
-} = {}) {
-  const random = rng(seed),
-    shape = [
-      -0.65, -0.85, 1.15, 0.8, -0.15, -0.4, -0.75, -0.3, 0.65, -0.05, 0.45,
-      0.85,
-    ],
-    center = mean(shape);
-  let disturbance = 0;
-  return Array.from({ length: MONTHS }, (_, i) => {
-    disturbance = 0.25 * disturbance + normal(random);
-    const event = i === 19 ? 1.8 : i === 28 ? -1.5 : 0;
-    return Math.max(
-      1,
-      Math.round(
-        1200 +
-          trend * i +
-          seasonal * (shape[i % 12] - center) +
-          noise * (disturbance + event),
-      ),
-    );
-  });
+import { mean } from "../shared/math.mjs";
+import {
+  householdSeries,
+  householdMonths,
+} from "./data.mjs?v=20261024-estat-centered";
+export {
+  householdSeries,
+  householdMonths,
+} from "./data.mjs?v=20261024-estat-centered";
+export const MIN_MONTHS = 24;
+export const MAX_MONTHS = 300;
+export function seriesValues(state = {}) {
+  return state.customValues || [...householdSeries.values];
 }
-export function trailingMovingAverage(values, period) {
-  const k = Math.max(1, Math.min(values.length, Math.floor(period) || 1));
-  return values.map((_, i) =>
-    i + 1 < k ? null : mean(values.slice(i - k + 1, i + 1)),
+export function seriesLength(state = {}) {
+  return state.customValues?.length || householdSeries.values.length;
+}
+export function seriesMonths(state = {}) {
+  return (
+    state.monthLabels ||
+    (state.customValues
+      ? state.customValues.map((_, i) => `${i + 1}か月目`)
+      : [...householdMonths])
   );
+}
+export function movingAverageWindow(values, period, index) {
+  const k = Math.max(1, Math.floor(period) || 1),
+    half = Math.floor(k / 2),
+    even = k % 2 === 0;
+  const start = index - half,
+    end = index + half;
+  const weights = Array.from({ length: end - start + 1 }, (_, j) =>
+    even && (j === 0 || j === end - start) ? 0.5 : 1,
+  );
+  const available = start >= 0 && end < values.length;
+  return {
+    start,
+    end,
+    weights,
+    denominator: k,
+    available,
+    value: available
+      ? weights.reduce((sum, w, j) => sum + w * values[start + j], 0) / k
+      : null,
+  };
+}
+export function centeredMovingAverage(values, period) {
+  return values.map((_, i) => movingAverageWindow(values, period, i).value);
 }
 export function linearDetrend(values) {
   const n = values.length;
@@ -77,14 +87,7 @@ export function autocorrelations(values, maxLag = 24, { detrend = true } = {}) {
 // The 12 seasonal effects are centered to sum to zero and never use the known
 // synthetic generator, so imported data follow exactly the same analysis.
 export function seasonalDecomposition(values) {
-  const trend = values.map((_, i) =>
-    i < 6 || i + 6 >= values.length
-      ? null
-      : (0.5 * values[i - 6] +
-          values.slice(i - 5, i + 6).reduce((s, v) => s + v, 0) +
-          0.5 * values[i + 6]) /
-        12,
-  );
+  const trend = centeredMovingAverage(values, 12);
   const buckets = Array.from({ length: 12 }, () => []);
   values.forEach((v, i) => {
     if (trend[i] !== null) buckets[i % 12].push(v - trend[i]);
@@ -118,28 +121,25 @@ export function seriesIndicator(values, mode) {
 }
 export function initialSeriesState() {
   return {
-    trend: 5,
-    seasonal: 140,
-    noise: 45,
-    seed: 1729,
     period: 6,
     lag: 12,
     indicator: "yoy",
     indicatorSource: "raw",
-    selected: 47,
+    selected: Math.floor(householdSeries.values.length / 2),
   };
 }
 export function normalizeSeriesState(state = {}) {
-  const integer = (v, defaultValue, low, high) =>
-    Number.isFinite(Number(v))
-      ? Math.max(low, Math.min(high, Math.round(Number(v))))
-      : defaultValue;
+  const n = seriesLength(state),
+    integer = (v, defaultValue, low, high) =>
+      Number.isFinite(Number(v))
+        ? Math.max(low, Math.min(high, Math.round(Number(v))))
+        : defaultValue;
   return {
     ...initialSeriesState(),
     ...state,
-    period: integer(state.period, 6, 1, 24),
-    lag: integer(state.lag, 12, 1, 24),
-    selected: integer(state.selected, 47, 0, 47),
+    period: integer(state.period, 6, 1, Math.min(36, n - 1)),
+    lag: integer(state.lag, 12, 1, Math.min(36, n - 1)),
+    selected: integer(state.selected, Math.floor(n / 2), 0, n - 1),
     indicator: ["growth", "yoy", "index"].includes(state.indicator)
       ? state.indicator
       : "yoy",

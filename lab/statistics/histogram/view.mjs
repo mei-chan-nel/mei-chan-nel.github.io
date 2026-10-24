@@ -3,16 +3,16 @@ import {
   esc,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-monthly-series";
+} from "../shared/ui.mjs?v=20261024-estat-centered";
 import { fmt } from "../shared/math.mjs";
 
 import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-monthly-series";
-import { describe } from "./descriptive.mjs?v=20261024-monthly-series";
-import { renderCalculations } from "./calculations.mjs?v=20261024-monthly-series";
+} from "./model.mjs?v=20261024-estat-centered";
+import { describe } from "./descriptive.mjs?v=20261024-estat-centered";
+import { renderCalculations } from "./calculations.mjs?v=20261024-estat-centered";
 
 const colors = {
   A: "var(--chart-primary)",

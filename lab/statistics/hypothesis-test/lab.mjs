@@ -8,8 +8,8 @@ import {
   svg,
   axes,
   bind,
-} from "../shared/ui.mjs?v=20261024-monthly-series";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-monthly-series";
+} from "../shared/ui.mjs?v=20261024-estat-centered";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-estat-centered";
 import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 
 export function sampleBinomial(n, probability, random) {

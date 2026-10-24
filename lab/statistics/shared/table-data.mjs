@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-monthly-series";
+import { applyData } from "./data-model.mjs?v=20261024-estat-centered";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {
@@ -10,7 +10,7 @@ export function numericTableColumn(id, column) {
 
 export function tableConstraint(id, state) {
   if (id === "time-series")
-    return "分析には、時間順に並んだ連続する48か月分が必要です。値は0以上にします。";
+    return "分析には、時間順に並んだ連続する24〜300か月分が必要です。値は0以上にします。";
   if (id === "crosstab")
     return "1行が1人分です。課題難度・方式・結果を入力します。各項目は2種類まで、1〜10,000人分を使えます。";
   if (id === "hypothesis-test")

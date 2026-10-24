@@ -2,7 +2,7 @@ import { rng, normal, clamp } from "./math.mjs";
 import {
   applyData,
   currentData,
-} from "./data-model.mjs?v=20261024-monthly-series";
+} from "./data-model.mjs?v=20261024-estat-centered";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
@@ -104,20 +104,13 @@ export function sampleState(id, initial, seed = freshSeed()) {
     name = "学習アプリ案内A/Bの登録人数";
     base.seed = integer(1, 999999);
   } else if (id === "time-series") {
-    const next = {
-      ...base,
-      seed,
-      trend: 5,
-      seasonal: 140,
-      noise: 45,
-    };
+    const next = { ...base };
     const data = currentData(id, next);
     next.dataInfo = {
       name: data.name,
       origin: "sample",
       columns: data.headers,
       baseline: data.rows,
-      seed,
     };
     return next;
   } else if (id === "probability") {

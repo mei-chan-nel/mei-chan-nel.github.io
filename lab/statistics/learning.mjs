@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs?v=20261024-monthly-series";
+import { esc } from "./shared/ui.mjs?v=20261024-estat-centered";
 const step = (title, level, purpose, action) => ({
   title,
   level,
@@ -99,7 +99,7 @@ export const learning = {
       "移動平均",
       "基本",
       "月ごとの変動をならし、平均する期間で見え方がどう変わるか比べる。",
-      "点を選び、その月の平均に使った期間と値を確認します。",
+      "点を選び、その月の前後で平均した期間と値を確認します。",
     ),
     step(
       "自己相関",
@@ -213,7 +213,7 @@ export function dataStep(id) {
         : id === "hypothesis-test"
           ? "AとBの対象人数と成功人数を確認し、割合の比較へ進みます。"
           : id === "time-series"
-            ? "1行が1か月の値です。48か月の時間順・単位・データの出所を確認します。"
+            ? "1行が1か月の値です。時間順・単位・データの出所を確認します。"
             : id === "probability"
               ? "コインの0/1・1セットの成功回数・連続値から種類を選び、実験または読込の値を確認します。"
               : "1行が何を表すか、項目名・単位・値の対応を確かめてから、グラフへ進みます。",
