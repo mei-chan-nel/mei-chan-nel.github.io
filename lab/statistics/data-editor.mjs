@@ -1,11 +1,11 @@
-import { esc, table } from "./shared/ui.mjs?v=20261024-probability-flow";
+import { esc, table } from "./shared/ui.mjs?v=20261025-remove-probability";
 import { parseDelimited, serializeCSV } from "./shared/csv.mjs";
 import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-probability-flow";
-import { experiences } from "./experience.mjs?v=20261024-probability-flow";
+} from "./shared/data-model.mjs?v=20261025-remove-probability";
+import { experiences } from "./experience.mjs?v=20261025-remove-probability";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

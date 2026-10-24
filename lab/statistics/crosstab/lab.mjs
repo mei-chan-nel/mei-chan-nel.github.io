@@ -3,11 +3,11 @@ import {
   groupPattern,
   esc,
   svg,
-} from "../shared/ui.mjs?v=20261024-probability-flow";
+} from "../shared/ui.mjs?v=20261025-remove-probability";
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-probability-flow";
+} from "../shared/reading.mjs?v=20261025-remove-probability";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
@@ -16,7 +16,7 @@ import {
   areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261024-probability-flow";
+} from "./records.mjs?v=20261025-remove-probability";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],

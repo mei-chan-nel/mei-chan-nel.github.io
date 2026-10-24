@@ -1,4 +1,4 @@
-import { esc } from "./ui.mjs?v=20261024-probability-flow";
+import { esc } from "./ui.mjs?v=20261025-remove-probability";
 
 const notes = {
   correlation: [

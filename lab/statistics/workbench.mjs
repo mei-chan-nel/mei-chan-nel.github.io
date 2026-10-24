@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261024-probability-flow";
-import { readingNotes } from "./shared/reading.mjs?v=20261024-probability-flow";
+import { learningViews } from "./learning.mjs?v=20261025-remove-probability";
+import { readingNotes } from "./shared/reading.mjs?v=20261025-remove-probability";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (
@@ -8,17 +8,16 @@ export function composeWorkbench(root, id, ui, onChange) {
       "histogram",
       "crosstab",
       "time-series",
-      "probability",
     ].includes(id)
   ) {
     const nodes = [...root.children];
     const shell = document.createElement("div");
     shell.className =
       "workbench" +
-      (["crosstab", "time-series", "probability"].includes(id)
+      (["crosstab", "time-series"].includes(id)
         ? " unified-workbench"
         : "");
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : id === "probability" ? "確率と確率分布" : "散布図と直線"}"></section></div>`;
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;

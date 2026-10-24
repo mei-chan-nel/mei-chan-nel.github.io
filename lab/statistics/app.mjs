@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261024-probability-flow";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-probability-flow";
+import { esc } from "./shared/ui.mjs?v=20261025-remove-probability";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-remove-probability";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-probability-flow";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-probability-flow";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-probability-flow";
-import { sampleState } from "./shared/samples.mjs?v=20261024-probability-flow";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-probability-flow";
-import { readDataset } from "./shared/data.mjs?v=20261024-probability-flow";
+} from "./shared/data-model.mjs?v=20261025-remove-probability";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-remove-probability";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-remove-probability";
+import { sampleState } from "./shared/samples.mjs?v=20261025-remove-probability";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-remove-probability";
+import { readDataset } from "./shared/data.mjs?v=20261025-remove-probability";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-probability-flow";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-probability-flow";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-probability-flow";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-probability-flow";
-import { renderSources } from "./shared/sources.mjs?v=20261024-probability-flow";
+} from "./learning.mjs?v=20261025-remove-probability";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-remove-probability";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-remove-probability";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-remove-probability";
+import { renderSources } from "./shared/sources.mjs?v=20261025-remove-probability";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-probability-flow`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-remove-probability`))
   .default;
 const ui = {
   view: 0,
@@ -32,7 +32,7 @@ const project =
   new URLSearchParams(location.search).get("dataset") === "project";
 function prepare(next) {
   if (id === "histogram") next = normalizeHistogram(next);
-  if (["correlation", "time-series", "probability"].includes(id))
+  if (["correlation", "time-series"].includes(id))
     next = config.normalize(next);
   if (id === "sampling") next = normalizeExperiment(next);
   if (id === "crosstab") {
@@ -80,10 +80,9 @@ try {
   if (
     saved &&
     !project &&
-    (saved.state?.dataInfo?.origin === "user" ||
-      (id === "probability" && saved.state?.experiments?.length))
+    saved.state?.dataInfo?.origin === "user"
   ) {
-    if (["time-series", "probability"].includes(id))
+    if (id === "time-series")
       saved.state = config.normalize(saved.state);
     validateDocument(saved, id, config.initial());
     state = prepare(saved.state);
@@ -114,13 +113,9 @@ const finding = document.querySelector("#experiment-insight");
 function persist() {
   try {
     localStorage.setItem(key, JSON.stringify({ version: 1, id, state }));
-    ui.persistenceError = false;
-  } catch {
-    if (id === "probability") ui.persistenceError = true;
-  }
+  } catch {}
 }
 function replace(next) {
-  if (id === "probability" && next.mode !== state.mode) ui.view = 0;
   state = prepare(next);
   persist();
   draw();
@@ -172,11 +167,11 @@ function draw() {
     };
     const tabs = document.querySelector("#view-tabs");
     tabs.innerHTML =
-      `<button type="button" id="data-tab" aria-pressed="${ui.dataTab}">${id === "probability" ? "実験の準備" : "データ"}</button>` +
+      `<button type="button" id="data-tab" aria-pressed="${ui.dataTab}">データ</button>` +
       views
         .map(
           (v, i) =>
-            `<button type="button" id="view-${i}" data-view="${i}" ${id === "probability" && !state.experiments.length ? 'disabled title="実験の準備で実験してください"' : ""} aria-pressed="${!ui.dataTab && v.active}">${esc(v.label)}</button>`,
+            `<button type="button" id="view-${i}" data-view="${i}" aria-pressed="${!ui.dataTab && v.active}">${esc(v.label)}</button>`,
         )
         .join("");
     tabs.querySelector("#data-tab").onclick = () => activate(0);
@@ -199,15 +194,7 @@ function draw() {
     lead.textContent = lesson.action;
     flow.hidden = true;
     finding.hidden = true;
-    if (ui.dataTab && id === "probability") {
-      ui.commitData = null;
-      config.renderPreparation(root, {
-        state,
-        update,
-        replace,
-        analyze: () => activate(1, true),
-      });
-    } else if (ui.dataTab) {
+    if (ui.dataTab) {
       renderDataTab(root, {
         id,
         state,
@@ -215,16 +202,6 @@ function draw() {
         update,
         sample: () => {
           const base = config.initial();
-          if (id === "probability")
-            Object.assign(base, {
-              mode: state.mode,
-              p: state.p,
-              n: state.n,
-              mu: state.mu,
-              sigma: state.sigma,
-              low: state.low,
-              high: state.high,
-            });
           replace(sampleState(id, base));
         },
         apply: replace,
@@ -233,14 +210,6 @@ function draw() {
       });
     } else {
       fitWorkspaceCharts(root.querySelector(".workbench-display"));
-    }
-    if (id === "probability" && ui.persistenceError) {
-      const status = document.createElement("p");
-      status.className = "annotation";
-      status.setAttribute("role", "status");
-      status.textContent =
-        "ブラウザーに実験を保存できませんでした。画面の結果は残っています。実験の準備から必要な記録をCSVで保存してください。";
-      root.prepend(status);
     }
     const provenance = document.querySelector("#data-provenance");
     if (provenance)

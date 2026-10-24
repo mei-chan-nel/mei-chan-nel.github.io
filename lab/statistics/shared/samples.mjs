@@ -3,10 +3,10 @@ import {
   dailyTemperatures,
   admissions,
   incomeQuintiles,
-} from "./public-data.mjs?v=20261024-probability-flow";
-import { householdSeries } from "../time-series/data.mjs?v=20261024-probability-flow";
-import { publicDatasetInfo } from "./sources.mjs?v=20261024-probability-flow";
-import { applyData, currentData } from "./data-model.mjs?v=20261024-probability-flow";
+} from "./public-data.mjs?v=20261025-remove-probability";
+import { householdSeries } from "../time-series/data.mjs?v=20261025-remove-probability";
+import { publicDatasetInfo } from "./sources.mjs?v=20261025-remove-probability";
+import { applyData, currentData } from "./data-model.mjs?v=20261025-remove-probability";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);

@@ -6,8 +6,8 @@ import {
   metrics,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-probability-flow";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
+} from "../shared/ui.mjs?v=20261025-remove-probability";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-remove-probability";
 import { mean, fmt } from "../shared/math.mjs";
 
 import {
@@ -20,7 +20,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-probability-flow";
+} from "./model.mjs?v=20261025-remove-probability";
 
 const positions = new WeakMap();
 const unitOf = (state) =>
@@ -382,5 +382,5 @@ export default {
     );
   },
   explanation: academicExplanation("sampling"),
-  related: ["histogram", "probability", "hypothesis-test"],
+  related: ["histogram", "hypothesis-test"],
 };

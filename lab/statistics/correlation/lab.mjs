@@ -5,11 +5,11 @@ import {
   table,
   svg,
   drag,
-} from "../shared/ui.mjs?v=20261024-probability-flow";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
+} from "../shared/ui.mjs?v=20261025-remove-probability";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-remove-probability";
 import { regression, mean, fmt, clamp } from "../shared/math.mjs";
 
-import { readDataset } from "../shared/data.mjs?v=20261024-probability-flow";
+import { readDataset } from "../shared/data.mjs?v=20261025-remove-probability";
 
 const basePoints = () =>
   [

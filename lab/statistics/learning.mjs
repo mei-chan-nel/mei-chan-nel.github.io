@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs?v=20261024-probability-flow";
+import { esc } from "./shared/ui.mjs?v=20261025-remove-probability";
 const step = (title, level, purpose, action) => ({
   title,
   level,
@@ -155,43 +155,10 @@ export const learning = {
     ),
   ],
 };
-export function learningViews(id, state = {}) {
-  if (id !== "probability") return learning[id];
-  return [
-    step(
-      "相対度数",
-      "基本",
-      "設定した確率と、実験で得た割合を区別する。",
-      "同じ実験の全投数を順に追い、相対度数の揺れを確かめます。",
-    ),
-    step(
-      "二項分布",
-      "基本＋発展",
-      "セットごとの表の回数を集計し、理論確率と比べる。",
-      "nは1セットの投数です。実験のセット数とは区別して読みましょう。",
-    ),
-    step(
-      "正規分布",
-      "発展",
-      "同じ回数の分布を正規分布で近似し、区間の面積を読む。",
-      "整数の範囲を両側に0.5回ずつ広げ、二項分布と近似の確率を比べます。",
-    ),
-    step(
-      "標準化",
-      "発展",
-      "元の区間とzの区間を対応させ、同じ面積を読む。",
-      "正規分布の区間をZ=(X−μ)÷σで表し直します。",
-    ),
-  ];
+export function learningViews(id) {
+  return learning[id];
 }
 export function dataStep(id) {
-  if (id === "probability")
-    return step(
-      "実験の準備",
-      "実験",
-      "コインの条件を決め、1行が1セットの結果になる実験を作る。",
-      "表の確率・1セットの投数・実験するセット数を設定します。",
-    );
   return step(
     "データ",
     "データ確認",
@@ -203,9 +170,7 @@ export function dataStep(id) {
           ? "2群の対象人数と該当人数を確認し、割合の比較へ進みます。"
           : id === "time-series"
             ? "1行が1か月の値です。時間順・単位・データの出所を確認します。"
-            : id === "probability"
-              ? "コインの0/1・1セットの成功回数・連続値から種類を選び、実験または読込の値を確認します。"
-              : "1行が何を表すか、項目名・単位・値の対応を確かめてから、グラフへ進みます。",
+            : "1行が何を表すか、項目名・単位・値の対応を確かめてから、グラフへ進みます。",
     "サンプル・表への入力・CSVの読み込みで、分析するデータを用意します。",
   );
 }

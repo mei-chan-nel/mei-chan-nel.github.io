@@ -8,8 +8,8 @@ import {
   svg,
   axes,
   bind,
-} from "../shared/ui.mjs?v=20261024-probability-flow";
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-probability-flow";
+} from "../shared/ui.mjs?v=20261025-remove-probability";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-remove-probability";
 import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 
 export function sampleBinomial(n, probability, random) {
@@ -199,7 +199,7 @@ export default {
     trials: 400,
     seed: 2027,
   }),
-  related: ["probability", "sampling", "crosstab"],
+  related: ["sampling", "crosstab"],
   explanation: academicExplanation("hypothesis-test"),
   render(root, ctx) {
     const s = ctx.state;

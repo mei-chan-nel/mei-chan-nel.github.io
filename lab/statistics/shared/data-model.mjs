@@ -2,14 +2,14 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-probability-flow";
+} from "../crosstab/records.mjs?v=20261025-remove-probability";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-probability-flow";
+import { population } from "../sampling/model.mjs?v=20261025-remove-probability";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261024-probability-flow";
+} from "../time-series/model.mjs?v=20261025-remove-probability";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";

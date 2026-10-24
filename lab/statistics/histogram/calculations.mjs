@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs?v=20261024-probability-flow";
+import { esc, table } from "../shared/ui.mjs?v=20261025-remove-probability";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-probability-flow";
+} from "./descriptive.mjs?v=20261025-remove-probability";
 
 const n = (value) =>
   value === null || value === undefined

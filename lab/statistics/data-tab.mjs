@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261024-probability-flow";
-import { currentData } from "./shared/data-model.mjs?v=20261024-probability-flow";
+import { esc } from "./shared/ui.mjs?v=20261025-remove-probability";
+import { currentData } from "./shared/data-model.mjs?v=20261025-remove-probability";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-probability-flow";
+} from "./shared/table-data.mjs?v=20261025-remove-probability";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-probability-flow";
+} from "./data-editor.mjs?v=20261025-remove-probability";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

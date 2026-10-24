@@ -3,16 +3,16 @@ import {
   esc,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261024-probability-flow";
+} from "../shared/ui.mjs?v=20261025-remove-probability";
 import { fmt } from "../shared/math.mjs";
 
 import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-probability-flow";
-import { describe } from "./descriptive.mjs?v=20261024-probability-flow";
-import { renderCalculations } from "./calculations.mjs?v=20261024-probability-flow";
+} from "./model.mjs?v=20261025-remove-probability";
+import { describe } from "./descriptive.mjs?v=20261025-remove-probability";
+import { renderCalculations } from "./calculations.mjs?v=20261025-remove-probability";
 
 const colors = {
   A: "var(--chart-primary)",

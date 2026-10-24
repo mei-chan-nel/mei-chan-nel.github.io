@@ -9,7 +9,7 @@ import sampling from "../sampling/lab.mjs";
 import crosstab from "../crosstab/lab.mjs";
 import series from "../time-series/lab.mjs";
 import hypothesis from "../hypothesis-test/lab.mjs";
-import probability from "../probability/lab.mjs";
+import { normalizeState } from "../probability/model.mjs";
 import { normalizeExperiment } from "../sampling/model.mjs";
 const cells = (data) => data.rows.map((row) => row.map(String));
 
@@ -90,7 +90,7 @@ test("table edits keep imported probability observations fixed and validate thei
     ["binomial", [["0"], ["2"], ["3"]]],
     ["normal", [["-1.5"], ["3.25"]]],
   ]) {
-    const state = { ...probability.initial(), mode },
+    const state = normalizeState({ mode }),
       data = currentData("probability", state);
     const next = applyTableRows("probability", state, data, rows);
     assert.deepEqual(
