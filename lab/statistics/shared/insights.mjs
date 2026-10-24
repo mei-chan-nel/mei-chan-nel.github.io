@@ -1,11 +1,11 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261024-fraction-labels";
+import { currentData } from "./data-model.mjs?v=20261024-proportional-area";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261024-fraction-labels";
-import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-fraction-labels";
-import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-fraction-labels";
+} from "../sampling/model.mjs?v=20261024-proportional-area";
+import { matrixFor, successRate } from "../crosstab/lab.mjs?v=20261024-proportional-area";
+import { makeForecasts, evaluateForecast } from "../time-series/lab.mjs?v=20261024-proportional-area";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),

@@ -2,10 +2,10 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261024-fraction-labels";
+} from "../crosstab/records.mjs?v=20261024-proportional-area";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261024-fraction-labels";
-import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-fraction-labels";
+import { population } from "../sampling/model.mjs?v=20261024-proportional-area";
+import { createMonthlySeries } from "../time-series/lab.mjs?v=20261024-proportional-area";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
 import { niceWidth } from "../histogram/model.mjs";

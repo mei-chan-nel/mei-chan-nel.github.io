@@ -2515,7 +2515,8 @@ html.statistics-immersive body {
   overflow: auto;
 }
 .crosstab-denominator .ct-diagram-scroll .stat-chart {
-  min-width: 640px;
+  min-width: var(--ct-diagram-width);
+  min-height: var(--ct-diagram-height) !important;
   max-width: none;
 }
 .statistics-chart-fullscreen .crosstab-denominator .ct-diagram-scroll {
@@ -2525,8 +2526,8 @@ html.statistics-immersive body {
   .crosstab-denominator
   .ct-diagram-scroll
   [data-screen-chart] {
-  min-width: 640px;
-  min-height: 180px !important;
+  min-width: var(--ct-diagram-width);
+  min-height: var(--ct-diagram-height) !important;
   max-width: none;
 }
 /* Fullscreen scroll regions keep wheel, touch and keyboard scrolling available. */

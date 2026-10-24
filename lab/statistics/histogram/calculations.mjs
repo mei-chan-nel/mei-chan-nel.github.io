@@ -3,7 +3,7 @@ import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261024-fraction-labels";
+} from "./descriptive.mjs?v=20261024-proportional-area";
 
 const n = (value) =>
   value === null || value === undefined

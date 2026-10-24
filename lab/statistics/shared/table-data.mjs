@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261024-fraction-labels";
+import { applyData } from "./data-model.mjs?v=20261024-proportional-area";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

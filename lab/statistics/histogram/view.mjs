@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-fraction-labels";
-import { describe } from "./descriptive.mjs?v=20261024-fraction-labels";
-import { renderCalculations } from "./calculations.mjs?v=20261024-fraction-labels";
+} from "./model.mjs?v=20261024-proportional-area";
+import { describe } from "./descriptive.mjs?v=20261024-proportional-area";
+import { renderCalculations } from "./calculations.mjs?v=20261024-proportional-area";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>

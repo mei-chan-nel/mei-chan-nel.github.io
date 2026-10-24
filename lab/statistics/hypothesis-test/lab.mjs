@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-fraction-labels";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-proportional-area";
 import { mean, rng, fmt, clamp, binomialPMF } from "../shared/math.mjs";
 import {
   esc,

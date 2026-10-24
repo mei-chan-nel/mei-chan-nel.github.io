@@ -1,4 +1,4 @@
-import { downloadCSV } from "./data-editor.mjs?v=20261024-fraction-labels";
+import { downloadCSV } from "./data-editor.mjs?v=20261024-proportional-area";
 const target = new URL("./histogram/", new URL("../", location.href));
 target.protocol = location.protocol;
 target.host = location.host;

@@ -4,8 +4,8 @@ import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-fraction-labels";
-import { experiences } from "./experience.mjs?v=20261024-fraction-labels";
+} from "./shared/data-model.mjs?v=20261024-proportional-area";
+import { experiences } from "./experience.mjs?v=20261024-proportional-area";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

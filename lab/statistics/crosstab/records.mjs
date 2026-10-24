@@ -121,3 +121,76 @@ export function denominatorRegions(strata, scope, method, outcome, mode) {
     ),
   );
 }
+
+// Method bands touch. Within each method, difficulty runs top-to-bottom and
+// outcome runs left-to-right. Every cell has the same area per person.
+export function areaDiagram(strata) {
+  const total = strata.reduce(
+    (sum, s) => sum + s.counts.flat().reduce((n, v) => n + v, 0),
+    0,
+  );
+  const rows = [0, 1].flatMap((method) =>
+    [0, 1].map((stratum) => ({
+      method,
+      stratum,
+      counts: strata[stratum].counts[method],
+      count: strata[stratum].counts[method].reduce((a, b) => a + b, 0),
+    })),
+  );
+  // Expand the complete canvas, never individual cells, to preserve area ratios.
+  const plotWidth = Math.min(
+    6000,
+    Math.max(
+      900,
+      ...rows.flatMap((row) =>
+        row.counts.filter((n) => n > 0).map((n) => (96 * row.count) / n),
+      ),
+    ),
+  );
+  const plotHeight = Math.min(
+    2400,
+    Math.max(
+      320,
+      ...rows
+        .filter((row) => row.count > 0)
+        .map((row) => (36 * total) / row.count),
+    ),
+  );
+  const left = 80,
+    top = 12,
+    regions = [],
+    methods = [];
+  let y = top;
+  for (const method of [0, 1]) {
+    const methodTop = y;
+    for (const row of rows.filter((row) => row.method === method)) {
+      const height = total ? (plotHeight * row.count) / total : 0;
+      let x = left;
+      row.counts.forEach((count, outcome) => {
+        const width = row.count ? (plotWidth * count) / row.count : 0;
+        regions.push({
+          stratum: row.stratum,
+          method,
+          outcome,
+          count,
+          x,
+          y,
+          width,
+          height,
+        });
+        x += width;
+      });
+      y += height;
+    }
+    methods.push({ method, y: methodTop, height: y - methodTop });
+  }
+  return {
+    regions,
+    methods,
+    total,
+    plotWidth,
+    plotHeight,
+    width: left + plotWidth + 8,
+    height: top + plotHeight + 8,
+  };
+}

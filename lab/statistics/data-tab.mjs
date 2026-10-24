@@ -1,14 +1,14 @@
 import { esc } from "./shared/ui.mjs";
-import { currentData } from "./shared/data-model.mjs?v=20261024-fraction-labels";
+import { currentData } from "./shared/data-model.mjs?v=20261024-proportional-area";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261024-fraction-labels";
+} from "./shared/table-data.mjs?v=20261024-proportional-area";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261024-fraction-labels";
+} from "./data-editor.mjs?v=20261024-proportional-area";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

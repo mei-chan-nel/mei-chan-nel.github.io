@@ -337,3 +337,103 @@ test("overall method and outcome choices calculate actual marginal counts", () =
   assert.equal(state.selectedRow, -1);
   assert.equal(state.selectedCol, -1);
 });
+
+import { areaDiagram } from "./records.mjs";
+test("fraction mosaics use population area ratios, fixed orientation and touching method bands", () => {
+  const cases = [
+    makeInitial().strata,
+    [
+      {
+        counts: [
+          [1, 0],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+    ],
+    [
+      {
+        counts: [
+          [1, 8998],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [1, 1000],
+        ],
+      },
+    ],
+    [
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+    ],
+    ...Array.from({ length: 25 }, (_, seed) =>
+      [0, 1].map((s) => ({
+        counts: [0, 1].map((r) =>
+          [0, 1].map((c) => (seed * 17 + s * 11 + r * 7 + c * 3) % 91),
+        ),
+      })),
+    ),
+  ];
+  for (const strata of cases) {
+    const layout = areaDiagram(strata),
+      area = layout.plotWidth * layout.plotHeight;
+    assert.equal(layout.regions.length, 8);
+    assert.ok(
+      Math.abs(
+        layout.methods[0].y + layout.methods[0].height - layout.methods[1].y,
+      ) < 1e-8,
+      "no gap between methods",
+    );
+    for (const box of layout.regions) {
+      const expected = layout.total ? box.count / layout.total : 0;
+      assert.ok(
+        Math.abs((box.width * box.height) / area - expected) < 1e-12,
+        "each area share equals its person share",
+      );
+      assert.ok(box.width >= 0 && box.height >= 0);
+      if (!box.count)
+        assert.equal(box.width * box.height, 0, "zero people have zero area");
+    }
+    for (const r of [0, 1])
+      for (const s of [0, 1]) {
+        const success = layout.regions.find(
+            (x) => x.method === r && x.stratum === s && x.outcome === 0,
+          ),
+          failure = layout.regions.find(
+            (x) => x.method === r && x.stratum === s && x.outcome === 1,
+          );
+        assert.ok(success.x <= failure.x);
+        assert.ok(
+          Math.abs(success.x + success.width - failure.x) < 1e-8,
+          "success left, failure right, no gap",
+        );
+        if (s === 0) {
+          const hard = layout.regions.find(
+            (x) => x.method === r && x.stratum === 1 && x.outcome === 0,
+          );
+          assert.ok(
+            Math.abs(success.y + success.height - hard.y) < 1e-8,
+            "easy above hard, no gap",
+          );
+        }
+      }
+  }
+});

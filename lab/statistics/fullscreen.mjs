@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-fraction-labels";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-proportional-area";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261024-fraction-labels";
+} from "./shared/fullscreen-layout.mjs?v=20261024-proportional-area";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

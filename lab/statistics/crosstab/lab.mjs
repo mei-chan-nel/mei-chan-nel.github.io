@@ -1,16 +1,17 @@
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-fraction-labels";
+} from "../shared/reading.mjs?v=20261024-proportional-area";
 import { esc, svg } from "../shared/ui.mjs";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
 import {
   aggregateRecords,
+  areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261024-fraction-labels";
+} from "./records.mjs?v=20261024-proportional-area";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -292,37 +293,49 @@ function denominatorDiagram(state) {
     state.selectedCol,
     state.mode,
   );
-  const left = 80,
-    top = 12,
-    cellWidth = 200,
-    cellHeight = 90,
-    gap = 4;
+  const layout = areaDiagram(state.strata);
   const shortTask = (name) => name.replace(/課題$/, "");
   let content =
     '<defs><pattern id="ct-numerator" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#8d3c0b"/><path d="M-2 2L2-2M0 8L8 0M6 10L10 6" stroke="#fff" stroke-opacity=".3" stroke-width="1.5"/></pattern></defs>';
-  for (let r = 0; r < 2; r++) {
-    const y = top + r * (cellHeight + 16);
-    content += `<text x="68" y="${y + cellHeight / 2 + 5}" text-anchor="end" class="ct-method-label">${esc(METHOD[r])}</text>`;
-    for (let s = 0; s < 2; s++)
-      for (let c = 0; c < 2; c++) {
-        const region = regions.find(
-          (part) =>
-            part.stratum === s && part.method === r && part.outcome === c,
-        );
-        const x = left + (s * 2 + c) * (cellWidth + gap);
-        const fill = region.inNumerator
-          ? "url(#ct-numerator)"
-          : region.inDenominator
-            ? "#c9e6de"
-            : "#edf0f2";
-        const text = `${shortTask(STRATA[s])}・${OUTCOME[c]} ${region.count}人`;
-        content += `<rect x="${x}" y="${y}" width="${cellWidth}" height="${cellHeight}" data-ct-region="${s},${r},${c}" data-ct-count="${region.count}" data-ct-numerator="${region.inNumerator}" data-ct-denominator="${region.inDenominator}" fill="${fill}" stroke="#839b91" stroke-width="1"><title>${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${region.count}人（${region.inNumerator ? "分子・分母に含む" : region.inDenominator ? "分母に含む" : "分母に含まない"}）</title></rect><text x="${x + cellWidth / 2}" y="${y + cellHeight / 2 + 5}" data-ct-region-label="${s},${r},${c}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle">${esc(text)}</text>`;
-      }
+  for (const band of layout.methods)
+    content += `<text x="68" y="${band.y + band.height / 2 + 5}" text-anchor="end" class="ct-method-label">${esc(METHOD[band.method])}</text>`;
+  for (const box of layout.regions) {
+    const {
+      stratum: s,
+      method: r,
+      outcome: c,
+      count,
+      x,
+      y,
+      width,
+      height,
+    } = box;
+    const region = regions.find(
+      (part) => part.stratum === s && part.method === r && part.outcome === c,
+    );
+    const fill = region.inNumerator
+      ? "url(#ct-numerator)"
+      : region.inDenominator
+        ? "#c9e6de"
+        : "#edf0f2";
+    const id = `${s},${r},${c}`,
+      clip = `ct-region-clip-${s}-${r}-${c}`;
+    const text = `${shortTask(STRATA[s])}・${OUTCOME[c]} ${count}人`;
+    content += `<clipPath id="${clip}" clipPathUnits="userSpaceOnUse"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath><rect x="${x}" y="${y}" width="${width}" height="${height}" data-ct-region="${id}" data-ct-count="${count}" data-ct-numerator="${region.inNumerator}" data-ct-denominator="${region.inDenominator}" fill="${fill}" stroke="#839b91" stroke-width="1" role="img" aria-label="${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人"><title>${esc(METHOD[r])}・${esc(STRATA[s])}・${esc(OUTCOME[c])} ${count}人（${region.inNumerator ? "分子・分母に含む" : region.inDenominator ? "分母に含む" : "分母に含まない"}）</title></rect><text x="${x + width / 2}" y="${y + height / 2 - 4}" data-ct-region-label="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})" aria-label="${esc(text)}">${esc(shortTask(STRATA[s]))}・${esc(OUTCOME[c])}</text><text x="${x + width / 2}" y="${y + height / 2 + 12}" data-ct-region-number="${id}" class="ct-area-label ${region.inNumerator ? "ct-area-selected" : ""}" text-anchor="middle" clip-path="url(#${clip})">${count}人</text>`;
   }
+  const smallRegions = layout.regions.filter(
+    (box) => box.width < 96 - 1e-8 || box.height < 36 - 1e-8,
+  );
+  const smallLabels = smallRegions
+    .map(
+      (box) =>
+        `<span class="ct-small-region-label">${esc(METHOD[box.method])}・${esc(shortTask(STRATA[box.stratum]))}・${esc(OUTCOME[box.outcome])} ${box.count}人</span>`,
+    )
+    .join("");
   const calculation = denominator
     ? `${numerator}人 ÷ ${denominator}人 × 100 = ${pct(ratio)}`
     : "分母が0人のため割合は求められません";
-  return `<section class="panel chart-panel crosstab-denominator"><h3>分子と分母</h3><div class="ct-formula"><span>分子：${esc(numeratorText)} <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${`<div class="ct-diagram-scroll" tabindex="0" role="region" aria-label="分子と分母の図。横にスクロールできます。">${svg(content, `${METHOD[0]}と${METHOD[1]}の課題難度・結果別人数`, 900, 220)}</div>`}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span></div></section>`;
+  return `<section class="panel chart-panel crosstab-denominator"><h3>分子と分母</h3><div class="ct-formula"><span>分子：${esc(numeratorText)} <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${`<div class="ct-diagram-scroll" style="--ct-diagram-width:${layout.width}px;--ct-diagram-height:${layout.height}px" tabindex="0" role="region" aria-label="人数に面積が比例する分子と分母の図。スクロールできます。">${svg(content, `${METHOD[0]}と${METHOD[1]}の人数に面積が比例する図。初級は上、応用は下、達成は左、未達成は右。`, layout.width, layout.height)}</div>`}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span>${smallLabels}</div></section>`;
 }
 function choices(id, label, options, value, key, numeric = false) {
   return `<fieldset class="ct-choice-group"><legend>${esc(label)}</legend><div class="ct-choice-options">${options.map(([v, text]) => `<label class="ct-choice"><input type="radio" id="${id}-${esc(v)}" name="${id}" value="${esc(v)}" data-ct-state="${key}" ${numeric ? "data-ct-number" : ""} ${String(v) === String(value) ? "checked" : ""}><span>${esc(text)}</span></label>`).join("")}</div></fieldset>`;
