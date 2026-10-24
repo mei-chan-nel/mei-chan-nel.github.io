@@ -42,6 +42,13 @@ export const groups = [
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
   {
+    id: "crypto-communication",
+    group: "society-security",
+    generated: false,
+    name: "暗号通信シミュレーター",
+    description: "攻撃者Charlieとして通信に介入。共通鍵・公開鍵・認証局CA・電子署名と認証タグの4ラウンドで、鍵と認証の役割を確かめよう。",
+  },
+  {
     id: "os-work",
     group: "algorithm",
     generated: false,

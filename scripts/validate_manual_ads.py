@@ -213,6 +213,7 @@ def main() -> int:
         ("lab/index.html", "after-interactive-lab-main"),
         ("lab/cpu-memory/index.html", "after-interactive-lab-main"),
         ("lab/os-work/index.html", "after-interactive-lab-main"),
+        ("lab/crypto-communication/index.html", "after-interactive-lab-main"),
         ("lab/color-vision/index.html", "after-interactive-lab-main"),
         ("lab/thinking-tools/index.html", "after-interactive-lab-main"),
         ("lab/radix-conversion/index.html", "after-interactive-lab-main"),
@@ -232,7 +233,8 @@ def main() -> int:
         if trace_text.count('data-manual-ad="display"') != 1:
             errors.append(f"{relative}: expected exactly one display wrapper")
         try:
-            if not (trace_text.index("</main>") < trace_text.index(f'data-ad-placement="{placement}"') < trace_text.index("<footer")):
+            # Interactive content can contain its own section footer.
+            if not (trace_text.index("</main>") < trace_text.index(f'data-ad-placement="{placement}"') < trace_text.index('<footer class="site-footer"')):
                 errors.append(f"{relative}: display wrapper must be after main and before footer")
         except ValueError:
             errors.append(f"{relative}: required main/ad/footer placement markers are missing")

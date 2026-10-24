@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>暗号通信シミュレーター｜Interactive Lab｜情報Ⅰ Study Atlas</title>
+    <meta
+      name="description"
+      content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・認証局CA・電子署名・認証タグの役割を実験する暗号通信クエスト。"
+    />
+    <meta name="theme-color" content="#102f35" />
+    <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+    <link rel="stylesheet" href="./style.css?v=3" />
+    <link rel="stylesheet" href="./viewport.css?v=5" />
+    <link rel="stylesheet" href="./story.css?v=10" />
+    <link rel="stylesheet" href="./quest.css?v=6" />
+    <link rel="stylesheet" href="./unified.css?v=10" />
+    <link rel="canonical" href="https://mei-chan-nel.com/lab/crypto-communication/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="暗号通信シミュレーター｜Interactive Lab｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="通信経路に潜入するチャーリーになろう。状況・目的・行動・結果をたどり、共通鍵・公開鍵・認証局CA・電子署名・認証タグの役割を実験する暗号通信クエスト。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/lab/crypto-communication/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1734" />
+    <meta property="og:image:height" content="907" />
+    <meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+    <script src="../../assets/site-analytics.js?v=2026102401" defer></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"暗号通信シミュレーター","item":"https://mei-chan-nel.com/lab/crypto-communication/"}]}</script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../"
+          ><span class="brand-mark" aria-hidden="true">I</span
+          ><span
+            ><strong>情報Ⅰ Study Atlas</strong
+            ><small>知識を、ひろげ、つなげる</small></span
+          ></a
+        >
+        <nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../program-trace/">プログラムトレース</a><a href="../../LectureNote/">講義ノート</a><a href="../../lab/">ラボ</a></nav>
+      </div>
+    </header>
+    <main id="main-content" class="crypto-shell">
+      <nav class="breadcrumb" aria-label="パンくず">
+        <a href="../../">Study Atlas</a><span aria-hidden="true">/</span
+        ><a href="../">Interactive Lab</a><span aria-hidden="true">/</span
+        ><span>暗号通信</span>
+      </nav>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">NETWORK &amp; SECURITY</p>
+          <h1>暗号通信シミュレーター<span>.</span></h1>
+        </div>
+        <p>通信経路に潜入して、<br />秘密を守る仕組みを解き明かそう。</p>
+      </header>
+      <section
+        id="game-console"
+        class="game-console story-game quest-game unified-game"
+        aria-label="暗号通信クエスト"
+      >
+        <div class="game-inner">
+          <div class="game-toolbar">
+            <span class="game-logo"
+              ><i aria-hidden="true">▣</i> CRYPTO QUEST
+              <small>通信経路のCharlie</small></span
+            >
+            <div>
+              <button type="button" id="restart" class="toolbar-button">
+                ↻ やり直す
+              </button>
+              <button type="button" id="open-info" class="toolbar-button">
+                仕組み
+              </button>
+              <button
+                type="button"
+                id="fullscreen"
+                class="toolbar-button"
+                aria-pressed="false"
+              >
+                ⛶ 全画面表示
+              </button>
+            </div>
+          </div>
+          <div
+            id="display-status"
+            class="visually-hidden"
+            role="status"
+            aria-live="polite"
+          ></div>
+
+          <div id="gameplay">
+            <nav id="rounds" class="round-nav" aria-label="ラウンドを選択">
+              <button type="button" data-round="0" aria-current="step">
+                <span>ROUND 1</span>共通鍵</button
+              ><button type="button" data-round="1">
+                <span>ROUND 2</span>公開鍵</button
+              ><button type="button" data-round="2">
+                <span>ROUND 3</span>認証局 CA</button
+              ><button type="button" data-round="3">
+                <span>ROUND 4</span>署名・タグ
+              </button>
+            </nav>
+            <div class="level-heading">
+              <div>
+                <span class="pixel-label" id="round-number">ROUND 1</span>
+                <h2 id="round-title" tabindex="-1">共通鍵暗号方式</h2>
+                <p id="round-description"></p>
+              </div>
+            </div>
+
+            <div class="phase-row">
+              <ol id="stages" class="stages" aria-label="通信の進行"></ol>
+            </div>
+            <div class="play-layout">
+              <div class="scene-column">
+                <section
+                  id="scene"
+                  class="scene"
+                  aria-label="通信ケーブルの途中でデータを中継するチャーリー"
+                >
+                  <div class="scene-top">
+                    <span id="scene-status">Ⅱ 通信を一時停止中</span
+                    ><span id="direction">アリス → ボブ</span>
+                  </div>
+                  <div class="network-scene">
+                    <span
+                      id="ca-authority"
+                      class="ca-authority"
+                      hidden
+                      role="img"
+                      aria-label="認証局 CA。本人確認を行い公開鍵証明書に署名する。"
+                      ><svg
+                        viewBox="0 0 32 32"
+                        width="28"
+                        height="28"
+                        aria-hidden="true"
+                      >
+                        <use href="./authority.svg#ca"></use></svg
+                      ><span>認証局 CA</span></span
+                    >
+                    <div class="cable" aria-hidden="true"></div>
+                    <article class="actor alice">
+                      <svg
+                        class="pixel-character"
+                        viewBox="0 0 32 40"
+                        role="img"
+                        aria-label="Aliceのドット絵"
+                        shape-rendering="crispEdges"
+                      >
+                        <use href="./characters.svg#alice"></use>
+                      </svg>
+                      <h3 class="character-name name-alice" lang="en">
+                        <span>A</span>lice
+                      </h3>
+                    </article>
+                    <div class="relay">
+                      <div
+                        class="relay-machine"
+                        aria-label="Charlieが操作する中継機"
+                      >
+                        <svg
+                          viewBox="0 0 32 24"
+                          width="28"
+                          height="20"
+                          aria-hidden="true"
+                        >
+                          <path
+                            d="M3 3h26v18H3zM7 8h11M7 13h11M7 17h4M24 8h1M24 13h1M24 17h1M0 10h3m26 0h3"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          />
+                        </svg>
+                      </div>
+                      <svg
+                        class="pixel-character charlie-sprite"
+                        viewBox="0 0 32 40"
+                        role="img"
+                        aria-label="Charlieのドット絵"
+                        shape-rendering="crispEdges"
+                      >
+                        <use href="./characters.svg#charlie"></use>
+                      </svg>
+                      <h3 class="character-name name-charlie" lang="en">
+                        <span>C</span>harlie<small>YOU</small>
+                      </h3>
+                    </div>
+                    <article class="actor bob">
+                      <svg
+                        class="pixel-character"
+                        viewBox="0 0 32 40"
+                        role="img"
+                        aria-label="Bobのドット絵"
+                        shape-rendering="crispEdges"
+                      >
+                        <use href="./characters.svg#bob"></use>
+                      </svg>
+                      <h3 class="character-name name-bob" lang="en">
+                        <span>B</span>ob
+                      </h3>
+                    </article>
+                    <div class="packet-sprite" id="packet-sprite" role="img">
+                      <div class="packet-contents">
+                        <div class="packet-body">
+                          <svg
+                            class="packet-shape"
+                            viewBox="0 0 48 32"
+                            width="42"
+                            height="28"
+                            aria-hidden="true"
+                          >
+                            <use
+                              id="packet-icon"
+                              href="./packets.svg?v=2#key"
+                            ></use>
+                          </svg>
+                          <b id="packet-short">共通鍵</b>
+                        </div>
+                        <div
+                          id="signature-attachment"
+                          class="signature-attachment"
+                          hidden
+                        >
+                          <svg
+                            viewBox="0 0 48 32"
+                            width="36"
+                            height="24"
+                            aria-hidden="true"
+                          >
+                            <use href="./packets.svg?v=2#signature"></use>
+                          </svg>
+                          <b id="signature-owner">Aliceの電子署名</b>
+                          <span id="signature-note">共通鍵の配送を認証</span>
+                        </div>
+                        <div
+                          id="authentication-tag-attachment"
+                          class="authentication-tag-attachment"
+                          hidden
+                        >
+                          <svg
+                            viewBox="0 0 48 32"
+                            width="36"
+                            height="24"
+                            aria-hidden="true"
+                          >
+                            <use
+                              href="./packets.svg?v=2#authentication-tag"
+                            ></use>
+                          </svg>
+                          <b>認証タグ</b>
+                          <span>共通鍵で本文を保護</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="packet-card">
+                    <span id="packet-context">Charlieの中継機</span
+                    ><strong id="packet-title"></strong
+                    ><span
+                      id="packet-protection"
+                      class="packet-protection"
+                      hidden
+                    ></span
+                    ><span
+                      id="browser-trust"
+                      class="browser-trust"
+                      hidden
+                      title="ブラウザに事前登録されたCA公開鍵。通信経路から上書きしません。"
+                      ><svg
+                        viewBox="0 0 48 32"
+                        width="22"
+                        height="16"
+                        aria-hidden="true"
+                      >
+                        <use href="./packets.svg?v=2#browser-root"></use></svg
+                      ><span>CA鍵は事前登録</span></span
+                    >
+                    <details>
+                      <summary>データの識別番号を見る</summary>
+                      <code id="packet-value"></code>
+                    </details>
+                  </div>
+                </section>
+              </div>
+              <div class="command-column">
+                <section class="command-box" aria-labelledby="command-label">
+                  <div class="command-heading">
+                    <span class="box-label" id="command-label"
+                      >ナレーション</span
+                    >
+                    <button
+                      type="button"
+                      id="situation-details"
+                      class="text-detail"
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        width="16"
+                        height="16"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M10 5C7 3 4 3 2 4v12c3-1 5-1 8 1 3-2 5-2 8-1V4c-2-1-5-1-8 1Zm0 0v12"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <span>詳しく</span
+                      ><span class="detail-chevron" aria-hidden="true">›</span>
+                    </button>
+                  </div>
+                  <div class="interaction-body">
+                    <section
+                      id="action-result"
+                      class="narration"
+                      aria-label="状況と操作の結果"
+                    >
+                      <p id="feedback" role="status" aria-live="polite">
+                        Aliceは、Bobに秘密のメッセージを送ろうとしている。
+                      </p>
+                      <div id="bob-result" class="bob-result" hidden></div>
+                    </section>
+                    <div id="choice-list" class="choice-list"></div>
+                    <p
+                      id="answer-explanation"
+                      class="answer-explanation"
+                      hidden
+                    ></p>
+                    <p
+                      id="key-operation-context"
+                      class="key-operation-context"
+                      hidden
+                    ></p>
+                    <section
+                      id="key-picker"
+                      class="key-picker"
+                      aria-labelledby="command-label"
+                      aria-describedby="key-record"
+                      hidden=""
+                    >
+                      <div
+                        id="key-list"
+                        class="key-list"
+                        role="group"
+                        aria-label="操作に使う鍵"
+                      ></div>
+                      <nav class="key-pagination" aria-label="鍵の選択ページ">
+                        <button type="button" id="key-back">← 戻る</button>
+                        <button type="button" id="key-prev" aria-label="前の鍵">
+                          ◀
+                        </button>
+                        <span id="key-page-count"></span>
+                        <button type="button" id="key-next" aria-label="次の鍵">
+                          ▶
+                        </button>
+                      </nav>
+                    </section>
+                  </div>
+                  <footer class="interaction-controls">
+                    <button type="button" id="dialogue-previous">
+                      ← 一つ前へ
+                    </button>
+                    <span id="dialogue-position"></span>
+                    <button
+                      type="button"
+                      id="dialogue-next"
+                      class="pixel-button primary"
+                    >
+                      次へ ▶
+                    </button>
+                  </footer>
+                </section>
+                <section class="record-card" aria-label="Charlieの記録">
+                  <div>
+                    <span id="key-record-label">共通鍵</span
+                    ><strong id="key-record">未取得</strong>
+                  </div>
+                  <div>
+                    <span>本文</span
+                    ><strong id="original-message">未解読</strong
+                    ><span id="rewrite-arrow" hidden="">→</span
+                    ><strong id="edited-message" hidden=""></strong>
+                  </div>
+                </section>
+                <div class="outgoing-card">
+                  <span>次に届けるデータ</span
+                  ><strong id="outgoing-label"></strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <dialog
+            id="info-dialog"
+            class="tools-dialog info-dialog"
+            aria-labelledby="info-title"
+          >
+            <header class="tools-header">
+              <h2 id="info-title">詳しい説明</h2>
+              <button
+                type="button"
+                id="close-info"
+                class="pixel-button secondary"
+              >
+                × 戻る
+              </button>
+            </header>
+            <nav id="info-topics" class="info-topics" aria-label="説明の種類">
+              <button type="button" data-info="mechanism" aria-pressed="true">
+                仕組み
+              </button>
+              <button type="button" data-info="log" aria-pressed="false">
+                通信の記録
+              </button>
+            </nav>
+            <article
+              class="info-page"
+              id="info-scroll"
+              tabindex="0"
+              aria-label="解説全文・スクロールできます"
+            >
+              <div id="info-text"></div>
+            </article>
+          </dialog>
+        </div>
+      </section>
+      <section class="learning">
+        <p class="eyebrow">LOOK BACK</p>
+        <h2>何を、何で守る？</h2>
+        <div class="learning-cards">
+          <article>
+            <span>01</span>
+            <h3>機密性</h3>
+            <p>
+              第三者に秘密を読ませない。暗号化と、鍵を安全に届ける仕組みが必要。
+            </p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>完全性</h3>
+            <p>
+              内容が変わっていないと確かめる。第4ラウンドでは、認証タグが本文の変更を検出する。
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>認証</h3>
+            <p>
+              誰の鍵・誰からの通信かを確かめる。CAで公開鍵の持ち主を確認し、Aliceの署名で共通鍵の配送を認証する。
+            </p>
+          </article>
+        </div>
+      </section>
+      <details class="model-note">
+        <summary>この教育用モデルについて</summary>
+        <p>
+          Charlieが通信経路の中継機を操作できる状況を仮定しています。中継機を通るデータは自動で記録されます。Charlieは、AliceやBobの秘密鍵を盗めません。
+        </p>
+        <p>
+          暗号計算を省き、正しい鍵でのみ開けられる不透明な封筒として表現します。実用の暗号化ツールではありません。ビット操作による攻撃・長さの漏えいは扱いません。公開鍵暗号は共通鍵の配送に使い、本文は共通鍵で暗号化します。第1〜3ラウンドでは本文の送信者を確かめる仕組みを設けていません。
+        </p>
+        <p>
+          第3ラウンドでは、認証局の証明書とブラウザ内のCA公開鍵でAlice・Bobの鍵を確認します。Aliceの共通鍵は漏れなくなりますが、Charlieが自作の共通鍵と本文を送るなりすましは残ります。第4ラウンドでは、Aliceが暗号化した共通鍵とAlice・Bobの名前・通信IDに署名し、BobがCAで確認したAliceの公開鍵で検証します。本文はその共通鍵による認証付き暗号（AEAD）で保護します。署名は鍵配送を認証し、認証タグは本文の変更を検出します。
+        </p>
+        <p>
+          実際のTLSでは、共通鍵をそのまま署名して配送するのではなく、鍵交換を含む通信履歴を認証して鍵を共有します。このゲームは鍵配送の署名と本文の認証タグに役割を分けた教育用モデルです。通信IDや本文の番号も検証に含めますが、実用システムの全手順は再現していません。過去の正しいデータの再送を防ぐには、順序や重複の確認も必要です。実験データはこの画面のメモリー内だけに保持します。
+        </p>
+      </details>
+      <nav class="related" aria-label="関連する用語">
+        <a href="../">← Interactive Labへ</a
+        ><a href="../../terms/common-key-encryption/">共通鍵暗号方式 ↗</a
+        ><a href="../../terms/public-key-encryption/">公開鍵暗号方式 ↗</a
+        ><a href="../../terms/digital-signature/">電子署名 ↗</a>
+      </nav>
+    </main>
+    <div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+    <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../program-trace/">プログラムトレース</a><a href="../../LectureNote/">講義ノート</a><a href="../../lab/">ラボ</a><a href="../../study-guide.html">使い方</a><a href="../../books/">書籍案内</a><a href="../../about.html">このサイトについて</a><a href="../../privacy.html">プライバシーポリシー</a><a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+    <noscript><p>このシミュレーターにはJavaScriptが必要です。</p></noscript>
+    <script type="module" src="../navigation.mjs?v=1"></script>
+    <script type="module" src="./app.mjs?v=29"></script>
+  </body>
+</html>
