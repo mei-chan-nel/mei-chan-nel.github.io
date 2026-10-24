@@ -4,9 +4,9 @@ import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261024-crosstab-records";
-import { describe } from "./descriptive.mjs?v=20261024-crosstab-records";
-import { renderCalculations } from "./calculations.mjs?v=20261024-crosstab-records";
+} from "./model.mjs?v=20261024-crosstab-layout";
+import { describe } from "./descriptive.mjs?v=20261024-crosstab-layout";
+import { renderCalculations } from "./calculations.mjs?v=20261024-crosstab-layout";
 
 const colors = { A: "#168b87", B: "#de7c35", all: "#168b87" };
 const value = (v) =>

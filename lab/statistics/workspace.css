@@ -1626,21 +1626,6 @@ html.statistics-immersive body {
 .statistics-analysis-fullscreen .analysis-toolbar {
   padding: 8px 12px;
 }
-[data-stat-lab="crosstab"]
-  .statistics-analysis-fullscreen
-  .analysis-view
-  > .workbench-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
-  gap: 8px;
-}
-[data-stat-lab="crosstab"]
-  .statistics-analysis-fullscreen
-  .workbench-group
-  .stat-table {
-  min-width: 0;
-  width: 100%;
-}
 .statistics-fullscreen .histogram-table-screen,
 .statistics-fullscreen
   .histogram-table-screen
@@ -2367,31 +2352,81 @@ html.statistics-immersive body {
 }
 .crosstab-table tbody tr:last-child,
 .crosstab-table :is(th, td):last-child {
-  background: #f0f6f3;
   font-weight: 700;
 }
-.ct-table-pager {
-  display: none;
-  align-items: center;
-  gap: 10px;
-  margin-left: auto;
+.crosstab-table td {
+  background: #fff;
 }
-.statistics-analysis-fullscreen .ct-table-pager {
+.ct-tables {
+  container: crosstab-tables / inline-size;
+}
+.ct-table-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+.ct-table-grid > .crosstab-table-panel {
+  min-width: 0;
+  margin: 0;
+}
+@container crosstab-tables (min-width: 960px) {
+  .statistics-analysis-fullscreen .ct-table-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.ct-controls .ct-choice-group {
+  flex: 0 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.ct-choice-group legend {
+  margin-bottom: 5px;
+  padding: 0;
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+.ct-choice-options {
   display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
-.statistics-analysis-fullscreen
-  .ct-tables[data-current-table="0"]
-  > :not([data-crosstab-table="all"]),
-.statistics-analysis-fullscreen
-  .ct-tables[data-current-table="1"]
-  > :not([data-crosstab-table="0"]),
-.statistics-analysis-fullscreen
-  .ct-tables[data-current-table="2"]
-  > :not([data-crosstab-table="1"]) {
-  display: none;
+.ct-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 5px 7px;
+  border: 1px solid #c6d5cd;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+  cursor: pointer;
 }
-.statistics-analysis-fullscreen .crosstab-table-panel {
-  margin-bottom: 0;
+.ct-choice:has(input:checked) {
+  color: #154f43;
+  background: #e7f2ec;
+  border-color: #176660;
+}
+.ct-choice:focus-within {
+  outline: 2px solid #176660;
+  outline-offset: 2px;
+}
+.ct-choice input[type="radio"] {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  min-height: 14px;
+  margin: 0;
+  accent-color: #176660;
+}
+.unified-workbench .ct-controls {
+  gap: 10px 14px;
+  padding: 12px;
 }
 .ct-formula {
   display: flex;
@@ -2439,11 +2474,6 @@ html.statistics-immersive body {
 @media (max-width: 520px) {
   .crosstab-table :is(th, td) {
     padding: 10px 4px;
-    font-size: 0.8rem;
-  }
-  .ct-table-pager {
-    margin-left: 0;
-    gap: 6px;
     font-size: 0.8rem;
   }
 }

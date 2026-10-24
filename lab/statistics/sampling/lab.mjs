@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-records";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-layout";
 import { mean, fmt } from "../shared/math.mjs";
 import { esc, number, select, metrics, svg, bind } from "../shared/ui.mjs";
 import {
@@ -11,7 +11,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261024-crosstab-records";
+} from "./model.mjs?v=20261024-crosstab-layout";
 
 const positions = new WeakMap();
 const unitOf = (state) => (state.customPopulation ? "" : "分");

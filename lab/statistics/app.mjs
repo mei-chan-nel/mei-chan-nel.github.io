@@ -1,24 +1,24 @@
 import { esc } from "./shared/ui.mjs";
-import { validateDocument } from "./shared/validation.mjs?v=20261024-crosstab-records";
+import { validateDocument } from "./shared/validation.mjs?v=20261024-crosstab-layout";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261024-crosstab-records";
-import { composeWorkbench } from "./workbench.mjs?v=20261024-crosstab-records";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-crosstab-records";
-import { sampleState } from "./shared/samples.mjs?v=20261024-crosstab-records";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-crosstab-records";
+} from "./shared/data-model.mjs?v=20261024-crosstab-layout";
+import { composeWorkbench } from "./workbench.mjs?v=20261024-crosstab-layout";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-crosstab-layout";
+import { sampleState } from "./shared/samples.mjs?v=20261024-crosstab-layout";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261024-crosstab-layout";
 import { readDataset } from "./shared/data.mjs";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261024-crosstab-records";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-crosstab-records";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-crosstab-records";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-crosstab-records";
+} from "./learning.mjs?v=20261024-crosstab-layout";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261024-crosstab-layout";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261024-crosstab-layout";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-crosstab-layout";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261024-crosstab-records`))
+const config = (await import(`./${id}/lab.mjs?v=20261024-crosstab-layout`))
   .default;
 const ui = {
   view: 0,

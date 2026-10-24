@@ -1,15 +1,15 @@
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261024-crosstab-records";
-import { esc, select, metrics, svg } from "../shared/ui.mjs";
+} from "../shared/reading.mjs?v=20261024-crosstab-layout";
+import { esc, svg } from "../shared/ui.mjs";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
 import {
   aggregateRecords,
   tableValues,
-} from "./records.mjs?v=20261024-crosstab-records";
+} from "./records.mjs?v=20261024-crosstab-layout";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],
@@ -77,7 +77,6 @@ export function normalizeState(state = {}) {
           },
         )
       : strata,
-    tableIndex: Math.round(bounded(state.tableIndex ?? 0, 0, 2)),
     anchors: base.anchors.map((row, s) =>
       row.map((value, r) => bounded(state.anchors?.[s]?.[r] ?? value, 0, 1)),
     ),
@@ -215,7 +214,7 @@ function reversalExplanation(state) {
     const easy = easier >= 0 ? easier : 0,
       shareEasy = (r) =>
         easy === 0 ? share(r) : share(r) === null ? null : 1 - share(r);
-    return `${STRATA[0]}でも${STRATA[1]}でも${METHOD[winner]}の${OUTCOME[0]}率が高いのに、合計では${METHOD[other]}が高くなっています。課題ごとに上回る方式が、合計でも上回るとは限らない、という逆転です。${METHOD[other]}は${OUTCOME[0]}しやすい${STRATA[easy]}の割合が${pct(shareEasy(other))}、${METHOD[winner]}は${pct(shareEasy(winner))}と、取り組んだ課題の内訳が違うために起きます。これをシンプソンのパラドックスといいます。`;
+    return `合計では${METHOD[other]}の${OUTCOME[0]}率が高いのに、${STRATA[0]}と${STRATA[1]}に分けると、どちらも${METHOD[other]}の方が低くなります。${METHOD[other]}は${OUTCOME[0]}しやすい${STRATA[easy]}に取り組んだ人が${pct(shareEasy(other))}（${METHOD[winner]}は${pct(shareEasy(winner))}）と多いため、合計の率が高くなっています。このように合計と課題別で大小が逆転する現象を、シンプソンのパラドックスといいます。`;
   }
   return `合計の${OUTCOME[0]}率は、課題ごとの${OUTCOME[0]}率を、その課題に取り組んだ人数で重み付けした平均です。${STRATA[0]}と${STRATA[1]}の人数の偏りも合わせて比べましょう。`;
 }
@@ -308,6 +307,9 @@ function denominatorDiagram(state) {
     : "分母が0人のため割合は求められません";
   return `<section class="panel chart-panel crosstab-denominator"><h3>${esc(scope)}：${esc(METHOD[state.selectedRow])}で${esc(OUTCOME[state.selectedCol])}した割合</h3><div class="ct-formula"><span>分子：${esc(METHOD[state.selectedRow])}で${esc(OUTCOME[state.selectedCol])}した人 <strong>${numerator}人</strong></span><span>分母：${esc(base)} <strong>${denominator}人</strong></span><strong>${calculation}</strong></div>${svg(content, "面積が人数を表す分子と分母の図", 720, 250)}<div class="legend ct-area-legend"><span><i class="ct-key ct-key-numerator"></i>斜線＝分子</span><span><i class="ct-key ct-key-base"></i>斜線＋薄緑＝分母</span><span><i class="ct-key ct-key-excluded"></i>灰色＝分母の外</span></div></section>`;
 }
+function choices(id, label, options, value, key, numeric = false) {
+  return `<fieldset class="ct-choice-group"><legend>${esc(label)}</legend><div class="ct-choice-options">${options.map(([v, text]) => `<label class="ct-choice"><input type="radio" id="${id}-${esc(v)}" name="${id}" value="${esc(v)}" data-ct-state="${key}" ${numeric ? "data-ct-number" : ""} ${String(v) === String(value) ? "checked" : ""}><span>${esc(text)}</span></label>`).join("")}</div></fieldset>`;
+}
 export default {
   id: "crosstab",
   title: "クロス集計",
@@ -319,8 +321,7 @@ export default {
   render(root, ctx) {
     const state = normalizeState(ctx.state),
       view = ctx.view || 0,
-      { METHOD, STRATA, OUTCOME } = displayLabels(state),
-      combined = matrixFor(state.strata);
+      { METHOD, STRATA, OUTCOME } = displayLabels(state);
     const scopes = [
       ["all", "合計"],
       ...STRATA.map((name, i) => [String(i), name]),
@@ -328,59 +329,73 @@ export default {
     let toolbar = "",
       content = "";
     if (view === 0) {
-      toolbar = select("ct-mode", "表の表示", MODES, state.mode);
-      const index = state.tableIndex;
-      toolbar += `<div class="ct-table-pager" role="group" aria-label="集計表の切り替え"><button id="ct-table-prev" type="button" ${index === 0 ? "disabled" : ""}>← 前</button><span role="status" aria-live="polite">${index + 1} / 3　${esc(scopes[index][1])}</span><button id="ct-table-next" type="button" ${index === 2 ? "disabled" : ""}>次 →</button></div>`;
-      content = `<div class="ct-tables" data-current-table="${index}">${scopes.map(([scope, title]) => dataTable(state, scope, title)).join("")}</div>`;
+      toolbar = choices(
+        "ct-mode",
+        "表の表示",
+        [
+          ["count", "人数"],
+          ["row", "行比率"],
+          ["column", "列比率"],
+          ["cell", "セル比率"],
+        ],
+        state.mode,
+        "mode",
+      );
+      content = `<div class="ct-tables"><div class="ct-table-grid">${scopes.map(([scope, title]) => dataTable(state, scope, title)).join("")}</div></div>`;
     } else if (view === 1) {
       content = `<section class="chart-panel"><h3>合計と課題別の${esc(OUTCOME[0])}率</h3>${comparisonChart(state)}<p class="annotation" role="status">${esc(reversalExplanation(state))}</p></section>`;
     } else {
       const ratioMode = state.mode === "count" ? "row" : state.mode;
       state.mode = ratioMode;
       toolbar =
-        select("ct-scope", "課題難度", scopes, state.selectedScope) +
-        select(
+        choices(
+          "ct-scope",
+          "課題難度",
+          scopes,
+          state.selectedScope,
+          "selectedScope",
+        ) +
+        choices(
           "ct-row",
           "方式",
           METHOD.map((name, i) => [String(i), name]),
-          String(state.selectedRow),
+          state.selectedRow,
+          "selectedRow",
+          true,
         ) +
-        select(
+        choices(
           "ct-col",
           "結果",
           OUTCOME.map((name, i) => [String(i), name]),
-          String(state.selectedCol),
+          state.selectedCol,
+          "selectedCol",
+          true,
         ) +
-        select(
+        choices(
           "ct-mode",
           "割合の分母",
-          MODES.filter(([m]) => m !== "count"),
+          [
+            ["row", "方式ごと"],
+            ["column", "結果ごと"],
+            ["cell", "全体"],
+          ],
           ratioMode,
+          "mode",
         );
       content = denominatorDiagram(state);
     }
     const notes = readingNotes("crosstab", view, state);
-    root.innerHTML = `${metrics([...[0, 1].map((r) => [`${METHOD[r]}の${OUTCOME[0]}率（合計）`, pct(successRate(combined, r)), `${combined[r][0]} / ${combined[r][0] + combined[r][1]}人`]), ["データ人数", `${combined.flat().reduce((a, b) => a + b, 0)}人`]])}<div class="analysis-toolbar" role="group" aria-label="このタブの操作">${toolbar}</div>${content}<details class="analysis-notes"><summary>解説</summary>${notes.map((t) => `<p>${esc(t)}</p>`).join("")}</details>`;
-    const change = (id, key, parse = (v) => v) =>
-      root
-        .querySelector("#" + id)
-        ?.addEventListener("change", (e) =>
-          ctx.update({ [key]: parse(e.target.value) }),
-        );
-    change("ct-mode", "mode");
-    change("ct-scope", "selectedScope");
-    change("ct-row", "selectedRow", Number);
-    change("ct-col", "selectedCol", Number);
-    root
-      .querySelector("#ct-table-prev")
-      ?.addEventListener("click", () =>
-        ctx.update({ tableIndex: Math.max(0, state.tableIndex - 1) }),
-      );
-    root
-      .querySelector("#ct-table-next")
-      ?.addEventListener("click", () =>
-        ctx.update({ tableIndex: Math.min(2, state.tableIndex + 1) }),
-      );
+    root.innerHTML = `<div class="analysis-toolbar ct-controls" role="group" aria-label="このタブの操作">${toolbar}</div>${content}<details class="analysis-notes"><summary>解説</summary>${notes.map((t) => `<p>${esc(t)}</p>`).join("")}</details>`;
+    root.querySelectorAll("input[data-ct-state]").forEach((input) => {
+      input.addEventListener("change", () => {
+        if (input.checked)
+          ctx.update({
+            [input.dataset.ctState]: input.hasAttribute("data-ct-number")
+              ? Number(input.value)
+              : input.value,
+          });
+      });
+    });
   },
   explanation: academicExplanation("crosstab"),
   related: ["sampling", "correlation", "hypothesis-test"],

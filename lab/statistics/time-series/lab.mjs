@@ -1,4 +1,4 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-records";
+import { academicExplanation } from "../shared/reading.mjs?v=20261024-crosstab-layout";
 import { mean, rng, normal, fmt, clamp } from "../shared/math.mjs";
 import {
   esc,

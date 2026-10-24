@@ -1,10 +1,10 @@
 import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs";
 import { esc, table, metrics } from "./shared/ui.mjs";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261024-crosstab-records";
-import { renderStepNavigation } from "./learning.mjs?v=20261024-crosstab-records";
-import correlation from "./correlation/lab.mjs?v=20261024-crosstab-records";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261024-crosstab-records";
+import { renderDataTab } from "./data-tab.mjs?v=20261024-crosstab-layout";
+import { renderStepNavigation } from "./learning.mjs?v=20261024-crosstab-layout";
+import correlation from "./correlation/lab.mjs?v=20261024-crosstab-layout";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261024-crosstab-layout";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";
