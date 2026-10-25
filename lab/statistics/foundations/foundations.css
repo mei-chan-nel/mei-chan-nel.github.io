@@ -143,3 +143,15 @@
 
 [data-stat-lab="missing-values"] .statistics-fullscreen .missing-primary-plot .stat-chart text { font-size:17px !important; }
 @media (max-width:600px) { [data-stat-lab="missing-values"] .statistics-fullscreen .missing-primary-plot .stat-chart text { font-size:24px !important; } }
+
+.missing-method-notes { margin:12px 0; font-size:.8rem; line-height:1.65; }
+.missing-method-notes > div + div { margin-top:9px; }
+.missing-method-notes dt { font-weight:700; }
+.missing-method-notes dd { margin:3px 0 0; }
+.missing-reading h4 { font-size:.85rem; margin:15px 0 4px; }
+.missing-reading .missing-comparison-base { margin:4px 0 8px; font-size:.72rem; }
+.missing-method-impact { margin:0; font-size:.8rem; }
+.missing-method-impact > div { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.5fr); gap:5px; padding:6px 0; border-bottom:1px solid var(--chart-grid); }
+.missing-method-impact dt { font-weight:600; }
+.missing-method-impact dd { margin:0; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+.missing-method-impact span { display:block; font-size:.73rem; color:var(--chart-muted); }
