@@ -61,12 +61,42 @@ async function save(slug, body, scripts = []) {
   await mkdir(new URL("./", url), { recursive: true });
   await writeFile(url, html);
 }
+const homeGuides = {
+  correlation: [
+    '点を動かし、相関係数や回帰直線、予測値がどう変わるかを調べます。',
+    '散布図は、同じ対象の2つの数値を点で表します。相関係数は直線的な関係の向きと強さを、回帰直線は一方の値からもう一方を予測する目安を示します。実際の値と予測値の差が残差です。',
+  ],
+  histogram: [
+    '階級幅やデータを変え、分布の形、中心、ばらつき、グループの違いを比べます。',
+    'ヒストグラムは、値を区間に分けて人数や個数を表す図です。箱ひげ図は中央値と四分位数を使って分布を要約します。平均・中央値で中心を、分散・標準偏差でばらつきを調べます。',
+  ],
+  sampling: [
+    '同じ母集団から何度も標本を取り、標本数や抽出方法による平均のぶれを比べます。',
+    '無作為抽出は、偶然の仕組みで調べる対象を選ぶ方法です。標本平均を使って母平均を推定し、標本によるぶれをもとに信頼区間を求めます。標本数を増やすと、平均のぶれは一般に小さくなります。',
+  ],
+  crosstab: [
+    '人数と割合、学科別と合計を切り替え、合格率の違いや結論が逆転する理由を調べます。',
+    'クロス集計は、2つの分類を組み合わせて人数を数える方法です。行比率は行の合計を、列比率は列の合計を分母にします。グループごとの人数の偏りが、合計の割合にも影響します。',
+  ],
+  'time-series': [
+    '月別データを使い、長期的な増減、季節の繰り返し、伸び率を読み取ります。',
+    '移動平均は、近くの時点の値を平均して細かな変動をならします。自己相関は、時点をずらしたデータ同士の関係から周期を調べる方法です。季節調整では、毎年繰り返す季節の動きを取り除きます。',
+  ],
+  'hypothesis-test': [
+    '帰無仮説と対立仮説を立て、参加者の平均正答率を基準と比べて判断します。第1種・第2種の誤りも学びます。',
+    '標準誤差は、標本平均のぶれの目安です。平均と基準の差を標準誤差で割ってZを求め、大標本の正規近似を使います。正規分布表から有意水準に対応する境目を読み、Zが棄却域に入るかを判断します。',
+  ],
+  lorenz: [
+    '所得総額を固定して配分を変え、再分配によって格差の指標がどう変わるかを調べます。',
+    'ローレンツ曲線は、所得の低い順に人口と所得の累積割合を表した図です。ジニ係数は、全員の所得が等しいときの直線と曲線の間の面積から格差を数値化します。0は完全な平等を表します。',
+  ],
+};
 await save(
   "",
   `<header class="statistics-home-heading"><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">Interactive Lab</a></nav><h1>統計・データ分析</h1><p class="workspace-purpose">データを動かす。見え方を比べる。根拠を持って判断する。</p></header>
 
 <section class="lab-category" aria-label="統計ラボ" style="--lab-accent:var(--amber-strong)"><div class="archive-field-grid lab-content-grid">${labs.map(([id, title], i) => `<a href="./${id}/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h2>${title}</h2></div></a>`).join("")}</div></section>
-<section id="academic" class="academic" aria-label="統計の見方"><details class="academic-section"><summary>統計の見方</summary><div class="explanation-content"><p>統計は、データの特徴や関係を調べるための道具です。</p><ul><li><strong>分布を見る：</strong>どの値が多いか、どれくらい散らばっているかを調べます。</li><li><strong>関係を調べる：</strong>2つの数値の関係や、グループごとの割合の違いを比べます。</li><li><strong>変化を追う：</strong>時間に沿った増減や、繰り返し現れる動きを読み取ります。</li><li><strong>全体を推測する：</strong>一部のデータから全体の値を推定したり、予想との違いを検定したりします。</li></ul></div></details></section>`,
+<section id="academic" class="academic" aria-label="統計の見方"><details class="academic-section"><summary>統計の見方</summary><div class="explanation-content">${labs.map(([id, title], i) => `<section aria-labelledby="guide-${id}"><h3 id="guide-${id}">${String(i + 1).padStart(2, "0")} ${esc(title)}</h3><p><strong>行うこと：</strong>${esc(homeGuides[id][0])}</p><p><strong>手法：</strong>${esc(homeGuides[id][1])}</p></section>`).join("")}</div></details></section>`,
 );
 for (const [id, title] of labs) {
   const e = experiences[id];
