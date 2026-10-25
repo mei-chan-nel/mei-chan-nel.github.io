@@ -140,3 +140,6 @@
 [data-stat-lab="missing-values"] .statistics-fullscreen .screen-explanation-rail .missing-reading { padding:0; margin:0; border:0; }
 @media (max-width:600px) { .missing-values-display { padding:12px; } .missing-values-display .stat-table { font-size:.7rem; } .missing-values-display .stat-table :is(th,td) { padding:4px; } }
 @media (max-height:520px) { [data-stat-lab="missing-values"] .statistics-fullscreen .missing-values-display { grid-template-rows:auto auto minmax(180px,1fr); overflow:auto; } }
+
+[data-stat-lab="missing-values"] .statistics-fullscreen .missing-primary-plot .stat-chart text { font-size:17px !important; }
+@media (max-width:600px) { [data-stat-lab="missing-values"] .statistics-fullscreen .missing-primary-plot .stat-chart text { font-size:24px !important; } }

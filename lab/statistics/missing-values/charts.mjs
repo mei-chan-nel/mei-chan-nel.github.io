@@ -1,7 +1,7 @@
 import {svg,esc} from '../shared/ui.mjs?v=20261025-missing-comparison';
 import {fmt} from '../shared/math.mjs';
-export function missingValuesChart(rows,filled,{truth=null}={}){
- const w=800,h=350,left=64,right=776,top=40,bottom=285,values=[...filled.filter(v=>v!==null),...(truth||[])],max=Math.max(5,Math.ceil(Math.max(0,...values)/5)*5),x=i=>left+(i+.5)*(right-left)/rows.length,y=v=>bottom-v/max*(bottom-top),bw=Math.min(30,(right-left)/rows.length*.65);
+export function missingValuesChart(rows,filled,{truth=null,compact=false}={}){
+ const w=800,h=compact?260:350,left=64,right=776,top=compact?35:40,bottom=compact?200:285,values=[...filled.filter(v=>v!==null),...(truth||[])],max=Math.max(5,Math.ceil(Math.max(0,...values)/5)*5),x=i=>left+(i+.5)*(right-left)/rows.length,y=v=>bottom-v/max*(bottom-top),bw=Math.min(30,(right-left)/rows.length*.65);
  let body='<defs><pattern id="missing-imputed-hatch" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="var(--chart-secondary)"/><path d="M-1,1L1,-1M0,6L6,0M5,7L7,5" stroke="white" stroke-width="1"/></pattern></defs><text x="64" y="20">日降水量（mm）</text>';
  for(let i=0;i<=4;i++){const v=max*i/4;body+=`<line class="gridline" x1="${left}" x2="${right}" y1="${y(v)}" y2="${y(v)}"/><text x="${left-9}" y="${y(v)+4}" text-anchor="end">${fmt(v,Number.isInteger(v)?0:1)}</text>`;}
  rows.forEach((r,i)=>{const value=filled[i],imputed=r[1]===null&&value!==null,cx=x(i),color=imputed?'var(--chart-secondary)':'var(--chart-primary)';
@@ -13,6 +13,6 @@ export function missingValuesChart(rows,filled,{truth=null}={}){
   if(i===rows.length-1||(i%Math.ceil(rows.length/8)===0&&rows.length-1-i>=Math.max(1,Math.ceil(rows.length/8)*.6)))body+=`<text x="${cx}" y="${bottom+23}" text-anchor="middle" style="font-size:11px">${esc(/^\d{4}-/.test(r[0])?r[0].slice(5):r[0])}</text>`;
   body+='</g>';
  });
- body+=`<path class="axis" d="M${left},${top}V${bottom}H${right}"/><text x="420" y="335" text-anchor="middle">日付・観測名</text>`;
+ body+=`<path class="axis" d="M${left},${top}V${bottom}H${right}"/><text x="420" y="${h-15}" text-anchor="middle">日付・観測名</text>`;
  return svg(body,'日ごとの降水量。単色は観測値、斜線は補完した値、欠は残っている欠損。'+(truth?'白丸は教材で隠す前の実測値。':''),w,h).replace('<svg ','<svg data-preserve-geometry preserveAspectRatio="xMidYMid meet" ');
 }
