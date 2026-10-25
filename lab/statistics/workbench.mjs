@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261025-basic-test";
-import { readingNotes } from "./shared/reading.mjs?v=20261025-basic-test";
+import { learningViews } from "./learning.mjs?v=20261025-ai-faces";
+import { readingNotes } from "./shared/reading.mjs?v=20261025-ai-faces";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (
@@ -18,7 +18,7 @@ export function composeWorkbench(root, id, ui, onChange) {
       (["crosstab", "time-series", "hypothesis-test"].includes(id)
         ? " unified-workbench"
         : "");
-    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : id === "hypothesis-test" ? "基準の割合の検定" : "散布図と直線"}"></section></div>`;
+    shell.innerHTML = `<div class="workbench-body ${id}-body"><section class="workbench-display ${id}-display" aria-label="${id === "histogram" ? "データの分布と代表値計算" : id === "crosstab" ? "クロス集計と割合" : id === "time-series" ? "時系列の分析" : id === "hypothesis-test" ? "平均正答率と50%の比較" : "散布図と直線"}"></section></div>`;
     shell.querySelector(".workbench-display").append(...nodes);
     root.append(shell);
     if (id === "correlation") ui.view = 0;

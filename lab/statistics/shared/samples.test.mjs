@@ -19,7 +19,7 @@ test("published defaults round-trip across all active labs", async () => {
       b = sampleState(id, config.initial(), 101);
     assert.deepEqual(a, sampleState(id, config.initial(), 100));
     const d = currentData(id, a);
-    assert.ok(d.rows.length >= (id === "hypothesis-test" ? 1 : 2));
+    assert.ok(d.rows.length >= 2);
     assert.deepEqual(d.rows, currentData(id, b).rows);
     assert.ok(
       d.rows.every((r) =>
@@ -161,9 +161,10 @@ test("cross-tab, one-sample and month labels retain the uploaded column names in
     ],
     [
       "hypothesis-test",
-      ["案内", "訪問数", "登録数"],
+      ["参加者", "問題数", "正解数"],
       [
         ["X", 100, 40],
+        ["Y", 100, 50],
       ],
       {},
     ],
@@ -195,7 +196,7 @@ test("published defaults match their source extracts and user uploads lose publi
     dailyTemperatures,
     admissions,
     incomeQuintiles,
-  } = await import("./public-data.mjs?v=20261025-basic-test");
+  } = await import("./public-data.mjs?v=20261025-ai-faces");
   for (const [file, values, column] of [
     ["tokyo-monthly-temperature.csv", monthlyTemperatures, 1],
     ["tokyo-daily-temperature.csv", dailyTemperatures.flat(), 1],

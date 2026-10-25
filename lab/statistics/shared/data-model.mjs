@@ -2,16 +2,17 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261025-basic-test";
+} from "../crosstab/records.mjs?v=20261025-ai-faces";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261025-basic-test";
+import { population } from "../sampling/model.mjs?v=20261025-ai-faces";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261025-basic-test";
+} from "../time-series/model.mjs?v=20261025-ai-faces";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-ai-faces";
 import { niceWidth } from "../histogram/model.mjs";
 export const dataKinds = {
   correlation: "pairs",
@@ -20,7 +21,7 @@ export const dataKinds = {
   sampling: "population",
   crosstab: "records",
   "time-series": "series",
-  "hypothesis-test": "binomial-count",
+  "hypothesis-test": "participant-accuracy",
   lorenz: "incomes",
   probability: "probability",
 };
@@ -88,10 +89,10 @@ export function currentData(id, s) {
     operation = `${headers.join("・")}で人数を数える → クロス集計表と割合を比較`;
   }
   if (id === "hypothesis-test") {
-    headers = s.dataInfo?.columns || ["対象", "総数", "該当数"];
-    rows = [[s.label, s.n, s.success]];
-    name = name || "1つの割合の観測結果";
-    operation = `${s.success}/${s.n} → 基準の割合${fmt(s.p0 * 100, 1)}%と比較 → 両側p値`;
+    headers = s.dataInfo?.columns || ["参加者番号", "判定枚数", "正答数"];
+    rows = s.participants.map(p => [p.id, p.trials, p.correct]);
+    name = name || "顔写真を見分ける実験の参加者別正答数";
+    operation = "1人ごとに正答率を計算 → 参加者の平均を50%と比較 → 両側p値と信頼区間";
   }
   if (id === "probability" && s.experiments?.some((e) => e.id === s.activeId)) {
     const e = s.experiments.find((e) => e.id === s.activeId);
@@ -176,12 +177,12 @@ export function applyData(
   if (
     !Array.isArray(rows) ||
     rows.length < 1 ||
-    rows.length > (["probability", "crosstab"].includes(id) ? 10000 : 300)
+    rows.length > (["probability", "crosstab", "hypothesis-test"].includes(id) ? 10000 : 300)
   )
     throw Error(
       id === "time-series"
         ? "月別データは、時間順に連続する24〜300か月分を指定してください。"
-        : ["probability", "crosstab"].includes(id)
+        : ["probability", "crosstab", "hypothesis-test"].includes(id)
           ? "1〜10,000行で指定してください。"
           : "1〜300行のデータを指定してください。",
     );
@@ -390,15 +391,14 @@ export function applyData(
     delete s.records;
     s.records = recordsFor(s);
     s.source = name;
-  } else if (kind === "binomial-count") {
-    if (headers.length !== 3 || rows.length !== 1 || rows[0].length !== 3)
-      throw Error("「対象,総数,該当数」の3列・1行で指定してください。2群の比較ではありません。");
-    const n = number(rows[0], 1, 0), k = number(rows[0], 2, 0);
-    if (!Number.isInteger(n) || n < 1 || n > 10000 || !Number.isInteger(k) || k < 0 || k > n)
-      throw Error("総数は1〜10,000、該当数は0〜総数の整数にしてください。");
-    const label = String(rows[0][0] ?? "").trim();
-    if (!label || label.length > 100) throw Error("対象の名前は1〜100文字にしてください。");
-    s.n = n; s.success = k; s.label = label;
+  } else if (kind === "participant-accuracy") {
+    if (headers.length !== 3 || rows.some(r => r.length !== 3))
+      throw Error("「参加者番号,判定枚数,正答数」の3列で、1行に1人分を指定してください。");
+    const participants = rows.map((r, i) => ({
+      id: String(r[0] ?? "").trim(), trials: number(r, 1, i), correct: number(r, 2, i),
+    }));
+    participantScores(participants);
+    s.participants = participants;
     s.dataInfo = { columns: headers.slice(0, 3) };
     s.source = name;
   } else

@@ -204,9 +204,10 @@ test("income and one-sample counts enforce their statistical domains", () => {
   assert.throws(() =>
     applyData("lorenz", lorenz.initial(), input(["所得"], [["-1"], ["2"]])),
   );
-  const one = applyData("hypothesis-test", hypothesis.initial(), input(["対象", "総数", "該当"], [["丸い種子", "100", "60"]]));
-  assert.equal(one.success, 60);
-  assert.equal(one.n, 100);
+  const one = applyData("hypothesis-test", hypothesis.initial(), input(["参加者", "枚数", "正答"], [["P1", "100", "60"], ["P2", "100", "40"]]));
+  assert.equal(one.participants[0].correct, 60);
+  assert.equal(one.participants[0].trials, 100);
+  assert.equal(one.participants.length, 2);
   assert.throws(() => applyData("hypothesis-test", hypothesis.initial(), input(["対象", "総数", "該当"], [["丸い種子", "100", "130"]])));
 });
 test("monthly imports preserve chronological data and reject gaps or unsupported lengths", () => {

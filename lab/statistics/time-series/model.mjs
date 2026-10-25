@@ -2,11 +2,11 @@ import { mean } from "../shared/math.mjs";
 import {
   householdSeries,
   householdMonths,
-} from "./data.mjs?v=20261025-basic-test";
+} from "./data.mjs?v=20261025-ai-faces";
 export {
   householdSeries,
   householdMonths,
-} from "./data.mjs?v=20261025-basic-test";
+} from "./data.mjs?v=20261025-ai-faces";
 export const MIN_MONTHS = 24;
 export const MAX_MONTHS = 300;
 export function seriesValues(state = {}) {

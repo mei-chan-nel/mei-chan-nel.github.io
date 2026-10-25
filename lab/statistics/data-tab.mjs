@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261025-basic-test";
-import { currentData } from "./shared/data-model.mjs?v=20261025-basic-test";
+import { esc } from "./shared/ui.mjs?v=20261025-ai-faces";
+import { currentData } from "./shared/data-model.mjs?v=20261025-ai-faces";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261025-basic-test";
+} from "./shared/table-data.mjs?v=20261025-ai-faces";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261025-basic-test";
+} from "./data-editor.mjs?v=20261025-ai-faces";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.
@@ -61,7 +61,7 @@ export function renderDataTab(root, options) {
       preferredSize === "all"
         ? Math.max(1, draft.rows.length)
         : Number(preferredSize),
-    limit = ["probability", "crosstab"].includes(id) ? 10000 : 300;
+    limit = ["probability", "crosstab", "hypothesis-test"].includes(id) ? 10000 : 300;
   if (ui.previousPageSize && ui.previousPageSize !== pageSize)
     ui.dataPage = Math.floor(
       ((ui.dataPage || 0) * ui.previousPageSize) / pageSize,

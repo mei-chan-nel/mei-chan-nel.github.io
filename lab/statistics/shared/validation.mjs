@@ -1,3 +1,4 @@
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-ai-faces";
 export function validateState(value, template, depth = 0, key = "state") {
   if (depth > 14) throw Error("データ構造が深すぎます。");
   if (value === null) {
@@ -103,7 +104,7 @@ function domain(s, id) {
     need(
       Array.isArray(d.baseline) &&
         d.baseline.length <=
-          (["probability", "crosstab"].includes(id) ? 10000 : 300) &&
+          (["probability", "crosstab", "hypothesis-test"].includes(id) ? 10000 : 300) &&
         d.baseline.every((r) => Array.isArray(r) && r.length <= 20),
       "元データの形式を確認してください。",
     );
@@ -302,13 +303,13 @@ function domain(s, id) {
       s.p >= 0 && s.p <= 1 && s.sigma > 0,
       "確率は0〜1、標準偏差は正の数にしてください。",
     );
-  if (id === "hypothesis-test")
+  if (id === "hypothesis-test") {
+    participantScores(s.participants);
     need(
-      Number.isInteger(s.n) && s.n >= 1 && s.n <= 10000 &&
-      Number.isInteger(s.success) && s.success >= 0 && s.success <= s.n &&
-      typeof s.label === "string" && s.label.trim().length > 0 && s.label.length <= 100 &&
-      s.p0 >= 0 && s.p0 <= 1 && s.alpha > 0 && s.alpha < 1 &&
-      Number.isInteger(s.planN) && s.planN >= 1 && s.planN <= 1000 && s.trueP >= 0 && s.trueP <= 1,
-      "総数・該当数・基準の割合・有意水準を確認してください。",
+      Number.isFinite(s.alpha) && s.alpha > 0 && s.alpha < 1 &&
+      Number.isInteger(s.planN) && s.planN >= 30 && s.planN <= 1000 &&
+      Number.isFinite(s.trueMean) && s.trueMean >= 0 && s.trueMean <= 1,
+      "有意水準・計画人数・比較する平均正答率を確認してください。",
     );
+  }
 }

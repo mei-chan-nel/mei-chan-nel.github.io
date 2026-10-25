@@ -3,11 +3,11 @@ import {
   dailyTemperatures,
   admissions,
   incomeQuintiles,
-  mendelSeeds,
-} from "./public-data.mjs?v=20261025-basic-test";
-import { householdSeries } from "../time-series/data.mjs?v=20261025-basic-test";
-import { publicDatasetInfo } from "./sources.mjs?v=20261025-basic-test";
-import { applyData, currentData } from "./data-model.mjs?v=20261025-basic-test";
+} from "./public-data.mjs?v=20261025-ai-faces";
+import { aiFaceParticipants } from "../hypothesis-test/data.mjs?v=20261025-ai-faces";
+import { householdSeries } from "../time-series/data.mjs?v=20261025-ai-faces";
+import { publicDatasetInfo } from "./sources.mjs?v=20261025-ai-faces";
+import { applyData, currentData } from "./data-model.mjs?v=20261025-ai-faces";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);
@@ -59,9 +59,9 @@ export function sampleState(id, initial, seed = freshSeed()) {
     rows = incomeQuintiles.map((v) => [v]);
     name = "日本の所得五分位階級別の平均所得（2022年分）";
   } else if (id === "hypothesis-test") {
-    headers = ["対象", "種子の総数", "丸い種子の個数"];
-    rows = [["丸い種子", mendelSeeds.total, mendelSeeds.round]];
-    name = "メンデルのエンドウの種子（形の実験）";
+    headers = ["参加者番号", "判定枚数", "正答数"];
+    rows = aiFaceParticipants().map(p => [p.id, p.trials, p.correct]);
+    name = "AI生成の顔写真を見分ける実験（参加者315人）";
   } else if (id === "time-series") {
     const next = { ...base };
     const data = currentData(id, next);

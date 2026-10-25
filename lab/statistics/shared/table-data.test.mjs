@@ -194,6 +194,6 @@ test("invalid table cells identify the displayed row and cannot silently replace
           ["A", "100", "20"],
         ],
       ),
-    /3列・1行/,
+    /2行目の参加者番号/,
   );
 });

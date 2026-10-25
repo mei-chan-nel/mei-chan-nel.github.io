@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261025-basic-test";
+import { applyData } from "./data-model.mjs?v=20261025-ai-faces";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {
@@ -14,7 +14,7 @@ export function tableConstraint(id, state) {
   if (id === "crosstab")
     return "1行が1人分です。3つの属性を入力します。各項目は2種類まで、1〜10,000人分を使えます。";
   if (id === "hypothesis-test")
-    return "「対象・総数・該当数」の1行です。総数は1〜10,000、該当数は0〜総数の整数にします。基準の割合は分析画面で設定します。";
+    return "1行に1人分の「参加者番号・判定枚数・正答数」を入力します。2〜10,000人分。番号は重複させず、判定枚数は1〜10,000、正答数は0〜判定枚数の整数にします。";
   if (id === "probability")
     return `1〜10,000行。${state.mode === "coin" ? "表=1・裏=0を試行順に入力します。" : state.mode === "binomial" ? `1セットの成功回数を0〜${state.n}の整数で入力します。` : "測定した数値を入力します。正規分布に従うことを保証するものではありません。"}`;
   if (id === "lorenz") return "2〜300行。所得は0以上の数値にします。";

@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261025-basic-test";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-basic-test";
+import { esc } from "./shared/ui.mjs?v=20261025-ai-faces";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-ai-faces";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-basic-test";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-basic-test";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-basic-test";
-import { sampleState } from "./shared/samples.mjs?v=20261025-basic-test";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-basic-test";
-import { readDataset } from "./shared/data.mjs?v=20261025-basic-test";
+} from "./shared/data-model.mjs?v=20261025-ai-faces";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-ai-faces";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-ai-faces";
+import { sampleState } from "./shared/samples.mjs?v=20261025-ai-faces";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-ai-faces";
+import { readDataset } from "./shared/data.mjs?v=20261025-ai-faces";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-basic-test";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-basic-test";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-basic-test";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-basic-test";
-import { renderSources } from "./shared/sources.mjs?v=20261025-basic-test";
+} from "./learning.mjs?v=20261025-ai-faces";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-ai-faces";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-ai-faces";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-ai-faces";
+import { renderSources } from "./shared/sources.mjs?v=20261025-ai-faces";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-basic-test`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-ai-faces`))
   .default;
 const ui = {
   view: 0,
@@ -27,7 +27,7 @@ const ui = {
   openSections: {},
   dataPage: 0,
 };
-const key = `study-atlas-statistics-${id}-${id === "hypothesis-test" ? "v2" : "v1"}`;
+const key = `study-atlas-statistics-${id}-${id === "hypothesis-test" ? "v3" : "v1"}`;
 const project =
   new URLSearchParams(location.search).get("dataset") === "project";
 function prepare(next) {

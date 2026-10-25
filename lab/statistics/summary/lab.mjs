@@ -17,8 +17,8 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-basic-test";
-import { readDataset } from "../shared/data.mjs?v=20261025-basic-test";
+} from "../shared/ui.mjs?v=20261025-ai-faces";
+import { readDataset } from "../shared/data.mjs?v=20261025-ai-faces";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];
 const makePoints = (values) =>

@@ -67,18 +67,19 @@ test('chart aggregation preserves exact selected mass and includes observations'
   assert.ok(Math.abs(shown-direct)<1e-12);
  }
 });
-test('published seed counts stay fixed when the reference and decision criterion change',()=>{
+test('published participant observations stay fixed when alpha and planning conditions change',()=>{
  const s=sampleState('hypothesis-test',config.initial(),42),d=currentData('hypothesis-test',s);
- assert.deepEqual(d.rows,[['丸い種子',7324,5474]]);
- assert.deepEqual(currentData('hypothesis-test',{...s,p0:.5,alpha:.01,planN:20}).rows,d.rows);
+ assert.equal(d.rows.length,315);
+ assert.deepEqual(d.rows.slice(0,3),[['P001',128,53],['P002',128,49],['P003',128,64]]);
+ assert.deepEqual(currentData('hypothesis-test',{...s,alpha:.01,planN:100,trueMean:.55}).rows,d.rows);
  validateDocument({version:1,id:'hypothesis-test',state:s},'hypothesis-test',config.initial());
- const own=applyData('hypothesis-test',s,{headers:['対象','合計','該当'],rows:[['陽性',25,7]],name:'調査'});
+ const own=applyData('hypothesis-test',s,{headers:['参加者','問題数','正解数'],rows:[['A',25,7],['B',20,9]],name:'調査'});
  assert.equal(own.dataInfo.publicDataset,undefined);
- assert.deepEqual(currentData('hypothesis-test',own).rows,[['陽性',25,7]]);
- assert.equal(own.p0,.75);
+ assert.deepEqual(currentData('hypothesis-test',own).rows,[['A',25,7],['B',20,9]]);
+ assert.equal(own.alpha,.05);
 });
-test('one-sample data rejects fractional counts, empty totals, extra groups and invalid criteria',()=>{
+test('legacy binomial limits and participant count domains reject invalid inputs',()=>{
  for(const [n,k,p] of [[0,0,.5],[10001,2,.5],[20,21,.5],[20,-1,.5],[20,1.5,.5],[2.2,1,.5],[20,2,NaN],[20,2,1.1]])assert.throws(()=>exactTest(n,k,p));
  for(const alpha of [0,1,NaN])assert.throws(()=>exactTest(20,10,.5,alpha));
- for(const rows of [[['X',0,0]],[['X',10,11]],[['X',10,1],['Y',20,2]],[['',20,2]]])assert.throws(()=>applyData('hypothesis-test',config.initial(),{headers:['対象','総数','該当数'],rows,name:'bad'}));
+ for(const rows of [[['X',0,0]],[['X',10,11],['Y',10,1]],[['X',10,1],['X',20,2]],[['',20,2],['Y',20,2]]])assert.throws(()=>applyData('hypothesis-test',config.initial(),{headers:['参加者','枚数','正答数'],rows,name:'bad'}));
 });

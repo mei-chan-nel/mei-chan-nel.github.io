@@ -1,11 +1,11 @@
-import { renderSources } from "./shared/sources.mjs?v=20261025-basic-test";
-import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261025-basic-test";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261025-basic-test";
+import { renderSources } from "./shared/sources.mjs?v=20261025-ai-faces";
+import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261025-ai-faces";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261025-ai-faces";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-basic-test";
-import { renderStepNavigation } from "./learning.mjs?v=20261025-basic-test";
-import correlation from "./correlation/lab.mjs?v=20261025-basic-test";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-basic-test";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-ai-faces";
+import { renderStepNavigation } from "./learning.mjs?v=20261025-ai-faces";
+import correlation from "./correlation/lab.mjs?v=20261025-ai-faces";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-ai-faces";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

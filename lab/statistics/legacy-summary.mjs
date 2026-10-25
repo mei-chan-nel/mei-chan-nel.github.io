@@ -1,4 +1,4 @@
-import { downloadCSV } from "./data-editor.mjs?v=20261025-basic-test";
+import { downloadCSV } from "./data-editor.mjs?v=20261025-ai-faces";
 const target = new URL("./histogram/", new URL("../", location.href));
 target.protocol = location.protocol;
 target.host = location.host;

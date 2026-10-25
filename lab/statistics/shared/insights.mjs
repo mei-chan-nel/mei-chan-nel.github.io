@@ -1,14 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261025-basic-test";
+import { currentData } from "./data-model.mjs?v=20261025-ai-faces";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261025-basic-test";
+} from "../sampling/model.mjs?v=20261025-ai-faces";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261025-basic-test";
-import { autocorrelations } from "../time-series/model.mjs?v=20261025-basic-test";
+} from "../crosstab/lab.mjs?v=20261025-ai-faces";
+import { autocorrelations } from "../time-series/model.mjs?v=20261025-ai-faces";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -96,8 +96,10 @@ export function insight(id, state) {
       ? `${values.length}回のうち表は ${sum(values)}回。割合は揺れながら変わります。独立な試行のモデルでは、これまでの表・裏の並びが次の1回の確率を変えるわけではありません。`
       : `${values.length}セットの平均成功回数は ${fmt(mean(values))}、理論平均は ${fmt(state.n * state.p)}。反復数を増やす操作と、1セットの回数を変える操作は、別のものを変えています。`;
   }
-  if (id === "hypothesis-test")
-    return `観測された割合は${fmt(state.success / state.n * 100, 1)}%。基準の${fmt(state.p0 * 100, 1)}%からのずれを、二項モデルで比べます。棄却しないことは、基準が正しいという証明ではありません。`;
+  if (id === "hypothesis-test") {
+    const average = mean(state.participants.map(p => p.correct / p.trials));
+    return `${state.participants.length}人の平均正答率は${fmt(average * 100, 2)}%。1人を1つの標本として、50%との差を調べます。p値とともに差の方向と大きさを読み、見分ける精度として十分かを考えます。`;
+  }
   if (id === "lorenz") {
     const total = sum(state.incomes),
       coeff = gini(state.incomes);

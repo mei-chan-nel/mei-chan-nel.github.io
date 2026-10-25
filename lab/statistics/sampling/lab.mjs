@@ -6,8 +6,8 @@ import {
   metrics,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261025-basic-test";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-basic-test";
+} from "../shared/ui.mjs?v=20261025-ai-faces";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-ai-faces";
 import { mean, fmt } from "../shared/math.mjs";
 
 import {
@@ -20,7 +20,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261025-basic-test";
+} from "./model.mjs?v=20261025-ai-faces";
 
 const positions = new WeakMap();
 const unitOf = (state) =>

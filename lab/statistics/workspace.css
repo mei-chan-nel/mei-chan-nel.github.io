@@ -2797,3 +2797,19 @@ html.statistics-immersive body {
 .hyp-details { margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--chart-grid); }
 .hyp-p-value { font-variant-numeric:tabular-nums; }
 .hyp-p-value strong { font-size:1.3rem; color:var(--chart-primary-dark); }
+.hyp-section { margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--chart-grid); }
+.hyp-section > h3 { margin-top:0; }
+.workbench-display .hyp-interval-chart { min-height:150px; }
+/* Keep all three related plots in the main pane, at a readable scrolling size. */
+.statistics-chart-fullscreen .hypothesis-test-display[data-screen-chart-flow] {
+  display:block !important; overflow:auto; scrollbar-width:none;
+}
+.statistics-chart-fullscreen .hypothesis-test-display [data-screen-chart-flow] {
+  display:block !important; flex:initial;
+}
+.statistics-chart-fullscreen .hypothesis-test-display [data-screen-chart] {
+  height:auto !important; min-height:260px !important; max-width:100%; flex:none;
+}
+.statistics-chart-fullscreen .hypothesis-test-display .hyp-interval-chart[data-screen-chart] {
+  min-height:150px !important;
+}
