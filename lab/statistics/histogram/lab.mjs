@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-clear-test";
-import { readDataset } from "../shared/data.mjs?v=20261025-clear-test";
-import { render } from "./view.mjs?v=20261025-clear-test";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-z-table";
+import { readDataset } from "../shared/data.mjs?v=20261025-z-table";
+import { render } from "./view.mjs?v=20261025-z-table";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

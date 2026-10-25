@@ -1,14 +1,14 @@
 import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261025-clear-test";
+import { currentData } from "./data-model.mjs?v=20261025-z-table";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261025-clear-test";
+} from "../sampling/model.mjs?v=20261025-z-table";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261025-clear-test";
-import { autocorrelations } from "../time-series/model.mjs?v=20261025-clear-test";
+} from "../crosstab/lab.mjs?v=20261025-z-table";
+import { autocorrelations } from "../time-series/model.mjs?v=20261025-z-table";
 import { observationValues, normalInterval } from "../probability/model.mjs";
 export function insight(id, state) {
   const data = currentData(id, state),
@@ -98,7 +98,7 @@ export function insight(id, state) {
   }
   if (id === "hypothesis-test") {
     const average = mean(state.participants.map(p => p.correct / p.trials));
-    return `${state.participants.length}人の平均正答率は${fmt(average * 100, 2)}%。1人を1つの標本として、基準${fmt((state.reference ?? .5)*100,2)}%との差を調べます。p値とともに差の方向と大きさを読み、見分ける精度として十分かを考えます。`;
+    return `${state.participants.length}人の平均正答率は${fmt(average * 100, 2)}%。1人を1つの標本として、帰無仮説の平均${state.reference ?? .5}との差を調べます。Zを正規分布表の境目と比べ、差の向きと実際の意味を読みます。`;
   }
   if (id === "lorenz") {
     const total = sum(state.incomes),

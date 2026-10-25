@@ -2936,3 +2936,14 @@ html.statistics-immersive body {
 /* Leave room for the new derivation and the null-assumption question. */
 .statistics-fullscreen .hyp-test[data-hyp-step="3"] .stat-chart[data-screen-chart] { height:clamp(180px,calc(100dvh - 380px),280px) !important; min-height:180px !important; }
 .statistics-fullscreen .hyp-test[data-hyp-step="5"] .stat-chart[data-screen-chart] { height:clamp(180px,calc(100dvh - 400px),280px) !important; min-height:180px !important; }
+
+.hyp-calculation { min-width:0; }
+.hyp-normal-table caption { caption-side:top; text-align:left; padding:5px 0; font-size:.82rem; }
+.hyp-normal-table table { font-variant-numeric:tabular-nums; }
+.hyp-normal-table :is(th,td) { text-align:right; white-space:nowrap; }
+.hyp-normal-table .hyp-table-match { background:var(--chart-secondary-pale); color:var(--chart-secondary-dark); font-weight:750; outline:2px solid var(--chart-secondary); outline-offset:-2px; }
+.hyp-table-reading { font-variant-numeric:tabular-nums; }
+.hyp-finished { color:var(--chart-muted); font-size:.85rem; }
+.statistics-fullscreen .hyp-test[data-hyp-step="5"] .stat-chart[data-screen-chart] { height:clamp(150px,calc(100dvh - 440px),210px) !important; min-height:150px !important; }
+.statistics-fullscreen .hyp-normal-table :is(th,td) { padding:4px 6px; font-size:.7rem; }
+.statistics-fullscreen .hyp-normal-table caption { font-size:.72rem; padding:2px 0; }

@@ -17,14 +17,14 @@ test('replacement data restart both journeys while preserving explicitly chosen 
  const s={...config.initial(),testStep:7,errorStep:4,reference:.25,direction:'greater',measureLabel:'成功率'};
  const own=applyData('hypothesis-test',s,{name:'調査',headers:['参加者','試行','成功'],rows:[['X',20,8],['Y',25,9]]});
  assert.equal(own.testStep,0);assert.equal(own.errorStep,0);assert.equal(own.reference,.25);assert.equal(own.direction,'greater');assert.equal(own.measureLabel,'成功率');
- assert.match(currentData('hypothesis-test',own).operation,/25.00%/);
+ assert.match(currentData('hypothesis-test',own).operation,/0.25/);
 });
 test('guide state validates directions, finite settings, steps, labels and bin widths',()=>{
  const base=sampleState('hypothesis-test',config.initial());
  for(const patch of [{reference:0},{reference:1},{direction:'other'},{testStep:8},{errorStep:-1},{binWidth:7},{selectedBin:20},{measureLabel:''},{sigmaMode:'none'},{planningSD:0}])
   assert.throws(()=>validateDocument({version:1,id:'hypothesis-test',state:{...base,...patch}},'hypothesis-test',config.initial()));
- assert.match(hypothesisText(.6,'greater','成功率').null,/60%以下/);
- assert.match(hypothesisText(.6,'less','成功率').alternative,/60%を下回る/);
+ assert.match(hypothesisText(.6,'greater','成功率').null,/μ ≤ 0.6/);
+ assert.match(hypothesisText(.6,'less','成功率').alternative,/μ < 0.6/);
 });
 test('histogram boundaries are half-open except 100 percent and all participants remain counted',()=>{
  for(const width of [5,10,20]) {

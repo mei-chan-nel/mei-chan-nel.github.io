@@ -3,11 +3,11 @@ import {
   groupPattern,
   esc,
   svg,
-} from "../shared/ui.mjs?v=20261025-clear-test";
+} from "../shared/ui.mjs?v=20261025-z-table";
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261025-clear-test";
+} from "../shared/reading.mjs?v=20261025-z-table";
 
 const METHOD = ["A方式", "B方式"];
 const OUTCOME = ["達成", "未達成"];
@@ -16,7 +16,7 @@ import {
   areaDiagram,
   denominatorRegions,
   tableValues,
-} from "./records.mjs?v=20261025-clear-test";
+} from "./records.mjs?v=20261025-z-table";
 const STRATA = ["初級課題", "応用課題"];
 const MODES = [
   ["count", "人数"],

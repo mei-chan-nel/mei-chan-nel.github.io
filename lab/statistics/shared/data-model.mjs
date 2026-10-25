@@ -2,17 +2,17 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261025-clear-test";
+} from "../crosstab/records.mjs?v=20261025-z-table";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261025-clear-test";
+import { population } from "../sampling/model.mjs?v=20261025-z-table";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261025-clear-test";
+} from "../time-series/model.mjs?v=20261025-z-table";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-clear-test";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-z-table";
 import { niceWidth } from "../histogram/model.mjs";
 export const dataKinds = {
   correlation: "pairs",
@@ -92,7 +92,7 @@ export function currentData(id, s) {
     headers = s.dataInfo?.columns || ["参加者番号", "判定枚数", "正答数"];
     rows = s.participants.map(p => [p.id, p.trials, p.correct]);
     name = name || "顔写真を見分ける実験の参加者別正答数";
-    operation = `1人ごとに${s.measureLabel || "割合"}を計算 → 仮説と有意水準を決める → 平均を基準${fmt((s.reference ?? .5) * 100, 2)}%と比較 → 判断・解釈`;
+    operation = `1人ごとに${s.measureLabel || "割合"}を計算 → 母平均${s.reference ?? .5}を仮定して有意水準を決める → Zを計算 → 正規分布表の棄却域と比較 → 判断・解釈`;
   }
   if (id === "probability" && s.experiments?.some((e) => e.id === s.activeId)) {
     const e = s.experiments.find((e) => e.id === s.activeId);

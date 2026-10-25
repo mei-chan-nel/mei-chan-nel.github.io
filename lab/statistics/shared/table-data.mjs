@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261025-clear-test";
+import { applyData } from "./data-model.mjs?v=20261025-z-table";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

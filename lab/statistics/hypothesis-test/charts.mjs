@@ -1,7 +1,8 @@
-import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-clear-test';
-import { rateText } from './guide.mjs?v=20261025-clear-test';
+import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-z-table';
+import { normalDensity } from './normal-model.mjs?v=20261025-z-table';
+import { rateText } from './guide.mjs?v=20261025-z-table';
 import { fmt } from '../shared/math.mjs';
-import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-clear-test';
+import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-z-table';
 const pct = (v,d=1) => fmt(v*100,d)+'%';
 function niceStep(value) {
   const power=10**Math.floor(Math.log10(value || 1)), scaled=value/power;
@@ -72,7 +73,7 @@ export function testChart(test,{showDecision=false,label='正答率'}={}) {
   return svg(content,`平均${label}が基準${rateText(test.reference)}の場合のt分布。橙の面積が、選んだ方向で今回以上にずれる確率。`,760,330)+`<div class="legend">${chartKey('帰無仮説のもとでのt分布','var(--chart-primary)','line')}${chartKey(`今回以上のずれ${test.direction==='two-sided'?'（両側）':test.direction==='greater'?'（右側）':'（左側）'}`,'var(--chart-secondary)','stripe')}${showDecision?chartKey('棄却域','var(--chart-purple)','bar'):''}</div>${offscreen?'<p class="hint">今回のtは表示範囲外です。確率は図の外まで含めて計算しています。</p>':''}`;
 }
 export function scaleChart(test,label='正答率') {
-  const distance=Math.abs(test.t),sign=test.t<0?-1:1,shown=Math.min(6,distance),end=test.reference+sign*shown*test.se;
+  const score=test.z??test.t,distance=Math.abs(score),sign=score<0?-1:1,shown=Math.min(6,distance),end=test.reference+sign*shown*test.se;
   const lo=Math.min(test.reference,end)-test.se*.8,hi=Math.max(test.reference,end)+test.se*.8;
   const x=v=>62+(v-lo)/(hi-lo)*674,refX=x(test.reference),endX=x(end),meanText=rateText(test.mean);
   const anchor=v=>x(v)<200?'start':x(v)>580?'end':'middle';
@@ -121,4 +122,21 @@ export function planningChart(plan,{world='both',shade='missed',label='正答率
   }
   for(const c of plan.acceptance.filter(Number.isFinite))content+=vertical(a,c,'var(--chart-purple)','3 4');
   return svg(content,'帰無仮説側と比較する平均の分布。同じ紫の棄却域で判断する。橙の斜線が注目する誤りの確率。',760,330)+`<div class="legend">${world!=='alternative'?chartKey(`平均が基準${rateText(plan.reference)}の場合`,'var(--chart-primary)','line'):''}${includeAlt?chartKey(`平均が${pct(plan.trueMean,2)}の場合`,'var(--chart-secondary-dark)','line-dashed'):''}${chartKey('棄却域','var(--chart-purple)','bar')}${chartKey(shade==='false-positive'?'基準どおりなのに棄却':plan.hasAlternative?'違いを見逃す':'この平均で棄却しない','var(--chart-secondary)','stripe')}</div>`;
+}
+
+export function normalChart(rule,{observed=false,reading=false}={}) {
+  const shown=observed&&Number.isFinite(rule.z)?rule.z:0,span=Math.max(4,Math.min(7,Math.ceil(Math.abs(shown))),Math.abs(rule.critical)*1.3),height=250;
+  const x=v=>52+(v+span)/(2*span)*684,y=v=>195-v/normalDensity(0)*153;
+  const a={lo:-span,hi:span,x,y,top:32,bottom:195};
+  let content=`<text x="52" y="18">標準正規分布 N(0,1)</text><line class="axis" x1="52" x2="736" y1="195" y2="195"/>`;
+  if(reading)content+=area(a,normalDensity,0,Math.abs(rule.critical),'var(--chart-primary)',.25);
+  for(const [lo,hi] of rejectionRanges(rule))content+=area(a,normalDensity,lo,hi,'var(--chart-purple)',.3);
+  content+=polyline(Array.from({length:301},(_,i)=>{const z=-span+2*span*i/300;return[x(z),y(normalDensity(z))];}),'var(--chart-primary)');
+  const labels=[0,...rule.acceptance.filter(Number.isFinite)];
+  for(const z of [...new Set(labels)]) {
+    content+=`<line x1="${x(z)}" x2="${x(z)}" y1="32" y2="195" stroke="var(${z===0?'--chart-reference':'--chart-purple'})" stroke-width="${z===0?1:2}" stroke-dasharray="4 4"/><text x="${x(z)}" y="216" text-anchor="middle">${Number(z.toFixed(3))}</text>`;
+  }
+  if(observed){const clipped=Math.max(-span,Math.min(span,shown));content+=`<line x1="${x(clipped)}" x2="${x(clipped)}" y1="40" y2="195" stroke="var(--chart-secondary-dark)" stroke-width="3"/><text x="${x(clipped)+(shown<0?7:-7)}" y="36" text-anchor="${shown<0?'start':'end'}" style="fill:var(--chart-secondary-dark)">今回のZ ${fmt(shown,2)}${Math.abs(shown)>span?'（範囲外）':''}</text>`;}
+  content+='<text x="394" y="242" text-anchor="middle">平均のずれを、標準誤差の個数で表した値（Z）</text>';
+  return svg(content,`標準正規分布。紫は帰無仮説を棄却する範囲。${reading?'緑は正規分布表で読む0から境目までの面積。':''}${observed?'橙の線は今回のZ。':''}`,760,height)+`<div class="legend">${chartKey('標準正規分布','var(--chart-primary)','line')}${reading?chartKey('表で読む0から境目まで','var(--chart-primary)','bar'):''}${chartKey('棄却域','var(--chart-purple)','bar')}${observed?chartKey('今回のZ','var(--chart-secondary-dark)','line'):''}</div>`;
 }

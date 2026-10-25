@@ -3,16 +3,16 @@ import {
   esc,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261025-clear-test";
+} from "../shared/ui.mjs?v=20261025-z-table";
 import { fmt } from "../shared/math.mjs";
 
 import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261025-clear-test";
-import { describe } from "./descriptive.mjs?v=20261025-clear-test";
-import { renderCalculations } from "./calculations.mjs?v=20261025-clear-test";
+} from "./model.mjs?v=20261025-z-table";
+import { describe } from "./descriptive.mjs?v=20261025-z-table";
+import { renderCalculations } from "./calculations.mjs?v=20261025-z-table";
 
 const colors = {
   A: "var(--chart-primary)",
