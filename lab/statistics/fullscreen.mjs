@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-rain-series";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-distributions";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261025-final-polish";
+} from "./shared/fullscreen-layout.mjs?v=20261025-distributions";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

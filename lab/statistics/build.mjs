@@ -29,7 +29,7 @@ async function save(slug, body, scripts = []) {
       slug
         ? "../workspace.css?v=20261025-final-polish"
         : "workspace.css?v=20261025-final-polish",
-      ...(["graph-reading", "missing-values"].includes(slug) ? ["../foundations/foundations.css?v=20261025-rain-series"] : []),
+      ...(["graph-reading", "missing-values"].includes(slug) ? ["../foundations/foundations.css?v=20261025-distributions"] : []),
     ],
     scripts,
   });
@@ -115,7 +115,7 @@ for (const [id, title] of labs) {
 ${academic('<div id="explanation-body"></div>')}
 <div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    [id === "graph-reading" ? "../foundations/app.mjs?v=20261025-rain-series" : id === "missing-values" ? "../foundations/app.mjs?v=20261025-reading-missing" : "../app.mjs?v=20261025-final-polish"],
+    [id === "graph-reading" ? "../foundations/app.mjs?v=20261025-distributions" : id === "missing-values" ? "../foundations/app.mjs?v=20261025-reading-missing" : "../app.mjs?v=20261025-final-polish"],
   );
 }
 await save(

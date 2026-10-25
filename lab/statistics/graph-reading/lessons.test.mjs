@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {weatherRows} from '../foundations/weather-data.mjs';
-import {normalize,enterView} from './model.mjs';
+import {normalize,enterView,rainIntervals,distributionBins} from './model.mjs';
 import {lesson,weatherGroups,suitability,rainAxisExample,RECOMMENDED,supportedKinds} from './lessons.mjs';
 const rows=weatherRows();
 test('weather groups partition every observation exactly once and reordering preserves counts',()=>{
@@ -15,8 +15,8 @@ test('changing the question changes the representation of the underlying observa
 test('each question has an explicit recommended representation and a computed answer',()=>{
  for(const task of Object.keys(RECOMMENDED)){const l=lesson(rows,task);assert.equal(l.recommended,RECOMMENDED[task]);assert.equal(suitability(task,l.recommended).level,'recommended');assert.ok(l.quiz.options.some(o=>o[0]===l.quiz.correct));assert.equal(new Set(l.quiz.options.map(o=>o[0])).size,l.quiz.options.length);assert.ok(l.reason.length>20);}
 });
-test('temperature bars and histograms can be compared, while temperature pie shares stay unavailable',()=>{
- assert.equal(suitability('trend','bar').level,'limited');assert.equal(suitability('trend','histogram').level,'limited');assert.equal(suitability('trend','pie').level,'unavailable');assert.match(suitability('trend','bar').text,/変化が見えにくく.*0℃/);assert.match(suitability('trend','histogram').text,/日付の順序/);assert.deepEqual(supportedKinds('trend'),['line','bar','histogram']);assert.deepEqual(supportedKinds('compare'),['bar','line','pie','histogram']);assert.deepEqual(supportedKinds('relation'),['scatter','line','bar']);
+test('temperature bars and histograms can be compared, and temperature-band shares keep the question explicit',()=>{
+ assert.equal(suitability('trend','bar').level,'limited');assert.equal(suitability('trend','histogram').level,'limited');assert.equal(suitability('trend','pie').level,'limited');assert.match(suitability('trend','bar').text,/変化が見えにくく.*0℃/);assert.match(suitability('trend','histogram').text,/日付|今回/);assert.deepEqual(supportedKinds('trend'),['line','bar','histogram','pie']);assert.deepEqual(supportedKinds('compare'),['bar','line','pie','histogram']);assert.deepEqual(supportedKinds('relation'),['scatter','line','bar','pie','histogram']);
 });
 test('alternative valid charts receive a purpose-specific comparison rather than a false incorrect verdict',()=>{
  assert.equal(suitability('compare','pie').level,'limited');assert.equal(suitability('share','bar').level,'limited');assert.match(suitability('compare','line').text,/時間|日付/);assert.equal(suitability('relation','line').level,'limited');
@@ -61,4 +61,21 @@ test('paired series retain shape and line distinctions with separate scales, and
 });
 test('rainfall classification ignores sunshine and uses nonoverlapping rainfall cutoffs',()=>{
  const other=rows.map(r=>[r[0],r[1],r[2],24-r[3]]);assert.deepEqual(weatherGroups(rows),weatherGroups(other));assert.equal(suitability('relation','bar').level,'limited');assert.equal(suitability('compare','histogram').level,'limited');
+});
+
+import {rainfallHistogram,temperaturePieChart,pairedDistributionChart} from './charts.mjs';
+test('unequal rainfall classes retain every observation and use density so rectangle area equals frequency',()=>{
+ const bins=rainIntervals(rows);assert.deepEqual(bins.map(b=>b.count),[48,6,7]);assert.deepEqual(bins.map(b=>b.high-b.low),[1,9,25]);for(const b of bins)assert.ok(Math.abs(b.density*(b.high-b.low)-b.count)<1e-12);
+ const chart=rainfallHistogram(rows);assert.match(chart,/度数密度/);const areas=[...chart.matchAll(/<rect data-density-count="(\d+)"[^>]+width="([^"]+)" height="([^"]+)"/g)].map(m=>Number(m[2])*Number(m[3])/Number(m[1]));assert.equal(areas.length,3);assert.ok(areas.every(a=>Math.abs(a-areas[0])<1e-8));
+ const boundary=rainIntervals([['a',0],['b',.5],['c',1],['d',9.5],['e',10],['f',35]]);assert.deepEqual(boundary.map(b=>b.count),[2,2,2]);assert.equal(boundary.at(-1).high,40);assert.equal(rainIntervals([['a',0],['b',0]]).at(-1).count,0);
+});
+test('temperature pie shares count days, and both numeric distributions conserve observations',()=>{
+ const chart=temperaturePieChart(rows);assert.equal([...chart.matchAll(/data-pie-count="(\d+)"/g)].reduce((n,m)=>n+Number(m[1]),0),rows.length);assert.match(chart,/日付の順序は表さない/);
+ for(const kind of ['pie','histogram']){const pair=pairedDistributionChart(rows,kind);assert.equal((pair.match(new RegExp(kind==='pie'?'data-distribution-pie':'data-distribution-histogram','g'))||[]).length,2);assert.match(pair,/同じ日の2つの値の対応は分からない/);const attr=kind==='pie'?'data-pie-count':'data-histogram-count';assert.equal([...pair.matchAll(new RegExp(attr+'="(\\d+)"','g'))].reduce((n,m)=>n+Number(m[1]),0),rows.length*2);assert.doesNotMatch(pair,/NaN|Infinity|undefined/);}
+});
+test('distribution bins remain readable across the editable temperature and sunshine ranges',()=>{
+ const extreme=[['2025-01-01',0,-80,0],['2025-01-02',1,65,24]];for(const data of [rows,extreme])for(const c of [2,3]){const bins=distributionBins(data,c);assert.ok(bins.length<=8);assert.equal(bins.reduce((n,b)=>n+b.value,0),data.length);}
+});
+test('time-series plots have no unexplained preselected orange symbols',()=>{
+ for(const kind of ['line','bar']){const chart=pairedTimeChart(rows,{kind});assert.doesNotMatch(chart,/fill="var\(--chart-secondary/);assert.match(pairedTimeChart(rows,{kind,selectedDay:rows[0][0]}),/fill="var\(--chart-secondary-dark\)"/);}
 });

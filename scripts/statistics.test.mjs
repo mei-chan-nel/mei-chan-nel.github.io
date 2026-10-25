@@ -33,7 +33,7 @@ test("all active statistics labs have real modules, data views and valid nested 
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes(id === "graph-reading" ? 'src="./../foundations/app.mjs?v=20261025-rain-series"' : id === "missing-values" ? 'src="./../foundations/app.mjs?v=20261025-reading-missing"' : 'src="./../app.mjs?v=20261025-final-polish"'));
+    assert.ok(html.includes(id === "graph-reading" ? 'src="./../foundations/app.mjs?v=20261025-distributions"' : id === "missing-values" ? 'src="./../foundations/app.mjs?v=20261025-reading-missing"' : 'src="./../app.mjs?v=20261025-final-polish"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));

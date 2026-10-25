@@ -1,10 +1,10 @@
 import {esc} from '../shared/ui.mjs?v=20261025-reading-missing';
 import {parseDelimited,serializeCSV} from '../shared/csv.mjs';
-import {setupFullscreen} from '../fullscreen.mjs?v=20261025-rain-series';
-import {clearFullscreenExplanations} from '../shared/fullscreen-layout.mjs?v=20261025-reading-missing';
+import {setupFullscreen} from '../fullscreen.mjs?v=20261025-distributions';
+import {clearFullscreenExplanations} from '../shared/fullscreen-layout.mjs?v=20261025-distributions';
 import {renderAcademicExplanation} from '../shared/explanation.mjs';
-import {fitWorkspaceCharts} from '../shared/chart-layout.mjs?v=20261025-rain-series';
-const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-rain-series':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
+import {fitWorkspaceCharts} from '../shared/chart-layout.mjs?v=20261025-distributions';
+const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-distributions':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
 let state=config.initial(),view=-1,draft=null,dirty=false,notice='',lastRenderedView=null;
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.version===1&&saved.id===id)state=config.normalize(saved.state);}catch{}
 const root=document.querySelector('#experiment'),tabs=document.querySelector('#view-tabs');

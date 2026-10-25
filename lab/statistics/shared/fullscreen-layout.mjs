@@ -212,7 +212,7 @@ export function arrangeFullscreenExplanations(root, desktop, onLayout) {
     explanationSection,
   ])
     if (section.children.length > 1) content.append(section);
-  if (!content.children.length) return;
+  if (!content.children.length && doc.body.dataset.statLab !== "graph-reading") return;
   for (const details of root.querySelectorAll(
     ".analysis-notes, .boxplot-help",
   )) {

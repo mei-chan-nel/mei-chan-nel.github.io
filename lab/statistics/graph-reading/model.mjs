@@ -35,3 +35,14 @@ export function enterView(state,index){
  const s=normalize(state),preferred=['line',s.rainQuestion==='share'?'pie':'bar','scatter'];
  return {...s,choices:s.choices.map((kind,i)=>i===index?preferred[i]:kind)};
 }
+
+// Keep numeric intervals legible for both the histogram and its day-share pie.
+export function distributionBins(rows,column){
+ const values=rows.map(r=>r[column]);let width=2,bins=histogram(values,width);
+ while(bins.length>8){width+=2;bins=histogram(values,width);}
+ return bins;
+}
+export function rainIntervals(rows){
+ const upper=Math.max(15,(Math.floor(Math.max(...rows.map(r=>r[1]))/5)+1)*5),edges=[0,1,10,upper],labels=['1mm未満','1mm以上10mm未満','10mm以上'];
+ return labels.map((label,i)=>{const low=edges[i],high=edges[i+1],count=rows.filter(r=>r[1]>=low&&r[1]<high).length;return {label,low,high,count,density:count/(high-low)};});
+}
