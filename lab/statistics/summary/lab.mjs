@@ -17,8 +17,8 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-guided-test";
-import { readDataset } from "../shared/data.mjs?v=20261025-guided-test";
+} from "../shared/ui.mjs?v=20261025-compact-test";
+import { readDataset } from "../shared/data.mjs?v=20261025-compact-test";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];
 const makePoints = (values) =>

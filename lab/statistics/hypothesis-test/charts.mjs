@@ -1,6 +1,6 @@
-import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-guided-test';
+import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-compact-test';
 import { fmt } from '../shared/math.mjs';
-import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-guided-test';
+import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-compact-test';
 const pct = (v,d=1) => fmt(v*100,d)+'%';
 function niceStep(value) {
   const power=10**Math.floor(Math.log10(value || 1)), scaled=value/power;

@@ -1,4 +1,4 @@
-import { downloadCSV } from "./data-editor.mjs?v=20261025-guided-test";
+import { downloadCSV } from "./data-editor.mjs?v=20261025-compact-test";
 const target = new URL("./histogram/", new URL("../", location.href));
 target.protocol = location.protocol;
 target.host = location.host;

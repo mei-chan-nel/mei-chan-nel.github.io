@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261025-guided-test";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-guided-test";
+import { esc } from "./shared/ui.mjs?v=20261025-compact-test";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-compact-test";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-guided-test";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-guided-test";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-guided-test";
-import { sampleState } from "./shared/samples.mjs?v=20261025-guided-test";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-guided-test";
-import { readDataset } from "./shared/data.mjs?v=20261025-guided-test";
+} from "./shared/data-model.mjs?v=20261025-compact-test";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-compact-test";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-compact-test";
+import { sampleState } from "./shared/samples.mjs?v=20261025-compact-test";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-compact-test";
+import { readDataset } from "./shared/data.mjs?v=20261025-compact-test";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-guided-test";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-guided-test";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-guided-test";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-guided-test";
-import { renderSources } from "./shared/sources.mjs?v=20261025-guided-test";
+} from "./learning.mjs?v=20261025-compact-test";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-compact-test";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-compact-test";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-compact-test";
+import { renderSources } from "./shared/sources.mjs?v=20261025-compact-test";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-guided-test`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-compact-test`))
   .default;
 const ui = {
   view: 0,

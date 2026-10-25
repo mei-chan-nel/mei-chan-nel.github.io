@@ -196,7 +196,7 @@ test("published defaults match their source extracts and user uploads lose publi
     dailyTemperatures,
     admissions,
     incomeQuintiles,
-  } = await import("./public-data.mjs?v=20261025-guided-test");
+  } = await import("./public-data.mjs?v=20261025-compact-test");
   for (const [file, values, column] of [
     ["tokyo-monthly-temperature.csv", monthlyTemperatures, 1],
     ["tokyo-daily-temperature.csv", dailyTemperatures.flat(), 1],

@@ -2817,11 +2817,14 @@ html.statistics-immersive body {
 /* Guided inference presents one decision or calculation at a time. */
 .hyp-step-count { margin:0 0 .75rem; color:var(--chart-muted); font-size:.85rem; }
 .hyp-progress { display:flex; list-style:none; padding:0; margin:0 0 1.25rem; gap:6px; }
-.hyp-progress li { flex:1; min-width:0; text-align:center; color:var(--chart-muted); border-top:3px solid var(--chart-grid); padding-top:7px; }
-.hyp-progress li > span { display:inline-grid; place-items:center; width:25px; height:25px; border:1px solid var(--chart-grid); border-radius:50%; background:white; }
+.hyp-progress li { flex:1; min-width:0; text-align:center; color:var(--chart-muted); border-top:3px solid var(--chart-grid); }
+.hyp-progress button { display:block; width:100%; min-height:44px; padding:7px 2px 3px; border:0; border-radius:4px; background:transparent; color:inherit; font:inherit; line-height:1.45; }
+.hyp-progress button:hover { background:var(--paper); }
+.hyp-progress button:focus-visible { outline:2px solid var(--chart-primary); outline-offset:2px; }
+.hyp-progress button > span { display:inline-grid; place-items:center; width:25px; height:25px; border:1px solid var(--chart-grid); border-radius:50%; background:white; }
 .hyp-progress li small { display:block; margin-top:4px; font-size:.68rem; line-height:1.45; overflow-wrap:anywhere; }
-.hyp-progress li[aria-current] { color:var(--chart-primary-dark); border-color:var(--chart-primary); font-weight:700; }
-.hyp-progress li[aria-current] > span { background:var(--chart-primary); border-color:var(--chart-primary); color:white; }
+.hyp-progress li.is-current { color:var(--chart-primary-dark); border-color:var(--chart-primary); font-weight:700; }
+.hyp-progress button[aria-current] > span { background:var(--chart-primary); border-color:var(--chart-primary); color:white; }
 .hyp-progress li.is-complete { border-color:var(--chart-primary); }
 .hyp-step-body p { line-height:1.9; }
 .hyp-action { padding-bottom:.7rem; border-bottom:1px solid var(--chart-grid); }
@@ -2837,10 +2840,16 @@ html.statistics-immersive body {
 .hyp-outcome > h3,.hyp-takeaway > h3 { margin-top:0; }
 .hyp-wizard-navigation { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:1.25rem; flex-wrap:wrap; }
 .hyp-wizard-navigation button { max-width:100%; white-space:normal; }
-.hyp-restart { margin-top:.75rem; font-size:.8rem; }
-.hyp-text { max-width:560px; margin:1rem 0; }
-.hyp-text input { width:100%; }
-.hyp-presets button { font-size:.8rem; }
+.hyp-wizard-navigation .hyp-restart { margin:0 auto 0 0; font-size:.8rem; }
+.hyp-plot { margin:.75rem 0; min-width:0; }
+.hyp-setup-grid,.hyp-formula-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem 1.5rem; align-items:start; }
+.hyp-setup-grid > section { min-width:0; }
+.hyp-setup-grid .hyp-radio { display:grid; gap:.5rem; }
+.hyp-setup-grid .hyp-rule { margin-bottom:0; }
+.hyp-setup-grid .hyp-chance-example { margin:.75rem 0; }
+.hyp-formula-grid .hyp-equation { margin:.5rem 0; }
+.hyp-explanation { margin-top:1rem; padding-top:.75rem; border-top:1px solid var(--chart-grid); }
+#hyp-setting-message:empty { display:none; }
 .hyp-radio { margin-block:.75rem; }
 .hyp-radio input { accent-color:var(--chart-primary); }
 .hyp-step-body [data-hyp-bin] { cursor:pointer; }
@@ -2851,8 +2860,52 @@ html.statistics-immersive body {
 .statistics-fullscreen .hyp-guide[data-screen-chart-flow] { padding:8px !important; }
 .screen-explanation-rail .hyp-takeaway { margin:0; padding:0; background:transparent; border:0; }
 .screen-explanation-rail .hyp-takeaway > h3 { display:none; }
+.screen-explanation-rail .hyp-explanation { margin:0; padding:0; border:0; }
+.screen-explanation-rail .hyp-explanation > h3 { display:none; }
+/* Keep stage navigation visible; only overflowing lesson content scrolls. */
+.statistics-fullscreen:has(.hyp-guide) #experiment { overflow:hidden; }
+.statistics-fullscreen:has(.hyp-guide) .workbench,
+.statistics-fullscreen:has(.hyp-guide) .workbench-body { display:flex !important; flex:1 1 0; flex-direction:column; align-items:stretch; min-height:0; height:100%; box-sizing:border-box; }
+.statistics-fullscreen .hypothesis-test-display { display:flex !important; flex:1 1 0; min-height:0; overflow:hidden; box-sizing:border-box; }
+.statistics-fullscreen .hypothesis-test-display .hyp-guide { display:flex !important; flex-direction:column; flex:1 1 0; min-height:0; height:100%; padding:8px !important; overflow:hidden !important; box-sizing:border-box; }
+.statistics-fullscreen .hyp-guide > .hyp-step-count { display:none; }
+.statistics-fullscreen .hyp-guide > .hyp-progress { flex:0 0 auto; margin:0 0 6px; }
+.statistics-fullscreen .hyp-progress button { min-height:44px; padding:3px 2px; }
+.statistics-fullscreen .hyp-progress button > span { width:20px; height:20px; }
+.statistics-fullscreen .hyp-progress small { margin-top:2px; }
+.statistics-fullscreen .hyp-guide > h2 { flex:0 0 auto; margin:0 0 6px; }
+.statistics-fullscreen .hyp-guide > .hyp-step-body { flex:1 1 auto !important; min-height:0; overflow:auto; overscroll-behavior:contain; padding:0 2px; }
+.statistics-fullscreen .hyp-step-body p { line-height:1.55; margin:4px 0; }
+.statistics-fullscreen .hyp-action { padding:0 0 5px; }
+.statistics-fullscreen .hyp-radio { gap:.4rem .85rem; margin:6px 0; }
+.statistics-fullscreen .hyp-radio legend { margin-bottom:4px; font-size:.8rem; }
+.statistics-fullscreen .hyp-radio label { font-size:.8rem; }
+.statistics-fullscreen .hyp-guide .hyp-controls { margin:6px 0; gap:8px 16px; }
+.statistics-fullscreen .hyp-guide .control { font-size:.8rem; }
+.statistics-fullscreen .hyp-guide input[type=number] { padding:5px 8px; min-height:32px; }
+.statistics-fullscreen .hyp-guide .hyp-rule { margin:6px 0; }
+.statistics-fullscreen .hyp-guide .hyp-rule > div { padding:5px 0; }
+.statistics-fullscreen .hyp-guide .hyp-rule dd { font-size:.8rem; line-height:1.5; }
+.statistics-fullscreen .hyp-guide .hyp-rule dt { font-size:.76rem; }
+.statistics-fullscreen .hyp-guide .hyp-equation { padding:7px 10px; margin:5px 0; }
+.statistics-fullscreen .hyp-guide .hyp-outcome,
+.statistics-fullscreen .hyp-guide .hyp-decision-rule { padding:6px 10px; margin:6px 0; }
+.statistics-fullscreen .hyp-plot { margin:5px 0; }
+.statistics-fullscreen .hyp-guide .stat-chart[data-screen-chart] { height:clamp(190px,calc(100dvh - 320px),330px) !important; min-height:190px !important; max-width:100% !important; flex:none; }
+.statistics-fullscreen .hyp-guide .hyp-short-chart[data-screen-chart],
+.statistics-fullscreen .hyp-guide .hyp-interval-chart[data-screen-chart] { height:170px !important; min-height:150px !important; }
+.statistics-fullscreen .hyp-guide > .hyp-wizard-navigation { flex:0 0 auto; gap:8px; margin:6px 0 0; padding-top:6px; border-top:1px solid var(--chart-grid); }
+.statistics-fullscreen .hyp-wizard-navigation button { min-height:34px; padding:6px 10px; font-size:.78rem; }
+.statistics-fullscreen .hyp-setup-grid { gap:12px 24px; }
+.statistics-fullscreen .hyp-chance-example { margin:6px 0; }
+.statistics-fullscreen .hyp-chance-example > span { padding:6px; font-size:.8rem; }
+@media(min-width:900px) {
+  .statistics-fullscreen .hyp-step-body > .hyp-rule { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+}
 @media(max-width:760px) {
   .hyp-progress li small { display:none; }
   .hyp-progress { gap:4px; }
-  .hyp-progress li > span { width:22px; height:22px; }
+  .hyp-progress button > span { width:22px; height:22px; }
+  .hyp-setup-grid,.hyp-formula-grid { grid-template-columns:1fr; gap:.5rem; }
+  .hyp-wizard-navigation .hyp-restart { display:none; }
 }

@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs?v=20261025-guided-test";
+import { esc } from "./shared/ui.mjs?v=20261025-compact-test";
 const step = (title, level, purpose, action) => ({
   title,
   level,

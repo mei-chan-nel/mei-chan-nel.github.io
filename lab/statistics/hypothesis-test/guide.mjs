@@ -1,4 +1,4 @@
-export const testStages = ['データの単位と分布','帰無仮説と対立仮説','有意水準と検定方法','標本平均とばらつき','ずれをtで表す','帰無分布とp値','棄却するかを判断','問いに戻って解釈'];
+export const testStages = ['ヒストグラム','帰無仮説と対立仮説','有意水準と検定方法','標本平均とばらつき','ずれをtで表す','帰無分布とp値','棄却するかを判断','問いに戻って解釈'];
 export const errorStages = ['検定のルールと計画','第1種の誤り','第2種の誤り','2つの世界を見比べる','人数と有意水準を変える'];
 export const guideDefaults = {reference:.5,direction:'two-sided',measureLabel:'正答率',referenceReason:'',testStep:0,errorStep:0,binWidth:5,selectedBin:-1,sigmaMode:'data',planningSD:.1};
 export const normalizeGuide = state => ({...guideDefaults,...state});
