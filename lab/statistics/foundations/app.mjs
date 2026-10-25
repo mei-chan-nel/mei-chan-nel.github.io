@@ -4,8 +4,8 @@ import {setupFullscreen} from '../fullscreen.mjs?v=20261025-reading-missing';
 import {clearFullscreenExplanations} from '../shared/fullscreen-layout.mjs?v=20261025-reading-missing';
 import {renderAcademicExplanation} from '../shared/explanation.mjs';
 import {fitWorkspaceCharts} from '../shared/chart-layout.mjs?v=20261025-reading-missing';
-const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-graph-choice':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
-let state=config.initial(),view=-1,draft=null,dirty=false,notice='';
+const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-subject-graphs':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
+let state=config.initial(),view=-1,draft=null,dirty=false,notice='',lastRenderedView=null;
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.version===1&&saved.id===id)state=config.normalize(saved.state);}catch{}
 const root=document.querySelector('#experiment'),tabs=document.querySelector('#view-tabs');
 const persist=()=>{try{localStorage.setItem(key,JSON.stringify({version:1,id,state}));}catch{}};
@@ -30,7 +30,9 @@ function dataView(){
  root.querySelector('#csv-apply').onclick=()=>{try{const text=root.querySelector('#csv-text').value;if(text.length>1000000)throw Error('1MB以内のデータを貼り付けてください。');const rows=parseDelimited(text);if(rows[0]?.length!==config.headers.length)throw Error(`${config.headers.length}列の項目名とデータを入力してください。`);applyRows(rows.slice(1));notice='CSVを読み込みました。';draw();}catch(e){fail(e);}};
 }
 function draw(){
- const focused=document.activeElement?.id;clearFullscreenExplanations(root);
+ const focused=document.activeElement?.id;
+ const openDetails=view===lastRenderedView?[...root.querySelectorAll('details[id][open]')].map(el=>el.id):[];
+ lastRenderedView=view;clearFullscreenExplanations(root);
  tabs.innerHTML=[{title:'データ'},...config.views].map((v,i)=>`<button type="button" id="${i?'view-'+(i-1):'data-tab'}" data-view="${i-1}" aria-pressed="${view===i-1}">${esc(v.title)}</button>`).join('');
  tabs.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>go(Number(el.dataset.view)));
  document.querySelector('#tab-progress').textContent=`${view+2} / ${config.views.length+1} · ${view<0?'データ確認':config.views[view].purpose}`;
@@ -38,6 +40,7 @@ function draw(){
  if(view<0)dataView();else{root.innerHTML='<div class="workbench unified-workbench foundation-workbench"><div class="workbench-body"><section class="workbench-display"></section></div></div>';const display=root.querySelector('.workbench-display');config.render(display,{state,view,update});display.insertAdjacentHTML('afterbegin','<p id="foundation-error" class="error" role="alert" hidden></p>');fitWorkspaceCharts(display);}
  document.querySelector('#step-navigation').innerHTML=`<div class="step-buttons">${view>=0?'<button id="step-prev" type="button">← 前へ</button>':''}<span>${view+2} / ${config.views.length+1}</span>${view<config.views.length-1?'<button id="step-next" class="primary" type="button">次へ →</button>':''}</div>`;
  document.querySelector('#step-prev')?.addEventListener('click',()=>go(view-1));document.querySelector('#step-next')?.addEventListener('click',()=>go(view+1));
+ for(const id of openDetails){const el=root.querySelector('#'+id);if(el?.tagName==='DETAILS')el.open=true;}
  if(focused)document.getElementById(focused)?.focus({preventScroll:true});
 }
 const explanation=document.querySelector('#explanation-body');renderAcademicExplanation(explanation,config.explanation);

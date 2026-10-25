@@ -24,12 +24,9 @@ export function categoryCounts(rows,field,threshold) {
   return [{label:`${threshold}以上`,value:above},{label:`${threshold}未満`,value:values.length-above}];
 }
 export function normalize(state) {
-  const rows=validateRows(state.rows),key=JSON.stringify(rows),fresh=state.lessonVersion!==2||state.rowsKey!==key;
-  const allowed=[['compare','trend','share','distribution','relation'],['compare','trend'],['compare','share']],defaults=['compare','compare','share'];
-  const tasks=defaults.map((v,i)=>!fresh&&allowed[i].includes(state.tasks?.[i])?state.tasks[i]:v);
-  const recommended={compare:'bar',trend:'line',share:'pie',distribution:'histogram',relation:'scatter'};
-  const kindOptions=[['bar','line','pie','histogram','scatter'],['bar','line'],['bar','pie']];
-  const choices=tasks.map((v,i)=>!fresh&&kindOptions[i].includes(state.choices?.[i])?state.choices[i]:recommended[v]);
-  const minPositive=rows.filter(r=>r[1]>0).sort((a,b)=>b[1]-a[1]),second=minPositive.find(r=>r[1]<minPositive[0]?.[1]),limit=second?Math.max(0,second[1]-.1):0;
-  return {rows,origin:state.origin==='sample'?'sample':'user',lessonVersion:2,rowsKey:key,tasks,choices,answers:tasks.map((_,i)=>!fresh&&typeof state.answers?.[i]==='string'?state.answers[i].slice(0,30):''),shown:tasks.map((_,i)=>!fresh&&state.shown?.[i]===true),orders:tasks.map((_,i)=>!fresh&&Number.isInteger(state.orders?.[i])?Math.max(0,Math.min(2,state.orders[i])):0),axisBase:!fresh&&Number.isFinite(state.axisBase)?Math.max(0,Math.min(limit,state.axisBase)):0,selectedDay:!fresh&&typeof state.selectedDay==='string'&&rows.some(r=>r[0]===state.selectedDay)?state.selectedDay:''};
+ const rows=validateRows(state.rows),key=JSON.stringify(rows),fresh=state.lessonVersion!==3||state.rowsKey!==key;
+ const kindOptions=[['bar','line','histogram'],['bar','line','pie'],['scatter','line']],defaults=['line','bar','scatter'];
+ const choices=defaults.map((v,i)=>!fresh&&kindOptions[i].includes(state.choices?.[i])?state.choices[i]:v);
+ const positive=rows.filter(r=>r[1]>0).sort((a,b)=>b[1]-a[1]),second=positive.find(r=>r[1]<positive[0]?.[1]),limit=second?Math.max(0,second[1]-.1):0;
+ return {rows,origin:state.origin==='sample'?'sample':'user',lessonVersion:3,rowsKey:key,choices,rainQuestion:!fresh&&state.rainQuestion==='share'?'share':'compare',answers:defaults.map((_,i)=>!fresh&&typeof state.answers?.[i]==='string'?state.answers[i].slice(0,30):''),orders:defaults.map((_,i)=>!fresh&&Number.isInteger(state.orders?.[i])?Math.max(0,Math.min(2,state.orders[i])):0),axisBase:!fresh&&Number.isFinite(state.axisBase)?Math.max(0,Math.min(limit,state.axisBase)):0,selectedDay:!fresh&&typeof state.selectedDay==='string'&&rows.some(r=>r[0]===state.selectedDay)?state.selectedDay:''};
 }

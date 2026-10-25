@@ -1,4 +1,4 @@
-import {histogram} from './model.mjs?v=20261025-graph-choice';
+import {histogram} from './model.mjs?v=20261025-subject-graphs';
 export const KINDS=[['bar','棒グラフ'],['line','折れ線グラフ'],['pie','円グラフ'],['histogram','ヒストグラム'],['scatter','散布図']];
 export const TASKS=[['compare','区分ごとの日数の差を比べたい'],['trend','気温がどう変化したか知りたい'],['share','全体に占める割合を知りたい'],['distribution','どの気温帯の日が多いか知りたい'],['relation','日照時間と気温の関係を知りたい']];
 export const RECOMMENDED={compare:'bar',trend:'line',share:'pie',distribution:'histogram',relation:'scatter'};
@@ -19,7 +19,7 @@ export function lesson(rows,task,order=0){
  if(task==='share')return {id:task,title:'雨が少なく日照が長い区分は、全体の何%？',context,items:groups,unit:'日数（日）',recommended:'pie',quiz:numericQuiz('降水1mm未満・日照6h以上の日は、全日数の何%？',long.value/n*100,'%',`${long.value} ÷ ${n} × 100 = ${(long.value/n*100).toFixed(1)}%。全${n}日を1つの円として読みます。`),reason:`全体を構成する互いに重ならない3区分の内訳です。円全体を${n}日・100%として、その中の割合を見るときは円グラフが適しています。`};
  if(task==='trend'){
   const values=rows.map(r=>r[2]),min=Math.min(...values),max=Math.max(...values);
-  return {id:task,title:'日平均気温は、日付に沿ってどう変わった？',context,items:rows.map(r=>({label:r[0].slice(5),value:r[2]})),unit:'日平均気温（℃）',recommended:'line',quiz:numericQuiz('最高と最低の日平均気温の差は？',max-min,'℃',`${max.toFixed(1)}℃ − ${min.toFixed(1)}℃ = ${(max-min).toFixed(1)}℃。気温は差で読み取ります。`),reason:'日付には順序があり、隣り合う日の点を結ぶと上昇・下降の流れを追えます。気温は棒の長さの比や、全体に占める割合では比較しません。'};
+  return {id:task,title:'日平均気温は、日付に沿ってどう変わった？',context,items:rows.map(r=>({label:r[0].slice(5),value:r[2]})),unit:'日平均気温（℃）',recommended:'line',quiz:numericQuiz('最高と最低の日平均気温の差は？',max-min,'℃',`${max.toFixed(1)}℃ − ${min.toFixed(1)}℃ = ${(max-min).toFixed(1)}℃。気温は差で読み取ります。`),reason:'日付には順序があり、隣り合う日の点を結ぶと上昇・下降の流れを追えます。気温は点の位置や差で読み、棒の長さの比や全体に占める割合とは区別します。'};
  }
  if(task==='distribution'){
   const bins=histogram(rows.map(r=>r[2]),2),peak=bins.reduce((a,b)=>a.value>=b.value?a:b);
@@ -30,7 +30,9 @@ export function lesson(rows,task,order=0){
 }
 export function suitability(task,kind){
  if(RECOMMENDED[task]===kind)return {level:'recommended',title:'この問いに適したグラフです',text:({bar:'同じ目盛りに沿って、日数の差を比べられます。',line:'点を日付順に結び、気温の変化を追えます。',pie:'円全体を100%として、区分の占める割合を読めます。',histogram:'気温の区間と日数を対応させ、分布の山を読めます。',scatter:'同じ日の2つの数値を、1つの点として読めます。'})[kind]};
- if(task==='trend')return {level:'unavailable',title:'この問いでは折れ線グラフを使います',text:kind==='pie'?'℃の値は、全体を分け合う量ではありません。気温を扇形の割合にはしません。':kind==='bar'?'0℃は「温度の量がない」ことを意味しません。棒の長さの比ではなく、折れ線の位置と気温の差で読みます。':'ここで追いたいのは日付順の変化です。分布や2つの量の関係とは区別します。'};
+ if(task==='trend'&&kind==='bar')return {level:'limited',title:'各日の高低は見えますが、変化の流れは追いにくくなります',text:'棒を1本ずつ比べるより、折れ線で隣の日を結ぶ方が、上昇・下降を追いやすくなります。℃の0は量がないことを意味しないので、棒の長さから温度の比は読みません。'};
+ if(task==='trend'&&kind==='histogram')return {level:'limited',title:'多い気温帯は分かりますが、いつ変わったかは分かりません',text:'同じ日々のデータを気温の区間にまとめたため、日付の順序がなくなっています。分布を見るには有効ですが、日付順の変化は折れ線で確かめます。'};
+ if(task==='trend')return {level:'unavailable',title:'このデータではこのグラフを使いません',text:kind==='pie'?'気温の値は、全体を分け合う量ではありません。':'対応する2つの数値を使う題材で、散布図を試せます。'};
  if(['compare','share'].includes(task)&&kind==='line')return {level:'limited',title:'この線から時間変化は読めません',text:'横軸は日付ではなく3つの区分です。区分の順序を変えると線の形が変わります。線の右上がりを「増えた」とは読めません。'};
  if(task==='compare'&&kind==='pie')return {level:'limited',title:'内訳は分かりますが、差の比較には棒が向きます',text:'扇形の角度から内訳を読めます。何日違うかを比べるなら、共通の目盛りがある棒グラフが読みやすくなります。'};
  if(task==='share'&&kind==='bar')return {level:'limited',title:'日数は比較できます。全体の割合も確かめましょう',text:'棒グラフで各区分の日数を比較できます。全体を100%として内訳を読むなら、円グラフにすると分かりやすくなります。'};
@@ -41,4 +43,8 @@ export function suitability(task,kind){
 export function rainAxisExample(rows){
  const sorted=rows.filter(r=>r[1]>0).sort((a,b)=>b[1]-a[1]),a=sorted[0],b=sorted.find(r=>r[1]<a[1]);
  return a&&b?{items:[{label:a[0].slice(5),value:a[1]},{label:b[0].slice(5),value:b[1]}],ratio:a[1]/b[1],limit:Math.max(0,b[1]-.1)}:null;
+}
+
+export function supportedKinds(task){
+ return task==='trend'?['line','bar','histogram']:task==='relation'?['scatter','line']:['bar','line','pie'];
 }

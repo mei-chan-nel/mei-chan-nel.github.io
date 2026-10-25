@@ -1,6 +1,6 @@
 import {esc,svg} from '../shared/ui.mjs?v=20261025-reading-missing';
 import {fmt} from '../shared/math.mjs';
-export function categoryChart(items,{min=0,max=null,unit='',line=false,title='グラフ',height=330,contiguous=false,integerTicks=false,highlightIndices=[]}={}) {
+export function categoryChart(items,{min=0,max=null,unit='',line=false,title='グラフ',height=330,contiguous=false,integerTicks=false,highlightIndices=[],baseline=null}={}) {
   const w=760,h=height,left=62,right=734,top=38,bottom=h-60;
   max=max??Math.max(1,...items.map(r=>r.value))*1.18;if(integerTicks&&min===0)max=Math.max(4,Math.ceil(max/4)*4);if(!(max>min))max=min+1;
   const y=v=>bottom-(v-min)/(max-min)*(bottom-top),x=i=>left+(i+.5)*(right-left)/items.length;
@@ -9,7 +9,8 @@ export function categoryChart(items,{min=0,max=null,unit='',line=false,title='�
   body+=`<path class="axis" d="M${left},${top}V${bottom}H${right}"/>`;
   if(min>0&&!line)body+=`<path d="M${left-6},${bottom-10}l12,-6l-12,-6l12,-6" fill="none" stroke="var(--chart-text)" stroke-width="2"/><text x="${right}" y="19" text-anchor="end" style="fill:var(--chart-secondary-dark)">縦軸は${fmt(min,Number.isInteger(min)?0:1)}から</text>`;
   if(line)body+=`<polyline points="${items.map((r,i)=>`${x(i)},${y(r.value)}`).join(' ')}" fill="none" stroke="var(--chart-primary)" stroke-width="2.5"/>`;
-  items.forEach((r,i)=>{const cx=x(i),cy=y(r.value),bw=contiguous?(right-left)/items.length:Math.min(72,(right-left)/items.length*.58);body+=line?`<circle cx="${cx}" cy="${cy}" r="4" fill="var(--chart-primary)"/>`:`<rect x="${cx-bw/2}" y="${cy}" width="${bw}" height="${bottom-cy}" fill="var(--chart-primary)"/>`;if(items.length<=12||highlightIndices.includes(i))body+=`<text x="${cx}" y="${cy-8}" text-anchor="middle">${fmt(r.value,Number.isInteger(r.value)?0:1)}</text>`;if(i%Math.ceil(items.length/10)===0||i===items.length-1)body+=`<text x="${cx}" y="${bottom+22}" text-anchor="middle" style="font-size:11px">${esc(r.label)}</text>`;});
+  items.forEach((r,i)=>{const cx=x(i),cy=y(r.value),barBase=baseline===null?bottom:y(baseline),bw=contiguous?(right-left)/items.length:Math.min(72,(right-left)/items.length*.58);body+=line?`<circle cx="${cx}" cy="${cy}" r="4" fill="var(--chart-primary)"/>`:`<rect x="${cx-bw/2}" y="${Math.min(cy,barBase)}" width="${bw}" height="${Math.abs(barBase-cy)}" fill="var(--chart-primary)"/>`;if(items.length<=12||highlightIndices.includes(i))body+=`<text x="${cx}" y="${cy-8}" text-anchor="middle">${fmt(r.value,Number.isInteger(r.value)?0:1)}</text>`;if(i%Math.ceil(items.length/10)===0||i===items.length-1)body+=`<text x="${cx}" y="${bottom+22}" text-anchor="middle" style="font-size:11px">${esc(r.label)}</text>`;});
+  if(baseline!==null)body+=`<line class="axis" x1="${left}" x2="${right}" y1="${y(baseline)}" y2="${y(baseline)}"/>`;
   return svg(body,title,w,h);
 }
 export function missingChart(rows,filled=null) {

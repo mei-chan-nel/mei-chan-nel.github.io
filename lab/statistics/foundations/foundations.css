@@ -16,7 +16,7 @@
 .foundation-details summary { cursor:pointer; font-weight:700; }
 .statistics-fullscreen .foundation-workbench .stat-chart { max-height:none; }
 .statistics-fullscreen .foundation-controls { gap:8px 12px; margin:8px 0; }
-@media(max-width:600px) { .foundation-controls .control { min-width:130px; } .foundation-chart-choices { gap:5px; } .foundation-chart-choices button { font-size:.75rem; padding:7px 9px; } }
+@media (max-width:600px) { .foundation-controls .control { min-width:130px; } .foundation-chart-choices { gap:5px; } .foundation-chart-choices button { font-size:.75rem; padding:7px 9px; } }
 /* Graph choice lessons: question, trial and explicit recommendation. */
 .graph-question { margin:14px 0; padding:12px 16px; border-left:4px solid var(--chart-primary); background:var(--chart-primary-pale); }
 .graph-question .graph-question-label { margin:0 0 3px; font-size:.75rem; color:var(--chart-primary-dark); font-weight:700; }
@@ -33,3 +33,51 @@
 .graph-unavailable { min-height:160px; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; }
 .foundation-workbench figcaption { font-size:.75rem; color:var(--chart-muted); margin-top:5px; }
 .graph-rain-axis { padding:12px; background:var(--chart-context); }
+/* Subject tabs keep one main plot; fullscreen notes and disclosures leave its height budget. */
+.graph-reading-display { padding:16px 20px; overflow:hidden; }
+.graph-subject-heading { display:flex; flex-wrap:wrap; align-items:baseline; justify-content:space-between; gap:4px 16px; margin-bottom:10px; }
+.graph-subject-heading h2 { margin:0; font-size:1.15rem; }
+.graph-subject-heading p { margin:0; font-size:.76rem; color:var(--chart-muted); }
+.graph-subject-controls { min-width:0; }
+.graph-subject-controls .foundation-chart-choices { align-items:stretch; margin:8px 0; }
+.graph-subject-controls button { min-width:84px; }
+.graph-subject-controls button:disabled { opacity:.42; cursor:not-allowed; }
+.graph-disabled-help { margin:4px 0; font-size:.72rem; color:var(--chart-muted); }
+.graph-reading-display .graph-subject-plot { margin:12px 0; min-width:0; }
+.graph-reading-display .graph-subject-plot .stat-chart { min-height:0; height:auto; max-height:430px; }
+.graph-subject-reading { padding:12px 0; border-top:1px solid var(--chart-grid); }
+.graph-subject-reading h3 { margin:0 0 6px; font-size:.92rem; }
+.graph-subject-reading p { margin:6px 0; line-height:1.7; font-size:.84rem; }
+.graph-point-reading:empty { display:none; }
+.graph-subject-reading details { margin:10px 0 0; font-size:.8rem; }
+.graph-subject-reading summary { cursor:pointer; }
+.graph-reading-display .analysis-notes { padding:12px 0; }
+.graph-reading-display .analysis-notes h3 { margin:10px 0; }
+.graph-reading-display .analysis-notes .stat-table { margin-top:10px; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-reading-display {
+ display:grid !important; grid-template-rows:auto auto minmax(0,1fr); gap:6px;
+ min-width:0; min-height:0; overflow:hidden; padding:8px 12px;
+}
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-subject-heading { margin:0; gap:2px 12px; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-subject-controls .foundation-chart-choices { margin:4px 0; gap:5px; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-subject-controls button { padding:5px 8px; min-height:30px; font-size:.74rem; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-task-switch { gap:5px; margin:0 0 3px; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-disabled-help { font-size:.67rem; margin:2px 0; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-subject-plot {
+ display:grid !important; grid-template-rows:minmax(0,1fr) auto; flex:none;
+ min-width:0; min-height:0; height:100%; overflow:hidden; margin:0;
+}
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-subject-plot [data-screen-chart] {
+ display:block; width:100%; max-width:100%; height:100% !important;
+ min-height:0 !important; max-height:none; align-self:stretch; justify-self:stretch;
+}
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-subject-plot figcaption { font-size:.68rem; margin:3px 0 0; line-height:1.35; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .screen-explanation-rail .graph-subject-reading { border:0; margin:0; padding:0; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .screen-details-bar .graph-values svg { display:block; height:auto !important; min-height:160px !important; max-height:300px; }
+@media (max-width:600px) {
+ .graph-reading-display { padding:12px; }
+ .graph-subject-controls button { min-width:76px; }
+}
+@media (max-height:520px) {
+ [data-stat-lab="graph-reading"] .statistics-fullscreen .graph-reading-display { grid-template-rows:auto auto minmax(180px,1fr); overflow:auto; }
+}
