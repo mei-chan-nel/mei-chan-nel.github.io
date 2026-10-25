@@ -1,4 +1,4 @@
-import {histogram} from './model.mjs?v=20261025-subject-graphs';
+import {histogram} from './model.mjs?v=20261025-graph-reasons';
 export const KINDS=[['bar','棒グラフ'],['line','折れ線グラフ'],['pie','円グラフ'],['histogram','ヒストグラム'],['scatter','散布図']];
 export const TASKS=[['compare','区分ごとの日数の差を比べたい'],['trend','気温がどう変化したか知りたい'],['share','全体に占める割合を知りたい'],['distribution','どの気温帯の日が多いか知りたい'],['relation','日照時間と気温の関係を知りたい']];
 export const RECOMMENDED={compare:'bar',trend:'line',share:'pie',distribution:'histogram',relation:'scatter'};
@@ -30,14 +30,17 @@ export function lesson(rows,task,order=0){
 }
 export function suitability(task,kind){
  if(RECOMMENDED[task]===kind)return {level:'recommended',title:'この問いに適したグラフです',text:({bar:'同じ目盛りに沿って、日数の差を比べられます。',line:'点を日付順に結び、気温の変化を追えます。',pie:'円全体を100%として、区分の占める割合を読めます。',histogram:'気温の区間と日数を対応させ、分布の山を読めます。',scatter:'同じ日の2つの数値を、1つの点として読めます。'})[kind]};
- if(task==='trend'&&kind==='bar')return {level:'limited',title:'各日の高低は見えますが、変化の流れは追いにくくなります',text:'棒を1本ずつ比べるより、折れ線で隣の日を結ぶ方が、上昇・下降を追いやすくなります。℃の0は量がないことを意味しないので、棒の長さから温度の比は読みません。'};
+ if(task==='trend'&&kind==='bar')return {level:'limited',title:'各日の高低は見えますが、変化の流れは追いにくくなります',text:'棒でも「何℃だったか」は分かります。上がった・下がったという流れは、点を線でつなぐと追いやすくなります。なお、20℃は10℃の「2倍の暑さ」ではありません。'};
  if(task==='trend'&&kind==='histogram')return {level:'limited',title:'多い気温帯は分かりますが、いつ変わったかは分かりません',text:'同じ日々のデータを気温の区間にまとめたため、日付の順序がなくなっています。分布を見るには有効ですが、日付順の変化は折れ線で確かめます。'};
- if(task==='trend')return {level:'unavailable',title:'このデータではこのグラフを使いません',text:kind==='pie'?'気温の値は、全体を分け合う量ではありません。':'対応する2つの数値を使う題材で、散布図を試せます。'};
+ if(task==='trend')return {level:'unavailable',title:kind==='pie'?'気温を円グラフの内訳にはできません':'このタブでは散布図の2つの数値がそろいません',text:kind==='pie'?'円グラフは、1つの全体を100%として分ける図です。日ごとの気温は全体を分けた量ではないので、扇形の割合にはできません。':'ここでは日付に沿った気温の変化を見ています。「日照と気温」タブでは、同じ日の2つの数値を組にした散布図を試せます。'};
  if(['compare','share'].includes(task)&&kind==='line')return {level:'limited',title:'この線から時間変化は読めません',text:'横軸は日付ではなく3つの区分です。区分の順序を変えると線の形が変わります。線の右上がりを「増えた」とは読めません。'};
  if(task==='compare'&&kind==='pie')return {level:'limited',title:'内訳は分かりますが、差の比較には棒が向きます',text:'扇形の角度から内訳を読めます。何日違うかを比べるなら、共通の目盛りがある棒グラフが読みやすくなります。'};
  if(task==='share'&&kind==='bar')return {level:'limited',title:'日数は比較できます。全体の割合も確かめましょう',text:'棒グラフで各区分の日数を比較できます。全体を100%として内訳を読むなら、円グラフにすると分かりやすくなります。'};
  if(task==='distribution'&&['bar','line'].includes(kind))return {level:'limited',title:'区間ごとの日数は読めます',text:'数値の区間は連続しています。分布の山を捉えるには、棒を接して並べたヒストグラムで確かめましょう。'};
- if(task==='relation'&&kind==='line')return {level:'limited',title:'点を結ぶ線は、この関係の読み取りには不要です',text:'日付順に点を結ぶと線が行き来します。日照時間と気温の関係は、線を外して点の集まりで確かめましょう。'};
+ if(task==='relation'&&kind==='line')return {level:'limited',title:'それぞれの変化は分かりますが、2つの量の関係は読み取りにくくなります',text:'上段は日照時間、下段は気温です。どちらがいつ上がったかは追えますが、同じ日の2つの値を比べるには上下を見比べる必要があります。関係を見るときは、2つの値を1点にまとめた散布図が便利です。'};
+ if(task==='relation')return {level:'unavailable',title:kind==='pie'?'日照時間と気温は円の内訳にできません':kind==='bar'?'時間と℃を同じ棒の目盛りにはできません':'ヒストグラムでは同じ日の2つの値の組を表せません',text:kind==='pie'?'時間と℃は単位が違い、足し合わせて1つの全体にはできません。円グラフには、同じ全体を分けた量を使います。':kind==='bar'?'日照時間は「h」、気温は「℃」です。同じ長さの目盛りに2つを並べても、値の大小を比べられません。このタブでは散布図か、別々の目盛りの折れ線で表示します。':'それぞれの分布はヒストグラムで表せますが、どの日の2つの値かという対応が失われます。2つの量の関係を見るには散布図を使います。'};
+ if(kind==='histogram')return {level:'unavailable',title:'この3区分はヒストグラムの階級ではありません',text:'ヒストグラムは「18℃以上20℃未満」のような連続した数値の区間を並べる図です。雨と日照で分けた3区分の日数は、棒や円で比べます。'};
+ if(kind==='scatter')return {level:'unavailable',title:'区分の日数だけでは散布図の点を作れません',text:'散布図の1点には、同じ対象から得た2つの数値が必要です。ここにあるのは各区分の日数なので、棒グラフなどで比べます。'};
  return {level:'unavailable',title:'表したいデータと、グラフの役割が合いません',text:kind==='scatter'?'散布図には、対応する2つの数値が必要です。この問いは1つの値や区分を比べています。':kind==='histogram'?'ヒストグラムは数値の分布を見る図です。区分の内訳や2つの数値の対応を表す図とは異なります。':'この問いで必要な対応を保ったまま表せるグラフを選びましょう。'};
 }
 export function rainAxisExample(rows){

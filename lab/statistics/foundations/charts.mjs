@@ -23,7 +23,7 @@ export function missingChart(rows,filled=null) {
 }
 export function scatterChart(rows,xField,yField,{connect=false,focusDay='',selectedDay=''}={}) {
   const w=760,h=330,left=64,right=730,top=38,bottom=270;
-  const xs=rows.map(r=>r[xField[3]]),ys=rows.map(r=>r[yField[3]]),xmin=Math.min(...xs)-1,xmax=Math.max(...xs)+1,ymin=Math.min(...ys)-1,ymax=Math.max(...ys)+1,x=v=>left+(v-xmin)/(xmax-xmin)*(right-left),y=v=>bottom-(v-ymin)/(ymax-ymin)*(bottom-top);
+  const xs=rows.map(r=>r[xField[3]]),ys=rows.map(r=>r[yField[3]]),xmin=['sun','rain'].includes(xField[0])?Math.max(0,Math.min(...xs)-1):Math.min(...xs)-1,xmax=Math.max(...xs)+1,ymin=Math.min(...ys)-1,ymax=Math.max(...ys)+1,x=v=>left+(v-xmin)/(xmax-xmin)*(right-left),y=v=>bottom-(v-ymin)/(ymax-ymin)*(bottom-top);
   let body=`<text x="${left}" y="18">${esc(yField[1])}（${esc(yField[2])}）</text>`;
   for(let i=0;i<=4;i++){let xv=xmin+(xmax-xmin)*i/4,yv=ymin+(ymax-ymin)*i/4;body+=`<line class="gridline" x1="${left}" x2="${right}" y1="${y(yv)}" y2="${y(yv)}"/><text x="${left-8}" y="${y(yv)+4}" text-anchor="end">${fmt(yv,1)}</text><text x="${x(xv)}" y="${bottom+21}" text-anchor="middle">${fmt(xv,1)}</text>`;}
   body+=`<path class="axis" d="M${left},${top}V${bottom}H${right}"/><text x="390" y="320" text-anchor="middle">${esc(xField[1])}（${esc(xField[2])}）</text>`;
@@ -37,5 +37,5 @@ export function pieChart(items,title='全体に占める割合') {
     if(share===1)body+=`<circle cx="230" cy="160" r="112" fill="${colors[i]}"/>`;
     else if(share>0)body+=`<path d="M230,160L${230+112*Math.cos(angle)},${160+112*Math.sin(angle)} A112,112 0 ${share>.5?1:0},1 ${230+112*Math.cos(next)},${160+112*Math.sin(next)}Z" fill="${colors[i]}" stroke="white"/>`;
     angle=next;body+=`<rect x="410" y="${65+i*70}" width="14" height="14" fill="${colors[i]}"/><text x="435" y="${77+i*70}">${esc(r.label)}</text><text x="435" y="${100+i*70}">${r.value}日 / ${n}日 = ${fmt(share*100,1)}%</text>`;
-  });return svg(body,title+'。全体は'+n+'日。',760,320);
+  });return svg(body,title+'。全体は'+n+'日。',760,320).replace('<svg ', '<svg data-preserve-geometry preserveAspectRatio="xMidYMid meet" ');
 }

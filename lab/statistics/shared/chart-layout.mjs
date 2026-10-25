@@ -83,6 +83,11 @@ function fitMosaic(svg, width, height) {
 // Points keep their hit area and text keeps its readable font size.
 export function fitWorkspaceCharts(container) {
   for (const svg of container.querySelectorAll("svg")) {
+    // Circles and sector angles must share one scale. Let SVG letterbox them.
+    if (svg.hasAttribute("data-preserve-geometry")) {
+      svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+      continue;
+    }
     const box = svg.getBoundingClientRect(),
       original = svg.viewBox.baseVal;
     if (

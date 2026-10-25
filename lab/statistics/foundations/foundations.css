@@ -81,3 +81,14 @@
 @media (max-height:520px) {
  [data-stat-lab="graph-reading"] .statistics-fullscreen .graph-reading-display { grid-template-rows:auto auto minmax(180px,1fr); overflow:auto; }
 }
+.graph-order-controls { display:flex; flex-wrap:wrap; justify-content:flex-end; align-items:center; gap:8px; margin-top:6px; }
+.graph-order-controls span { font-weight:600; }
+.graph-order-controls button { padding:4px 9px; min-height:28px; font-size:.74rem; white-space:nowrap; }
+.graph-no-chart { min-height:220px; display:grid; align-items:center; padding:20px; box-sizing:border-box; background:var(--chart-primary-pale); border:1px solid var(--chart-grid); border-radius:8px; }
+.graph-no-chart h3 { margin:0 0 10px; font-size:1.05rem; }
+.graph-no-chart p { line-height:1.8; margin:0; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .foundation-workbench { height:100%; min-height:0; display:flex; flex-direction:column; overflow:hidden; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .foundation-workbench > .workbench-body { display:flex; flex:1 1 0; min-height:0; flex-direction:column; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-reading-display { flex:1 1 0; box-sizing:border-box; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-no-chart { align-items:center; padding:16px; }
+[data-stat-lab="graph-reading"] .statistics-fullscreen .graph-order-controls button { padding:3px 8px; min-height:26px; font-size:.7rem; }

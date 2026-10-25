@@ -16,7 +16,7 @@ test('each question has an explicit recommended representation and a computed an
  for(const task of Object.keys(RECOMMENDED)){const l=lesson(rows,task);assert.equal(l.recommended,RECOMMENDED[task]);assert.equal(suitability(task,l.recommended).level,'recommended');assert.ok(l.quiz.options.some(o=>o[0]===l.quiz.correct));assert.equal(new Set(l.quiz.options.map(o=>o[0])).size,l.quiz.options.length);assert.ok(l.reason.length>20);}
 });
 test('temperature bars and histograms can be compared, while temperature pie shares stay unavailable',()=>{
- assert.equal(suitability('trend','bar').level,'limited');assert.equal(suitability('trend','histogram').level,'limited');assert.equal(suitability('trend','pie').level,'unavailable');assert.match(suitability('trend','bar').text,/長さから温度の比は読みません/);assert.match(suitability('trend','histogram').text,/日付の順序/);assert.deepEqual(supportedKinds('trend'),['line','bar','histogram']);assert.deepEqual(supportedKinds('compare'),['bar','line','pie']);assert.deepEqual(supportedKinds('relation'),['scatter','line']);
+ assert.equal(suitability('trend','bar').level,'limited');assert.equal(suitability('trend','histogram').level,'limited');assert.equal(suitability('trend','pie').level,'unavailable');assert.match(suitability('trend','bar').text,/20℃.*10℃.*2倍/);assert.match(suitability('trend','histogram').text,/日付の順序/);assert.deepEqual(supportedKinds('trend'),['line','bar','histogram']);assert.deepEqual(supportedKinds('compare'),['bar','line','pie']);assert.deepEqual(supportedKinds('relation'),['scatter','line']);
 });
 test('alternative valid charts receive a purpose-specific comparison rather than a false incorrect verdict',()=>{
  assert.equal(suitability('compare','pie').level,'limited');assert.equal(suitability('share','bar').level,'limited');assert.match(suitability('compare','line').text,/時間|日付/);assert.equal(suitability('relation','line').level,'limited');
@@ -37,4 +37,12 @@ test('constant and small custom datasets have unambiguous numeric choices',()=>{
 import {categoryChart} from '../foundations/charts.mjs';
 test('temperature bars spanning zero have nonnegative rectangle dimensions',()=>{
  const chart=categoryChart([{label:'A',value:-5},{label:'B',value:5}],{min:-6,baseline:0,unit:'℃'});assert.doesNotMatch(chart,/NaN|Infinity/);for(const m of chart.matchAll(/height="([^"]+)"/g))assert.ok(Number(m[1])>=0);
+});
+
+import {pairedTimeChart} from './charts.mjs';
+test('the alternative line chart is two real time series with a common date axis',()=>{
+ const chart=pairedTimeChart(rows,{focusDay:rows[0][0]});assert.equal((chart.match(/<polyline /g)||[]).length,2);assert.match(chart,/data-time-series="sun"/);assert.match(chart,/data-time-series="temp"/);assert.match(chart,/日付（上段・下段共通）/);assert.match(chart,/data-preserve-geometry/);for(const points of chart.matchAll(/points="([^"]+)"/g)){const xs=points[1].split(' ').map(p=>Number(p.split(',')[0]));assert.equal(xs.length,61);assert.ok(xs.every((x,i)=>!i||x>=xs[i-1]));}
+});
+test('all graph choices can be saved even when the current subject cannot render them',()=>{
+ const s=normalize({rows,origin:'sample'});for(const kind of ['bar','line','pie','histogram','scatter'])assert.deepEqual(normalize({...s,choices:[kind,kind,kind]}).choices,[kind,kind,kind]);
 });
