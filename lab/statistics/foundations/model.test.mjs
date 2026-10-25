@@ -31,6 +31,6 @@ test('proportions use actual month lengths and the threshold is inclusive',()=>{
 test('dates sort chronologically, impossible dates and invalid climate values are rejected',()=>{
  const r=weatherRows().slice(0,3).reverse();assert.equal(validateRows(r)[0][0],'2025-06-01');for(const row of [['2025-02-30',0,0,0],['2025-01-01',null,0,0],['2025-01-01',0,0,25],['2025-01-01',-1,0,0]])assert.throws(()=>validateRows([row,['2025-01-02',0,0,0]]));
 });
-test('graph normalization bounds axes and preserves graph choices without mutating observations',()=>{
- const rows=weatherRows(),before=JSON.stringify(rows),s=normalize({rows,month:'2025-06',field:'temp',base:1000,kind:'scatter',xField:'sun',proportion:'rate',rainThreshold:2});assert.equal(s.kind,'scatter');assert.equal(s.xField,'sun');assert.equal(s.proportion,'rate');assert.equal(s.rainThreshold,2);assert.ok(s.base<=18.6);assert.equal(JSON.stringify(rows),before);
+test('graph lesson migration preserves observations and removes unrelated period/field controls',()=>{
+ const rows=weatherRows(),before=JSON.stringify(rows),s=normalize({rows,month:'2025-06',field:'temp',base:1000,kind:'scatter',xField:'sun',origin:'user'});assert.deepEqual(s.rows,rows);assert.deepEqual(s.tasks,['compare','compare','share']);assert.deepEqual(s.choices,['bar','bar','pie']);assert.equal(s.lessonVersion,2);assert.equal(s.origin,'user');assert.equal(s.base,undefined);assert.equal(JSON.stringify(rows),before);
 });

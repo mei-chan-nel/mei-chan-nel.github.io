@@ -4,7 +4,7 @@ import {setupFullscreen} from '../fullscreen.mjs?v=20261025-reading-missing';
 import {clearFullscreenExplanations} from '../shared/fullscreen-layout.mjs?v=20261025-reading-missing';
 import {renderAcademicExplanation} from '../shared/explanation.mjs';
 import {fitWorkspaceCharts} from '../shared/chart-layout.mjs?v=20261025-reading-missing';
-const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=20261025-reading-missing`)).default,key=`study-atlas-statistics-${id}-v1`;
+const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-graph-choice':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
 let state=config.initial(),view=-1,draft=null,dirty=false,notice='';
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.version===1&&saved.id===id)state=config.normalize(saved.state);}catch{}
 const root=document.querySelector('#experiment'),tabs=document.querySelector('#view-tabs');
