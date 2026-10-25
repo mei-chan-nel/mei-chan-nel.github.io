@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-z-table";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-z-table";
+} from "../shared/ui.mjs?v=20261025-plain-copy";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-plain-copy";
 import {
   sum,
   mean,

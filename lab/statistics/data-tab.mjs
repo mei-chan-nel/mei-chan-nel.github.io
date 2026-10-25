@@ -1,14 +1,14 @@
-import { esc } from "./shared/ui.mjs?v=20261025-z-table";
-import { currentData } from "./shared/data-model.mjs?v=20261025-z-table";
+import { esc } from "./shared/ui.mjs?v=20261025-plain-copy";
+import { currentData } from "./shared/data-model.mjs?v=20261025-plain-copy";
 import {
   applyTableRows,
   numericTableColumn,
   tableConstraint,
-} from "./shared/table-data.mjs?v=20261025-z-table";
+} from "./shared/table-data.mjs?v=20261025-plain-copy";
 import {
   mountDataEditor,
   downloadCSV,
-} from "./data-editor.mjs?v=20261025-z-table";
+} from "./data-editor.mjs?v=20261025-plain-copy";
 import { asNumber } from "./shared/csv.mjs";
 
 // Align decimal positions inside a centered, fixed-width numeric block.

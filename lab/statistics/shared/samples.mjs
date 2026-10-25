@@ -3,11 +3,11 @@ import {
   dailyTemperatures,
   admissions,
   incomeQuintiles,
-} from "./public-data.mjs?v=20261025-z-table";
-import { aiFaceParticipants } from "../hypothesis-test/data.mjs?v=20261025-z-table";
-import { householdSeries } from "../time-series/data.mjs?v=20261025-z-table";
-import { publicDatasetInfo } from "./sources.mjs?v=20261025-z-table";
-import { applyData, currentData } from "./data-model.mjs?v=20261025-z-table";
+} from "./public-data.mjs?v=20261025-plain-copy";
+import { aiFaceParticipants } from "../hypothesis-test/data.mjs?v=20261025-plain-copy";
+import { householdSeries } from "../time-series/data.mjs?v=20261025-plain-copy";
+import { publicDatasetInfo } from "./sources.mjs?v=20261025-plain-copy";
+import { applyData, currentData } from "./data-model.mjs?v=20261025-plain-copy";
 export function freshSeed() {
   const bytes = new Uint32Array(1);
   globalThis.crypto.getRandomValues(bytes);

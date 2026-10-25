@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs?v=20261025-z-table";
+import { esc, table } from "../shared/ui.mjs?v=20261025-plain-copy";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261025-z-table";
+} from "./descriptive.mjs?v=20261025-plain-copy";
 
 const n = (value) =>
   value === null || value === undefined

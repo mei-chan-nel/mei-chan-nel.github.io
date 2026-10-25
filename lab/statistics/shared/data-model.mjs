@@ -2,17 +2,17 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261025-z-table";
+} from "../crosstab/records.mjs?v=20261025-plain-copy";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261025-z-table";
+import { population } from "../sampling/model.mjs?v=20261025-plain-copy";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261025-z-table";
+} from "../time-series/model.mjs?v=20261025-plain-copy";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-z-table";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-plain-copy";
 import { niceWidth } from "../histogram/model.mjs";
 export const dataKinds = {
   correlation: "pairs",

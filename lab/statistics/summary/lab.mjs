@@ -17,8 +17,8 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-z-table";
-import { readDataset } from "../shared/data.mjs?v=20261025-z-table";
+} from "../shared/ui.mjs?v=20261025-plain-copy";
+import { readDataset } from "../shared/data.mjs?v=20261025-plain-copy";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];
 const makePoints = (values) =>

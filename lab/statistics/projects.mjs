@@ -1,11 +1,11 @@
-import { renderSources } from "./shared/sources.mjs?v=20261025-z-table";
-import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261025-z-table";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261025-z-table";
+import { renderSources } from "./shared/sources.mjs?v=20261025-plain-copy";
+import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261025-plain-copy";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261025-plain-copy";
 import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-z-table";
-import { renderStepNavigation } from "./learning.mjs?v=20261025-z-table";
-import correlation from "./correlation/lab.mjs?v=20261025-z-table";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-z-table";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-plain-copy";
+import { renderStepNavigation } from "./learning.mjs?v=20261025-plain-copy";
+import correlation from "./correlation/lab.mjs?v=20261025-plain-copy";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-plain-copy";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
 let active = "data";

@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261025-z-table";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-z-table";
+import { esc } from "./shared/ui.mjs?v=20261025-plain-copy";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-plain-copy";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-z-table";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-z-table";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-z-table";
-import { sampleState } from "./shared/samples.mjs?v=20261025-z-table";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-z-table";
-import { readDataset } from "./shared/data.mjs?v=20261025-z-table";
+} from "./shared/data-model.mjs?v=20261025-plain-copy";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-plain-copy";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-plain-copy";
+import { sampleState } from "./shared/samples.mjs?v=20261025-plain-copy";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-plain-copy";
+import { readDataset } from "./shared/data.mjs?v=20261025-plain-copy";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-z-table";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-z-table";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-z-table";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-z-table";
-import { renderSources } from "./shared/sources.mjs?v=20261025-z-table";
+} from "./learning.mjs?v=20261025-plain-copy";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-plain-copy";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-plain-copy";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-plain-copy";
+import { renderSources } from "./shared/sources.mjs?v=20261025-plain-copy";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-z-table`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-plain-copy`))
   .default;
 const ui = {
   view: 0,
