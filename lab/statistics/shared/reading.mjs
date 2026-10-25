@@ -1,4 +1,4 @@
-import { esc } from "./ui.mjs?v=20261025-compact-test";
+import { esc } from "./ui.mjs?v=20261025-clear-test";
 
 const notes = {
   correlation: [
@@ -73,7 +73,7 @@ const notes = {
   ],
   "hypothesis-test": [
     ["ヒストグラムから始め、基準・仮説・有意水準を決めます。", "平均・標準誤差・t・p値を順に計算し、棄却の判断と実際の解釈を区別します。"],
-    ["帰無仮説が正しい世界と、対立仮説の側に平均がある世界を分けます。", "同じ棄却域で、誤判定・見逃し・検出力を段階的に確かめます。"],
+    ["2つの誤りを表で区別し、第1種、第2種の順に確かめます。", "人数などの計画比較は補足で試せます。"],
   ],
   lorenz: [
     [
@@ -265,7 +265,8 @@ const definitions = {
 };
 
 export function academicExplanation(id) {
-  return (definitions[id] || [])
+  const content = (definitions[id] || [])
     .map(([title, text]) => `<h3>${esc(title)}</h3><p>${esc(text)}</p>`)
     .join("");
+  return content + (id === 'hypothesis-test' ? '<h3>説明の構成の参考</h3><p>仮説を仮定し、今回以上のずれが起こる確率を求めて判断する流れと、2種類の過誤の整理を参考にしています。今回の母標準偏差が未知のデータにはt検定を使います。</p><p><a href="https://mathconnect.tokyo-shoseki.co.jp/hitokufu-high-school/20240708-03" target="_blank" rel="noopener">東京書籍：仮説検定における帰無仮説の判断</a> ／ <a href="https://mathconnect.tokyo-shoseki.co.jp/hitokufu-high-school/20241031-01" target="_blank" rel="noopener">東京書籍：仮説検定における過誤の扱い</a></p>' : '');
 }

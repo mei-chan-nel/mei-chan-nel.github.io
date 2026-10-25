@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs?v=20261025-compact-test";
+import { esc } from "./shared/ui.mjs?v=20261025-clear-test";
 const step = (title, level, purpose, action) => ({
   title,
   level,
@@ -122,7 +122,7 @@ export const learning = {
   ],
   "hypothesis-test": [
     step("仮説検定を行う", "基本＋発展", "データの分布から仮説・計算・判断・解釈まで、正式な手順を段階的にたどる。", "各段階の「次へ」で進み、決めること・計算すること・分かったことを確認します。"),
-    step("判断の誤り", "発展", "帰無仮説が正しい場合と違う場合を分け、2種類の誤りを段階的に理解する。", "同じ棄却域を2つの世界に当てはめ、人数と有意水準による変化を確認します。"),
+    step("判断の誤り", "発展", "帰無仮説が正しい場合と違う場合を分け、2種類の誤りを段階的に理解する。", "2つの誤りを表で区別し、第1種、第2種の順に具体例で確かめます。"),
   ],
   lorenz: [
     step(

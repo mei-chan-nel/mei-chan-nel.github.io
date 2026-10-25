@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261025-compact-test";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-compact-test";
+import { esc } from "./shared/ui.mjs?v=20261025-clear-test";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-clear-test";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-compact-test";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-compact-test";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-compact-test";
-import { sampleState } from "./shared/samples.mjs?v=20261025-compact-test";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-compact-test";
-import { readDataset } from "./shared/data.mjs?v=20261025-compact-test";
+} from "./shared/data-model.mjs?v=20261025-clear-test";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-clear-test";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-clear-test";
+import { sampleState } from "./shared/samples.mjs?v=20261025-clear-test";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-clear-test";
+import { readDataset } from "./shared/data.mjs?v=20261025-clear-test";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-compact-test";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-compact-test";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-compact-test";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-compact-test";
-import { renderSources } from "./shared/sources.mjs?v=20261025-compact-test";
+} from "./learning.mjs?v=20261025-clear-test";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-clear-test";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-clear-test";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-clear-test";
+import { renderSources } from "./shared/sources.mjs?v=20261025-clear-test";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-compact-test`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-clear-test`))
   .default;
 const ui = {
   view: 0,

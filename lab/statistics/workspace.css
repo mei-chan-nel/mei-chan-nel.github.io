@@ -2909,3 +2909,30 @@ html.statistics-immersive body {
   .hyp-setup-grid,.hyp-formula-grid { grid-template-columns:1fr; gap:.5rem; }
   .hyp-wizard-navigation .hyp-restart { display:none; }
 }
+
+/* Derivations and error examples use the same color vocabulary as the plots. */
+.hyp-sd-steps,.hyp-reasoning { display:grid; gap:8px; padding:0; margin:.75rem 0; list-style:none; counter-reset:lesson; }
+.hyp-sd-steps { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.hyp-sd-steps li,.hyp-reasoning li { min-width:0; padding:8px 10px; background:var(--paper); border:1px solid var(--chart-grid); border-radius:6px; }
+.hyp-sd-steps li > span,.hyp-reasoning li > span { display:block; margin-top:4px; font-variant-numeric:tabular-nums; }
+.hyp-reasoning li::before { counter-increment:lesson; content:counter(lesson)". "; font-weight:700; color:var(--chart-primary); }
+.hyp-error-pair { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:1rem 0; }
+.hyp-error-pair > div { border-left:3px solid var(--chart-secondary); padding:.6rem 1rem; background:var(--paper); }
+.hyp-error-story { text-align:center; margin:.75rem 0; }
+.hyp-error-story > span { color:var(--chart-reference); }
+.hyp-probability-bar { height:28px; display:flex; border:1px solid var(--chart-grid); background:var(--chart-primary-pale); margin:.75rem 0 .25rem; }
+.hyp-probability-bar > span { display:block; height:100%; background:var(--chart-secondary); }
+.hyp-bar-caption { color:var(--chart-muted); font-size:.85rem; }
+.statistics-fullscreen .hyp-guide .hyp-short-chart[data-screen-chart],
+.statistics-fullscreen .hyp-guide .hyp-interval-chart[data-screen-chart] { height:200px !important; min-height:190px !important; }
+.statistics-fullscreen .hyp-sd-steps { gap:6px; margin:6px 0; font-size:.72rem; }
+.statistics-fullscreen .hyp-sd-steps li { padding:5px 7px; }
+.statistics-fullscreen .hyp-reasoning { gap:4px; margin:4px 0; font-size:.78rem; }
+.statistics-fullscreen .hyp-reasoning li { padding:4px 8px; }
+.statistics-fullscreen .hyp-reasoning li > span { display:inline; margin:0 0 0 6px; }
+.statistics-fullscreen .hyp-error-story { margin:6px 0; }
+@media(max-width:760px) { .hyp-sd-steps,.hyp-error-pair { grid-template-columns:1fr 1fr; } }
+@media(max-width:460px) { .hyp-error-pair { grid-template-columns:1fr; } }
+/* Leave room for the new derivation and the null-assumption question. */
+.statistics-fullscreen .hyp-test[data-hyp-step="3"] .stat-chart[data-screen-chart] { height:clamp(180px,calc(100dvh - 380px),280px) !important; min-height:180px !important; }
+.statistics-fullscreen .hyp-test[data-hyp-step="5"] .stat-chart[data-screen-chart] { height:clamp(180px,calc(100dvh - 400px),280px) !important; min-height:180px !important; }

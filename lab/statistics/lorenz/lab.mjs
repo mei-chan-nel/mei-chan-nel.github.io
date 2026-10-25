@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-compact-test";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-compact-test";
+} from "../shared/ui.mjs?v=20261025-clear-test";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-clear-test";
 import {
   sum,
   mean,

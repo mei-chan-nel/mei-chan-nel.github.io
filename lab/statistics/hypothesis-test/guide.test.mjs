@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import config from './lab.mjs';
 import {normalizeGuide,hypothesisText} from './guide.mjs';
-import {scoreBins} from './charts.mjs';
+import {scoreBins,scoreHistogram} from './charts.mjs';
 import {applyData,currentData} from '../shared/data-model.mjs';
 import {sampleState} from '../shared/samples.mjs';
 import {validateDocument} from '../shared/validation.mjs';
@@ -35,4 +35,18 @@ test('histogram boundaries are half-open except 100 percent and all participants
  assert.equal(scoreBins([.3],5)[6].count,1);
  assert.equal(scoreBins([1],5)[19].count,1);
  assert.throws(()=>scoreBins([.3],7));
+});
+
+test('older five-step error journeys migrate without changing observations or settings',()=>{
+ for(const errorStep of [3,4]) {
+  const old={...config.initial(),errorStep,reference:.6,alpha:.01};delete old.probabilityReady;
+  const next=normalizeGuide(old);assert.equal(next.errorStep,2);assert.equal(next.probabilityReady,false);
+  assert.deepEqual(next.participants,old.participants);assert.equal(next.reference,.6);assert.equal(next.alpha,.01);assert.equal(old.errorStep,errorStep);
+ }
+});
+test('mean histogram disables selection and names both average reference lines',()=>{
+ const markup=scoreHistogram([.3,.5,.7],{mean:.5,reference:.6,selected:1,interactive:false});
+ assert.doesNotMatch(markup,/role="button"|tabindex|data-hyp-bin="|選んだ範囲/);
+ assert.match(markup,/今回の標本平均/);assert.match(markup,/帰無仮説の平均/);assert.match(markup,/stroke-dasharray="4 4"/);
+ assert.doesNotMatch(markup,/--chart-neutral/);
 });

@@ -2,17 +2,17 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261025-compact-test";
+} from "../crosstab/records.mjs?v=20261025-clear-test";
 import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261025-compact-test";
+import { population } from "../sampling/model.mjs?v=20261025-clear-test";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261025-compact-test";
+} from "../time-series/model.mjs?v=20261025-clear-test";
 import { observationValues } from "../probability/model.mjs";
 import { asNumber } from "./csv.mjs";
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-compact-test";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-clear-test";
 import { niceWidth } from "../histogram/model.mjs";
 export const dataKinds = {
   correlation: "pairs",
@@ -399,7 +399,7 @@ export function applyData(
     }));
     participantScores(participants);
     s.participants = participants;
-    s.testStep = 0; s.errorStep = 0; s.selectedBin = -1;
+    s.testStep = 0; s.errorStep = 0; s.selectedBin = -1; s.probabilityReady = false;
     s.dataInfo = { columns: headers.slice(0, 3) };
     s.source = name;
   } else

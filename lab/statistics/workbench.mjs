@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261025-compact-test";
-import { readingNotes } from "./shared/reading.mjs?v=20261025-compact-test";
+import { learningViews } from "./learning.mjs?v=20261025-clear-test";
+import { readingNotes } from "./shared/reading.mjs?v=20261025-clear-test";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (

@@ -1,4 +1,4 @@
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-compact-test";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-clear-test";
 export function validateState(value, template, depth = 0, key = "state") {
   if (depth > 14) throw Error("データ構造が深すぎます。");
   if (value === null) {
@@ -314,8 +314,8 @@ function domain(s, id) {
       typeof s.measureLabel === "string" && s.measureLabel.trim().length > 0 && s.measureLabel.length <= 40 &&
       typeof s.referenceReason === "string" && s.referenceReason.length <= 200 &&
       Number.isInteger(s.testStep) && s.testStep >= 0 && s.testStep <= 7 &&
-      Number.isInteger(s.errorStep) && s.errorStep >= 0 && s.errorStep <= 4 &&
-      [5, 10, 20].includes(s.binWidth) && Number.isInteger(s.selectedBin) && s.selectedBin >= -1 && s.selectedBin < 100/s.binWidth &&
+      Number.isInteger(s.errorStep) && s.errorStep >= 0 && s.errorStep <= 2 &&
+      typeof s.probabilityReady === "boolean" && [5, 10, 20].includes(s.binWidth) && Number.isInteger(s.selectedBin) && s.selectedBin >= -1 && s.selectedBin < 100/s.binWidth &&
       ["data", "custom"].includes(s.sigmaMode) && Number.isFinite(s.planningSD) && s.planningSD > 0 && s.planningSD <= 1,
       "基準・検定の方向・学習段階・計画の設定を確認してください。",
     );
