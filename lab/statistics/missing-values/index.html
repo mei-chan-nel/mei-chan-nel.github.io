@@ -15,8 +15,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"欠損値とデータの扱い","item":"https://mei-chan-nel.com/lab/statistics/missing-values/"}]}</script>
 <link rel="stylesheet" href="./../statistics.css" />
 <link rel="stylesheet" href="./../workspace.css?v=20261025-final-polish" />
-<link rel="stylesheet" href="./../foundations/foundations.css?v=20261025-distributions" />
-<script type="module" src="./../foundations/app.mjs?v=20261025-reading-missing"></script>
+<link rel="stylesheet" href="./../foundations/foundations.css?v=20261025-missing-comparison" />
+<script type="module" src="./../foundations/app.mjs?v=20261025-missing-comparison"></script>
 <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
 <meta property="og:image:type" content="image/png" />
@@ -37,7 +37,7 @@
 <a href="../../../LectureNote/">講義ノート</a>
 <a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
 <main id="main-content" class="lab-shell lab-content-page stat-page">
-<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>欠損値とデータの扱い</h1><p class="workspace-purpose">実データに欠損を作り、集計・補完による平均や分散の変化を調べる。</p><p class="workspace-intro">東京の日降水量の一部を隠し、0と欠損の違い、集計方法、欠け方による偏りを調べます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="graph-reading" >グラフの選び方と読み取り</option><option value="missing-values" selected>欠損値とデータの扱い</option><option value="histogram" >データの分布</option><option value="crosstab" >クロス集計</option><option value="correlation" >散布図と相関・回帰</option><option value="time-series" >時系列データの分析</option><option value="sampling" >標本調査と推定</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="projects" >横断分析課題</option></select></label></header>
+<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>欠損値とデータの扱い</h1><p class="workspace-purpose">実データに欠損を作り、集計・補完による平均や分散の変化を調べる。</p><p class="workspace-intro">データタブで欠損を決め、補完方法による平均・分散・日ごとの値の違いを調べます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="graph-reading" >グラフの選び方と読み取り</option><option value="missing-values" selected>欠損値とデータの扱い</option><option value="histogram" >データの分布</option><option value="crosstab" >クロス集計</option><option value="correlation" >散布図と相関・回帰</option><option value="time-series" >時系列データの分析</option><option value="sampling" >標本調査と推定</option><option value="hypothesis-test" >統計的な判断と仮説検定</option><option value="projects" >横断分析課題</option></select></label></header>
 <section id="statistics-workspace" class="statistics-workspace" aria-label="欠損値とデータの扱いの操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">欠損値とデータの扱い</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
 <nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
 <p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"><p role="status">データを読み込んでいます…</p></div>

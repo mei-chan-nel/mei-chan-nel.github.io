@@ -21,13 +21,37 @@ export function stats(values) {
   const sum=values.reduce((a,b)=>a+b,0),mean=sum/n;
   return {n,sum,mean,variance:values.reduce((a,b)=>a+(b-mean)**2,0)/n};
 }
+export const METHODS=[
+ ['drop','有効な値だけ','欠損した日は集計から外し、値がある日数を分母にします。'],
+ ['zero','0で補完','欠損を0mmとして集計します。実際に0mmだった日とは区別して表示します。'],
+ ['mean','平均値で補完','観測された値の平均で埋めます。平均は保たれ、分散は小さくなります。'],
+ ['median','中央値で補完','観測された値を小さい順に並べ、中央の値で埋めます。大きな値の影響を受けにくい方法です。'],
+ ['previous','直前の値で補完','表の順に、直前に観測された値を引き継ぎます。先頭から続く欠損は残します。'],
+ ['linear','線形補間','前後の観測値を日付に沿って直線でつなぎます。前後を観測値で挟めない欠損は残します。'],
+];
+function timeCoordinates(rows){
+ const dates=rows.map(r=>{const day=r[0];if(!/^\d{4}-\d{2}-\d{2}$/.test(day))return NaN;const at=Date.parse(day);return Number.isFinite(at)&&new Date(at).toISOString().slice(0,10)===day?at:NaN;});
+ return dates.every((v,i)=>Number.isFinite(v)&&(!i||v>dates[i-1]))?dates:null;
+}
 export function processMissing(rows,method='drop') {
-  const observed=rows.map(r=>r[1]).filter(v=>v!==null),base=stats(observed);
-  const values=method==='zero'?rows.map(r=>r[1]??0):method==='mean'?base.n?rows.map(r=>r[1]??base.mean):[]:observed;
-  return {...stats(values),observed:base,missing:rows.length-observed.length,values,filled:rows.map(r=>r[1]===null?(method==='zero'?0:method==='mean'?base.mean:null):r[1])};
+ const observed=rows.map(r=>r[1]).filter(v=>v!==null),base=stats(observed),missing=rows.length-observed.length;
+ let filled=rows.map(r=>r[1]),available=true,reason='';
+ if(method==='zero')filled=filled.map(v=>v??0);
+ else if(method==='mean'||method==='median'){
+  if(base.n){const ordered=[...observed].sort((a,b)=>a-b),mid=Math.floor(ordered.length/2),value=method==='mean'?base.mean:ordered.length%2?ordered[mid]:(ordered[mid-1]+ordered[mid])/2;filled=filled.map(v=>v??value);}
+  else{available=false;reason='補完に使える観測値がありません。';}
+ }else if(method==='previous'){
+  let prior=null;filled=filled.map(v=>{if(v!==null)prior=v;return v??prior;});
+ }else if(method==='linear'&&missing){
+  const times=timeCoordinates(rows);
+  if(!times){available=false;reason='線形補間には、YYYY-MM-DDの日付を古い順に並べたデータが必要です。';}
+  else{let left=-1;for(let i=0;i<filled.length;i++){if(rows[i][1]===null)continue;if(left>=0)for(let j=left+1;j<i;j++)filled[j]=rows[left][1]+(rows[i][1]-rows[left][1])*(times[j]-times[left])/(times[i]-times[left]);left=i;}}
+ }
+ const values=filled.filter(v=>v!==null),remaining=filled.length-values.length;
+ return {...stats(values),observed:base,missing,remaining,imputed:missing-remaining,available,reason,values,filled};
 }
 export function normalize(state) {
-  const rows=validateRows(state.rows),s={rows,method:['drop','zero','mean'].includes(state.method)?state.method:'drop',pattern:['none','random','low','high','manual'].includes(state.pattern)?state.pattern:'random',origin:state.origin==='sample'?'sample':'user',truth:null};
+  const rows=validateRows(state.rows),s={rows,method:METHODS.some(([id])=>id===state.method)?state.method:'drop',pattern:['none','random','low','high','manual'].includes(state.pattern)?state.pattern:'random',origin:state.origin==='sample'?'sample':'user',truth:null};
   if(s.origin==='sample'&&Array.isArray(state.truth)&&state.truth.length===rows.length&&state.truth.every(v=>Number.isFinite(v)&&v>=0&&v<=2000))s.truth=[...state.truth];
   return s;
 }
