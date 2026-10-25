@@ -29,7 +29,7 @@ async function save(slug, body, scripts = []) {
       slug
         ? "../workspace.css?v=20261025-final-polish"
         : "workspace.css?v=20261025-final-polish",
-      ...(["graph-reading", "missing-values"].includes(slug) ? ["../foundations/foundations.css?v=20261025-graph-reasons"] : []),
+      ...(["graph-reading", "missing-values"].includes(slug) ? ["../foundations/foundations.css?v=20261025-rain-series"] : []),
     ],
     scripts,
   });
@@ -63,7 +63,7 @@ async function save(slug, body, scripts = []) {
   await writeFile(url, html);
 }
 const homeGuides = {
-  "graph-reading": ["気温の変化、雨と日照の内訳、日照と気温の関係を題材ごとのタブで比べ、別のグラフでは何が読み取りにくいかを確かめます。", "棒は量の比較、折れ線は時間変化、散布図は2つの量の関係、ヒストグラムは分布、円グラフは全体の内訳を表します。"],
+  "graph-reading": ["気温の変化、降水量の内訳、日照と気温の関係を題材ごとのタブで比べ、別のグラフでは何が読み取りにくいかを確かめます。", "棒は量の比較、折れ線は時間変化、散布図は2つの量の関係、ヒストグラムは分布、円グラフは全体の内訳を表します。"],
   "missing-values": ["実測の降水量の一部を隠し、有効な値だけ・0埋め・平均補完の結果や、欠け方による偏りを比べます。", "欠損値は、値が0なのではなく分からない状態です。平均の分母になる件数を確かめ、集計方法による平均・分散の違いを読み取ります。"],
   correlation: [
     '点を動かし、相関係数や回帰直線、予測値がどう変わるかを調べます。',
@@ -115,7 +115,7 @@ for (const [id, title] of labs) {
 ${academic('<div id="explanation-body"></div>')}
 <div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    [id === "graph-reading" ? "../foundations/app.mjs?v=20261025-graph-reasons" : id === "missing-values" ? "../foundations/app.mjs?v=20261025-reading-missing" : "../app.mjs?v=20261025-final-polish"],
+    [id === "graph-reading" ? "../foundations/app.mjs?v=20261025-rain-series" : id === "missing-values" ? "../foundations/app.mjs?v=20261025-reading-missing" : "../app.mjs?v=20261025-final-polish"],
   );
 }
 await save(

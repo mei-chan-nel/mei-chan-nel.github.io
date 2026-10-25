@@ -92,3 +92,6 @@
 [data-stat-lab="graph-reading"] .statistics-fullscreen .graph-reading-display { flex:1 1 0; box-sizing:border-box; }
 [data-stat-lab="graph-reading"] .statistics-fullscreen .graph-no-chart { align-items:center; padding:16px; }
 [data-stat-lab="graph-reading"] .statistics-fullscreen .graph-order-controls button { padding:3px 8px; min-height:26px; font-size:.7rem; }
+
+.graph-pair-layout { align-items:center; padding-top:6px; border-top:1px solid var(--chart-grid); }
+.graph-pair-layout > span { font-size:.78rem; font-weight:600; margin-right:4px; }

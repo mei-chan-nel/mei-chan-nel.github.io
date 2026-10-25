@@ -1,10 +1,10 @@
 import {esc} from '../shared/ui.mjs?v=20261025-reading-missing';
 import {parseDelimited,serializeCSV} from '../shared/csv.mjs';
-import {setupFullscreen} from '../fullscreen.mjs?v=20261025-graph-reasons';
+import {setupFullscreen} from '../fullscreen.mjs?v=20261025-rain-series';
 import {clearFullscreenExplanations} from '../shared/fullscreen-layout.mjs?v=20261025-reading-missing';
 import {renderAcademicExplanation} from '../shared/explanation.mjs';
-import {fitWorkspaceCharts} from '../shared/chart-layout.mjs?v=20261025-graph-reasons';
-const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-graph-reasons':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
+import {fitWorkspaceCharts} from '../shared/chart-layout.mjs?v=20261025-rain-series';
+const id=document.body.dataset.statLab,config=(await import(`../${id}/lab.mjs?v=${id==='graph-reading'?'20261025-rain-series':'20261025-reading-missing'}`)).default,key=`study-atlas-statistics-${id}-v1`;
 let state=config.initial(),view=-1,draft=null,dirty=false,notice='',lastRenderedView=null;
 try{const saved=JSON.parse(localStorage.getItem(key));if(saved?.version===1&&saved.id===id)state=config.normalize(saved.state);}catch{}
 const root=document.querySelector('#experiment'),tabs=document.querySelector('#view-tabs');
@@ -13,7 +13,7 @@ const fail=error=>{const box=document.querySelector('#foundation-error');if(box)
 function update(patch){try{state=config.normalize({...state,...patch});draft=null;dirty=false;persist();draw();}catch(e){fail(e);}}
 function applyRows(rows){state=config.normalize({...state,rows:config.validateRows(rows),origin:'user',truth:null});draft=null;dirty=false;persist();}
 function commit(){if(!dirty)return true;try{applyRows(draft);return true;}catch(e){fail(e);return false;}}
-function go(next){if(view===-1&&!commit())return;view=next;notice='';draw();}
+function go(next){if(view===-1&&!commit())return;if(next>=0&&config.enterView){state=config.enterView(state,next);persist();}view=next;notice='';draw();}
 function dataView(){
  if(!draft)draft=state.rows.map(r=>[...r]);
  root.innerHTML=`<section class="data-view"><div class="data-view-heading"><div><h2>${esc(state.origin==='sample'?config.dataTitle:'入力したデータ')}</h2><p>${state.origin==='sample'?'気象庁の実データ'+(id==='missing-values'?'に欠損を作る実験':''):'入力したデータ'} · ${draft.length}行</p></div><div class="actions"><button id="use-sample" type="button">実データに戻す</button><button id="download-csv" type="button">CSVを保存</button><button id="upload-csv" type="button">CSVを読み込む</button></div></div><p>${esc(config.dataHint)}</p><p id="foundation-error" role="alert" class="error" hidden></p><p role="status">${esc(notice)}</p><div class="table-scroll foundation-data-table"><table class="stat-table"><thead><tr>${config.headers.map(h=>`<th scope="col">${esc(h)}</th>`).join('')}<th scope="col">行の操作</th></tr></thead><tbody>${draft.map((r,i)=>`<tr>${r.map((v,c)=>`<td><input id="data-cell-${i}-${c}" data-row="${i}" data-col="${c}" type="${c===0?'text':'number'}" ${c>0?'step="any"':''} value="${esc(v)}" aria-label="${i+1}行目 ${esc(config.headers[c])}" ${id==='missing-values'&&c===1?'placeholder="欠損"':''}></td>`).join('')}<td><button type="button" data-delete="${i}" aria-label="${i+1}行目を削除">削除</button></td></tr>`).join('')}</tbody></table></div><div class="actions"><button id="add-data-row" type="button">行を追加</button><button id="apply-data-edits" type="button">表の変更を反映</button><button id="discard-data-edits" type="button">編集を取り消す</button><button id="analyze-data" class="primary" type="button">${esc(config.views[0].title)}へ →</button></div><section id="data-upload" class="panel" hidden><h3>CSV・表の貼り付け</h3><p>先頭行は項目名です。</p><label class="control"><span>UTF-8のCSVファイル</span><input id="csv-file" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label><label class="control" for="csv-text"><span>CSV・TSVを貼り付ける</span><textarea id="csv-text" rows="6"></textarea></label><button id="csv-apply" type="button">読み込む</button></section></section>`;

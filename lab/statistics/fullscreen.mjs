@@ -1,4 +1,4 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-graph-reasons";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-rain-series";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
