@@ -1,8 +1,8 @@
-import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-plain-copy';
-import { normalDensity } from './normal-model.mjs?v=20261025-plain-copy';
-import { rateText } from './guide.mjs?v=20261025-plain-copy';
+import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-final-polish';
+import { normalDensity, normalUpper } from './normal-model.mjs?v=20261025-final-polish';
+import { rateText } from './guide.mjs?v=20261025-final-polish';
 import { fmt } from '../shared/math.mjs';
-import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-plain-copy';
+import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-final-polish';
 const pct = (v,d=1) => fmt(v*100,d)+'%';
 function niceStep(value) {
   const power=10**Math.floor(Math.log10(value || 1)), scaled=value/power;
@@ -35,13 +35,13 @@ function vertical(a,value,color,dash='') {
   return `<line x1="${a.x(value)}" x2="${a.x(value)}" y1="${a.top}" y2="${a.bottom}" stroke="${color}" stroke-width="2" ${dash?`stroke-dasharray="${dash}"`:''}/>`;
 }
 export function scoreBins(scores, width=5) {
-  if(![5,10,20].includes(width))throw Error('階級幅を確認してください。');
-  const counts=Array(100/width).fill(0);
+  if(!Number.isInteger(width)||width<1||width>10)throw Error('階級幅を確認してください。');
+  const counts=Array(Math.ceil(100/width)).fill(0);
   for(const v of scores){const q=v*100/width;counts[Math.min(counts.length-1,Math.floor(q+8*Number.EPSILON*Math.max(1,q)))]++;}
   return counts.map((count,i)=>({count,lo:i*width,hi:(i+1)*width,last:i===counts.length-1}));
 }
 export function scoreHistogram(scores,{width=5,selected=-1,mean=null,reference=null,label='正答率',interactive=true}={}) {
-  const bins=scoreBins(scores,width),a=plotAxes(0,100,Math.max(...bins.map(b=>b.count),1)*1.12,`1人ごとの${label}（%）`,'人数（人）',300,true,mean!==null?65:34);
+  const bins=scoreBins(scores,width),a=plotAxes(0,bins.at(-1).hi,Math.max(...bins.map(b=>b.count),1)*1.12,`1人ごとの${label}（%）`,'人数（人）',300,true,mean!==null?65:34);
   const bars=bins.map((b,i)=>`<g><title>${b.lo}%以上${b.hi}%${b.last?'以下':'未満'}：${b.count}人</title><rect id="hyp-bin-${i}" ${interactive?`role="button" tabindex="0" aria-label="${b.lo}%以上${b.hi}%${b.last?'以下':'未満'}、${b.count}人" aria-pressed="${i===selected}" data-hyp-bin="${i}"`: ''} data-hyp-bin-count="${b.count}" x="${a.x(b.lo)+1}" y="${a.y(b.count)}" width="${a.x(b.hi)-a.x(b.lo)-2}" height="${a.y(0)-a.y(b.count)}" fill="var(${interactive&&i===selected?'--chart-secondary':'--chart-primary'})"/></g>`).join('');
   let content=a.markup+bars;
   if(reference!==null)content+=vertical(a,reference*100,'var(--chart-reference)','4 4');
@@ -50,7 +50,7 @@ export function scoreHistogram(scores,{width=5,selected=-1,mean=null,reference=n
     const left=mean<=reference;
     content+=`<text x="${a.x(mean*100)+(left?-6:6)}" y="42" text-anchor="${a.x(mean*100)<220?'start':a.x(mean*100)>550?'end':left?'end':'start'}" style="fill:var(--chart-secondary-dark)">今回の標本平均 ${rateText(mean)}</text><text x="${a.x(reference*100)+(left?6:-6)}" y="58" text-anchor="${a.x(reference*100)<220?'start':a.x(reference*100)>550?'end':left?'start':'end'}" style="fill:var(--chart-reference)">帰無仮説の平均 ${rateText(reference)}</text>`;
   }
-  return svg(content,`1人ごとの${label}を幅${width}ポイントでまとめたヒストグラム。棒の高さは人数。`,760,300)+`<div class="legend">${chartKey(`1人ごとの${label}`,'var(--chart-primary)','bar')}${interactive&&selected>=0?chartKey('選んだ範囲','var(--chart-secondary)','bar'):''}${reference!==null?chartKey(`帰無仮説の平均 ${rateText(reference)}`,'var(--chart-reference)','line-dashed'):''}${mean!==null?chartKey(`標本平均 ${pct(mean,2)}`,'var(--chart-secondary-dark)','line'):''}</div>`;
+  return svg(content,`1人ごとの${label}を階級幅${width}でまとめたヒストグラム。棒の高さは人数。`,760,300)+`<div class="legend">${chartKey(`1人ごとの${label}`,'var(--chart-primary)','bar')}${interactive&&selected>=0?chartKey('選んだ範囲','var(--chart-secondary)','bar'):''}${reference!==null?chartKey(`帰無仮説の平均 ${rateText(reference)}`,'var(--chart-reference)','line-dashed'):''}${mean!==null?chartKey(`標本平均 ${pct(mean,2)}`,'var(--chart-secondary-dark)','line'):''}</div>`;
 }
 export const rejectionRanges = test => [
   ...(Number.isFinite(test.acceptance[0])?[[-Infinity,test.acceptance[0]]]:[]),
@@ -126,17 +126,29 @@ export function planningChart(plan,{world='both',shade='missed',label='正答率
 
 export function normalChart(rule,{observed=false,reading=false}={}) {
   const shown=observed&&Number.isFinite(rule.z)?rule.z:0,span=Math.max(4,Math.min(7,Math.ceil(Math.abs(shown))),Math.abs(rule.critical)*1.3),height=250;
-  const x=v=>52+(v+span)/(2*span)*684,y=v=>195-v/normalDensity(0)*153;
+  const x=v=>52+(v+span)/(2*span)*684,y=v=>195-v/normalDensity(0)*153,c=Math.abs(rule.critical);
   const a={lo:-span,hi:span,x,y,top:32,bottom:195};
-  let content=`<text x="52" y="18">標準正規分布 N(0,1)</text><line class="axis" x1="52" x2="736" y1="195" y2="195"/>`;
-  if(reading)content+=area(a,normalDensity,0,Math.abs(rule.critical),'var(--chart-primary)',.25);
-  for(const [lo,hi] of rejectionRanges(rule))content+=area(a,normalDensity,lo,hi,'var(--chart-purple)',.3);
-  content+=polyline(Array.from({length:301},(_,i)=>{const z=-span+2*span*i/300;return[x(z),y(normalDensity(z))];}),'var(--chart-primary)');
-  const labels=[0,...rule.acceptance.filter(Number.isFinite)];
-  for(const z of [...new Set(labels)]) {
-    content+=`<line x1="${x(z)}" x2="${x(z)}" y1="32" y2="195" stroke="var(${z===0?'--chart-reference':'--chart-purple'})" stroke-width="${z===0?1:2}" stroke-dasharray="4 4"/><text x="${x(z)}" y="216" text-anchor="middle">${Number(z.toFixed(3))}</text>`;
+  const areaText=v=>v>0&&v<.00005?'0.0001未満':String(Number(v.toFixed(4)));
+  const badge=(value,left,top,color)=>{
+    const text=areaText(value),width=Math.max(64,text.length*8+18),at=Math.max(52,Math.min(736-width,left));
+    return `<g class="hyp-area-label" data-area-value="${value}"><rect x="${at}" y="${top}" width="${width}" height="26" rx="5" fill="var(--chart-${color}-pale)" stroke="var(--chart-${color})"/><text x="${at+width/2}" y="${top+18}" text-anchor="middle" style="fill:var(--chart-text);font-size:14px;font-weight:700">${text}</text></g>`;
+  };
+  let content=`<text x="52" y="18">標準正規分布 N(0,1)</text><line class="axis" x1="52" x2="736" y1="195" y2="195"/>`,labels;
+  if(reading) {
+    content+=`<g data-normal-area="table">${area(a,normalDensity,0,c,'var(--chart-primary)',.25)}</g><g data-normal-area="tail">${area(a,normalDensity,c,span,'var(--chart-purple)',.3)}</g>`;
+    labels=[0,c];
+  }else {
+    for(const [lo,hi] of rejectionRanges(rule))content+=`<g data-normal-rejection="${hi===Infinity?'right':'left'}">${area(a,normalDensity,lo,hi,'var(--chart-purple)',.3)}</g>`;
+    labels=[0,...rule.acceptance.filter(Number.isFinite)];
   }
-  if(observed){const clipped=Math.max(-span,Math.min(span,shown));content+=`<line x1="${x(clipped)}" x2="${x(clipped)}" y1="40" y2="195" stroke="var(--chart-secondary-dark)" stroke-width="3"/><text x="${x(clipped)+(shown<0?7:-7)}" y="36" text-anchor="${shown<0?'start':'end'}" style="fill:var(--chart-secondary-dark)">今回のZ ${fmt(shown,2)}${Math.abs(shown)>span?'（範囲外）':''}</text>`;}
+  content+=polyline(Array.from({length:301},(_,i)=>{const z=-span+2*span*i/300;return[x(z),y(normalDensity(z))];}),'var(--chart-primary)');
+  for(const z of [...new Set(labels)])content+=`<line x1="${x(z)}" x2="${x(z)}" y1="32" y2="195" stroke="var(${z===0?'--chart-reference':'--chart-purple'})" stroke-width="${z===0?1:2}" stroke-dasharray="4 4"/><text x="${x(z)}" y="216" text-anchor="middle">${Number(z.toFixed(3))}</text>`;
+  if(reading){const tail=normalUpper(c);content+=badge(.5-tail,x(c/2)-32,142,'primary')+badge(tail,x(c)+12,166,'purple');}
+  if(observed) {
+    const at=x(Math.max(-span,Math.min(span,shown))),anchor=at<130?'start':at>650?'end':'middle';
+    content+=`<g data-observed-z-arrow="${shown}" style="color:var(--chart-secondary-dark)"><path d="M${at},162V190 M${at-6},184L${at},190L${at+6},184" fill="none" stroke="var(--chart-secondary-dark)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><text x="${at}" y="153" text-anchor="${anchor}" style="fill:var(--chart-secondary-dark);font-weight:700">Z = ${fmt(shown,2)}${Math.abs(shown)>span?'（範囲外）':''}</text></g>`;
+  }
   content+='<text x="394" y="242" text-anchor="middle">平均のずれを、標準誤差の個数で表した値（Z）</text>';
-  return svg(content,`標準正規分布。紫は帰無仮説を棄却する範囲。${reading?'緑は正規分布表で読む0から境目までの面積。':''}${observed?'橙の線は今回のZ。':''}`,760,height)+`<div class="legend">${chartKey('標準正規分布','var(--chart-primary)','line')}${reading?chartKey('表で読む0から境目まで','var(--chart-primary)','bar'):''}${chartKey('棄却域','var(--chart-purple)','bar')}${observed?chartKey('今回のZ','var(--chart-secondary-dark)','line'):''}</div>`;
+  const meaning=reading?'右半分の緑は0から境目まで、紫はその先の面積。':'紫は帰無仮説を棄却する範囲。';
+  return svg(content,`標準正規分布。${meaning}${observed?'橙の下向き矢印は今回のZ。':''}`,760,height)+`<div class="legend">${chartKey('標準正規分布','var(--chart-primary)','line')}${reading?chartKey('0から境目までの面積','var(--chart-primary)','bar'):''}${chartKey(reading?'端の面積':'棄却域','var(--chart-purple)','bar')}${observed?'<span class="hyp-arrow-key"><b aria-hidden="true">↓</b> 今回のZ</span>':''}</div>`;
 }

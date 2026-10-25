@@ -1,6 +1,6 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-plain-copy";
-import { readDataset } from "../shared/data.mjs?v=20261025-plain-copy";
-import { render } from "./view.mjs?v=20261025-plain-copy";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-final-polish";
+import { readDataset } from "../shared/data.mjs?v=20261025-final-polish";
+import { render } from "./view.mjs?v=20261025-final-polish";
 export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
 
 const EXAMPLE = [

@@ -2947,3 +2947,28 @@ html.statistics-immersive body {
 .statistics-fullscreen .hyp-test[data-hyp-step="5"] .stat-chart[data-screen-chart] { height:clamp(150px,calc(100dvh - 440px),210px) !important; min-height:150px !important; }
 .statistics-fullscreen .hyp-normal-table :is(th,td) { padding:4px 6px; font-size:.7rem; }
 .statistics-fullscreen .hyp-normal-table caption { font-size:.72rem; padding:2px 0; }
+
+/* Compact overview and bordered decision table for the closing lesson. */
+.hyp-overview { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px 14px; margin:.75rem 0; }
+.hyp-overview > div { padding:10px 12px; border:1px solid var(--chart-grid); border-radius:6px; min-width:0; }
+.hyp-overview dt { color:var(--chart-primary-dark); font-weight:700; font-size:.85rem; margin-bottom:5px; }
+.hyp-overview dd { margin:0; line-height:1.65; font-variant-numeric:tabular-nums; }
+.hyp-arrow-key { display:inline-flex; gap:5px; align-items:center; }
+.hyp-arrow-key b { color:var(--chart-secondary-dark); font-size:1.15rem; line-height:1; }
+.hyp-error-table { width:100%; max-width:760px; margin:1rem auto; }
+.hyp-error-table table { width:100%; table-layout:fixed; border-collapse:collapse; }
+.hyp-error-table caption { text-align:left; margin-bottom:7px; font-size:.85rem; color:var(--chart-muted); }
+.hyp-error-table :is(th,td) { border:1px solid var(--chart-axis); padding:12px 14px; text-align:center; vertical-align:middle; white-space:normal; line-height:1.6; }
+.hyp-error-table .hyp-wrong { background:var(--chart-secondary-pale); color:var(--chart-secondary-dark); font-weight:700; }
+.hyp-error-table .hyp-correct { background:var(--chart-primary-pale); color:var(--chart-primary-dark); }
+.hyp-errors[data-hyp-step="0"] .hyp-error-pair { max-width:760px; margin-inline:auto; }
+.statistics-fullscreen .hyp-overview { gap:7px 10px; margin:6px 0; }
+.statistics-fullscreen .hyp-overview > div { padding:6px 10px; }
+.statistics-fullscreen .hyp-overview dt { font-size:.78rem; margin-bottom:3px; }
+.statistics-fullscreen .hyp-overview dd { font-size:.78rem; line-height:1.5; }
+.statistics-fullscreen .hyp-error-table { margin:8px auto; }
+.statistics-fullscreen .hyp-error-table :is(th,td) { padding:8px 10px; }
+@media(max-width:600px) {
+ .hyp-overview { grid-template-columns:1fr; }
+ .hyp-error-table :is(th,td) { padding:8px 6px; font-size:.78rem; }
+}

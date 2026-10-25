@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-plain-copy";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-final-polish";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261025-plain-copy";
+} from "./shared/fullscreen-layout.mjs?v=20261025-final-polish";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.

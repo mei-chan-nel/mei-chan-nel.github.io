@@ -21,20 +21,21 @@ test('replacement data restart both journeys while preserving explicitly chosen 
 });
 test('guide state validates directions, finite settings, steps, labels and bin widths',()=>{
  const base=sampleState('hypothesis-test',config.initial());
- for(const patch of [{reference:0},{reference:1},{direction:'other'},{testStep:8},{errorStep:-1},{binWidth:7},{selectedBin:20},{measureLabel:''},{sigmaMode:'none'},{planningSD:0}])
+ for(const patch of [{reference:0},{reference:1},{direction:'other'},{testStep:8},{errorStep:-1},{binWidth:11},{selectedBin:20},{measureLabel:''},{sigmaMode:'none'},{planningSD:0}])
   assert.throws(()=>validateDocument({version:1,id:'hypothesis-test',state:{...base,...patch}},'hypothesis-test',config.initial()));
  assert.match(hypothesisText(.6,'greater','成功率').null,/μ ≤ 0.6/);
  assert.match(hypothesisText(.6,'less','成功率').alternative,/μ < 0.6/);
 });
 test('histogram boundaries are half-open except 100 percent and all participants remain counted',()=>{
- for(const width of [5,10,20]) {
+ for(let width=1;width<=10;width++) {
   const bins=scoreBins([0,.05,.1,.15,.2,.5,1],width);
   assert.equal(bins.reduce((v,b)=>v+b.count,0),7);
   assert.equal(bins.at(-1).count,1);
  }
  assert.equal(scoreBins([.3],5)[6].count,1);
  assert.equal(scoreBins([1],5)[19].count,1);
- assert.throws(()=>scoreBins([.3],7));
+ assert.throws(()=>scoreBins([.3],11));
+ assert.equal(scoreBins([0,.03,.99,1],3).at(-1).hi,102);
 });
 
 test('older five-step error journeys migrate without changing observations or settings',()=>{
@@ -49,4 +50,16 @@ test('mean histogram disables selection and names both average reference lines',
  assert.doesNotMatch(markup,/role="button"|tabindex|data-hyp-bin="|選んだ範囲/);
  assert.match(markup,/今回の標本平均/);assert.match(markup,/帰無仮説の平均/);assert.match(markup,/stroke-dasharray="4 4"/);
  assert.doesNotMatch(markup,/--chart-neutral/);
+});
+
+test('old coarse histogram settings migrate without changing participant data',()=>{
+ const old={...config.initial(),binWidth:20,selectedBin:4},next=normalizeGuide(old);
+ assert.equal(next.binWidth,10);assert.equal(next.selectedBin,-1);assert.deepEqual(next.participants,old.participants);
+ assert.equal(old.binWidth,20);
+ for(let width=1;width<=10;width++){
+  const scores=Array.from({length:101},(_,i)=>i/100),bins=scoreBins(scores,width);
+  assert.equal(bins.reduce((n,b)=>n+b.count,0),101);assert.ok(bins.every(b=>b.hi-b.lo===width));
+  const state={...config.initial(),binWidth:width,selectedBin:bins.length-1};
+  validateDocument({version:1,id:'hypothesis-test',state},'hypothesis-test',config.initial());
+ }
 });

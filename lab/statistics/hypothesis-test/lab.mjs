@@ -1,13 +1,13 @@
-import { esc, number, table } from '../shared/ui.mjs?v=20261025-plain-copy';
+import { esc, number, table } from '../shared/ui.mjs?v=20261025-final-polish';
 import { fmt } from '../shared/math.mjs';
-import { publicDatasetInfo } from '../shared/sources.mjs?v=20261025-plain-copy';
-import { academicExplanation } from '../shared/reading.mjs?v=20261025-plain-copy';
-import { participantScores } from './mean-model.mjs?v=20261025-plain-copy';
-import { normalMeanTest, normalTableReading } from './normal-model.mjs?v=20261025-plain-copy';
-import { aiFaceParticipants } from './data.mjs?v=20261025-plain-copy';
-import { downloadCSV } from '../data-editor.mjs?v=20261025-plain-copy';
-import { guideDefaults, normalizeGuide, testStages, errorStages, directionLabel, hypothesisText, rateText, ratioText } from './guide.mjs?v=20261025-plain-copy';
-import { scoreBins, scoreHistogram, scaleChart, normalChart } from './charts.mjs?v=20261025-plain-copy';
+import { publicDatasetInfo } from '../shared/sources.mjs?v=20261025-final-polish';
+import { academicExplanation } from '../shared/reading.mjs?v=20261025-final-polish';
+import { participantScores } from './mean-model.mjs?v=20261025-final-polish';
+import { normalMeanTest, normalTableReading } from './normal-model.mjs?v=20261025-final-polish';
+import { aiFaceParticipants } from './data.mjs?v=20261025-final-polish';
+import { downloadCSV } from '../data-editor.mjs?v=20261025-final-polish';
+import { guideDefaults, normalizeGuide, testStages, errorStages, directionLabel, hypothesisText, rateText, ratioText } from './guide.mjs?v=20261025-final-polish';
+import { scoreBins, scoreHistogram, scaleChart, normalChart } from './charts.mjs?v=20261025-final-polish';
 const notes=(title,summary,detail='')=>`<section class="hyp-explanation" data-screen-nav-section="${esc(title)}"><h3>${esc(title)}</h3><p>${summary}</p>${detail?`<details class="hyp-details"><summary>詳しく</summary>${detail}</details>`:''}</section>`;
 const plot=body=>`<figure class="hyp-plot">${body}</figure>`;
 const radios=(name,title,choices,value)=>`<fieldset class="hyp-radio"><legend>${esc(title)}</legend>${choices.map(([v,label])=>`<label><input type="radio" name="${name}" value="${esc(v)}" ${String(v)===String(value)?'checked':''}>${esc(label)}</label>`).join('')}</fieldset>`;
@@ -34,10 +34,10 @@ function testBody(s,scores,t) {
  const label=esc(s.measureLabel),n=t.n,bin=scoreBins(scores,s.binWidth)[s.selectedBin];
  switch(s.testStep) {
  case 0:return {
-  body:`<p class="hyp-action">横軸は1人ごとの${label}、棒の高さはその範囲に入る人数です。</p>${radios('hyp-bin-width','まとめる幅',[[5,'5ポイント'],[10,'10ポイント'],[20,'20ポイント']],s.binWidth)}${plot(scoreHistogram(scores,{width:s.binWidth,selected:s.selectedBin,label:s.measureLabel}))}<p id="hyp-bin-reading" role="status">${bin?`${bin.lo}%以上${bin.hi}%${bin.last?'以下':'未満'}は<strong>${bin.count}人</strong>です。`:'棒をクリックすると、その範囲の人数を確認できます。'}</p>${notes('図の読み方',`${n}人の値をまとめた図です。棒が高い範囲ほど、その値に近い人が多くいます。`,`<p>階級は左端以上・右端未満とし、100%だけは最後に含めます。Tabで棒へ移動し、Enterでも選べます。</p>`)}${notes('1人を1つの観測にする','1人の正答数÷判定枚数で、その人の正答率を求めます。',`${table(['参加者','判定枚数','正答数',s.measureLabel],s.participants.slice(0,3).map(p=>[p.id,p.trials,p.correct,rateText(p.correct/p.trials)]))}<p>表の1行が1人分です。元の値は「データ」で変更できます。</p>`)}`,
+  body:`<p class="hyp-action">横軸は1人ごとの${label}、棒の高さはその範囲に入る人数です。</p><div class="hyp-controls">${number('hyp-bin-width','階級幅',s.binWidth,1,10,1)}</div>${plot(scoreHistogram(scores,{width:s.binWidth,selected:s.selectedBin,label:s.measureLabel}))}<p id="hyp-bin-reading" role="status">${bin?`${bin.lo}%以上${bin.hi}%${bin.last?'以下':'未満'}は<strong>${bin.count}人</strong>です。`:'棒をクリックすると、その範囲の人数を確認できます。'}</p>${notes('図の読み方',`${n}人の値をまとめた図です。棒が高い範囲ほど、その値に近い人が多くいます。`)}${notes('1人を1つの観測にする','1人の正答数÷判定枚数で、その人の正答率を求めます。',`${table(['参加者','判定枚数','正答数',s.measureLabel],s.participants.slice(0,3).map(p=>[p.id,p.trials,p.correct,rateText(p.correct/p.trials)]))}<p>表の1行が1人分です。元の値は「データ」で変更できます。</p>`)}`,
   takeaway:'まず、1人ごとの値がどの範囲に集まっているかを確認しました。'};
  case 1:{const h=hypothesisText(s.reference,s.direction,s.measureLabel);return {
-  body:`<p class="hyp-action">母平均をどの値と比べ、どの向きの違いを調べるかを決めます。</p><div class="hyp-setup-grid"><section><h3>帰無仮説を組み立てる</h3><div class="hyp-controls">${number('hyp-reference','帰無仮説の平均 μ₀（0〜1）',s.reference,.000000001,.999999999,'any')}</div><p>割合は小数で表します。<strong>0.5は50%</strong>に当たります。</p></section><section>${radios('hyp-direction','調べたい違い',[['two-sided','異なるか（両側）'],['greater','上回るか（右片側）'],['less','下回るか（左片側）']],s.direction)}</section></div><dl class="hyp-rule"><div><dt>帰無仮説 H₀</dt><dd>${esc(h.null)}</dd></div><div><dt>対立仮説 H₁</dt><dd>${esc(h.alternative)}</dd></div></dl>${notes('2つの仮説','帰無仮説は比べる出発点、対立仮説は調べたい違いです。','<p>μは同じ条件での母平均です。片側検定では、帰無仮説の境界μ=μ₀で棄却域を計算します。</p>')}${notes('先に決めること','基準と向きは、調査の前に決めます。')}`,
+  body:`<p class="hyp-action">母平均をどの値と比べ、どの向きの違いを調べるかを決めます。</p><div class="hyp-setup-grid"><section><h3>帰無仮説を組み立てる</h3><div class="hyp-controls"><label class="control" for="hyp-reference"><span>帰無仮説の平均 μ₀（0〜1）</span><input id="hyp-reference" type="number" step="0.01" max="${1-Number.EPSILON}" value="${esc(s.reference)}"></label></div></section><section>${radios('hyp-direction','調べたい違い',[['two-sided','異なるか（両側）'],['greater','上回るか（右片側）'],['less','下回るか（左片側）']],s.direction)}</section></div><dl class="hyp-rule"><div><dt>帰無仮説 H₀</dt><dd>${esc(h.null)}</dd></div><div><dt>対立仮説 H₁</dt><dd>${esc(h.alternative)}</dd></div></dl>${notes('2つの仮説','帰無仮説は比べる出発点、対立仮説は調べたい違いです。','<p>μは同じ条件での母平均です。片側検定では、帰無仮説の境界μ=μ₀で棄却域を計算します。</p>')}${notes('先に決めること','基準と向きは、調査の前に決めます。')}`,
   takeaway:`帰無仮説の基準を${ratioText(s.reference)}とし、「${esc(directionLabel(s.direction))}」を調べます。`};}
  case 2:return {
   body:`<p class="hyp-action">偶然のずれとして、どの程度まで起こりにくい結果を棄却するかを決めます。</p>${alphaControl(s)}<p>${s.direction==='two-sided'?`有意水準${ratioText(s.alpha)}を左右に半分ずつ、${ratioText(s.alpha/2)}ずつ割り当てます。`:`選んだ片側の端に、有意水準${ratioText(s.alpha)}を割り当てます。`}</p><h3>使う方法：大標本での正規近似</h3><p>今回の人数は<strong>${n}人</strong>です。1人ごとの割合の平均を使い、正規分布表で棄却域を求めます。</p>${notes('有意水準','帰無仮説のもとで起こる、まれな結果を棄却域にします。')}${notes('計算に使うばらつき','参加者ごとの標準偏差から、平均のばらつきを求めます。','<p>参加者を独立した観測として扱い、母標準偏差を今回の標本標準偏差で推定します。</p>')}${n<30?unavailable(t):''}`,
@@ -52,12 +52,16 @@ function testBody(s,scores,t) {
   takeaway:`正規分布表から、${each?`±${c}`:s.direction==='greater'?c:cutoffText(-r.critical)}を棄却域の境目として読み取りました。`};}
  case 6:{const c=cutoffText(t.critical,t.z),comparison=s.direction==='two-sided'?`|Z| = ${zText(Math.abs(t.z),t.critical)} ${t.reject?'≥':'<'} ${c}`:s.direction==='greater'?`Z = ${zText(t.z,t.critical)} ${t.reject?'≥':'<'} ${c}`:`Z = ${zText(t.z,t.critical)} ${t.reject?'≤':'>'} ${cutoffText(-t.critical,t.z)}`;return {body:!t.valid?unavailable(t):`<p class="hyp-action">正規分布表で決めた境目と、今回のZを比べます。</p><div class="hyp-decision-rule"><p class="hyp-equation" id="hyp-z-comparison">${comparison}</p><p id="hyp-decision">${decisionText(s,t)}</p></div>${plot(normalChart(t,{observed:true}))}${notes('紫の範囲が棄却域','今回のZが紫の範囲に入るかを見ます。',`<p>両側では|Z|が境目以上、右片側ではZが右の境目以上、左片側ではZが左の境目以下なら棄却します。</p>`)}`,
   takeaway:t.valid?(t.reject?'今回のZは棄却域に入るので、帰無仮説を棄却します。':'今回のZは棄却域に入らないので、帰無仮説を棄却しません。'):'この条件では判断しません。'};}
- case 7:{const face=s.measureLabel==='正答率'&&s.reference===.5&&!s.dataInfo?.publicDerived&&s.dataInfo?.publicDataset?.links?.some(([,href])=>href.includes('2120481119'));return {body:!t.valid?unavailable(t):`<p class="hyp-action">問いに戻り、平均がどちらに、どれくらい違うかを読みます。</p><p id="hyp-interpretation">参加者の平均${label}は<strong>${ratioText(t.mean)}（${rateText(t.mean)}）</strong>。基準${ratioText(s.reference)}との差は<strong>${fmt(t.difference*100,2)}ポイント</strong>です。</p><div class="hyp-outcome"><p>${decisionText(s,t)}</p>${face&&t.difference<0&&t.reject?'<p>参加者の平均正答率は当てずっぽうの0.5を下回りました。<strong>無作為に選ぶ基準より、正答率が低かった</strong>という結果です。</p>':''}</div>`,
-  takeaway:'仮説を決め、Zを計算し、正規分布表の境目と比較して、結果を解釈しました。'};}
+ case 7:{
+  const h=hypothesisText(s.reference,s.direction,s.measureLabel),face=s.measureLabel==='正答率'&&s.reference===.5&&!s.dataInfo?.publicDerived&&s.dataInfo?.publicDataset?.links?.some(([,href])=>href.includes('2120481119'));
+  const c=cutoffText(t.critical,t.z),region=s.direction==='two-sided'?`|Z| ≥ ${c}`:s.direction==='greater'?`Z ≥ ${c}`:`Z ≤ ${cutoffText(-t.critical,t.z)}`;
+  return {body:!t.valid?unavailable(t):`<p class="hyp-action">仮説、検定の設定、計算結果、判断を振り返ります。</p><dl class="hyp-overview"><div data-summary="null"><dt>帰無仮説 H₀</dt><dd>${esc(h.null)}</dd></div><div data-summary="alternative"><dt>対立仮説 H₁</dt><dd>${esc(h.alternative)}</dd></div><div data-summary="settings"><dt>検定の設定</dt><dd>有意水準 <strong>${ratioText(s.alpha)}</strong>・${esc(directionLabel(s.direction))}<br>${n}人・大標本の正規近似</dd></div><div data-summary="observations"><dt>観測結果</dt><dd id="hyp-interpretation">標本平均 <strong>${ratioText(t.mean)}（${rateText(t.mean)}）</strong><br>基準との差 <strong>${fmt(t.difference*100,2)}ポイント</strong><br>標準誤差 ${ratioText(t.se)}・Z = <strong>${fmt(t.z,2)}</strong></dd></div></dl><div class="hyp-outcome hyp-summary-verdict"><h3>棄却域と判断</h3><p>棄却域：<strong id="hyp-summary-region">${region}</strong></p><p id="hyp-decision">${decisionText(s,t)}</p>${face&&t.difference<0&&t.reject?'<p>参加者の平均正答率は当てずっぽうの0.5を下回りました。<strong>無作為に選ぶ基準より、正答率が低かった</strong>という結果です。</p>':''}</div>`,
+  takeaway:'仮説を決め、Zを計算し、正規分布表の境目と比較して、結果を解釈しました。'};
+ }
  }
 }
 function errorBody(s) {
- if(s.errorStep===0)return {body:`<p class="hyp-action">標本からの判断には、2種類の誤りがあります。</p>${table(['本当の状態','帰無仮説を棄却する','棄却しない'],[['帰無仮説が正しい','第1種の誤り','正しい判断'],['対立仮説が正しい','正しい判断','第2種の誤り']])}<div class="hyp-error-pair"><div><h3>第1種：ない差を、あると判断</h3><p>帰無仮説が正しいのに棄却する。</p></div><div><h3>第2種：ある差を、見逃す</h3><p>対立仮説が正しいのに棄却しない。</p></div></div>${notes('この表の読み方','本当の状態と、検定の判断を分けて見ます。')}`,
+ if(s.errorStep===0)return {body:`<p class="hyp-action">標本からの判断には、2種類の誤りがあります。</p><div class="table-scroll hyp-error-table"><table class="stat-table"><caption>本当の状態と、帰無仮説の判断</caption><colgroup><col style="width:40%"><col style="width:30%"><col style="width:30%"></colgroup><thead><tr><th scope="col">本当の状態</th><th scope="col">棄却する</th><th scope="col">棄却しない</th></tr></thead><tbody><tr><th scope="row">帰無仮説が正しい</th><td class="hyp-wrong">第1種の誤り</td><td class="hyp-correct">正しい判断</td></tr><tr><th scope="row">対立仮説が正しい</th><td class="hyp-correct">正しい判断</td><td class="hyp-wrong">第2種の誤り</td></tr></tbody></table></div><div class="hyp-error-pair"><div><h3>第1種：ない差を、あると判断</h3><p>帰無仮説が正しいのに棄却する。</p></div><div><h3>第2種：ある差を、見逃す</h3><p>対立仮説が正しいのに棄却しない。</p></div></div>${notes('この表の読み方','本当の状態と、検定の判断を分けて見ます。')}`,
  takeaway:'「ない差をあるとする誤り」と「ある差を見逃す誤り」を区別します。'};
  if(s.errorStep===1)return {body:`<p class="hyp-action">本当は帰無仮説が正しくても、偶然の大きなずれが起こることがあります。</p><div class="hyp-error-story"><p>本当は基準どおり</p><span aria-hidden="true">↓</span><p>たまたま、Zが棄却域に入る</p><span aria-hidden="true">↓</span><p><strong>棄却してしまう → 第1種の誤り</strong></p></div><p>有意水準${rateText(s.alpha)}は、このような誤りを小さく抑えるための基準です。</p>${notes('有意水準との関係','正規分布のモデルでは、帰無仮説のもとで棄却域に入る確率が有意水準です。',`<p>有意水準${rateText(s.alpha)}は、100回の調査で平均して約${ratioText(s.alpha*100)}回に相当します。</p>`)}`,
  takeaway:'帰無仮説が正しくても、偶然によって棄却する場合があります。'};
@@ -74,10 +78,20 @@ function wire(root,ctx,s,isErrors) {
  root.querySelector('#hyp-next')?.addEventListener('click',()=>{if(!validInputs())return;if(s[key]<steps.length-1)move(s[key]+1);else if(!isErrors){ctx.update({errorStep:0});document.querySelector('#view-1')?.click();root.querySelector('#hyp-step-title')?.focus({preventScroll:true});}});
  root.querySelector('#hyp-open-data')?.addEventListener('click',()=>document.querySelector('#data-tab')?.click());
  const settings=(patch,stage)=>ctx.update({...patch,testStep:Math.min(s.testStep,stage),errorStep:0,probabilityReady:false});
- root.querySelector('#hyp-reference')?.addEventListener('change',e=>{if(e.target.value!==''&&e.target.checkValidity())settings({reference:Number(e.target.value)},1);});
+ const reference=root.querySelector('#hyp-reference');
+ const validateReference=()=>{
+  const value=Number(reference.value),valid=reference.value!==''&&Number.isFinite(value)&&value>0&&value<1;
+  // With no min, the value attribute is the native spinbutton's step base.
+  // Re-anchor after direct input so arbitrary decimals still step by 0.01.
+  reference.setAttribute('value',reference.value);
+  reference.setCustomValidity(valid?'':'0より大きく1より小さい値を入力してください。');
+  return valid;
+ };
+ reference?.addEventListener('input',validateReference);
+ reference?.addEventListener('change',()=>{if(validateReference())settings({reference:Number(reference.value)},1);});
  root.querySelectorAll('[name=hyp-direction]').forEach(el=>el.addEventListener('change',()=>settings({direction:el.value},1)));
  root.querySelectorAll('[name=hyp-alpha]').forEach(el=>el.addEventListener('change',()=>settings({alpha:Number(el.value)},2)));
- root.querySelectorAll('[name=hyp-bin-width]').forEach(el=>el.addEventListener('change',()=>ctx.update({binWidth:Number(el.value),selectedBin:-1})));
+ root.querySelector('#hyp-bin-width')?.addEventListener('change',e=>{if(e.target.value!==''&&e.target.checkValidity())ctx.update({binWidth:Number(e.target.value),selectedBin:-1});});
  root.querySelectorAll('[data-hyp-bin]').forEach(el=>{const choose=()=>ctx.update({selectedBin:Number(el.dataset.hypBin)});el.addEventListener('click',choose);el.addEventListener('keydown',e=>{if(['Enter',' '].includes(e.key)){e.preventDefault();choose();}});});
 }
 export default {
