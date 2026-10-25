@@ -15,6 +15,7 @@ export function freshSeed() {
 }
 // Published observations stay fixed; seeds change only the simulated draws.
 export function sampleState(id, initial, seed = freshSeed()) {
+  if (["graph-reading", "missing-values"].includes(id)) return structuredClone(initial);
   const base = { ...initial, dataInfo: null };
   let headers,
     rows,

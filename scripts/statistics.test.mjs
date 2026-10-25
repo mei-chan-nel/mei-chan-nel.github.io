@@ -22,7 +22,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { labs } from "../lab/statistics/catalog.mjs";
 import { renderPage } from "../lab/tools/shell.mjs";
-test("all seven integrated labs have real modules, data views and valid nested shell assets", async () => {
+test("all active statistics labs have real modules, data views and valid nested shell assets", async () => {
   for (const [id] of labs) {
     const config = (await import(`../lab/statistics/${id}/lab.mjs`)).default;
     assert.equal(config.id, id);
@@ -33,7 +33,7 @@ test("all seven integrated labs have real modules, data views and valid nested s
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../app.mjs?v=20261025-final-polish"'));
+    assert.ok(html.includes(["graph-reading", "missing-values"].includes(id) ? 'src="./../foundations/app.mjs?v=20261025-reading-missing"' : 'src="./../app.mjs?v=20261025-final-polish"'));
     assert.ok(html.includes('href="../../../assets/site.css'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));
@@ -73,3 +73,5 @@ test("nested shell adds statistics breadcrumb and preserves original one-level a
   assert.ok(old.includes('href="../icon.svg"'));
   assert.ok(old.includes('href="../../assets/site.css'));
 });
+
+import "../lab/statistics/foundations/model.test.mjs";

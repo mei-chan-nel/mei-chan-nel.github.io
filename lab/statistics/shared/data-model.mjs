@@ -30,6 +30,12 @@ export function currentData(id, s) {
     rows,
     name = s.source || s.label || "",
     operation = "";
+  if (["graph-reading", "missing-values"].includes(id)) {
+    headers = id === "graph-reading" ? ["日付", "日降水量（mm）", "日平均気温（℃）", "日照時間（h）"] : ["日付・観測名", "降水量（mm）"];
+    rows = s.rows.map(r => [...r]);
+    name = "東京の日別気象データ（2025年6〜7月）";
+    operation = id === "graph-reading" ? "問いに合わせたグラフの切り替え" : "0と欠損を区別して集計方法を比較";
+  }
   if (id === "correlation") {
     headers = [s.xLabel, s.yLabel];
     rows = s.points.map((p) => [p.x, p.y]);
@@ -140,7 +146,7 @@ export function currentData(id, s) {
     headers,
     rows,
     name: info?.name || name,
-    origin: info?.origin || (id === "probability" ? "model" : "sample"),
+    origin: info?.origin || s.origin || (id === "probability" ? "model" : "sample"),
     filename: info?.filename || "",
     operation,
     ...(id === "time-series" && !s.customValues

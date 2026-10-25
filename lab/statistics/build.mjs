@@ -29,6 +29,7 @@ async function save(slug, body, scripts = []) {
       slug
         ? "../workspace.css?v=20261025-final-polish"
         : "workspace.css?v=20261025-final-polish",
+      ...(["graph-reading", "missing-values"].includes(slug) ? ["../foundations/foundations.css?v=20261025-reading-missing"] : []),
     ],
     scripts,
   });
@@ -62,6 +63,8 @@ async function save(slug, body, scripts = []) {
   await writeFile(url, html);
 }
 const homeGuides = {
+  "graph-reading": ["気象庁の日別データを使い、問いに合わせてグラフを切り替えます。軸や縦横比、日数と割合も比べます。", "棒は量の比較、折れ線は時間変化、散布図は2つの量の関係、ヒストグラムは分布、円グラフは全体の内訳を表します。"],
+  "missing-values": ["実測の降水量の一部を隠し、有効な値だけ・0埋め・平均補完の結果や、欠け方による偏りを比べます。", "欠損値は、値が0なのではなく分からない状態です。平均の分母になる件数を確かめ、集計方法による平均・分散の違いを読み取ります。"],
   correlation: [
     '点を動かし、相関係数や回帰直線、予測値がどう変わるかを調べます。',
     '散布図は、同じ対象の2つの数値を点で表します。相関係数は直線的な関係の向きと強さを、回帰直線は一方の値からもう一方を予測する目安を示します。実際の値と予測値の差が残差です。',
@@ -112,7 +115,7 @@ for (const [id, title] of labs) {
 ${academic('<div id="explanation-body"></div>')}
 <div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    ["../app.mjs?v=20261025-final-polish"],
+    [["graph-reading", "missing-values"].includes(id) ? "../foundations/app.mjs?v=20261025-reading-missing" : "../app.mjs?v=20261025-final-polish"],
   );
 }
 await save(
@@ -141,3 +144,6 @@ await writeFile(
   `<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="refresh" content="0;url=../"><meta name="robots" content="noindex,follow"><title>統計・データ分析｜Study Atlas</title></head><body><p><a href="../">統計・データ分析の一覧へ</a></p></body></html>`,
 );
+
+// Retired topic: keep existing bookmarks useful without touching saved income data.
+await save("lorenz", `<header><h1>統計ラボの構成を更新しました</h1><p><a href="../graph-reading/">グラフの選び方と読み取りへ</a></p><p><a href="../missing-values/">欠損値とデータの扱いへ</a></p></header>`);
