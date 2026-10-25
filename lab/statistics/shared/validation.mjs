@@ -1,4 +1,4 @@
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-ai-faces";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-guided-test";
 export function validateState(value, template, depth = 0, key = "state") {
   if (depth > 14) throw Error("データ構造が深すぎます。");
   if (value === null) {
@@ -308,8 +308,16 @@ function domain(s, id) {
     need(
       Number.isFinite(s.alpha) && s.alpha > 0 && s.alpha < 1 &&
       Number.isInteger(s.planN) && s.planN >= 30 && s.planN <= 1000 &&
-      Number.isFinite(s.trueMean) && s.trueMean >= 0 && s.trueMean <= 1,
-      "有意水準・計画人数・比較する平均正答率を確認してください。",
+      Number.isFinite(s.trueMean) && s.trueMean >= 0 && s.trueMean <= 1 &&
+      Number.isFinite(s.reference) && s.reference > 0 && s.reference < 1 &&
+      ["two-sided", "greater", "less"].includes(s.direction) &&
+      typeof s.measureLabel === "string" && s.measureLabel.trim().length > 0 && s.measureLabel.length <= 40 &&
+      typeof s.referenceReason === "string" && s.referenceReason.length <= 200 &&
+      Number.isInteger(s.testStep) && s.testStep >= 0 && s.testStep <= 7 &&
+      Number.isInteger(s.errorStep) && s.errorStep >= 0 && s.errorStep <= 4 &&
+      [5, 10, 20].includes(s.binWidth) && Number.isInteger(s.selectedBin) && s.selectedBin >= -1 && s.selectedBin < 100/s.binWidth &&
+      ["data", "custom"].includes(s.sigmaMode) && Number.isFinite(s.planningSD) && s.planningSD > 0 && s.planningSD <= 1,
+      "基準・検定の方向・学習段階・計画の設定を確認してください。",
     );
   }
 }

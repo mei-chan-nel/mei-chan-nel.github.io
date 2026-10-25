@@ -122,3 +122,33 @@ test('planning uses the same t rule under a normal-score model and preserves nul
   for(const n of [0,2,29,1001])assert.throws(()=>meanTestPower(n,.48,r.sd));
   assert.throws(()=>meanTestPower(315,.48,0));
 });
+
+test('one-sided tests use signed tails and corresponding one-sided confidence bounds', () => {
+  const scores=participantScores(aiFaceParticipants()),two=meanTest(scores),left=meanTest(scores,.5,.05,'less'),right=meanTest(scores,.5,.05,'greater');
+  close(left.pValue,two.pValue/2,1e-12);
+  close(right.pValue,1-two.pValue/2,1e-12);
+  assert.equal(left.reject,true);assert.equal(right.reject,false);
+  assert.equal(left.interval[0],-Infinity);assert.equal(right.interval[1],Infinity);
+  assert.ok(left.interval[1]<.5&&right.interval[0]<.5);
+  assert.deepEqual(left.acceptance,[-left.critical,Infinity]);
+  assert.deepEqual(right.acceptance,[-Infinity,right.critical]);
+  for(const direction of ['two-sided','less','greater'])for(const alpha of [.01,.05,.1]) {
+    const r=meanTest(scores,.5,alpha,direction);
+    assert.equal(r.reject,.5<r.interval[0]||.5>r.interval[1]);
+  }
+  assert.throws(()=>meanTest(scores,.5,.05,'unknown'));
+});
+
+test('one-sided power distinguishes an alternative from the interior of a composite null', () => {
+  const sd=.095,right=meanTestPower(315,.52,sd,.05,.5,'greater'),left=meanTestPower(315,.48,sd,.05,.5,'less');
+  assert.equal(right.hasAlternative,true);assert.equal(left.hasAlternative,true);close(right.detected,left.detected,1e-10);
+  for(const [mean,direction] of [[.48,'greater'],[.52,'less']]) {
+    const r=meanTestPower(315,mean,sd,.05,.5,direction);
+    assert.equal(r.hasAlternative,false);assert.ok(r.detected<.05);
+  }
+  for(const direction of ['less','greater']) {
+    const r=meanTestPower(315,.5,sd,.05,.5,direction);assert.equal(r.detected,.05);assert.equal(r.hasAlternative,false);
+    const weak=meanTestPower(30,direction==='greater'?.52:.48,sd,.05,.5,direction);
+    assert.ok(right.detected>weak.detected);
+  }
+});

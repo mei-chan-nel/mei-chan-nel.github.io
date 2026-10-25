@@ -97,26 +97,43 @@ export function participantScores(participants) {
   });
 }
 
-export function meanTest(scores, reference = .5, alpha = .05) {
+export function testAcceptance(alpha, df, direction = 'two-sided') {
+  if (!['two-sided', 'greater', 'less'].includes(direction)) throw Error('検定の方向を確認してください。');
+  if (!Number.isFinite(alpha) || alpha <= 0 || alpha >= 1) throw Error('有意水準は0より大きく1未満にしてください。');
+  if (direction === 'two-sided') {
+    const critical = studentCritical(alpha, df);
+    return {critical, acceptance: [-critical, critical]};
+  }
+  validateDf(df);
+  const critical = alpha === .5 ? 0 : alpha < .5
+    ? studentCritical(2 * alpha, df) : -studentCritical(2 * (1 - alpha), df);
+  return {critical, acceptance: direction === 'greater' ? [-Infinity, critical] : [-critical, Infinity]};
+}
+
+export function meanTest(scores, reference = .5, alpha = .05, direction = 'two-sided') {
   if (!Array.isArray(scores) || scores.length < 2 || scores.length > MAX_PARTICIPANTS ||
       Array.from(scores).some(v => !Number.isFinite(v) || v < 0 || v > 1))
     throw Error('参加者ごとの正答率を0〜1の数値で2〜10,000人分指定してください。');
   if (!Number.isFinite(reference) || reference < 0 || reference > 1)
     throw Error('基準の正答率を0〜1で指定してください。');
   const n = scores.length, df = n - 1;
-  const critical = studentCritical(alpha, df);
+  const {critical, acceptance} = testAcceptance(alpha, df, direction);
   // Welford's algorithm avoids cancellation in the sample variance.
   let average = 0, m2 = 0;
   scores.forEach((v, i) => { const delta = v - average; average += delta / (i + 1); m2 += delta * (v - average); });
   const sd = Math.sqrt(Math.max(0, m2 / df)), se = sd / Math.sqrt(n), difference = average - reference;
   // A zero sample variance does not estimate sampling uncertainty. It is not
   // evidence of an infinitely precise population mean, even if all answers agree.
-  if (sd === 0) return {n, df, mean: average, sd, se, difference, alpha, reference,
+  if (sd === 0) return {n, df, mean: average, sd, se, difference, alpha, reference, direction, acceptance,
     valid: false, reason: '参加者の正答率がすべて同じため、ばらつきを推定できません。',
     t: null, pValue: null, critical: null, interval: null, reject: null};
-  const t = difference / se, pValue = Math.min(1, 2 * studentTail(Math.abs(t), df));
-  return {n, df, mean: average, sd, se, difference, alpha, reference, valid: true,
-    t, pValue, critical, interval: [average - critical * se, average + critical * se],
+  const t = difference / se, tail = studentTail(Math.abs(t), df);
+  const pValue = direction === 'two-sided' ? Math.min(1, 2 * tail)
+    : direction === 'greater' ? (t >= 0 ? tail : 1 - tail) : (t <= 0 ? tail : 1 - tail);
+  const interval = direction === 'two-sided' ? [average - critical * se, average + critical * se]
+    : direction === 'greater' ? [average - critical * se, Infinity] : [-Infinity, average + critical * se];
+  return {n, df, mean: average, sd, se, difference, alpha, reference, direction, acceptance, valid: true,
+    t, pValue, critical, interval,
     reject: pValue <= alpha};
 }
 
@@ -152,17 +169,19 @@ export function noncentralDensity(t, df, delta) {
 // Planning assumption: independent, normally distributed participant scores;
 // the population SD is fixed to a chosen estimate. Under this assumption the
 // SAME one-sample t rule has a noncentral t distribution when the mean differs.
-export function meanTestPower(n, trueMean, populationSD, alpha = .05, reference = .5) {
+export function meanTestPower(n, trueMean, populationSD, alpha = .05, reference = .5, direction = 'two-sided') {
   if (!Number.isInteger(n) || n < 30 || n > 1000 ||
       !Number.isFinite(trueMean) || trueMean < 0 || trueMean > 1 ||
       !Number.isFinite(reference) || reference < 0 || reference > 1 ||
       !Number.isFinite(populationSD) || populationSD <= 0 || populationSD > 1)
     throw Error('計画人数は30〜1,000人、正答率は0〜1、標準偏差は0より大きく1以下にしてください。');
-  const df = n - 1, critical = studentCritical(alpha, df);
+  const df = n - 1, {critical, acceptance} = testAcceptance(alpha, df, direction);
   const delta = (trueMean - reference) / (populationSD / Math.sqrt(n));
-  const hasAlternative = trueMean !== reference;
-  const detected = hasAlternative ? Math.max(0, Math.min(1, chiQuadrature(df).reduce((total, p) =>
-    total + p.weight * (normalCDF(-critical * p.scale - delta) + normalCDF(delta - critical * p.scale)), 0))) : alpha;
-  return {n, df, alpha, reference, trueMean, populationSD, delta, critical,
+  const hasAlternative = direction === 'two-sided' ? trueMean !== reference : direction === 'greater' ? trueMean > reference : trueMean < reference;
+  const [lower, upper] = acceptance;
+  const detected = delta !== 0 ? Math.max(0, Math.min(1, chiQuadrature(df).reduce((total, p) =>
+    total + p.weight * ((Number.isFinite(lower) ? normalCDF(lower * p.scale - delta) : 0)
+      + (Number.isFinite(upper) ? normalCDF(delta - upper * p.scale) : 0)), 0))) : alpha;
+  return {n, df, alpha, reference, trueMean, populationSD, delta, critical, acceptance, direction,
     hasAlternative, falsePositive: alpha, detected, missed: 1 - detected};
 }

@@ -1,5 +1,5 @@
-import { learningViews } from "./learning.mjs?v=20261025-ai-faces";
-import { readingNotes } from "./shared/reading.mjs?v=20261025-ai-faces";
+import { learningViews } from "./learning.mjs?v=20261025-guided-test";
+import { readingNotes } from "./shared/reading.mjs?v=20261025-guided-test";
 // Recompose the lab's live nodes; all original event handlers and query scopes remain intact.
 export function composeWorkbench(root, id, ui, onChange) {
   if (

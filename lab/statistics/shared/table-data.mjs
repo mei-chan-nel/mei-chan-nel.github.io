@@ -1,4 +1,4 @@
-import { applyData } from "./data-model.mjs?v=20261025-ai-faces";
+import { applyData } from "./data-model.mjs?v=20261025-guided-test";
 import { asNumber } from "./csv.mjs";
 
 export function numericTableColumn(id, column) {

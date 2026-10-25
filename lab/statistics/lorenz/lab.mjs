@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-ai-faces";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-ai-faces";
+} from "../shared/ui.mjs?v=20261025-guided-test";
+import { academicExplanation } from "../shared/reading.mjs?v=20261025-guided-test";
 import {
   sum,
   mean,

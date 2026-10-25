@@ -1,9 +1,9 @@
-import { esc, table } from "../shared/ui.mjs?v=20261025-ai-faces";
+import { esc, table } from "../shared/ui.mjs?v=20261025-guided-test";
 import {
   describe,
   oneWayAnova,
   quartileRanks,
-} from "./descriptive.mjs?v=20261025-ai-faces";
+} from "./descriptive.mjs?v=20261025-guided-test";
 
 const n = (value) =>
   value === null || value === undefined

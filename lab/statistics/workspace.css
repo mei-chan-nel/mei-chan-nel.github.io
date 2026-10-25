@@ -2813,3 +2813,46 @@ html.statistics-immersive body {
 .statistics-chart-fullscreen .hypothesis-test-display .hyp-interval-chart[data-screen-chart] {
   min-height:150px !important;
 }
+
+/* Guided inference presents one decision or calculation at a time. */
+.hyp-step-count { margin:0 0 .75rem; color:var(--chart-muted); font-size:.85rem; }
+.hyp-progress { display:flex; list-style:none; padding:0; margin:0 0 1.25rem; gap:6px; }
+.hyp-progress li { flex:1; min-width:0; text-align:center; color:var(--chart-muted); border-top:3px solid var(--chart-grid); padding-top:7px; }
+.hyp-progress li > span { display:inline-grid; place-items:center; width:25px; height:25px; border:1px solid var(--chart-grid); border-radius:50%; background:white; }
+.hyp-progress li small { display:block; margin-top:4px; font-size:.68rem; line-height:1.45; overflow-wrap:anywhere; }
+.hyp-progress li[aria-current] { color:var(--chart-primary-dark); border-color:var(--chart-primary); font-weight:700; }
+.hyp-progress li[aria-current] > span { background:var(--chart-primary); border-color:var(--chart-primary); color:white; }
+.hyp-progress li.is-complete { border-color:var(--chart-primary); }
+.hyp-step-body p { line-height:1.9; }
+.hyp-action { padding-bottom:.7rem; border-bottom:1px solid var(--chart-grid); }
+.hyp-equation { padding:.8rem 1rem; background:var(--paper); border:1px solid var(--chart-grid); border-radius:6px; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.hyp-rule { margin:1rem 0; }
+.hyp-rule > div { padding:.6rem 0; border-bottom:1px solid var(--chart-grid); }
+.hyp-rule dt { font-size:.82rem; font-weight:700; color:var(--chart-primary-dark); }
+.hyp-rule dd { margin:.2rem 0 0; line-height:1.8; }
+.hyp-chance-example { display:grid; grid-template-columns:1fr 1fr; max-width:480px; margin:1rem 0; border:1px solid var(--chart-grid); }
+.hyp-chance-example > span { padding:.7rem; text-align:center; background:var(--paper); }
+.hyp-chance-example > span + span { border-left:1px solid var(--chart-grid); }
+.hyp-outcome,.hyp-decision-rule,.hyp-takeaway { margin:1rem 0; padding:.9rem 1rem; border-left:3px solid var(--chart-primary); background:var(--paper); }
+.hyp-outcome > h3,.hyp-takeaway > h3 { margin-top:0; }
+.hyp-wizard-navigation { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:1.25rem; flex-wrap:wrap; }
+.hyp-wizard-navigation button { max-width:100%; white-space:normal; }
+.hyp-restart { margin-top:.75rem; font-size:.8rem; }
+.hyp-text { max-width:560px; margin:1rem 0; }
+.hyp-text input { width:100%; }
+.hyp-presets button { font-size:.8rem; }
+.hyp-radio { margin-block:.75rem; }
+.hyp-radio input { accent-color:var(--chart-primary); }
+.hyp-step-body [data-hyp-bin] { cursor:pointer; }
+.hyp-step-body [data-hyp-bin]:focus { outline:2px solid var(--chart-secondary-dark); outline-offset:1px; }
+.workbench-display .hyp-short-chart { min-height:170px; }
+.statistics-analysis-fullscreen .hypothesis-test-display { overflow:auto; scrollbar-width:none; }
+.statistics-chart-fullscreen .hypothesis-test-display .hyp-short-chart[data-screen-chart] { min-height:170px !important; }
+.statistics-fullscreen .hyp-guide[data-screen-chart-flow] { padding:8px !important; }
+.screen-explanation-rail .hyp-takeaway { margin:0; padding:0; background:transparent; border:0; }
+.screen-explanation-rail .hyp-takeaway > h3 { display:none; }
+@media(max-width:760px) {
+  .hyp-progress li small { display:none; }
+  .hyp-progress { gap:4px; }
+  .hyp-progress li > span { width:22px; height:22px; }
+}

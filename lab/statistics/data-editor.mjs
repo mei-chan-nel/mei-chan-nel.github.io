@@ -1,11 +1,11 @@
-import { esc, table } from "./shared/ui.mjs?v=20261025-ai-faces";
+import { esc, table } from "./shared/ui.mjs?v=20261025-guided-test";
 import { parseDelimited, serializeCSV } from "./shared/csv.mjs";
 import {
   currentData,
   dataKinds,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-ai-faces";
-import { experiences } from "./experience.mjs?v=20261025-ai-faces";
+} from "./shared/data-model.mjs?v=20261025-guided-test";
+import { experiences } from "./experience.mjs?v=20261025-guided-test";
 export function mountDataEditor(
   container,
   { id, state, apply, allowGroup = false, dataOverride = null },

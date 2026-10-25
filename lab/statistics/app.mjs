@@ -1,25 +1,25 @@
-import { esc } from "./shared/ui.mjs?v=20261025-ai-faces";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-ai-faces";
+import { esc } from "./shared/ui.mjs?v=20261025-guided-test";
+import { validateDocument } from "./shared/validation.mjs?v=20261025-guided-test";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-ai-faces";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-ai-faces";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-ai-faces";
-import { sampleState } from "./shared/samples.mjs?v=20261025-ai-faces";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-ai-faces";
-import { readDataset } from "./shared/data.mjs?v=20261025-ai-faces";
+} from "./shared/data-model.mjs?v=20261025-guided-test";
+import { composeWorkbench } from "./workbench.mjs?v=20261025-guided-test";
+import { renderDataTab } from "./data-tab.mjs?v=20261025-guided-test";
+import { sampleState } from "./shared/samples.mjs?v=20261025-guided-test";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-guided-test";
+import { readDataset } from "./shared/data.mjs?v=20261025-guided-test";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-ai-faces";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-ai-faces";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-ai-faces";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-ai-faces";
-import { renderSources } from "./shared/sources.mjs?v=20261025-ai-faces";
+} from "./learning.mjs?v=20261025-guided-test";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-guided-test";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-guided-test";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261025-guided-test";
+import { renderSources } from "./shared/sources.mjs?v=20261025-guided-test";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-ai-faces`))
+const config = (await import(`./${id}/lab.mjs?v=20261025-guided-test`))
   .default;
 const ui = {
   view: 0,
@@ -35,6 +35,7 @@ function prepare(next) {
   if (["correlation", "time-series"].includes(id))
     next = config.normalize(next);
   if (id === "sampling") next = normalizeExperiment(next);
+  if (id === "hypothesis-test") next = config.normalize(next);
   if (id === "crosstab") {
     if (!next.records) {
       next = { ...next, records: currentData(id, next).rows };
@@ -82,7 +83,7 @@ try {
     !project &&
     saved.state?.dataInfo?.origin === "user"
   ) {
-    if (id === "time-series")
+    if (["time-series", "hypothesis-test"].includes(id))
       saved.state = config.normalize(saved.state);
     validateDocument(saved, id, config.initial());
     state = prepare(saved.state);
@@ -183,8 +184,8 @@ function draw() {
     document.querySelector("#tab-progress").textContent =
       `${index + 1} / ${steps.length} · ${lesson.level}：${lesson.purpose}`;
     const navigation = document.querySelector("#step-navigation");
-    navigation.hidden = ui.dataTab;
-    if (!ui.dataTab)
+    navigation.hidden = ui.dataTab || !!config.guidedFlow;
+    if (!ui.dataTab && !config.guidedFlow)
       renderStepNavigation(navigation, steps, index, (next) =>
         activate(next, true),
       );

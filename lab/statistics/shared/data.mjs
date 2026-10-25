@@ -1,6 +1,6 @@
-import { monthlyTemperatures } from "./public-data.mjs?v=20261025-ai-faces";
-import { householdSeries } from "../time-series/data.mjs?v=20261025-ai-faces";
-import { publicDatasetInfo } from "./sources.mjs?v=20261025-ai-faces";
+import { monthlyTemperatures } from "./public-data.mjs?v=20261025-guided-test";
+import { householdSeries } from "../time-series/data.mjs?v=20261025-guided-test";
+import { publicDatasetInfo } from "./sources.mjs?v=20261025-guided-test";
 export const studyData = () =>
   householdSeries.values.map((y, i) => ({
     id: i + 1,

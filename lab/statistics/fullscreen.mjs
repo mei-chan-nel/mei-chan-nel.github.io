@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-ai-faces";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-guided-test";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261025-ai-faces";
+} from "./shared/fullscreen-layout.mjs?v=20261025-guided-test";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.
