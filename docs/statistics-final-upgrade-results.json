@@ -1,0 +1,397 @@
+{
+  "baseline_commit": "03c30d38173b1a039476003a467a17b0d27d7c14",
+  "local_checkpoint": "8c575636924b2dd65fd105e0ca9259bf5b8fe421",
+  "unit_tests": 212,
+  "standard_rows_match": true,
+  "files": [
+    {
+      "id": "graph-reading",
+      "standardRows": 61,
+      "customRows": "3",
+      "requests": 29,
+      "pass": true
+    },
+    {
+      "id": "missing-values",
+      "standardRows": 30,
+      "customRows": "4",
+      "requests": 27,
+      "pass": true
+    },
+    {
+      "id": "histogram",
+      "standardRows": 61,
+      "customRows": "6",
+      "requests": 45,
+      "pass": true
+    },
+    {
+      "id": "crosstab",
+      "standardRows": 1647,
+      "customRows": "8",
+      "requests": 42,
+      "pass": true
+    },
+    {
+      "id": "correlation",
+      "standardRows": 120,
+      "customRows": "5",
+      "requests": 42,
+      "pass": true
+    },
+    {
+      "id": "time-series",
+      "standardRows": 120,
+      "customRows": "24",
+      "requests": 42,
+      "pass": true
+    },
+    {
+      "id": "sampling",
+      "standardRows": 120,
+      "customRows": "6",
+      "requests": 42,
+      "pass": true
+    },
+    {
+      "id": "hypothesis-test",
+      "standardRows": 315,
+      "customRows": "30",
+      "requests": 45,
+      "pass": true
+    },
+    {
+      "id": "projects",
+      "standardRows": 120,
+      "customRows": "5",
+      "requests": 37,
+      "pass": true
+    }
+  ],
+  "edge_checks": [
+    {
+      "test": "shell before data",
+      "id": "graph-reading",
+      "before": {
+        "paint": 252,
+        "time": 471.30000000074506,
+        "dataReady": 0
+      },
+      "ready": 549.8000000007451
+    },
+    {
+      "test": "shell before data",
+      "id": "histogram",
+      "before": {
+        "paint": 256,
+        "time": 446.69999999925494,
+        "dataReady": 0
+      },
+      "ready": 526.7999999988824
+    },
+    {
+      "test": "shell before data",
+      "id": "projects",
+      "before": {
+        "paint": 224,
+        "time": 416,
+        "dataReady": 0
+      },
+      "ready": 489.19999999925494
+    },
+    {
+      "test": "import error and reload",
+      "pass": true
+    },
+    {
+      "test": "responsive paired pie",
+      "mode": "normal",
+      "w": 244,
+      "h": 1090,
+      "rect": {
+        "x": 39,
+        "y": 1071.890625,
+        "width": 242,
+        "height": 1081.0625,
+        "top": 1071.890625,
+        "right": 281,
+        "bottom": 2152.953125,
+        "left": 39
+      },
+      "font": 12.893405963302753
+    },
+    {
+      "test": "responsive paired pie",
+      "mode": "fullscreen",
+      "w": 244,
+      "h": 1090,
+      "rect": {
+        "x": 21,
+        "y": 323.03125,
+        "width": 230,
+        "height": 1027.453125,
+        "top": 323.03125,
+        "right": 251,
+        "bottom": 1350.484375,
+        "left": 21
+      },
+      "font": 12.254028096330275
+    },
+    {
+      "test": "xlsx multiple formulas and privacy",
+      "pass": true
+    },
+    {
+      "test": "xlsx real date cells and extra sheets",
+      "pass": true
+    },
+    {
+      "test": "xlsx hash-prefixed labels retain trailing missing cells",
+      "pass": true
+    },
+    {
+      "test": "limited data explores without fabricated results",
+      "id": "missing-values",
+      "pass": true
+    },
+    {
+      "test": "limited data explores without fabricated results",
+      "id": "correlation",
+      "pass": true
+    },
+    {
+      "test": "limited data explores without fabricated results",
+      "id": "hypothesis-test",
+      "pass": true
+    }
+  ],
+  "layout_states": 284,
+  "final_mobile_states": 213,
+  "graph_choice_states": 120,
+  "performance_conditions": "Local Chromium, 1366x900, new context, 3 runs each before/after, no concurrent browser QA; milliseconds, median",
+  "performance": [
+    {
+      "lab": "graph-reading",
+      "fcp_ms": {
+        "before": 224,
+        "after": 196
+      },
+      "data_dom_ms": {
+        "before": 342,
+        "after": 317
+      },
+      "data_ready_ms": 306,
+      "ready_ms": 317,
+      "data_dom_nodes": {
+        "before": 707,
+        "after": 163
+      },
+      "first_graph_ms": {
+        "before": 504,
+        "after": 485
+      },
+      "graph_after_click_ms": {
+        "before": 62,
+        "after": 56
+      }
+    },
+    {
+      "lab": "missing-values",
+      "fcp_ms": {
+        "before": 212,
+        "after": 200
+      },
+      "data_dom_ms": {
+        "before": 324,
+        "after": 315
+      },
+      "data_ready_ms": 300,
+      "ready_ms": 315,
+      "data_dom_nodes": {
+        "before": 251,
+        "after": 119
+      },
+      "first_graph_ms": {
+        "before": 517,
+        "after": 441
+      },
+      "graph_after_click_ms": {
+        "before": 72,
+        "after": 53
+      }
+    },
+    {
+      "lab": "histogram",
+      "fcp_ms": {
+        "before": 260,
+        "after": 244
+      },
+      "data_dom_ms": {
+        "before": 457,
+        "after": 354
+      },
+      "data_ready_ms": 349,
+      "ready_ms": 354,
+      "data_dom_nodes": {
+        "before": 598,
+        "after": 115
+      },
+      "first_graph_ms": {
+        "before": 642,
+        "after": 506
+      },
+      "graph_after_click_ms": {
+        "before": 83,
+        "after": 63
+      }
+    },
+    {
+      "lab": "crosstab",
+      "fcp_ms": {
+        "before": 224,
+        "after": 180
+      },
+      "data_dom_ms": {
+        "before": 411,
+        "after": 371
+      },
+      "data_ready_ms": 330,
+      "ready_ms": 372,
+      "data_dom_nodes": {
+        "before": 18156,
+        "after": 139
+      },
+      "first_graph_ms": {
+        "before": 838,
+        "after": 501
+      },
+      "graph_after_click_ms": {
+        "before": 68,
+        "after": 49
+      }
+    },
+    {
+      "lab": "correlation",
+      "fcp_ms": {
+        "before": 196,
+        "after": 212
+      },
+      "data_dom_ms": {
+        "before": 316,
+        "after": 383
+      },
+      "data_ready_ms": 371,
+      "ready_ms": 384,
+      "data_dom_nodes": {
+        "before": 1118,
+        "after": 115
+      },
+      "first_graph_ms": {
+        "before": 537,
+        "after": 539
+      },
+      "graph_after_click_ms": {
+        "before": 94,
+        "after": 77
+      }
+    },
+    {
+      "lab": "time-series",
+      "fcp_ms": {
+        "before": 196,
+        "after": 216
+      },
+      "data_dom_ms": {
+        "before": 322,
+        "after": 365
+      },
+      "data_ready_ms": 341,
+      "ready_ms": 365,
+      "data_dom_nodes": {
+        "before": 1118,
+        "after": 115
+      },
+      "first_graph_ms": {
+        "before": 543,
+        "after": 509
+      },
+      "graph_after_click_ms": {
+        "before": 66,
+        "after": 63
+      }
+    },
+    {
+      "lab": "sampling",
+      "fcp_ms": {
+        "before": 240,
+        "after": 216
+      },
+      "data_dom_ms": {
+        "before": 328,
+        "after": 398
+      },
+      "data_ready_ms": 356,
+      "ready_ms": 398,
+      "data_dom_nodes": {
+        "before": 877,
+        "after": 91
+      },
+      "first_graph_ms": {
+        "before": 538,
+        "after": 542
+      },
+      "graph_after_click_ms": {
+        "before": 86,
+        "after": 61
+      }
+    },
+    {
+      "lab": "hypothesis-test",
+      "fcp_ms": {
+        "before": 236,
+        "after": 188
+      },
+      "data_dom_ms": {
+        "before": 441,
+        "after": 365
+      },
+      "data_ready_ms": 346,
+      "ready_ms": 365,
+      "data_dom_nodes": {
+        "before": 3504,
+        "after": 139
+      },
+      "first_graph_ms": {
+        "before": 644,
+        "after": 508
+      },
+      "graph_after_click_ms": {
+        "before": 72,
+        "after": 54
+      }
+    },
+    {
+      "lab": "projects",
+      "fcp_ms": {
+        "before": 200,
+        "after": 184
+      },
+      "data_dom_ms": {
+        "before": 253,
+        "after": 353
+      },
+      "data_ready_ms": 327,
+      "ready_ms": 354,
+      "data_dom_nodes": {
+        "before": 1359,
+        "after": 139
+      }
+    }
+  ],
+  "graph_choice_checks": {
+    "states": 120,
+    "outside_labels": 0,
+    "mobile_minimum_font_px": 10,
+    "passed": true
+  }
+}

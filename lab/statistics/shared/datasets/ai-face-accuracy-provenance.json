@@ -1,0 +1,21 @@
+{
+  "study": "Nightingale & Farid (2022), PNAS 119(8), e2120481119, experiment 1",
+  "doi": "https://doi.org/10.1073/pnas.2120481119",
+  "repository": "https://osf.io/ru36d/",
+  "input_filename": "Expt1_acc_raw_data.xlsx",
+  "input_sha256": "9c1b799d25d36d212e320f3ff7cab726f4e2811bdc76e7a42a53ee018b5983df",
+  "sheet": "Expt1_acc_raw_data",
+  "excel_rows": "3:317",
+  "excel_columns": "C:ADV (800 image columns)",
+  "blank_cells": "Image not rated by this participant; excluded from both denominator and numerator.",
+  "response_encoding": {
+    "0": "incorrect",
+    "1": "correct"
+  },
+  "transformation": "For each participant, count the 128 nonblank image cells and sum their 0/1 values; replace the original sequential participant number with P001 through P315. Ignore all demographic columns.",
+  "participants": 315,
+  "trials_per_participant": 128,
+  "total_judgements": 40320,
+  "total_correct": 19415,
+  "csv_sha256": "72a526d552c5bdb2d94d29a7ac3b18b9d570b7ded6ffaed9d7ecb606f534810d"
+}

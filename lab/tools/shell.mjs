@@ -30,8 +30,9 @@ export function renderPage({
   styles = [],
   scripts = [],
 }) {
-  const prefix = slug ? "../../" : "../";
-  const local = slug ? "../" : "./";
+  const depth = slug ? slug.split("/").length : 0;
+  const prefix = "../".repeat(depth + 1);
+  const local = depth ? "../".repeat(depth) : "./";
   const title = slug
     ? `${name}｜Interactive Lab`
     : "Interactive Lab｜情報Ⅰ Study Atlas";
@@ -50,7 +51,8 @@ export function renderPage({
       item: "https://mei-chan-nel.com/lab/",
     },
   ];
-  if (slug) crumbs.push({ "@type": "ListItem", position: 3, name, item: url });
+  if (depth > 1) crumbs.push({ "@type": "ListItem", position: 3, name: "統計・データ分析", item: "https://mei-chan-nel.com/lab/statistics/" });
+  if (slug) crumbs.push({ "@type": "ListItem", position: depth > 1 ? 4 : 3, name, item: url });
   return `<!doctype html>
 <html lang="ja"><head>
 <meta charset="utf-8" />
@@ -83,7 +85,7 @@ ${scripts.map((path) => `<script type="module" src="./${path}"></script>`).join(
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="${prefix}"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション">${links(nav, prefix)}</nav></div></header>
 <main id="main-content" class="lab-shell ${slug ? "lab-content-page" : ""}">
-<nav class="breadcrumb" aria-label="パンくず"><a href="${prefix}">Study Atlas</a><span aria-hidden="true">/</span>${slug ? `<a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>${name}</span>` : "<span>Interactive Lab</span>"}</nav>
+<nav class="breadcrumb" aria-label="パンくず"><a href="${prefix}">Study Atlas</a><span aria-hidden="true">/</span>${slug ? `<a href="${local}">Interactive Lab</a><span aria-hidden="true">/</span>${depth > 1 ? `<a href="../">統計・データ分析</a><span aria-hidden="true">/</span>` : ""}<span>${name}</span>` : "<span>Interactive Lab</span>"}</nav>
 ${body}
 </main>
 <div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>

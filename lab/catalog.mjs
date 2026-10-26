@@ -41,6 +41,7 @@ export const groups = [
 // Add completed exhibits here; category headings are not content cards.
 // generated: false preserves an independently authored page during shell builds.
 export const contents = [
+  {id:"statistics",group:"data-database",generated:false,name:"統計・データ分析",description:"実データでグラフや集計を比べる。8つのラボと横断分析課題で、データの読み方と統計手法を確かめよう。"},
   {
     id: "crypto-communication",
     group: "society-security",

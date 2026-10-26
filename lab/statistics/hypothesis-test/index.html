@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>統計的な判断と仮説検定｜Interactive Lab</title>
+<meta name="description" content="参加者の平均からZを計算し、正規分布表の境目と比べて判断する。" />
+<meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
+<meta property="og:title" content="統計的な判断と仮説検定｜Interactive Lab" /><meta property="og:description" content="参加者の平均からZを計算し、正規分布表の境目と比べて判断する。" />
+<meta property="og:url" content="https://mei-chan-nel.com/lab/statistics/hypothesis-test/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+<link rel="canonical" href="https://mei-chan-nel.com/lab/statistics/hypothesis-test/" /><meta name="theme-color" content="#102f35" />
+<link rel="icon" href="../../icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../../../assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="../../lab.css?v=3" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"},{"@type":"ListItem","position":4,"name":"統計的な判断と仮説検定","item":"https://mei-chan-nel.com/lab/statistics/hypothesis-test/"}]}</script>
+<link rel="stylesheet" href="./../statistics.css" />
+<link rel="stylesheet" href="./../workspace.css?v=20261025-final-polish" />
+<link rel="stylesheet" href="./../data/data.css?v=20261026-final-upgrade" />
+<script type="module" src="./../boot.mjs?v=20261026-final-upgrade"></script>
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+</head><body data-statistics="hypothesis-test" data-stat-lab="hypothesis-test">
+<a class="skip-link" href="#main-content">本文へ移動</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../../">トップページ</a>
+<a href="../../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../../terms/">用語一覧</a>
+<a href="../../../archive/">解説動画</a>
+<a href="../../../program-trace/">プログラムトレース</a>
+<a href="../../../LectureNote/">講義ノート</a>
+<a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
+<main id="main-content" class="lab-shell lab-content-page stat-page">
+<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>統計的な判断と仮説検定</h1><p class="workspace-purpose">参加者の平均からZを計算し、正規分布表の境目と比べて判断する。</p><p class="workspace-intro">SNSのプロフィール画像が本物かAI生成か、見た目で判断できるでしょうか。顔写真を見分ける実験の315人分の回答を使い、データの読み取りから仮説・計算・判断・解釈へ、一段階ずつ進みます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="graph-reading" >グラフの選び方と読み取り</option><option value="missing-values" >欠損値とデータの扱い</option><option value="histogram" >データの分布</option><option value="crosstab" >クロス集計</option><option value="correlation" >散布図と相関・回帰</option><option value="time-series" >時系列データの分析</option><option value="sampling" >標本調査と推定</option><option value="hypothesis-test" selected>統計的な判断と仮説検定</option><option value="projects" >横断分析課題</option></select></label></header>
+<section id="statistics-workspace" class="statistics-workspace" aria-label="統計的な判断と仮説検定の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">統計的な判断と仮説検定</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
+<nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"><button type="button" disabled aria-pressed="true">データ</button><button type="button" disabled aria-pressed="false">仮説検定を行う</button><button type="button" disabled aria-pressed="false">判断の誤り</button></nav>
+<p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><p id="statistics-load-status" class="statistics-load-status" role="status">画面を準備しています…</p><div id="experiment" aria-label="統計実験" aria-busy="true" data-load-state="shell"><section class="data-loading-shell"><h2>分析に使うデータ</h2><div class="actions"><button disabled>全件データダウンロード</button><button disabled>自分のデータで試す</button></div><p>データを確認してから、分析するタブを選びます。</p><div class="chart-placeholder" aria-label="データ・グラフの表示領域"></div></section></div>
+<p id="experiment-insight" class="experiment-insight"></p><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p>
+<nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
+</section>
+<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p><div id="explanation-body"></div></section>
+<div id="data-provenance"></div>
+<nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav><script id="statistics-module-list" type="application/json">["./app.mjs?v=20261026-final-upgrade","./crosstab/records.mjs?v=20261026-final-upgrade","./data-tab.mjs?v=20261026-final-upgrade","./data/codec.mjs?v=20261026-final-upgrade","./data/context.mjs?v=20261026-final-upgrade","./data/files.mjs?v=20261026-final-upgrade","./data/schema.mjs?v=20261026-final-upgrade","./data/view.mjs?v=20261026-final-upgrade","./fullscreen.mjs?v=20261026-final-upgrade","./histogram/model.mjs?v=20261026-final-upgrade","./hypothesis-test/charts.mjs?v=20261026-final-upgrade","./hypothesis-test/data.mjs?v=20261026-final-upgrade","./hypothesis-test/guide.mjs?v=20261026-final-upgrade","./hypothesis-test/lab.mjs?v=20261026-final-upgrade","./hypothesis-test/mean-model.mjs?v=20261026-final-upgrade","./hypothesis-test/normal-model.mjs?v=20261026-final-upgrade","./learning.mjs?v=20261026-final-upgrade","./probability/model.mjs?v=20261026-final-upgrade","./sampling/model.mjs?v=20261026-final-upgrade","./shared/chart-layout.mjs?v=20261026-final-upgrade","./shared/csv.mjs?v=20261026-final-upgrade","./shared/data-model.mjs?v=20261026-final-upgrade","./shared/data.mjs?v=20261026-final-upgrade","./shared/fullscreen-layout.mjs?v=20261026-final-upgrade","./shared/math.mjs?v=20261026-final-upgrade","./shared/public-data.mjs?v=20261026-final-upgrade","./shared/reading.mjs?v=20261026-final-upgrade","./shared/samples.mjs?v=20261026-final-upgrade","./shared/sources.mjs?v=20261026-final-upgrade","./shared/ui.mjs?v=20261026-final-upgrade","./shared/validation.mjs?v=20261026-final-upgrade","./time-series/data.mjs?v=20261026-final-upgrade","./time-series/model.mjs?v=20261026-final-upgrade","./workbench.mjs?v=20261026-final-upgrade"]</script>
+</main>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>
+<a href="../../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../../terms/">用語一覧</a>
+<a href="../../../archive/">解説動画</a>
+<a href="../../../program-trace/">プログラムトレース</a>
+<a href="../../../LectureNote/">講義ノート</a>
+<a href="../../../lab/" aria-current="page">ラボ</a>
+<a href="../../../study-guide.html">使い方</a>
+<a href="../../../books/">書籍案内</a>
+<a href="../../../about.html">このサイトについて</a>
+<a href="../../../privacy.html">プライバシーポリシー</a>
+<a href="../../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<script type="module" src="../../navigation.mjs?v=1"></script>
+</body></html>

@@ -1,0 +1,533 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {
+  makeInitial,
+  normalizeState,
+  matrixFor,
+  cellSummary,
+  successRate,
+  equalCompositionRates,
+  setComposition,
+  editCount,
+} from "./lab.mjs";
+
+test("original strata give Simpson reversal: A higher within each stratum, B higher overall", () => {
+  const state = makeInitial();
+  assert.deepEqual(matrixFor(state.strata), [
+    [42, 58],
+    [68, 32],
+  ]);
+  for (const s of state.strata)
+    assert.ok(successRate(s.counts, 0) > successRate(s.counts, 1));
+  assert.ok(
+    successRate(matrixFor(state.strata), 0) <
+      successRate(matrixFor(state.strata), 1),
+  );
+});
+
+test("row, column and cell ratios use their own exact denominators", () => {
+  const matrix = matrixFor(makeInitial().strata);
+  assert.deepEqual(cellSummary(matrix, 1, 0, "row"), {
+    numerator: 68,
+    denominator: 100,
+    ratio: 0.68,
+    count: false,
+  });
+  assert.equal(cellSummary(matrix, 1, 0, "column").denominator, 110);
+  assert.equal(cellSummary(matrix, 1, 0, "column").ratio, 68 / 110);
+  assert.equal(cellSummary(matrix, 1, 0, "cell").ratio, 68 / 200);
+  assert.equal(cellSummary(matrix, 1, 0, "count").count, true);
+});
+
+test("empty denominators and missing strata remain undefined rather than becoming zero rates", () => {
+  const matrix = [
+    [0, 0],
+    [0, 0],
+  ];
+  assert.equal(cellSummary(matrix, 0, 0, "row").ratio, null);
+  assert.equal(successRate(matrix, 0), null);
+  const state = makeInitial();
+  state.strata[0].counts[0] = [0, 0];
+  assert.equal(equalCompositionRates(state.strata, 0.5)[0], null);
+  assert.equal(equalCompositionRates(state.strata, 0)[0], 0.3);
+});
+
+test("common-composition rates isolate the differing stratum proportions", () => {
+  const rates = equalCompositionRates(makeInitial().strata, 0.5);
+  assert.ok(Math.abs(rates[0] - 0.6) < 1e-12);
+  assert.ok(Math.abs(rates[1] - 0.5) < 1e-12);
+});
+
+test("composition changes preserve group totals, integer counts, and stable anchor rates", () => {
+  const initial = makeInitial();
+  let state = initial;
+  for (const share of [0, 99, 37, 100, 20]) {
+    state = setComposition(state, 0, share);
+    const cells = state.strata.flatMap((s) => s.counts[0]);
+    assert.equal(
+      cells.reduce((a, b) => a + b, 0),
+      100,
+    );
+    assert.ok(cells.every((n) => Number.isInteger(n) && n >= 0));
+  }
+  assert.deepEqual(state.strata, initial.strata);
+  assert.deepEqual(initial, makeInitial(), "source state is never mutated");
+});
+
+test("redistribution does not truncate a large editable table when concentrating everyone in one stratum", () => {
+  const state = makeInitial();
+  for (const s of state.strata) s.counts[0] = [10000, 10000];
+  const redistributed = setComposition(setComposition(state, 0, 100), 0, 0);
+  assert.equal(
+    matrixFor(redistributed.strata)[0].reduce((a, b) => a + b),
+    40000,
+  );
+});
+
+test("direct count edits update redistribution anchors; both empty preserves last meaningful rate", () => {
+  const initial = makeInitial();
+  const edited = editCount(initial, 0, 0, 0, 2);
+  assert.equal(edited.anchors[0][0], 0.5);
+  const empty = editCount(editCount(edited, 0, 0, 0, 0), 0, 0, 1, 0);
+  assert.equal(empty.anchors[0][0], 0);
+  assert.deepEqual(initial, makeInitial());
+});
+
+test("state normalization enforces integer nonnegative counts and valid selections", () => {
+  const normalized = normalizeState({
+    strata: [
+      {
+        counts: [
+          [-1, 4.5],
+          [Infinity, 999999],
+        ],
+      },
+    ],
+    mode: "bad",
+    selectedScope: "wrong",
+  });
+  assert.deepEqual(normalized.strata[0].counts, [
+    [0, 5],
+    [0, 999999],
+  ]);
+  assert.equal(normalized.mode, "row");
+  assert.equal(normalized.selectedScope, "all");
+});
+
+import {
+  recordsFor,
+  aggregateRecords,
+  labelsForRecords,
+  tableValues,
+  defaultLabels,
+} from "./records.mjs";
+import { applyData, currentData } from "../shared/data-model.mjs";
+import { applyTableRows } from "../shared/table-data.mjs";
+
+test("individual records round-trip through CSV data and aggregate exactly once per person", () => {
+  const initial = makeInitial(),
+    rows = recordsFor(initial);
+  assert.equal(rows.length, 200);
+  assert.deepEqual(aggregateRecords(rows, defaultLabels), initial.strata);
+  const imported = applyData("crosstab", initial, {
+    headers: ["課題難度", "方式", "結果"],
+    rows,
+    name: "記録",
+  });
+  assert.deepEqual(currentData("crosstab", imported).rows, rows);
+  assert.deepEqual(normalizeState(imported).strata, initial.strata);
+});
+test("row, column and cell margins follow the same denominator rule, including empty margins", () => {
+  const m = [
+    [18, 2],
+    [64, 16],
+  ];
+  assert.deepEqual(tableValues(m, "count"), [
+    [18, 2, 20],
+    [64, 16, 80],
+    [82, 18, 100],
+  ]);
+  assert.deepEqual(tableValues(m, "row"), [
+    [0.9, 0.1, 1],
+    [0.8, 0.2, 1],
+    [0.82, 0.18, 1],
+  ]);
+  assert.deepEqual(tableValues(m, "column"), [
+    [18 / 82, 2 / 18, 0.2],
+    [64 / 82, 16 / 18, 0.8],
+    [1, 1, 1],
+  ]);
+  assert.deepEqual(tableValues(m, "cell"), [
+    [0.18, 0.02, 0.2],
+    [0.64, 0.16, 0.8],
+    [0.82, 0.18, 1],
+  ]);
+  assert.equal(
+    tableValues(
+      [
+        [0, 0],
+        [2, 0],
+      ],
+      "row",
+    )[0][2],
+    null,
+  );
+  assert.equal(
+    tableValues(
+      [
+        [0, 0],
+        [2, 0],
+      ],
+      "column",
+    )[2][1],
+    null,
+  );
+});
+test("adding, deleting or editing a person updates the table while preserving outcome order", () => {
+  const initial = applyData("crosstab", makeInitial(), {
+    headers: ["課題難度", "方式", "結果"],
+    rows: [
+      ["初級課題", "A方式", "未達成"],
+      ["応用課題", "B方式", "達成"],
+    ],
+    name: "記録",
+  });
+  assert.deepEqual(initial.dataInfo.labels.outcomes, ["達成", "未達成"]);
+  const data = currentData("crosstab", initial);
+  const removed = applyTableRows("crosstab", initial, data, [data.rows[0]]);
+  assert.deepEqual(removed.dataInfo.labels.outcomes, ["達成", "未達成"]);
+  assert.deepEqual(matrixFor(removed.strata), [
+    [0, 1],
+    [0, 0],
+  ]);
+  const added = applyTableRows("crosstab", initial, data, [
+    ...data.rows,
+    ["初級課題", "A方式", "達成"],
+  ]);
+  assert.deepEqual(matrixFor(added.strata), [
+    [1, 1],
+    [1, 0],
+  ]);
+  const edited = applyTableRows("crosstab", initial, data, [
+    ["初級課題", "A方式", "達成"],
+    data.rows[1],
+  ]);
+  assert.deepEqual(matrixFor(edited.strata), [
+    [1, 0],
+    [1, 0],
+  ]);
+  assert.deepEqual(initial.records, data.rows, "input state remains unchanged");
+});
+test("individual records reject blank or third categories and support a ten-thousand-person round trip", () => {
+  const input = (rows) =>
+    applyData("crosstab", makeInitial(), {
+      headers: ["課題難度", "方式", "結果"],
+      rows,
+      name: "記録",
+    });
+  assert.throws(() => input([["初級課題", "A方式", ""]]));
+  assert.throws(() =>
+    input([
+      ["初級", "A", "達成"],
+      ["応用", "A", "達成"],
+      ["中級", "A", "達成"],
+    ]),
+  );
+  const rows = Array.from({ length: 10000 }, (_, i) => [
+    i % 2 ? "応用課題" : "初級課題",
+    i % 3 ? "A方式" : "B方式",
+    i % 5 ? "達成" : "未達成",
+  ]);
+  const s = input(rows);
+  assert.equal(
+    matrixFor(s.strata)
+      .flat()
+      .reduce((a, b) => a + b, 0),
+    10000,
+  );
+  assert.deepEqual(currentData("crosstab", s).rows, rows);
+  assert.deepEqual(
+    labelsForRecords([["初級課題", "A方式", "未達成"]]).outcomes,
+    ["達成", "未達成"],
+  );
+});
+
+import { denominatorRegions } from "./records.mjs";
+test("fixed population regions select the exact numerator and denominator for every scope and ratio", () => {
+  const strata = makeInitial().strata;
+  for (const scope of ["all", "0", "1"])
+    for (const method of [-1, 0, 1])
+      for (const outcome of [-1, 0, 1])
+        for (const mode of ["row", "column", "cell"]) {
+          const regions = denominatorRegions(
+            strata,
+            scope,
+            method,
+            outcome,
+            mode,
+          );
+          const fraction = cellSummary(
+            matrixFor(strata, scope),
+            method,
+            outcome,
+            mode,
+          );
+          assert.equal(
+            regions.length,
+            8,
+            "all difficulty/method/outcome regions remain present",
+          );
+          assert.equal(
+            regions.reduce((sum, r) => sum + r.count, 0),
+            200,
+            "population stays fixed",
+          );
+          assert.equal(
+            regions
+              .filter((r) => r.inNumerator)
+              .reduce((sum, r) => sum + r.count, 0),
+            fraction.numerator,
+          );
+          assert.equal(
+            regions
+              .filter((r) => r.inDenominator)
+              .reduce((sum, r) => sum + r.count, 0),
+            fraction.denominator,
+          );
+          assert.ok(
+            regions.filter((r) => r.inNumerator).every((r) => r.inDenominator),
+          );
+        }
+});
+
+test("marginal counts remain correct while obsolete overall-axis choices migrate", () => {
+  const matrix = matrixFor(makeInitial().strata);
+  assert.deepEqual(cellSummary(matrix, -1, 0, "cell"), {
+    numerator: 110,
+    denominator: 200,
+    ratio: 0.55,
+    count: false,
+  });
+  assert.deepEqual(cellSummary(matrix, 0, -1, "column"), {
+    numerator: 100,
+    denominator: 200,
+    ratio: 0.5,
+    count: false,
+  });
+  assert.equal(cellSummary(matrix, -1, -1, "row").ratio, 1);
+  assert.equal(cellSummary(matrix, 0, -1, "row").ratio, 1);
+  assert.equal(cellSummary(matrix, -1, 0, "column").ratio, 1);
+  assert.equal(
+    cellSummary(
+      [
+        [0, 0],
+        [0, 0],
+      ],
+      -1,
+      -1,
+      "cell",
+    ).ratio,
+    null,
+  );
+  const state = normalizeState({
+    ...makeInitial(),
+    selectedRow: -1,
+    selectedCol: -1,
+  });
+  assert.equal(state.selectedRow, 0);
+  assert.equal(state.selectedCol, 0);
+});
+
+import { areaDiagram } from "./records.mjs";
+test("fraction mosaics use population area ratios, fixed orientation and touching method bands", () => {
+  const cases = [
+    makeInitial().strata,
+    [
+      {
+        counts: [
+          [1, 0],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+    ],
+    [
+      {
+        counts: [
+          [1, 8998],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [1, 1000],
+        ],
+      },
+    ],
+    [
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+      {
+        counts: [
+          [0, 0],
+          [0, 0],
+        ],
+      },
+    ],
+    ...Array.from({ length: 25 }, (_, seed) =>
+      [0, 1].map((s) => ({
+        counts: [0, 1].map((r) =>
+          [0, 1].map((c) => (seed * 17 + s * 11 + r * 7 + c * 3) % 91),
+        ),
+      })),
+    ),
+  ];
+  for (const strata of cases) {
+    const layout = areaDiagram(strata),
+      area = layout.plotWidth * layout.plotHeight;
+    assert.equal(layout.regions.length, 8);
+    assert.ok(
+      Math.abs(
+        layout.methods[0].y + layout.methods[0].height - layout.methods[1].y,
+      ) < 1e-8,
+      "no gap between methods",
+    );
+    for (const box of layout.regions) {
+      const expected = layout.total ? box.count / layout.total : 0;
+      assert.ok(
+        Math.abs((box.width * box.height) / area - expected) < 1e-12,
+        "each area share equals its person share",
+      );
+      assert.ok(box.width >= 0 && box.height >= 0);
+      if (!box.count)
+        assert.equal(box.width * box.height, 0, "zero people have zero area");
+    }
+    for (const r of [0, 1])
+      for (const s of [0, 1]) {
+        const success = layout.regions.find(
+            (x) => x.method === r && x.stratum === s && x.outcome === 0,
+          ),
+          failure = layout.regions.find(
+            (x) => x.method === r && x.stratum === s && x.outcome === 1,
+          );
+        assert.ok(success.x <= failure.x);
+        assert.ok(
+          Math.abs(success.x + success.width - failure.x) < 1e-8,
+          "success left, failure right, no gap",
+        );
+        if (s === 0) {
+          const hard = layout.regions.find(
+            (x) => x.method === r && x.stratum === 1 && x.outcome === 0,
+          );
+          assert.ok(
+            Math.abs(success.y + success.height - hard.y) < 1e-8,
+            "easy above hard, no gap",
+          );
+        }
+      }
+  }
+});
+
+import { simpsonComparison } from "./lab.mjs";
+test("paired counts expose the Simpson reversal and separate actual composition from equal-composition rates", () => {
+  const state = makeInitial(),
+    before = JSON.stringify(state),
+    view = simpsonComparison(state);
+  assert.deepEqual(
+    view.rows.map((row) => row.methods.map((m) => [m.achieved, m.total])),
+    [
+      [
+        [42, 100],
+        [68, 100],
+      ],
+      [
+        [18, 20],
+        [64, 80],
+      ],
+      [
+        [24, 80],
+        [4, 20],
+      ],
+    ],
+  );
+  assert.deepEqual(
+    view.composition.map((m) => m.counts),
+    [
+      [20, 80],
+      [80, 20],
+    ],
+  );
+  assert.deepEqual(
+    view.composition.map((m) => m.shares),
+    [
+      [0.2, 0.8],
+      [0.8, 0.2],
+    ],
+  );
+  assert.equal(view.reversed, true);
+  assert.equal(view.withinWinner, 0);
+  assert.equal(view.overallWinner, 1);
+  assert.equal(view.easier, 0);
+  assert.ok(Math.abs(view.standardized[0] - 0.6) < 1e-12);
+  assert.ok(Math.abs(view.standardized[1] - 0.5) < 1e-12);
+  for (const selectedScope of ["all", "0", "1"])
+    assert.deepEqual(
+      simpsonComparison({ ...state, selectedScope }).rows,
+      view.rows,
+    );
+  assert.equal(
+    JSON.stringify(state),
+    before,
+    "display and standardization never rewrite the observational counts",
+  );
+});
+test("paired comparisons handle ties and missing populations without inventing a reversal", () => {
+  const state = makeInitial();
+  state.strata = [
+    {
+      counts: [
+        [1, 1],
+        [1, 1],
+      ],
+    },
+    {
+      counts: [
+        [1, 1],
+        [1, 1],
+      ],
+    },
+  ];
+  const tied = simpsonComparison(state);
+  assert.equal(tied.reversed, false);
+  assert.equal(tied.overallWinner, null);
+  assert.deepEqual(tied.standardized, [0.5, 0.5]);
+  state.strata = [
+    {
+      counts: [
+        [0, 0],
+        [3, 1],
+      ],
+    },
+    {
+      counts: [
+        [0, 0],
+        [0, 0],
+      ],
+    },
+  ];
+  const empty = simpsonComparison(state);
+  assert.equal(empty.rows[0].methods[0].rate, null);
+  assert.equal(empty.standardized[0], null);
+  assert.equal(empty.standardized[1], null);
+  assert.equal(empty.reversed, false);
+});

@@ -109,7 +109,7 @@ function* htmlPages(directory) {
   }
 }
 
-test("every portal content page loads the same analytics file once, independently of the header", () => {
+test("portal pages load analytics once; browser-local statistics pages load none", () => {
   const analyticsFile = new URL("assets/site-analytics.js", root);
   for (const file of htmlPages(root)) {
     const html = readFileSync(file, "utf8");
@@ -117,6 +117,11 @@ test("every portal content page loads the same analytics file once, independentl
     if (!/<head\b/u.test(html)) continue;
     const tags = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/gu)];
     const analytics = tags.filter((match) => new URL(match[1], file).pathname === analyticsFile.pathname);
+    if (file.pathname.startsWith(new URL("lab/statistics/", root).pathname)) {
+      assert.equal(analytics.length, 0, file.pathname);
+      assert.doesNotMatch(html, /googletagmanager|gtag\(/u, file.pathname);
+      continue;
+    }
     assert.equal(analytics.length, 1, file.pathname);
     const tag = analytics[0];
     assert.ok(tag.index < html.indexOf("</head>"), file.pathname);
