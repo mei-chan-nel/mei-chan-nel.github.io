@@ -1,6 +1,14 @@
 # Interactive Lab「ChatGPTに聞く」実装・検証報告
 
-2026-10-26。全15ラボ、統計の8子コンテンツに共通機能を実装しました。関連する「横断分析課題」にも同じ部品を適用し、合計24ページを対象にしています。実際のChatGPTへの受信と複数ターンの回答品質は未確認のため、実装とローカル検証を完了したレビュー用変更です。本番公開は行っていません。
+2026-10-26。全15ラボ、統計の8子コンテンツに共通機能を実装しました。関連する「横断分析課題」にも同じ部品を適用し、合計24ページを対象にしています。ユーザーの本番反映指示に従い、PR #21をmainにマージしてGitHub Pagesへ公開しました。実際のChatGPTへの受信と複数ターンの回答品質は未確認です。
+
+## 本番反映
+
+公開先は [Study Atlas Interactive Lab](https://mei-chan-nel.com/lab/) です。マージコミットは`b3be6d51a40a8d26d325fb4996a6dd9d7a93454e`。[Pagesの公開処理](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40316411484)と[マージ後の統合CI](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40316411767)はいずれも成功しました。
+
+公開処理が使用したartifactを取得し、全24ページ、共通JS/CSS、案内JSON、統計boot、CNAMEの55ファイルがマージ内容と一致することを確認しました。artifactのSHA-256もGitHubの記録と一致しています。[公開検証記録](reports/lab-chatgpt-release.json)に詳細を保存しました。
+
+本番URLへの直接HTTP確認は、実行環境のネットワーク許可先に対象ドメインが含まれていないためproxyで403になりました。公開処理の成功と公開ファイルの一致を確認したもので、本番URLの直接表示や実ChatGPTでの動作確認を済ませたものではありません。
 
 ## 共通の使い方と構成
 
@@ -68,7 +76,7 @@
 
 最終実行のページ別結果と環境情報は[検証記録JSON](reports/lab-chatgpt-validation.json)に保存しました。
 
-レビュー用の[draft PR #21](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21)を作成済みです。実装コミット`9632215`の[GitHub CI](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40315803673)も成功しています。
+[PR #21](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21)はmainへマージ済みです。実装コミット`9632215`の[GitHub CI](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40315803673)も成功しています。
 
 画面検査は、ボタンが1個で44px以上、画面内に収まる、見出しに重ならない、Enterで起動できる、生成文が一致する、元の入力・localStorage・URLが維持されることを確認します。CPUのPC、思考ツールの390px、統計分布の320pxはキャプチャも目視確認しました。ページJavaScriptエラーも検査しています。
 
@@ -83,7 +91,7 @@
 |追加・共通部品|`lab/help/help.css`、`launcher.mjs`、`prompt.mjs`、`README.md`|
 |追加・案内データ|`lab/help/data/common.json`、`manifest.json`、上記の24案内JSON|
 |追加・検証と例文生成|`scripts/lab-help.test.mjs`、`lab/tools/test-help.mjs`、`test-help-activities.mjs`、`export-help-prompts.mjs`|
-|追加・文書|本報告、`docs/LAB_CHATGPT_WORK_LOG.md`、`LAB_CHATGPT_PROMPTS.md`、`docs/reports/lab-chatgpt-validation.json`|
+|追加・文書|本報告、`docs/LAB_CHATGPT_WORK_LOG.md`、`LAB_CHATGPT_PROMPTS.md`、`docs/reports/lab-chatgpt-validation.json`、`lab-chatgpt-release.json`|
 |変更・通常ラボHTML|`lab/{color-vision,cpu-memory,crypto-communication,digital-audio,digital-image,flowchart,image-compression,logic-circuit,os-work,packet-routing,question-map,radix-conversion,relational-database,thinking-tools}/index.html`|
 |変更・統計HTML|`lab/statistics/index.html` と `lab/statistics/{correlation,crosstab,graph-reading,histogram,hypothesis-test,missing-values,projects,sampling,time-series}/index.html`|
 |変更・生成処理|`lab/tools/shell.mjs`、`lab/tools/build-preview.mjs`、`lab/statistics/build.mjs`|
@@ -98,4 +106,4 @@ Safari、Firefox、iOS/Androidの実機でも未確認です。390px・320pxの�
 
 続きは[作業記録](LAB_CHATGPT_WORK_LOG.md)から再開できます。実サービスの確認では[生成文](LAB_CHATGPT_PROMPTS.md)を使い、各教材で「最初の説明 → 操作方法の追加質問 → 比較する実験 → 結果の解釈」を試し、実画面と照合してください。数値を渡さない場合に結果を推測しないこと、統計の相関・因果や標本・母集団の注意が保たれることも確認します。
 
-データ更新とテスト再実行の手順は[保守用README](../lab/help/README.md)に記載しました。mainへのマージ、本番公開は行っていません。
+データ更新とテスト再実行の手順は[保守用README](../lab/help/README.md)に記載しました。公開後の追加確認と更新も、作業記録を残しながら進められます。
