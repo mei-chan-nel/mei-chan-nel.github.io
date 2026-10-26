@@ -1,4 +1,4 @@
-import { esc } from "./ui.mjs";
+import { esc } from "./ui.mjs?v=20261026-final-upgrade";
 const jmaMonthly =
   "https://www.data.jma.go.jp/stats/etrn/view/monthly_s3.php?prec_no=44&block_no=47662&year=&month=&day=&view=a1";
 const jmaDaily = (month) =>

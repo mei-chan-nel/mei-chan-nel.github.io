@@ -1,7 +1,7 @@
-import { mkdir, writeFile } from "node:fs/promises";
-import { renderPage } from "../tools/shell.mjs";
-import { labs } from "./catalog.mjs";
-import { experiences } from "./experience.mjs?v=20261025-final-polish";
+import { mkdir, writeFile, readFile } from "node:fs/promises";
+import { renderPage } from "../tools/shell.mjs?v=20261026-final-upgrade";
+import { labs } from "./catalog.mjs?v=20261026-final-upgrade";
+import { experiences } from "./experience.mjs?v=20261026-final-upgrade";
 const esc = (s) =>
   String(s)
     .replaceAll("&", "&amp;")
@@ -13,7 +13,26 @@ const heading = (name, purpose, id, intro) =>
   `<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>${name}</h1><p class="workspace-purpose">${purpose}</p><p class="workspace-intro">${intro}</p></div>${selector(id)}</header>`;
 const academic = (body) =>
   `<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p>${body}</section>`;
+// Fetch static dependency branches in parallel only after boot has let the UI
+// paint. Excel, uploads and optional explanations remain lazy imports.
+async function moduleList(slug) {
+  const entry=slug==='projects'?'./projects.mjs?v=20261026-final-upgrade':['graph-reading','missing-values'].includes(slug)?'./foundations/app.mjs?v=20261026-final-upgrade':'./app.mjs?v=20261026-final-upgrade';
+  const base=new URL('./',import.meta.url),seen=new Map();
+  async function visit(spec,from=base) {
+    const url=new URL(spec,from),file=new URL(url);file.search='';
+    if(seen.has(url.href))return;
+    seen.set(url.href,'./'+url.href.slice(base.href.length));
+    const source=await readFile(file,'utf8');
+    const imports=[...source.matchAll(/\bimport\s+(?:[^'"`;]*?\s+from\s*)?['"]([^'"]+)['"]/g)].map(m=>m[1]).filter(s=>s.startsWith('.'));
+    await Promise.all(imports.map(s=>visit(s,url)));
+  }
+  await visit(entry);
+  if(slug!=='projects')await visit(`./${slug}/lab.mjs?v=20261026-final-upgrade`);
+  return [...seen.values()].sort();
+}
 async function save(slug, body, scripts = []) {
+  if(scripts.some(s=>s.includes('/boot.mjs')))
+    body+=`<script id="statistics-module-list" type="application/json">${JSON.stringify(await moduleList(slug)).replaceAll('<','\\u003c')}</script>`;
   const name =
     labs.find((r) => r[0] === slug)?.[1] ||
     (slug === "projects" ? "横断分析課題" : "統計・データ分析");
@@ -29,13 +48,14 @@ async function save(slug, body, scripts = []) {
       slug
         ? "../workspace.css?v=20261025-final-polish"
         : "workspace.css?v=20261025-final-polish",
-      ...(["graph-reading", "missing-values"].includes(slug) ? [`../foundations/foundations.css?v=${slug === "missing-values" ? "20261026-missing-notes" : "20261025-distributions"}`] : []),
+      ...(["graph-reading", "missing-values"].includes(slug) ? [`../foundations/foundations.css?v=${slug === "missing-values" ? "20261026-final-upgrade" : "20261026-final-upgrade"}`] : []),
+      slug ? "../data/data.css?v=20261026-final-upgrade" : "data/data.css?v=20261026-final-upgrade",
     ],
     scripts,
   });
   html = html
     .replace(
-      /<script\b[^>]*src="[^"]*(?:adsbygoogle|manual-ads)\.js[^"]*"[^>]*><\/script>\n?/g,
+      /<script\b[^>]*src="[^"]*(?:adsbygoogle|manual-ads|site-analytics)\.js[^"]*"[^>]*><\/script>\n?/g,
       "",
     )
     .replace(/<div class="manual-ad-slot[^"]*"[^>]*hidden><\/div>\n?/g, "")
@@ -48,13 +68,6 @@ async function save(slug, body, scripts = []) {
       `<body data-statistics="${slug || "index"}"${experiences[slug] ? ` data-stat-lab="${slug}"` : ""}>`,
     )
     .replace(/<nav class="breadcrumb"[\s\S]*?<\/nav>\n/, "");
-  // Fetch the selected lab alongside the entry point rather than waiting for
-  // the app's dependency graph and dynamic import to finish in sequence.
-  if (experiences[slug] && slug !== "projects")
-    html = html.replace(
-      '<script type="module" src="./../app.mjs',
-      `<link rel="modulepreload" href="./lab.mjs?v=20261025-final-polish" />\n<script type="module" src="./../app.mjs`,
-    );
   const url = new URL(
     slug ? `./${slug}/index.html` : "./index.html",
     import.meta.url,
@@ -64,7 +77,7 @@ async function save(slug, body, scripts = []) {
 }
 const homeGuides = {
   "graph-reading": ["気温の変化、降水量の内訳、日照と気温の関係を題材ごとのタブで比べ、別のグラフでは何が読み取りにくいかを確かめます。", "棒は量の比較、折れ線は時間変化、散布図は2つの量の関係、ヒストグラムは分布、円グラフは全体の内訳を表します。"],
-  "missing-values": ["データタブで欠損を決め、比較表から0・平均・中央値・直前の値・線形補間を選んで、グラフや集計の違いを調べます。", "欠損値は、値が0なのではなく分からない状態です。平均の分母になる件数を確かめ、集計方法による平均・分散の違いを読み取ります。"],
+  "missing-values": ["標準または読み込んだ欠損データを使い、比較表から0・平均・中央値・直前の値・線形補間を選んで、グラフや集計の違いを調べます。", "欠損値は、値が0なのではなく分からない状態です。平均の分母になる件数を確かめ、集計方法による平均・分散の違いを読み取ります。"],
   correlation: [
     '点を動かし、相関係数や回帰直線、予測値がどう変わるかを調べます。',
     '散布図は、同じ対象の2つの数値を点で表します。相関係数は直線的な関係の向きと強さを、回帰直線は一方の値からもう一方を予測する目安を示します。実際の値と予測値の差が残差です。',
@@ -107,23 +120,23 @@ for (const [id, title] of labs) {
     id,
     `${heading(title, e.purpose, id, e.intro)}
 <section id="statistics-workspace" class="statistics-workspace" aria-label="${title}の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">${title}</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
-<nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示"></nav>
-<p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><div id="experiment" aria-label="統計実験"><p role="status">データを読み込んでいます…</p></div>
+<nav id="view-tabs" class="view-tabs workspace-tabbar" aria-label="データと分析結果の表示">${["データ",...e.views].map((v,i)=>`<button type="button" disabled aria-pressed="${i===0}">${esc(v)}</button>`).join("")}</nav>
+<p id="tab-progress" class="tab-progress" role="status"></p><p id="lab-lead" class="lab-lead"></p><p id="statistics-load-status" class="statistics-load-status" role="status">画面を準備しています…</p><div id="experiment" aria-label="統計実験" aria-busy="true" data-load-state="shell"><section class="data-loading-shell"><h2>分析に使うデータ</h2><div class="actions"><button disabled>全件データダウンロード</button><button disabled>自分のデータで試す</button></div><p>データを確認してから、分析するタブを選びます。</p><div class="chart-placeholder" aria-label="データ・グラフの表示領域"></div></section></div>
 <p id="experiment-insight" class="experiment-insight"></p><p id="analysis-flow" class="analysis-flow" aria-label="データに行った処理"></p>
 <nav id="step-navigation" class="step-navigation" aria-label="学習タブの順路"></nav>
 </section>
 ${academic('<div id="explanation-body"></div>')}
 <div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    [id === "graph-reading" ? "../foundations/app.mjs?v=20261025-distributions" : id === "missing-values" ? "../foundations/app.mjs?v=20261026-missing-notes" : "../app.mjs?v=20261025-final-polish"],
+    ["../boot.mjs?v=20261026-final-upgrade"],
   );
 }
 await save(
   "projects",
   `${heading("横断分析課題", "同じデータを分布・代表値・相関で眺め、見える特徴の違いを比べる。", "projects", "気温の高い月ほどアイスクリームへの支出が多いでしょうか。分布・代表値・相関から同じデータを見ると、どんな違いが見つかるか試せます。自分の2列の数値データでも利用できます。")}
-<section id="statistics-workspace" class="statistics-workspace" aria-label="横断分析課題の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">横断分析課題</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div><nav id="project-tabs" class="view-tabs project-tabs workspace-tabbar" aria-label="横断分析の表示"></nav><div id="project-root"></div></section>
-${academic(`<details class="academic-section"><summary>問いに合わせて分析方法を選ぶ</summary><div class="explanation-content"><p>「支出の多い月はどれくらいあるか」には分布、「典型的な支出や月ごとの差はどれくらいか」には代表値とばらつき、「気温と支出に関係があるか」には散布図が役立ちます。すべての方法を使うことより、問いの根拠になる情報を選ぶことが大切です。</p><p>2016〜2025年の東京の月平均気温と全国の世帯当たり支出金額を、同じ月で対応させた120組の公開データです。各ラボへは同じ行の対応と列名を引き継ぎ、分布・代表値ではどちらの列を分析するか選べます。</p></div></details><details class="academic-section"><summary>分析結果を結び付け、限界も確かめる</summary><div class="explanation-content"><p>平均が高いことと、全員の得点が高いことは同じではありません。分布に複数の山があれば、集団別にも調べます。相関係数が大きくても、外れ値が直線を動かしていないか、予測範囲が元データから離れすぎていないかを確認しましょう。</p><p>気温と支出の関連だけで、気温の上昇が支出を何円増やすかは言えません。季節の行事、価格の変化、地域の違いなども関係しえます。どの集団のデータか、条件がそろっているか、他の説明はないかも考えると、数値の意味を読み取りやすくなります。</p></div></details>`)}<div id="data-provenance"></div>`,
-  ["../projects.mjs?v=20261025-final-polish"],
+<section id="statistics-workspace" class="statistics-workspace" aria-label="横断分析課題の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">横断分析課題</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div><nav id="project-tabs" class="view-tabs project-tabs workspace-tabbar" aria-label="横断分析の表示"><button disabled>データ</button><button disabled>分析方法を選ぶ</button><button disabled>特徴を見比べる</button></nav><p id="statistics-load-status" class="statistics-load-status" role="status">画面を準備しています…</p><div id="project-root" aria-busy="true" data-load-state="shell"><section class="data-loading-shell"><h2>分析に使うデータ</h2><div class="actions"><button disabled>全件データダウンロード</button><button disabled>自分のデータで試す</button></div><div class="chart-placeholder"></div></section></div></section>
+${academic(`<details class="academic-section"><summary>問いに合わせて分析方法を選ぶ</summary><div class="explanation-content"><p>「支出の多い月はどれくらいあるか」には分布、「典型的な支出や月ごとの差はどれくらいか」には代表値とばらつき、「気温と支出に関係があるか」には散布図が役立ちます。すべての方法を使うことより、問いの根拠になる情報を選ぶことが大切です。</p><p>標準データは、2016〜2025年の東京の月平均気温と全国の世帯当たり支出金額を、同じ月で対応させた120組の公開データです。各ラボへは同じ行の対応と列名を引き継ぎ、分布・代表値ではどちらの列を分析するか選べます。</p></div></details><details class="academic-section"><summary>分析結果を結び付け、限界も確かめる</summary><div class="explanation-content"><p>平均が高いことと、全員の得点が高いことは同じではありません。分布に複数の山があれば、集団別にも調べます。相関係数が大きくても、外れ値が直線を動かしていないか、予測範囲が元データから離れすぎていないかを確認しましょう。</p><p>気温と支出の関連だけで、気温の上昇が支出を何円増やすかは言えません。季節の行事、価格の変化、地域の違いなども関係しえます。どの集団のデータか、条件がそろっているか、他の説明はないかも考えると、数値の意味を読み取りやすくなります。</p></div></details>`)}<div id="data-provenance"></div>`,
+  ["../boot.mjs?v=20261026-final-upgrade"],
 );
 console.log(
   `Built statistics index, ${labs.length} labs and project with natural page flow`,
@@ -134,7 +147,7 @@ await mkdir(new URL("./summary/", import.meta.url), { recursive: true });
 await writeFile(
   new URL("./summary/index.html", import.meta.url),
   `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>データの分布へ統合しました｜Study Atlas</title><link rel="stylesheet" href="../workspace.css?v=20261025-final-polish"><script type="module" src="../legacy-summary.mjs?v=20261025-final-polish"></script></head><body><main class="stat-page"><h1>代表値とばらつきは「データの分布」へ統合しました</h1><p>分布・箱ひげ図・代表値計算を、同じデータで確認できます。</p><section id="legacy-summary-data" hidden><p>旧ページの保存データを統合ラボで使うか、CSVに保存できます。旧ページの保存データはそのまま残ります。</p><div class="actions"><button id="legacy-summary-open" type="button">この保存データで開く</button><button id="legacy-summary-download" type="button">CSVで保存</button></div></section><p><a href="../histogram/">データの分布を開く →</a></p></main></body></html>`,
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>データの分布へ統合しました｜Study Atlas</title><link rel="stylesheet" href="../workspace.css?v=20261025-final-polish"><script type="module" src="../legacy-summary.mjs?v=20261026-final-upgrade"></script></head><body><main class="stat-page"><h1>代表値とばらつきは「データの分布」へ統合しました</h1><p>分布・箱ひげ図・代表値計算を、同じデータで確認できます。</p><section id="legacy-summary-data" hidden><p>旧ページの保存データを統合ラボで使うか、CSVに保存できます。旧ページの保存データはそのまま残ります。</p><div class="actions"><button id="legacy-summary-open" type="button">この保存データで開く</button><button id="legacy-summary-download" type="button">CSVで保存</button></div></section><p><a href="../histogram/">データの分布を開く →</a></p></main></body></html>`,
 );
 
 // Retired standalone lab: keep bookmarks usable without loading its experiment.

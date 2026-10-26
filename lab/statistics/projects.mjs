@@ -1,13 +1,15 @@
-import { renderSources } from "./shared/sources.mjs?v=20261025-final-polish";
-import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261025-final-polish";
-import { esc, table, metrics } from "./shared/ui.mjs?v=20261025-final-polish";
-import { mean, median, sd, regression, fmt } from "./shared/math.mjs";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-final-polish";
-import { renderStepNavigation } from "./learning.mjs?v=20261025-final-polish";
-import correlation from "./correlation/lab.mjs?v=20261025-final-polish";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-final-polish";
+import { renderSources } from "./shared/sources.mjs?v=20261026-final-upgrade";
+import { readDataset, saveDataset, defaultDataset } from "./shared/data.mjs?v=20261026-final-upgrade";
+import { esc, table, metrics } from "./shared/ui.mjs?v=20261026-final-upgrade";
+import { mean, median, sd, regression, fmt } from "./shared/math.mjs?v=20261026-final-upgrade";
+import { renderDataTab } from "./data-tab.mjs?v=20261026-final-upgrade";
+import { renderStepNavigation } from "./learning.mjs?v=20261026-final-upgrade";
+import correlation from "./correlation/lab.mjs?v=20261026-final-upgrade";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261026-final-upgrade";
 const root = document.querySelector("#project-root");
 let dataset = readDataset();
+performance.mark("statistics-data-ready");
+document.dispatchEvent(new Event("statistics-data-ready"));
 let active = "data";
 const steps = [
   { title: "データ" },

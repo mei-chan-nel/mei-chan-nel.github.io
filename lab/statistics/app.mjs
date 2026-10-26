@@ -1,25 +1,26 @@
-import { esc } from "./shared/ui.mjs?v=20261025-final-polish";
-import { validateDocument } from "./shared/validation.mjs?v=20261025-final-polish";
+import {showDataContext,updateDataIntro} from "./data/context.mjs?v=20261026-final-upgrade";
+import { esc } from "./shared/ui.mjs?v=20261026-final-upgrade";
+import { validateDocument } from "./shared/validation.mjs?v=20261026-final-upgrade";
 import {
   currentData,
   applyData,
-} from "./shared/data-model.mjs?v=20261025-final-polish";
-import { composeWorkbench } from "./workbench.mjs?v=20261025-final-polish";
-import { renderDataTab } from "./data-tab.mjs?v=20261025-final-polish";
-import { sampleState } from "./shared/samples.mjs?v=20261025-final-polish";
-import { normalizeExperiment } from "./sampling/model.mjs?v=20261025-final-polish";
-import { readDataset } from "./shared/data.mjs?v=20261025-final-polish";
+} from "./shared/data-model.mjs?v=20261026-final-upgrade";
+import { composeWorkbench } from "./workbench.mjs?v=20261026-final-upgrade";
+import { renderDataTab } from "./data-tab.mjs?v=20261026-final-upgrade";
+import { sampleState } from "./shared/samples.mjs?v=20261026-final-upgrade";
+import { normalizeExperiment } from "./sampling/model.mjs?v=20261026-final-upgrade";
+import { readDataset } from "./shared/data.mjs?v=20261026-final-upgrade";
 import {
   dataStep,
   learningViews,
   renderStepNavigation,
-} from "./learning.mjs?v=20261025-final-polish";
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-final-polish";
-import { normalizeHistogram } from "./histogram/model.mjs?v=20261025-final-polish";
-import { setupFullscreen } from "./fullscreen.mjs?v=20261025-final-polish";
-import { renderSources } from "./shared/sources.mjs?v=20261025-final-polish";
+} from "./learning.mjs?v=20261026-final-upgrade";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261026-final-upgrade";
+import { normalizeHistogram } from "./histogram/model.mjs?v=20261026-final-upgrade";
+import { setupFullscreen } from "./fullscreen.mjs?v=20261026-final-upgrade";
+import { renderSources } from "./shared/sources.mjs?v=20261026-final-upgrade";
 const id = document.body.dataset.statLab;
-const config = (await import(`./${id}/lab.mjs?v=20261025-final-polish`))
+const config = (await import(`./${id}/lab.mjs?v=20261026-final-upgrade`))
   .default;
 const ui = {
   view: 0,
@@ -136,6 +137,9 @@ function draw() {
       : null;
   try {
     ui.state = state;
+    root.removeAttribute('data-render-error');
+    const data=currentData(id,state);
+    updateDataIntro(id,data);
     const steps = [dataStep(id), ...learningViews(id, state)];
     ui.view = Math.max(0, Math.min(ui.view, steps.length - 2));
     // The data editor is the first screen. Do not construct and immediately
@@ -199,6 +203,7 @@ function draw() {
       renderDataTab(root, {
         id,
         state,
+        dataOverride:data,
         ui,
         update,
         sample: () => {
@@ -211,13 +216,14 @@ function draw() {
       });
       config.renderDataExtras?.(root);
     } else {
+      showDataContext(root,data);
       fitWorkspaceCharts(root.querySelector(".workbench-display"));
     }
     const provenance = document.querySelector("#data-provenance");
     if (provenance)
       provenance.innerHTML = renderSources(
         state.dataInfo?.publicDataset,
-        state.dataInfo?.publicDerived || currentData(id, state).edits > 0,
+        state.dataInfo?.publicDerived || data.edits > 0,
       );
     if (focus?.id) {
       const target = document.getElementById(focus.id);
@@ -233,19 +239,22 @@ function draw() {
       }
     }
   } catch (e) {
+    root.dataset.renderError = 'true';
     root.innerHTML = `<p class="error">表示できません。ページを開き直してください。${esc(e.message)}</p>`;
-    console.error(e);
+    // Cell contents stay local; do not forward errors to telemetry.
   }
 }
 document.querySelector("#lab-picker").onchange = (e) =>
   (location.href = `../${e.target.value}/`);
 setupFullscreen(document.querySelector("#statistics-workspace"), draw);
+performance.mark("statistics-data-ready");
+document.dispatchEvent(new Event("statistics-data-ready"));
 draw();
-// Let the editable first screen paint before fetching and laying out the
-// lower-page explanation. Its independent failure must not break the editor.
+// Let the data preview paint before fetching and laying out the lower-page
+// explanation. Its independent failure must not break the analysis workspace.
 requestAnimationFrame(() => {
   const explain = () =>
-    import("./shared/explanation.mjs")
+    import("./shared/explanation.mjs?v=20261026-final-upgrade")
       .then(({ renderAcademicExplanation }) =>
         renderAcademicExplanation(
           document.querySelector("#explanation-body"),

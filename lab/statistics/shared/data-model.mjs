@@ -2,18 +2,18 @@ import {
   recordsFor,
   aggregateRecords,
   labelsForRecords,
-} from "../crosstab/records.mjs?v=20261025-final-polish";
-import { mean, sd, fmt } from "./math.mjs";
-import { population } from "../sampling/model.mjs?v=20261025-final-polish";
+} from "../crosstab/records.mjs?v=20261026-final-upgrade";
+import { mean, sd, fmt } from "./math.mjs?v=20261026-final-upgrade";
+import { population } from "../sampling/model.mjs?v=20261026-final-upgrade";
 import {
   seriesValues,
   seriesMonths,
   householdSeries,
-} from "../time-series/model.mjs?v=20261025-final-polish";
-import { observationValues } from "../probability/model.mjs";
-import { asNumber } from "./csv.mjs";
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-final-polish";
-import { niceWidth } from "../histogram/model.mjs";
+} from "../time-series/model.mjs?v=20261026-final-upgrade";
+import { observationValues } from "../probability/model.mjs?v=20261026-final-upgrade";
+import { asNumber } from "./csv.mjs?v=20261026-final-upgrade";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261026-final-upgrade";
+import { niceWidth } from "../histogram/model.mjs?v=20261026-final-upgrade";
 export const dataKinds = {
   correlation: "pairs",
   histogram: "groups",

@@ -1,9 +1,9 @@
-import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261025-missing-comparison";
+import { fitWorkspaceCharts } from "./shared/chart-layout.mjs?v=20261026-final-upgrade";
 import {
   clearFullscreenExplanations,
   prepareFullscreenCharts,
   sizeFullscreenCharts,
-} from "./shared/fullscreen-layout.mjs?v=20261025-missing-comparison";
+} from "./shared/fullscreen-layout.mjs?v=20261026-final-upgrade";
 
 // Browser-contained focus mode: the original live nodes are moved, not copied.
 // Native dialog supplies focus containment, Escape and background inertness.
@@ -51,8 +51,15 @@ export function setupFullscreen(workspace, redraw) {
   };
   const refresh = () => {
     cancelAnimationFrame(pending);
-    if (!dialog.open) return;
     pending = requestAnimationFrame(() => {
+      // Replacing tab buttons must not leave the selected tab offscreen on a
+      // phone. Move only the horizontal strip, never the document's scroll.
+      const selected = tabs?.querySelector('[aria-pressed="true"]');
+      if (selected && tabs.clientWidth && tabs.scrollWidth > tabs.clientWidth) {
+        const strip = tabs.getBoundingClientRect(), tab = selected.getBoundingClientRect();
+        if (tab.left < strip.left) tabs.scrollLeft += tab.left - strip.left;
+        else if (tab.right > strip.right) tabs.scrollLeft += Math.min(tab.right - strip.right, tab.left - strip.left);
+      }
       if (!dialog.open) return;
       reset();
       const root =

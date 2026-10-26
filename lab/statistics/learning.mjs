@@ -1,4 +1,4 @@
-import { esc } from "./shared/ui.mjs?v=20261025-final-polish";
+import { esc } from "./shared/ui.mjs?v=20261026-final-upgrade";
 const step = (title, level, purpose, action) => ({
   title,
   level,

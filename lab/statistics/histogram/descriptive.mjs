@@ -1,4 +1,4 @@
-import { mean, quartiles, sum } from "../shared/math.mjs";
+import { mean, quartiles, sum } from "../shared/math.mjs?v=20261026-final-upgrade";
 
 export function describe(values) {
   const sorted = [...values].sort((a, b) => a - b);

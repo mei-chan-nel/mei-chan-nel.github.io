@@ -1,4 +1,4 @@
-import { rng, normal, normalCDF, binomialPMF } from "../shared/math.mjs";
+import { rng, normal, normalCDF, binomialPMF } from "../shared/math.mjs?v=20261026-final-upgrade";
 
 export function coinExperiment(p, count, seed) {
   const random = rng(Number(seed) >>> 0);

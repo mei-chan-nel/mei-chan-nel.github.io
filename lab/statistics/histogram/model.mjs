@@ -1,4 +1,4 @@
-import { histogram } from "../shared/math.mjs";
+import { histogram } from "../shared/math.mjs?v=20261026-final-upgrade";
 export function parseRows(text) {
   const lines = text
     .trim()

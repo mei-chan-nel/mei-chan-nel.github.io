@@ -6,9 +6,9 @@ import {
   metrics,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261025-final-polish";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-final-polish";
-import { mean, fmt } from "../shared/math.mjs";
+} from "../shared/ui.mjs?v=20261026-final-upgrade";
+import { academicExplanation } from "../shared/reading.mjs?v=20261026-final-upgrade";
+import { mean, fmt } from "../shared/math.mjs?v=20261026-final-upgrade";
 
 import {
   population,
@@ -20,7 +20,7 @@ import {
   experimentSummary,
   comparisonSettings,
   compareSampleSizes,
-} from "./model.mjs?v=20261025-final-polish";
+} from "./model.mjs?v=20261026-final-upgrade";
 
 const positions = new WeakMap();
 const unitOf = (state) =>

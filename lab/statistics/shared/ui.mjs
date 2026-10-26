@@ -1,4 +1,4 @@
-import { fmt } from "./math.mjs";
+import { fmt } from "./math.mjs?v=20261026-final-upgrade";
 export const esc = (s) =>
   String(s ?? "")
     .replaceAll("&", "&amp;")

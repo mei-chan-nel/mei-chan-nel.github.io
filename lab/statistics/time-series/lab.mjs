@@ -6,12 +6,12 @@ import {
   axes,
   line,
   bind,
-} from "../shared/ui.mjs?v=20261025-final-polish";
+} from "../shared/ui.mjs?v=20261026-final-upgrade";
 import {
   academicExplanation,
   readingNotes,
-} from "../shared/reading.mjs?v=20261025-final-polish";
-import { mean, fmt } from "../shared/math.mjs";
+} from "../shared/reading.mjs?v=20261026-final-upgrade";
+import { mean, fmt } from "../shared/math.mjs?v=20261026-final-upgrade";
 import {
   householdSeries,
   seriesValues,
@@ -25,7 +25,7 @@ import {
   indicatorScale,
   initialSeriesState,
   normalizeSeriesState,
-} from "./model.mjs?v=20261025-final-polish";
+} from "./model.mjs?v=20261026-final-upgrade";
 export {
   centeredMovingAverage,
   movingAverageWindow,
@@ -34,7 +34,7 @@ export {
   linearDetrend,
   seasonalDecomposition,
   normalizeSeriesState,
-} from "./model.mjs?v=20261025-final-polish";
+} from "./model.mjs?v=20261026-final-upgrade";
 export function monthLabel(i, state = {}) {
   return (seriesMonths(state)[i] || `${i + 1}か月目`).replace(
     /^(\d{4})-(\d{2})$/,

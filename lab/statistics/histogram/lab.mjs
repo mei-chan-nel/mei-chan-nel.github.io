@@ -1,7 +1,7 @@
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-final-polish";
-import { readDataset } from "../shared/data.mjs?v=20261025-final-polish";
-import { render } from "./view.mjs?v=20261025-final-polish";
-export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs";
+import { academicExplanation } from "../shared/reading.mjs?v=20261026-final-upgrade";
+import { readDataset } from "../shared/data.mjs?v=20261026-final-upgrade";
+import { render } from "./view.mjs?v=20261026-final-upgrade";
+export { parseRows, displayedRows, binIndex, distribution } from "./model.mjs?v=20261026-final-upgrade";
 
 const EXAMPLE = [
   ...[32, 36, 38, 40, 42, 43, 44, 45, 47, 49, 52, 56].map((value, i) => ({

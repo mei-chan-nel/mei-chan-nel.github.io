@@ -1,5 +1,5 @@
-import {esc,svg} from '../shared/ui.mjs?v=20261025-reading-missing';
-import {fmt} from '../shared/math.mjs';
+import {esc,svg} from '../shared/ui.mjs?v=20261026-final-upgrade';
+import {fmt} from '../shared/math.mjs?v=20261026-final-upgrade';
 export function categoryChart(items,{min=0,max=null,unit='',line=false,title='グラフ',height=330,contiguous=false,integerTicks=false,highlightIndices=[],baseline=null}={}) {
   const w=760,h=height,left=62,right=734,top=38,bottom=h-60;
   max=max??Math.max(1,...items.map(r=>r.value))*1.18;if(integerTicks&&min===0)max=Math.max(4,Math.ceil(max/4)*4);if(!(max>min))max=min+1;
@@ -32,10 +32,12 @@ export function scatterChart(rows,xField,yField,{connect=false,focusDay='',selec
   return svg(body,'1点が1日を表す散布図。'+xField[1]+'と'+yField[1]+'の関係。',w,h);
 }
 export function pieChart(items,title='全体に占める割合') {
+  const narrow=typeof window!=='undefined'&&window.innerWidth<=600,w=narrow?Math.max(230,window.innerWidth-76):760;
+  const cx=narrow?w/2:230,cy=160,radius=narrow?90:112,lx=narrow?18:410;
   const n=items.reduce((a,b)=>a+b.value,0),colors=['var(--chart-primary)','var(--chart-secondary)','var(--chart-purple)'];let angle=-Math.PI/2,body='';
-  items.forEach((r,i)=>{const share=n?r.value/n:0,next=angle+share*2*Math.PI;
-    if(share===1)body+=`<circle cx="230" cy="160" r="112" fill="${colors[i]}"/>`;
-    else if(share>0)body+=`<path d="M230,160L${230+112*Math.cos(angle)},${160+112*Math.sin(angle)} A112,112 0 ${share>.5?1:0},1 ${230+112*Math.cos(next)},${160+112*Math.sin(next)}Z" fill="${colors[i]}" stroke="white"/>`;
-    angle=next;body+=`<rect x="410" y="${65+i*70}" width="14" height="14" fill="${colors[i]}"/><text x="435" y="${77+i*70}">${esc(r.label)}</text><text x="435" y="${100+i*70}">${r.value}日 / ${n}日 = ${fmt(share*100,1)}%</text>`;
-  });return svg(body,title+'。全体は'+n+'日。',760,320).replace('<svg ', '<svg data-preserve-geometry preserveAspectRatio="xMidYMid meet" ');
+  items.forEach((r,i)=>{const share=n?r.value/n:0,next=angle+share*2*Math.PI,ly=narrow?280+i*64:65+i*70;
+    if(share===1)body+=`<circle cx="${cx}" cy="${cy}" r="${radius}" fill="${colors[i]}"/>`;
+    else if(share>0)body+=`<path d="M${cx},${cy}L${cx+radius*Math.cos(angle)},${cy+radius*Math.sin(angle)} A${radius},${radius} 0 ${share>.5?1:0},1 ${cx+radius*Math.cos(next)},${cy+radius*Math.sin(next)}Z" fill="${colors[i]}" stroke="white"/>`;
+    angle=next;body+=`<rect x="${lx}" y="${ly}" width="14" height="14" fill="${colors[i]}"/><text x="${lx+25}" y="${ly+12}">${esc(r.label)}</text><text x="${lx+25}" y="${ly+35}">${r.value}日 / ${n}日 = ${fmt(share*100,1)}%</text>`;
+  });return svg(body,title+'。全体は'+n+'日。',w,narrow?280+items.length*64:320).replace('<svg ', '<svg data-preserve-geometry preserveAspectRatio="xMidYMid meet" ');
 }

@@ -1,6 +1,6 @@
 // One observation is one participant's accuracy, not one image judgement.
 // This module is intentionally separate from the legacy binomial-count model.
-import { normalCDF } from '../shared/math.mjs';
+import { normalCDF } from '../shared/math.mjs?v=20261026-final-upgrade';
 export const MAX_PARTICIPANTS = 10000;
 
 function logGamma(z) {

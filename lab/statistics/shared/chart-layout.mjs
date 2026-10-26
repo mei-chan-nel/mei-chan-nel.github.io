@@ -211,5 +211,21 @@ export function fitWorkspaceCharts(container) {
       }
     }
     svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    // A scaled coordinate margin can be narrower than an unscaled tick label.
+    // Keep the complete text inside the viewport without changing plotted data.
+    if (width < 600) {
+      for (const text of svg.querySelectorAll(':scope > text')) {
+        if (!text.hasAttribute('x') || text.hasAttribute('transform')) continue;
+        try {
+          let box=text.getBBox();const x=Number(text.getAttribute('x'));
+          if(box.width>width-8){text.style.fontSize=`${Math.max(10,parseFloat(getComputedStyle(text).fontSize)*(width-8)/box.width)}px`;box=text.getBBox();}
+          if(box.x<3)text.setAttribute('x',String(x+3-box.x));
+          else if(box.x+box.width>width-3)text.setAttribute('x',String(x+width-3-box.x-box.width));
+        } catch {}
+      }
+      const ticks=[...svg.querySelectorAll(':scope > text[text-anchor="middle"]')].filter(t=>Number(t.getAttribute('y'))>height*.72&&Number(t.getAttribute('y'))<height-20);
+      let previous=null;
+      for(const tick of ticks){try{const box=tick.getBBox();if(previous&&Math.abs(box.y-previous.y)<5&&box.x<previous.x+previous.width+5){tick.style.visibility='hidden';}else{tick.style.visibility='';previous=box;}}catch{}}
+    }
   }
 }

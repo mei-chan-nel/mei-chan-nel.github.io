@@ -1,13 +1,13 @@
-import { esc, number, table } from '../shared/ui.mjs?v=20261025-final-polish';
-import { fmt } from '../shared/math.mjs';
-import { publicDatasetInfo } from '../shared/sources.mjs?v=20261025-final-polish';
-import { academicExplanation } from '../shared/reading.mjs?v=20261025-final-polish';
-import { participantScores } from './mean-model.mjs?v=20261025-final-polish';
-import { normalMeanTest, normalTableReading } from './normal-model.mjs?v=20261025-final-polish';
-import { aiFaceParticipants } from './data.mjs?v=20261025-final-polish';
-import { downloadCSV } from '../data-editor.mjs?v=20261025-final-polish';
-import { guideDefaults, normalizeGuide, testStages, errorStages, directionLabel, hypothesisText, rateText, ratioText } from './guide.mjs?v=20261025-final-polish';
-import { scoreBins, scoreHistogram, scaleChart, normalChart } from './charts.mjs?v=20261025-final-polish';
+import { esc, number, table } from '../shared/ui.mjs?v=20261026-final-upgrade';
+import { fmt } from '../shared/math.mjs?v=20261026-final-upgrade';
+import { publicDatasetInfo } from '../shared/sources.mjs?v=20261026-final-upgrade';
+import { academicExplanation } from '../shared/reading.mjs?v=20261026-final-upgrade';
+import { participantScores } from './mean-model.mjs?v=20261026-final-upgrade';
+import { normalMeanTest, normalTableReading } from './normal-model.mjs?v=20261026-final-upgrade';
+import { aiFaceParticipants } from './data.mjs?v=20261026-final-upgrade';
+import { downloadCSV } from '../data/files.mjs?v=20261026-final-upgrade';
+import { guideDefaults, normalizeGuide, testStages, errorStages, directionLabel, hypothesisText, rateText, ratioText } from './guide.mjs?v=20261026-final-upgrade';
+import { scoreBins, scoreHistogram, scaleChart, normalChart } from './charts.mjs?v=20261026-final-upgrade';
 const notes=(title,summary,detail='')=>`<section class="hyp-explanation" data-screen-nav-section="${esc(title)}"><h3>${esc(title)}</h3><p>${summary}</p>${detail?`<details class="hyp-details"><summary>詳しく</summary>${detail}</details>`:''}</section>`;
 const plot=body=>`<figure class="hyp-plot">${body}</figure>`;
 const radios=(name,title,choices,value)=>`<fieldset class="hyp-radio"><legend>${esc(title)}</legend>${choices.map(([v,label])=>`<label><input type="radio" name="${name}" value="${esc(v)}" ${String(v)===String(value)?'checked':''}>${esc(label)}</label>`).join('')}</fieldset>`;
@@ -34,7 +34,7 @@ function testBody(s,scores,t) {
  const label=esc(s.measureLabel),n=t.n,bin=scoreBins(scores,s.binWidth)[s.selectedBin];
  switch(s.testStep) {
  case 0:return {
-  body:`<p class="hyp-action">横軸は1人ごとの${label}、棒の高さはその範囲に入る人数です。</p><div class="hyp-controls">${number('hyp-bin-width','階級幅',s.binWidth,1,10,1)}</div>${plot(scoreHistogram(scores,{width:s.binWidth,selected:s.selectedBin,label:s.measureLabel}))}<p id="hyp-bin-reading" role="status">${bin?`${bin.lo}%以上${bin.hi}%${bin.last?'以下':'未満'}は<strong>${bin.count}人</strong>です。`:'棒をクリックすると、その範囲の人数を確認できます。'}</p>${notes('図の読み方',`${n}人の値をまとめた図です。棒が高い範囲ほど、その値に近い人が多くいます。`)}${notes('1人を1つの観測にする','1人の正答数÷判定枚数で、その人の正答率を求めます。',`${table(['参加者','判定枚数','正答数',s.measureLabel],s.participants.slice(0,3).map(p=>[p.id,p.trials,p.correct,rateText(p.correct/p.trials)]))}<p>表の1行が1人分です。元の値は「データ」で変更できます。</p>`)}`,
+  body:`<p class="hyp-action">横軸は1人ごとの${label}、棒の高さはその範囲に入る人数です。</p><div class="hyp-controls">${number('hyp-bin-width','階級幅',s.binWidth,1,10,1)}</div>${plot(scoreHistogram(scores,{width:s.binWidth,selected:s.selectedBin,label:s.measureLabel}))}<p id="hyp-bin-reading" role="status">${bin?`${bin.lo}%以上${bin.hi}%${bin.last?'以下':'未満'}は<strong>${bin.count}人</strong>です。`:'棒をクリックすると、その範囲の人数を確認できます。'}</p>${notes('図の読み方',`${n}人の値をまとめた図です。棒が高い範囲ほど、その値に近い人が多くいます。`)}${notes('1人を1つの観測にする','1人の正答数÷判定枚数で、その人の正答率を求めます。',`${table(['参加者','判定枚数','正答数',s.measureLabel],s.participants.slice(0,3).map(p=>[p.id,p.trials,p.correct,rateText(p.correct/p.trials)]))}<p>表の1行が1人分です。元の値は「データ」で確認できます。別のデータはCSV・Excelで読み込めます。</p>`)}`,
   takeaway:'まず、1人ごとの値がどの範囲に集まっているかを確認しました。'};
  case 1:{const h=hypothesisText(s.reference,s.direction,s.measureLabel);return {
   body:`<p class="hyp-action">母平均をどの値と比べ、どの向きの違いを調べるかを決めます。</p><div class="hyp-setup-grid"><section><h3>帰無仮説を組み立てる</h3><div class="hyp-controls"><label class="control" for="hyp-reference"><span>帰無仮説の平均 μ₀（0〜1）</span><input id="hyp-reference" type="number" step="0.01" max="${1-Number.EPSILON}" value="${esc(s.reference)}"></label></div></section><section>${radios('hyp-direction','調べたい違い',[['two-sided','異なるか（両側）'],['greater','上回るか（右片側）'],['less','下回るか（左片側）']],s.direction)}</section></div><dl class="hyp-rule"><div><dt>帰無仮説 H₀</dt><dd>${esc(h.null)}</dd></div><div><dt>対立仮説 H₁</dt><dd>${esc(h.alternative)}</dd></div></dl>${notes('2つの仮説','帰無仮説は比べる出発点、対立仮説は調べたい違いです。','<p>μは同じ条件での母平均です。片側検定では、帰無仮説の境界μ=μ₀で棄却域を計算します。</p>')}${notes('先に決めること','基準と向きは、調査の前に決めます。')}`,

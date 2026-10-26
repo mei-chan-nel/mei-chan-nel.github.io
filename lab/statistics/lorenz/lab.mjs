@@ -10,8 +10,8 @@ import {
   line,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-final-polish";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-final-polish";
+} from "../shared/ui.mjs?v=20261026-final-upgrade";
+import { academicExplanation } from "../shared/reading.mjs?v=20261026-final-upgrade";
 import {
   sum,
   mean,
@@ -20,7 +20,7 @@ import {
   lorenz,
   fmt,
   clamp,
-} from "../shared/math.mjs";
+} from "../shared/math.mjs?v=20261026-final-upgrade";
 
 const ORIGINAL = [8, 10, 12, 16, 20, 24, 30, 40, 60, 80];
 export function redistribute(values, index, target, locked = true) {

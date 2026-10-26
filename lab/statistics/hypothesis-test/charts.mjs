@@ -1,8 +1,8 @@
-import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261025-final-polish';
-import { normalDensity, normalUpper } from './normal-model.mjs?v=20261025-final-polish';
-import { rateText } from './guide.mjs?v=20261025-final-polish';
-import { fmt } from '../shared/math.mjs';
-import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261025-final-polish';
+import { chartKey, esc, svg, groupPattern } from '../shared/ui.mjs?v=20261026-final-upgrade';
+import { normalDensity, normalUpper } from './normal-model.mjs?v=20261026-final-upgrade';
+import { rateText } from './guide.mjs?v=20261026-final-upgrade';
+import { fmt } from '../shared/math.mjs?v=20261026-final-upgrade';
+import { studentDensity, noncentralDensity } from './mean-model.mjs?v=20261026-final-upgrade';
 const pct = (v,d=1) => fmt(v*100,d)+'%';
 function niceStep(value) {
   const power=10**Math.floor(Math.log10(value || 1)), scaled=value/power;

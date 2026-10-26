@@ -6,7 +6,7 @@ import {
   quartiles,
   fmt,
   clamp,
-} from "../shared/math.mjs";
+} from "../shared/math.mjs?v=20261026-final-upgrade";
 import {
   esc,
   range,
@@ -17,8 +17,8 @@ import {
   svg,
   bind,
   drag,
-} from "../shared/ui.mjs?v=20261025-final-polish";
-import { readDataset } from "../shared/data.mjs?v=20261025-final-polish";
+} from "../shared/ui.mjs?v=20261026-final-upgrade";
+import { readDataset } from "../shared/data.mjs?v=20261026-final-upgrade";
 
 const original = [40, 45, 50, 52, 58, 60, 60, 62, 68, 70, 75, 80];
 const makePoints = (values) =>

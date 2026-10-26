@@ -1,4 +1,4 @@
-import { mean, sd, rng } from "../shared/math.mjs";
+import { mean, sd, rng } from "../shared/math.mjs?v=20261026-final-upgrade";
 
 export function population(custom) {
   if (Array.isArray(custom))

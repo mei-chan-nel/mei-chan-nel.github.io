@@ -1,4 +1,4 @@
-import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261025-final-polish";
+import { participantScores } from "../hypothesis-test/mean-model.mjs?v=20261026-final-upgrade";
 export function validateState(value, template, depth = 0, key = "state") {
   if (depth > 14) throw Error("データ構造が深すぎます。");
   if (value === null) {

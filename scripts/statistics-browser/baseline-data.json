@@ -1,0 +1,69 @@
+{
+  "graph-reading": {
+    "n": 61,
+    "hash": "4f7c5c256c5c1e1ce976f981ab70ad8f0a67dc1f525525f8e88c8e326458737e",
+    "totals": [
+      0,
+      174.5,
+      1622.6000000000004,
+      429.90000000000003
+    ]
+  },
+  "missing-values": {
+    "n": 30,
+    "hash": "a4bcc25b617f765390983b8747d6f5b0e2e5334e13fea07704df618063ad3491",
+    "totals": [
+      0,
+      82
+    ]
+  },
+  "histogram": {
+    "n": 61,
+    "hash": "685277fb8e00657efc79ebb8f0cdd88be510b9f15d9996919cd89bf96073c397",
+    "totals": [
+      1908.9999999999995,
+      0
+    ]
+  },
+  "crosstab": {
+    "n": 1647,
+    "hash": "63470906e234d2c90d85926595acbb32ae68c957c631c07859495a766ae101de",
+    "totals": [
+      0,
+      0,
+      0
+    ]
+  },
+  "correlation": {
+    "n": 120,
+    "hash": "026a4e5601c8bc8b20e563bc550eeb995f78dbf561175892c1bb0a4cdf4accdb",
+    "totals": [
+      2011.2000000000007,
+      105352
+    ]
+  },
+  "time-series": {
+    "n": 120,
+    "hash": "3063cc6f8a042d71cb8ceb6d85bb63c8c421412ac8f521770a6c7760954af079",
+    "totals": [
+      0,
+      105352
+    ]
+  },
+  "sampling": {
+    "n": 120,
+    "hash": "9cbe826987fe1b3c08367968e1a484f9f46ad3f2c2db8b2ab118d70dccb4bb08",
+    "totals": [
+      2011.2000000000007
+    ]
+  },
+  "hypothesis-test": {
+    "n": 315,
+    "hash": "d7a0017c11631df52ac5a4c62cddc420fc28da597ba8c12b9da44cc36b6b791b",
+    "totals": [
+      0,
+      40320,
+      19415
+    ]
+  }
+}

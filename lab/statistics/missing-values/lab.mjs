@@ -1,11 +1,10 @@
-import {esc,table} from '../shared/ui.mjs?v=20261025-missing-comparison';
-import {fmt} from '../shared/math.mjs';
-import {METHODS,scenario,validateRows,processMissing,normalize} from './model.mjs?v=20261026-missing-notes';
-import {missingValuesChart} from './charts.mjs?v=20261025-missing-comparison';
-import {sourceNote} from '../foundations/weather-data.mjs';
+import {esc,table} from '../shared/ui.mjs?v=20261026-final-upgrade';
+import {fmt} from '../shared/math.mjs?v=20261026-final-upgrade';
+import {METHODS,scenario,validateRows,processMissing,normalize} from './model.mjs?v=20261026-final-upgrade';
+import {missingValuesChart} from './charts.mjs?v=20261026-final-upgrade';
+import {sourceNote} from '../foundations/weather-data.mjs?v=20261026-final-upgrade';
 const f=v=>v===null?'—':fmt(v,2);
-const patterns=[['random','無作為の6日'],['high','大雨の6日'],['low','少雨の6日'],['none','欠損なし']];
-const explanation=`<h3>データを決めてから比べる</h3><p>欠損の位置と観測値はデータタブで決めます。分析では同じデータに対して補完方法を変え、平均・分散・日ごとの値を比べます。0mmは観測値、空欄は分からない値です。</p><h3>一定の値で補完する</h3><p>0、観測値の平均、観測値の中央値で補完できます。平均補完は有効な値だけの平均を保ちますが、平均と同じ値が増えるため分散は小さくなります。中央値は大きな値の影響を受けにくく、平均とは異なる補完値になります。分散の分母は集計した件数nです。</p><h3>前後の観測を使う</h3><p>直前の値による補完は、表の順に最後の観測値を引き継ぎます。線形補間は前後の観測値を日付に沿って直線でつなぎます。日降水量のように急変する量では、雨のピークを再現できない場合があります。先頭の欠損は直前の値がなく、線形補間では両端の欠損に前後の値がないため、そのまま残します。</p><h3>初期データ</h3><p>東京の2025年6月の日降水量30日分のうち、6日分を教材上で隠しています。公表データの実際の欠測を表すものではありません。実データの例では、隠す前の値を日別の表で確認できます。CSVや表で値を変更した場合は、観測値と補完後の値を比較します。</p><p>気象庁の「--」は降水なしとして0mm、「0.0」は公表値0.0mmとして集計します。「0.0」は0.5mm未満の降水を表します。</p>${sourceNote}`;
+const explanation=`<h3>データを決めてから比べる</h3><p>欠損の位置と観測値はデータタブで決めます。分析では同じデータに対して補完方法を変え、平均・分散・日ごとの値を比べます。0mmは観測値、空欄は分からない値です。</p><h3>一定の値で補完する</h3><p>0、観測値の平均、観測値の中央値で補完できます。平均補完は有効な値だけの平均を保ちますが、平均と同じ値が増えるため分散は小さくなります。中央値は大きな値の影響を受けにくく、平均とは異なる補完値になります。分散の分母は集計した件数nです。</p><h3>前後の観測を使う</h3><p>直前の値による補完は、表の順に最後の観測値を引き継ぎます。線形補間は前後の観測値を日付に沿って直線でつなぎます。日降水量のように急変する量では、雨のピークを再現できない場合があります。先頭の欠損は直前の値がなく、線形補間では両端の欠損に前後の値がないため、そのまま残します。</p><h3>標準データの出典と加工</h3><p>東京の2025年6月の日降水量30日分のうち、6日分を教材上で隠しています。公表データの実際の欠測を表すものではありません。実データの例では、隠す前の値を日別の表で確認できます。自分のCSV・Excelを読み込んだ場合は、観測値と補完後の値を比較します。</p><p>気象庁の「--」は降水なしとして0mm、「0.0」は公表値0.0mmとして集計します。「0.0」は0.5mm未満の降水を表します。</p>${sourceNote}`;
 function methodTable(s){
  return `<div class="table-scroll missing-method-table"><table class="stat-table"><caption>方法を選ぶと、下のグラフに反映されます。</caption><thead><tr><th scope="col">方法</th><th scope="col">集計日数</th><th scope="col">平均（mm）</th><th scope="col">分散（mm²）</th><th scope="col">残る欠損</th></tr></thead><tbody>${METHODS.map(([id,label])=>{const r=processMissing(s.rows,id);return `<tr data-select-method="${id}" class="${s.method===id?'is-selected':''}"><th scope="row"><button type="button" id="missing-method-${id}" data-missing-method="${id}" aria-pressed="${s.method===id}">${label}</button></th><td>${r.n}日</td><td>${f(r.mean)}</td><td>${f(r.variance)}</td><td>${r.remaining}日</td></tr>`;}).join('')}</tbody></table></div>`;
 }
@@ -44,6 +43,4 @@ function render(root,{state:s,update}){
  root.querySelectorAll('[data-missing-method]').forEach(el=>el.onclick=()=>choose(el.dataset.missingMethod));
  root.querySelectorAll('[data-select-method]').forEach(el=>el.onclick=e=>{if(!e.target.closest('button'))choose(el.dataset.selectMethod);});
 }
-function dataSetup(s){return `<fieldset class="missing-data-examples"><legend>東京の実データで欠損の例を用意する</legend><div>${patterns.map(([id,label])=>`<button id="missing-example-${id}" type="button" data-missing-example="${id}" aria-pressed="${s.origin==='sample'&&s.pattern===id}">${label}</button>`).join('')}</div></fieldset>`;}
-function bindDataSetup(root,{state,replace}){root.querySelectorAll('[data-missing-example]').forEach(el=>el.onclick=()=>replace({...scenario(el.dataset.missingExample),method:state.method}));}
-export default {id:'missing-values',headers:['日付・観測名','降水量（mm）'],dataTitle:'東京の日降水量（2025年6月）',dataHint:'欠損の位置と観測値は、このタブで決めます。空欄・NAは欠損値、0は観測値です。',maxRows:90,views:[{title:'集計方法を比べる',purpose:'同じ欠損データで、補完方法による平均・分散の違いを比べる。'}],initial:()=>normalize({...scenario(),method:'drop'}),normalize,validateRows,render,explanation,dataSetup,bindDataSetup};
+export default {id:'missing-values',headers:['日付・観測名','降水量（mm）'],dataTitle:'東京の日降水量（2025年6月）',dataHint:'標準データでは実測値の6日分を隠しています。自分のデータでは、空欄・NAは欠損値、0は観測値です。',maxRows:90,views:[{title:'集計方法を比べる',purpose:'同じ欠損データで、補完方法による平均・分散の違いを比べる。'}],initial:()=>normalize({...scenario(),method:'drop'}),normalize,validateRows,render,explanation};

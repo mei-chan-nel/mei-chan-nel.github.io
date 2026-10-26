@@ -1,15 +1,15 @@
-import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs";
-import { currentData } from "./data-model.mjs?v=20261025-final-polish";
+import { mean, median, sd, sum, regression, gini, fmt } from "./math.mjs?v=20261026-final-upgrade";
+import { currentData } from "./data-model.mjs?v=20261026-final-upgrade";
 import {
   population,
   samplingSE,
-} from "../sampling/model.mjs?v=20261025-final-polish";
+} from "../sampling/model.mjs?v=20261026-final-upgrade";
 import {
   matrixFor,
   successRate,
-} from "../crosstab/lab.mjs?v=20261025-final-polish";
-import { autocorrelations } from "../time-series/model.mjs?v=20261025-final-polish";
-import { observationValues, normalInterval } from "../probability/model.mjs";
+} from "../crosstab/lab.mjs?v=20261026-final-upgrade";
+import { autocorrelations } from "../time-series/model.mjs?v=20261026-final-upgrade";
+import { observationValues, normalInterval } from "../probability/model.mjs?v=20261026-final-upgrade";
 export function insight(id, state) {
   const data = currentData(id, state),
     before = state.dataInfo?.baseline;

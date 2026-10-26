@@ -1,17 +1,17 @@
-import {esc,number,table} from '../shared/ui.mjs?v=20261025-distributions';
-import {fmt} from '../shared/math.mjs';
-import {sampleRows,validateRows,normalize,enterView,rainIntervals} from './model.mjs?v=20261025-distributions';
-import {KINDS,lesson,suitability,rainAxisExample,supportedKinds} from './lessons.mjs?v=20261025-distributions';
-import {categoryChart,scatterChart,pieChart} from '../foundations/charts.mjs?v=20261025-distributions';
-import {pairedTimeChart,temperaturePieChart,pairedDistributionChart,rainfallHistogram} from './charts.mjs?v=20261025-distributions';
-import {sourceNote} from '../foundations/weather-data.mjs';
-const explanation=`<h3>気温の変化を読む</h3><p>折れ線は日付順の変化を追えます。棒では変化が見えにくく、0℃から棒を伸ばす意味もありません。ヒストグラムや気温帯別の日数の円グラフは、どの気温帯の日が多いかを表せます。今回の問いは日付に沿った変化なので、日付順の残る折れ線が向いています。</p><h3>降水量の内訳を読む</h3><p>日降水量を「1mm未満・1mm以上10mm未満・10mm以上」に分けます。棒は区分ごとの日数や差を比較し、円は全日数を100%として内訳を表します。折れ線も描けますが、区分を結んだ線から時間の変化は読めません。ヒストグラムでも同じ3区分を使います。区間の幅に合わせて棒の幅を変え、日数を幅で割った度数密度を高さにすると、面積が日数を表します。</p><h3>日照と気温の関係を読む</h3><p>散布図では、同じ日の日照時間と気温を1つの点で対応させます。折れ線や棒では横軸を日付にして、2系列を重ねたり、上下に分けたりできます。丸は日照時間、四角は気温です。単位が違うため、重ねる場合は左右に別々の目盛りを置きます。線の交点や同じ高さが、同じ量を意味するわけではありません。別々の円グラフやヒストグラムでは各量の分布を読めますが、同じ日の2つの値の対応は分からなくなります。</p><h3>初期データ</h3><p>東京の2025年6〜7月の61日分です。降水量の3区分は重複せず、全日数の内訳になります。気象庁の「--」は降水なしとして0、「0.0」は公表値0.0mmとして集計します。「0.0」は0.5mm未満の降水を表します。</p>${sourceNote}`;
+import {esc,number,table} from '../shared/ui.mjs?v=20261026-final-upgrade';
+import {fmt} from '../shared/math.mjs?v=20261026-final-upgrade';
+import {sampleRows,validateRows,normalize,enterView,rainIntervals} from './model.mjs?v=20261026-final-upgrade';
+import {KINDS,lesson,suitability,rainAxisExample,supportedKinds} from './lessons.mjs?v=20261026-final-upgrade';
+import {categoryChart,scatterChart,pieChart} from '../foundations/charts.mjs?v=20261026-final-upgrade';
+import {pairedTimeChart,temperaturePieChart,pairedDistributionChart,rainfallHistogram} from './charts.mjs?v=20261026-final-upgrade';
+import {sourceNote} from '../foundations/weather-data.mjs?v=20261026-final-upgrade';
+const explanation=`<h3>気温の変化を読む</h3><p>折れ線は日付順の変化を追えます。棒では変化が見えにくく、0℃から棒を伸ばす意味もありません。ヒストグラムや気温帯別の日数の円グラフは、どの気温帯の日が多いかを表せます。今回の問いは日付に沿った変化なので、日付順の残る折れ線が向いています。</p><h3>降水量の内訳を読む</h3><p>日降水量を「1mm未満・1mm以上10mm未満・10mm以上」に分けます。棒は区分ごとの日数や差を比較し、円は全日数を100%として内訳を表します。折れ線も描けますが、区分を結んだ線から時間の変化は読めません。ヒストグラムでも同じ3区分を使います。区間の幅に合わせて棒の幅を変え、日数を幅で割った度数密度を高さにすると、面積が日数を表します。</p><h3>日照と気温の関係を読む</h3><p>散布図では、同じ日の日照時間と気温を1つの点で対応させます。折れ線や棒では横軸を日付にして、2系列を重ねたり、上下に分けたりできます。丸は日照時間、四角は気温です。単位が違うため、重ねる場合は左右に別々の目盛りを置きます。線の交点や同じ高さが、同じ量を意味するわけではありません。別々の円グラフやヒストグラムでは各量の分布を読めますが、同じ日の2つの値の対応は分からなくなります。</p><h3>標準データの出典と加工</h3><p>東京の2025年6〜7月の61日分です。降水量の3区分は重複せず、全日数の内訳になります。気象庁の「--」は降水なしとして0、「0.0」は公表値0.0mmとして集計します。「0.0」は0.5mm未満の降水を表します。</p>${sourceNote}`;
 const titles=['気温の変化','降水量の内訳','日照と気温の関係'];
 const orderControl=l=>['compare','share'].includes(l.id)?'<div class="graph-order-controls" role="group" aria-label="区分の並び"><span>区分の並び</span><button id="graph-reorder" type="button">並び順を変える</button></div>':'';
 function plot(s,l,kind){
  const fit=suitability(l.id,kind);
  if(!supportedKinds(l.id).includes(kind))return `<section class="graph-subject-plot graph-no-chart" id="graph-no-chart" role="status"><div><h3>${esc(fit.title)}</h3><p>${esc(fit.text)}</p></div></section>`;
- if(l.id==='relation'&&['pie','histogram'].includes(kind))return `<figure class="graph-subject-plot">${pairedDistributionChart(s.rows,kind)}<figcaption>左：日照時間、右：日平均気温。それぞれ全${s.rows.length}日を集計しています。同じ日の2つの値の対応は表せません。</figcaption></figure>`;
+ if(l.id==='relation'&&['pie','histogram'].includes(kind))return `<figure class="graph-subject-plot">${pairedDistributionChart(s.rows,kind)}<figcaption>${typeof window!=='undefined'&&window.innerWidth<=600?'上：日照時間、下：日平均気温。':'左：日照時間、右：日平均気温。'}それぞれ全${s.rows.length}日を集計しています。同じ日の2つの値の対応は表せません。</figcaption></figure>`;
  if(l.id==='relation'&&['line','bar'].includes(kind))return `<figure class="graph-subject-plot">${pairedTimeChart(s.rows,{selectedDay:s.selectedDay,kind,layout:s.pairLayout})}<figcaption>${s.pairLayout==='stack'?'上：日照時間、下：日平均気温。':'左目盛り：日照時間（丸）、右目盛り：気温（四角）。'}横軸は日付です。</figcaption></figure>`;
  if(l.id==='relation')return `<figure class="graph-subject-plot">${scatterChart(s.rows,['sun','日照時間','h',3],['temp','日平均気温','℃',2],{selectedDay:s.selectedDay})}<figcaption>1点が1日。点を選ぶと、同じ日の2つの値を確認できます。</figcaption></figure>`;
  if(l.id==='trend'&&kind==='pie')return `<figure class="graph-subject-plot">${temperaturePieChart(s.rows)}<figcaption>気温帯ごとに日数を数え、全${s.rows.length}日を100%にしています。気温の合計を分けた図ではありません。</figcaption></figure>`;

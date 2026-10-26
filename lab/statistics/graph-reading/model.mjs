@@ -1,4 +1,4 @@
-import {weatherRows} from '../foundations/weather-data.mjs';
+import {weatherRows} from '../foundations/weather-data.mjs?v=20261026-final-upgrade';
 export const sampleRows=weatherRows;
 export const FIELDS=[['rain','日降水量','mm',1],['temp','日平均気温','℃',2],['sun','日照時間','h',3]];
 export function validateRows(rows) {
@@ -28,7 +28,7 @@ export function normalize(state) {
  const kindOptions=Array.from({length:3},()=>['bar','line','pie','histogram','scatter']),defaults=['line','bar','scatter'];
  const choices=defaults.map((v,i)=>!fresh&&kindOptions[i].includes(state.choices?.[i])?state.choices[i]:v);
  const positive=rows.filter(r=>r[1]>0).sort((a,b)=>b[1]-a[1]),second=positive.find(r=>r[1]<positive[0]?.[1]),limit=second?Math.max(0,second[1]-.1):0;
- return {rows,origin:state.origin==='sample'?'sample':'user',lessonVersion:4,rowsKey:key,choices,rainQuestion:!fresh&&state.rainQuestion==='share'?'share':'compare',pairLayout:!fresh&&state.pairLayout==='stack'?'stack':'overlay',answers:defaults.map((_,i)=>!fresh&&typeof state.answers?.[i]==='string'?state.answers[i].slice(0,30):''),orders:defaults.map((_,i)=>!fresh&&Number.isInteger(state.orders?.[i])?Math.max(0,Math.min(2,state.orders[i])):0),axisBase:!fresh&&Number.isFinite(state.axisBase)?Math.max(0,Math.min(limit,state.axisBase)):0,selectedDay:!fresh&&typeof state.selectedDay==='string'&&rows.some(r=>r[0]===state.selectedDay)?state.selectedDay:''};
+ return {rows,dataInfo:state.dataInfo,origin:state.origin==='sample'?'sample':'user',lessonVersion:4,rowsKey:key,choices,rainQuestion:!fresh&&state.rainQuestion==='share'?'share':'compare',pairLayout:!fresh&&state.pairLayout==='stack'?'stack':'overlay',answers:defaults.map((_,i)=>!fresh&&typeof state.answers?.[i]==='string'?state.answers[i].slice(0,30):''),orders:defaults.map((_,i)=>!fresh&&Number.isInteger(state.orders?.[i])?Math.max(0,Math.min(2,state.orders[i])):0),axisBase:!fresh&&Number.isFinite(state.axisBase)?Math.max(0,Math.min(limit,state.axisBase)):0,selectedDay:!fresh&&typeof state.selectedDay==='string'&&rows.some(r=>r[0]===state.selectedDay)?state.selectedDay:''};
 }
 
 export function enterView(state,index){

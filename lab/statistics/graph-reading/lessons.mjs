@@ -1,4 +1,4 @@
-import {distributionBins} from './model.mjs?v=20261025-distributions';
+import {distributionBins} from './model.mjs?v=20261026-final-upgrade';
 export const KINDS=[['bar','棒グラフ'],['line','折れ線グラフ'],['pie','円グラフ'],['histogram','ヒストグラム'],['scatter','散布図']];
 export const TASKS=[['compare','区分ごとの日数の差を比べたい'],['trend','気温がどう変化したか知りたい'],['share','全体に占める割合を知りたい'],['distribution','どの気温帯の日が多いか知りたい'],['relation','日照時間と気温の関係を知りたい']];
 export const RECOMMENDED={compare:'bar',trend:'line',share:'pie',distribution:'histogram',relation:'scatter'};

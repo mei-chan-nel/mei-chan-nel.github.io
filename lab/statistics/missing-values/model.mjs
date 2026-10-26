@@ -1,4 +1,4 @@
-import {weatherRows} from '../foundations/weather-data.mjs';
+import {weatherRows} from '../foundations/weather-data.mjs?v=20261026-final-upgrade';
 export const RAIN = weatherRows().filter(r=>r[0].startsWith('2025-06')).map(r=>r[1]);
 export function scenario(pattern='random') {
   const order=RAIN.map((_,i)=>i);let seed=20261025;
@@ -51,7 +51,7 @@ export function processMissing(rows,method='drop') {
  return {...stats(values),observed:base,missing,remaining,imputed:missing-remaining,available,reason,values,filled};
 }
 export function normalize(state) {
-  const rows=validateRows(state.rows),s={rows,method:METHODS.some(([id])=>id===state.method)?state.method:'drop',pattern:['none','random','low','high','manual'].includes(state.pattern)?state.pattern:'random',origin:state.origin==='sample'?'sample':'user',truth:null};
+  const rows=validateRows(state.rows),s={rows,dataInfo:state.dataInfo,method:METHODS.some(([id])=>id===state.method)?state.method:'drop',pattern:['none','random','low','high','manual'].includes(state.pattern)?state.pattern:'random',origin:state.origin==='sample'?'sample':'user',truth:null};
   if(s.origin==='sample'&&Array.isArray(state.truth)&&state.truth.length===rows.length&&state.truth.every(v=>Number.isFinite(v)&&v>=0&&v<=2000))s.truth=[...state.truth];
   return s;
 }

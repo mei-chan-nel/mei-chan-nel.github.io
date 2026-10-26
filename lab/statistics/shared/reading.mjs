@@ -1,4 +1,4 @@
-import { esc } from "./ui.mjs?v=20261025-final-polish";
+import { esc } from "./ui.mjs?v=20261026-final-upgrade";
 
 const notes = {
   correlation: [

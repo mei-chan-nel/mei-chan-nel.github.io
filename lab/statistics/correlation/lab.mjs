@@ -5,11 +5,11 @@ import {
   table,
   svg,
   drag,
-} from "../shared/ui.mjs?v=20261025-final-polish";
-import { academicExplanation } from "../shared/reading.mjs?v=20261025-final-polish";
-import { regression, mean, fmt, clamp } from "../shared/math.mjs";
+} from "../shared/ui.mjs?v=20261026-final-upgrade";
+import { academicExplanation } from "../shared/reading.mjs?v=20261026-final-upgrade";
+import { regression, mean, fmt, clamp } from "../shared/math.mjs?v=20261026-final-upgrade";
 
-import { readDataset } from "../shared/data.mjs?v=20261025-final-polish";
+import { readDataset } from "../shared/data.mjs?v=20261026-final-upgrade";
 
 const basePoints = () =>
   [

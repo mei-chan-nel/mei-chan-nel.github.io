@@ -3,16 +3,16 @@ import {
   esc,
   svg,
   bind,
-} from "../shared/ui.mjs?v=20261025-final-polish";
-import { fmt } from "../shared/math.mjs";
+} from "../shared/ui.mjs?v=20261026-final-upgrade";
+import { fmt } from "../shared/math.mjs?v=20261026-final-upgrade";
 
 import {
   distribution,
   binIndex,
   stackedBars,
-} from "./model.mjs?v=20261025-final-polish";
-import { describe } from "./descriptive.mjs?v=20261025-final-polish";
-import { renderCalculations } from "./calculations.mjs?v=20261025-final-polish";
+} from "./model.mjs?v=20261026-final-upgrade";
+import { describe } from "./descriptive.mjs?v=20261026-final-upgrade";
+import { renderCalculations } from "./calculations.mjs?v=20261026-final-upgrade";
 
 const colors = {
   A: "var(--chart-primary)",

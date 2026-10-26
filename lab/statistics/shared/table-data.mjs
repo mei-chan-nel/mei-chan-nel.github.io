@@ -1,5 +1,5 @@
-import { applyData } from "./data-model.mjs?v=20261025-final-polish";
-import { asNumber } from "./csv.mjs";
+import { applyData } from "./data-model.mjs?v=20261026-final-upgrade";
+import { asNumber } from "./csv.mjs?v=20261026-final-upgrade";
 
 export function numericTableColumn(id, column) {
   if (id === "crosstab") return false;

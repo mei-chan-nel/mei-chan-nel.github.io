@@ -1,12 +1,12 @@
-import { mean } from "../shared/math.mjs";
+import { mean } from "../shared/math.mjs?v=20261026-final-upgrade";
 import {
   householdSeries,
   householdMonths,
-} from "./data.mjs?v=20261025-final-polish";
+} from "./data.mjs?v=20261026-final-upgrade";
 export {
   householdSeries,
   householdMonths,
-} from "./data.mjs?v=20261025-final-polish";
+} from "./data.mjs?v=20261026-final-upgrade";
 export const MIN_MONTHS = 24;
 export const MAX_MONTHS = 300;
 export function seriesValues(state = {}) {
