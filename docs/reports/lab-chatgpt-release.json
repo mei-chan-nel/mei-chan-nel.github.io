@@ -1,0 +1,364 @@
+{
+  "releasedAt": "2026-10-26T11:37:36Z",
+  "productionUrl": "https://mei-chan-nel.com/lab/",
+  "pullRequest": "https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21",
+  "mergeCommit": "b3be6d51a40a8d26d325fb4996a6dd9d7a93454e",
+  "pagesWorkflow": {
+    "runId": 40316411484,
+    "conclusion": "success",
+    "deployJobId": 121550081250,
+    "reportedSuccess": true,
+    "environmentUrl": "https://mei-chan-nel.com/"
+  },
+  "integratedCI": {
+    "runId": 40316411767,
+    "conclusion": "success"
+  },
+  "artifact": {
+    "id": 12647485400,
+    "archiveSha256": "30473263e83d86dcdcdc1c207cee473e6cb429a9e38e7532f2385a6cee62c44c",
+    "checkedFiles": 55,
+    "pageCount": 24,
+    "files": [
+      {
+        "path": "lab/cpu-memory/index.html",
+        "present": true,
+        "sha256": "0036e004f4a0f97c3bdd47053968f0c723cd65f68c3a4838702277788129334f",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/thinking-tools/index.html",
+        "present": true,
+        "sha256": "355da6c276678354f09a9aff6032bb1b6243522d29b30a7c9aedd67c4694e298",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/crypto-communication/index.html",
+        "present": true,
+        "sha256": "09e8b370448072c5b40dfe24e2ad696b59ba543966adf95838edafa5a93e65a3",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/os-work/index.html",
+        "present": true,
+        "sha256": "410f091d188ef456a7e02f6c9f6f9a3058f7399b1f175d4ee31adac18e81e74e",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/color-vision/index.html",
+        "present": true,
+        "sha256": "65d8821cc3f372ada9f051609e5cdc9f9286ea869b239272b00bc30088d5263b",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/question-map/index.html",
+        "present": true,
+        "sha256": "0920e44b1227de3a245d78dbe1ed7421328f2b6146651c69b75ef98a2b309883",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/relational-database/index.html",
+        "present": true,
+        "sha256": "d5ac2014d4d121543f867af1b08aae711cb264b1fb7015ae646db8b33d9d1cb4",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/radix-conversion/index.html",
+        "present": true,
+        "sha256": "996c2a973b2b9746b8c7ae61cd93a5877453cb719f38eb02e317aadf436872a5",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/packet-routing/index.html",
+        "present": true,
+        "sha256": "7dae44d9ec6bbaa4a86b353cd8c4c74a1be23542d6c199901a7f2b7cd43cc531",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/image-compression/index.html",
+        "present": true,
+        "sha256": "02f64257af8bc821c59cc4a9ad4d66896709cc2a6a3bf979781171e9509a76a0",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/digital-image/index.html",
+        "present": true,
+        "sha256": "87dfd675cb994b6255e430fb392f89c3b567a92c4d713e8ecbdf64ac035a44f9",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/digital-audio/index.html",
+        "present": true,
+        "sha256": "6b1c8d91834648c4962ff9cbba350a006ad9ecf9fa8bd3d6650c0ee6a54f0f56",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/logic-circuit/index.html",
+        "present": true,
+        "sha256": "8746de02afe1c31df06c77bd702c8a530e5c04eb8fc3ac9167b4833061cd0009",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/flowchart/index.html",
+        "present": true,
+        "sha256": "29f7317cec524597325445cff34939559ea39f7ed08194f7351d17e57b7421f3",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/index.html",
+        "present": true,
+        "sha256": "47cae9897f202aba97d9241762b0aaf2ef8f73947ef6fbd0fc8c26927c8d6e39",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/graph-reading/index.html",
+        "present": true,
+        "sha256": "ec3cf0e496fc7297b92a972f6b22e9e970251a8d7abde133739d6cce4a0e12a9",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/missing-values/index.html",
+        "present": true,
+        "sha256": "a57e0b5e89c4fa19c303f9d9ea395ae089ac9f322e0024591bbc91b3fa332c0a",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/histogram/index.html",
+        "present": true,
+        "sha256": "3ad43efc45c8d1edaa476cd1732362b920c902024b02bb5e91ced9b93ac3355d",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/crosstab/index.html",
+        "present": true,
+        "sha256": "95fcb1984f613c164453585454d740ad7bba660a92a841f47cc1be713d18d5a9",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/correlation/index.html",
+        "present": true,
+        "sha256": "be1f3e70ac9e45a2edf682dcc818b662621d25a53c922c5a3f17374332717a6f",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/time-series/index.html",
+        "present": true,
+        "sha256": "afb0fdbc82d8f185b10a6e19f6e52076a38996ca8fce5238055c1a95e67e0fd2",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/sampling/index.html",
+        "present": true,
+        "sha256": "52ad08ed468a960e249a791acae91b1326ad3989b859c44c5168b501c80dd123",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/hypothesis-test/index.html",
+        "present": true,
+        "sha256": "be686d083a35a03db5914527d751a87961da0b9f51cfbd9a929cada5df9f5d4f",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/projects/index.html",
+        "present": true,
+        "sha256": "1090b7f49dedaa76a90959b5148de6a43cb6e811ad524a33e33bcfc600ff4303",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/color-vision.json",
+        "present": true,
+        "sha256": "3feae4878805c7361c0fb93f14abb83b9452fbc24ffc67463ebc3ec616630a4f",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/common.json",
+        "present": true,
+        "sha256": "0b597def307ff1be013a639e6838d90fcb90db271d4264869b82f90e753f2d7b",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/cpu-memory.json",
+        "present": true,
+        "sha256": "63f51c1a316d3f0ce948e12107c38209451ca66368a6e076ddf371ff6e159e40",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/crypto-communication.json",
+        "present": true,
+        "sha256": "b76781c316c09901292ed48ec8981a143f90e48a6af57432326d263f7f30e6f9",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/digital-audio.json",
+        "present": true,
+        "sha256": "4d44c88ccb64b40576da64ed2bec838b9cc2cf6d3a411a7e7bc1c0ce1726ec32",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/digital-image.json",
+        "present": true,
+        "sha256": "9803775d21795c5bde8183435a5d6e9de025b27aa092907ca3a373631874fdbe",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/flowchart.json",
+        "present": true,
+        "sha256": "aa92f7d3058308218ecce326720bb4e21703a2aae6af274cfaa7d799512f853e",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/image-compression.json",
+        "present": true,
+        "sha256": "9e40350f9381ab049bf9cb604d84e29ae33f0c7d995a2695bbf587aa890317d6",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/logic-circuit.json",
+        "present": true,
+        "sha256": "e343a53d3bae0ff2055e8c6d6ac992c82ed69995a21351b129bd476a21307197",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/manifest.json",
+        "present": true,
+        "sha256": "e20d5fa78074449ba80982b4036c87de8988538eb8fe46f2da97213f8625eb4d",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/os-work.json",
+        "present": true,
+        "sha256": "40769b284565f7e09b771284b71138502230592a5833fc4346f56283c97274bf",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/packet-routing.json",
+        "present": true,
+        "sha256": "4057134d41efaec9f01fba91ca36b569f2c01edc88cd39ab5dccd76927e52a75",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/question-map.json",
+        "present": true,
+        "sha256": "322f8cd0157ed9948bc859ca5b9211ed011b7f118311a7e71578ff443e57ad50",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/radix-conversion.json",
+        "present": true,
+        "sha256": "c85ae6edd8fac1ee19cc6662f35968eeb11f9291aed74d73782565deef63b8eb",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/relational-database.json",
+        "present": true,
+        "sha256": "adb79f7e72edb5266d8fec6380dd64d84e90bc4a714d287d6f510a63098444ee",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/correlation.json",
+        "present": true,
+        "sha256": "14437ad8c951ab6ba7babf041034308bc781987459e0399b9564c5178f5d6f50",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/crosstab.json",
+        "present": true,
+        "sha256": "892f0d95c24f81ac216545453c561b31753ca5b0bf0610abdbef21b582545baa",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/graph-reading.json",
+        "present": true,
+        "sha256": "6ba259a017c7c021e5f77bbe57833bf841bcf00abad356ab84af29d92ba95842",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/histogram.json",
+        "present": true,
+        "sha256": "828284ff939d4337f0ace0e9ff58c01434cc94a75037e5cfb8e86fe1073be002",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/hypothesis-test.json",
+        "present": true,
+        "sha256": "f288dd96fc2f859832d0dadedbf4c4831252b6500feb07a3a42a2cd6f23dba5e",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/missing-values.json",
+        "present": true,
+        "sha256": "0bec8e916c275d5473fb7ea154ee3a560be79c946d4c7f4bb9c56ab91e8ee63b",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/projects.json",
+        "present": true,
+        "sha256": "7e60c9b316ca36753b62625e031e3e9ee0775166d72816e226b41eaf3b459d52",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/sampling.json",
+        "present": true,
+        "sha256": "f6d915b0321065e4c6af1484511597fe498b1553f696eeb36b6c34cc3f36cb8b",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics/time-series.json",
+        "present": true,
+        "sha256": "af14c953663e16bafe2e710e65ed378187661c9dd8da6722399213e035228949",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/statistics.json",
+        "present": true,
+        "sha256": "f534dcdb681e903406a794d1809dc982502d544e8ca89defa46de6bf6f0a4073",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/data/thinking-tools.json",
+        "present": true,
+        "sha256": "809fc96aed66acf242f54dd1f02a578e959d2fba8ff2b16228b901f8da71136f",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/help.css",
+        "present": true,
+        "sha256": "39360b119ff90223de27149f9a3767ad76dbb7cc9c018a3650b1c6d18898da7a",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/launcher.mjs",
+        "present": true,
+        "sha256": "b07352a2b6aec69bb84f1a21e74c37920a6d554558aee447ee49b942d0dca7a7",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/help/prompt.mjs",
+        "present": true,
+        "sha256": "dfeb7a6b9bb5c82500bd372cf47b9cc77bd62ae84490c261dec6ac8fd7dda5f2",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "lab/statistics/boot.mjs",
+        "present": true,
+        "sha256": "8b5a5b13750a6f6b7ff0fbdae21b8d83b0cd8e06c16171b6d02e2d6c71d638cc",
+        "matchesMergedSource": true
+      },
+      {
+        "path": "CNAME",
+        "present": true,
+        "sha256": "6801704803c78c3283cd2ac8cbfc80028a3cea259fa90c8da6a287b0cd0b653f",
+        "matchesMergedSource": true
+      }
+    ]
+  },
+  "directProductionHttpCheck": {
+    "status": "blocked_by_execution_environment_network_policy",
+    "error": "CONNECT tunnel failed, response 403",
+    "networkPolicy": "restricted; mei-chan-nel.com is not an allowed destination"
+  },
+  "limitations": [
+    "The deployed artifact and GitHub Pages completion were checked; the public URL could not be fetched from this execution environment.",
+    "Actual ChatGPT receipt/multiple-turn responses and physical mobile devices remain unverified."
+  ]
+}

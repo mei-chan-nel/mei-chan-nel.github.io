@@ -1,7 +1,7 @@
 # Interactive Lab「ChatGPTに聞く」作業記録
 
 ## 再開時の入口
-- 現在: 実装・ローカル検証・GitHub CI成功。レビュー用の[draft PR #21](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21)に保存済み。main未マージ、本番未公開。
+- 現在: ユーザーの本番反映指示に従い、[PR #21](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21)をmainにマージしてGitHub Pagesへ公開済み。公開処理・マージ後CI成功。全24ページを含む公開用55ファイルの一致を確認。
 - 残り: 認証済みChatGPTでの受信・初回と複数ターンの回答確認、実機ブラウザー確認。[実装・検証報告](LAB_CHATGPT_REPORT.md)と[生成文](LAB_CHATGPT_PROMPTS.md)を参照。
 - 作業ブランチ: `codex/lab-chatgpt`
 - 基点: `c68fe5034c92b75231fb7eeef9982608ee0eaa0d`（統計ラボ公開後のmain）
@@ -65,3 +65,13 @@
 - 実装コミット`0db175a`、最終検証・修正コミット`9632215`をpushし、draft PR #21を作成。
 - `96322152e26ea08507b406040961799d8d3373a6`の[GitHub Actions run 40315803673](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40315803673)はsuccess。生成物照合、Studio TypeScriptビルド、サイト・問題演習の統合検証が成功。
 - 続きの実サービス確認ができる状態でコード・例文・記録を保存。実ChatGPT回答を確認済みとは扱わない。公開作業は実施していない。
+
+## 2026-10-26 ユーザー指示による本番反映
+- ユーザーの「本番に反映してください」という明示指示を受けて公開。既存の未確認事項は引き続き記録し、公開済みと検証済みの範囲を区別する。
+- 公開前: 最終head `57f651a06ec49703100aad93d200fd22fb4b7694`、CI run 40316004227成功、main基点に追加変更なし、PR mergeableを確認。
+- draftを解除し、expected_head_shaを指定してPR #21をマージ。マージコミットは`b3be6d51a40a8d26d325fb4996a6dd9d7a93454e`。
+- [GitHub Pages run 40316411484](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40316411484)のbuild/deploy成功。deployログで上記SHA、公開先`https://mei-chan-nel.com/`、Reported successを確認。
+- マージ後の[統合CI run 40316411767](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40316411767)も成功。
+- 公開に使われたartifact 12647485400を取得。ZIPのSHA-256をGitHubのdigestと照合し、全24ページ、共通JS/CSS、全JSON、統計boot、CNAMEの計55ファイルがマージソースとバイト単位で一致することを確認。[公開検証記録](reports/lab-chatgpt-release.json)に保存。
+- 本番URLへの直接HTTP確認は実行環境の許可先にドメインが含まれず、proxyで403。制限の回避は行わず、Pagesの完了記録と公開artifactを確認した。公開URLを直接閲覧して動作確認したとは扱わない。
+- 公開URL: https://mei-chan-nel.com/lab/ 。実ChatGPTの受信・複数ターン回答、実機ブラウザーは未確認のまま。
