@@ -1,6 +1,8 @@
 # Interactive Lab「ChatGPTに聞く」作業記録
 
 ## 再開時の入口
+- 現在: 実装・ローカル検証・GitHub CI成功。レビュー用の[draft PR #21](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21)に保存済み。main未マージ、本番未公開。
+- 残り: 認証済みChatGPTでの受信・初回と複数ターンの回答確認、実機ブラウザー確認。[実装・検証報告](LAB_CHATGPT_REPORT.md)と[生成文](LAB_CHATGPT_PROMPTS.md)を参照。
 - 作業ブランチ: `codex/lab-chatgpt`
 - 基点: `c68fe5034c92b75231fb7eeef9982608ee0eaa0d`（統計ラボ公開後のmain）
 - 依頼: 全15ラボと統計8コンテンツへ、操作を統一した「ChatGPTに聞く」を実装。利用制限に備えて記録をこまめに残す。
@@ -58,3 +60,8 @@
 - `docs/reports/lab-chatgpt-validation.json`に環境とページ別結果を保存。`docs/LAB_CHATGPT_REPORT.md`に対応一覧・変更一覧・検証範囲と残った確認を記載。
 - 作業ブランチ内の案内データ、コード、生成HTML、文書を差分確認済み。公開mainは基点のままで、本番公開は未実施。
 - 次はこの状態をコミット・pushしてdraft PRを作成し、CIを確認する。実サービス・実機での確認手順は報告書と質問文例に保存済み。
+
+## 2026-10-26 GitHub保存・CI確認
+- 実装コミット`0db175a`、最終検証・修正コミット`9632215`をpushし、draft PR #21を作成。
+- `96322152e26ea08507b406040961799d8d3373a6`の[GitHub Actions run 40315803673](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40315803673)はsuccess。生成物照合、Studio TypeScriptビルド、サイト・問題演習の統合検証が成功。
+- 続きの実サービス確認ができる状態でコード・例文・記録を保存。実ChatGPT回答を確認済みとは扱わない。公開作業は実施していない。

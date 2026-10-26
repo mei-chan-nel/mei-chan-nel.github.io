@@ -68,6 +68,8 @@
 
 最終実行のページ別結果と環境情報は[検証記録JSON](reports/lab-chatgpt-validation.json)に保存しました。
 
+レビュー用の[draft PR #21](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/21)を作成済みです。実装コミット`9632215`の[GitHub CI](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40315803673)も成功しています。
+
 画面検査は、ボタンが1個で44px以上、画面内に収まる、見出しに重ならない、Enterで起動できる、生成文が一致する、元の入力・localStorage・URLが維持されることを確認します。CPUのPC、思考ツールの390px、統計分布の320pxはキャプチャも目視確認しました。ページJavaScriptエラーも検査しています。
 
 復旧検査はポップアップ拒否、コピー拒否からの全文選択、コピー成功、JSON読込503からの再試行、元のラボの操作継続を含みます。追加検査は共通部品のaxe-core WCAG A/AA指摘なし、子の切替、上限超過時の全文保持、読込前クリックでの別タブ確保、Refererなし・openerなしを確認します。アクセシビリティ検査の範囲は新しい共通部品です。
