@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics",
+  "name": "統計・データ分析",
+  "purpose": [
+    "実データを比較し、問いに合う分析と結果の解釈を学ぶ。"
+  ],
+  "initialState": [
+    "親ページは8つのラボへのカード一覧。子ページはそれぞれ独立URLで、初めは「データ」タブ。保存済みの自分のデータが復元される場合もある。"
+  ],
+  "controls": [
+    "子ページは上のタブで分析画面へ。「ほかの統計ラボへ」で別ページに移動。「全画面」で操作領域を広げる。",
+    "「自分のデータで試す」はCSV・Excel等を検証・プレビューして読み込む。「全件データダウンロード」で保存できる。"
+  ],
+  "firstSteps": [
+    "一覧の「グラフの選び方と読み取り」を開き、「データ」で列と単位を確かめて「気温の変化」を押す。"
+  ],
+  "experiments": [
+    "同じ問いについて見せ方や集計条件を変え、結論の変化と理由を比べる。"
+  ],
+  "results": [
+    "数値だけでなく、対象・単位・分母・グラフの軸・出典を確認する。"
+  ],
+  "cautions": [
+    "この質問文に利用者の入力データや現在の結果は含まない。相関や群の違いだけで因果関係を断定しない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/catalog.mjs",
+      "lab/statistics/build.mjs",
+      "lab/statistics/app.mjs",
+      "lab/statistics/foundations/app.mjs",
+      "lab/statistics/data/view.mjs"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "digital-image",
+  "name": "画像のデジタル化",
+  "purpose": [
+    "画素数と量子化ビット数による画像の変化を調べる。"
+  ],
+  "initialState": [
+    "生成したサンプル画像を64×64画素、カラーRGB各8bitで表示。元画像とデジタル化後を比較する。"
+  ],
+  "controls": [
+    "「画素数」のスライダー、各成分の「−」「＋」で変更。「カラー／グレースケール」とR・G・Bのチェックで切替。",
+    "「画像を変更」で自分の画像も読める。拡大表示と「グリッド」で画素を観察する。"
+  ],
+  "firstSteps": [
+    "「画素数」を小さくし、元画像とデジタル化後を見比べる。次にRGBのビット数を減らして色の段階を見る。"
+  ],
+  "experiments": [
+    "画素数を固定してビット数だけ変え、形の粗さと色の粗さを区別する。"
+  ],
+  "results": [
+    "1成分b bitで2のb乗段階。カラーの1画素のビット数はR・G・Bの合計。"
+  ],
+  "cautions": [
+    "元画像の領域平均と量子化によるモデル。表示データ量を圧縮済み画像ファイルのサイズと同一視しない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/digital-image/image.mjs",
+      "lab/digital-image/pixels.mjs",
+      "lab/tools/templates/digital-image.html"
+    ]
+  }
+}

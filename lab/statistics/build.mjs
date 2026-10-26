@@ -42,6 +42,7 @@ async function save(slug, body, scripts = []) {
       experiences[slug]?.purpose ||
       "自分のデータを使い、分布・代表値・相関などを可視化して確かめる統計ラボ。",
     slug: slug ? `statistics/${slug}` : "statistics",
+    help: !['summary', 'probability', 'lorenz'].includes(slug),
     body,
     styles: [
       slug ? "../statistics.css" : "statistics.css",
@@ -130,7 +131,7 @@ for (const [id, title] of labs) {
 ${academic('<div id="explanation-body"></div>')}
 <div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav>`,
-    ["../boot.mjs?v=20261026-final-upgrade"],
+    ["../boot.mjs?v=20261026-help"],
   );
 }
 await save(
@@ -138,7 +139,7 @@ await save(
   `${heading("横断分析課題", "同じデータを分布・代表値・相関で眺め、見える特徴の違いを比べる。", "projects", "気温の高い月ほどアイスクリームへの支出が多いでしょうか。分布・代表値・相関から同じデータを見ると、どんな違いが見つかるか試せます。自分の2列の数値データでも利用できます。")}
 <section id="statistics-workspace" class="statistics-workspace" aria-label="横断分析課題の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">横断分析課題</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div><nav id="project-tabs" class="view-tabs project-tabs workspace-tabbar" aria-label="横断分析の表示"><button disabled>データ</button><button disabled>分析方法を選ぶ</button><button disabled>特徴を見比べる</button></nav><p id="statistics-load-status" class="statistics-load-status" role="status">画面を準備しています…</p><div id="project-root" aria-busy="true" data-load-state="shell"><section class="data-loading-shell"><h2>分析に使うデータ</h2><div class="actions"><button disabled>全件データダウンロード</button><button disabled>自分のデータで試す</button></div><div class="chart-placeholder"></div></section></div></section>
 ${academic(`<details class="academic-section"><summary>問いに合わせて分析方法を選ぶ</summary><div class="explanation-content"><p>「支出の多い月はどれくらいあるか」には分布、「典型的な支出や月ごとの差はどれくらいか」には代表値とばらつき、「気温と支出に関係があるか」には散布図が役立ちます。すべての方法を使うことより、問いの根拠になる情報を選ぶことが大切です。</p><p>標準データは、2016〜2025年の東京の月平均気温と全国の世帯当たり支出金額を、同じ月で対応させた120組の公開データです。各ラボへは同じ行の対応と列名を引き継ぎ、分布・代表値ではどちらの列を分析するか選べます。</p></div></details><details class="academic-section"><summary>分析結果を結び付け、限界も確かめる</summary><div class="explanation-content"><p>平均が高いことと、全員の得点が高いことは同じではありません。分布に複数の山があれば、集団別にも調べます。相関係数が大きくても、外れ値が直線を動かしていないか、予測範囲が元データから離れすぎていないかを確認しましょう。</p><p>気温と支出の関連だけで、気温の上昇が支出を何円増やすかは言えません。季節の行事、価格の変化、地域の違いなども関係しえます。どの集団のデータか、条件がそろっているか、他の説明はないかも考えると、数値の意味を読み取りやすくなります。</p></div></details>`)}<div id="data-provenance"></div>`,
-  ["../boot.mjs?v=20261026-final-upgrade"],
+  ["../boot.mjs?v=20261026-help"],
 );
 console.log(
   `Built statistics index, ${labs.length} labs and project with natural page flow`,

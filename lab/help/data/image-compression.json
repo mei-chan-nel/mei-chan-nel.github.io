@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "image-compression",
+  "name": "画像圧縮",
+  "purpose": [
+    "BMP・PNG・GIF・JPEG・WebP・AVIFのサイズ・画質・処理時間を比較する。"
+  ],
+  "initialState": [
+    "写真プリセット、長辺上限512pxで6形式を自動処理する。完了まで待つ。"
+  ],
+  "controls": [
+    "画像のプリセットまたは「自分の画像を読み込む」で選択。形式ごとの品質等を動かすと再処理。",
+    "「比較対象」「連動拡大」「差分を表示」で元画像と比較。「サイズをそろえて比較」は対応形式の設定を探索する。"
+  ],
+  "firstSteps": [
+    "6形式の処理完了を待ち、JPEGの品質を変えてサイズを見る。「比較対象」でJPEGを選び、拡大して元画像と比べる。"
+  ],
+  "experiments": [
+    "写真と文字・図形の例を比べ、同程度のサイズでも画質の違いがあるか調べる。"
+  ],
+  "results": [
+    "圧縮率はファイルサイズ÷RGBA元データ量。PSNRは白背景のRGB誤差指標、画素一致はRGBA全体の一致。"
+  ],
+  "cautions": [
+    "品質の数値は形式間で同じ尺度ではない。GIFの減色や半透明変換は情報を失う。時間は端末・初回準備等に左右される。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/image-compression/app.mjs",
+      "lab/image-compression/model.mjs",
+      "lab/image-compression/controls.mjs",
+      "lab/tools/templates/image-compression.html"
+    ]
+  }
+}

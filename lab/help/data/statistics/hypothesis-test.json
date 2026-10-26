@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics/hypothesis-test",
+  "name": "統計的な判断と仮説検定",
+  "purpose": [
+    "参加者の平均正答率からZを計算し、正規分布表と棄却域で判断する。"
+  ],
+  "initialState": [
+    "標準はAI生成の顔写真を見分ける実験315人分の参加者番号・判定枚数・正答数。基準0.5、両側、有意水準5%。"
+  ],
+  "controls": [
+    "「仮説検定を行う」を開き「次へ：…」で8段階を進む。ヒストグラム→仮説→有意水準→平均とばらつき→Z→正規分布表→判断→解釈。「判断の誤り」で第1種・第2種を学ぶ。"
+  ],
+  "firstSteps": [
+    "「データ」で1行が1人と確認し、「仮説検定を行う」を押す。最初のヒストグラムの棒を選び人数を読む。"
+  ],
+  "experiments": [
+    "仮説と検定方向を先に決める理由を確認し、有意水準を変えた場合の棄却域を比べる。"
+  ],
+  "results": [
+    "各人の正答数÷判定枚数を1観測とする。SE＝標本標準偏差÷√人数、Z＝（平均−基準）÷SE。"
+  ],
+  "cautions": [
+    "大標本の正規近似。30人未満等では判断不可。棄却しないことは帰無仮説の証明ではない。有意水準は帰無仮説が正しい確率ではない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/hypothesis-test/lab.mjs",
+      "lab/statistics/hypothesis-test/guide.mjs",
+      "lab/statistics/hypothesis-test/mean-model.mjs"
+    ]
+  }
+}

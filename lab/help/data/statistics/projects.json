@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics/projects",
+  "name": "横断分析課題",
+  "purpose": [
+    "同じデータを分布・代表値・相関で見比べ、問いに合う方法を選ぶ。"
+  ],
+  "initialState": [
+    "標準は月平均気温とアイスクリームへの支出120組。「データ」タブから始める。"
+  ],
+  "controls": [
+    "「分析方法を選ぶ」で方法を選び、「特徴を見比べる」で比較。個別ラボへ同じデータを引き継げる。"
+  ],
+  "firstSteps": [
+    "「データ」で2列の意味と単位を読み、「分析方法を選ぶ」を押す。"
+  ],
+  "experiments": [
+    "支出の分布と気温との相関を見比べ、別々の問いに答えることを確かめる。"
+  ],
+  "results": [
+    "分布は値の偏り、代表値は中心とばらつき、相関は対応した2変数の関係。"
+  ],
+  "cautions": [
+    "2列の行の対応を保つ。相関だけで気温が支出を増やす因果効果を決めない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/projects.mjs",
+      "lab/statistics/build.mjs"
+    ]
+  }
+}

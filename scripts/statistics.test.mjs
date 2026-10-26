@@ -33,7 +33,7 @@ test("all active statistics labs have real modules, data views and valid nested 
       new URL(`../lab/statistics/${id}/index.html`, import.meta.url),
       "utf8",
     );
-    assert.ok(html.includes('src="./../boot.mjs?v=20261026-final-upgrade"'));
+    assert.match(html, /src="\.\/\.\.\/boot\.mjs\?v=[^"\s]+"/);
     assert.ok(html.includes('data-load-state="shell"'));
     assert.ok(html.includes('class="chart-placeholder"'));
     assert.ok(!html.includes('site-analytics.js'));

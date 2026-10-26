@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "cpu-memory",
+  "name": "CPUと記憶装置",
+  "purpose": [
+    "命令の実行とRAM・キャッシュの働き、アクセス時間を調べる。"
+  ],
+  "initialState": [
+    "初回は「基本の加算」。16番地に7、17番地に5。保存や共有から復元される場合もある。"
+  ],
+  "controls": [
+    "「次へ」で処理の段階を進め、「自動実行」で連続実行・一時停止。「最初から」は実行状態を戻す。",
+    "RAMの行を押して命令や値を編集。キャッシュ欄の「ON／OFF」と「保持できるブロック」で条件変更。「読込」で例を選ぶ。"
+  ],
+  "firstSteps": [
+    "「次へ」を押し、CPU・RAM・キャッシュ間で今何を運んでいるか見る。何度か進め、命令と計算用データを区別する。"
+  ],
+  "experiments": [
+    "同じプログラムでキャッシュの有無を比べる。初期例を最後まで動かすと18番地は12になる。"
+  ],
+  "results": [
+    "PCは命令の番地、ACCは計算値。HIT/MISSはキャッシュ参照の成否。記録で結果と仮想実行時間を比較する。"
+  ],
+  "cautions": [
+    "32番地・1ブロック2番地の教育用モデル。表示時間は実機の測定値ではない。編集や設定変更は実行状態を初期化する。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/cpu-memory/app.mjs",
+      "lab/cpu-memory/model.mjs",
+      "lab/cpu-memory/presets.mjs",
+      "lab/tools/templates/cpu-memory.html"
+    ]
+  }
+}
