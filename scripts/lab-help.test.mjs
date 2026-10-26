@@ -58,6 +58,8 @@ test("bad guide data is rejected instead of sending broken instructions", async 
   const guide = await json("cpu-memory.json");
   assert.throws(() => validateGuide({ ...guide, controls: [] }));
   assert.throws(() => validateGuide({ ...guide, id: "../secret" }));
+  assert.throws(() => validateGuide({ ...guide, id: undefined }));
+  assert.throws(() => validateGuide({ ...guide, name: " " }));
   assert.throws(() => composePrompt({}, [guide]));
 });
 test("initial guide facts agree with the underlying models", async () => {

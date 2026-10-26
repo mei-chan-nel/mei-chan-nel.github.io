@@ -9,7 +9,9 @@ const nextPaint=()=>new Promise(resolve=>{
 });
 const status=(phase,text)=>{root.dataset.loadState=phase;root.setAttribute('aria-busy',String(['shell','loading','calculating'].includes(phase)));if(state)state.textContent=text;};
 document.addEventListener('statistics-data-ready',()=>status('calculating','データを集計して表示しています…'),{once:true});
-document.querySelector('#lab-picker')?.addEventListener('change',e=>location.href=`../${e.target.value}/`);
+// The full app replaces this early handler. One change must cause one navigation.
+const picker=document.querySelector('#lab-picker');
+if(picker)picker.onchange=e=>location.href=`../${e.target.value}/`;
 async function start(){
   await nextPaint();performance.mark('statistics-shell-painted');status('loading','データを読み込んでいます…');
   const entry=id==='projects'?'./projects.mjs?v=20261026-final-upgrade':['graph-reading','missing-values'].includes(id)?'./foundations/app.mjs?v=20261026-final-upgrade':'./app.mjs?v=20261026-final-upgrade';

@@ -16,14 +16,6 @@ const manifest = await json("manifest.json"), common = await json("common.json")
 const browser = await chromium.launch({ executablePath: process.env.LAB_CHROMIUM_PATH || "/usr/bin/chromium", args: ["--no-sandbox"], headless: true });
 const results = [];
 const viewports = [{ width: 1440, height: 1000 }, { width: 390, height: 844 }, { width: 320, height: 740 }];
-const selectors = {
-  "cpu-memory": "#step", "thinking-tools": '[data-preset-control="block:context"] button',
-  "crypto-communication": "#dialogue-next", "os-work": '[data-action="lifecycle"][data-app="web"]',
-  "color-vision": '[data-step="1"]', "question-map": "#zoom-in", "relational-database": '[data-step="2"]',
-  "radix-conversion": '#conversion-form button[type="submit"]', "packet-routing": "#send",
-  "image-compression": "#compare-b", "digital-image": "#resolution", "digital-audio": "#play-original",
-  "logic-circuit": "#truth-table", "flowchart": "#prepare-run",
-};
 async function context(viewport) {
   const c = await browser.newContext({ viewport, reducedMotion: "reduce" });
   // No real service requests, ads or analytics in local tests.

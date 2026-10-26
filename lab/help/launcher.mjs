@@ -91,7 +91,20 @@ function installHelp(heading) {
       const plan = launchPlan(prompt);
       let opened = false;
       if (tab && !tab.closed) {
-        try { tab.location.replace(plan.url); opened = true; } catch { tab.close(); }
+        try {
+          // A location assignment from the opener can use the opener's referrer
+          // policy. Navigate from an explicit noreferrer link in the blank tab.
+          // This document contains no analytics and never reads learner state.
+          const link = tab.document.createElement("a");
+          link.href = plan.url;
+          link.target = "_self";
+          link.rel = "noreferrer";
+          link.referrerPolicy = "no-referrer";
+          link.textContent = "ChatGPTを開く";
+          tab.document.body.replaceChildren(link);
+          link.click();
+          opened = true;
+        } catch { tab.close(); }
       }
       recovery.hidden = false;
       recovery.open = !opened || plan.needsCopy;

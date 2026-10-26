@@ -1,0 +1,961 @@
+{
+  "checkedAt": "2026-10-26",
+  "portalBase": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+  "appRef": "6d6320d6713b51491126a5a3cbb7b31e3562c7f0",
+  "environment": {
+    "browser": "Chromium 151.0.7922.173 on Debian GNU/Linux 13",
+    "viewports": [
+      [
+        1440,
+        1000
+      ],
+      [
+        390,
+        844
+      ],
+      [
+        320,
+        740
+      ]
+    ],
+    "mobilePhysicalDeviceTested": false,
+    "externalRequestsIntercepted": true,
+    "actualChatGPTReceiptTested": false,
+    "actualChatGPTAnswersTested": false
+  },
+  "unitTests": {
+    "passed": 30,
+    "failed": 0
+  },
+  "existingStatisticsTests": {
+    "passed": 193,
+    "failed": 0
+  },
+  "integratedStudyAtlasValidation": "passed",
+  "generatedLabPagesCheck": "passed",
+  "browserMatrix": [
+    {
+      "id": "cpu-memory",
+      "width": 1440,
+      "button": {
+        "x": 1256.3125,
+        "y": 189.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "thinking-tools",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 167.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "crypto-communication",
+      "width": 1440,
+      "button": {
+        "x": 1216.3125,
+        "y": 167.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "os-work",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 175.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "color-vision",
+      "width": 1440,
+      "button": {
+        "x": 1252.3125,
+        "y": 108,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "question-map",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 167.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "relational-database",
+      "width": 1440,
+      "button": {
+        "x": 1236.3125,
+        "y": 167.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "radix-conversion",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 167.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "packet-routing",
+      "width": 1440,
+      "button": {
+        "x": 1256.3125,
+        "y": 143.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "image-compression",
+      "width": 1440,
+      "button": {
+        "x": 1236.3125,
+        "y": 167.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "digital-image",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 145.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "digital-audio",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 145.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "logic-circuit",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 145.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "flowchart",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 145.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/graph-reading",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/missing-values",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/histogram",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/crosstab",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/correlation",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/time-series",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/sampling",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/hypothesis-test",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/projects",
+      "width": 1440,
+      "button": {
+        "x": 1146.3125,
+        "y": 127,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "cpu-memory",
+      "width": 390,
+      "button": {
+        "x": 12,
+        "y": 368.953125,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "thinking-tools",
+      "width": 390,
+      "button": {
+        "x": 16,
+        "y": 430.921875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "crypto-communication",
+      "width": 390,
+      "button": {
+        "x": 16,
+        "y": 305.015625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "os-work",
+      "width": 390,
+      "button": {
+        "x": 12,
+        "y": 266.296875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "color-vision",
+      "width": 390,
+      "button": {
+        "x": 14,
+        "y": 240.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "question-map",
+      "width": 390,
+      "button": {
+        "x": 16,
+        "y": 452.8125,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "relational-database",
+      "width": 390,
+      "button": {
+        "x": 12,
+        "y": 304.21875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "radix-conversion",
+      "width": 390,
+      "button": {
+        "x": 14,
+        "y": 333.75,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "packet-routing",
+      "width": 390,
+      "button": {
+        "x": 12,
+        "y": 310.703125,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "image-compression",
+      "width": 390,
+      "button": {
+        "x": 14,
+        "y": 322.609375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "digital-image",
+      "width": 390,
+      "button": {
+        "x": 16,
+        "y": 220.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "digital-audio",
+      "width": 390,
+      "button": {
+        "x": 12,
+        "y": 217.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "logic-circuit",
+      "width": 390,
+      "button": {
+        "x": 16,
+        "y": 224.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "flowchart",
+      "width": 390,
+      "button": {
+        "x": 16,
+        "y": 224.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 295.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/graph-reading",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 447.390625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/missing-values",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 447.390625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/histogram",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 472.59375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/crosstab",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 472.59375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/correlation",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 447.390625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/time-series",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/sampling",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 472.59375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/hypothesis-test",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/projects",
+      "width": 390,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "cpu-memory",
+      "width": 320,
+      "button": {
+        "x": 12,
+        "y": 390.265625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "thinking-tools",
+      "width": 320,
+      "button": {
+        "x": 16,
+        "y": 456.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "crypto-communication",
+      "width": 320,
+      "button": {
+        "x": 10,
+        "y": 326.890625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "os-work",
+      "width": 320,
+      "button": {
+        "x": 12,
+        "y": 314.359375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "color-vision",
+      "width": 320,
+      "button": {
+        "x": 14,
+        "y": 296.171875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "question-map",
+      "width": 320,
+      "button": {
+        "x": 16,
+        "y": 481.609375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "relational-database",
+      "width": 320,
+      "button": {
+        "x": 12,
+        "y": 357.96875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "radix-conversion",
+      "width": 320,
+      "button": {
+        "x": 14,
+        "y": 360.046875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "packet-routing",
+      "width": 320,
+      "button": {
+        "x": 12,
+        "y": 310.703125,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "image-compression",
+      "width": 320,
+      "button": {
+        "x": 14,
+        "y": 344.203125,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "digital-image",
+      "width": 320,
+      "button": {
+        "x": 16,
+        "y": 220.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "digital-audio",
+      "width": 320,
+      "button": {
+        "x": 12,
+        "y": 217.71875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "logic-circuit",
+      "width": 320,
+      "button": {
+        "x": 16,
+        "y": 224.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "flowchart",
+      "width": 320,
+      "button": {
+        "x": 16,
+        "y": 255.5625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 295.84375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/graph-reading",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 507.390625,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/missing-values",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 472.59375,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/histogram",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/crosstab",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/correlation",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/time-series",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 523,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/sampling",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 497.796875,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/hypothesis-test",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 548.203125,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "id": "statistics/projects",
+      "width": 320,
+      "button": {
+        "x": 28,
+        "y": 523,
+        "width": 163.6875,
+        "height": 44
+      },
+      "errors": []
+    },
+    {
+      "scenario": "popup blocked, private query/hash excluded, clipboard denied/manual selection, clipboard success",
+      "pass": true
+    },
+    {
+      "scenario": "guide fetch failure/retry; lab stepping remains available",
+      "pass": true
+    }
+  ],
+  "activities": [
+    {
+      "id": "cpu-memory",
+      "firstSteps": true
+    },
+    {
+      "id": "thinking-tools",
+      "firstSteps": true
+    },
+    {
+      "id": "crypto-communication",
+      "firstSteps": true
+    },
+    {
+      "id": "os-work",
+      "firstSteps": true
+    },
+    {
+      "id": "color-vision",
+      "firstSteps": true
+    },
+    {
+      "id": "question-map",
+      "firstSteps": true
+    },
+    {
+      "id": "relational-database",
+      "firstSteps": true
+    },
+    {
+      "id": "radix-conversion",
+      "firstSteps": true
+    },
+    {
+      "id": "packet-routing",
+      "firstSteps": true
+    },
+    {
+      "id": "image-compression",
+      "firstSteps": true
+    },
+    {
+      "id": "digital-image",
+      "firstSteps": true
+    },
+    {
+      "id": "digital-audio",
+      "firstSteps": true
+    },
+    {
+      "id": "logic-circuit",
+      "firstSteps": true
+    },
+    {
+      "id": "flowchart",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/graph-reading",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/missing-values",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/histogram",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/crosstab",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/correlation",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/time-series",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/sampling",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/hypothesis-test",
+      "firstSteps": true
+    },
+    {
+      "id": "statistics/projects",
+      "firstSteps": true
+    },
+    {
+      "scenario": "axe WCAG A/AA common button and recovery",
+      "pass": true
+    },
+    {
+      "scenario": "statistics child switching",
+      "pass": true
+    },
+    {
+      "scenario": "oversized prompt stays complete in recovery",
+      "pass": true
+    },
+    {
+      "scenario": "delayed guide with real popup; no source URL referrer",
+      "pass": true
+    },
+    {
+      "scenario": "oversized prompt opens plain ChatGPT and exposes full copy",
+      "pass": true
+    }
+  ],
+  "limitations": [
+    "ChatGPT q receipt and multiple-turn answers remain unverified",
+    "Safari, Firefox and physical mobile devices not tested",
+    "No merge or production deployment"
+  ]
+}

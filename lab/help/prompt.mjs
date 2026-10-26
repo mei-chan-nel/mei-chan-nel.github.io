@@ -14,7 +14,8 @@ export function pageKey(pathname, rootPath = "/lab/") {
 }
 
 export function validateGuide(guide) {
-  if (!guide || guide.schemaVersion !== 1 || typeof guide.name !== "string" ||
+  if (!guide || guide.schemaVersion !== 1 || typeof guide.name !== "string" || !guide.name.trim() ||
+      typeof guide.id !== "string" ||
       !/^[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(guide.id)) throw Error("Invalid guide");
   for (const [field] of fields) {
     if (!Array.isArray(guide[field]) || !guide[field].length ||
