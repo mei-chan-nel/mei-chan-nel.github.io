@@ -58,20 +58,20 @@ try {
  await p.addScriptTag({path:process.env.LAB_AXE_MODULE||require.resolve('axe-core/axe.min.js')});
  const scan=()=>p.evaluate(()=>axe.run({include:[['.lab-help'],['.lab-help-feedback']]},{runOnly:{type:'tag',values:['wcag2a','wcag2aa','wcag21aa']}}));
  let result=await scan();assert.deepEqual(result.violations.map(v=>v.id),[]);
- await button(p,'ChatGPTに聞く').click();await p.locator('.lab-help__recovery[open]').waitFor();
+ await button(p,'ChatGPTに使い方を聞く').click();await p.locator('.lab-help__recovery[open]').waitFor();
  result=await scan();assert.deepEqual(result.violations.map(v=>v.id),[]);
  records.push({scenario:'axe WCAG A/AA common button and recovery',pass:true});
  // Navigation is document-based: changing the child must load its own guide.
  await p.goto(origin+'/lab/statistics/histogram/',{waitUntil:'networkidle'});
  await p.locator('#lab-picker').waitFor({state:'visible'});await p.locator('#data-tab').waitFor({state:'visible'});await Promise.all([p.waitForURL('**/statistics/sampling/',{waitUntil:'domcontentloaded'}),p.locator('#lab-picker').selectOption('sampling')]);
- await button(p,'ChatGPTに聞く').click();await p.locator('.lab-help__recovery[open]').waitFor();
+ await button(p,'ChatGPTに使い方を聞く').click();await p.locator('.lab-help__recovery[open]').waitFor();
  const prompt=await p.locator('#lab-help-prompt').inputValue();assert.ok(prompt.includes('標本調査と推定'));assert.ok(!prompt.includes('階級幅2℃'));
  records.push({scenario:'statistics child switching',pass:true});
  // Keep full text available when the application's URL budget is exceeded.
  const common=JSON.parse(await readFile(new URL('../help/data/common.json',import.meta.url),'utf8'));
  await c.route('**/help/data/common.json',r=>r.fulfill({json:{...common,instructions:common.instructions+'追記。'.repeat(1000)}}));
  await p.goto(origin+'/lab/cpu-memory/',{waitUntil:'networkidle'});
- await button(p,'ChatGPTに聞く').click();await p.locator('.lab-help__recovery[open]').waitFor();
+ await button(p,'ChatGPTに使い方を聞く').click();await p.locator('.lab-help__recovery[open]').waitFor();
  assert.ok((await p.locator('#lab-help-prompt').inputValue()).endsWith('追記。'.repeat(1000)));
  records.push({scenario:'oversized prompt stays complete in recovery',pass:true});
  await c.close();
@@ -87,7 +87,7 @@ try {
   await new Promise(resolve=>setTimeout(resolve,350));return r.continue();
  });
  await page.goto(origin+'/lab/cpu-memory/?private=NEVER_SEND#NEVER_SEND',{waitUntil:'domcontentloaded'});
- const popupPromise=page.waitForEvent('popup');await button(page,'ChatGPTに聞く').click();
+ const popupPromise=page.waitForEvent('popup');await button(page,'ChatGPTに使い方を聞く').click();
  const popup=await popupPromise;await popup.waitForURL('https://chatgpt.com/**');
  assert.ok(new URL(popup.url()).searchParams.get('q').includes('基本の加算'));
  assert.ok(!JSON.stringify(outgoing).includes('NEVER_SEND'));
@@ -97,7 +97,7 @@ try {
  await popup.close();
  await delayed.route('**/help/data/common.json',r=>r.fulfill({json:{...common,instructions:common.instructions+'追記。'.repeat(1000)}}));
  await page.reload({waitUntil:'networkidle'});
- const longPopupPromise=page.waitForEvent('popup');await button(page,'ChatGPTに聞く').click();
+ const longPopupPromise=page.waitForEvent('popup');await button(page,'ChatGPTに使い方を聞く').click();
  const longPopup=await longPopupPromise;await longPopup.waitForURL('https://chatgpt.com/');
  assert.ok((await page.locator('.lab-help__status').innerText()).includes('長いため'));
  await page.locator('.lab-help__recovery[open]').waitFor();
