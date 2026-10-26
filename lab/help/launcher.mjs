@@ -14,7 +14,7 @@ function installHelp(heading) {
   button.type = "button";
   button.className = "lab-help__button";
   button.title = "この教材の使い方をChatGPTで聞く（新しいタブ）";
-  button.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-8l-6 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 9h8M8 13h5"/></svg><span>ChatGPTに聞く</span>';
+  button.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-8l-6 4v-4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><path d="M8 9h8M8 13h5"/></svg><span>ChatGPTに使い方を聞く</span>';
   const status = document.createElement("p");
   status.className = "lab-help__status";
   status.setAttribute("role", "status");
@@ -118,7 +118,7 @@ function installHelp(heading) {
       if (!opened) recovery.querySelector("summary").focus();
     } catch {
       if (tab && !tab.closed) tab.close();
-      status.textContent = "案内データを読み込めませんでした。接続を確認して「ChatGPTに聞く」をもう一度押してください。ラボの操作は続けられます。";
+      status.textContent = "案内データを読み込めませんでした。接続を確認して「ChatGPTに使い方を聞く」をもう一度押してください。ラボの操作は続けられます。";
     } finally {
       busy = false;
       button.disabled = false;

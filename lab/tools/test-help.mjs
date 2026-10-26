@@ -33,7 +33,7 @@ try {
       const errors = [];
       page.on("pageerror", e => errors.push(e.message));
       await page.goto(`${origin}/lab/${id}/`, { waitUntil: "networkidle" });
-      const help = page.getByRole("button", { name: "ChatGPTに聞く", exact: true });
+      const help = page.getByRole("button", { name: "ChatGPTに使い方を聞く", exact: true });
       assert.equal(await help.count(), 1, id);
       await help.waitFor({ state: "visible" });
       const box = await help.boundingBox();
@@ -87,7 +87,7 @@ try {
   await page.addInitScript(() => { window.open = () => null; });
   await page.goto(`${origin}/lab/radix-conversion/?private=NEVER_SEND#NEVER_SEND`, { waitUntil: "networkidle" });
   await page.locator("#number-input").fill("12345");
-  await page.getByRole("button", { name: "ChatGPTに聞く", exact: true }).click();
+  await page.getByRole("button", { name: "ChatGPTに使い方を聞く", exact: true }).click();
   await page.locator(".lab-help__recovery[open]").waitFor();
   assert.equal(await page.locator("#number-input").inputValue(), "12345");
   assert.ok(!(await page.locator("#lab-help-prompt").inputValue()).includes("NEVER_SEND"));
@@ -103,10 +103,10 @@ try {
   let fail = true;
   await c.route("**/help/data/cpu-memory.json", route => fail ? route.fulfill({status:503,body:"unavailable"}) : route.continue());
   await page.goto(`${origin}/lab/cpu-memory/`, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "ChatGPTに聞く", exact: true }).click();
+  await page.getByRole("button", { name: "ChatGPTに使い方を聞く", exact: true }).click();
   await page.getByText("案内データを読み込めませんでした。", {exact:false}).waitFor();
   fail = false;
-  await page.getByRole("button", { name: "ChatGPTに聞く", exact: true }).click();
+  await page.getByRole("button", { name: "ChatGPTに使い方を聞く", exact: true }).click();
   await page.locator(".lab-help__recovery[open]").waitFor();
   assert.ok((await page.locator("#lab-help-prompt").inputValue()).includes("CPUと記憶装置"));
   const stepsBefore = await page.locator("#steps").textContent();

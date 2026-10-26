@@ -1,5 +1,5 @@
 /* Shared by every lab. Deliberately scoped to avoid altering experiment buttons. */
-.lab-help-heading { position: relative; padding-inline-end: 196px !important; min-height: 48px; }
+.lab-help-heading { position: relative; padding-inline-end: 256px !important; min-height: 48px; }
 .lab-help-heading > .lab-help { position: absolute; inset-block-start: 12px; inset-inline-end: 0; }
 .lab-help .lab-help__button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
