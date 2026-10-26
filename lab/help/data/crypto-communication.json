@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "crypto-communication",
+  "name": "暗号通信シミュレーター",
+  "purpose": [
+    "攻撃者Charlieとして共通鍵・公開鍵・認証局CA・署名と認証タグの役割を学ぶ。"
+  ],
+  "initialState": [
+    "ROUND 1の共通鍵から物語が始まる。Alice・Bob・Charlieの図と説明、状況に応じた選択肢が表示される。"
+  ],
+  "controls": [
+    "「次へ ▶」で説明を進め、表示された行動の選択肢を押す。鍵選択の場面では使う鍵を選ぶ。",
+    "上部のROUND 1〜4で方式を切替。「← 一つ前へ」で戻り、「仕組み」で詳しい説明・通信の記録を開く。"
+  ],
+  "firstSteps": [
+    "「次へ ▶」を押して登場人物と通信を確認する。選択肢が現れたら、その場面の説明を読んで行動を1つ選ぶ。"
+  ],
+  "experiments": [
+    "鍵やデータへの介入が、公開鍵だけの場合とCAのある場合でどう違うか比べる。"
+  ],
+  "results": [
+    "暗号文を読めるか、送信者を確かめられるか、改ざんを検出できるかを区別して通信の記録を見る。"
+  ],
+  "cautions": [
+    "実際の暗号処理・安全性評価を行うツールではない。鍵の役割を単純化した教材。現時点の選択肢は状況で変わるため、必要なら表示文を尋ねる。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/crypto-communication/app.mjs",
+      "lab/crypto-communication/quest.mjs",
+      "lab/crypto-communication/model.mjs",
+      "lab/crypto-communication/index.html"
+    ]
+  }
+}

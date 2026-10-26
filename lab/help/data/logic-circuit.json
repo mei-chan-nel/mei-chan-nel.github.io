@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "logic-circuit",
+  "name": "論理回路をつくる",
+  "purpose": [
+    "AND・OR・NOTの配線と入出力を真理値表で理解する。"
+  ],
+  "initialState": [
+    "初回はANDの回路例。保存済み回路や共有URLがある場合は異なる。"
+  ],
+  "controls": [
+    "入力端子の0／1を押して切替。部品ボタンで追加し、出力側と入力側の端子を順に押して配線。",
+    "「読込」で例や保存回路、「保存」「共有」で残せる。「分岐」で信号を分け、「全体」で表示を収める。"
+  ],
+  "firstSteps": [
+    "ANDの例で2つの入力を順に0／1へ切り替え、出力と「真理値表」の対応を見る。"
+  ],
+  "experiments": [
+    "「読込」からORやNOT等の例を選び、同じ入力のときの出力を比較する。"
+  ],
+  "results": [
+    "0と1は論理値。ANDは両方1で1、ORは少なくとも一方1で1、NOTは反転。未接続は未確定になる。"
+  ],
+  "cautions": [
+    "組合せ回路の教材。現実の電圧・伝搬遅延や順序回路の動作は表さない。例の読込で今の作業を置換するときは保存を確認する。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/logic-circuit/editor.mjs",
+      "lab/logic-circuit/circuit.mjs",
+      "lab/logic-circuit/document-ui.mjs",
+      "lab/logic-circuit/examples.mjs",
+      "lab/tools/templates/logic-circuit.html"
+    ]
+  }
+}

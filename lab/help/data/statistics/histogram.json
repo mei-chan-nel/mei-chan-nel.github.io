@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics/histogram",
+  "name": "データの分布",
+  "purpose": [
+    "分布の形・中心・ばらつき・2群の違いを調べる。"
+  ],
+  "initialState": [
+    "標準は東京の2025年6月・7月の日最高気温61件。月別の2群、階級幅2℃。"
+  ],
+  "controls": [
+    "「度数分布表」「分布と箱ひげ図」「代表値計算」を切替。「階級幅」で区切り、「縦軸」で度数・相対度数を変更する。"
+  ],
+  "firstSteps": [
+    "「分布と箱ひげ図」を押し、「階級幅」を2から4に変えて山の見え方を比べる。"
+  ],
+  "experiments": [
+    "群別の箱ひげ図と「代表値計算」を見比べ、平均・中央値・分散を確かめる。"
+  ],
+  "results": [
+    "棒は区間内の件数や割合。箱は第1〜第3四分位数、線は中央値。ひげの外は外れ値候補。"
+  ],
+  "cautions": [
+    "階級幅で見え方が変わる。外れ値候補を誤りと決めつけない。分散の分母や四分位数の計算法は計算説明を確認する。2群の違いだけで原因は分からない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/histogram/lab.mjs",
+      "lab/statistics/histogram/view.mjs",
+      "lab/statistics/histogram/calculations.mjs",
+      "lab/statistics/histogram/descriptive.mjs",
+      "lab/statistics/shared/samples.mjs"
+    ]
+  }
+}

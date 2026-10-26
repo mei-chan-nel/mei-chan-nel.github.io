@@ -42,6 +42,7 @@ async function save(slug, body, scripts = []) {
       experiences[slug]?.purpose ||
       "自分のデータを使い、分布・代表値・相関などを可視化して確かめる統計ラボ。",
     slug: slug ? `statistics/${slug}` : "statistics",
+    help: !['summary', 'probability', 'lorenz'].includes(slug),
     body,
     styles: [
       slug ? "../statistics.css" : "statistics.css",
