@@ -39,7 +39,7 @@
 
 ## 再開時に必要なこと
 
-1. SERVER.mdが現在の仕様。以前のSupabase設定依頼は取り消し済みで、追加SQL・秘密鍵・外部サービスの設定を求めない。
+1. SUPABASE-DIRECT-RPC.mdが現在の仕様。以前のSupabase設定依頼は取り消し済みで、追加SQL・秘密鍵・外部サービスの設定を求めない。
 2. 本番通信を許可できる環境なら、`scripts/check_mock_exam_public.py`で読取り、`/mock-exams/connection-check.html`でテスト用模試IDへの送信と読戻しを確認する。通常No.001の統計をテストに使わない。
 3. ホストの通信制限は現在も未解除。管理環境statusのallowed_hostsは空。変更を迂回しない。
 4. 開発ブランチは`feat/mock-exams-001`。ローカルのみ。公開元mainへは未反映。公開時は既存workflowの兄弟アプリ同名ブランチ参照に注意する。
@@ -48,3 +48,10 @@
 ## 保存・配布
 
 実装と記録はこのブランチにコミットする。配布ZIPは`/workspace/output/study-atlas-mock-exams-direct-rpc.zip`。旧方式のZIPは誤適用防止のため作業出力から除く。
+
+## 案内の混同防止（今回の再確認）
+
+- 現行文書を`SUPABASE-DIRECT-RPC.md`へ移動。以前の`SERVER.md`は現行文書への案内だけに置換。旧方式の設定手順は使用しない。
+- 作業ツリーと配布ZIPに旧方式の実装が含まれていないことを再確認。
+- 本番取得を再試行したが、引き続きHTTPSプロキシの403。現在のDB関数定義の取得も未実施。
+- 作業環境外から送受信を確認できる単独HTMLを`/workspace/output/supabase-direct-rpc-check.html`へ追加。通常の模試IDには書き込まない。

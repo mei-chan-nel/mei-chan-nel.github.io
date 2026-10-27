@@ -12,7 +12,7 @@
 - 同階層の `q1.html` など: 原稿を保持し解答バインディングを追加した教材。iframeで元のCSSを隔離する。原稿のscriptとイベント属性は除去する。
 - `source/`: 改変しない入力原稿。教材側はnoindex。原稿を公開対象から除外したい場合はホスティング設定側で除外可能。
 - `problem.pdf`, `solution.pdf`: 端末によらず同じA4冊子。
-- `mock-exams/connection-check.html`: テスト用模試IDによるRPC接続確認。接続契約はSERVER.md。
+- `mock-exams/connection-check.html`: テスト用模試IDによるRPC接続確認。接続契約はSUPABASE-DIRECT-RPC.md。
 
 ## データと描画の分離
 
@@ -93,6 +93,6 @@ PDFは版固定の静的ファイル。スマートフォンでも同一PDFを�
 
 ## Supabase接続と検証の範囲
 
-[SERVER.md](SERVER.md)に既存2つのRPCの契約と送信状態の仕様を記載。DBへの追加適用や中間サービスの設定は不要。現在の環境は本番ホストへの通信が403で遮断されるため、本番送受信は未確認。ユーザー提供SQLと一時PostgreSQLでの送受信、およびブラウザの通常操作を検証する。
+[SUPABASE-DIRECT-RPC.md](SUPABASE-DIRECT-RPC.md)に既存2つのRPCの契約と送信状態の仕様を記載。DBへの追加適用や中間サービスの設定は不要。現在の環境は本番ホストへの通信が403で遮断されるため、本番送受信は未確認。ユーザー提供SQLと一時PostgreSQLでの送受信、およびブラウザの通常操作を検証する。
 
 Safari/iOS実機と公式冊子との精密な組版比較は前回からの残項目。LAYOUT.mdを参照。
