@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>アルゴリズムとは｜情報Ⅰ 用語解説｜Study Atlas</title>
+    <meta name="description" content="アルゴリズムの意味とプログラムとの違い、順次・分岐・反復の基本構造、入力・処理・出力、著作権との関係を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="アルゴリズム" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="アルゴリズムとは｜情報Ⅰ 用語解説｜Study Atlas" />
+    <meta property="og:description" content="アルゴリズムの意味とプログラムとの違い、順次・分岐・反復の基本構造、入力・処理・出力、著作権との関係を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/algorithm/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/algorithm/" />
+    <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <style>
+      #term-heading, #term-explanation h2, #term-challenge-heading { text-wrap: balance; }
+    </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">アルゴリズム</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · PROGRAMMING</p>
+        <h1 id="term-heading">アルゴリズム</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>アルゴリズムの意味</h2>
+          <p><strong>アルゴリズム（algorithm）とは、問題を解決したり、目的を達成したりするための処理手順を、順序立てて明確に表したもの</strong>です。</p>
+          <p>例えば、複数の数値から最大値を求める場合、次のような手順が考えられます。</p>
+          <ol>
+            <li>最初の数値を仮の最大値とします。</li>
+            <li>次の数値と仮の最大値を比較し、より大きければ更新します。</li>
+            <li>すべての数値を調べ終わるまで比較を繰り返します。</li>
+            <li>最後に残った最大値を結果とします。</li>
+          </ol>
+          <p>このように、何をどのような順序で行うかを具体的に定めたものがアルゴリズムです。</p>
+          <p>アルゴリズムはコンピュータに限らず、料理の手順や目的地までの経路の探索など、日常生活のさまざまな場面にも存在します。</p>
+          <p>同じ問題でも複数のアルゴリズムが考えられ、処理にかかる時間や必要な記憶容量が異なる場合があります。</p>
+
+          <h3>アルゴリズムとプログラムの違い</h3>
+          <p>アルゴリズムは処理の手順そのものであり、<strong>プログラムは、その手順をコンピュータに実行させるために具体的な命令として記述したもの</strong>です。</p>
+          <p>アルゴリズムは、日本語などの自然言語、フローチャート（流れ図）、疑似コードなどで表現できます。特定のプログラミング言語に依存しないため、同じアルゴリズムをPythonやJavaScriptなどの異なる言語で実装することもできます。</p>
+        </section>
+
+        <section>
+          <h2>アルゴリズムの基本構造</h2>
+          <p>アルゴリズムは、基本的に次の三つの制御構造を組み合わせて表現できます。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">構造</th><th scope="col">内容</th><th scope="col">例</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>順次処理</td><td>決められた順番に処理を実行する</td><td>数値を入力し、2倍して表示する</td></tr>
+              <tr><td>分岐処理</td><td>条件によって実行する処理を変える</td><td>60点以上なら「合格」と表示する</td></tr>
+              <tr><td>反復処理</td><td>同じ処理を繰り返す</td><td>1から10までの整数を順番に加算する</td></tr>
+            </tbody>
+          </table>
+          <p>特に反復処理では、初期値、繰返しを続ける条件、繰返しごとの値の更新を確認することが重要です。</p>
+          <p>例えば、変数xを0として、「xが10未満である間、xに3を加える」という処理を考えます。</p>
+          <p>xの値は、</p>
+          <p class="term-formula"><strong>0 → 3 → 6 → 9 → 12</strong></p>
+          <p>と変化します。12になった時点で「xが10未満」という条件を満たさなくなるため、処理は終了します。</p>
+          <p>このように、処理を実行する前に条件を判定する方式を<strong>前判定の繰返し</strong>といいます。終了時の値は、条件に指定された値と一致するとは限りません。</p>
+          <p>また、終了条件が満たされず、処理が繰り返され続ける状態を無限ループといいます。</p>
+
+          <h3>入力・処理・出力</h3>
+          <p>アルゴリズムの働きは、<strong>入力（Input）・処理（Process）・出力（Output）</strong>に分けて整理できます。</p>
+          <p>例えば、温度センサの測定値から警告を表示するシステムでは、次のようになります。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">区分</th><th scope="col">内容</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>入力</td><td>温度センサから測定値を取得する</td></tr>
+              <tr><td>処理</td><td>直近10件の平均値を計算し、基準値と比較する</td></tr>
+              <tr><td>出力</td><td>基準値を超えていれば警告を表示する</td></tr>
+            </tbody>
+          </table>
+          <p>何を受け取り、どのような計算や判定を行い、何を結果として示すのかを区別することが、アルゴリズムを考える基本となります。</p>
+        </section>
+
+        <section>
+          <h2>アルゴリズムと著作権</h2>
+          <p>プログラムは、著作物として著作権法によって保護される場合があります。一方、<strong>一般的なアルゴリズムの考え方や処理手順そのものは、著作権の保護対象ではありません。</strong></p>
+          <p>例えば、数値を小さい順に並べ替えるアルゴリズムそのものを著作権で独占することはできません。しかし、そのアルゴリズムを実装したプログラムの創作的な表現は、保護される場合があります。</p>
+          <p>このため、同じアルゴリズムを独自にプログラムとして実装することと、他人が作成したプログラムのコードを無断で複製することは区別されます。</p>
+          <p>なお、アルゴリズムに関連する技術が特許などの対象になる場合もあるため、必ずしも自由に利用できるわけではありません。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>アルゴリズム · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>次のうち、アルゴリズムの説明として最も適切なものを選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>数値や変数に対して、加算や比較などの処理を指示する記号である。</p></li>
+            <li><span>1</span><p>文字や画像などのデータを、一定の規則に従って別の形式で表すことである。</p></li>
+            <li><span>2</span><p>問題を解決したり、目的を達成したりするための処理手順を、順序立てて表したものである。</p></li>
+            <li><span>3</span><p>ネットワークを通じて機器同士が通信するために定められた規則である。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．問題を解決したり、目的を達成したりするための処理手順を、順序立てて表したものである。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>アルゴリズムは、問題を解決したり目的を達成したりするための処理手順を、順序立てて明確に表したものです。同じ問題でも複数のアルゴリズムが考えられ、処理時間や必要な記憶容量が異なる場合があります。アルゴリズムは自然言語、フローチャート、疑似コードなどで表現できます。プログラムは、その手順を特定のプログラミング言語でコンピュータが実行できるように記述したものであり、アルゴリズムそのものとは区別されます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：アルゴリズム</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">アルゴリズムの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="アルゴリズム"
+          data-limit="5"
+          data-exclude-stem="次のうち、アルゴリズムの説明として最も適切なものを選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=アルゴリズム">アルゴリズムの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"アルゴリズムとは","description":"アルゴリズムの意味とプログラムとの違い、順次・分岐・反復の基本構造、入力・処理・出力、著作権との関係を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/algorithm/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"アルゴリズム","item":"https://mei-chan-nel.com/terms/algorithm/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=2026101201"></script>
+  </body>
+</html>
