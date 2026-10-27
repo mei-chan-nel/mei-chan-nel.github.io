@@ -96,3 +96,9 @@ PDFは版固定の静的ファイル。スマートフォンでも同一PDFを�
 [SUPABASE-DIRECT-RPC.md](SUPABASE-DIRECT-RPC.md)に既存2つのRPCの契約と送信状態の仕様を記載。DBへの追加適用や中間サービスの設定は不要。現在の環境は本番ホストへの通信が403で遮断されるため、本番送受信は未確認。ユーザー提供SQLと一時PostgreSQLでの送受信、およびブラウザの通常操作を検証する。
 
 Safari/iOS実機と公式冊子との精密な組版比較は前回からの残項目。LAYOUT.mdを参照。
+
+## Windowsローカル検証
+
+[WINDOWS-LOCAL-TEST.md](WINDOWS-LOCAL-TEST.md)を参照。配布ZIPにはWindows標準PowerShellで動くHTTPサーバーと、依存ファイルをまとめた検証ページを含む。開発者が再生成する場合は`ESBUILD_MODULE=/path/to/esbuild node scripts/build_mock_exam_windows_qa.cjs`。ビルドにだけesbuildを使用し、配布物の実行には不要。
+
+本番サイトへのデプロイは、Windowsでの実接続検証後に行う。

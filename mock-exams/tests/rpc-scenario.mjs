@@ -10,7 +10,7 @@ import {
   AttemptStore,
 } from "../engine/attempt.mjs";
 import { sendUnsentUnits } from "../engine/submission.mjs";
-import { fetchStats } from "../engine/stats.mjs";
+import { fetchStats, statsConfig } from "../engine/stats.mjs";
 import { calculateStats, validateExam } from "../engine/scoring.mjs";
 export function verificationExam(id) {
   if (!/^qa_mock_[A-Za-z0-9_-]+$/.test(id))
@@ -94,7 +94,89 @@ export async function runRpcVerification({
       examVersion: 1,
       at: new Date().toISOString(),
       passed: false,
+      project: statsConfig.url,
+      origin: globalThis.location?.origin || "node",
+      requests: [],
+      checkpoints: [],
+      expectedFinalRows: [
+        {
+          scoring_id: "single",
+          section_id: "q1",
+          answered_count: 2,
+          correct_count: 1,
+          points_sum: 2,
+        },
+        {
+          scoring_id: "pair",
+          section_id: "q1",
+          answered_count: 2,
+          correct_count: 1,
+          points_sum: 3,
+        },
+        {
+          scoring_id: "partial",
+          section_id: "q2a",
+          answered_count: 3,
+          correct_count: 1,
+          points_sum: 7,
+        },
+      ],
     };
+  const output = log;
+  log = (message) => {
+    report.checkpoints.push(message);
+    output(message);
+  };
+  const transport = request;
+  request = async (url, options) => {
+    const body = JSON.parse(options.body),
+      rpc = new URL(url).pathname.split("/").at(-1);
+    if (
+      body.p_exam_id !== id ||
+      body.p_exam_version !== 1 ||
+      !["record_mock_exam_results", "get_mock_exam_stats"].includes(rpc) ||
+      url !== statsConfig.url + "/rest/v1/rpc/" + rpc
+    )
+      throw Error("検証用ID以外への通信を中止しました");
+    const trace = {
+      rpc,
+      examId: body.p_exam_id,
+      examVersion: body.p_exam_version,
+      status: null,
+    };
+    report.requests.push(trace);
+    try {
+      const response = await transport(url, options);
+      trace.status = response.status;
+      try {
+        const data = await response.clone().json();
+        if (response.ok) {
+          if (rpc === "get_mock_exam_stats")
+            trace.itemCount = Array.isArray(data?.items)
+              ? data.items.length
+              : null;
+          else trace.updatedCount = data?.updated_count ?? null;
+        } else {
+          trace.code = typeof data?.code === "string" ? data.code : null;
+          trace.message =
+            typeof data?.message === "string"
+              ? data.message.slice(0, 400)
+              : null;
+        }
+      } catch {
+        trace.bodyUnreadable = true;
+      }
+      if (!response.ok)
+        log(
+          `通信失敗: ${rpc} HTTP ${response.status}${trace.code ? " / " + trace.code : ""}${trace.message ? " / " + trace.message : ""}`,
+        );
+      return response;
+    } catch (error) {
+      trace.error = error.message;
+      log("通信失敗: " + rpc + " / HTTP応答を読めません / " + error.message);
+      throw error;
+    }
+  };
   const check = (ok, message) => {
     if (!ok) throw Error(message);
   };
@@ -186,6 +268,10 @@ export async function runRpcVerification({
         stats.sections.q2a.points === 2.75,
       "平均計算が不一致",
     );
+    report.beforeResponseLoss = {
+      rows: structuredClone(rows),
+      statistics: stats,
+    };
     log("PASS 再受験・正答数・平均得点5.25/9・平均得点率58.33%");
     const lost = createAttempt(exam, "section", "q2a");
     lost.answers = { d: "1" };
@@ -205,7 +291,18 @@ export async function runRpcVerification({
       "不明状態が失われました",
     );
     check((await send(recovered)).count === 0, "結果不明を再送しました");
-    await expect([["partial", 3, 1, 7]]);
+    const finalRows = await expect([
+      ["single", 2, 1, 2],
+      ["pair", 2, 1, 3],
+      ["partial", 3, 1, 7],
+    ]);
+    check(finalRows.length === 3, "想定外の採点単位が集計されています");
+    report.finalRows = finalRows;
+    report.finalStatistics = calculateStats(exam, finalRows);
+    check(
+      Math.abs(report.finalStatistics.total.points - 29 / 6) < 1e-10,
+      "最終平均得点が不一致",
+    );
     check(recovered.result.points === 1.5, "通信失敗で個人成績が失われました");
     log("PASS 記録後の応答消失・不明状態保持・再送なし・個人成績保持");
     report.passed = true;

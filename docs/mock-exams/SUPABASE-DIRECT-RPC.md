@@ -71,7 +71,7 @@ scoring_idは問題定義のIDを一貫して使う。No.001は`q1-01`など44�
 
 本番と同じRPC定義を一時PostgreSQL17へ読み込み、anonロールでローカルHTTPから送信・読戻しを実行した。No.001を使わず`qa_mock_<UUID>`を使用。複数マークの入力順、1.5点の部分点、途中採点後の新規単位だけの加算、最初の不正解の保持、再受験、復習除外、応答消失、復旧、各平均、SQLの入力検証・全体ロールバックを確認した。既存学習アプリ用の検証データは不変。
 
-本番通信は環境のHTTPSプロキシで`Tunnel connection failed: 403 Forbidden`となり、Supabaseへ到達していない。**本番の記録・取得・現在の関数定義は未確認。** 公開キー自体が拒否されたという結果ではない。
+本番通信は環境のHTTPSプロキシへのCONNECT段階で403となった。curlの`http_connect=403`、`http_code=0`、`time_appconnect=0`を確認しており、SupabaseへのTLS接続もHTTP要求も成立していない。詳細は`network-diagnosis.json`に保存。**本番の記録・取得・現在の関数定義は未確認。** 公開キー自体が拒否されたという結果ではない。
 
 ブラウザでの実接続確認には `/mock-exams/connection-check.html` を使う。ローカルプレビューからも実行でき、追加設定は不要。
 
@@ -116,3 +116,13 @@ order by p.proname;
 配布物の`supabase-direct-rpc-check.html`は、上記の確認ページと同じテストを1ファイルにまとめたものです。ブラウザで開き「実際の送受信を検証する」を押すと、既存のPublishable keyを使い、新しい`qa_mock_`模試IDへ送信・読戻しを行います。サイト公開や追加サービスの設定は不要です。ブラウザがローカルファイルからの通信を制限する場合は、前述のローカルプレビューで確認してください。
 
 この確認ファイルの画面動作は通信を模擬して検証しています。本番Supabaseを通した成功結果は、実接続でログが得られるまで未確認です。
+
+## WindowsでのローカルHTTP検証（現在の手順）
+
+[WINDOWS-LOCAL-TEST.md](WINDOWS-LOCAL-TEST.md)に起動・テスト方法・各期待値・エラーの見方をまとめた。`StudyAtlas-RPC-Test-Windows.zip`を展開し、`start.cmd`をダブルクリックする。管理者権限やPython/Node.jsの導入は不要。127.0.0.1だけで待ち受けるPowerShellサーバーからページを配信し、通常のブラウザが既存RPCへ直接通信する。
+
+最終集計はsingle=(2件,1正答,2点)、pair=(2件,1正答,3点)、partial=(3件,1正答,7点)。平均得点4.83/9点、平均得点率53.70%。各HTTPステータスと最終値をJSONへ保存する。応答消失はテスト中に意図的に模擬する。
+
+配布サーバーのコードはPowerShell 7.4.6/Linuxで実行し、ローカルHTTPのGET/HEAD・404/405とブラウザの検証フローを確認した。スクリプトはWindows標準PowerShell 5.1で使える構文・.NET APIを使用しているが、Windows実機での実行と実Supabase通信はユーザーPCでの確認待ち。
+
+**公開方針：Windowsで実接続の検証が済むまで、本番サイトへデプロイしない。**

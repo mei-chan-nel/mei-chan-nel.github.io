@@ -55,3 +55,14 @@
 - 作業ツリーと配布ZIPに旧方式の実装が含まれていないことを再確認。
 - 本番取得を再試行したが、引き続きHTTPSプロキシの403。現在のDB関数定義の取得も未実施。
 - 作業環境外から送受信を確認できる単独HTMLを`/workspace/output/supabase-direct-rpc-check.html`へ追加。通常の模試IDには書き込まない。
+
+## Windowsローカル検証への移行
+
+- ユーザーの公開方針：ローカルで実Supabaseとの検証が済んでから本番サイトをデプロイする。まだデプロイしない。
+- 通信診断を強化。`network-diagnosis.json`でproxy CONNECT=403、origin HTTP=0、TLS handshake=0を記録。今回の403はCodex環境のプロキシによる拒否と確認。回避は行わない。
+- `tools/mock-exams-windows/`に標準PowerShellで動くループバックHTTPサーバーと起動cmd、ページのテンプレートを追加。HTTP配信だけを行い、API通信はブラウザが直接実行。
+- `scripts/build_mock_exam_windows_qa.cjs`で`/workspace/output/StudyAtlas-RPC-Test-Windows/`を生成。ZIPへ格納して渡す。利用者のPCにはNode/Python不要。
+- `rpc-scenario.mjs`にテストID以外の送信を拒否するガード、HTTPステータス・RPCエラーのログ、最終集計・平均を追加。通常の模試IDへは通信しない。
+- 最終値：single 2/1/2、pair 2/1/3、partial 3/1/7（回答数/満点正答数/合計点）。平均29/6点、得点率29/54。
+- `windows-package.cjs`で配布用PowerShellを実際に起動し、GET/HEAD・404/405、Chromium、期待値、JSON保存、HTTP403と応答不明の区別を確認。PowerShell 7.4.6/Linux上での検証であり、Windows実機・実Supabaseは未実施。
+- Windowsの操作手順は`WINDOWS-LOCAL-TEST.md`。完了時に保存する`mock-exam-rpc-check.json`で本番の接続結果を確認する。

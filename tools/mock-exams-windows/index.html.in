@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Study Atlas — WindowsローカルRPC検証</title>
+<style>
+body{font:16px/1.8 system-ui,sans-serif;max-width:960px;margin:32px auto;padding:0 24px;color:#1d2939}h1{font-size:1.7rem}h2{font-size:1.2rem}button{font:inherit;margin:8px 8px 8px 0;padding:10px 18px;border:1px solid #9aa7b5;border-radius:6px;cursor:pointer}#run-check{background:#145bd7;color:#fff}button:disabled{opacity:.5;cursor:default}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5f8;padding:20px;border-radius:8px}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #ccd3dc;padding:8px;text-align:left}.note{background:#edf3ff;padding:12px 16px;border-radius:6px}
+</style>
+</head>
+<body>
+<h1>Study Atlas — Supabase RPCの実接続検証</h1>
+<p>接続先：<code>yygezzpowsvpzarqdtls.supabase.co</code>。既存の公開キーと2つの模試用RPCを使用します。通信はこのブラウザからSupabaseへ直接送信します。</p>
+<p>毎回 <code>qa_mock_</code> で始まる新しいテスト用模試IDを生成します。問題版は整数 <code>1</code> です。通常のNo.001の統計には書き込みません。</p>
+<button id="run-check">実際の送受信を検証する</button><button id="download-check" disabled>検証結果を保存する</button>
+<p id="check-status" role="status" aria-live="polite">ボタンを押すと、取得→記録→読戻しを順番に検証します。</p>
+<div id="final-stats"></div>
+<pre id="check-log"></pre>
+<h2>成功時の最終集計</h2>
+<table><thead><tr><th>採点単位</th><th>回答数</th><th>満点正答数</th><th>合計得点</th></tr></thead><tbody><tr><td>single</td><td>2</td><td>1</td><td>2</td></tr><tr><td>pair</td><td>2</td><td>1</td><td>3</td></tr><tr><td>partial</td><td>3</td><td>1</td><td>7</td></tr></tbody></table>
+<p>最終平均得点は <strong>4.83 / 9点</strong>、平均得点率は <strong>53.70%</strong>。途中の再受験検証では5.25 / 9点・58.33%となり、その後の応答消失試験で上記の最終値になります。</p>
+<p class="note">応答消失の試験は、記録成功後にアプリ側で応答を意図的に捨てます。その単位は「結果不明」のまま再送せず、読戻した件数が増えないことを確認します。テスト用の集計は専用IDに残ります。</p>
+<p>失敗時は「検証結果を保存する」でJSONを保存してください。RPC名・HTTPステータス・返されたエラーを記録します。公開キーやリクエストヘッダーはログに保存しません。F12のNetworkでも <code>get_mock_exam_stats</code> / <code>record_mock_exam_results</code> を確認できます。</p>
+<script>/* BUNDLED_SCRIPT */</script>
+</body>
+</html>
