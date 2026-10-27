@@ -101,6 +101,8 @@ const server = http.createServer((req, res) => {
     );
     await p.getByRole("button", { name: "5", exact: true }).click();
     await p.locator("#flag-answer").click();
+    await p.locator("#next-answer").click();
+    await p.locator("#answer-title").filter({ hasText: "解答欄 エ" }).waitFor();
     await p.locator("#close-answer").click();
     await p
       .locator(".answer-grid button")

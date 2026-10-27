@@ -898,14 +898,29 @@ $("#flag-answer").onclick = () => {
   renderEditor();
   renderStatus();
 };
-$("#next-answer").onclick = () => {
+$("#next-answer").onclick = async () => {
   const fs = visibleFields(),
     i = fs.findIndex((f) => f.id === selectedField),
     next = fs.slice(i + 1).find((f) => !isLocked(f.id));
-  if (next) openField(next.id);
-  else $("#answer-dialog").close();
+  if (!next) return closeAnswer();
+  closeAnswer();
+  if (sectionId !== next.sectionId) {
+    sectionId = next.sectionId;
+    renderWorkspace();
+  }
+  await bookReady;
+  const anchor = frame.contentDocument.querySelector(
+    `[data-field="${next.id}"]`,
+  );
+  anchor?.scrollIntoView({ block: "center", behavior: "instant" });
+  openField(next.id, anchor);
 };
 $("#answer-dialog").addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    e.preventDefault();
+    closeAnswer();
+    return;
+  }
   const f = exam.fields.find((f) => f.id === selectedField);
   if (f?.type !== "text" || e.ctrlKey || e.metaKey || e.altKey) return;
   let value = answers()[f.id] || "";
