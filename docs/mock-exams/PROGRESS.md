@@ -66,3 +66,7 @@
 - 最終値：single 2/1/2、pair 2/1/3、partial 3/1/7（回答数/満点正答数/合計点）。平均29/6点、得点率29/54。
 - `windows-package.cjs`で配布用PowerShellを実際に起動し、GET/HEAD・404/405、Chromium、期待値、JSON保存、HTTP403と応答不明の区別を確認。PowerShell 7.4.6/Linux上での検証であり、Windows実機・実Supabaseは未実施。
 - Windowsの操作手順は`WINDOWS-LOCAL-TEST.md`。完了時に保存する`mock-exam-rpc-check.json`で本番の接続結果を確認する。
+
+## Sitesプレビュー
+
+ユーザーの追加依頼でSitesに実戦模試本体を表示。URL・ID・チェックアウトはSITES-PREVIEW.md。集計先は追加指示により本番No.001。GitHub Pages本番には未反映。
