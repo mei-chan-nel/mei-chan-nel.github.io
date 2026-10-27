@@ -200,3 +200,54 @@ test("history import recomputes score and rejects injected metadata", () => {
   a.createdAt = "malicious";
   assert.throws(() => restoreAttempt(exam, a));
 });
+
+test("late acknowledgement cannot erase a newer queued grade; stale/conflict stays queued", async () => {
+  const a = createAttempt(exam, "untimed");
+  a.answers = { "q1-ア": "0" };
+  submit(exam, a);
+  queueSubmission(exam, a);
+  let resolve;
+  const response = new Promise((r) => {
+    resolve = r;
+  });
+  const inFlight = sendPending(
+    a,
+    { submitUrl: "https://example.test" },
+    "challenge",
+    () => response,
+  );
+  resume(a);
+  a.answers = { "q1-ア": "1" };
+  submit(exam, a);
+  queueSubmission(exam, a);
+  resolve({
+    ok: true,
+    json: async () => ({ status: "recorded", revision: 1 }),
+  });
+  await inFlight;
+  assert.equal(a.pendingSubmission.revision, 2);
+  assert.equal(a.statsAcknowledgedRevision, 1);
+  await assert.rejects(
+    sendPending(
+      a,
+      { submitUrl: "https://example.test" },
+      "challenge",
+      async () => ({
+        ok: true,
+        json: async () => ({ status: "stale", revision: 3 }),
+      }),
+    ),
+  );
+  assert.equal(a.pendingSubmission.revision, 2);
+  await assert.rejects(
+    sendPending(
+      a,
+      { submitUrl: "https://example.test" },
+      "challenge",
+      async () => ({ ok: false, status: 409 }),
+    ),
+  );
+  assert.equal(a.pendingSubmission.revision, 2);
+  const b = createAttempt(exam, "untimed");
+  assert.notEqual(a.id, b.id);
+});

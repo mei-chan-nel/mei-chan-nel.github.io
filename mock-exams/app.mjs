@@ -17,7 +17,9 @@ import {
   restoreAttempt,
 } from "./engine/attempt.mjs";
 import { queueSubmission, sendPending } from "./engine/outbox.mjs";
-import { fetchStats, statsConfig } from "./engine/stats.mjs";
+import { fetchStats, fetchSubmissionConfig } from "./engine/stats.mjs";
+import { mountChallenge } from "./engine/challenge.mjs";
+let disposeChallenge = () => {};
 const $ = (s) => document.querySelector(s),
   app = $("#app"),
   store = new AttemptStore();
@@ -156,6 +158,7 @@ function leave() {
   renderCatalog();
 }
 async function renderCatalog() {
+  disposeChallenge();
   uiSequence++;
   app.innerHTML =
     '<section class="intro"><p class="eyebrow">PRACTICE / INFORMATION I</p><h1>実戦で、理解を確かめる。</h1><p>60分で一回分に挑む。気になる大問を集中的に解く。<br>採点のあとも、自分のペースで解き直せる情報Ⅰの実戦模試です。</p></section><div id="exam-list"></div><section class="history-card"><h2>このブラウザの学習履歴</h2><p class="muted">履歴はこの端末に保存されます。ブラウザのデータ削除に備えて書き出して保管できます。</p><div class="actions" id="history-actions"></div><div id="history-list"></div></section>';
@@ -314,6 +317,7 @@ function isLocked(id) {
   return reviewing && attempt.review.locked.includes(id);
 }
 function renderWorkspace() {
+  disposeChallenge();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
   app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reviewing ? "REVIEW" : "PRACTICE"}</p><h1>${reviewing ? "間違えたところを、もう一度。" : esc(exam.title)}</h1></div><button id="back-list">一覧へ</button></div><div class="workspace"><div class="book"><nav class="book-nav" aria-label="大問を選ぶ"></nav><iframe title="問題冊子" sandbox="allow-same-origin"></iframe></div><aside class="sidebar"><p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div class="timer" id="timer"></div><div class="actions" id="run-actions"></div><details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><p class="muted">— 未回答 / ● 回答済み / ☆ 見直し</p><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button></aside></div>`;
@@ -700,7 +704,7 @@ function doGrade() {
     return;
   }
   submit(exam, attempt);
-  if (statsConfig.submitUrl) queueSubmission(exam, attempt);
+  queueSubmission(exam, attempt);
   persist();
   renderResults();
 }
@@ -734,6 +738,7 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden && attempt) persist();
 });
 async function renderResults() {
+  disposeChallenge();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
   const r = attempt.result;
@@ -856,34 +861,43 @@ async function renderResults() {
   }
 }
 async function setupSubmission() {
-  if (!statsConfig.submitUrl || !statsConfig.turnstileSiteKey) return;
+  disposeChallenge();
   const target = $("#submission-status"),
-    current = attempt;
+    current = attempt,
+    seq = uiSequence;
+  const visible = () =>
+    seq === uiSequence && attempt === current && target.isConnected;
   if (!current.pendingSubmission) {
-    target.textContent = current.statsAcknowledgedRevision
-      ? "統計送信済み"
-      : "この採点は統計に送信されていません。再採点すると送信対象になります。";
+    target.textContent =
+      current.statsAcknowledgedRevision === current.revision
+        ? "統計送信済み"
+        : "この採点は統計に送信されていません。再採点すると送信対象になります。";
     return;
   }
-  target.innerHTML =
-    '<p>参考統計への送信待ちです。</p><div id="stats-challenge"></div>';
+  const retry = (message) => {
+    if (!visible()) return;
+    disposeChallenge();
+    target.textContent = message;
+    target.append(button("再送する", setupSubmission));
+  };
+  target.textContent = "参考統計への接続を確認しています…";
   try {
-    if (!window.turnstile)
-      await new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src =
-          "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.append(script);
-      });
-    if (attempt !== current || !target.isConnected) return;
-    window.turnstile.render("#stats-challenge", {
-      sitekey: statsConfig.turnstileSiteKey,
-      action: "mock-exam-submit",
-      callback: async (token) => {
+    // Persist the token and exact snapshot before sending anything remotely.
+    store.save(current);
+    const config = await fetchSubmissionConfig();
+    if (!visible()) return;
+    target.innerHTML =
+      '<p>参考統計への送信待ちです。</p><div class="stats-challenge"></div>';
+    const host = target.querySelector(".stats-challenge");
+    let sending = false;
+    const cleanup = await mountChallenge(host, config, {
+      failure: () =>
+        retry("送信の確認に失敗しました。採点結果は保存されています。"),
+      success: async (token) => {
+        if (!visible() || sending) return;
+        sending = true;
         try {
-          await sendPending(current, statsConfig, token);
+          await sendPending(current, config, token);
           const latest = store.load(current.id);
           if (latest && latest.revision === current.revision) {
             latest.pendingSubmission = current.pendingSubmission;
@@ -891,20 +905,23 @@ async function setupSubmission() {
               current.statsAcknowledgedRevision;
             store.save(latest);
           }
-          if (target.isConnected)
-            target.textContent = "参考統計に反映しました。";
-        } catch (e) {
-          if (target.isConnected) {
-            target.textContent = e.message;
-            target.append(button("再送する", setupSubmission));
+          if (visible()) {
+            disposeChallenge();
+            // Refresh statistics after the committed acknowledgement.
+            await renderResults();
           }
+        } catch (e) {
+          retry(e.message);
         }
       },
     });
-  } catch {
-    target.textContent = "集計送信を開始できません。採点結果は保存済みです。";
+    if (!visible()) cleanup();
+    else disposeChallenge = cleanup;
+  } catch (e) {
+    retry(e.message);
   }
 }
+
 function restart(show) {
   reviewing = false;
   solution = false;

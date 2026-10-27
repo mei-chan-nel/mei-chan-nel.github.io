@@ -237,6 +237,8 @@ const server = http.createServer((req, res) => {
       expired,
     );
     await timed.goto(url + "#" + expired.a.id);
+    // Fragment-only navigation does not reload a previously loaded document.
+    await timed.reload();
     await timed
       .getByRole("heading", { name: "採点結果", exact: true })
       .waitFor();

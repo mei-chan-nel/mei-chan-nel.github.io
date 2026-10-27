@@ -94,3 +94,15 @@ PDFは版固定の静的ファイル。スマートフォンでも同一PDFを�
 ## 未完了・公開条件
 
 SERVER.mdのSupabase適用と実DB競合テストは未実施。設定されるまで送信は無効。PC/スマホはChromiumで検証しておりSafari/iOS実機は未検証。共通テスト冊子との組版の厳密な比較はLAYOUT.mdを参照。完成条件を満たしたと断言して公開する段階ではない。
+
+## Supabase本番接続（protocol 2）
+
+具体的な画面操作・SQL・Secrets・配置方法は[SERVER.md](SERVER.md)。ブラウザの送信先は設定済みで、Edge Functionの準備を確認できるまで送信予約を端末に保持します。新設の`connection-check.html`は検証専用集計への実送受信確認用です。
+
+- `server/deploy/index.ts`: 管理画面へ貼り付ける生成済み単一Edge Function。
+- `server/000_inspect_existing.sql`, `001_mock_exam_safe_stats.sql`, `002_verify_permissions.sql`: 調査・適用・権限確認。
+- `tests/server-http.mjs`: ローカルHTTP＋使い捨てPostgreSQLの統合テスト。
+- `tests/browser-stats.cjs`: Chromiumによる送信・再送・復習除外テスト。
+- `tests/server-bundle.test.mjs`: 生成済みEdgeコードの動作確認。
+
+検証用Dockerコンテナは`atlas-mock-`で始まる名前を使い、外部ネットワークなしで起動します。本番DBにテストfixtureを流さないでください。

@@ -223,6 +223,7 @@ export function restoreAttempt(exam, raw) {
     a.statsToken = raw.statsToken;
     if (raw.pendingSubmission?.revision === a.revision && a.result)
       a.pendingSubmission = {
+        kind: "attempt-grade",
         attemptId: a.id,
         attemptToken: a.statsToken,
         examId: exam.id,
