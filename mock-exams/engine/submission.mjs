@@ -21,6 +21,8 @@ export async function sendUnsentUnits(
     }),
   );
   async function send() {
+    if (store.load(attempt.id)?.discardedAt)
+      return { status: "skipped", count: 0 };
     // Reading persisted markers also protects imports of older copies on this device.
     attempt.statsDelivery = mergeDelivery(
       attempt.statsDelivery,

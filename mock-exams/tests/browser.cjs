@@ -57,7 +57,7 @@ const server = http.createServer((req, res) => {
       viewport: { width: 1440, height: 1000 },
     });
     await context.route("https://*.supabase.co/**", (r) =>
-      r.fulfill({ json: {items:[]} }),
+      r.fulfill({ json: { items: [] } }),
     );
     const p = await context.newPage();
     let errors = [];
@@ -103,8 +103,8 @@ const server = http.createServer((req, res) => {
     assert.equal((await p.locator(".score").textContent()).trim(), "100 / 100");
     await p.screenshot({ path: path.join(output, "result.png") });
     console.log("PASS: all 49 answers through UI -> 100/100");
-    await p.getByRole("button", { name: "続きから解く" }).click();
-    await p.getByRole("button", { name: "正誤表示なし", exact: true }).click();
+    await p.getByRole("button", { name: "解答に戻る" }).click();
+    await p.getByRole("button", { name: "正誤表記なし", exact: true }).click();
     await f.locator("[data-field]").first().waitFor();
     assert.equal(await f.locator("[data-verdict]").count(), 0);
     await p.locator(".book-nav button").filter({ hasText: "第1問" }).click();
@@ -117,8 +117,8 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: "採点せずに中断", exact: true })
       .click();
     await p.getByRole("button", { name: "前回の受験を開く" }).click();
-    await p.getByRole("button", { name: "続きから解く" }).click();
-    await p.getByRole("button", { name: "正誤表示なし", exact: true }).click();
+    await p.getByRole("button", { name: "解答に戻る" }).click();
+    await p.getByRole("button", { name: "正誤表記なし", exact: true }).click();
     await f.locator('[data-field="q1-ウ"]').first().waitFor();
     assert.equal(
       await f.locator('[data-field="q1-ウ"]').first().textContent(),
@@ -135,9 +135,8 @@ const server = http.createServer((req, res) => {
     console.log("PASS: clear, flag, pause/resume, concurrent-tab lock");
     await p.getByRole("button", { name: "採点する", exact: true }).click();
     assert.equal((await p.locator(".score").textContent()).trim(), "97 / 100");
-    await p
-      .getByRole("button", { name: "間違えたところを復習", exact: true })
-      .click();
+    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
+    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
     await f.locator('[data-field="q1-ウ"]').first().waitFor();
     assert.equal(
       await f.locator('[data-field="q1-エ"]').first().textContent(),
@@ -168,12 +167,22 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: "復習を採点する", exact: true })
       .click();
     assert.equal((await p.locator(".score").textContent()).trim(), "97 / 100");
-    await p.getByRole("button", { name: "復習完了 · もう一度確認" }).waitFor();
+    assert.equal(
+      await p.evaluate(
+        () =>
+          JSON.parse(
+            localStorage[
+              "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+            ],
+          ).review.completed,
+      ),
+      true,
+    );
     console.log(
       "PASS: review whole scoring unit, locks correct, keeps original 97 points",
     );
-    await p.getByRole("button", { name: "問題・解説", exact: true }).click();
-    await p.getByRole("button", { name: "問題に戻る", exact: true }).click();
+    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
+    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
     for (const s of exam.sections) {
       await p
         .locator(".book-nav button")
@@ -208,14 +217,14 @@ const server = http.createServer((req, res) => {
       /Zaiko/,
     );
     console.log("PASS: selected formula inserted into program");
-    await p.getByRole("button", { name: "一覧へ", exact: true }).click();
+    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     await p.getByText("大問を選んで解く", { exact: true }).click();
     await p.getByRole("button", { name: "第2問B", exact: true }).click();
     await f.locator('[data-field="q2b-コ"]').first().waitFor();
     await p.getByRole("button", { name: "採点する", exact: true }).click();
     assert.equal((await p.locator(".score").textContent()).trim(), "0 / 15");
     console.log("PASS: section-only maximum 15");
-    await p.getByRole("button", { name: "一覧へ", exact: true }).click();
+    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     await p
       .getByRole("button", { name: "60分で受験する", exact: true })
       .click();
@@ -232,14 +241,11 @@ const server = http.createServer((req, res) => {
     await p.close();
     const timed = await context.newPage();
     await timed.goto(url);
-    await timed.evaluate(
-      ({ key, a }) => {
-        a.updatedAt = Date.now();
-        localStorage.setItem(key, JSON.stringify(a));
-        localStorage.setItem(key + ":backup", JSON.stringify(a));
-      },
-      expired,
-    );
+    await timed.evaluate(({ key, a }) => {
+      a.updatedAt = Date.now();
+      localStorage.setItem(key, JSON.stringify(a));
+      localStorage.setItem(key + ":backup", JSON.stringify(a));
+    }, expired);
     await timed.goto(url + "#" + expired.a.id);
     // Fragment-only navigation does not reload a previously loaded document.
     await timed.reload();

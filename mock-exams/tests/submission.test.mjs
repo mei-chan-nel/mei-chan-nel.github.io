@@ -293,3 +293,26 @@ test("old development history version migrates to integer without losing answers
   assert.equal(restored.result.points, 2);
   assert.equal(restored.id, a.id);
 });
+
+test("discarded attempts lose personal answers and cannot be revived by late sends or imports", async () => {
+  const { store } = memoryStore(),
+    a = graded({ "q1-ア": "0" });
+  store.save(a);
+  const old = structuredClone(a);
+  await sendUnsentUnits(exam, a, store, { request: async () => ok(1) });
+  store.discard(a.id);
+  assert.equal(store.list().length, 0);
+  assert.equal(store.load(a.id).result, null);
+  assert.deepEqual(store.load(a.id).answers, {});
+  store.save(old);
+  assert.equal(store.list().length, 0);
+  assert.equal(store.load(a.id).result, null);
+  let requests = 0;
+  await sendUnsentUnits(exam, old, store, {
+    request: async () => {
+      requests++;
+      return ok(1);
+    },
+  });
+  assert.equal(requests, 0);
+});

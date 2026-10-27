@@ -55,11 +55,9 @@ const server = http.createServer((req, res) => {
     const grade = () =>
       p.getByRole("button", { name: "採点する", exact: true }).click();
     const resume = async () => {
+      await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
       await p
-        .getByRole("button", { name: "続きから解く", exact: true })
-        .click();
-      await p
-        .getByRole("button", { name: "正誤表示なし", exact: true })
+        .getByRole("button", { name: "正誤表記なし", exact: true })
         .click();
     };
     const local = () =>
@@ -72,20 +70,28 @@ const server = http.createServer((req, res) => {
       );
     await choose("q1-ア", 1);
     await grade();
-    await p
-      .locator("#submission-status")
-      .filter({ hasText: "統計送信済み：1単位" })
-      .waitFor();
+    await p.waitForFunction(
+      () =>
+        JSON.parse(
+          localStorage[
+            "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+          ],
+        ).statsDelivery?.["q1-01"]?.state === "sent",
+    );
     assert.equal(submissions.length, 1);
     assert.equal((await local()).examVersion, 1);
     await resume();
     await choose("q1-ア", 0);
     await choose("q1-イ", 3);
     await grade();
-    await p
-      .locator("#submission-status")
-      .filter({ hasText: "送信結果不明：1単位" })
-      .waitFor();
+    await p.waitForFunction(
+      () =>
+        JSON.parse(
+          localStorage[
+            "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+          ],
+        ).statsDelivery?.["q1-02"]?.state === "unknown",
+    );
     assert.deepEqual(
       submissions[1].p_results.map((x) => x.scoring_id),
       ["q1-02"],
@@ -97,29 +103,36 @@ const server = http.createServer((req, res) => {
       0,
     );
     await p.reload();
-    await p
-      .locator("#submission-status")
-      .filter({ hasText: "送信結果不明：1単位" })
-      .waitFor();
+    await p.waitForFunction(
+      () =>
+        JSON.parse(
+          localStorage[
+            "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+          ],
+        ).statsDelivery?.["q1-02"]?.state === "unknown",
+    );
     assert.equal(submissions.length, 2);
     await p
-      .locator("#stat-q1-01")
-      .filter({ hasText: "1 / 0.0% / 0.0点 / 0.0%" })
+      .locator('[data-unit-rate="q1-01"]')
+      .filter({ hasText: "0.0%" })
       .waitFor();
     await resume();
     await choose("q1-ク", 2);
     await grade();
-    await p
-      .locator("#submission-status")
-      .filter({ hasText: "統計送信済み：2単位" })
-      .waitFor();
+    await p.waitForFunction(
+      () =>
+        JSON.parse(
+          localStorage[
+            "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+          ],
+        ).statsDelivery?.["q1-06"]?.state === "sent",
+    );
     assert.deepEqual(
       submissions[2].p_results.map((x) => x.scoring_id),
       ["q1-06"],
     );
-    await p
-      .getByRole("button", { name: "間違えたところを復習", exact: true })
-      .click();
+    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
+    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
     await choose("q1-オ", 2);
     await p
       .getByRole("button", { name: "復習を採点する", exact: true })
@@ -127,25 +140,34 @@ const server = http.createServer((req, res) => {
     assert.equal(submissions.length, 3);
     assert.equal((await local()).statsDelivery["q1-04"], undefined);
     await p.reload();
-    await p
-      .locator("#submission-status")
-      .filter({ hasText: "統計送信済み：2単位" })
-      .waitFor();
+    await p.waitForFunction(
+      () =>
+        JSON.parse(
+          localStorage[
+            "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+          ],
+        ).statsDelivery?.["q1-06"]?.state === "sent",
+    );
     assert.equal(submissions.length, 3);
     const firstId = (await local()).id;
+    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     await p
-      .getByRole("button", { name: "最初から解き直す", exact: true })
+      .getByRole("button", { name: "時間制限なしで解く", exact: true })
       .click();
     await choose("q1-ア", 0);
     await grade();
-    await p
-      .locator("#submission-status")
-      .filter({ hasText: "統計送信済み：1単位" })
-      .waitFor();
+    await p.waitForFunction(
+      () =>
+        JSON.parse(
+          localStorage[
+            "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+          ],
+        ).statsDelivery?.["q1-01"]?.state === "sent",
+    );
     assert.notEqual((await local()).id, firstId);
     await p
-      .locator("#stat-q1-01")
-      .filter({ hasText: "2 / 50.0% / 1.0点 / 50.0%" })
+      .locator('[data-unit-rate="q1-01"]')
+      .filter({ hasText: "50.0%" })
       .waitFor();
     assert.equal(submissions.length, 4);
     assert.equal(

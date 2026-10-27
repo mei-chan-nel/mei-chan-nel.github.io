@@ -102,3 +102,9 @@ Safari/iOS実機と公式冊子との精密な組版比較は前回からの残�
 [WINDOWS-LOCAL-TEST.md](WINDOWS-LOCAL-TEST.md)を参照。配布ZIPにはWindows標準PowerShellで動くHTTPサーバーと、依存ファイルをまとめた検証ページを含む。開発者が再生成する場合は`ESBUILD_MODULE=/path/to/esbuild node scripts/build_mock_exam_windows_qa.cjs`。ビルドにだけesbuildを使用し、配布物の実行には不要。
 
 本番サイトへのデプロイは、Windowsでの実接続検証後に行う。
+
+## 入力・結果画面（2026-10-28）
+
+最新の変更と検証はUI-REVISION.md、教材編集ルールはAUTHORING-RULES.md。画面用のscreen/HTMLは印刷用フォントを含めず、先読みして切替時に再利用する。印刷用HTMLとPDFは従来の組版を保持する。プレビュー更新はscripts/build_mock_exam_sites_preview.pyでStudy Atlasトップから準備する。
+
+採点表は解答記号ごとの行と、複数欄の採点単位に応じた行結合を使う。過去回答は同じ受験条件の過去履歴から任意表示する。削除操作では端末の回答・得点を除き、送信マークだけを残して古い履歴の再送を防ぐ。匿名集計の取消しは行わない。

@@ -19,6 +19,12 @@ def clean(d):
  for e in list(d.iter()):
   for a in list(e.attrib):
    if a.lower().startswith('on') or (a in ['href','src'] and e.get(a,'').lower().startswith('javascript:')):del e.attrib[a]
+ # Approved screen/input wording (original files are retained unchanged).
+ for e in d.iter():
+  if e.text:
+   e.text=e.text.replace('なお，当てはまる文字がA～Dの場合には，ⓐ～ⓓをそれぞれマークすること。','').replace('には当てはまる文字をマークせよ。','には当てはまる文字を答えよ。')
+  if e.tail:
+   e.tail=e.tail.replace('なお，当てはまる文字がA～Dの場合には，ⓐ～ⓓをそれぞれマークすること。','').replace('には当てはまる文字をマークせよ。','には当てはまる文字を答えよ。')
  for c in ['toolbar','site-bar']:
   for e in cls(d,c):e.drop_tree()
  return d
@@ -73,8 +79,9 @@ for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
   assert d.xpath('//*[@data-field="'+f['id']+'"]'),f'Unbound field {sid} {c}'
   assert f['type']=='text' or f['choices'],f'Missing choices {sid} {c}'
   exam['fields'].append(f)
+ question_numbers={'q1':[1,1,2,2,3,3,4,4],'q2a':[1,2,3,3,4,4],'q2b':[1,1,2,2,3,4,5],'q3':[1,1,1,2,2,2,2,2,3,3,3,3,3,3],'q4':[1,2,2,2,3,4,5,5,5]}
  for n,(cs,p) in enumerate(units):
-  exam['scoring'].append({'id':f'{sid}-{n+1:02}','sectionId':sid,'fields':[fields[c]['id'] for c in cs],'maxPoints':p,'rule':{'kind':'unordered' if (sid,cs) in [('q2a',['イ','ウ']),('q4',['エ','オ'])] else 'exact','patterns':[[answers[letters.index(c)] for c in cs]]}})
+  exam['scoring'].append({'id':f'{sid}-{n+1:02}','sectionId':sid,'question':question_numbers[sid][n],'fields':[fields[c]['id'] for c in cs],'maxPoints':p,'rule':{'kind':'unordered' if (sid,cs) in [('q2a',['イ','ウ']),('q4',['エ','オ'])] else 'exact','patterns':[[answers[letters.index(c)] for c in cs]]}})
  d.find('body').set('data-section',sid)
  head=d.find('head');etree.SubElement(head,'meta',name='robots',content='noindex, follow');link=etree.SubElement(head,'link',rel='stylesheet',href='../../../booklet.css')
  (OUT/f'{sid}.html').write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
@@ -82,6 +89,18 @@ for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
  (OUT/f'{sid}-solution.html').write_text('<!doctype html>\n'+html.tostring(sol,encoding='unicode'),encoding='utf8')
  exam['sections'].append({'id':sid,'title':title,'maxPoints':points,'sourceVersion':ver,'problem':f'{sid}.html','solution':f'{sid}-solution.html','sourceSha256':hashlib.sha256((OUT/'source'/problem).read_bytes()).hexdigest()})
 assert sum(u['maxPoints'] for u in exam['scoring'])==100
+# Screen-only documents omit embedded print fonts for fast switching and readable UI.
+(OUT/'screen').mkdir(exist_ok=True)
+for section in exam['sections']:
+ for kind in ['problem','solution']:
+  filename=section[kind]
+  document=html.fromstring((OUT/filename).read_bytes())
+  for style in document.xpath('//style'):
+   style.text=re.sub(r'@font-face\s*\{[^}]*\}','',style.text or '',flags=re.I)
+  for link in document.xpath('//link[@rel="stylesheet"]'):
+   if 'booklet.css' in link.get('href',''):link.set('href','../../../../booklet.css')
+  (OUT/'screen'/filename).write_text('<!doctype html>\n'+html.tostring(document,encoding='unicode'),encoding='utf8')
+  section['screenProblem' if kind=='problem' else 'screenSolution']='screen/'+filename
 (OUT/'exam.json').write_text(json.dumps(exam,ensure_ascii=False,indent=2)+'\n')
 (ROOT/'catalog.json').write_text(json.dumps([{'id':'001','version':1,'title':exam['title'],'manifest':'exams/001/1/exam.json'}],ensure_ascii=False,indent=2)+'\n')
 print(f'Imported {len(exam["fields"])} fields, {len(exam["scoring"])} scoring units, 100 points.')

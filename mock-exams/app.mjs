@@ -17,7 +17,7 @@ import {
   restoreAttempt,
   compatibleVersion,
 } from "./engine/attempt.mjs";
-import { sendUnsentUnits, deliverySummary } from "./engine/submission.mjs";
+import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 const $ = (s) => document.querySelector(s),
   app = $("#app"),
@@ -34,6 +34,16 @@ let catalog = [],
   frameObserver,
   releaseLock,
   uiSequence = 0;
+const manifests = new Map(),
+  documents = new Map();
+let activeAnchor = null,
+  bookReady = Promise.resolve(),
+  historyExpanded = false,
+  readingMode = false,
+  secondaryObserver = null;
+const circle = (value) => "⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value;
+const resetTop = () =>
+  window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 const esc = (s) =>
   String(s ?? "").replace(
     /[&<>"']/g,
@@ -66,7 +76,7 @@ function persist() {
   try {
     attempt.updatedAt = Date.now();
     store.save(attempt);
-    notify("このブラウザに保存しました");
+
     return true;
   } catch {
     notify(
@@ -93,14 +103,67 @@ function entryFor(id, version) {
   return null;
 }
 async function loadExam(entry) {
-  base = new URL(entry.manifest, location.href);
-  exam = await fetch(base).then((r) => {
-    if (!r.ok) throw Error("問題データを読み込めません");
-    return r.json();
-  });
+  const url = new URL(entry.manifest, location.href).href;
+  if (!manifests.has(url))
+    manifests.set(
+      url,
+      fetch(url).then((r) => {
+        if (!r.ok) throw Error("問題データを読み込めません");
+        return r.json();
+      }),
+    );
+  exam = await manifests.get(url);
   validateExam(exam);
-  base = new URL(".", base);
+  base = new URL(".", url);
+  for (const section of exam.sections)
+    for (const kind of ["problem", "solution"])
+      documentText(
+        new URL(
+          section[kind === "problem" ? "screenProblem" : "screenSolution"] ||
+            section[kind],
+          base,
+        ).href,
+      ).catch(() => {});
 }
+function documentText(url) {
+  if (!documents.has(url))
+    documents.set(
+      url,
+      fetch(url).then((r) => {
+        if (!r.ok) throw Error("問題を読み込めません");
+        return r.text();
+      }),
+    );
+  return documents.get(url);
+}
+function closeAnswer() {
+  if ($("#answer-dialog").open) $("#answer-dialog").close();
+  activeAnchor = null;
+}
+for (const dialog of document.querySelectorAll("dialog"))
+  dialog.addEventListener("click", (event) => {
+    if (event.target !== dialog) return;
+    const r = dialog.getBoundingClientRect();
+    if (
+      event.clientX < r.left ||
+      event.clientX > r.right ||
+      event.clientY < r.top ||
+      event.clientY > r.bottom
+    )
+      dialog.close();
+  });
+document.addEventListener("pointerdown", (event) => {
+  const d = $("#answer-dialog");
+  if (
+    d.open &&
+    d.classList.contains("keypad-popup") &&
+    !d.contains(event.target)
+  )
+    closeAnswer();
+});
+window.addEventListener("resize", () => positionKeypad());
+window.addEventListener("scroll", () => positionKeypad(), { passive: true });
+
 function ask(title, choices) {
   const d = $("#action-dialog");
   $("#action-title").textContent = title;
@@ -116,7 +179,7 @@ function ask(title, choices) {
 }
 $("#close-figure").onclick = () => $("#figure-dialog").close();
 $("#close-action").onclick = () => $("#action-dialog").close();
-$("#close-answer").onclick = () => $("#answer-dialog").close();
+$("#close-answer").onclick = closeAnswer;
 async function lockAttempt(id) {
   if (releaseLock) {
     releaseLock();
@@ -144,7 +207,9 @@ async function lockAttempt(id) {
   );
 }
 function leave() {
+  closeAnswer();
   frameObserver?.disconnect();
+  secondaryObserver?.disconnect();
   if (attempt?.status === "active" && !reviewing) {
     pause(attempt);
     persist();
@@ -154,6 +219,7 @@ function leave() {
   attempt = null;
   reviewing = false;
   solution = false;
+  readingMode = false;
   location.hash = "";
   renderCatalog();
 }
@@ -264,6 +330,14 @@ async function renderCatalog() {
         `No.${a.examId}　${new Date(a.createdAt).toLocaleString("ja-JP")}　${a.result ? `${a.result.points}/${a.result.maxPoints}点` : "解答途中"}　${a.mode === "section" ? "大問別" : a.mode === "timed" ? "60分" : "時間制限なし"}　`,
       ),
       button("開く", () => openAttempt(a.id)),
+      button(
+        "削除",
+        () => {
+          store.discard(a.id);
+          renderCatalog();
+        },
+        "subtle-danger",
+      ),
     );
     $("#history-list").append(row);
   }
@@ -274,6 +348,7 @@ async function begin(entry, mode, sid) {
   await lockAttempt(attempt.id);
   reviewing = false;
   solution = false;
+  readingMode = false;
   sectionId = attempt.sectionIds[0];
   persist();
   location.hash = attempt.id;
@@ -281,7 +356,11 @@ async function begin(entry, mode, sid) {
 }
 async function openAttempt(id) {
   const a = store.load(id);
-  if (!a) return notify("受験記録が見つかりません。");
+  if (!a || a.discardedAt) {
+    location.hash = "";
+    await renderCatalog();
+    return notify("受験記録が見つかりません。");
+  }
   const entry = entryFor(a.examId, a.examVersion);
   if (!entry)
     return notify("この履歴に対応する問題バージョンが見つかりません。");
@@ -299,6 +378,7 @@ async function openAttempt(id) {
   }
   reviewing = false;
   solution = false;
+  readingMode = false;
   sectionId = a.sectionIds[0];
   location.hash = id;
   if (attempt.result) renderResults();
@@ -317,150 +397,290 @@ function answers() {
 function isLocked(id) {
   return reviewing && attempt.review.locked.includes(id);
 }
+function navigateSection(id) {
+  closeAnswer();
+  sectionId = id;
+  renderWorkspace();
+  bookReady.then(() =>
+    frame?.scrollIntoView({ block: "start", behavior: "instant" }),
+  );
+}
 function renderWorkspace() {
+  closeAnswer();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reviewing ? "REVIEW" : "PRACTICE"}</p><h1>${reviewing ? "間違えたところを、もう一度。" : esc(exam.title)}</h1></div><button id="back-list">一覧へ</button></div><div class="workspace"><div class="book"><nav class="book-nav" aria-label="大問を選ぶ"></nav><iframe title="問題冊子" sandbox="allow-same-origin"></iframe></div><aside class="sidebar"><p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div class="timer" id="timer"></div><div class="actions" id="run-actions"></div><details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><p class="muted">— 未回答 / ● 回答済み / ☆ 見直し</p><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button></aside></div>`;
-  $("#back-list").onclick = () => requestPause(true);
-  $("#export-active").onclick = () => {
-    let all = [];
-    try {
-      all = store.list();
-    } catch {}
-    all = all.filter((a) => a.id !== attempt.id);
-    all.unshift(attempt);
-    download(
-      "mock-history.json",
-      JSON.stringify(
-        { schemaVersion: 1, exportedAt: Date.now(), attempts: all },
-        null,
-        2,
+  secondaryObserver?.disconnect();
+  const reading = readingMode,
+    split = reading && innerWidth >= 1000;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div><button id="back-list">${reading ? "採点結果に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book"><nav class="book-nav" aria-label="大問を選ぶ"></nav>${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div><aside class="sidebar"><div id="run-actions" class="actions"></div>${reading ? "" : `<p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button>`}</aside></div>`;
+  $("#back-list").onclick = reading
+    ? () => {
+        readingMode = false;
+        solution = false;
+        renderResults();
+      }
+    : () => requestPause(true);
+  if (!reading)
+    $("#export-active").onclick = () => {
+      const all = store.list().filter((a) => a.id !== attempt.id);
+      all.unshift(attempt);
+      download(
+        "mock-history.json",
+        JSON.stringify(
+          { schemaVersion: 1, exportedAt: Date.now(), attempts: all },
+          null,
+          2,
+        ),
+      );
+    };
+  const sections = exam.sections.filter((s) =>
+    attempt.sectionIds.includes(s.id),
+  );
+  for (const section of sections) {
+    if (reading) continue;
+    for (const nav of [$(".book-nav"), $("#section-navigation")]) {
+      const b = button(section.title, () => navigateSection(section.id));
+      b.setAttribute("aria-current", String(section.id === sectionId));
+      nav.append(b);
+    }
+  }
+  if (reading) {
+    for (const kind of ["solution", "problem"])
+      for (const section of sections) {
+        const b = button(
+          section.title + (kind === "solution" ? "解説" : "問題"),
+          () => {
+            sectionId = section.id;
+            solution = kind === "solution";
+            renderWorkspace();
+          },
+        );
+        b.setAttribute(
+          "aria-current",
+          String(
+            section.id === sectionId &&
+              (split || solution === (kind === "solution")),
+          ),
+        );
+        $("#section-navigation").append(b);
+      }
+  }
+  const next = sections[sections.findIndex((s) => s.id === sectionId) + 1];
+  if (next)
+    $("#book-next").append(
+      button(next.title + " →", () => navigateSection(next.id), "primary"),
+    );
+  else
+    $("#book-next").append(
+      button(
+        reading
+          ? "採点結果に戻る"
+          : reviewing
+            ? "復習の結果を見る"
+            : "ここまでを採点する",
+        reading
+          ? () => {
+              readingMode = false;
+              solution = false;
+              renderResults();
+            }
+          : doGrade,
+        reading ? "" : "primary",
       ),
     );
-  };
-  for (const s of exam.sections.filter((s) =>
-    attempt.sectionIds.includes(s.id),
-  )) {
-    const b = button(s.title, () => {
-      sectionId = s.id;
-      solution = false;
-      renderWorkspace();
-    });
-    b.setAttribute("aria-current", String(s.id === sectionId && !solution));
-    $(".book-nav").append(b);
-  }
-  if (attempt.result) {
-    $(".book-nav").append(
-      button(solution ? "問題に戻る" : "解説", () => {
-        solution = !solution;
-        renderWorkspace();
+  if (reading)
+    $("#run-actions").append(
+      button("採点結果に戻る", () => {
+        readingMode = false;
+        solution = false;
+        renderResults();
       }),
+      button("一覧に戻る", leave),
+    );
+  else
+    $("#run-actions").append(
+      button(reviewing ? "復習を採点する" : "採点する", doGrade, "primary"),
+      button("中断", () => requestPause(false)),
+    );
+  if (!reading && attempt.result)
+    $(".book-nav").append(
       button("採点結果", () => {
-        if (!reviewing && attempt.status === "active") {
+        if (attempt.status === "active" && !reviewing) {
           pause(attempt);
           persist();
         }
         renderResults();
       }),
     );
-  }
-  $("#run-actions").append(
-    button(
-      reviewing ? "復習を採点する" : "採点する",
-      () => doGrade(),
-      "primary",
-    ),
-    button("中断", () => requestPause(false)),
-  );
-  frame = $("iframe");
-  frame.src = new URL(
-    `${sectionId}${solution ? "-solution" : ""}.html`,
-    base,
-  ).href;
-  frame.onload = () => {
-    if (seq !== uiSequence) return;
-    const d = frame.contentDocument;
-    // External links cannot navigate the application frame.
-    d.querySelectorAll('a[href^="http"]').forEach((a) => {
-      a.target = "_blank";
-      a.rel = "noopener";
-    });
-    d.querySelectorAll("table").forEach((t) => {
-      if (t.parentElement.classList.contains("table-scroll")) return;
-      const w = d.createElement("div");
-      w.className = "table-scroll";
-      t.before(w);
-      w.append(t);
-    });
-    d.querySelectorAll("[data-zoom]").forEach((b) => {
-      b.onclick = () => {
-        const source = d.getElementById(b.dataset.zoom);
-        const visual = source?.matches("svg,img")
-          ? source
-          : source?.querySelector("svg,img");
-        if (!visual) return;
-        const clone = visual.cloneNode(true);
-        if (clone.tagName === "IMG") clone.src = visual.src;
-        $("#figure-dialog .figure-stage").replaceChildren(clone);
-        $("#figure-dialog").showModal();
+  frame = $("#book-frame");
+  const section = exam.sections.find((s) => s.id === sectionId),
+    url = new URL(
+      reading && (solution || split)
+        ? section.screenSolution || section.solution
+        : section.screenProblem || section.problem,
+      base,
+    ).href;
+  bookReady = new Promise(async (resolve) => {
+    try {
+      const html = await documentText(url);
+      if (seq !== uiSequence) return resolve();
+      frame.onload = () => {
+        if (seq !== uiSequence) return resolve();
+        const d = frame.contentDocument;
+        if (!d?.body) return resolve();
+        d.addEventListener("pointerdown", () => {
+          if ($("#answer-dialog").classList.contains("keypad-popup"))
+            closeAnswer();
+        });
+        for (const option of d.querySelectorAll("[data-choice-fields]")) {
+          const mark = option.querySelector(
+            ":scope > .opt-index,:scope > .option-index",
+          );
+          if (mark) mark.textContent = circle(option.dataset.choiceValue);
+        }
+        // External links cannot navigate the application frame.
+        d.querySelectorAll('a[href^="http"]').forEach((a) => {
+          a.target = "_blank";
+          a.rel = "noopener";
+        });
+        d.querySelectorAll("table").forEach((t) => {
+          if (t.parentElement.classList.contains("table-scroll")) return;
+          const w = d.createElement("div");
+          w.className = "table-scroll";
+          t.before(w);
+          w.append(t);
+        });
+        d.querySelectorAll("[data-zoom]").forEach((b) => {
+          b.onclick = () => {
+            const source = d.getElementById(b.dataset.zoom);
+            const visual = source?.matches("svg,img")
+              ? source
+              : source?.querySelector("svg,img");
+            if (!visual) return;
+            const clone = visual.cloneNode(true);
+            if (clone.tagName === "IMG") clone.src = visual.src;
+            $("#figure-dialog .figure-stage").replaceChildren(clone);
+            $("#figure-dialog").showModal();
+          };
+        });
+        if (!reading) {
+          d.querySelectorAll("[data-field]").forEach((e) => {
+            e.tabIndex = 0;
+            e.setAttribute("role", "button");
+            e.onclick = () => openField(e.dataset.field, e);
+            e.onkeydown = (ev) => {
+              if (["Enter", " "].includes(ev.key)) {
+                ev.preventDefault();
+                openField(e.dataset.field, e);
+              }
+            };
+          });
+          d.querySelectorAll("[data-choice-fields]").forEach((e) => {
+            e.tabIndex = 0;
+            e.setAttribute("role", "button");
+            const choose = () => {
+              const ids = e.dataset.choiceFields.split(" "),
+                available = ids.filter((id) => !isLocked(id));
+              if (!available.length) return;
+              let id = available.includes(selectedField)
+                ? selectedField
+                : available.find((id) => !answers()[id]);
+              if (!id && ids.length > 1) {
+                ask(
+                  "どの解答欄に入れますか",
+                  available.map((id) => [
+                    exam.fields.find((f) => f.id === id).label,
+                    () => setAnswer(id, e.dataset.choiceValue),
+                  ]),
+                );
+                return;
+              }
+              setAnswer(id || available[0], e.dataset.choiceValue);
+            };
+            e.onclick = choose;
+            e.onkeydown = (ev) => {
+              if (["Enter", " "].includes(ev.key)) {
+                ev.preventDefault();
+                choose();
+              }
+            };
+          });
+          syncBook();
+        }
+        let scheduled = false;
+        const resize = () => {
+          if (scheduled) return;
+          scheduled = true;
+          requestAnimationFrame(() => {
+            scheduled = false;
+            if (seq === uiSequence)
+              frame.style.height =
+                Math.ceil(d.body.getBoundingClientRect().height) + "px";
+          });
+        };
+        frameObserver = new ResizeObserver(resize);
+        frameObserver.observe(d.body);
+        frame.style.height =
+          Math.ceil(d.body.getBoundingClientRect().height) + "px";
+        resize();
+        resolve();
       };
-    });
-    if (!solution) {
-      d.querySelectorAll("[data-field]").forEach((e) => {
-        e.tabIndex = 0;
-        e.setAttribute("role", "button");
-        e.onclick = () => openField(e.dataset.field, e);
-        e.onkeydown = (ev) => {
-          if (["Enter", " "].includes(ev.key)) {
-            ev.preventDefault();
-            openField(e.dataset.field, e);
-          }
-        };
-      });
-      d.querySelectorAll("[data-choice-fields]").forEach((e) => {
-        e.tabIndex = 0;
-        e.setAttribute("role", "button");
-        const choose = () => {
-          const ids = e.dataset.choiceFields.split(" "),
-            available = ids.filter((id) => !isLocked(id));
-          if (!available.length) return;
-          let id = available.includes(selectedField)
-            ? selectedField
-            : available.find((id) => !answers()[id]);
-          if (!id && ids.length > 1) {
-            ask(
-              "どの解答欄に入れますか",
-              available.map((id) => [
-                exam.fields.find((f) => f.id === id).label,
-                () => setAnswer(id, e.dataset.choiceValue),
-              ]),
-            );
-            return;
-          }
-          setAnswer(id || available[0], e.dataset.choiceValue);
-        };
-        e.onclick = choose;
-        e.onkeydown = (ev) => {
-          if (["Enter", " "].includes(ev.key)) {
-            ev.preventDefault();
-            choose();
-          }
-        };
-      });
-      syncBook();
+      frame.srcdoc = html.replace(
+        /<head[^>]*>/i,
+        (match) => match + `<base href="${url}">`,
+      );
+    } catch (error) {
+      if (seq === uiSequence)
+        $(".book").prepend(
+          Object.assign(document.createElement("p"), {
+            textContent: error.message,
+          }),
+        );
+      resolve();
     }
-    const resize = () => {
-      frame.style.height =
-        Math.ceil(d.documentElement.getBoundingClientRect().height) + "px";
-    };
-    frameObserver = new ResizeObserver(resize);
-    frameObserver.observe(d.body);
-    d.fonts.ready.then(resize);
-    resize();
-  };
+  });
+  if (split) {
+    const other = $("#paired-problem"),
+      url = new URL(section.screenProblem || section.problem, base).href;
+    documentText(url)
+      .then((html) => {
+        if (seq !== uiSequence) return;
+        other.onload = () => {
+          if (seq !== uiSequence) return;
+          const d = other.contentDocument;
+          for (const e of d.querySelectorAll("[data-field]")) {
+            const f = exam.fields.find((f) => f.id === e.dataset.field);
+            if (f)
+              e.textContent = displayValue(f, attempt.gradedAnswers?.[f.id], e);
+          }
+          d.querySelectorAll("table").forEach((t) => {
+            const w = d.createElement("div");
+            w.className = "table-scroll";
+            t.before(w);
+            w.append(t);
+          });
+          const resize = () => {
+            other.style.height =
+              Math.ceil(d.body.getBoundingClientRect().height) + "px";
+          };
+          secondaryObserver = new ResizeObserver(resize);
+          secondaryObserver.observe(d.body);
+          resize();
+        };
+        other.srcdoc = html.replace(
+          /<head[^>]*>/i,
+          (match) => match + `<base href="${url}">`,
+        );
+      })
+      .catch(() => {});
+  }
   renderStatus();
   tick();
 }
+window.matchMedia("(min-width:1000px)").addEventListener("change", () => {
+  if (readingMode && attempt) renderWorkspace();
+});
+
 function renderStatus() {
   const out = $("#answer-status");
   if (!out) return;
@@ -477,16 +697,15 @@ function renderStatus() {
       const val = answers()[f.id] || "",
         flag = attempt.flags.includes(f.id);
       const b = button(
-        `${f.label} ${flag ? "☆" : val ? "●" : "—"}\n${val}`,
+        `${f.label} ${val || "—"}${flag ? " 🏳️" : ""}`,
         async () => {
+          closeAnswer();
           if (sectionId !== f.sectionId || solution) {
             sectionId = f.sectionId;
             solution = false;
             renderWorkspace();
-            await new Promise((resolve) =>
-              frame.addEventListener("load", resolve, { once: true }),
-            );
           }
+          await bookReady;
           const el = frame.contentDocument.querySelector(
             `[data-field="${f.id}"]`,
           );
@@ -494,7 +713,6 @@ function renderStatus() {
             el.scrollIntoView({ block: "center" });
             el.focus({ preventScroll: true });
           }
-          openField(f.id, el);
         },
         `${val ? "answered" : ""} ${flag ? "flagged" : ""}`,
       );
@@ -508,16 +726,17 @@ function renderStatus() {
   }
 }
 function displayValue(f, value, e) {
-  if (!value) return e?.dataset.original || f.label;
-  if (f.type === "text") return value;
+  const label = e?.dataset.original || f.label;
+  if (!value) return label;
+  if (f.type === "text") return `${label} ${value}`;
   const c = f.choices.find((c) => c.value === value);
   if (e?.dataset.part !== undefined)
-    return c?.parts?.[Number(e.dataset.part)] || value;
-  if (e?.dataset.display === "content") return c?.text || value;
-  return c?.text.length <= 14
-    ? `${"⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value} ${c.text}`
-    : "⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value;
+    return `${label} ${c?.parts?.[Number(e.dataset.part)] || value}`;
+  if (e?.dataset.display === "content")
+    return `${label} ${circle(value)} ${c?.text || value}`;
+  return `${label} ${circle(value)}`;
 }
+
 function syncBook() {
   const d = frame?.contentDocument;
   if (!d || solution) return;
@@ -567,27 +786,66 @@ function setAnswer(id, value) {
   persist();
   syncBook();
   renderStatus();
-  if (selectedField === id && $("#answer-dialog").open) renderEditor();
+  if (selectedField === id && $("#answer-dialog").open) {
+    renderEditor();
+    positionKeypad();
+  }
+}
+function positionKeypad() {
+  const d = $("#answer-dialog");
+  if (
+    !d.open ||
+    !d.classList.contains("keypad-popup") ||
+    !activeAnchor?.isConnected
+  )
+    return;
+  const local = activeAnchor.getBoundingClientRect(),
+    fr = frame.getBoundingClientRect();
+  const r = {
+    left: fr.left + local.left,
+    top: fr.top + local.top,
+    bottom: fr.top + local.bottom,
+  };
+  const gap = 8,
+    margin = 10,
+    width = Math.min(310, innerWidth - margin * 2);
+  d.style.width = width + "px";
+  d.style.maxHeight = innerHeight - 2 * margin + "px";
+  const h = d.getBoundingClientRect().height,
+    below = innerHeight - r.bottom - gap - margin,
+    above = r.top - gap - margin;
+  const bottom = below >= h || below >= above;
+  const available = bottom ? below : above;
+  if (available > 200) d.style.maxHeight = Math.min(h, available) + "px";
+  const height = d.getBoundingClientRect().height;
+  d.style.left =
+    Math.max(margin, Math.min(r.left, innerWidth - width - margin)) + "px";
+  d.style.top =
+    Math.max(
+      margin,
+      Math.min(
+        bottom ? r.bottom + gap : r.top - gap - height,
+        innerHeight - height - margin,
+      ),
+    ) + "px";
 }
 function openField(id, anchor) {
   if (isLocked(id)) return notify("この欄は復習で正答済みです。");
+  closeAnswer();
   selectedField = id;
+  activeAnchor = anchor;
   const f = exam.fields.find((f) => f.id === id);
   if (!f) return;
-  renderEditor();
   const d = $("#answer-dialog");
-  if (!d.open) d.showModal();
-  if (anchor && innerWidth <= 850) {
-    const top =
-      frame.getBoundingClientRect().top +
-      anchor.getBoundingClientRect().top +
-      scrollY;
-    window.scrollTo({
-      top: Math.max(0, top - innerHeight * 0.18),
-      behavior: "smooth",
-    });
-  }
+  d.removeAttribute("style");
+  d.classList.toggle("keypad-popup", f.type === "text");
+  renderEditor();
+  if (f.type === "text") {
+    d.show();
+    positionKeypad();
+  } else d.showModal();
 }
+
 function renderEditor() {
   const f = exam.fields.find((f) => f.id === selectedField),
     value = answers()[f.id] || "";
@@ -628,8 +886,8 @@ function renderEditor() {
     }
   }
   $("#flag-answer").textContent = attempt.flags.includes(f.id)
-    ? "★ 見直しを解除"
-    : "☆ 見直し";
+    ? "🏳️ 見直しを解除"
+    : "🏳️ 見直し";
 }
 $("#clear-answer").onclick = () => setAnswer(selectedField, "");
 $("#flag-answer").onclick = () => {
@@ -683,24 +941,7 @@ function doGrade() {
   if (reviewing) {
     gradeReview(exam, attempt);
     persist();
-    if (attempt.review.completed) {
-      notify("すべて正解しました。復習完了です。");
-      renderResults();
-    } else {
-      syncBook();
-      renderStatus();
-      ask("復習の採点結果", [
-        [
-          `${attempt.review.result.points}/${attempt.review.result.maxPoints}点 · 間違えた欄をもう一度`,
-          () => {
-            startReview(exam, attempt);
-            persist();
-            renderWorkspace();
-          },
-        ],
-        ["結果へ戻る", () => renderResults()],
-      ]);
-    }
+    renderResults();
     return;
   }
   submit(exam, attempt);
@@ -736,161 +977,201 @@ window.addEventListener("pagehide", () => {
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && attempt) persist();
 });
-async function renderResults() {
+function scoreMark(unit) {
+  return unit.correct ? "○" : unit.points > 0 ? `△${unit.points}` : "✕";
+}
+function fullPatterns(rule, max) {
+  if (rule.kind === "cases")
+    return rule.cases.filter((c) => c.points === max).map((c) => c.answers);
+  if (rule.kind === "conditional")
+    return [...fullPatterns(rule.then, max), ...fullPatterns(rule.else, max)];
+  return rule.patterns || [];
+}
+function answerMark(field, value) {
+  return value ? (field.type === "choice" ? circle(value) : value) : "—";
+}
+function discardAttempt(id) {
+  store.discard(id);
+  if (attempt?.id === id) {
+    releaseLock?.();
+    releaseLock = null;
+    attempt = null;
+    reviewing = false;
+    solution = false;
+    location.hash = "";
+  }
+  renderCatalog();
+  resetTop();
+  notify("この端末の履歴から削除しました");
+}
+function renderUnitTable(r, runs) {
+  const out = $("#unit-results"),
+    head = $("#unit-head");
+  out.replaceChildren();
+  const older = historyExpanded ? runs.filter((a) => a.id !== attempt.id) : [];
+  head.innerHTML = `<tr><th>問題番号<br>（配点）</th><th>設問</th><th>解答<br>記号</th><th>正解</th><th>配点</th>${older.map((a, i) => `<th>${i + 1}回目の回答</th><th>${i + 1}回目の得点</th>`).join("")}<th>${historyExpanded ? "今回の回答" : "あなたの回答"}</th><th>${historyExpanded ? "今回の得点" : "正誤"}</th><th>平均<br>得点率</th></tr>`;
+  const units = r.units;
+  for (let n = 0; n < units.length; n++) {
+    const u = units[n],
+      def = exam.scoring.find((x) => x.id === u.id),
+      section = exam.sections.find((x) => x.id === u.sectionId),
+      question = def.question || 1;
+    const sectionUnits = units.filter((x) => x.sectionId === u.sectionId),
+      questionUnits = sectionUnits.filter(
+        (x) =>
+          (exam.scoring.find((d) => d.id === x.id).question || 1) === question,
+      );
+    const firstSection = sectionUnits[0].id === u.id,
+      firstQuestion = questionUnits[0].id === u.id;
+    const patterns = fullPatterns(def.rule, def.maxPoints);
+    u.fields.forEach((id, index) => {
+      const f = exam.fields.find((x) => x.id === id),
+        tr = document.createElement("tr");
+      let cells = "";
+      if (index === 0 && firstSection)
+        cells += `<th rowspan="${sectionUnits.reduce((n, u) => n + u.fields.length, 0)}" scope="rowgroup">${esc(section.title)}<br>（${section.maxPoints}）</th>`;
+      if (index === 0 && firstQuestion)
+        cells += `<td rowspan="${questionUnits.reduce((n, u) => n + u.fields.length, 0)}">${question}</td>`;
+      cells += `<th scope="row"><span class="answer-symbol">${esc(f.label)}</span></th><td>${[...new Set(patterns.map((p) => answerMark(f, p[index])))].map(esc).join(" / ")}</td>`;
+      if (index === 0)
+        cells += `<td rowspan="${u.fields.length}">${u.maxPoints}${u.fields.length > 1 ? "＊" : ""}</td>`;
+      for (const old of older) {
+        const unit = old.result.units.find((x) => x.id === u.id);
+        cells += `<td>${esc(answerMark(f, unit?.answers[index]))}</td>`;
+        if (index === 0)
+          cells += `<td rowspan="${u.fields.length}">${unit ? unit.points : "—"}</td>`;
+      }
+      cells += `<td class="your-answer">${esc(answerMark(f, u.answers[index]))}</td>`;
+      if (index === 0)
+        cells += `<td rowspan="${u.fields.length}" class="${u.correct ? "correct" : u.points > 0 ? "partial" : "incorrect"}">${historyExpanded ? u.points : scoreMark(u)}</td><td rowspan="${u.fields.length}" data-unit-rate="${u.id}">—</td>`;
+      tr.innerHTML = cells;
+      out.append(tr);
+    });
+  }
+  const table = $("#unit-table");
+  table.classList.toggle("with-history", historyExpanded);
+  $("#toggle-history").textContent = historyExpanded
+    ? "過去の成績を閉じる"
+    : "過去の成績も表示する";
+}
+let resultStats = null;
+function applyResultStats(stats, r) {
+  for (const section of r.sections) {
+    const v = stats.sections[section.id];
+    $(`#avg-${section.id}`).textContent =
+      v.points === null ? "—" : v.points.toFixed(1) + "点";
+    $(`#rate-${section.id}`).textContent =
+      v.rate === null ? "—" : (v.rate * 100).toFixed(1) + "%";
+  }
+  for (const u of stats.units) {
+    const el = document.querySelector(`[data-unit-rate="${u.id}"]`);
+    if (el)
+      el.textContent =
+        u.averageRate === null ? "—" : (u.averageRate * 100).toFixed(1) + "%";
+  }
+  const relevant = r.sections.map((s) => stats.sections[s.id]);
+  const ready = relevant.every((s) => s.available),
+    points = ready ? relevant.reduce((n, s) => n + s.points, 0) : null;
+  $("#avg-total").textContent =
+    points === null ? "—" : points.toFixed(1) + "点";
+  $("#rate-total").textContent =
+    points === null ? "—" : ((points / r.maxPoints) * 100).toFixed(1) + "%";
+}
+function renderResults() {
+  closeAnswer();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
-  const r = attempt.result;
+  secondaryObserver?.disconnect();
+  solution = false;
+  readingMode = false;
+  const current = attempt,
+    r = current.result;
   if (!r) return renderWorkspace();
-  app.innerHTML = `<section class="results"><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1><div class="score">${r.points}<small> / ${r.maxPoints}</small></div><p>得点率 ${((r.points / r.maxPoints) * 100).toFixed(1)}% · 解答時間 ${time(elapsed(attempt))}</p><div class="actions" id="result-actions"></div><div class="table-wrap"><table><thead><tr><th>大問</th><th>得点</th><th>得点率</th><th>平均得点・平均得点率</th><th>平均との差</th></tr></thead><tbody id="section-results"></tbody></table></div><p id="stat-total" class="stat-note">統計を取得しています…</p><div id="submission-status"><p class="muted">統計への送信状態を確認しています…</p></div><div id="comparison"></div><details open><summary>解答・採点単位ごとの結果</summary><div class="table-wrap"><table><thead><tr><th>欄</th><th>自分の回答</th><th>正答</th><th>得点</th><th>回答数 / 正答率 / 平均得点 / 平均得点率</th></tr></thead><tbody id="unit-results"></tbody></table></div></details></section>`;
-  const transmission = setupSubmission();
-  const a = $("#result-actions");
-  a.append(
-    button("続きから解く", () =>
-      ask("正誤表示を選ぶ", [
-        ["正誤表示あり", () => restart(true)],
-        ["正誤表示なし", () => restart(false)],
+  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1></div><button id="discard-result" class="subtle-danger">この採点結果を破棄する</button></div><div class="score">${r.points}<small> / ${r.maxPoints}</small></div><p>得点率 ${((r.points / r.maxPoints) * 100).toFixed(1)}% · 解答時間 ${time(elapsed(current))}</p><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></section>`;
+  $("#discard-result").onclick = () => discardAttempt(current.id);
+  $("#result-actions").append(
+    button("解答に戻る", () =>
+      ask("正誤表記を選ぶ", [
+        ["正誤表記あり", () => restart(true)],
+        ["正誤表記なし", () => restart(false)],
       ]),
     ),
-    button(
-      attempt.review?.completed
-        ? "復習完了 · もう一度確認"
-        : "間違えたところを復習",
-      () => {
-        reviewing = true;
-        startReview(exam, attempt);
+    button("解説を読む", () => {
+      if (attempt.status === "active") {
+        pause(attempt);
         persist();
-        solution = false;
-        renderWorkspace();
-      },
-      "primary",
-    ),
-    button("最初から解き直す", () =>
-      begin(
-        entryFor(exam.id, exam.version),
-        attempt.mode,
-        attempt.sectionIds[0],
-      ),
-    ),
-    button("問題・解説", () => {
-      reviewing = true;
-      startReview(exam, attempt);
+      }
+      reviewing = false;
+      readingMode = true;
       solution = true;
+      sectionId = attempt.sectionIds[0];
       renderWorkspace();
+      resetTop();
     }),
-    button("一覧へ", leave),
+    button("一覧に戻る", leave, "back-to-catalog"),
   );
-  if (attempt.mode === "section") {
-    const next =
-      [...catalog]
-        .sort((a, b) => a.id.localeCompare(b.id))
-        .find((e) => e.id > exam.id) || catalog.find((e) => e.id !== exam.id);
-    if (next)
-      a.append(
-        button(`No.${next.id}の同じ大問へ`, () =>
-          begin(next, "section", attempt.sectionIds[0]),
-        ),
-      );
-  }
-  for (const s of r.sections) {
+  for (const section of r.sections)
     $("#section-results").insertAdjacentHTML(
       "beforeend",
-      `<tr><td>${esc(s.title)}</td><td>${s.points}/${s.maxPoints}点</td><td>${((s.points / s.maxPoints) * 100).toFixed(1)}%</td><td id="avg-${s.id}">—</td><td id="diff-${s.id}">—</td></tr>`,
+      `<tr><th>${esc(section.title)}</th><td>${section.points} / ${section.maxPoints}点</td><td>${((section.points / section.maxPoints) * 100).toFixed(1)}%</td><td id="avg-${section.id}">—</td><td id="rate-${section.id}">—</td></tr>`,
     );
-  }
-  for (const u of r.units) {
-    const def = exam.scoring.find((x) => x.id === u.id),
-      correct = correctPatterns(def.rule)
-        .map((p) => p.join("・"))
-        .join(" / ");
-    $("#unit-results").insertAdjacentHTML(
-      "beforeend",
-      `<tr><th>${esc(exam.sections.find((s) => s.id === u.sectionId).title)} ${u.fields.map((id) => esc(exam.fields.find((f) => f.id === id).label)).join("・")}</th><td>${u.answers.map((v) => esc(v || "—")).join("・")}</td><td>${esc(correct)}${def.rule.kind === "unordered" ? "（順不同）" : ""}</td><td class="${u.correct ? "correct" : "incorrect"}">${u.correct ? "○" : "×"} ${u.points}/${u.maxPoints}</td><td id="stat-${u.id}">—</td></tr>`,
-    );
-  }
   const runs = store
     .list()
     .filter(
       (a) =>
-        a.examId === attempt.examId &&
-        compatibleVersion(a.examId, a.examVersion) === attempt.examVersion &&
-        a.mode === attempt.mode &&
-        a.sectionIds.join() === attempt.sectionIds.join() &&
+        a.examId === current.examId &&
+        compatibleVersion(a.examId, a.examVersion) === current.examVersion &&
+        a.mode === current.mode &&
+        a.sectionIds.join() === current.sectionIds.join() &&
         a.result &&
-        a.createdAt <= attempt.createdAt,
+        a.createdAt <= current.createdAt,
     )
     .sort((a, b) => a.createdAt - b.createdAt);
-  if (runs.length > 1) {
-    const initial = runs[0],
-      prev = runs.at(-2);
-    $("#comparison").innerHTML =
-      `<h2>得点の変化</h2><p>初回 ${initial.result.points}点 → 前回 ${prev.result.points}点 → 今回 ${r.points}点</p><p>${r.sections.map((s) => `${esc(s.title)}：${initial.result.sections.find((x) => x.id === s.id)?.points} → ${prev.result.sections.find((x) => x.id === s.id)?.points} → ${s.points}点`).join(" / ")}</p>`;
-  }
-  try {
-    await transmission;
-    if (seq !== uiSequence) return;
-    const stats = calculateStats(exam, await fetchStats(exam));
-    if (seq !== uiSequence) return;
-    const total = stats.total;
-    $("#stat-total").textContent = total.available
-      ? `模試全体の平均得点：${total.points.toFixed(1)} / ${total.maxPoints}点 · 平均得点率：${(total.rate * 100).toFixed(1)}%`
-      : "模試全体の平均得点・平均得点率：データ不足";
-    for (const s of r.sections) {
-      const v = stats.sections[s.id].points;
-      $(`#avg-${s.id}`).textContent =
-        v === null
-          ? "未集計"
-          : `${v.toFixed(1)}点 (${((v / s.maxPoints) * 100).toFixed(1)}%)`;
-      $(`#diff-${s.id}`).textContent =
-        v === null
-          ? "—"
-          : `${s.points - v >= 0 ? "+" : ""}${(s.points - v).toFixed(1)}点`;
-    }
-    for (const u of stats.units) {
-      const el = $(`#stat-${u.id}`);
-      if (el)
-        el.textContent = u.count
-          ? `${u.count} / ${(u.fullRate * 100).toFixed(1)}% / ${u.average.toFixed(1)}点 / ${(u.averageRate * 100).toFixed(1)}%`
-          : "未集計";
-    }
-  } catch {
-    if (seq === uiSequence)
-      $("#stat-total").textContent =
-        "統計を取得できませんでした。個人の採点結果は保存されています。";
-  }
-}
-async function setupSubmission() {
-  const target = $("#submission-status"),
-    current = attempt,
-    seq = uiSequence;
-  try {
-    store.save(current);
-    const result = await sendUnsentUnits(exam, current, store, {
-      source: reviewing ? "review" : "exam",
-    });
-    if (seq !== uiSequence || attempt !== current || !target.isConnected)
+  renderUnitTable(r, runs);
+  $("#toggle-history").onclick = () => {
+    historyExpanded = !historyExpanded;
+    renderUnitTable(r, runs);
+    if (resultStats) applyResultStats(resultStats, r);
+  };
+  resultStats = null;
+  resetTop();
+  const activeExam = exam;
+  const update = (rows) => {
+    if (seq !== uiSequence || attempt !== current) return;
+    resultStats = calculateStats(activeExam, rows);
+    applyResultStats(resultStats, r);
+  };
+  fetchStats(activeExam)
+    .then(update)
+    .catch(() => {});
+  // The result screen is already visible. Network requests only update its cells.
+  if (!reviewing) {
+    try {
+      store.save(current);
+    } catch {
       return;
-    const counts = deliverySummary(current);
-    target.textContent =
-      [
-        counts.sent ? `統計送信済み：${counts.sent}単位。` : "",
-        counts.unknown
-          ? `送信結果不明：${counts.unknown}単位。重複を避けるため再送しません。`
-          : "",
-        counts.sending ? `統計送信中：${counts.sending}単位。` : "",
-        result.status === "storage-error" ? "送信状態を保存できません。" : "",
-      ]
-        .filter(Boolean)
-        .join(" ") || "新しく送信する採点単位はありません。";
-  } catch {
-    if (seq === uiSequence && target.isConnected)
-      target.textContent =
-        "統計送信を完了できませんでした。受験・採点・復習は引き続き利用できます。";
+    }
+    sendUnsentUnits(activeExam, current, store)
+      .then((ack) => {
+        if (ack.status === "sent" && ack.count && seq === uiSequence)
+          return fetchStats(activeExam).then(update);
+      })
+      .catch(() => {});
   }
 }
 
 function restart(show) {
-  reviewing = false;
   solution = false;
+  readingMode = false;
+  if (show) {
+    reviewing = true;
+    startReview(exam, attempt);
+    persist();
+    renderWorkspace();
+    resetTop();
+    return;
+  }
+  reviewing = false;
   if (
     attempt.mode === "timed" &&
     elapsed(attempt) >= exam.durationSeconds * 1000

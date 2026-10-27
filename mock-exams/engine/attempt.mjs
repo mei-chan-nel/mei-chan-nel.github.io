@@ -42,6 +42,7 @@ export function resume(a, show = false, now = Date.now()) {
 }
 export function submit(exam, a, now = Date.now()) {
   pause(a, now);
+  a.review = null;
   a.gradedAnswers = structuredClone(a.answers);
   a.result = grade(exam, a.answers, a.sectionIds);
   a.status = "graded";
@@ -86,7 +87,7 @@ export class AttemptStore {
       const k = this.storage.key(i);
       if (k.startsWith(PREFIX + "attempt:") && !k.endsWith(":backup")) {
         const a = this.load(k.slice((PREFIX + "attempt:").length));
-        if (a) out.push(a);
+        if (a && !a.discardedAt) out.push(a);
       }
     }
     return out.sort((a, b) => b.createdAt - a.createdAt);
@@ -105,15 +106,25 @@ export class AttemptStore {
     if (!copies.length) return null;
     copies.sort((a, b) => b.updatedAt - a.updatedAt);
     const latest = copies[0];
+    if (copies.some((a) => a.discardedAt))
+      latest.discardedAt = Math.max(...copies.map((a) => a.discardedAt || 0));
     latest.statsDelivery = mergeDelivery(...copies.map((a) => a.statsDelivery));
     return latest;
   }
   save(a) {
     const key = PREFIX + "attempt:" + a.id;
-    a.statsDelivery = mergeDelivery(
-      a.statsDelivery,
-      this.load(a.id)?.statsDelivery,
-    );
+    const previous = this.load(a.id);
+    if (previous?.discardedAt) {
+      a.discardedAt = previous.discardedAt;
+      a.answers = {};
+      a.result = null;
+      a.review = null;
+      a.flags = [];
+      delete a.gradedAnswers;
+      a.startedAt = null;
+      a.status = "paused";
+    }
+    a.statsDelivery = mergeDelivery(a.statsDelivery, previous?.statsDelivery);
     const raw = JSON.stringify(a);
     // Mirror the same send markers into the recovery copy. An old backup must
     // never make a possibly committed unit eligible for transmission again.
@@ -130,6 +141,20 @@ export class AttemptStore {
     a.statsDelivery = mergeDelivery(a.statsDelivery, latest.statsDelivery);
     latest.statsDelivery = a.statsDelivery;
     this.save(latest);
+  }
+  discard(id) {
+    const a = this.load(id);
+    if (!a) return;
+    a.discardedAt = Date.now();
+    a.updatedAt = a.discardedAt;
+    a.answers = {};
+    a.result = null;
+    a.review = null;
+    a.flags = [];
+    delete a.gradedAnswers;
+    a.startedAt = null;
+    a.status = "paused";
+    this.save(a);
   }
   export() {
     return JSON.stringify(
