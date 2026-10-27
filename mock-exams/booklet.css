@@ -1,0 +1,341 @@
+/* This shared layer does not change the problem content. Source CSS keeps figures
+   and indentation; only the document frame and interaction states are normalized. */
+html {
+  background: #f1f2f0 !important;
+}
+body {
+  margin: 0 !important;
+}
+.toolbar,
+.site-bar {
+  display: none !important;
+}
+[data-field] {
+  cursor: pointer;
+  display: inline-block;
+  min-width: 2.4em;
+  text-align: center;
+  border: 1.2px solid #222 !important;
+  border-radius: 0 !important;
+  background: white !important;
+  color: #111 !important;
+  padding: 0 0.3em;
+  line-height: 1.5;
+  font-family: inherit;
+}
+[data-field][data-filled="true"] {
+  background: #edf5f0 !important;
+  color: #174e42 !important;
+  min-width: 2.4em;
+  width: auto !important;
+  max-width: none !important;
+}
+[data-field][data-display="content"][data-filled="true"] {
+  white-space: pre;
+  width: auto !important;
+}
+[data-field][data-locked="true"] {
+  border-style: double !important;
+  cursor: default;
+}
+[data-choice-fields] {
+  cursor: pointer;
+}
+[data-choice-fields][data-selected="true"] {
+  background: #e2eee9 !important;
+  outline: 2px solid #40816d;
+  outline-offset: 2px;
+}
+[data-field]:focus-visible,
+[data-choice-fields]:focus-visible {
+  outline: 3px solid #ad7826;
+  outline-offset: 3px;
+}
+[data-verdict="correct"]::after {
+  content: " ○";
+  font-family: sans-serif;
+  color: #126a45;
+}
+[data-verdict="incorrect"]::after {
+  content: " ×";
+  font-family: sans-serif;
+  color: #a23731;
+}
+.book-source {
+  font:
+    9px system-ui,
+    sans-serif;
+  text-align: right;
+  margin-top: 8px;
+  color: #333;
+}
+@media screen and (min-width: 801px) {
+  .sheet,
+  .page {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .book {
+    max-width: none !important;
+  }
+}
+@media screen and (max-width: 800px) {
+  html,
+  body {
+    background: white !important;
+    overflow-x: hidden;
+  }
+  .sheet,
+  .page,
+  .solution,
+  .book {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 20px 16px !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+  .sheet + .sheet,
+  .page + .page {
+    padding-top: 8px !important;
+  }
+  .page-body {
+    min-height: 0 !important;
+  }
+  .page-head,
+  .page-foot,
+  .page-footer,
+  .footer,
+  .running-head,
+  .running-header,
+  .sheet-header,
+  .sheet-footer {
+    display: none !important;
+  }
+  body {
+    font-size: 16px !important;
+    line-height: 1.85 !important;
+  }
+  .qbody,
+  .question-body {
+    margin-left: 0 !important;
+  }
+  p,
+  li,
+  .qtitle,
+  .qprompt {
+    font-size: 16px !important;
+    line-height: 1.85 !important;
+  }
+  figure {
+    max-width: 100%;
+    margin-inline: 0 !important;
+  }
+  img,
+  svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .table-scroll {
+    overflow-x: auto;
+    max-width: 100%;
+    margin: 12px 0;
+  }
+  table {
+    font-size: 14px !important;
+  }
+  table th,
+  table td {
+    padding: 7px 5px !important;
+  }
+  .code,
+  .program,
+  .pseudocode {
+    max-width: 100%;
+    overflow-x: auto !important;
+    font-size: 14px !important;
+  }
+  .code .src,
+  .code .ln {
+    font-size: 14px !important;
+  }
+  .choices,
+  .options {
+    font-size: 16px !important;
+  }
+  .choice-grid,
+  .twochoices {
+    grid-template-columns: 1fr !important;
+  }
+  .option,
+  .choice,
+  ol.choices > li,
+  ol.options > li {
+    padding-block: 10px !important;
+  }
+  [data-field] {
+    min-height: 32px;
+    line-height: 1.65 !important;
+  }
+  fieldset {
+    min-width: 0;
+  }
+  .suppression-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .book-source {
+    display: none;
+  }
+}
+@media print {
+  html,
+  body {
+    background: white !important;
+  }
+  [data-field] {
+    cursor: default;
+    background: white !important;
+    color: black !important;
+  }
+  [data-choice-fields] {
+    outline: 0 !important;
+    background: transparent !important;
+  }
+  [data-verdict]::after {
+    content: none;
+  }
+  .book-source {
+    display: block;
+  }
+  .table-scroll {
+    overflow: visible !important;
+  }
+  .sheet,
+  .page {
+    box-shadow: none !important;
+  }
+  img,
+  svg,
+  table,
+  tr,
+  .program {
+    break-inside: avoid;
+  }
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}
+@media screen and (min-width: 801px) {
+  body[data-section="q1"] .sheet {
+    width: 210mm;
+    min-height: 297mm;
+    font-size: 11.5pt;
+  }
+  body[data-section="q4"] .book {
+    width: 210mm;
+    margin: auto;
+  }
+  body[data-section="q4"] .page {
+    min-height: 297mm;
+    padding: 18mm 18mm 20mm;
+  }
+}
+@media screen and (max-width: 800px) {
+  .pagehead,
+  .pagenum,
+  .page-number {
+    display: none !important;
+  }
+  .page-body {
+    min-height: 0 !important;
+  }
+  .table-scroll table {
+    min-width: 280px;
+  }
+  .book {
+    padding: 0 !important;
+  }
+  .code {
+    white-space: normal;
+  }
+  .program .src {
+    white-space: pre !important;
+  }
+}
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  body[data-section] .sheet,
+  body[data-section] .page {
+    width: 210mm !important;
+    max-width: none !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    break-after: page !important;
+    page-break-after: always !important;
+    overflow: visible !important;
+  }
+  body[data-section="q1"] {
+    font-size: 11.5pt !important;
+  }
+  body[data-section="q4"] .page {
+    padding: 18mm 18mm 20mm !important;
+    display: flex !important;
+  }
+  body[data-section="q4"] .book {
+    width: 210mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .page-number,
+  .pagenum,
+  .page-foot,
+  .footer {
+    visibility: hidden !important;
+  }
+  body[data-section] .page:last-child,
+  body[data-section] .sheet:last-child {
+    break-after: auto !important;
+    page-break-after: auto !important;
+  }
+}
+@media print {
+  body[data-section] .sheet,
+  body[data-section] .page {
+    padding: 18mm 20mm 22mm !important;
+  }
+  body[data-section] .page-body {
+    min-height: 0 !important;
+  }
+  body[data-section="q4"] .page {
+    padding: 16mm 18mm 20mm !important;
+  }
+  body[data-section="q3"] .code {
+    font-size: 10.5pt !important;
+  }
+  .print-content {
+    display: flow-root;
+  }
+  .print-content .page-body {
+    min-height: 0 !important;
+  }
+}
+@media print {
+  body[data-section="q3"] .cols2 {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  body[data-section="q3"] .choice-grid {
+    gap: 4px 12px !important;
+  }
+  body[data-section="q3"] fieldset.choices {
+    margin-block: 8px !important;
+  }
+}

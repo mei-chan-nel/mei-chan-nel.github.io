@@ -419,7 +419,9 @@ def main() -> int:
     if unknown_term_tags:
         errors.append("term page tag(s) are not present in the authoritative tag list: " + ", ".join(unknown_term_tags))
 
-    page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google"))
+    # Embedded exam booklets intentionally have no site navigation. Their source
+    # fidelity and PDF content are checked by validate_mock_exam_content.py.
+    page_paths = sorted(path for path in ROOT.rglob("*.html") if not path.name.startswith("google") and not path.relative_to(ROOT).as_posix().startswith("mock-exams/exams/"))
     parsers: dict[Path, PageParser] = {}
     expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "講義ノート", "プログラムトレース")
     expected_footer_labels = (*expected_nav_labels, "書籍案内", "使い方", "このサイトについて", "プライバシーポリシー", "サイトマップ")
@@ -517,7 +519,7 @@ def main() -> int:
     expected_portal_paths = [
         "index.html", "study-guide.html", "about.html", "privacy.html", "sitemap.html", "terms/index.html", "books/index.html",
         "LectureNote/index.html", "LectureNote/society.html", "LectureNote/digital.html", "LectureNote/network.html",
-        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html", *report.get("learning_pages", []),
+        "LectureNote/statistics.html", "LectureNote/programming.html", "program-trace/index.html", "mock-exams/index.html", "program-trace/studio/index.html", "program-trace/studio/guide.html", *report.get("learning_pages", []),
     ]
     expected_portal_paths.extend(path.relative_to(ROOT).as_posix() for path in term_paths)
     expected_app_paths: list[str] = []
