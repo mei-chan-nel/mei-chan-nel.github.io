@@ -51,3 +51,9 @@
 ## 保存状態
 
 開発ブランチ: `feat/mock-exams-001`。このブランチの最新コミットがローカル実装のチェックポイント。未push。PDFは問題2,040,475 bytes、解説2,993,149 bytes。PC受験画面のaxe WCAG2A/AA自動検査で違反0件。
+
+## 最終統合検証
+
+`python scripts/validate_study_atlas.py --portal-root <portal> --app-root <app> --portal-ref HEAD --app-ref HEAD` が成功。ポータルJS9ファイル、既存学習アプリ1,438問の検証、Python10テスト、アプリJS10ファイルを含む。既存学習アプリ側の作業ツリーに変更なし。
+
+開発チェックポイントのソースはコミット済み。指定された会話成果物フォルダーは、この管理環境では作成権限がないためダウンロード用ZIPを出力できなかった。再開はリポジトリ内の本書から行う。PDFは模試版フォルダー内に保存済み。
