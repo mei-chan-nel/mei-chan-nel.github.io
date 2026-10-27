@@ -5,7 +5,7 @@ from pathlib import Path
 from lxml import html, etree
 import json, hashlib, re
 ROOT=Path(__file__).resolve().parents[1]/'mock-exams'
-OUT=ROOT/'exams/001/1.0.0'
+OUT=ROOT/'exams/001/1'
 SPEC=[
  ('q1','第1問',20,'Q1_001_problem.html','Q1_001_answers.html','1.4.0','アイウエオカキクケコ', ['0','3','5','C','2','2','1','2','2','3'],[(['ア'],2),(['イ'],2),(['ウ','エ'],3),(['オ'],3),(['カ','キ'],3),(['ク'],2),(['ケ'],2),(['コ'],3)]),
  ('q2a','第2問A',15,'Q2A_001_problem_v2.5.0.html','Q2A_001_answers_v2.5.0.html','2.5.0','アイウエオカキ',['2','1','5','1','2','3','3'],[(['ア'],2),(['イ','ウ'],3),(['エ'],2),(['オ'],3),(['カ'],2),(['キ'],3)]),
@@ -22,7 +22,7 @@ def clean(d):
  for c in ['toolbar','site-bar']:
   for e in cls(d,c):e.drop_tree()
  return d
-exam={'schemaVersion':1,'id':'001','version':'1.0.0','title':'情報Ⅰ 実戦模試 No.001','durationSeconds':3600,'maxPoints':100,'sections':[],'fields':[],'scoring':[]}
+exam={'schemaVersion':1,'id':'001','version':1,'title':'情報Ⅰ 実戦模試 No.001','durationSeconds':3600,'maxPoints':100,'sections':[],'fields':[],'scoring':[]}
 for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
  d=clean(html.fromstring((OUT/'source'/problem).read_bytes()))
  fields={c:{'id':sid+'-'+c,'sectionId':sid,'label':c,'type':'choice','choices':[]} for c in letters}
@@ -83,5 +83,5 @@ for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
  exam['sections'].append({'id':sid,'title':title,'maxPoints':points,'sourceVersion':ver,'problem':f'{sid}.html','solution':f'{sid}-solution.html','sourceSha256':hashlib.sha256((OUT/'source'/problem).read_bytes()).hexdigest()})
 assert sum(u['maxPoints'] for u in exam['scoring'])==100
 (OUT/'exam.json').write_text(json.dumps(exam,ensure_ascii=False,indent=2)+'\n')
-(ROOT/'catalog.json').write_text(json.dumps([{'id':'001','version':'1.0.0','title':exam['title'],'manifest':'exams/001/1.0.0/exam.json'}],ensure_ascii=False,indent=2)+'\n')
+(ROOT/'catalog.json').write_text(json.dumps([{'id':'001','version':1,'title':exam['title'],'manifest':'exams/001/1/exam.json'}],ensure_ascii=False,indent=2)+'\n')
 print(f'Imported {len(exam["fields"])} fields, {len(exam["scoring"])} scoring units, 100 points.')

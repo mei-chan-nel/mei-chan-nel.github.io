@@ -1,4 +1,4 @@
-// Shared deterministic engine: browser and trusted server use the same rules.
+// Deterministic browser scoring; scoring units are independent of input fields.
 const blank = (value) => value === undefined || value === null || value === "";
 export function normalize(field, value) {
   if (blank(value)) return "";
@@ -122,6 +122,8 @@ export function correctPatterns(rule) {
   return rule.cases?.map((c) => c.answers) ?? [];
 }
 export function validateExam(exam) {
+  if (!Number.isInteger(exam.version) || exam.version < 1)
+    throw new Error("Exam version must be a positive integer");
   if (exam.schemaVersion !== 1) throw new Error("Unsupported exam schema");
   const ids = new Set(exam.fields.map((f) => f.id));
   if (ids.size !== exam.fields.length) throw new Error("Duplicate field id");
@@ -152,7 +154,7 @@ export function validateExam(exam) {
   grade(exam, {});
   return true;
 }
-export function referenceStats(exam, rows = []) {
+export function calculateStats(exam, rows = []) {
   const units = exam.scoring.map((u) => {
     const r = rows.find((r) => r.scoring_id === u.id);
     const n = Number(r?.answered_count || 0);
@@ -161,15 +163,19 @@ export function referenceStats(exam, rows = []) {
       count: n,
       fullRate: n ? Number(r.correct_count) / n : null,
       average: n ? Number(r.points_sum) / n : null,
+      averageRate: n ? Number(r.points_sum) / (n * u.maxPoints) : null,
     };
   });
   const aggregate = (ids) => {
     const us = units.filter((u) => ids.includes(u.sectionId));
+    const maxPoints = us.reduce((n, u) => n + u.maxPoints, 0);
+    const available = us.length > 0 && us.every((u) => u.count > 0);
+    const points = available ? us.reduce((n, u) => n + u.average, 0) : null;
     return {
-      available: us.every((u) => u.count > 0),
-      points: us.every((u) => u.count > 0)
-        ? us.reduce((n, u) => n + u.average, 0)
-        : null,
+      maxPoints,
+      points,
+      rate: available ? points / maxPoints : null,
+      available,
     };
   };
   return {

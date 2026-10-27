@@ -3,7 +3,7 @@ import {
   normalize,
   validateExam,
   correctPatterns,
-  referenceStats,
+  calculateStats,
 } from "./engine/scoring.mjs";
 import {
   AttemptStore,
@@ -15,11 +15,10 @@ import {
   startReview,
   gradeReview,
   restoreAttempt,
+  compatibleVersion,
 } from "./engine/attempt.mjs";
-import { queueSubmission, sendPending } from "./engine/outbox.mjs";
-import { fetchStats, fetchSubmissionConfig } from "./engine/stats.mjs";
-import { mountChallenge } from "./engine/challenge.mjs";
-let disposeChallenge = () => {};
+import { sendUnsentUnits, deliverySummary } from "./engine/submission.mjs";
+import { fetchStats } from "./engine/stats.mjs";
 const $ = (s) => document.querySelector(s),
   app = $("#app"),
   store = new AttemptStore();
@@ -84,6 +83,7 @@ function download(name, content, type = "application/json") {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 function entryFor(id, version) {
+  version = compatibleVersion(id, version);
   const current = catalog.find((e) => e.id === id && e.version === version);
   if (current) return current;
   for (const e of catalog.filter((e) => e.id === id)) {
@@ -158,7 +158,6 @@ function leave() {
   renderCatalog();
 }
 async function renderCatalog() {
-  disposeChallenge();
   uiSequence++;
   app.innerHTML =
     '<section class="intro"><p class="eyebrow">PRACTICE / INFORMATION I</p><h1>実戦で、理解を確かめる。</h1><p>60分で一回分に挑む。気になる大問を集中的に解く。<br>採点のあとも、自分のペースで解き直せる情報Ⅰの実戦模試です。</p></section><div id="exam-list"></div><section class="history-card"><h2>このブラウザの学習履歴</h2><p class="muted">履歴はこの端末に保存されます。ブラウザのデータ削除に備えて書き出して保管できます。</p><div class="actions" id="history-actions"></div><div id="history-list"></div></section>';
@@ -186,6 +185,8 @@ async function renderCatalog() {
           a.startedAt = null;
           a.status = a.result ? "graded" : "paused";
           store.save(a);
+        } else {
+          store.saveStatistics(a);
         }
       }
       renderCatalog();
@@ -317,7 +318,6 @@ function isLocked(id) {
   return reviewing && attempt.review.locked.includes(id);
 }
 function renderWorkspace() {
-  disposeChallenge();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
   app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reviewing ? "REVIEW" : "PRACTICE"}</p><h1>${reviewing ? "間違えたところを、もう一度。" : esc(exam.title)}</h1></div><button id="back-list">一覧へ</button></div><div class="workspace"><div class="book"><nav class="book-nav" aria-label="大問を選ぶ"></nav><iframe title="問題冊子" sandbox="allow-same-origin"></iframe></div><aside class="sidebar"><p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div class="timer" id="timer"></div><div class="actions" id="run-actions"></div><details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><p class="muted">— 未回答 / ● 回答済み / ☆ 見直し</p><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button></aside></div>`;
@@ -704,7 +704,6 @@ function doGrade() {
     return;
   }
   submit(exam, attempt);
-  queueSubmission(exam, attempt);
   persist();
   renderResults();
 }
@@ -738,13 +737,12 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden && attempt) persist();
 });
 async function renderResults() {
-  disposeChallenge();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
   const r = attempt.result;
   if (!r) return renderWorkspace();
-  app.innerHTML = `<section class="results"><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1><div class="score">${r.points}<small> / ${r.maxPoints}</small></div><p>得点率 ${((r.points / r.maxPoints) * 100).toFixed(1)}% · 解答時間 ${time(elapsed(attempt))}</p><div class="actions" id="result-actions"></div><div class="table-wrap"><table><thead><tr><th>大問</th><th>得点</th><th>得点率</th><th>参考平均</th><th>平均との差</th></tr></thead><tbody id="section-results"></tbody></table></div><p id="stat-total" class="stat-note">参考統計を取得しています…</p><div id="submission-status"><p class="muted">統計への送信はまだ有効になっていません。この受験の成績はブラウザ内に保存されています。</p></div><div id="comparison"></div><details open><summary>解答・採点単位ごとの結果</summary><div class="table-wrap"><table><thead><tr><th>欄</th><th>自分の回答</th><th>正答</th><th>得点</th><th>回答数 / 満点正答率 / 平均得点率</th></tr></thead><tbody id="unit-results"></tbody></table></div></details></section>`;
-  setupSubmission();
+  app.innerHTML = `<section class="results"><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1><div class="score">${r.points}<small> / ${r.maxPoints}</small></div><p>得点率 ${((r.points / r.maxPoints) * 100).toFixed(1)}% · 解答時間 ${time(elapsed(attempt))}</p><div class="actions" id="result-actions"></div><div class="table-wrap"><table><thead><tr><th>大問</th><th>得点</th><th>得点率</th><th>平均得点・平均得点率</th><th>平均との差</th></tr></thead><tbody id="section-results"></tbody></table></div><p id="stat-total" class="stat-note">統計を取得しています…</p><div id="submission-status"><p class="muted">統計への送信状態を確認しています…</p></div><div id="comparison"></div><details open><summary>解答・採点単位ごとの結果</summary><div class="table-wrap"><table><thead><tr><th>欄</th><th>自分の回答</th><th>正答</th><th>得点</th><th>回答数 / 正答率 / 平均得点 / 平均得点率</th></tr></thead><tbody id="unit-results"></tbody></table></div></details></section>`;
+  const transmission = setupSubmission();
   const a = $("#result-actions");
   a.append(
     button("続きから解く", () =>
@@ -814,7 +812,7 @@ async function renderResults() {
     .filter(
       (a) =>
         a.examId === attempt.examId &&
-        a.examVersion === attempt.examVersion &&
+        compatibleVersion(a.examId, a.examVersion) === attempt.examVersion &&
         a.mode === attempt.mode &&
         a.sectionIds.join() === attempt.sectionIds.join() &&
         a.result &&
@@ -828,14 +826,14 @@ async function renderResults() {
       `<h2>得点の変化</h2><p>初回 ${initial.result.points}点 → 前回 ${prev.result.points}点 → 今回 ${r.points}点</p><p>${r.sections.map((s) => `${esc(s.title)}：${initial.result.sections.find((x) => x.id === s.id)?.points} → ${prev.result.sections.find((x) => x.id === s.id)?.points} → ${s.points}点`).join(" / ")}</p>`;
   }
   try {
-    const stats = referenceStats(exam, await fetchStats(exam));
+    await transmission;
     if (seq !== uiSequence) return;
-    const relevant = stats.units.filter((u) =>
-      attempt.sectionIds.includes(u.sectionId),
-    );
-    const ready = relevant.every((u) => u.count);
-    $("#stat-total").textContent =
-      `参考平均：${ready ? relevant.reduce((n, u) => n + u.average, 0).toFixed(1) + " / " + r.maxPoints + "点" : "集計データ不足"}。回答された採点単位ごとの平均を合計した参考値です。大問別・再受験・途中採点も含むため、通し受験者の平均ではありません。`;
+    const stats = calculateStats(exam, await fetchStats(exam));
+    if (seq !== uiSequence) return;
+    const total = stats.total;
+    $("#stat-total").textContent = total.available
+      ? `模試全体の平均得点：${total.points.toFixed(1)} / ${total.maxPoints}点 · 平均得点率：${(total.rate * 100).toFixed(1)}%`
+      : "模試全体の平均得点・平均得点率：データ不足";
     for (const s of r.sections) {
       const v = stats.sections[s.id].points;
       $(`#avg-${s.id}`).textContent =
@@ -851,74 +849,42 @@ async function renderResults() {
       const el = $(`#stat-${u.id}`);
       if (el)
         el.textContent = u.count
-          ? `${u.count} / ${(u.fullRate * 100).toFixed(1)}% / ${((u.average / u.maxPoints) * 100).toFixed(1)}%`
+          ? `${u.count} / ${(u.fullRate * 100).toFixed(1)}% / ${u.average.toFixed(1)}点 / ${(u.averageRate * 100).toFixed(1)}%`
           : "未集計";
     }
   } catch {
     if (seq === uiSequence)
       $("#stat-total").textContent =
-        "参考統計を取得できませんでした。個人の採点結果は保存されています。";
+        "統計を取得できませんでした。個人の採点結果は保存されています。";
   }
 }
 async function setupSubmission() {
-  disposeChallenge();
   const target = $("#submission-status"),
     current = attempt,
     seq = uiSequence;
-  const visible = () =>
-    seq === uiSequence && attempt === current && target.isConnected;
-  if (!current.pendingSubmission) {
-    target.textContent =
-      current.statsAcknowledgedRevision === current.revision
-        ? "統計送信済み"
-        : "この採点は統計に送信されていません。再採点すると送信対象になります。";
-    return;
-  }
-  const retry = (message) => {
-    if (!visible()) return;
-    disposeChallenge();
-    target.textContent = message;
-    target.append(button("再送する", setupSubmission));
-  };
-  target.textContent = "参考統計への接続を確認しています…";
   try {
-    // Persist the token and exact snapshot before sending anything remotely.
     store.save(current);
-    const config = await fetchSubmissionConfig();
-    if (!visible()) return;
-    target.innerHTML =
-      '<p>参考統計への送信待ちです。</p><div class="stats-challenge"></div>';
-    const host = target.querySelector(".stats-challenge");
-    let sending = false;
-    const cleanup = await mountChallenge(host, config, {
-      failure: () =>
-        retry("送信の確認に失敗しました。採点結果は保存されています。"),
-      success: async (token) => {
-        if (!visible() || sending) return;
-        sending = true;
-        try {
-          await sendPending(current, config, token);
-          const latest = store.load(current.id);
-          if (latest && latest.revision === current.revision) {
-            latest.pendingSubmission = current.pendingSubmission;
-            latest.statsAcknowledgedRevision =
-              current.statsAcknowledgedRevision;
-            store.save(latest);
-          }
-          if (visible()) {
-            disposeChallenge();
-            // Refresh statistics after the committed acknowledgement.
-            await renderResults();
-          }
-        } catch (e) {
-          retry(e.message);
-        }
-      },
+    const result = await sendUnsentUnits(exam, current, store, {
+      source: reviewing ? "review" : "exam",
     });
-    if (!visible()) cleanup();
-    else disposeChallenge = cleanup;
-  } catch (e) {
-    retry(e.message);
+    if (seq !== uiSequence || attempt !== current || !target.isConnected)
+      return;
+    const counts = deliverySummary(current);
+    target.textContent =
+      [
+        counts.sent ? `統計送信済み：${counts.sent}単位。` : "",
+        counts.unknown
+          ? `送信結果不明：${counts.unknown}単位。重複を避けるため再送しません。`
+          : "",
+        counts.sending ? `統計送信中：${counts.sending}単位。` : "",
+        result.status === "storage-error" ? "送信状態を保存できません。" : "",
+      ]
+        .filter(Boolean)
+        .join(" ") || "新しく送信する採点単位はありません。";
+  } catch {
+    if (seq === uiSequence && target.isConnected)
+      target.textContent =
+        "統計送信を完了できませんでした。受験・採点・復習は引き続き利用できます。";
   }
 }
 

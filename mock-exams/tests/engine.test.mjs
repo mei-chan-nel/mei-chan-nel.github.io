@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import {
   grade,
   validateExam,
-  referenceStats,
+  calculateStats,
   normalize,
 } from "../engine/scoring.mjs";
 import {
@@ -18,7 +18,7 @@ import {
   AttemptStore,
 } from "../engine/attempt.mjs";
 const exam = JSON.parse(
-  readFileSync(new URL("../exams/001/1.0.0/exam.json", import.meta.url)),
+  readFileSync(new URL("../exams/001/1/exam.json", import.meta.url)),
 );
 const perfect = Object.fromEntries(
   exam.scoring.flatMap((u) =>
@@ -146,49 +146,12 @@ test("storage backup recovery and write failure are explicit", () => {
   };
   assert.throws(() => store.save(a));
 });
-test("reference average cannot treat uncollected units as zero", () => {
-  const s = referenceStats(exam, [
+test("average cannot treat uncollected units as zero", () => {
+  const s = calculateStats(exam, [
     { scoring_id: "q1-01", answered_count: 2, correct_count: 1, points_sum: 2 },
   ]);
   assert.equal(s.units[0].average, 1);
   assert.equal(s.total.points, null);
-});
-import { queueSubmission, sendPending } from "../engine/outbox.mjs";
-test("outbox replacement and retry are idempotent snapshots, failed sends retained", async () => {
-  const a = createAttempt(exam, "untimed");
-  a.answers = { "q1-ア": "0" };
-  submit(exam, a);
-  queueSubmission(exam, a);
-  const token = a.statsToken;
-  await assert.rejects(
-    sendPending(
-      a,
-      { submitUrl: "https://example.test" },
-      "challenge",
-      async () => ({ ok: false }),
-    ),
-  );
-  assert.equal(a.pendingSubmission.revision, 1);
-  a.answers = perfect;
-  submit(exam, a);
-  queueSubmission(exam, a);
-  assert.equal(a.pendingSubmission.revision, 2);
-  assert.equal(a.statsToken, token);
-  await sendPending(
-    a,
-    { submitUrl: "https://example.test" },
-    "challenge",
-    async (_url, req) => {
-      const body = JSON.parse(req.body);
-      assert.equal(body.revision, 2);
-      assert.deepEqual(body.answers, perfect);
-      return {
-        ok: true,
-        json: async () => ({ status: "duplicate", revision: 2 }),
-      };
-    },
-  );
-  assert.equal(a.pendingSubmission, undefined);
 });
 import { restoreAttempt } from "../engine/attempt.mjs";
 test("history import recomputes score and rejects injected metadata", () => {
@@ -199,55 +162,4 @@ test("history import recomputes score and rejects injected metadata", () => {
   assert.equal(restoreAttempt(exam, a).result.points, 100);
   a.createdAt = "malicious";
   assert.throws(() => restoreAttempt(exam, a));
-});
-
-test("late acknowledgement cannot erase a newer queued grade; stale/conflict stays queued", async () => {
-  const a = createAttempt(exam, "untimed");
-  a.answers = { "q1-ア": "0" };
-  submit(exam, a);
-  queueSubmission(exam, a);
-  let resolve;
-  const response = new Promise((r) => {
-    resolve = r;
-  });
-  const inFlight = sendPending(
-    a,
-    { submitUrl: "https://example.test" },
-    "challenge",
-    () => response,
-  );
-  resume(a);
-  a.answers = { "q1-ア": "1" };
-  submit(exam, a);
-  queueSubmission(exam, a);
-  resolve({
-    ok: true,
-    json: async () => ({ status: "recorded", revision: 1 }),
-  });
-  await inFlight;
-  assert.equal(a.pendingSubmission.revision, 2);
-  assert.equal(a.statsAcknowledgedRevision, 1);
-  await assert.rejects(
-    sendPending(
-      a,
-      { submitUrl: "https://example.test" },
-      "challenge",
-      async () => ({
-        ok: true,
-        json: async () => ({ status: "stale", revision: 3 }),
-      }),
-    ),
-  );
-  assert.equal(a.pendingSubmission.revision, 2);
-  await assert.rejects(
-    sendPending(
-      a,
-      { submitUrl: "https://example.test" },
-      "challenge",
-      async () => ({ ok: false, status: 409 }),
-    ),
-  );
-  assert.equal(a.pendingSubmission.revision, 2);
-  const b = createAttempt(exam, "untimed");
-  assert.notEqual(a.id, b.id);
 });

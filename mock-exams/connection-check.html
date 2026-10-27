@@ -52,12 +52,11 @@
     </header>
     <main id="app">
       <h1>模試の本番接続検証</h1>
-      <p>管理者用です。SupabaseのSQL・Edge Function・Turnstileを設定してから実行してください。</p>
-      <p>通常のNo.001とは別の検証用集計に送信します。各送信時の確認を完了すると、再送・再採点・復習除外・繰り返し受験を順番に検査します。</p>
+      <p>管理者向けの接続確認ページです。既存の公開キーと模試用RPCで検証します。</p>
+      <p>通常のNo.001とは異なるテスト用模試IDに送信し、採点・送信済み単位の除外・再受験・部分点・平均を順番に確認します。テスト結果は専用IDの集計に残ります。</p>
       <button id="run-check" class="primary">実際の送受信を検証する</button>
       <button id="download-check" disabled>検証結果を保存する</button>
       <p id="check-status" role="status" aria-live="polite"></p>
-      <div id="check-challenge"></div>
       <pre id="check-log" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
       <p><a href="./">実戦模試へ戻る</a></p>
     </main>

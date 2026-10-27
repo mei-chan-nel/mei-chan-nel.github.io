@@ -6,13 +6,13 @@
 
 - `mock-exams/index.html`, `app.mjs`, `app.css`: 一覧、受験、結果、履歴、復習の共通画面。
 - `mock-exams/booklet.css`: PC・モバイル・印刷の教材表示補正。
-- `mock-exams/engine/`: 共通採点、受験状態、ローカル保存、統計取得、送信outbox。
+- `mock-exams/engine/`: 共通採点、受験状態、ローカル保存、統計取得、採点単位ごとの送信状態管理。
 - `mock-exams/catalog.json`: 現行模試一覧（表示時は番号の降順）。
 - `mock-exams/exams/<番号>/<版>/exam.json`: 解答欄・採点単位・教材の定義。
 - 同階層の `q1.html` など: 原稿を保持し解答バインディングを追加した教材。iframeで元のCSSを隔離する。原稿のscriptとイベント属性は除去する。
 - `source/`: 改変しない入力原稿。教材側はnoindex。原稿を公開対象から除外したい場合はホスティング設定側で除外可能。
 - `problem.pdf`, `solution.pdf`: 端末によらず同じA4冊子。
-- `mock-exams/server/`: 未適用のSupabase SQL・Edge Function。公開前手順はSERVER.md。
+- `mock-exams/connection-check.html`: テスト用模試IDによるRPC接続確認。接続契約はSERVER.md。
 
 ## データと描画の分離
 
@@ -31,7 +31,7 @@ HTMLを固定のテンプレートへ再入力せず、原稿ごとのアダプ�
 
 ### exam.json
 
-`schemaVersion:1`、`id`、`version`、`durationSeconds`、`maxPoints`、`sections`、`fields`、`scoring` が必須。
+`schemaVersion:1`、`id`、正の整数の`version`（初期値1）、`durationSeconds`、`maxPoints`、`sections`、`fields`、`scoring` が必須。
 
 `fields` は `id, sectionId, label, type` を持つ。choiceは `choices:[{value,text,parts?}]`、textは `allowed` と `maxLength` を指定。0〜9/A〜Fの4×4キーパッドは許可文字以外を無効にする。物理キー、削除、クリア、次の欄も利用可能。
 
@@ -57,22 +57,22 @@ No.001: 49解答欄、44採点単位、100点。q1=20、q2a=15、q2b=15、q3=25�
 
 ## No.002以降の追加
 
-1. `exams/002/1.0.0/source/` に問題・解説の原本を保存する。
+1. `exams/002/1/source/` に問題・解説の原本を保存する。
 2. 原稿に合わせたアダプターを用意する。No.001の `scripts/import_mock_exam_001.py` は具体例であり、共通エンジンはそのHTML構造に依存しない。図表・選択肢を保持し上記属性を付ける。
 3. `exam.json` を作り、正答・配点・完答条件を原稿と照合する。IDは版内で固定する。新しい採点ルールが必要なら既存ルールとの互換性を保ってengineに追加しテストする。
 4. catalog.jsonに `id, version, title, manifest` を追加する。
 5. 採点・内容比較・PC/スマホ操作テストを行う。PDFを生成する。
-6. 統計送信を有効にする環境では、Edge Functionの版固定allowlistにも同じmanifestを追加してデプロイする。
+6. 採点単位ID・配点・回答形式が既存RPCの制約に適合することを確認する。サーバー側への問題登録は不要。
 
-改訂時は旧版フォルダーを上書きしない。catalogの現行版を更新し、同じエントリーの `versions:[{"version":"1.0.0","manifest":"exams/001/1.0.0/exam.json"}]` に旧版を保持する。旧履歴は旧版で再開され、統計もexam_version別になる。
+改訂時は旧版フォルダーを上書きしない。catalogの現行版を更新し、同じエントリーの `versions:[{"version":1,"manifest":"exams/001/1/exam.json"}]` に旧版を保持する。旧履歴は旧版で再開され、統計もexam_version別になる。
 
 ## 保存と時間
 
-既存アプリとは別の `study-atlas:mock-exams:v1:attempt:<UUID>` を使用。前回保存をbackupキーへ保持してから保存し、書込み後に読み戻す。保存失敗を表示し、受験画面の書き出しには未保存のメモリー内回答も含める。Web Locks対応ブラウザでは同じ受験の別タブ同時編集を拒否する。非対応ブラウザでは同時編集をしないよう明示する。
+既存アプリとは別の `study-atlas:mock-exams:v1:attempt:<UUID>` を使用。同じ保存内容を通常キーとbackupキーに書き込み、読み戻して確認する。送信状態は両方からマージして過去へ戻さない。保存失敗を表示し、受験画面の書き出しには未保存のメモリー内回答も含める。Web Locks対応ブラウザでは同じ受験の別タブ同時編集を拒否する。非対応ブラウザでは同時編集をしないよう明示する。
 
 経過時間は開始タイムスタンプと累計で管理。明示的な中断で時計を停止。受験中に閉じた場合は次の再開まで時間が進む（60分モードの抜け道を作らない）。制限時間後は自動採点。同じ受験を時間制限なしへ切り替えて続けることもできる。
 
-採点ごとに同じ受験のrevisionを増やす。復習は別answers/lockedに保存し、受験成績・統計送信には触れない。完答問題は採点単位全体を復習対象にする。履歴の読み込みでは型・値を検証し、得点を再計算する。
+採点ごとにローカルのrevisionを増やす（RPCには送信しない）。復習は別answers/lockedに保存し、受験成績・統計送信には触れない。完答問題は採点単位全体を復習対象にする。履歴の読み込みでは型・値を検証し、得点を再計算する。
 
 ## 検証・プレビュー
 
@@ -91,18 +91,8 @@ Python変換にはlxml、PDFの結合・検査にはPyMuPDF、出典用フォン
 
 PDFは版固定の静的ファイル。スマートフォンでも同一PDFを開き、PDFビューアから印刷・保存する。再生成時はページからはみ出す教材を検出し、80%未満の縮小が必要なら失敗させる。No.001は32ページの問題冊子、35ページの解説冊子。ヘッダーに原稿版、右下に指定出典、中央に通しページ番号を記す。
 
-## 未完了・公開条件
+## Supabase接続と検証の範囲
 
-SERVER.mdのSupabase適用と実DB競合テストは未実施。設定されるまで送信は無効。PC/スマホはChromiumで検証しておりSafari/iOS実機は未検証。共通テスト冊子との組版の厳密な比較はLAYOUT.mdを参照。完成条件を満たしたと断言して公開する段階ではない。
+[SERVER.md](SERVER.md)に既存2つのRPCの契約と送信状態の仕様を記載。DBへの追加適用や中間サービスの設定は不要。現在の環境は本番ホストへの通信が403で遮断されるため、本番送受信は未確認。ユーザー提供SQLと一時PostgreSQLでの送受信、およびブラウザの通常操作を検証する。
 
-## Supabase本番接続（protocol 2）
-
-具体的な画面操作・SQL・Secrets・配置方法は[SERVER.md](SERVER.md)。ブラウザの送信先は設定済みで、Edge Functionの準備を確認できるまで送信予約を端末に保持します。新設の`connection-check.html`は検証専用集計への実送受信確認用です。
-
-- `server/deploy/index.ts`: 管理画面へ貼り付ける生成済み単一Edge Function。
-- `server/000_inspect_existing.sql`, `001_mock_exam_safe_stats.sql`, `002_verify_permissions.sql`: 調査・適用・権限確認。
-- `tests/server-http.mjs`: ローカルHTTP＋使い捨てPostgreSQLの統合テスト。
-- `tests/browser-stats.cjs`: Chromiumによる送信・再送・復習除外テスト。
-- `tests/server-bundle.test.mjs`: 生成済みEdgeコードの動作確認。
-
-検証用Dockerコンテナは`atlas-mock-`で始まる名前を使い、外部ネットワークなしで起動します。本番DBにテストfixtureを流さないでください。
+Safari/iOS実機と公式冊子との精密な組版比較は前回からの残項目。LAYOUT.mdを参照。

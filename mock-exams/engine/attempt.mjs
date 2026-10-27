@@ -1,4 +1,7 @@
 import { grade } from "./scoring.mjs";
+import { mergeDelivery, recoverDelivery } from "./delivery.mjs";
+export const compatibleVersion = (id, version) =>
+  id === "001" && version === "1.0.0" ? 1 : version;
 export function createAttempt(exam, mode, sectionId, now = Date.now()) {
   return {
     schemaVersion: 1,
@@ -19,6 +22,7 @@ export function createAttempt(exam, mode, sectionId, now = Date.now()) {
     result: null,
     showCorrectness: false,
     review: null,
+    statsDelivery: {},
   };
 }
 export function elapsed(a, now = Date.now()) {
@@ -89,24 +93,43 @@ export class AttemptStore {
   }
   load(id) {
     const key = PREFIX + "attempt:" + id;
+    const copies = [];
     for (const k of [key, key + ":backup"]) {
       const raw = this.storage.getItem(k);
       if (!raw) continue;
       try {
         const a = JSON.parse(raw);
-        if (a.schemaVersion === 1 && a.id === id) return a;
+        if (a.schemaVersion === 1 && a.id === id) copies.push(a);
       } catch {}
     }
-    return null;
+    if (!copies.length) return null;
+    copies.sort((a, b) => b.updatedAt - a.updatedAt);
+    const latest = copies[0];
+    latest.statsDelivery = mergeDelivery(...copies.map((a) => a.statsDelivery));
+    return latest;
   }
   save(a) {
     const key = PREFIX + "attempt:" + a.id;
+    a.statsDelivery = mergeDelivery(
+      a.statsDelivery,
+      this.load(a.id)?.statsDelivery,
+    );
     const raw = JSON.stringify(a);
-    const old = this.storage.getItem(key);
-    if (old) this.storage.setItem(key + ":backup", old);
+    // Mirror the same send markers into the recovery copy. An old backup must
+    // never make a possibly committed unit eligible for transmission again.
+    this.storage.setItem(key + ":backup", raw);
     this.storage.setItem(key, raw);
-    if (this.storage.getItem(key) !== raw)
-      throw new Error("Storage verification failed");
+    if (
+      this.storage.getItem(key) !== raw ||
+      this.storage.getItem(key + ":backup") !== raw
+    )
+      throw Error("Storage verification failed");
+  }
+  saveStatistics(a) {
+    const latest = this.load(a.id) || a;
+    a.statsDelivery = mergeDelivery(a.statsDelivery, latest.statsDelivery);
+    latest.statsDelivery = a.statsDelivery;
+    this.save(latest);
   }
   export() {
     return JSON.stringify(
@@ -126,7 +149,7 @@ export function restoreAttempt(exam, raw) {
       raw.id,
     ) ||
     raw.examId !== exam.id ||
-    raw.examVersion !== exam.version
+    compatibleVersion(raw.examId, raw.examVersion) !== exam.version
   )
     fail();
   if (
@@ -219,24 +242,13 @@ export function restoreAttempt(exam, raw) {
   }
   if (raw.originalMode === "timed") a.originalMode = "timed";
   if (raw.continuedAfterDeadline) a.continuedAfterDeadline = true;
-  if (/^[0-9a-f]{64}$/.test(raw.statsToken || "")) {
-    a.statsToken = raw.statsToken;
-    if (raw.pendingSubmission?.revision === a.revision && a.result)
-      a.pendingSubmission = {
-        kind: "attempt-grade",
-        attemptId: a.id,
-        attemptToken: a.statsToken,
-        examId: exam.id,
-        examVersion: exam.version,
-        revision: a.revision,
-        sectionIds: a.sectionIds,
-        answers: a.gradedAnswers,
-      };
-  }
-  if (
-    Number.isInteger(raw.statsAcknowledgedRevision) &&
-    raw.statsAcknowledgedRevision > 0
-  )
-    a.statsAcknowledgedRevision = raw.statsAcknowledgedRevision;
+  const delivery = recoverDelivery(raw.statsDelivery);
+  const knownUnits = new Set(
+    exam.scoring
+      .filter((u) => a.sectionIds.includes(u.sectionId))
+      .map((u) => u.id),
+  );
+  if (Object.keys(delivery).some((id) => !knownUnits.has(id))) fail();
+  a.statsDelivery = delivery;
   return a;
 }

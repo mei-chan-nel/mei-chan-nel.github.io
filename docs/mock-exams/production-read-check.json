@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-27T12:32:36.776803+00:00",
+  "project": "https://yygezzpowsvpzarqdtls.supabase.co",
+  "exam_id": "qa_mock_probe_23f680aeb2da4f5d971bf9fb3446d672",
+  "exam_version": 1,
+  "read_only": true,
+  "passed": false,
+  "error": "<urlopen error Tunnel connection failed: 403 Forbidden>"
+}

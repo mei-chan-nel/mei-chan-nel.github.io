@@ -2,7 +2,7 @@
 from pathlib import Path
 from lxml import html
 import re,unicodedata,json,fitz
-root=Path(__file__).resolve().parents[1]/'mock-exams/exams/001/1.0.0'
+root=Path(__file__).resolve().parents[1]/'mock-exams/exams/001/1'
 pairs=[('q1','Q1_001_problem.html','Q1_001_answers.html'),('q2a','Q2A_001_problem_v2.5.0.html','Q2A_001_answers_v2.5.0.html'),('q2b','Q2B_001_problem_v1.0.5.html','Q2B_001_answers_v1.0.5.html'),('q3','Q3_001_v1.2.2.html','Q3_001_solution.htm'),('q4','Q4_001_problem_v4.5.0.html','Q4_001_explanation_v4.5.0.html')]
 def norm(s):return re.sub(r'\s','',unicodedata.normalize('NFKC',s))
 def body(path):

@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, "../.."),
     process.env.MOCK_QA_OUTPUT || path.resolve(root, "../work/mock-exam-qa");
 fs.mkdirSync(output, { recursive: true });
 const exam = JSON.parse(
-  fs.readFileSync(path.join(root, "mock-exams/exams/001/1.0.0/exam.json")),
+  fs.readFileSync(path.join(root, "mock-exams/exams/001/1/exam.json")),
 );
 const perfect = Object.fromEntries(
   exam.scoring.flatMap((u) =>
@@ -57,7 +57,7 @@ const server = http.createServer((req, res) => {
       viewport: { width: 1440, height: 1000 },
     });
     await context.route("https://*.supabase.co/**", (r) =>
-      r.fulfill({ json: [] }),
+      r.fulfill({ json: {items:[]} }),
     );
     const p = await context.newPage();
     let errors = [];
@@ -233,7 +233,11 @@ const server = http.createServer((req, res) => {
     const timed = await context.newPage();
     await timed.goto(url);
     await timed.evaluate(
-      ({ key, a }) => localStorage.setItem(key, JSON.stringify(a)),
+      ({ key, a }) => {
+        a.updatedAt = Date.now();
+        localStorage.setItem(key, JSON.stringify(a));
+        localStorage.setItem(key + ":backup", JSON.stringify(a));
+      },
       expired,
     );
     await timed.goto(url + "#" + expired.a.id);
