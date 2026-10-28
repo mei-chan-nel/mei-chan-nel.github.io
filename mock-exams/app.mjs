@@ -16,6 +16,12 @@ import {
   restoreAttempt,
   compatibleVersion,
 } from "./engine/attempt.mjs";
+import {
+  historyRows,
+  sliceResult,
+  emptyGridState,
+} from "./engine/history-grid.mjs";
+import { renderHistoryGrid, closeHistoryMenu } from "./ui/history-grid.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 import {
@@ -73,6 +79,7 @@ const restoreScroll = (top = 0) =>
   );
 function setView(view) {
   if (documentLeaving) return;
+  closeHistoryMenu();
   const previous = document.body.dataset.view;
   if (!navigationReplay && previous === "history")
     historyTableScroll = $(".history-page .table-wrap")?.scrollLeft || 0;
@@ -99,6 +106,7 @@ function setView(view) {
     roots: { ...rootPositions },
     catalog: { ...catalogView },
     filter: historyFilter,
+    grids: structuredClone(historyGrids),
     scrollY: window.scrollY,
     historyTableScroll,
     expanded: historyExpanded,
@@ -252,6 +260,7 @@ async function restoreNavigation(state) {
       origin: ctx?.origin === "history" ? "history" : "catalog",
       reviewReturn: ctx?.reviewReturn || { view: "history" },
       readingReturn: ctx?.readingReturn || { view: "results" },
+      scopeSectionId: ctx?.scopeSectionId || null,
     };
     historyTableScroll = Number(state?.historyTableScroll) || 0;
     historyExpanded = !!state?.expanded;
@@ -261,6 +270,10 @@ async function restoreNavigation(state) {
     };
     if (["all", "full", "section"].includes(state?.filter))
       historyFilter = state.filter;
+    if (state?.grids)
+      for (const mode of ["all", "full", "section"])
+        if (state.grids[mode]?.sort && state.grids[mode]?.filters)
+          historyGrids[mode] = structuredClone(state.grids[mode]);
     if (["full", "section"].includes(state?.catalog?.mode))
       Object.assign(catalogView, state.catalog);
     if (state?.view === "history") renderHistory();
@@ -622,18 +635,14 @@ async function renderCatalog() {
     $("#exam-list").append(card);
   }
 }
-function historyScope(a) {
-  return a.mode === "section"
-    ? catalogSections.find(([id]) => id === a.sectionIds[0])?.[1] || "大問別"
-    : a.mode === "timed"
-      ? "回ごと・60分"
-      : "回ごと・時間制限なし";
-}
 let historyFilter = "all";
+const historyGrids = Object.fromEntries(
+  ["all", "full", "section"].map((mode) => [mode, emptyGridState()]),
+);
 function renderHistory() {
   setView("history");
   uiSequence++;
-  app.innerHTML = `<section class="history-page"><div class="history-page-heading"><div><p class="eyebrow">LEARNING HISTORY</p><h1>学習履歴</h1></div><button id="history-back">模試一覧に戻る</button></div><div class="history-filters" role="group" aria-label="履歴の受験方式"></div><div class="table-wrap"><table class="history-table"><thead><tr><th>受験日時</th><th>模試No.</th><th>受験方式・大問</th><th>状態</th><th>得点</th><th>得点率</th><th>解答時間</th><th>操作</th></tr></thead><tbody id="history-list"></tbody></table></div><p id="history-empty" class="muted" hidden>まだ該当する学習履歴はありません。</p></section>`;
+  app.innerHTML = `<section class="history-page"><div class="history-page-heading"><div><p class="eyebrow">LEARNING HISTORY</p><h1>学習履歴</h1></div><button id="history-back">模試一覧に戻る</button></div><div class="history-filters" role="group" aria-label="履歴の受験方式"></div><div id="history-grid"></div></section>`;
   $("#history-back").onclick = () => leave("catalog");
   for (const [value, title] of [
     ["all", "すべて"],
@@ -656,45 +665,18 @@ function renderHistory() {
   } catch {
     notify("ブラウザ保存を利用できません。設定を確認してください。");
   }
-  history = history.filter(
-    (a) =>
-      historyFilter === "all" ||
-      (a.mode === "section"
-        ? historyFilter === "section"
-        : historyFilter === "full"),
-  );
-  $("#history-empty").hidden = history.length > 0;
-  for (const a of history) {
-    const row = document.createElement("tr");
-    row.dataset.attemptId = a.id;
-    const interrupted = isInterrupted(a);
-    row.innerHTML = `<td>${new Date(a.createdAt).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(a.examId)}</th><td>${historyScope(a)}</td><td>${interrupted ? (a.result ? "途中採点・中断中" : "中断中") : "採点済み"}</td><td>${a.result ? `${a.result.points} / ${a.result.maxPoints}点` : "—"}</td><td>${a.result ? ((a.result.points / a.result.maxPoints) * 100).toFixed(1) + "%" : "—"}</td><td>${time(elapsed(a))}</td><td><div class="actions history-row-actions"></div></td>`;
-    const actions = row.querySelector(".actions");
-    for (const [title, enabled, action, cls] of [
-      ["採点結果", !!a.result, () => openAttempt(a.id), ""],
-      ["復習", !!a.result, () => openAttempt(a.id, "review"), ""],
-      ["再開", interrupted, () => openAttempt(a.id, "resume"), ""],
-      [
-        "削除",
-        true,
-        () => {
-          store.discard(a.id);
-          renderHistory();
-        },
-        "subtle-danger",
-      ],
-    ]) {
-      if (enabled) actions.append(button(title, action, cls));
-      else {
-        const blank = document.createElement("span");
-        blank.className = "action-placeholder";
-        blank.textContent = "—";
-        blank.setAttribute("aria-label", title + "なし");
-        actions.append(blank);
-      }
-    }
-    $("#history-list").append(row);
-  }
+  renderHistoryGrid($("#history-grid"), {
+    rows: historyRows(history, historyFilter),
+    state: historyGrids[historyFilter],
+    onChange: renderHistory,
+    onReset: () => {
+      historyGrids[historyFilter] = emptyGridState();
+      renderHistory();
+    },
+    onOpen: (row, action) => openAttempt(row.attempt.id, action, row.sectionId),
+    onDelete: (row) =>
+      requestDiscard(row.attempt.id, row.derived ? row.sectionId : null),
+  });
   $(".history-page .table-wrap").scrollLeft = historyTableScroll;
   resetTop();
 }
@@ -714,13 +696,17 @@ async function begin(entry, mode, sid) {
   renderWorkspace();
   resetTop();
 }
-async function openAttempt(id, action = "result") {
+async function openAttempt(id, action = "result", scope = null) {
   captureOrigin();
   const a = store.load(id);
   if (!a || a.discardedAt) {
     await renderCatalog();
     return notify("受験記録が見つかりません。");
   }
+  if (!navigationReplay)
+    navigationContext.scopeSectionId = action === "resume" ? null : scope;
+  if (!a.sectionIds.includes(navigationContext.scopeSectionId))
+    navigationContext.scopeSectionId = null;
   catalogView.mode = a.mode === "section" ? "section" : "full";
   if (a.mode === "section") catalogView.sectionId = a.sectionIds[0];
   else catalogView.timeMode = a.mode;
@@ -742,7 +728,7 @@ async function openAttempt(id, action = "result") {
   reviewing = false;
   solution = false;
   readingMode = false;
-  sectionId = a.sectionIds[0];
+  sectionId = scope || navigationContext.scopeSectionId || a.sectionIds[0];
   if (attempt.result && action === "review") openReview();
   else if (attempt.result && action === "resume" && isInterrupted(attempt))
     resumeGraded();
@@ -754,8 +740,13 @@ async function openAttempt(id, action = "result") {
     resetTop();
   }
 }
+function viewSections() {
+  return navigationContext.scopeSectionId && (reviewing || readingMode)
+    ? [navigationContext.scopeSectionId]
+    : attempt.sectionIds;
+}
 function visibleFields() {
-  return exam.fields.filter((f) => attempt.sectionIds.includes(f.sectionId));
+  return exam.fields.filter((f) => viewSections().includes(f.sectionId));
 }
 function answers() {
   return reviewing ? reviewState.answers : attempt.answers;
@@ -790,9 +781,7 @@ function renderWorkspace() {
       "afterend",
       '<p class="review-note">復習：採点時の回答と正誤を表示しています。解答は変更できません。</p>',
     );
-  const sections = exam.sections.filter((s) =>
-    attempt.sectionIds.includes(s.id),
-  );
+  const sections = exam.sections.filter((s) => viewSections().includes(s.id));
   for (const section of sections) {
     if (reading) continue;
     for (const nav of [$(".book-nav"), $("#section-navigation")]) {
@@ -1035,9 +1024,7 @@ function renderStatus() {
   const out = $("#answer-status");
   if (!out) return;
   out.replaceChildren();
-  for (const s of exam.sections.filter((s) =>
-    attempt.sectionIds.includes(s.id),
-  )) {
+  for (const s of exam.sections.filter((s) => viewSections().includes(s.id))) {
     const h = document.createElement("h3");
     h.textContent = s.title;
     out.append(h);
@@ -1400,6 +1387,25 @@ function fullPatterns(rule, max) {
 function answerMark(field, value) {
   return value ? (field.type === "choice" ? circle(value) : value) : "—";
 }
+function requestDiscard(id, scope = null) {
+  const remove = () => {
+    if (attempt?.id === id) discardAttempt(id);
+    else {
+      store.discard(id);
+      renderHistory();
+    }
+  };
+  if (!scope) return remove();
+  const title =
+    catalogSections.find(([value]) => value === scope)?.[1] || "この大問";
+  ask(
+    `${title}は通し受験から表示しています。削除すると元の通し受験全体の履歴が消えます。`,
+    [
+      ["元の通し受験の履歴を削除する", remove],
+      ["キャンセル", () => {}],
+    ],
+  );
+}
 function discardAttempt(id) {
   store.discard(id);
   if (attempt?.id === id) {
@@ -1498,7 +1504,7 @@ function renderResults({ record = false } = {}) {
   solution = false;
   readingMode = false;
   const current = attempt,
-    r = current.result;
+    r = sliceResult(current.result, navigationContext.scopeSectionId);
   if (!r) return renderWorkspace();
   app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
   if (isInterrupted(current))
@@ -1509,7 +1515,13 @@ function renderResults({ record = false } = {}) {
     button("学習履歴に戻る", () => leave("history"), "back-to-history"),
     button(
       "この採点結果を破棄する",
-      () => discardAttempt(current.id),
+      () =>
+        requestDiscard(
+          current.id,
+          navigationContext.scopeSectionId && current.mode !== "section"
+            ? navigationContext.scopeSectionId
+            : null,
+        ),
       "subtle-danger discard-result",
     ),
   );
@@ -1566,6 +1578,7 @@ function renderResults({ record = false } = {}) {
 }
 
 function resumeGraded() {
+  navigationContext.scopeSectionId = null;
   solution = false;
   readingMode = false;
   reviewing = false;

@@ -125,10 +125,10 @@ const server = http.createServer((req, res) => {
       .locator(".history-filters")
       .getByRole("button", { name: "大問ごと", exact: true })
       .click();
-    assert.equal(await p.locator("#history-list tr").count(), 3);
+    assert.equal(await p.locator("#history-list tr").count(), 18);
     await p.reload();
-    await p.locator("#history-list tr").nth(2).waitFor();
-    assert.equal(await p.locator("#history-list tr").count(), 3);
+    await p.locator("#history-list tr").nth(17).waitFor();
+    assert.equal(await p.locator("#history-list tr").count(), 18);
     await p
       .locator(".history-filters")
       .getByRole("button", { name: "すべて", exact: true })
