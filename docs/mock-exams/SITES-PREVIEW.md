@@ -3,11 +3,11 @@
 URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 - Sites project_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571`
-- deployment_id: `appgdep_6ae14e45486881918aafb7b98bd4ed57`
-- version_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_4d4e2edfd82481918fb781c2f076297f`
+- deployment_id: `appgdep_6ae15d2547288191917be2a28731f555`
+- version_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_21d67a2ed93081919375a5ca92d2979f`
 - 状態: succeeded（Sitesの保存・配置結果で確認）。新規作成時の本人専用の閲覧範囲を維持。
 - Sites専用チェックアウト: `/workspace/sites/study-atlas-mock-exams-preview`
-- 配置ソースcommit: `baf9b900d359c489732ae69944f35d16b2778640`
+- 配置ソースcommit: `507ae1ed09b902ced41c230753f6d47835f0e3b5`
 - 統計先: ユーザーの追加指示により本番No.001（exam_id="001", exam_version=1）。テスト用IDへの変更は取り消し。
 
 一覧から受験・採点・中断再開・復習・PDFを確認できる。ルートはStudy Atlasのトップページで、そこから /mock-exams/ へ移動。ヘッダー・フッターのサイト内メニューは既存のStudy Atlasへ接続する。
@@ -27,3 +27,7 @@ GitHub Pagesの公開元mainは変更していない。Sites上で画面を確�
 2026-10-28 10:22日本時間更新：学習履歴を専用画面（/mock-exams/#history）へ移動。採点画面の重複得点を撤去し、通常採点は解答へ戻さず、途中採点は再開可能。表端へのボタン整列、受験ヘッダー撤去、戻るボタンと大問ナビ同列、右メニュー上端とstickyを修正。サンプル6件を既存履歴とは別のIDで端末に用意し、各行をサンプル表示。サンプルの再開・再採点・履歴読込み後も記録RPCへ送らない。削除したサンプルは再生成しない。既存履歴は保持。
 
 検証：5本のChromium操作テストと採点・送信・catalogテストが成功。1200/1045/390pxで座標と横スクロール、ヘッダー非表示、紙面上端と右メニュー上端、スクロール追従を確認。サンプルは記録0件、通常の最終採点は記録あり（RPCは模擬）。本人専用の閲覧範囲を維持してSites配置succeeded。
+
+2026-10-28 11:25日本時間更新：結果→履歴、復習→履歴、解説→開いた元の結果／復習の復帰先を整理。フィルター・縦横スクロール・大問・履歴列の開閉と戻る／進む／再読み込みを復元。復習は本人の採点時回答と正誤を4色で閲覧するだけ（変更・再採点・時計なし）。履歴操作を固定4列に揃え、履歴ファイルの書き出し・読み込みを撤去。閲覧では記録RPCを実行しない。
+
+採点・送信・catalogテストとブラウザ6本が成功。再読み込み中に旧画面がURLを変えないガードと、期限切れURLからの再開を確認。統計通信は模擬で、閲覧時の記録0件・通常採点時の記録を検証。サンプル6件と既存履歴は保持。本人専用の閲覧範囲を維持し、Sites配置succeeded。
