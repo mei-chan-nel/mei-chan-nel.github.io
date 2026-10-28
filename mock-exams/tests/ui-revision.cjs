@@ -1,3 +1,4 @@
+const { selectFullExam } = require("./catalog-helpers.cjs");
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const http = require("node:http"),
   fs = require("node:fs"),
@@ -66,6 +67,7 @@ const server = http.createServer((req, res) => {
     });
     const url = "http://127.0.0.1:" + server.address().port + "/mock-exams/";
     await p.goto(url);
+    await selectFullExam(p);
     await p
       .getByRole("button", { name: "時間制限なしで解く", exact: true })
       .click();
@@ -218,6 +220,7 @@ const server = http.createServer((req, res) => {
       .click();
     assert.equal(requests.filter((b) => b.p_results).length, sent);
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await selectFullExam(p);
     await p
       .getByRole("button", { name: "時間制限なしで解く", exact: true })
       .click();
@@ -245,7 +248,7 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: "この採点結果を破棄する", exact: true })
       .click();
     await p
-      .getByRole("button", { name: "時間制限なしで解く", exact: true })
+      .getByRole("heading", { name: "情報Ⅰ 実戦模試", exact: true })
       .waitFor();
     assert.equal(await p.locator("#history-list .actions").count(), 1);
     await p

@@ -1,3 +1,4 @@
+const { selectFullExam } = require("./catalog-helpers.cjs");
 /* PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser.cjs */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -63,6 +64,7 @@ const server = http.createServer((req, res) => {
     let errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
     await p.goto(url);
+    await selectFullExam(p);
     await p.getByText("時間制限なしで解く", { exact: true }).click();
     const f = p.frameLocator("iframe");
     for (const section of exam.sections) {
@@ -116,7 +118,10 @@ const server = http.createServer((req, res) => {
     await p
       .getByRole("button", { name: "採点せずに中断", exact: true })
       .click();
-    await p.getByRole("button", { name: "前回の受験を開く" }).click();
+    await p
+      .locator("#exam-list")
+      .getByRole("button", { name: "再開", exact: true })
+      .click();
     await p.getByRole("button", { name: "解答に戻る" }).click();
     await p.getByRole("button", { name: "正誤表記なし", exact: true }).click();
     await f.locator('[data-field="q1-ウ"]').first().waitFor();
@@ -218,13 +223,21 @@ const server = http.createServer((req, res) => {
     );
     console.log("PASS: selected formula inserted into program");
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
-    await p.getByText("大問を選んで解く", { exact: true }).click();
+    await p
+      .locator("#exam-modes")
+      .getByRole("button", { name: /大問ごとに演習する/ })
+      .click();
     await p.getByRole("button", { name: "第2問B", exact: true }).click();
+    await p
+      .locator("#exam-list")
+      .getByRole("button", { name: "選択", exact: true })
+      .click();
     await f.locator('[data-field="q2b-コ"]').first().waitFor();
     await p.getByRole("button", { name: "採点する", exact: true }).click();
     assert.equal((await p.locator(".score").textContent()).trim(), "0 / 15");
     console.log("PASS: section-only maximum 15");
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await selectFullExam(p);
     await p
       .getByRole("button", { name: "60分で受験する", exact: true })
       .click();
