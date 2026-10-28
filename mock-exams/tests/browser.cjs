@@ -1,4 +1,9 @@
-const { startFullExam, gradeInterim } = require("./catalog-helpers.cjs");
+const {
+  startFullExam,
+  gradeInterim,
+  reviewFromResults,
+  exitReviewToCatalog,
+} = require("./catalog-helpers.cjs");
 /* PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser.cjs */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -107,8 +112,7 @@ const server = http.createServer((req, res) => {
     );
     await p.screenshot({ path: path.join(output, "result.png") });
     console.log("PASS: all 49 answers through UI -> 100/100");
-    await p.getByRole("button", { name: "解答に戻る" }).click();
-    await p.getByRole("button", { name: "正誤表記なし", exact: true }).click();
+    await p.getByRole("button", { name: "解答を再開", exact: true }).click();
     await f.locator("[data-field]").first().waitFor();
     assert.equal(await f.locator("[data-verdict]").count(), 0);
     await p.locator(".book-nav button").filter({ hasText: "第1問" }).click();
@@ -143,12 +147,11 @@ const server = http.createServer((req, res) => {
       (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
       "97 / 100点",
     );
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
+    await reviewFromResults(p);
     await f.locator('[data-field="q1-ウ"]').first().waitFor();
     assert.equal(
       await f.locator('[data-field="q1-エ"]').first().textContent(),
-      "エ",
+      "エ C",
     );
     assert.equal(
       await f
@@ -159,24 +162,15 @@ const server = http.createServer((req, res) => {
     );
     await p.setViewportSize({ width: 390, height: 844 });
     await f.locator('[data-field="q1-ウ"]').first().click();
-    await p.getByRole("button", { name: "5", exact: true }).click();
-    await p.screenshot({ path: path.join(output, "mobile-keypad.png") });
-    const keys = await p.locator(".keypad").boundingBox();
-    const dialog = await p.locator("#answer-dialog").boundingBox();
-    assert.ok(
-      keys.y + keys.height <= dialog.y + dialog.height,
-      "4x4 keys must be visible",
-    );
-    await p.locator("#close-answer").click();
-    await f.locator('[data-field="q1-エ"]').first().click();
-    await p.getByRole("button", { name: "C", exact: true }).click();
-    await p.locator("#close-answer").click();
-    await p
-      .getByRole("button", { name: "復習を採点する", exact: true })
-      .click();
     assert.equal(
-      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
-      "97 / 100点",
+      await p.locator("#answer-dialog").evaluate((d) => d.open),
+      false,
+    );
+    assert.equal(
+      await p
+        .getByRole("button", { name: "復習を採点する", exact: true })
+        .count(),
+      0,
     );
     assert.equal(
       await p.evaluate(
@@ -185,15 +179,13 @@ const server = http.createServer((req, res) => {
             localStorage[
               "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
             ],
-          ).review.completed,
+          ).result.points,
       ),
-      true,
+      97,
     );
     console.log(
-      "PASS: review whole scoring unit, locks correct, keeps original 97 points",
+      "PASS: immutable review preserves submitted answers and original 97 points",
     );
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
     for (const s of exam.sections) {
       await p
         .locator(".book-nav button")
@@ -228,7 +220,7 @@ const server = http.createServer((req, res) => {
       /Zaiko/,
     );
     console.log("PASS: selected formula inserted into program");
-    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await exitReviewToCatalog(p);
     await p
       .locator("#exam-modes")
       .getByRole("button", { name: /大問ごとに演習する/ })
@@ -268,9 +260,34 @@ const server = http.createServer((req, res) => {
     await timed.goto(url + "#" + expired.a.id);
     // Fragment-only navigation does not reload a previously loaded document.
     await timed.reload();
-    await timed
-      .getByRole("heading", { name: "採点結果", exact: true })
-      .waitFor();
+    try {
+      await timed
+        .getByRole("heading", { name: "採点結果", exact: true })
+        .waitFor({ timeout: 10000 });
+    } catch (error) {
+      console.log(
+        "Deadline navigation diagnosis",
+        await timed.evaluate((id) => {
+          const a = JSON.parse(
+            localStorage["study-atlas:mock-exams:v1:attempt:" + id],
+          );
+          return {
+            url: location.href,
+            view: document.body.dataset.view,
+            state: history.state,
+            notice: document.querySelector("#notice").textContent,
+            heading: document.querySelector("#app h1")?.textContent,
+            status: a.status,
+            mode: a.mode,
+            elapsed: a.elapsedMs,
+            started: a.startedAt,
+            now: Date.now(),
+            points: a.result?.points,
+          };
+        }, expired.a.id),
+      );
+      throw error;
+    }
     assert.equal(
       (
         await timed.locator(".summary-table tfoot td").first().textContent()

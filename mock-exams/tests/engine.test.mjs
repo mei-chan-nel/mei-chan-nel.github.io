@@ -13,8 +13,7 @@ import {
   pause,
   resume,
   elapsed,
-  startReview,
-  gradeReview,
+  createReviewSnapshot,
   AttemptStore,
 } from "../engine/attempt.mjs";
 const exam = JSON.parse(
@@ -110,13 +109,15 @@ test("partial grading and resume keep identity; revisions increase, review isola
   submit(exam, a, 8000);
   assert.equal(a.revision, 2);
   const original = JSON.stringify(a.result);
-  startReview(exam, a);
-  assert.equal(a.review.answers["q1-ア"], "0");
-  assert.equal(a.review.answers["q1-ウ"], undefined);
-  assert.ok(!a.review.locked.includes("q1-ウ"));
-  a.review.answers = perfect;
-  gradeReview(exam, a);
-  assert.equal(a.review.completed, true);
+  const snapshot = createReviewSnapshot(a);
+  assert.equal(snapshot.answers["q1-ア"], "0");
+  assert.equal(snapshot.answers["q1-ウ"], "5");
+  assert.ok(Object.isFrozen(snapshot.answers));
+  assert.ok(Object.isFrozen(snapshot.result));
+  assert.throws(() => {
+    snapshot.answers["q1-ウ"] = "3";
+  }, TypeError);
+  assert.equal(snapshot.result.points, a.result.points);
   assert.equal(JSON.stringify(a.result), original);
   assert.equal(a.revision, 2);
 });

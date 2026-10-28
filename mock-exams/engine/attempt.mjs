@@ -51,31 +51,23 @@ export function submit(exam, a, now = Date.now()) {
   a.showCorrectness = true;
   return a.result;
 }
-export function startReview(exam, a) {
-  if (!a.result) throw new Error("Grade before review");
-  if (!a.review) {
-    a.review = { answers: {}, locked: [], completed: false };
-    for (const u of a.result.units)
-      if (u.correct) {
-        for (const id of u.fields) {
-          a.review.answers[id] = a.answers[id];
-          a.review.locked.push(id);
-        }
-      }
-  }
-  for (const f of exam.fields)
-    if (!a.review.locked.includes(f.id)) delete a.review.answers[f.id];
-  return a.review;
-}
-export function gradeReview(exam, a) {
-  const r = grade(exam, a.review.answers, a.sectionIds);
-  for (const u of r.units)
-    if (u.correct)
-      for (const id of u.fields)
-        if (!a.review.locked.includes(id)) a.review.locked.push(id);
-  a.review.completed = r.points === r.maxPoints;
-  a.review.result = r;
-  return r;
+export function createReviewSnapshot(a) {
+  if (!a.result) throw Error("Grade before review");
+  const answers =
+    a.gradedAnswers ||
+    Object.fromEntries(
+      a.result.units.flatMap((u) =>
+        u.fields.map((id, i) => [id, u.answers[i]]),
+      ),
+    );
+  const freeze = (value) => {
+    if (value && typeof value === "object") {
+      Object.values(value).forEach(freeze);
+      Object.freeze(value);
+    }
+    return value;
+  };
+  return freeze(structuredClone({ answers, result: a.result }));
 }
 const PREFIX = "study-atlas:mock-exams:v1:";
 export class AttemptStore {
@@ -158,13 +150,6 @@ export class AttemptStore {
     a.startedAt = null;
     a.status = "paused";
     this.save(a);
-  }
-  export() {
-    return JSON.stringify(
-      { schemaVersion: 1, exportedAt: Date.now(), attempts: this.list() },
-      null,
-      2,
-    );
   }
 }
 export function restoreAttempt(exam, raw) {

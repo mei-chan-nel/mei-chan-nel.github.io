@@ -245,7 +245,7 @@ const server = http.createServer((req, res) => {
       .filter({ hasText: "0 / 25点" })
       .getByRole("button", { name: "復習", exact: true })
       .click();
-    await p.getByText("復習モード", { exact: true }).waitFor();
+    await p.locator(".review-note").waitFor();
     assert.equal(
       submissions.length,
       0,

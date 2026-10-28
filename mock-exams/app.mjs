@@ -12,8 +12,7 @@ import {
   pause,
   resume,
   submit,
-  startReview,
-  gradeReview,
+  createReviewSnapshot,
   restoreAttempt,
   compatibleVersion,
 } from "./engine/attempt.mjs";
@@ -56,9 +55,242 @@ const catalogView = {
 const circle = (value) => "⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value;
 const resetTop = () =>
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
-const setView = (view) => {
-  document.body.dataset.view = view;
+let reviewState = null;
+let navigationContext = {
+  origin: "catalog",
+  reviewReturn: null,
+  readingReturn: null,
 };
+let rootPositions = { catalog: 0, history: 0 };
+let historyTableScroll = 0;
+let navigationReplay = false,
+  navigationReady = false,
+  documentLeaving = false;
+const navigationKey = "study-atlas:mock-exams:navigation:v1";
+const restoreScroll = (top = 0) =>
+  requestAnimationFrame(() =>
+    window.scrollTo({ top, left: 0, behavior: "instant" }),
+  );
+function setView(view) {
+  if (documentLeaving) return;
+  const previous = document.body.dataset.view;
+  if (!navigationReplay && previous === "history")
+    historyTableScroll = $(".history-page .table-wrap")?.scrollLeft || 0;
+  if (
+    !navigationReplay &&
+    previous !== view &&
+    ["catalog", "history"].includes(previous)
+  )
+    rootPositions[previous] = window.scrollY;
+  document.body.dataset.view = view;
+  const kind =
+    view === "workspace"
+      ? readingMode
+        ? "reading"
+        : reviewing
+          ? "review"
+          : "workspace"
+      : view;
+  const state = {
+    view: kind,
+    id: attempt?.id || null,
+    sectionId,
+    context: structuredClone(navigationContext),
+    roots: { ...rootPositions },
+    catalog: { ...catalogView },
+    filter: historyFilter,
+    scrollY: window.scrollY,
+    historyTableScroll,
+    expanded: historyExpanded,
+  };
+  const old = window.history.state?.studyAtlasMock;
+  const same = old?.view === kind && old?.id === state.id;
+  const finalGrade =
+    kind === "results" &&
+    old?.view === "workspace" &&
+    old?.id === state.id &&
+    attempt?.status === "graded" &&
+    attempt?.gradingKind !== "interim";
+  state.parent =
+    same || navigationReplay || finalGrade
+      ? old?.parent || null
+      : old
+        ? { view: old.view, id: old.id }
+        : null;
+  const fragment =
+    view === "catalog" ? "" : view === "history" ? "#history" : "#" + state.id;
+  if (!navigationReady || navigationReplay || same || finalGrade)
+    window.history.replaceState(
+      { studyAtlasMock: state },
+      "",
+      fragment || location.pathname + location.search,
+    );
+  else {
+    if (old)
+      window.history.replaceState(
+        {
+          studyAtlasMock: {
+            ...old,
+            scrollY: window.scrollY,
+            historyTableScroll,
+            roots: { ...rootPositions },
+          },
+        },
+        "",
+        location.href,
+      );
+    window.history.pushState(
+      { studyAtlasMock: state },
+      "",
+      fragment || location.pathname + location.search,
+    );
+  }
+  navigationReady = true;
+  try {
+    sessionStorage.setItem(navigationKey, JSON.stringify(state));
+  } catch {}
+}
+function returnToParent(view) {
+  if (documentLeaving) return false;
+  const parent = window.history.state?.studyAtlasMock?.parent;
+  if (
+    parent?.view !== view ||
+    (!["catalog", "history"].includes(view) && parent.id !== attempt?.id)
+  )
+    return false;
+  window.history.back();
+  return true;
+}
+function captureOrigin() {
+  if (!navigationReplay)
+    navigationContext = {
+      origin: document.body.dataset.view === "history" ? "history" : "catalog",
+      reviewReturn: null,
+      readingReturn: null,
+    };
+}
+function reviewBackLabel() {
+  return navigationContext.reviewReturn?.view === "results"
+    ? "採点結果に戻る"
+    : "学習履歴に戻る";
+}
+function readingBackLabel() {
+  return navigationContext.readingReturn?.view === "review"
+    ? "復習に戻る"
+    : "採点結果に戻る";
+}
+function openReview() {
+  if (!attempt?.result) return;
+  if (!navigationReplay)
+    navigationContext.reviewReturn = {
+      view: document.body.dataset.view === "history" ? "history" : "results",
+      scrollY: window.scrollY,
+    };
+  reviewState = createReviewSnapshot(attempt);
+  reviewing = true;
+  readingMode = false;
+  solution = false;
+  renderWorkspace();
+  resetTop();
+}
+function backFromReview() {
+  const target = navigationContext.reviewReturn || { view: "history" };
+  if (returnToParent(target.view)) return;
+  if (target.view === "history") return leave("history");
+  reviewing = false;
+  reviewState = null;
+  renderResults();
+  restoreScroll(target.scrollY);
+}
+function openReading() {
+  if (!navigationReplay)
+    navigationContext.readingReturn = {
+      view: reviewing ? "review" : "results",
+      sectionId,
+      scrollY: window.scrollY,
+    };
+  readingMode = true;
+  solution = true;
+  renderWorkspace();
+  resetTop();
+}
+function backFromReading() {
+  const target = navigationContext.readingReturn || { view: "results" };
+  if (returnToParent(target.view)) return;
+  readingMode = false;
+  solution = false;
+  sectionId = target.sectionId || sectionId;
+  reviewing = target.view === "review";
+  if (reviewing) {
+    reviewState ||= createReviewSnapshot(attempt);
+    renderWorkspace();
+    bookReady.then(() => restoreScroll(target.scrollY));
+  } else {
+    renderResults();
+    restoreScroll(target.scrollY);
+  }
+}
+async function restoreNavigation(state) {
+  navigationReplay = true;
+  try {
+    closeAnswer();
+    frameObserver?.disconnect();
+    secondaryObserver?.disconnect();
+    if (attempt?.status === "active" && !reviewing && !readingMode) {
+      pause(attempt);
+      persist();
+    }
+    releaseLock?.();
+    releaseLock = null;
+    attempt = null;
+    reviewing = false;
+    readingMode = false;
+    solution = false;
+    reviewState = null;
+    const ctx = state?.context;
+    navigationContext = {
+      origin: ctx?.origin === "history" ? "history" : "catalog",
+      reviewReturn: ctx?.reviewReturn || { view: "history" },
+      readingReturn: ctx?.readingReturn || { view: "results" },
+    };
+    historyTableScroll = Number(state?.historyTableScroll) || 0;
+    historyExpanded = !!state?.expanded;
+    rootPositions = {
+      catalog: Number(state?.roots?.catalog) || 0,
+      history: Number(state?.roots?.history) || 0,
+    };
+    if (["all", "full", "section"].includes(state?.filter))
+      historyFilter = state.filter;
+    if (["full", "section"].includes(state?.catalog?.mode))
+      Object.assign(catalogView, state.catalog);
+    if (state?.view === "history") renderHistory();
+    else if (state?.id && store.load(state.id)) {
+      await openAttempt(
+        state.id,
+        state.view === "review"
+          ? "review"
+          : state.view === "workspace"
+            ? "resume"
+            : "result",
+      );
+      if (exam.sections.some((s) => s.id === state.sectionId))
+        sectionId = state.sectionId;
+      if (state.view === "reading") {
+        reviewing = navigationContext.readingReturn.view === "review";
+        if (reviewing) reviewState = createReviewSnapshot(attempt);
+        openReading();
+      } else if (
+        ["review", "workspace"].includes(state.view) &&
+        document.body.dataset.view === "workspace"
+      )
+        renderWorkspace();
+      if (document.body.dataset.view === "workspace") await bookReady;
+    } else renderCatalog();
+    restoreScroll(state?.scrollY || rootPositions[state?.view] || 0);
+  } finally {
+    navigationReplay = false;
+  }
+}
 const esc = (s) =>
   String(s ?? "").replace(
     /[&<>"']/g,
@@ -94,18 +326,9 @@ function persist() {
 
     return true;
   } catch {
-    notify(
-      "保存できません。履歴を書き出してから容量やブラウザの設定を確認してください。",
-    );
+    notify("保存できません。ブラウザの保存容量や設定を確認してください。");
     return false;
   }
-}
-function download(name, content, type = "application/json") {
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([content], { type }));
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 function entryFor(id, version) {
   version = compatibleVersion(id, version);
@@ -221,11 +444,14 @@ async function lockAttempt(id) {
     ),
   );
 }
-function leave() {
+function leave(destination = navigationContext.origin) {
+  if (!["catalog", "history"].includes(destination))
+    destination = navigationContext.origin;
+  if (returnToParent(destination)) return;
   closeAnswer();
   frameObserver?.disconnect();
   secondaryObserver?.disconnect();
-  if (attempt?.status === "active" && !reviewing) {
+  if (attempt?.status === "active" && !reviewing && !readingMode) {
     pause(attempt);
     persist();
   }
@@ -235,9 +461,10 @@ function leave() {
   reviewing = false;
   solution = false;
   readingMode = false;
-  location.hash = "";
-  renderCatalog();
-  resetTop();
+  reviewState = null;
+  if (destination === "history") renderHistory();
+  else renderCatalog();
+  restoreScroll(rootPositions[destination]);
 }
 async function renderCatalog() {
   setView("catalog");
@@ -406,13 +633,8 @@ let historyFilter = "all";
 function renderHistory() {
   setView("history");
   uiSequence++;
-  location.hash = "history";
-  app.innerHTML = `<section class="history-page"><div class="history-page-heading"><div><p class="eyebrow">LEARNING HISTORY</p><h1>学習履歴</h1></div><button id="history-back">模試一覧に戻る</button></div><div class="history-filters" role="group" aria-label="履歴の受験方式"></div><div class="table-wrap"><table class="history-table"><thead><tr><th>受験日時</th><th>模試No.</th><th>受験方式・大問</th><th>状態</th><th>得点</th><th>得点率</th><th>解答時間</th><th>操作</th></tr></thead><tbody id="history-list"></tbody></table></div><p id="history-empty" class="muted" hidden>まだ該当する学習履歴はありません。</p><details class="history-backup"><summary>履歴の保存・読み込み</summary><p class="muted">履歴はこの端末に保存されます。ブラウザのデータ削除に備えて書き出して保管できます。</p><div class="actions" id="history-actions"></div></details></section>`;
-  $("#history-back").onclick = () => {
-    location.hash = "";
-    renderCatalog();
-    resetTop();
-  };
+  app.innerHTML = `<section class="history-page"><div class="history-page-heading"><div><p class="eyebrow">LEARNING HISTORY</p><h1>学習履歴</h1></div><button id="history-back">模試一覧に戻る</button></div><div class="history-filters" role="group" aria-label="履歴の受験方式"></div><div class="table-wrap"><table class="history-table"><thead><tr><th>受験日時</th><th>模試No.</th><th>受験方式・大問</th><th>状態</th><th>得点</th><th>得点率</th><th>解答時間</th><th>操作</th></tr></thead><tbody id="history-list"></tbody></table></div><p id="history-empty" class="muted" hidden>まだ該当する学習履歴はありません。</p></section>`;
+  $("#history-back").onclick = () => leave("catalog");
   for (const [value, title] of [
     ["all", "すべて"],
     ["full", "回ごと"],
@@ -428,44 +650,6 @@ function renderHistory() {
     b.setAttribute("aria-pressed", String(historyFilter === value));
     $(".history-filters").append(b);
   }
-  $("#history-actions").append(
-    button("履歴を書き出す", () =>
-      download("study-atlas-mock-history.json", store.export()),
-    ),
-  );
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json";
-  input.hidden = true;
-  input.onchange = async () => {
-    try {
-      const data = JSON.parse(await input.files[0].text());
-      if (data.schemaVersion !== 1 || !Array.isArray(data.attempts))
-        throw Error();
-      for (const raw of data.attempts) {
-        const entry = entryFor(raw.examId, raw.examVersion);
-        if (!entry) throw Error();
-        await loadExam(entry);
-        const a = restoreAttempt(exam, raw);
-        const old = store.load(a.id);
-        if (!old || a.updatedAt > old.updatedAt) {
-          a.startedAt = null;
-          a.status = a.result ? "graded" : "paused";
-          store.save(a);
-        } else {
-          store.saveStatistics(a);
-        }
-      }
-      renderHistory();
-      notify("履歴を読み込みました");
-    } catch {
-      notify("履歴ファイルを読み込めませんでした。");
-    }
-  };
-  $("#history-actions").append(
-    button("履歴を読み込む", () => input.click()),
-    input,
-  );
   let history = [];
   try {
     history = store.list();
@@ -486,28 +670,36 @@ function renderHistory() {
     const interrupted = isInterrupted(a);
     row.innerHTML = `<td>${new Date(a.createdAt).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(a.examId)}</th><td>${historyScope(a)}</td><td>${interrupted ? (a.result ? "途中採点・中断中" : "中断中") : "採点済み"}</td><td>${a.result ? `${a.result.points} / ${a.result.maxPoints}点` : "—"}</td><td>${a.result ? ((a.result.points / a.result.maxPoints) * 100).toFixed(1) + "%" : "—"}</td><td>${time(elapsed(a))}</td><td><div class="actions history-row-actions"></div></td>`;
     const actions = row.querySelector(".actions");
-    if (interrupted)
-      actions.append(button("再開", () => openAttempt(a.id, "resume")));
-    if (a.result)
-      actions.append(
-        button("採点結果", () => openAttempt(a.id)),
-        button("復習", () => openAttempt(a.id, "review")),
-      );
-    actions.append(
-      button(
+    for (const [title, enabled, action, cls] of [
+      ["採点結果", !!a.result, () => openAttempt(a.id), ""],
+      ["復習", !!a.result, () => openAttempt(a.id, "review"), ""],
+      ["再開", interrupted, () => openAttempt(a.id, "resume"), ""],
+      [
         "削除",
+        true,
         () => {
           store.discard(a.id);
           renderHistory();
         },
         "subtle-danger",
-      ),
-    );
+      ],
+    ]) {
+      if (enabled) actions.append(button(title, action, cls));
+      else {
+        const blank = document.createElement("span");
+        blank.className = "action-placeholder";
+        blank.textContent = "—";
+        blank.setAttribute("aria-label", title + "なし");
+        actions.append(blank);
+      }
+    }
     $("#history-list").append(row);
   }
+  $(".history-page .table-wrap").scrollLeft = historyTableScroll;
   resetTop();
 }
 async function begin(entry, mode, sid) {
+  captureOrigin();
   catalogView.mode = mode === "section" ? "section" : "full";
   if (sid) catalogView.sectionId = sid;
   if (mode !== "section") catalogView.timeMode = mode;
@@ -519,14 +711,13 @@ async function begin(entry, mode, sid) {
   readingMode = false;
   sectionId = attempt.sectionIds[0];
   persist();
-  location.hash = attempt.id;
   renderWorkspace();
   resetTop();
 }
 async function openAttempt(id, action = "result") {
+  captureOrigin();
   const a = store.load(id);
   if (!a || a.discardedAt) {
-    location.hash = "";
     await renderCatalog();
     return notify("受験記録が見つかりません。");
   }
@@ -552,10 +743,9 @@ async function openAttempt(id, action = "result") {
   solution = false;
   readingMode = false;
   sectionId = a.sectionIds[0];
-  location.hash = id;
-  if (attempt.result && action === "review") restart(true);
+  if (attempt.result && action === "review") openReview();
   else if (attempt.result && action === "resume" && isInterrupted(attempt))
-    restart(false);
+    resumeGraded();
   else if (attempt.result) renderResults();
   else {
     if (attempt.status !== "active") resume(attempt);
@@ -568,10 +758,10 @@ function visibleFields() {
   return exam.fields.filter((f) => attempt.sectionIds.includes(f.sectionId));
 }
 function answers() {
-  return reviewing ? attempt.review.answers : attempt.answers;
+  return reviewing ? reviewState.answers : attempt.answers;
 }
-function isLocked(id) {
-  return reviewing && attempt.review.locked.includes(id);
+function isLocked() {
+  return reviewing || readingMode;
 }
 function navigateSection(id) {
   closeAnswer();
@@ -589,27 +779,17 @@ function renderWorkspace() {
   secondaryObserver?.disconnect();
   const reading = readingMode,
     split = reading && innerWidth >= 1000;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar"><nav class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? "採点結果に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div><aside class="sidebar"><div id="run-actions" class="actions"></div>${reading ? "" : `<p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button>`}</aside></div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar"><nav class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div><aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside></div>`;
   $("#back-list").onclick = reading
-    ? () => {
-        readingMode = false;
-        solution = false;
-        renderResults();
-      }
-    : () => requestPause(true);
-  if (!reading)
-    $("#export-active").onclick = () => {
-      const all = store.list().filter((a) => a.id !== attempt.id);
-      all.unshift(attempt);
-      download(
-        "mock-history.json",
-        JSON.stringify(
-          { schemaVersion: 1, exportedAt: Date.now(), attempts: all },
-          null,
-          2,
-        ),
-      );
-    };
+    ? backFromReading
+    : reviewing
+      ? backFromReview
+      : () => requestPause(true);
+  if (reviewing && !reading)
+    $(".topline").insertAdjacentHTML(
+      "afterend",
+      '<p class="review-note">復習：採点時の回答と正誤を表示しています。解答は変更できません。</p>',
+    );
   const sections = exam.sections.filter((s) =>
     attempt.sectionIds.includes(s.id),
   );
@@ -651,35 +831,27 @@ function renderWorkspace() {
     $("#book-next").append(
       button(
         reading
-          ? "採点結果に戻る"
+          ? readingBackLabel()
           : reviewing
-            ? "復習の結果を見る"
+            ? reviewBackLabel()
             : "ここまでを採点する",
-        reading
-          ? () => {
-              readingMode = false;
-              solution = false;
-              renderResults();
-            }
-          : doGrade,
-        reading ? "" : "primary",
+        reading ? backFromReading : reviewing ? backFromReview : doGrade,
+        reading || reviewing ? "" : "primary",
       ),
     );
   if (reading)
+    $("#run-actions").append(button(readingBackLabel(), backFromReading));
+  else if (reviewing)
     $("#run-actions").append(
-      button("採点結果に戻る", () => {
-        readingMode = false;
-        solution = false;
-        renderResults();
-      }),
-      button("一覧に戻る", leave),
+      button("解説を読む", openReading),
+      button(reviewBackLabel(), backFromReview),
     );
   else
     $("#run-actions").append(
-      button(reviewing ? "復習を採点する" : "採点する", doGrade, "primary"),
+      button("採点する", doGrade, "primary"),
       button("中断", () => requestPause(false)),
     );
-  if (!reading && attempt.result)
+  if (!reading && !reviewing && attempt.result)
     $(".book-nav").append(
       button("採点結果", () => {
         if (attempt.status === "active" && !reviewing) {
@@ -740,7 +912,7 @@ function renderWorkspace() {
             $("#figure-dialog").showModal();
           };
         });
-        if (!reading) {
+        if (!reading && !reviewing) {
           d.querySelectorAll("[data-field]").forEach((e) => {
             e.tabIndex = 0;
             e.setAttribute("role", "button");
@@ -782,8 +954,8 @@ function renderWorkspace() {
               }
             };
           });
-          syncBook();
         }
+        if (!solution || !reading) syncBook();
         let scheduled = false;
         const resize = () => {
           if (scheduled) return;
@@ -830,6 +1002,7 @@ function renderWorkspace() {
             if (f)
               e.textContent = displayValue(f, attempt.gradedAnswers?.[f.id], e);
           }
+          syncBook(d);
           d.querySelectorAll("table").forEach((t) => {
             const w = d.createElement("div");
             w.className = "table-scroll";
@@ -914,24 +1087,35 @@ function displayValue(f, value, e) {
   return `${label} ${circle(value)}`;
 }
 
-function syncBook() {
-  const d = frame?.contentDocument;
-  if (!d || solution) return;
-  const result = reviewing ? attempt.review.result : attempt.result;
+function syncBook(d = frame?.contentDocument) {
+  if (!d || (d === frame?.contentDocument && solution)) return;
+  const result = reviewing ? reviewState.result : attempt.result;
+  const values = reviewing
+    ? reviewState.answers
+    : readingMode
+      ? attempt.gradedAnswers || {}
+      : attempt.answers;
   for (const e of d.querySelectorAll("[data-field]")) {
     const f = exam.fields.find((f) => f.id === e.dataset.field);
     if (!f) continue;
-    const value = answers()[f.id] || "";
+    const value = values[f.id] || "";
     e.textContent = displayValue(f, value, e);
     e.dataset.filled = String(!!value);
     e.dataset.locked = String(isLocked(f.id));
+    e.dataset.readonly = String(reviewing || readingMode);
     e.setAttribute("aria-label", `解答欄${f.label}: ${value || "未回答"}`);
     e.setAttribute("aria-disabled", String(isLocked(f.id)));
     delete e.dataset.verdict;
     if ((reviewing || attempt.showCorrectness) && result) {
       const u = result.units.find((u) => u.fields.includes(f.id));
-      if (u && u.answers.every((v, i) => v === (answers()[u.fields[i]] || "")))
-        e.dataset.verdict = u.correct ? "correct" : "incorrect";
+      if (u && u.answers.every((v, i) => v === (values[u.fields[i]] || "")))
+        e.dataset.verdict = !u.answered
+          ? "unanswered"
+          : u.correct
+            ? "correct"
+            : u.points > 0
+              ? "partial"
+              : "incorrect";
     }
   }
   for (const e of d.querySelectorAll("[data-position]")) {
@@ -942,13 +1126,25 @@ function syncBook() {
       e.append(label);
     }
     label.textContent =
-      answers()["q3-コ"] === e.dataset.position ? " kakuteisu = 0" : "";
+      values["q3-コ"] === e.dataset.position ? " kakuteisu = 0" : "";
   }
   for (const e of d.querySelectorAll("[data-choice-fields]")) {
     const selected = e.dataset.choiceFields
       .split(" ")
-      .some((id) => answers()[id] === e.dataset.choiceValue);
+      .some((id) => values[id] === e.dataset.choiceValue);
     e.dataset.selected = String(selected);
+    e.dataset.readonly = String(reviewing || readingMode);
+    delete e.dataset.verdict;
+    if (selected && reviewing) {
+      const ids = e.dataset.choiceFields.split(" "),
+        unit = result.units.find((u) => u.fields.includes(ids[0]));
+      if (unit)
+        e.dataset.verdict = unit.correct
+          ? "correct"
+          : unit.points > 0
+            ? "partial"
+            : "incorrect";
+    }
     e.setAttribute("aria-pressed", String(selected));
   }
 }
@@ -1007,7 +1203,7 @@ function positionKeypad() {
     ) + "px";
 }
 function openField(id, anchor) {
-  if (isLocked(id)) return notify("この欄は復習で正答済みです。");
+  if (isLocked(id)) return;
   closeAnswer();
   selectedField = id;
   activeAnchor = anchor;
@@ -1112,10 +1308,7 @@ $("#answer-dialog").addEventListener("keydown", (e) => {
   }
 });
 function requestPause(toList) {
-  if (reviewing) {
-    persist();
-    return toList ? leave() : renderResults();
-  }
+  if (reviewing || readingMode) return;
   ask("中断のしかたを選ぶ", [
     [
       "採点せずに中断",
@@ -1130,16 +1323,11 @@ function requestPause(toList) {
 }
 function doGrade(kind = "final") {
   if ($("#answer-dialog").open) $("#answer-dialog").close();
-  if (reviewing) {
-    gradeReview(exam, attempt);
-    persist();
-    renderResults();
-    return;
-  }
+  if (reviewing || readingMode) return;
   submit(exam, attempt);
   attempt.gradingKind = kind === "interim" ? "interim" : "final";
   persist();
-  renderResults();
+  renderResults({ record: true });
 }
 function tick() {
   if (!attempt || !$("#timer")) return;
@@ -1164,11 +1352,40 @@ function tick() {
   }
 }
 setInterval(tick, 1000);
+// A restore aborted during unload must not rewrite the next document's URL.
+window.addEventListener("beforeunload", () => {
+  documentLeaving = true;
+});
+window.addEventListener("pageshow", () => {
+  documentLeaving = false;
+});
 window.addEventListener("pagehide", () => {
-  if (attempt) persist();
+  documentLeaving = true;
+  const current = window.history.state?.studyAtlasMock;
+  if (current) {
+    const saved = {
+      ...current,
+      scrollY: window.scrollY,
+      historyTableScroll:
+        document.body.dataset.view === "history"
+          ? $(".history-page .table-wrap")?.scrollLeft || 0
+          : historyTableScroll,
+    };
+    window.history.replaceState({ studyAtlasMock: saved }, "", location.href);
+    try {
+      sessionStorage.setItem(navigationKey, JSON.stringify(saved));
+    } catch {}
+  }
+  if (attempt?.status === "active" && !reviewing && !readingMode) persist();
 });
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden && attempt) persist();
+  if (
+    document.hidden &&
+    attempt?.status === "active" &&
+    !reviewing &&
+    !readingMode
+  )
+    persist();
 });
 function scoreMark(unit) {
   return unit.correct ? "○" : unit.points > 0 ? `△${unit.points}` : "✕";
@@ -1191,10 +1408,11 @@ function discardAttempt(id) {
     attempt = null;
     reviewing = false;
     solution = false;
-    location.hash = "";
+    reviewState = null;
   }
-  renderCatalog();
-  resetTop();
+  if (navigationContext.origin === "history") renderHistory();
+  else renderCatalog();
+  restoreScroll(rootPositions[navigationContext.origin]);
   notify("この端末の履歴から削除しました");
 }
 function renderUnitTable(r, runs) {
@@ -1271,7 +1489,7 @@ function applyResultStats(stats, r) {
   $("#rate-total").textContent =
     points === null ? "—" : ((points / r.maxPoints) * 100).toFixed(1) + "%";
 }
-function renderResults() {
+function renderResults({ record = false } = {}) {
   setView("results");
   closeAnswer();
   const seq = ++uiSequence;
@@ -1284,28 +1502,11 @@ function renderResults() {
   if (!r) return renderWorkspace();
   app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
   if (isInterrupted(current))
-    $("#result-actions").append(
-      button("解答に戻る", () =>
-        ask("正誤表記を選ぶ", [
-          ["正誤表記あり", () => restart(true)],
-          ["正誤表記なし", () => restart(false)],
-        ]),
-      ),
-    );
+    $("#result-actions").append(button("解答を再開", () => resumeGraded()));
   $("#result-actions").append(
-    button("解説を読む", () => {
-      if (attempt.status === "active") {
-        pause(attempt);
-        persist();
-      }
-      reviewing = false;
-      readingMode = true;
-      solution = true;
-      sectionId = attempt.sectionIds[0];
-      renderWorkspace();
-      resetTop();
-    }),
-    button("一覧に戻る", leave, "back-to-catalog"),
+    button("解説を読む", openReading),
+    button("一覧に戻る", () => leave("catalog"), "back-to-catalog"),
+    button("学習履歴に戻る", () => leave("history"), "back-to-history"),
     button(
       "この採点結果を破棄する",
       () => discardAttempt(current.id),
@@ -1333,6 +1534,7 @@ function renderResults() {
   renderUnitTable(r, runs);
   $("#toggle-history").onclick = () => {
     historyExpanded = !historyExpanded;
+    setView("results");
     renderUnitTable(r, runs);
     if (resultStats) applyResultStats(resultStats, r);
   };
@@ -1348,7 +1550,7 @@ function renderResults() {
     .then(update)
     .catch(() => {});
   // The result screen is already visible. Network requests only update its cells.
-  if (!reviewing) {
+  if (record && !reviewing) {
     try {
       store.save(current);
     } catch {
@@ -1363,17 +1565,9 @@ function renderResults() {
   }
 }
 
-function restart(show) {
+function resumeGraded() {
   solution = false;
   readingMode = false;
-  if (show) {
-    reviewing = true;
-    startReview(exam, attempt);
-    persist();
-    renderWorkspace();
-    resetTop();
-    return;
-  }
   reviewing = false;
   if (
     attempt.mode === "timed" &&
@@ -1386,14 +1580,14 @@ function restart(show) {
           attempt.continuedAfterDeadline = true;
           attempt.originalMode ||= attempt.mode;
           attempt.mode = "untimed";
-          resume(attempt, show);
+          resume(attempt, false);
           persist();
           renderWorkspace();
         },
       ],
     ]);
   } else {
-    resume(attempt, show);
+    resume(attempt, false);
     persist();
     renderWorkspace();
   }
@@ -1409,10 +1603,47 @@ try {
       notify("サンプル履歴を準備できませんでした。");
     }
   }
-  if (location.hash === "#history") renderHistory();
-  else if (location.hash.slice(1) && store.load(location.hash.slice(1)))
-    await openAttempt(location.hash.slice(1));
+  let saved = window.history.state?.studyAtlasMock;
+  if (!saved) {
+    try {
+      saved = JSON.parse(sessionStorage.getItem(navigationKey));
+    } catch {}
+  }
+  const fragment = location.hash.slice(1);
+  if (
+    saved &&
+    ((fragment === "history" && saved.view === "history") ||
+      (fragment && fragment === saved.id) ||
+      (!fragment && saved.view === "catalog"))
+  )
+    await restoreNavigation(saved);
+  else if (fragment === "history") renderHistory();
+  else if (fragment && store.load(fragment)) await openAttempt(fragment);
   else await renderCatalog();
+  window.addEventListener("popstate", (event) => {
+    const fragment = location.hash.slice(1);
+    const stored =
+      fragment && fragment !== "history" ? store.load(fragment) : null;
+    const routed = event.state?.studyAtlasMock;
+    const matches =
+      routed &&
+      (fragment === "history"
+        ? routed.view === "history"
+        : fragment
+          ? routed.id === fragment
+          : routed.view === "catalog");
+    const state =
+      (matches ? routed : null) ||
+      (fragment === "history"
+        ? { view: "history" }
+        : stored
+          ? { view: stored.result ? "results" : "workspace", id: fragment }
+          : { view: "catalog" });
+    restoreNavigation(state).catch(() => {
+      navigationReplay = false;
+      if (!documentLeaving) leave("catalog");
+    });
+  });
 } catch (e) {
   app.innerHTML = `<p class="error-note">読み込みに失敗しました。${esc(e.message)}</p>`;
 }

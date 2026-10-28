@@ -469,3 +469,42 @@ body {
     margin-top: 0 !important;
   }
 }
+
+@media screen {
+  [data-readonly="true"] {
+    cursor: default !important;
+  }
+  [data-field][data-readonly="true"] {
+    border-style: solid !important;
+  }
+  [data-readonly="true"][data-verdict="correct"] {
+    background: #e5f3eb !important;
+    color: #175d3b !important;
+    border-color: #609879 !important;
+  }
+  [data-readonly="true"][data-verdict="incorrect"] {
+    background: #fcecea !important;
+    color: #983b34 !important;
+    border-color: #c78882 !important;
+  }
+  [data-readonly="true"][data-verdict="partial"] {
+    background: #fff3d9 !important;
+    color: #855b13 !important;
+    border-color: #c6a15b !important;
+  }
+  [data-readonly="true"][data-verdict="unanswered"] {
+    background: #edf0f2 !important;
+    color: #687577 !important;
+    border-color: #a3afb2 !important;
+  }
+  [data-field][data-verdict="partial"]::after {
+    content: " △";
+    font-family: sans-serif;
+    color: #855b13;
+  }
+  [data-field][data-verdict="unanswered"]::after {
+    content: " —";
+    font-family: sans-serif;
+    color: #687577;
+  }
+}

@@ -1,4 +1,9 @@
-const { startFullExam, gradeInterim } = require("./catalog-helpers.cjs");
+const {
+  startFullExam,
+  gradeInterim,
+  reviewFromResults,
+  exitReviewToCatalog,
+} = require("./catalog-helpers.cjs");
 /* Direct RPC browser flow with deterministic HTTP responses; real SQL is tested separately. */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -53,10 +58,7 @@ const server = http.createServer((req, res) => {
     };
     const grade = () => gradeInterim(p);
     const resume = async () => {
-      await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-      await p
-        .getByRole("button", { name: "正誤表記なし", exact: true })
-        .click();
+      await p.getByRole("button", { name: "解答を再開", exact: true }).click();
     };
     const local = () =>
       p.evaluate(() =>
@@ -129,12 +131,18 @@ const server = http.createServer((req, res) => {
       submissions[2].p_results.map((x) => x.scoring_id),
       ["q1-06"],
     );
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
-    await choose("q1-オ", 2);
-    await p
-      .getByRole("button", { name: "復習を採点する", exact: true })
-      .click();
+    await reviewFromResults(p);
+    await f.locator('[data-field="q1-オ"]').first().click();
+    assert.equal(
+      await p.locator("#answer-dialog").evaluate((d) => d.open),
+      false,
+    );
+    assert.equal(
+      await p
+        .getByRole("button", { name: "復習を採点する", exact: true })
+        .count(),
+      0,
+    );
     assert.equal(submissions.length, 3);
     assert.equal((await local()).statsDelivery["q1-04"], undefined);
     await p.reload();
@@ -148,7 +156,10 @@ const server = http.createServer((req, res) => {
     );
     assert.equal(submissions.length, 3);
     const firstId = (await local()).id;
-    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await p.locator("#back-list").click();
+    await p
+      .getByRole("button", { name: "模試一覧に戻る", exact: true })
+      .click();
     await startFullExam(p);
     await choose("q1-ア", 0);
     await grade();

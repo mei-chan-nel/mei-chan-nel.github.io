@@ -6,8 +6,7 @@ import {
   submit,
   resume,
   pause,
-  startReview,
-  gradeReview,
+  createReviewSnapshot,
   restoreAttempt,
   AttemptStore,
 } from "../engine/attempt.mjs";
@@ -100,9 +99,9 @@ test("first answered units only; partial mark stays frozen; resume and review ne
     ["q1-02"],
   );
   assert.equal(a.result.units.find((x) => x.id === "q2a-02").points, 3);
-  startReview(exam, a);
-  a.review.answers = { "q1-ア": "0" };
-  gradeReview(exam, a);
+  const reviewed = createReviewSnapshot(a);
+  assert.equal(reviewed.answers["q1-ア"], a.gradedAnswers["q1-ア"]);
+  assert.ok(Object.isFrozen(reviewed.answers));
   await sendUnsentUnits(exam, a, store, { source: "review", request });
   assert.equal(bodies.length, 2);
   const reloaded = restoreAttempt(exam, store.load(a.id));
@@ -159,10 +158,7 @@ test("lost response is unknown and never retried after reload, backup recovery o
     },
   });
   assert.equal(calls, 1);
-  assert.equal(
-    JSON.parse(store.export()).attempts[0].statsDelivery["q1-01"].state,
-    "unknown",
-  );
+  assert.equal(store.list()[0].statsDelivery["q1-01"].state, "unknown");
 });
 
 test("unloading during send recovers sending as unknown; failures keep personal grade", async () => {

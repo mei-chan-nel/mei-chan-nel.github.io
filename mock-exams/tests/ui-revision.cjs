@@ -1,4 +1,9 @@
-const { startFullExam, gradeInterim } = require("./catalog-helpers.cjs");
+const {
+  startFullExam,
+  gradeInterim,
+  reviewFromResults,
+  exitReviewToCatalog,
+} = require("./catalog-helpers.cjs");
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const http = require("node:http"),
   fs = require("node:fs"),
@@ -176,7 +181,7 @@ const server = http.createServer((req, res) => {
     await p.getByRole("button", { name: "解説を読む", exact: true }).click();
     await p
       .frameLocator("#paired-problem")
-      .locator('[data-field="q1-ア"]')
+      .locator('[data-field="q3-カ"]')
       .first()
       .waitFor();
     assert.equal(await p.locator(".explanation-panes iframe").count(), 2);
@@ -200,20 +205,21 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: "採点結果に戻る", exact: true })
       .first()
       .click();
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
+    await reviewFromResults(p);
     await p
       .locator("#section-navigation")
       .getByRole("button", { name: "第1問", exact: true })
       .click();
     await frame().locator('[data-field="q1-ア"]').first().waitFor();
     const sent = requests.filter((b) => b.p_results).length;
-    await p
-      .getByRole("button", { name: "復習を採点する", exact: true })
-      .first()
-      .click();
+    assert.equal(
+      await p
+        .getByRole("button", { name: "復習を採点する", exact: true })
+        .count(),
+      0,
+    );
     assert.equal(requests.filter((b) => b.p_results).length, sent);
-    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await exitReviewToCatalog(p);
     await startFullExam(p);
     await frame().locator('[data-field="q1-ア"]').first().click();
     await p.locator("#answer-options>button").nth(0).click();

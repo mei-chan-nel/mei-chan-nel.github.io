@@ -127,7 +127,12 @@ const server = http.createServer((req, res) => {
       .click();
     assert.equal(await p.locator("#history-list tr").count(), 3);
     await p.reload();
-    await p.locator("#history-list tr").nth(5).waitFor();
+    await p.locator("#history-list tr").nth(2).waitFor();
+    assert.equal(await p.locator("#history-list tr").count(), 3);
+    await p
+      .locator(".history-filters")
+      .getByRole("button", { name: "すべて", exact: true })
+      .click();
     await row(103)
       .getByRole("button", { name: "採点結果", exact: true })
       .click();
@@ -197,16 +202,13 @@ const server = http.createServer((req, res) => {
       "deleted sample not revived",
     );
     await row(104).getByRole("button", { name: "復習", exact: true }).click();
-    await p.getByText("復習モード", { exact: true }).waitFor();
+    await p.locator(".review-note").waitFor();
     assert.equal(await p.locator(".site-header").isVisible(), false);
-    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
-    await history();
+    await p.locator("#back-list").click();
     await row(106)
       .getByRole("button", { name: "採点結果", exact: true })
       .click();
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).waitFor();
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-    await p.getByRole("button", { name: "正誤表記なし", exact: true }).click();
+    await p.getByRole("button", { name: "解答を再開", exact: true }).click();
     await p
       .frameLocator("#book-frame")
       .locator('[data-field="q2b-コ"]')

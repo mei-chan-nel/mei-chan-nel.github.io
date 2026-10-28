@@ -300,13 +300,6 @@ button:disabled {
 .pdf-links a:hover {
   color: var(--mock-ink);
 }
-.history-backup {
-  margin-top: 25px;
-}
-.history-backup summary {
-  cursor: pointer;
-  font-size: 14px;
-}
 @media (max-width: 600px) {
   .mode-choices {
     grid-template-columns: 1fr;
@@ -1085,9 +1078,33 @@ body[data-view="workspace"] > .preview-banner {
   white-space: nowrap;
 }
 .history-row-actions {
+  display: grid;
+  grid-template-columns: 76px repeat(3, 52px);
   gap: 6px;
-  justify-content: center;
-  margin: 0;
+  width: max-content;
+  margin: 0 auto;
+}
+.history-row-actions .action-placeholder {
+  display: grid;
+  place-items: center;
+  color: #a1afac;
+  min-height: 36px;
+}
+.history-table tbody tr:hover {
+  background: #fafcfb;
+}
+.result-actions > button:not(.subtle-danger) {
+  font-size: 13px;
+  padding: 9px 12px;
+}
+.review-note {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-left: 3px solid var(--mock-accent);
+  background: #eaf3ef;
+  color: var(--mock-ink);
+  font-size: 13px;
+  line-height: 1.7;
 }
 .history-row-actions button {
   font-size: 12px;

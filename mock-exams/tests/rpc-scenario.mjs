@@ -4,8 +4,7 @@ import {
   submit,
   resume,
   pause,
-  startReview,
-  gradeReview,
+  createReviewSnapshot,
   restoreAttempt,
   AttemptStore,
 } from "../engine/attempt.mjs";
@@ -236,9 +235,12 @@ export async function runRpcVerification({
     pause(a);
     store.save(a);
     check((await send(a)).count === 0, "再読込み後に再送されました");
-    startReview(exam, a);
-    a.review.answers = { a: "0", b: "1", c: "2", d: "2" };
-    gradeReview(exam, a);
+    const reviewed = createReviewSnapshot(a);
+    check(Object.isFrozen(reviewed.answers), "復習が閲覧専用ではありません");
+    check(
+      reviewed.result.points === a.result.points,
+      "復習で元の成績が変わりました",
+    );
     check(
       (await sendUnsentUnits(exam, a, store, { request, source: "review" }))
         .count === 0,

@@ -25,3 +25,20 @@ exports.gradeInterim = async (page) => {
     .getByRole("button", { name: "ここまでを採点して中断", exact: true })
     .click();
 };
+
+exports.reviewFromResults = async (page) => {
+  const id = new URL(page.url()).hash.slice(1);
+  await page
+    .getByRole("button", { name: "学習履歴に戻る", exact: true })
+    .click();
+  await page
+    .locator(`[data-attempt-id="${id}"]`)
+    .getByRole("button", { name: "復習", exact: true })
+    .click();
+};
+exports.exitReviewToCatalog = async (page) => {
+  await page.locator("#back-list").click();
+  await page
+    .getByRole("button", { name: "模試一覧に戻る", exact: true })
+    .click();
+};
