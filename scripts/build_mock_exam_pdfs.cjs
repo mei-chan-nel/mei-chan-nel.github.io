@@ -1,4 +1,4 @@
-/* Usage: PLAYWRIGHT_MODULE=/path/to/playwright node scripts/build_mock_exam_pdfs.cjs
+/* Usage: PLAYWRIGHT_MODULE=/path/to/playwright node scripts/build_mock_exam_pdfs.cjs [solution|problem]
    Requires Chromium, Python with PyMuPDF. No network access or secrets. */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -6,6 +6,9 @@ const fs = require("node:fs"),
   { spawnSync } = require("node:child_process");
 const http = require("node:http");
 const root = path.resolve(__dirname, "../mock-exams");
+const kinds = process.argv[2] ? [process.argv[2]] : ["problem", "solution"];
+if (kinds.some((k) => !["problem", "solution"].includes(k)))
+  throw Error("Invalid PDF kind");
 const server = http.createServer((req, res) => {
   const file = path.resolve(
     root,
@@ -41,7 +44,7 @@ const server = http.createServer((req, res) => {
       const dir = path.dirname(path.join(root, entry.manifest)),
         exam = JSON.parse(fs.readFileSync(path.join(root, entry.manifest)));
       const temp = fs.mkdtempSync("/tmp/atlas-mock-pdf-");
-      for (const kind of ["problem", "solution"]) {
+      for (const kind of kinds) {
         const files = [];
         for (const s of exam.sections) {
           const page = await browser.newPage({

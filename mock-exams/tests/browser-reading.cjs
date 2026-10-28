@@ -46,7 +46,11 @@ const server = http.createServer((req, res) => {
   });
   const p = await context.newPage(),
     errors = [],
-    writes = [];
+    writes = [],
+    documentRequests = [];
+  p.on("request", (r) => {
+    if (/\/screen\/.*\.html/.test(r.url())) documentRequests.push(r.url());
+  });
   p.on("pageerror", (e) => errors.push(e.message));
   await context.route("https://*.supabase.co/**", (r) => {
     const body = r.request().postDataJSON();
@@ -229,11 +233,25 @@ const server = http.createServer((req, res) => {
     assert.equal(coverage, 44);
     await p.reload();
     await verifyPair("q4");
+    const gap = frame().locator(".reading-gap-note:not([hidden])").first();
+    assert.ok((await gap.textContent()).includes("余白"));
+    await gap.getByRole("button", { name: "解説へ ↓", exact: true }).click();
+    assert.ok(await p.evaluate(() => scrollY > 300));
     await p.evaluate(() => scrollTo(0, 650));
     assert.ok((await p.locator(".reading-toolbar").boundingBox()).y < 0);
-    await p.setViewportSize({ width: 390, height: 844 });
+    await p.setViewportSize({ width: 900, height: 900 });
     await p.waitForFunction(() => !document.querySelector("#paired-problem"));
-    assert.equal(await p.locator("#section-navigation button").count(), 10);
+    await frame().locator("html[data-solution-reading]").waitFor();
+    assert.equal(await p.locator("#section-navigation button").count(), 5);
+    assert.ok(
+      await frame()
+        .locator(".sheet,.page")
+        .evaluateAll((es) =>
+          es.every((e) => getComputedStyle(e).minHeight === "0px"),
+        ),
+    );
+    await p.setViewportSize({ width: 390, height: 844 });
+    assert.equal(await p.locator("#section-navigation button").count(), 5);
     assert.equal(
       await p
         .locator(".reading-toolbar")
@@ -243,7 +261,7 @@ const server = http.createServer((req, res) => {
     for (const s of exam.sections) {
       await p
         .locator("#section-navigation")
-        .getByRole("button", { name: s.title + "解説", exact: true })
+        .getByRole("button", { name: s.title, exact: true })
         .click();
       await frame()
         .locator('[data-reading-units^="' + s.id + '-"]')
@@ -257,21 +275,122 @@ const server = http.createServer((req, res) => {
           .count(),
         0,
       );
-      await p
-        .locator("#section-navigation")
-        .getByRole("button", { name: s.title + "問題", exact: true })
-        .click();
-      await frame()
-        .locator('[data-reading-units^="' + s.id + '-"]')
-        .first()
-        .waitFor();
-      assert.ok(await frame().locator("[data-field]").count());
+      assert.ok(
+        !(await frame().locator("body").textContent()).match(
+          /測定設計と本番との対応|測定能力と前後のつながり|実行・境界条件・一意性の検証/,
+        ),
+      );
+      await frame().locator("[data-reading-problem]").first().click();
+      await frame().locator("html[data-reading-fragment]").waitFor();
+      assert.ok(await frame().locator('[data-reading-focus="true"]').count());
+      await p.locator("#back-list").click();
+      await frame().locator("[data-reading-problem]").first().waitFor();
     }
+    // Every scoring unit has a focused extraction, with its question/context,
+    // figures and choices intact, rather than another full-section display.
+    const sources = Object.fromEntries(
+      exam.sections.map((s) => [
+        s.id,
+        fs.readFileSync(
+          path.join(root, "mock-exams/exams/001/1", s.screenProblem),
+          "utf8",
+        ),
+      ]),
+    );
+    const extracts = await p.evaluate(
+      async ({ exam, sources }) => {
+        const { readingProblemHTML } = await import("./ui/reading-problem.mjs");
+        return exam.scoring.map((unit) => {
+          const source = sources[unit.sectionId];
+          const d = new DOMParser().parseFromString(
+            readingProblemHTML(source, unit),
+            "text/html",
+          );
+          const original = new DOMParser().parseFromString(source, "text/html");
+          return {
+            id: unit.id,
+            fields: [...d.querySelectorAll("[data-field]")].map(
+              (e) => e.dataset.field,
+            ),
+            focused: [...d.querySelectorAll("[data-reading-focus]")].map(
+              (e) => e.dataset.field,
+            ),
+            length: d.body.textContent.length,
+            originalLength: original.body.textContent.length,
+          };
+        });
+      },
+      { exam, sources },
+    );
+    for (const unit of exam.scoring) {
+      const result = extracts.find((r) => r.id === unit.id);
+      assert.ok(
+        unit.fields.every(
+          (f) => result.fields.includes(f) && result.focused.includes(f),
+        ),
+        unit.id,
+      );
+      assert.ok(
+        result.length < result.originalLength * 0.95,
+        unit.id + " is a subset",
+      );
+    }
+    const lastLink = frame().locator('[data-reading-problem="q4-09"]');
+    await lastLink.scrollIntoViewIfNeeded();
+    const sourcePosition = await p.evaluate(() => scrollY);
+    const requestsBefore = documentRequests.length;
+    await lastLink.click();
+    await frame().locator("html[data-reading-fragment]").waitFor();
+    await p.waitForFunction(() => scrollY < 2);
+    assert.equal(await p.locator("#section-navigation button").count(), 0);
+    assert.ok(
+      (await p.locator(".topline h1").textContent()).includes("コの問題"),
+    );
+    assert.equal(
+      await frame().locator("body").getAttribute("data-reading-target"),
+      "q4-09",
+    );
+    assert.equal(
+      await p.getByRole("button", { name: /採点する|中断/ }).count(),
+      0,
+    );
+    await p.screenshot({
+      path: path.join(output, "focused-problem-top-mobile.png"),
+    });
+    await frame().locator('[data-field="q4-コ"]').first().click();
+    assert.equal(await p.locator("#answer-dialog[open]").count(), 0);
+    const problemPosition = await p.evaluate(() => scrollY);
+    await p.screenshot({
+      path: path.join(output, "focused-problem-mobile.png"),
+    });
+    await p.goBack();
+    await frame().locator('[data-reading-problem="q4-09"]').waitFor();
+    await p.waitForFunction((y) => Math.abs(scrollY - y) < 3, sourcePosition);
+    await p.goForward();
+    await frame().locator("html[data-reading-fragment]").waitFor();
+    await p.waitForFunction((y) => Math.abs(scrollY - y) < 3, problemPosition);
+    assert.equal(
+      documentRequests.length,
+      requestsBefore,
+      "opening/return uses cached documents",
+    );
+    await p.reload();
+    await frame().locator("html[data-reading-fragment]").waitFor();
+    assert.ok(
+      (await p.locator("#back-list").textContent()).includes("解説に戻る"),
+    );
+    await p.locator("#back-list").click();
+    await frame().locator('[data-reading-problem="q4-09"]').waitFor();
+    await p.waitForFunction((y) => Math.abs(scrollY - y) < 3, sourcePosition);
+    assert.ok(
+      (await frame().locator("body").textContent()).includes("CC BY 4.0"),
+    );
     assert.ok(
       await p.evaluate(
         () => document.documentElement.scrollWidth <= innerWidth + 1,
       ),
     );
+    await p.evaluate(() => scrollTo(0, 0));
     await p.screenshot({ path: path.join(output, "reading-mobile.png") });
     await p.locator("#back-list").click();
     await p.getByRole("heading", { name: "採点結果", exact: true }).waitFor();
@@ -282,7 +401,7 @@ const server = http.createServer((req, res) => {
     assert.equal(writes.length, 0);
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: latest home and card, centered headers, 44-unit coverage, paired alignment/resizing, nonsticky navigation, mobile switches, summary removal, return paths, unchanged history, no record RPC",
+      "PASS: home/header, 44-unit paired alignment and focused extracts, labelled gaps, 5-button narrow navigation, cached problem transitions, read-only answers, back/forward/reload with scroll restoration, no editorial reports, unchanged history and no record RPC",
     );
   } finally {
     await browser.close();

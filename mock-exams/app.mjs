@@ -23,6 +23,7 @@ import {
 } from "./engine/history-grid.mjs";
 import { renderHistoryGrid, closeHistoryMenu } from "./ui/history-grid.mjs";
 import { alignReadingPanes } from "./ui/paired-reading.mjs";
+import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 import {
@@ -75,6 +76,8 @@ let navigationReplay = false,
   navigationReady = false,
   documentLeaving = false;
 const navigationKey = "study-atlas:mock-exams:navigation:v1";
+const viewScrollPositions = new Map();
+window.history.scrollRestoration = "manual";
 const restoreScroll = (top = 0) =>
   requestAnimationFrame(() =>
     window.scrollTo({ top, left: 0, behavior: "instant" }),
@@ -97,7 +100,9 @@ function setView(view) {
   const kind =
     view === "workspace"
       ? readingMode
-        ? "reading"
+        ? navigationContext.readingUnitId
+          ? "reading-problem"
+          : "reading"
         : reviewing
           ? "review"
           : "workspace"
@@ -123,6 +128,12 @@ function setView(view) {
     old?.id === state.id &&
     attempt?.status === "graded" &&
     attempt?.gradingKind !== "interim";
+  state.entryKey =
+    (same || navigationReplay || finalGrade) && old?.entryKey
+      ? old.entryKey
+      : crypto.randomUUID();
+  if (!navigationReplay && old?.entryKey)
+    viewScrollPositions.set(old.entryKey, window.scrollY);
   state.parent =
     same || navigationReplay || finalGrade
       ? old?.parent || null
@@ -170,6 +181,12 @@ function returnToParent(view) {
     (!["catalog", "history"].includes(view) && parent.id !== attempt?.id)
   )
     return false;
+  const current = window.history.state.studyAtlasMock;
+  window.history.replaceState(
+    { studyAtlasMock: { ...current, scrollY: window.scrollY } },
+    "",
+    location.href,
+  );
   window.history.back();
   return true;
 }
@@ -187,6 +204,7 @@ function reviewBackLabel() {
     : "学習履歴に戻る";
 }
 function readingBackLabel() {
+  if (navigationContext.readingUnitId) return "解説に戻る";
   return navigationContext.readingReturn?.view === "review"
     ? "復習に戻る"
     : "採点結果に戻る";
@@ -215,18 +233,45 @@ function backFromReview() {
   restoreScroll(target.scrollY);
 }
 function openReading() {
-  if (!navigationReplay)
+  if (!navigationReplay) {
+    navigationContext.readingUnitId = null;
+    navigationContext.readingUnitIds = null;
+    navigationContext.problemReturn = null;
     navigationContext.readingReturn = {
       view: reviewing ? "review" : "results",
       sectionId,
       scrollY: window.scrollY,
     };
+  }
   readingMode = true;
   solution = true;
   renderWorkspace();
   resetTop();
 }
+function openReadingProblem(unitIds) {
+  const unitId = unitIds[0];
+  const unit = exam.scoring.find(
+    (u) => u.id === unitId && u.sectionId === sectionId,
+  );
+  if (!unit || !readingMode) return;
+  navigationContext.problemReturn = { sectionId, scrollY: window.scrollY };
+  navigationContext.readingUnitId = unitId;
+  navigationContext.readingUnitIds = unitIds;
+  solution = false;
+  renderWorkspace();
+  resetTop();
+}
+function backFromReadingProblem() {
+  if (returnToParent("reading")) return;
+  const target = navigationContext.problemReturn;
+  navigationContext.readingUnitId = null;
+  sectionId = target?.sectionId || sectionId;
+  solution = true;
+  renderWorkspace();
+  bookReady.then(() => restoreScroll(target?.scrollY || 0));
+}
 function backFromReading() {
+  if (navigationContext.readingUnitId) return backFromReadingProblem();
   const target = navigationContext.readingReturn || { view: "results" };
   if (returnToParent(target.view)) return;
   readingMode = false;
@@ -243,6 +288,8 @@ function backFromReading() {
   }
 }
 async function restoreNavigation(state) {
+  const targetScroll =
+    viewScrollPositions.get(state?.entryKey) ?? state?.scrollY;
   navigationReplay = true;
   try {
     closeAnswer();
@@ -265,6 +312,9 @@ async function restoreNavigation(state) {
       reviewReturn: ctx?.reviewReturn || { view: "history" },
       readingReturn: ctx?.readingReturn || { view: "results" },
       scopeSectionId: ctx?.scopeSectionId || null,
+      readingUnitId: ctx?.readingUnitId || null,
+      readingUnitIds: ctx?.readingUnitIds || null,
+      problemReturn: ctx?.problemReturn || null,
     };
     historyTableScroll = Number(state?.historyTableScroll) || 0;
     historyExpanded = !!state?.expanded;
@@ -292,10 +342,13 @@ async function restoreNavigation(state) {
       );
       if (exam.sections.some((s) => s.id === state.sectionId))
         sectionId = state.sectionId;
-      if (state.view === "reading") {
+      if (["reading", "reading-problem"].includes(state.view)) {
         reviewing = navigationContext.readingReturn.view === "review";
         if (reviewing) reviewState = createReviewSnapshot(attempt);
-        openReading();
+        readingMode = true;
+        solution = state.view !== "reading-problem";
+        if (state.view === "reading") navigationContext.readingUnitId = null;
+        renderWorkspace();
       } else if (
         ["review", "workspace"].includes(state.view) &&
         document.body.dataset.view === "workspace"
@@ -303,7 +356,16 @@ async function restoreNavigation(state) {
         renderWorkspace();
       if (document.body.dataset.view === "workspace") await bookReady;
     } else renderCatalog();
-    restoreScroll(state?.scrollY || rootPositions[state?.view] || 0);
+    const scrollY = targetScroll ?? rootPositions[state?.view] ?? 0;
+    const current = window.history.state?.studyAtlasMock;
+    if (current) {
+      const saved = { ...current, scrollY };
+      window.history.replaceState({ studyAtlasMock: saved }, "", location.href);
+      try {
+        sessionStorage.setItem(navigationKey, JSON.stringify(saved));
+      } catch {}
+    }
+    restoreScroll(scrollY);
   } finally {
     navigationReplay = false;
   }
@@ -417,7 +479,16 @@ document.addEventListener("pointerdown", (event) => {
     closeAnswer();
 });
 window.addEventListener("resize", () => positionKeypad());
-window.addEventListener("scroll", () => positionKeypad(), { passive: true });
+window.addEventListener(
+  "scroll",
+  () => {
+    positionKeypad();
+    const key = window.history.state?.studyAtlasMock?.entryKey;
+    if (key && !navigationReplay && !documentLeaving)
+      viewScrollPositions.set(key, window.scrollY);
+  },
+  { passive: true },
+);
 
 function ask(title, choices) {
   const d = $("#action-dialog");
@@ -773,8 +844,20 @@ function renderWorkspace() {
   frameObserver?.disconnect();
   secondaryObserver?.disconnect();
   const reading = readingMode,
-    split = reading && innerWidth >= 1000;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : ""}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
+    selectedUnit =
+      reading &&
+      exam.scoring.find((u) => u.id === navigationContext.readingUnitId),
+    readingUnit = selectedUnit && {
+      ...selectedUnit,
+      fields: (navigationContext.readingUnitIds || [selectedUnit.id]).flatMap(
+        (id) =>
+          exam.scoring.find((u) => u.id === id && u.sectionId === sectionId)
+            ?.fields || [],
+      ),
+    },
+    split = reading && !readingUnit && innerWidth >= 1000;
+  if (reading && !readingUnit) solution = true;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : ""}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   $("#back-list").onclick = reading
     ? backFromReading
     : reviewing
@@ -794,28 +877,19 @@ function renderWorkspace() {
       nav.append(b);
     }
   }
-  if (reading) {
-    for (const kind of split ? ["paired"] : ["solution", "problem"])
-      for (const section of sections) {
-        const b = button(
-          section.title + (split ? "" : kind === "solution" ? "解説" : "問題"),
-          () => {
-            sectionId = section.id;
-            solution = split || kind === "solution";
-            renderWorkspace();
-          },
-        );
-        b.setAttribute(
-          "aria-current",
-          String(
-            section.id === sectionId &&
-              (split || solution === (kind === "solution")),
-          ),
-        );
-        $("#section-navigation").append(b);
-      }
+  if (reading && !readingUnit) {
+    for (const section of sections) {
+      const b = button(section.title, () => {
+        sectionId = section.id;
+        solution = true;
+        renderWorkspace();
+      });
+      b.setAttribute("aria-current", String(section.id === sectionId));
+      $("#section-navigation").append(b);
+    }
   }
-  const next = sections[sections.findIndex((s) => s.id === sectionId) + 1];
+  const next =
+    !readingUnit && sections[sections.findIndex((s) => s.id === sectionId) + 1];
   if (next)
     $("#book-next").append(
       button(next.title + " →", () => navigateSection(next.id), "primary"),
@@ -862,12 +936,17 @@ function renderWorkspace() {
     ).href;
   bookReady = new Promise(async (resolve) => {
     try {
-      const html = await documentText(url);
+      let html = await documentText(url);
+      if (readingUnit) html = readingProblemHTML(html, readingUnit);
       if (seq !== uiSequence) return resolve();
       frame.onload = () => {
         if (seq !== uiSequence) return resolve();
         const d = frame.contentDocument;
         if (!d?.body) return resolve();
+        if (reading && !readingUnit)
+          d.documentElement.setAttribute("data-solution-reading", "");
+        if (reading && !split && !readingUnit)
+          addProblemLinks(d, exam, openReadingProblem);
         d.addEventListener("pointerdown", () => {
           if ($("#answer-dialog").classList.contains("keypad-popup"))
             closeAnswer();

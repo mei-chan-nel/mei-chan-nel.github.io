@@ -190,15 +190,18 @@ const server = http.createServer((req, res) => {
     await p.setViewportSize({ width: 390, height: 844 });
     await p
       .locator("#section-navigation")
-      .getByRole("button", { name: "第2問A問題", exact: true })
+      .getByRole("button", { name: "第2問A", exact: true })
       .click();
+    await frame().locator('[data-reading-problem="q2a-01"]').click();
     await frame().locator('[data-field="q2a-ア"]').first().waitFor();
-    assert.equal(await p.locator("#section-navigation button").count(), 10);
+    await p.locator("#back-list").click();
+    await frame().locator('[data-reading-problem="q2a-01"]').waitFor();
+    assert.equal(await p.locator("#section-navigation button").count(), 5);
     assert.equal(await p.locator("#paired-problem").count(), 0);
     assert.equal(await p.locator("#timer").count(), 0);
     await p
       .locator("#section-navigation")
-      .getByRole("button", { name: "第3問解説", exact: true })
+      .getByRole("button", { name: "第3問", exact: true })
       .click();
     await frame().locator("body").waitFor();
     await p

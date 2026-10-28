@@ -16,7 +16,9 @@ html {
     background: white !important;
   }
   html[data-paired-reading] .sheet,
-  html[data-paired-reading] .page {
+  html[data-paired-reading] .page,
+  html[data-solution-reading] .sheet,
+  html[data-solution-reading] .page {
     display: flow-root !important;
     height: auto !important;
     min-height: 0 !important;
@@ -30,6 +32,58 @@ html {
     border: 0 !important;
     min-height: 0 !important;
     clear: both;
+    position: relative;
+    overflow: hidden;
+  }
+  .reading-gap-note:not([hidden]) {
+    position: absolute;
+    inset: 12px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px dashed #cbd7d5;
+    background: #f6f8f7;
+    color: #536c69;
+    text-align: center;
+    font: 14px/1.8 system-ui, sans-serif !important;
+  }
+  .reading-gap-note button,
+  .unit-problem-actions button {
+    border: 1px solid #b6ceca;
+    border-radius: 7px;
+    padding: 7px 12px;
+    background: white;
+    color: #126a65;
+    font: inherit;
+    cursor: pointer;
+    min-height: 40px;
+  }
+  .unit-problem-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 20px 0 8px;
+    color: #576968;
+    font: 14px/1.6 system-ui, sans-serif !important;
+  }
+  html[data-reading-fragment] .sheet,
+  html[data-reading-fragment] .page {
+    display: flow-root !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 20px 16px !important;
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+  html[data-reading-fragment] [data-reading-focus="true"] {
+    outline: 2px solid #40816d;
+    outline-offset: 2px;
   }
 }
 body {

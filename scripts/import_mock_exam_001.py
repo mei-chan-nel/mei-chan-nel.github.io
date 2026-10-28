@@ -4,7 +4,7 @@ Other exams supply their own adapter; engine uses only the documented data-* con
 from pathlib import Path
 from lxml import html, etree
 import json, hashlib, re
-from mock_exam_reading import prepare_reading
+from mock_exam_reading import prepare_reading, trim_solution, mark_problem_fragments
 ROOT=Path(__file__).resolve().parents[1]/'mock-exams'
 OUT=ROOT/'exams/001/1'
 SPEC=[
@@ -86,7 +86,7 @@ for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
  d.find('body').set('data-section',sid)
  head=d.find('head');etree.SubElement(head,'meta',name='robots',content='noindex, follow');link=etree.SubElement(head,'link',rel='stylesheet',href='../../../booklet.css')
  (OUT/f'{sid}.html').write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
- sol=clean(html.fromstring((OUT/'source'/solution).read_bytes()));etree.SubElement(sol.find('head'),'meta',name='robots',content='noindex, follow');etree.SubElement(sol.find('head'),'link',rel='stylesheet',href='../../../booklet.css')
+ sol=clean(html.fromstring((OUT/'source'/solution).read_bytes()));trim_solution(sol,sid);etree.SubElement(sol.find('head'),'meta',name='robots',content='noindex, follow');etree.SubElement(sol.find('head'),'link',rel='stylesheet',href='../../../booklet.css')
  (OUT/f'{sid}-solution.html').write_text('<!doctype html>\n'+html.tostring(sol,encoding='unicode'),encoding='utf8')
  exam['sections'].append({'id':sid,'title':title,'maxPoints':points,'sourceVersion':ver,'problem':f'{sid}.html','solution':f'{sid}-solution.html','sourceSha256':hashlib.sha256((OUT/'source'/problem).read_bytes()).hexdigest()})
 assert sum(u['maxPoints'] for u in exam['scoring'])==100
@@ -101,6 +101,7 @@ for section in exam['sections']:
   for link in document.xpath('//link[@rel="stylesheet"]'):
    if 'booklet.css' in link.get('href',''):link.set('href','../../../../booklet.css')
   prepare_reading(document, section['id'], kind, exam['scoring'])
+  if kind=='problem':mark_problem_fragments(document, section['id'], exam['scoring'])
   (OUT/'screen'/filename).write_text('<!doctype html>\n'+html.tostring(document,encoding='unicode'),encoding='utf8')
   section['screenProblem' if kind=='problem' else 'screenSolution']='screen/'+filename
 (OUT/'exam.json').write_text(json.dumps(exam,ensure_ascii=False,indent=2)+'\n')

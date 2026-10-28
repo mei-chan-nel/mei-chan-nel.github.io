@@ -15,10 +15,32 @@ export function alignReadingPanes(problemFrame, solutionFrame) {
     .filter((pair) => pair[1]);
   if (!pairs.length) return () => {};
   const spacers = pairs.map((pair) =>
-    pair.map((e) => {
+    pair.map((e, side) => {
       const spacer = e.ownerDocument.createElement("div");
       spacer.className = "reading-spacer";
       spacer.setAttribute("aria-hidden", "true");
+      const note = e.ownerDocument.createElement("div");
+      note.className = "reading-gap-note";
+      note.hidden = true;
+      const text = e.ownerDocument.createElement("span");
+      text.textContent =
+        side === 1
+          ? "左の問題と位置を合わせるための余白です。解説は下に続きます。"
+          : "右の解説と位置を合わせるための余白です。問題は下に続きます。";
+      const jump = e.ownerDocument.createElement("button");
+      jump.type = "button";
+      jump.textContent = side === 1 ? "解説へ ↓" : "問題へ ↓";
+      jump.onclick = () =>
+        window.scrollTo({
+          top:
+            window.scrollY +
+            frames[side].getBoundingClientRect().top +
+            e.getBoundingClientRect().top -
+            12,
+          behavior: "instant",
+        });
+      note.append(text, jump);
+      spacer.append(note);
       e.before(spacer);
       return spacer;
     }),
@@ -33,6 +55,8 @@ export function alignReadingPanes(problemFrame, solutionFrame) {
     if (closed || frames.some((f) => !f.isConnected)) return;
     spacers.flat().forEach((e) => {
       e.style.height = "0px";
+      e.firstElementChild.hidden = true;
+      e.setAttribute("aria-hidden", "true");
     });
     for (let i = 0; i < pairs.length; i++) {
       const tops = pairs[i].map(
@@ -43,6 +67,11 @@ export function alignReadingPanes(problemFrame, solutionFrame) {
       const earlier = tops[0] < tops[1] ? 0 : 1;
       const delta = Math.abs(tops[0] - tops[1]);
       if (delta > 0.5) spacers[i][earlier].style.height = delta + "px";
+      if (delta >= 160) {
+        const spacer = spacers[i][earlier];
+        spacer.firstElementChild.hidden = false;
+        spacer.removeAttribute("aria-hidden");
+      }
     }
     frames.forEach((f, side) => {
       f.style.height =

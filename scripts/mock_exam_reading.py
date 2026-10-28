@@ -4,6 +4,98 @@ An anchor covers a scoring unit, or units in the same unsplittable sentence.
 Shared tables and programs stay intact before their answer-specific choices.
 Fail at build time if an author changes the structure without updating the map.
 """
+def trim_solution(document, section_id):
+    """Approved editorial omissions, shared by screen, PDF and validation."""
+    if section_id == 'q2a':
+        for heading in document.xpath('//h1[normalize-space()="測定設計と本番との対応"]'):
+            sheet = heading.xpath('ancestor::section')[0]
+            sheet.getparent().remove(sheet)
+    elif section_id == 'q2b':
+        for heading in document.xpath('//h2[normalize-space()="測定能力と前後のつながり"]'):
+            for node in list(heading.itersiblings()):
+                node.getparent().remove(node)
+            heading.getparent().remove(heading)
+    elif section_id == 'q3':
+        for report in document.xpath('//section[contains(concat(" ",normalize-space(@class)," ")," validation ")]'):
+            report.getparent().remove(report)
+    omit_starts = {
+        'q1': ['氏名などを出さないことや', '表3は未公表の案であり'],
+        'q2a': ['正答③は問題で定めた処理のまとまりを評価するもの。'],
+        'q2b': ['この設問では、PやRが届いていることと'],
+        'q4': ['資料の案内や報道は予定・報道内容として扱い'],
+    }
+    for paragraph in list(document.xpath('//p')):
+        text = ''.join(paragraph.itertext()).strip()
+        if any(text.startswith(s) for s in omit_starts.get(section_id, [])):
+            paragraph.getparent().remove(paragraph)
+
+
+def mark_problem_fragments(document, section_id, scoring):
+    """Select each question and its necessary shared context without duplication.
+
+    Browser extraction reuses the already cached screen document. Original
+    ancestors and styles stay intact; no additional request or full exam render.
+    """
+    b = '/html/body/'
+    def sheet(n): return f'section[{n}]'
+    def a(n): return f'section[{n}]/div[2]/div'
+    def xor(n): return f'main/section[{n}]/div'
+    def prog(n): return f'section[{n}]/div'
+    def data(n): return f'main/section[{n}]/div[2]'
+    if section_id == 'q1':
+        spec = [[sheet(1)], [sheet(2)], [sheet(3)], [sheet(4)],
+                [sheet(5), sheet(6)+'/p[1]', sheet(6)+'/ol'],
+                [sheet(5), sheet(6)+'/p[position()>=2]', sheet(6)+'/table'],
+                [sheet(7)],
+                [sheet(7)+'/p[position()<=3]', sheet(7)+'/div[2]', sheet(7)+'/table', sheet(8)]]
+    elif section_id == 'q2a':
+        spec = [[f'section[{n}]/div[2]'] for n in range(1, 6)]
+        spec += [[a(5)+'/p[position()<=5]', a(5)+'/div', a(5)+'/table', a(6)]]
+    elif section_id == 'q2b':
+        common = [xor(1)+'/p[3]', xor(1)+'/p[4]', xor(1)+'/table[1]',
+                  xor(2)+'/p[2]', xor(2)+'/figure', xor(2)+'/p[3]']
+        spec = [[xor(1)], [xor(1)],
+                common+[xor(2)+'/p[1]', xor(2)+'/p[4]', xor(2)+'/fieldset[1]'],
+                common+[xor(2)+'/p[1]', xor(2)+'/p[4]', xor(2)+'/p[5]', xor(2)+'/fieldset[2]'],
+                common+[xor(3)+'/p[1]', xor(3)+'/fieldset[1]'],
+                common+[xor(3)+'/p[position()>=2]', xor(3)+'/fieldset[2]'],
+                common+[xor(3)+'/p[2]', xor(4)]]
+    elif section_id == 'q3':
+        numeric = [prog(1), prog(2)+'/div/p[position()<=3]', prog(2)+'/div/figure']
+        choice = [prog(1), prog(2)+'/div/p[position()!=3]', prog(2)+'/div/figure', prog(2)+'/div/div']
+        common2 = [prog(1)+'/p', prog(1)+'/div[2]', prog(3), prog(4)+'/figure']
+        common3 = [prog(5), prog(6)+'/div']
+        spec = [numeric, numeric, choice]
+        spec += [common2+[prog(4)+f'/fieldset[{n}]'] for n in range(1, 6)]
+        spec += [common3+[prog(6)+'/fieldset[1]'],
+                 common3+[prog(6)+'/p[1]'], common3+[prog(6)+'/fieldset[2]']]
+        spec += [common3+[prog(6)+'/p[position()>=3]']]*3
+    else:
+        common = [data(1)+'/p[position()<=3]']
+        table1 = [data(2)+'/div[contains(@class,"table1")]']
+        spec = [[data(1)], common+[data(2)],
+                common+table1+[data(2)+'/p[1]', data(3)+'/p', data(3)+'/figure', data(3)+'/fieldset[1]'],
+                common+table1+[data(2)+'/p[1]', data(3)+'/p[1]', data(3)+'/figure', data(3)+'/fieldset[2]'],
+                common+table1+[data(4)], common+[data(5)],
+                common+table1+[data(6)],
+                common+table1+[data(6)+'/p[1]', data(6)+'/div', data(7)+'/div[1]', data(7)+'/p[1]', data(7)+'/fieldset'],
+                common+table1+[data(2)+'/p[1]', data(5)+'/p[1]', data(5)+'/figure', data(5)+'/div[2]', data(6)+'/p[1]', data(6)+'/div', data(7)+'/p[2]', data(7)+'/div[2]', data(8)]]
+    units = [u for u in scoring if u['sectionId'] == section_id]
+    assert len(units) == len(spec)
+    for unit, paths in zip(units, spec):
+        selected = []
+        for path in paths:
+            found = document.xpath(b+path)
+            assert found, (section_id, unit['id'], path)
+            selected.extend(found)
+        for node in selected:
+            tokens = node.get('data-reading-for', '').split()
+            if unit['id'] not in tokens:
+                node.set('data-reading-for', ' '.join(tokens+[unit['id']]))
+        fields = {e.get('data-field') for node in selected for e in node.iter()}
+        assert set(unit['fields']) <= fields, (unit['id'], fields)
+
+
 def prepare_reading(document, section_id, kind, scoring):
     problem = kind == 'problem'
     prefix = '/html/body'
