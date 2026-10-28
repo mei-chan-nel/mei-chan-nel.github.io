@@ -4,18 +4,20 @@ URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 ## 最新配置
 
-- 確認日時：2026-10-28 21:58（日本時間）。Sitesの配置結果は`succeeded`。
+- 確認日時：2026-10-29 07:30（日本時間）。Sitesの配置結果は`succeeded`。
 - project_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571`
-- deployment_id：`appgdep_6ae1f146ffb081919161de5a9db87ac1`
-- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_f66d03b5231c8191a374616d7b8ae9cc`
-- 配置ソースcommit：`376c686a2efb1f5ee192a669415cd98ee52c5662`
-- 元サイトの実装commit：`babac6f2c3f5746d4411babb0cb9bb2835f1df5a`
+- deployment_id：`appgdep_6ae27788439c8191b0fbb1c6995d0412`
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_2f14e673f9f4819183981baf13a0b20c`
+- 配置ソースcommit：`ab52c21b2640a0982e6cf0cb18878d1154aaac31`
+- 元サイトの実装commit：`d86b71fc261e2b7d666137388b6f70f2dabf041d`
 - 閲覧範囲：既存の本人専用を維持。公開範囲は変更していない。
 - Sites用チェックアウト：`/workspace/sites/study-atlas-mock-exams-preview`
 
 ルートは最新のStudy Atlasトップ。説明文「共通テスト形式の模試で実戦的な演習を行います」のカードから`/mock-exams/`へ進む。現在の掲載はNo.001のみ。追加検証用No.002は含めない。
 
-今回の配置には、解説の誤答理由、透かし・柱の除去、枠内スクロール解消、余白案内の短縮、完成プログラムのStudioリンク、読込・保存処理の修正を含む。[見直し結果](REVIEW-2026-10-28.md)を参照。
+今回の配置には、ソフトウェアキーボードの「確定」とスマホの問題番号ナビの下スクロール時非表示・上スクロール時再表示を含む。外側タップによる入力保持と閉じる操作を維持。390pxのタッチ対応Chromium・PC・既存UI操作で確認済み。
+
+前回までの配置には、解説の誤答理由、透かし・柱の除去、枠内スクロール解消、余白案内の短縮、完成プログラムのStudioリンク、読込・保存処理の修正を含む。[見直し結果](REVIEW-2026-10-28.md)を参照。
 
 ## 統計・履歴
 
