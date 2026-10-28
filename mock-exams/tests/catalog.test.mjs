@@ -82,3 +82,11 @@ test("newest and numeric order also work with future publication metadata", () =
     ["001", "002"],
   );
 });
+
+test("interim grading stays resumable even with a graded status", () => {
+  const a = {
+    ...run("001", "untimed", null, "graded"),
+    gradingKind: "interim",
+  };
+  assert.equal(catalogProgress(entries[0], [a], "full").resume, a);
+});

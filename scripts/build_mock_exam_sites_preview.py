@@ -27,7 +27,8 @@ for file,is_home in [(root/'index.html',True),(root/'mock-exams/index.html',Fals
  from lxml import etree
  etree.SubElement(d.find('head'),'meta',name='robots',content='noindex,nofollow')
  if not is_home:
-  note=html.fromstring('<p style="margin:0;padding:8px 24px;text-align:center;background:#edf3ff;color:#264578;font-size:13px">確認用プレビュー · 採点すると本番の匿名統計に記録されます。</p>')
+  etree.SubElement(d.find('head'),'meta',name='mock-exams-preview-samples',content='1')
+  note=html.fromstring('<p class="preview-banner" style="margin:0;padding:8px 24px;text-align:center;background:#edf3ff;color:#264578;font-size:13px">確認用プレビュー · 通常の受験は本番の匿名統計に記録されます。</p>')
   d.find('body').insert(1,note)
  path=dist/('index.html' if is_home else 'mock-exams/index.html')
  path.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')

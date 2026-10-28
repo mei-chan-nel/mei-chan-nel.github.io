@@ -19,3 +19,9 @@ exports.startFullExam = async (page, mode = "untimed", id = "001") => {
       : card.getByRole("button", { name: "選択", exact: true })
   ).click();
 };
+exports.gradeInterim = async (page) => {
+  await page.getByRole("button", { name: "中断", exact: true }).click();
+  await page
+    .getByRole("button", { name: "ここまでを採点して中断", exact: true })
+    .click();
+};

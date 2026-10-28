@@ -70,6 +70,11 @@ body {
   color: #333;
 }
 @media screen and (min-width: 801px) {
+  body > .sheet:first-of-type,
+  body > .page:first-of-type,
+  main > .page:first-of-type {
+    margin-top: 0 !important;
+  }
   .sheet,
   .page {
     max-width: 100%;

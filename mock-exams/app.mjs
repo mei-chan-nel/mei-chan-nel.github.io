@@ -23,6 +23,7 @@ import {
   catalogSections,
   catalogProgress,
   sortCatalog,
+  isInterrupted,
 } from "./engine/catalog.mjs";
 const $ = (s) => document.querySelector(s),
   app = $("#app"),
@@ -55,6 +56,9 @@ const catalogView = {
 const circle = (value) => "⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value;
 const resetTop = () =>
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+const setView = (view) => {
+  document.body.dataset.view = view;
+};
 const esc = (s) =>
   String(s ?? "").replace(
     /[&<>"']/g,
@@ -236,6 +240,7 @@ function leave() {
   resetTop();
 }
 async function renderCatalog() {
+  setView("catalog");
   uiSequence++;
   app.innerHTML = `
     <div class="catalog-page">
@@ -260,13 +265,7 @@ async function renderCatalog() {
         </div>
         <div id="exam-list"></div>
       </section>
-      <a class="history-entry" href="#history"><span><strong>受験履歴・復習</strong><small>過去の成績を確認し、間違えた問題や未解答の問題を解き直す。</small></span><span aria-hidden="true">↓</span></a>
-      <section class="history-card" id="history" aria-labelledby="history-title">
-        <h2 id="history-title">このブラウザの学習履歴</h2>
-        <p class="muted">回ごと・大問ごとの記録を確認できます。採点結果の「解答に戻る」→「正誤表記あり」で復習できます。</p>
-        <div id="history-list"></div>
-        <details class="history-backup"><summary>履歴の保存・読み込み</summary><p class="muted">履歴はこの端末に保存されます。ブラウザのデータ削除に備えて書き出して保管できます。</p><div class="actions" id="history-actions"></div></details>
-      </section>
+      <div class="catalog-history-actions"><button id="open-history">学習履歴</button></div>
     </div>`;
   for (const [mode, title, description, meta] of [
     [
@@ -328,51 +327,7 @@ async function renderCatalog() {
     renderCatalog();
     $("#catalog-sort").focus({ preventScroll: true });
   };
-  // Keep this local navigation out of the attempt-ID URL fragment.
-  $(".history-entry").onclick = (e) => {
-    e.preventDefault();
-    $("#history").scrollIntoView({ block: "start", behavior: "instant" });
-    $("#history-title").tabIndex = -1;
-    $("#history-title").focus({ preventScroll: true });
-  };
-  $("#history-actions").append(
-    button("履歴を書き出す", () =>
-      download("study-atlas-mock-history.json", store.export()),
-    ),
-  );
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = ".json";
-  input.hidden = true;
-  input.onchange = async () => {
-    try {
-      const data = JSON.parse(await input.files[0].text());
-      if (data.schemaVersion !== 1 || !Array.isArray(data.attempts))
-        throw Error();
-      for (const raw of data.attempts) {
-        const entry = entryFor(raw.examId, raw.examVersion);
-        if (!entry) throw Error();
-        await loadExam(entry);
-        const a = restoreAttempt(exam, raw);
-        const old = store.load(a.id);
-        if (!old || a.updatedAt > old.updatedAt) {
-          a.startedAt = null;
-          a.status = a.result ? "graded" : "paused";
-          store.save(a);
-        } else {
-          store.saveStatistics(a);
-        }
-      }
-      renderCatalog();
-      notify("履歴を読み込みました");
-    } catch {
-      notify("履歴ファイルを読み込めませんでした。");
-    }
-  };
-  $("#history-actions").append(
-    button("履歴を読み込む", () => input.click()),
-    input,
-  );
+  $("#open-history").onclick = () => renderHistory();
   let history = [];
   try {
     history = store.list();
@@ -410,14 +365,17 @@ async function renderCatalog() {
       .append(
         button(
           progress.resume ? "再開" : "選択",
-          () => (progress.resume ? openAttempt(progress.resume.id) : start()),
+          () =>
+            progress.resume
+              ? openAttempt(progress.resume.id, "resume")
+              : start(),
           "primary",
         ),
       );
     if (progress.resume)
       card
         .querySelector(".actions")
-        .append(button("最初から解く", start, "start-new"));
+        .append(button("最初から解く", start, "primary"));
     const pdfLinks = document.createElement("div");
     pdfLinks.className = "pdf-links";
     for (const [kind, title] of [
@@ -436,36 +394,118 @@ async function renderCatalog() {
     card.querySelector(".actions").append(pdfLinks);
     $("#exam-list").append(card);
   }
-  if (!history.length)
-    $("#history-list").innerHTML =
-      '<p class="muted">まだ受験記録がありません。</p>';
+}
+function historyScope(a) {
+  return a.mode === "section"
+    ? catalogSections.find(([id]) => id === a.sectionIds[0])?.[1] || "大問別"
+    : a.mode === "timed"
+      ? "回ごと・60分"
+      : "回ごと・時間制限なし";
+}
+let historyFilter = "all";
+function renderHistory() {
+  setView("history");
+  uiSequence++;
+  location.hash = "history";
+  app.innerHTML = `<section class="history-page"><div class="history-page-heading"><div><p class="eyebrow">LEARNING HISTORY</p><h1>学習履歴</h1></div><button id="history-back">模試一覧に戻る</button></div><div class="history-filters" role="group" aria-label="履歴の受験方式"></div><div class="table-wrap"><table class="history-table"><thead><tr><th>受験日時</th><th>模試No.</th><th>受験方式・大問</th><th>状態</th><th>得点</th><th>得点率</th><th>解答時間</th><th>操作</th></tr></thead><tbody id="history-list"></tbody></table></div><p id="history-empty" class="muted" hidden>まだ該当する学習履歴はありません。</p><details class="history-backup"><summary>履歴の保存・読み込み</summary><p class="muted">履歴はこの端末に保存されます。ブラウザのデータ削除に備えて書き出して保管できます。</p><div class="actions" id="history-actions"></div></details></section>`;
+  $("#history-back").onclick = () => {
+    location.hash = "";
+    renderCatalog();
+    resetTop();
+  };
+  for (const [value, title] of [
+    ["all", "すべて"],
+    ["full", "回ごと"],
+    ["section", "大問ごと"],
+  ]) {
+    const b = button(title, () => {
+      historyFilter = value;
+      renderHistory();
+      $('.history-filters [aria-pressed="true"]').focus({
+        preventScroll: true,
+      });
+    });
+    b.setAttribute("aria-pressed", String(historyFilter === value));
+    $(".history-filters").append(b);
+  }
+  $("#history-actions").append(
+    button("履歴を書き出す", () =>
+      download("study-atlas-mock-history.json", store.export()),
+    ),
+  );
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+  input.hidden = true;
+  input.onchange = async () => {
+    try {
+      const data = JSON.parse(await input.files[0].text());
+      if (data.schemaVersion !== 1 || !Array.isArray(data.attempts))
+        throw Error();
+      for (const raw of data.attempts) {
+        const entry = entryFor(raw.examId, raw.examVersion);
+        if (!entry) throw Error();
+        await loadExam(entry);
+        const a = restoreAttempt(exam, raw);
+        const old = store.load(a.id);
+        if (!old || a.updatedAt > old.updatedAt) {
+          a.startedAt = null;
+          a.status = a.result ? "graded" : "paused";
+          store.save(a);
+        } else {
+          store.saveStatistics(a);
+        }
+      }
+      renderHistory();
+      notify("履歴を読み込みました");
+    } catch {
+      notify("履歴ファイルを読み込めませんでした。");
+    }
+  };
+  $("#history-actions").append(
+    button("履歴を読み込む", () => input.click()),
+    input,
+  );
+  let history = [];
+  try {
+    history = store.list();
+  } catch {
+    notify("ブラウザ保存を利用できません。設定を確認してください。");
+  }
+  history = history.filter(
+    (a) =>
+      historyFilter === "all" ||
+      (a.mode === "section"
+        ? historyFilter === "section"
+        : historyFilter === "full"),
+  );
+  $("#history-empty").hidden = history.length > 0;
   for (const a of history) {
-    const row = document.createElement("div");
-    row.className = "actions history-row";
-    const description = document.createElement("div");
-    description.className = "history-description";
-    const scope =
-      a.mode === "section"
-        ? catalogSections.find(([id]) => id === a.sectionIds[0])?.[1] ||
-          "大問別"
-        : a.mode === "timed"
-          ? "回ごと・60分"
-          : "回ごと・時間制限なし";
-    description.innerHTML = `<strong>No.${esc(a.examId)} · ${scope}</strong><span>${new Date(a.createdAt).toLocaleString("ja-JP")} · ${a.result ? `${a.result.points} / ${a.result.maxPoints}点` : "中断中"}</span>`;
-    row.append(
-      description,
-      button("開く", () => openAttempt(a.id)),
+    const row = document.createElement("tr");
+    row.dataset.attemptId = a.id;
+    const interrupted = isInterrupted(a);
+    row.innerHTML = `<td>${new Date(a.createdAt).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(a.examId)}</th><td>${historyScope(a)}</td><td>${interrupted ? (a.result ? "途中採点・中断中" : "中断中") : "採点済み"}</td><td>${a.result ? `${a.result.points} / ${a.result.maxPoints}点` : "—"}</td><td>${a.result ? ((a.result.points / a.result.maxPoints) * 100).toFixed(1) + "%" : "—"}</td><td>${time(elapsed(a))}</td><td><div class="actions history-row-actions"></div></td>`;
+    const actions = row.querySelector(".actions");
+    if (interrupted)
+      actions.append(button("再開", () => openAttempt(a.id, "resume")));
+    if (a.result)
+      actions.append(
+        button("採点結果", () => openAttempt(a.id)),
+        button("復習", () => openAttempt(a.id, "review")),
+      );
+    actions.append(
       button(
         "削除",
         () => {
           store.discard(a.id);
-          renderCatalog();
+          renderHistory();
         },
         "subtle-danger",
       ),
     );
     $("#history-list").append(row);
   }
+  resetTop();
 }
 async function begin(entry, mode, sid) {
   catalogView.mode = mode === "section" ? "section" : "full";
@@ -483,7 +523,7 @@ async function begin(entry, mode, sid) {
   renderWorkspace();
   resetTop();
 }
-async function openAttempt(id) {
+async function openAttempt(id, action = "result") {
   const a = store.load(id);
   if (!a || a.discardedAt) {
     location.hash = "";
@@ -513,7 +553,10 @@ async function openAttempt(id) {
   readingMode = false;
   sectionId = a.sectionIds[0];
   location.hash = id;
-  if (attempt.result) renderResults();
+  if (attempt.result && action === "review") restart(true);
+  else if (attempt.result && action === "resume" && isInterrupted(attempt))
+    restart(false);
+  else if (attempt.result) renderResults();
   else {
     if (attempt.status !== "active") resume(attempt);
     persist();
@@ -539,13 +582,14 @@ function navigateSection(id) {
   );
 }
 function renderWorkspace() {
+  setView("workspace");
   closeAnswer();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
   secondaryObserver?.disconnect();
   const reading = readingMode,
     split = reading && innerWidth >= 1000;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div><button id="back-list">${reading ? "採点結果に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book"><nav class="book-nav" aria-label="大問を選ぶ"></nav>${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div><aside class="sidebar"><div id="run-actions" class="actions"></div>${reading ? "" : `<p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button>`}</aside></div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar"><nav class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? "採点結果に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div><aside class="sidebar"><div id="run-actions" class="actions"></div>${reading ? "" : `<p>${reviewing ? "復習モード" : attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details><button id="export-active">履歴を書き出す</button>`}</aside></div>`;
   $("#back-list").onclick = reading
     ? () => {
         readingMode = false;
@@ -1081,10 +1125,10 @@ function requestPause(toList) {
         leave();
       },
     ],
-    ["ここまでを採点して中断", () => doGrade()],
+    ["ここまでを採点して中断", () => doGrade("interim")],
   ]);
 }
-function doGrade() {
+function doGrade(kind = "final") {
   if ($("#answer-dialog").open) $("#answer-dialog").close();
   if (reviewing) {
     gradeReview(exam, attempt);
@@ -1093,6 +1137,7 @@ function doGrade() {
     return;
   }
   submit(exam, attempt);
+  attempt.gradingKind = kind === "interim" ? "interim" : "final";
   persist();
   renderResults();
 }
@@ -1198,6 +1243,7 @@ function renderUnitTable(r, runs) {
   }
   const table = $("#unit-table");
   table.classList.toggle("with-history", historyExpanded);
+  $("#unit-block").classList.toggle("expanded", historyExpanded);
   $("#toggle-history").textContent = historyExpanded
     ? "過去の成績を閉じる"
     : "過去の成績も表示する";
@@ -1226,6 +1272,7 @@ function applyResultStats(stats, r) {
     points === null ? "—" : ((points / r.maxPoints) * 100).toFixed(1) + "%";
 }
 function renderResults() {
+  setView("results");
   closeAnswer();
   const seq = ++uiSequence;
   frameObserver?.disconnect();
@@ -1235,15 +1282,17 @@ function renderResults() {
   const current = attempt,
     r = current.result;
   if (!r) return renderWorkspace();
-  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1></div><button id="discard-result" class="subtle-danger">この採点結果を破棄する</button></div><div class="score">${r.points}<small> / ${r.maxPoints}</small></div><p>得点率 ${((r.points / r.maxPoints) * 100).toFixed(1)}% · 解答時間 ${time(elapsed(current))}</p><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></section>`;
-  $("#discard-result").onclick = () => discardAttempt(current.id);
+  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
+  if (isInterrupted(current))
+    $("#result-actions").append(
+      button("解答に戻る", () =>
+        ask("正誤表記を選ぶ", [
+          ["正誤表記あり", () => restart(true)],
+          ["正誤表記なし", () => restart(false)],
+        ]),
+      ),
+    );
   $("#result-actions").append(
-    button("解答に戻る", () =>
-      ask("正誤表記を選ぶ", [
-        ["正誤表記あり", () => restart(true)],
-        ["正誤表記なし", () => restart(false)],
-      ]),
-    ),
     button("解説を読む", () => {
       if (attempt.status === "active") {
         pause(attempt);
@@ -1257,7 +1306,13 @@ function renderResults() {
       resetTop();
     }),
     button("一覧に戻る", leave, "back-to-catalog"),
+    button(
+      "この採点結果を破棄する",
+      () => discardAttempt(current.id),
+      "subtle-danger discard-result",
+    ),
   );
+  $(".discard-result").id = "discard-result";
   for (const section of r.sections)
     $("#section-results").insertAdjacentHTML(
       "beforeend",
@@ -1345,7 +1400,17 @@ function restart(show) {
 }
 try {
   catalog = await fetch("catalog.json").then((r) => r.json());
-  if (location.hash.slice(1) && store.load(location.hash.slice(1)))
+  if (document.querySelector('meta[name="mock-exams-preview-samples"]')) {
+    try {
+      const { seedPreviewHistory } =
+        await import("./engine/preview-history.mjs");
+      await seedPreviewHistory(catalog, store);
+    } catch {
+      notify("サンプル履歴を準備できませんでした。");
+    }
+  }
+  if (location.hash === "#history") renderHistory();
+  else if (location.hash.slice(1) && store.load(location.hash.slice(1)))
     await openAttempt(location.hash.slice(1));
   else await renderCatalog();
 } catch (e) {

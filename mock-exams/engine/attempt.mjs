@@ -42,6 +42,7 @@ export function resume(a, show = false, now = Date.now()) {
 }
 export function submit(exam, a, now = Date.now()) {
   pause(a, now);
+  a.gradingKind = "final";
   a.review = null;
   a.gradedAnswers = structuredClone(a.answers);
   a.result = grade(exam, a.answers, a.sectionIds);
@@ -106,6 +107,7 @@ export class AttemptStore {
     if (!copies.length) return null;
     copies.sort((a, b) => b.updatedAt - a.updatedAt);
     const latest = copies[0];
+    if (copies.some((a) => a.isSample)) latest.isSample = true;
     if (copies.some((a) => a.discardedAt))
       latest.discardedAt = Math.max(...copies.map((a) => a.discardedAt || 0));
     latest.statsDelivery = mergeDelivery(...copies.map((a) => a.statsDelivery));
@@ -114,6 +116,7 @@ export class AttemptStore {
   save(a) {
     const key = PREFIX + "attempt:" + a.id;
     const previous = this.load(a.id);
+    if (previous?.isSample) a.isSample = true;
     if (previous?.discardedAt) {
       a.discardedAt = previous.discardedAt;
       a.answers = {};
@@ -237,7 +240,9 @@ export function restoreAttempt(exam, raw) {
     showCorrectness: !!raw.showCorrectness,
     result: null,
     review: null,
+    gradingKind: raw.gradingKind === "interim" ? "interim" : "final",
   };
+  if (raw.isSample === true) a.isSample = true;
   if (raw.result) {
     a.gradedAnswers = checkAnswers(
       raw.gradedAnswers ||

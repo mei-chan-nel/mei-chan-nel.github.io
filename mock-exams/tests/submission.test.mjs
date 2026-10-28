@@ -316,3 +316,64 @@ test("discarded attempts lose personal answers and cannot be revived by late sen
   });
   assert.equal(requests, 0);
 });
+
+test("Sites sample histories preserve grades, never submit, and stay deleted", async () => {
+  const { seedPreviewHistory } = await import("../engine/preview-history.mjs");
+  const { store } = memoryStore();
+  const previousLocation = globalThis.location;
+  globalThis.location = new URL("https://preview.example/mock-exams/");
+  let reads = 0,
+    writes = 0;
+  const request = async () => {
+    reads++;
+    return Response.json(exam);
+  };
+  const catalog = [
+    { id: "001", version: 1, manifest: "exams/001/1/exam.json" },
+  ];
+  try {
+    await seedPreviewHistory(catalog, store, request, Date.now());
+    const samples = store.list();
+    assert.equal(samples.length, 6);
+    assert.equal(
+      new Set(
+        samples.filter((a) => a.mode === "untimed").map((a) => a.result.points),
+      ).size,
+      3,
+    );
+    for (const raw of samples) {
+      const a = restoreAttempt(exam, raw);
+      assert.equal(a.isSample, true);
+      assert.equal(a.result.points, raw.result.points);
+      assert.equal(a.gradingKind, raw.gradingKind);
+      resume(a);
+      a.answers[
+        exam.fields.find((f) => a.sectionIds.includes(f.sectionId)).id
+      ] = "0";
+      submit(exam, a);
+      store.save(a);
+      assert.equal(
+        (
+          await sendUnsentUnits(exam, a, store, {
+            request: async () => {
+              writes++;
+              return ok(1);
+            },
+          })
+        ).status,
+        "skipped",
+      );
+    }
+    store.discard(samples[0].id);
+    await seedPreviewHistory(catalog, store, request, Date.now());
+    assert.equal(store.list().length, 5);
+    assert.equal(reads, 1);
+    assert.equal(writes, 0);
+    const stale = structuredClone(samples[1]);
+    delete stale.isSample;
+    store.save(stale);
+    assert.equal(store.load(stale.id).isSample, true);
+  } finally {
+    globalThis.location = previousLocation;
+  }
+});

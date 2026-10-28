@@ -1,4 +1,4 @@
-const { startFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam, gradeInterim } = require("./catalog-helpers.cjs");
 /* PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser.cjs */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -99,9 +99,12 @@ const server = http.createServer((req, res) => {
         );
       }
     }
-    await p.getByRole("button", { name: "採点する", exact: true }).click();
+    await gradeInterim(p);
     await p.getByRole("heading", { name: "採点結果" }).waitFor();
-    assert.equal((await p.locator(".score").textContent()).trim(), "100 / 100");
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "100 / 100点",
+    );
     await p.screenshot({ path: path.join(output, "result.png") });
     console.log("PASS: all 49 answers through UI -> 100/100");
     await p.getByRole("button", { name: "解答に戻る" }).click();
@@ -121,8 +124,6 @@ const server = http.createServer((req, res) => {
       .locator("#exam-list")
       .getByRole("button", { name: "再開", exact: true })
       .click();
-    await p.getByRole("button", { name: "解答に戻る" }).click();
-    await p.getByRole("button", { name: "正誤表記なし", exact: true }).click();
     await f.locator('[data-field="q1-ウ"]').first().waitFor();
     assert.equal(
       await f.locator('[data-field="q1-ウ"]').first().textContent(),
@@ -137,8 +138,11 @@ const server = http.createServer((req, res) => {
       .waitFor();
     await other.close();
     console.log("PASS: clear, flag, pause/resume, concurrent-tab lock");
-    await p.getByRole("button", { name: "採点する", exact: true }).click();
-    assert.equal((await p.locator(".score").textContent()).trim(), "97 / 100");
+    await gradeInterim(p);
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "97 / 100点",
+    );
     await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
     await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
     await f.locator('[data-field="q1-ウ"]').first().waitFor();
@@ -170,7 +174,10 @@ const server = http.createServer((req, res) => {
     await p
       .getByRole("button", { name: "復習を採点する", exact: true })
       .click();
-    assert.equal((await p.locator(".score").textContent()).trim(), "97 / 100");
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "97 / 100点",
+    );
     assert.equal(
       await p.evaluate(
         () =>
@@ -233,7 +240,10 @@ const server = http.createServer((req, res) => {
       .click();
     await f.locator('[data-field="q2b-コ"]').first().waitFor();
     await p.getByRole("button", { name: "採点する", exact: true }).click();
-    assert.equal((await p.locator(".score").textContent()).trim(), "0 / 15");
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "0 / 15点",
+    );
     console.log("PASS: section-only maximum 15");
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     await startFullExam(p, "timed");
@@ -262,8 +272,10 @@ const server = http.createServer((req, res) => {
       .getByRole("heading", { name: "採点結果", exact: true })
       .waitFor();
     assert.equal(
-      (await timed.locator(".score").textContent()).trim(),
-      "0 / 100",
+      (
+        await timed.locator(".summary-table tfoot td").first().textContent()
+      ).trim(),
+      "0 / 100点",
     );
     console.log("PASS: timed resume auto-grades at deadline");
 

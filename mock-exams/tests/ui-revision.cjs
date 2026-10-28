@@ -1,4 +1,4 @@
-const { startFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam, gradeInterim } = require("./catalog-helpers.cjs");
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const http = require("node:http"),
   fs = require("node:fs"),
@@ -147,10 +147,7 @@ const server = http.createServer((req, res) => {
           e.querySelector("legend").getBoundingClientRect().bottom,
       );
     assert.ok(gap >= 8, "legend separation");
-    await p
-      .getByRole("button", { name: "採点する", exact: true })
-      .first()
-      .click();
+    await gradeInterim(p);
     await p.getByRole("heading", { name: "採点結果", exact: true }).waitFor();
     assert.equal(await p.evaluate(() => scrollY), 0);
     assert.equal(await p.locator("#submission-status").count(), 0);
@@ -244,6 +241,7 @@ const server = http.createServer((req, res) => {
     await p
       .getByRole("heading", { name: "情報Ⅰ 実戦模試", exact: true })
       .waitFor();
+    await p.getByRole("button", { name: "学習履歴", exact: true }).click();
     assert.equal(await p.locator("#history-list .actions").count(), 1);
     await p
       .locator("#history-list")

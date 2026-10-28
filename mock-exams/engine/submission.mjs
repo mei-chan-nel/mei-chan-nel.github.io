@@ -8,7 +8,12 @@ export async function sendUnsentUnits(
   store,
   { source = "exam", request = fetch, now = Date.now } = {},
 ) {
-  if (source !== "exam" || !attempt.result || !attempt.gradedAnswers)
+  if (
+    attempt.isSample ||
+    source !== "exam" ||
+    !attempt.result ||
+    !attempt.gradedAnswers
+  )
     return { status: "skipped", count: 0 };
   if (attempt.examId !== exam.id || attempt.examVersion !== exam.version)
     throw Error("受験履歴の模試・版が一致しません");
@@ -21,7 +26,7 @@ export async function sendUnsentUnits(
     }),
   );
   async function send() {
-    if (store.load(attempt.id)?.discardedAt)
+    if (store.load(attempt.id)?.discardedAt || store.load(attempt.id)?.isSample)
       return { status: "skipped", count: 0 };
     // Reading persisted markers also protects imports of older copies on this device.
     attempt.statsDelivery = mergeDelivery(

@@ -190,7 +190,10 @@ const server = http.createServer((req, res) => {
     assert.deepEqual(section.sectionIds, ["q3"]);
     await p.getByRole("button", { name: "採点する", exact: true }).click();
     await p.getByRole("heading", { name: "採点結果", exact: true }).waitFor();
-    assert.equal((await p.locator(".score").textContent()).trim(), "0 / 25");
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "0 / 25点",
+    );
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     assert.equal(await p.locator(".exam-status").textContent(), "採点済み");
     await p
@@ -230,21 +233,18 @@ const server = http.createServer((req, res) => {
       .waitFor();
     assert.equal((await attempt(p)).id, full.id);
     await pause(p);
-    await p.getByRole("link", { name: /受験履歴・復習/ }).click();
-    assert.equal(await p.evaluate(() => location.hash), "");
-    assert.equal(await p.locator("#history-list .history-row").count(), 3);
+    await p.getByRole("button", { name: "学習履歴", exact: true }).click();
+    assert.equal(await p.evaluate(() => location.hash), "#history");
+    assert.equal(await p.locator("#history-list tr").count(), 3);
     assert.match(
       await p.locator("#history-list").textContent(),
-      /No.001 · 第3問/,
+      /No.001.*第3問/s,
     );
     await p
-      .locator("#history-list .history-row")
+      .locator("#history-list tr")
       .filter({ hasText: "0 / 25点" })
-      .getByRole("button", { name: "開く", exact: true })
+      .getByRole("button", { name: "復習", exact: true })
       .click();
-    await p.getByRole("heading", { name: "採点結果", exact: true }).waitFor();
-    await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
-    await p.getByRole("button", { name: "正誤表記あり", exact: true }).click();
     await p.getByText("復習モード", { exact: true }).waitFor();
     assert.equal(
       submissions.length,

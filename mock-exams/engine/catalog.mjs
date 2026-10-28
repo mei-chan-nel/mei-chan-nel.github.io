@@ -7,6 +7,8 @@ export const catalogSections = [
   ["q3", "第3問"],
   ["q4", "第4問"],
 ];
+export const isInterrupted = (a) =>
+  a.status !== "graded" || !a.result || a.gradingKind === "interim";
 
 // Timed and untimed full exams share a status. Section practice has its own
 // status for each section, while using the very same exam ID and manifest.
@@ -24,7 +26,7 @@ export function catalogProgress(entry, history, mode, sectionId) {
           : a.mode === "timed" || a.mode === "untimed"),
     )
     .sort((a, b) => b.updatedAt - a.updatedAt || b.createdAt - a.createdAt);
-  const unfinished = runs.find((a) => a.status !== "graded" || !a.result);
+  const unfinished = runs.find(isInterrupted);
   return {
     status: unfinished ? "中断中" : runs.length ? "採点済み" : "未受験",
     resume: unfinished || null,

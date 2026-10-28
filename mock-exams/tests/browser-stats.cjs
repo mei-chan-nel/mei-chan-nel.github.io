@@ -1,4 +1,4 @@
-const { startFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam, gradeInterim } = require("./catalog-helpers.cjs");
 /* Direct RPC browser flow with deterministic HTTP responses; real SQL is tested separately. */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -51,8 +51,7 @@ const server = http.createServer((req, res) => {
       await f.locator(`[data-field="${id}"]`).first().click();
       await p.locator("#answer-options>button").nth(value).click();
     };
-    const grade = () =>
-      p.getByRole("button", { name: "採点する", exact: true }).click();
+    const grade = () => gradeInterim(p);
     const resume = async () => {
       await p.getByRole("button", { name: "解答に戻る", exact: true }).click();
       await p
