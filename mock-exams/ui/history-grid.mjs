@@ -2,6 +2,7 @@ import {
   historyColumns,
   columnValues,
   applyHistoryGrid,
+  migrateHistoryScopeFilter,
 } from "../engine/history-grid.mjs";
 import { isInterrupted } from "../engine/catalog.mjs";
 const esc = (value) =>
@@ -20,9 +21,22 @@ const button = (label, action, cls = "") => {
   return b;
 };
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-let menu, menuAnchor;
+let menu, menuAnchor, menuPosition;
 export function closeHistoryMenu() {
   if (menu?.open) menu.close();
+}
+function closeMovedMenu() {
+  if (!menu?.open || !menuPosition) return;
+  const a = menuAnchor.getBoundingClientRect();
+  // A header may scroll into view just before opening. Its already queued
+  // scroll/resize event must not immediately close the newly opened menu.
+  if (
+    Math.abs(a.left - menuPosition.left) > 0.5 ||
+    Math.abs(a.top - menuPosition.top) > 0.5 ||
+    innerWidth !== menuPosition.width ||
+    innerHeight !== menuPosition.height
+  )
+    closeHistoryMenu();
 }
 function ensureMenu() {
   if (menu) return menu;
@@ -45,8 +59,8 @@ function ensureMenu() {
       menuAnchor?.focus({ preventScroll: true });
     }
   });
-  window.addEventListener("resize", closeHistoryMenu);
-  window.addEventListener("scroll", closeHistoryMenu, { passive: true });
+  window.addEventListener("resize", closeMovedMenu);
+  window.addEventListener("scroll", closeMovedMenu, { passive: true });
   return menu;
 }
 function openMenu(column, anchor, rows, state, change) {
@@ -166,6 +180,12 @@ function openMenu(column, anchor, rows, state, change) {
   const a = anchor.getBoundingClientRect(),
     h = d.getBoundingClientRect().height,
     below = innerHeight - a.bottom - 8;
+  menuPosition = {
+    left: a.left,
+    top: a.top,
+    width: innerWidth,
+    height: innerHeight,
+  };
   d.style.left =
     Math.max(10, Math.min(a.left, innerWidth - d.offsetWidth - 10)) + "px";
   d.style.top =
@@ -182,6 +202,7 @@ export function renderHistoryGrid(
   root,
   { rows, state, onChange, onOpen, onDelete, onReset },
 ) {
+  migrateHistoryScopeFilter(state, rows);
   const shown = applyHistoryGrid(rows, state),
     active = Object.keys(state.filters || {}).filter((k) => state.filters[k]);
   root.innerHTML = `<div class="history-grid-tools"><p class="history-row-count" role="status">${shown.length}件 / ${rows.length}件</p><button class="grid-reset">表示条件をリセット</button></div><div class="history-filter-chips"></div><div class="table-wrap"><table class="history-table"><thead><tr>${historyColumns.map((c) => `<th scope="col"><button data-history-column="${c.key}" aria-label="${c.label}の並び替え・絞り込み"><span>${c.label}</span><span class="column-indicator" aria-hidden="true">${state.sort?.key === c.key ? (state.sort.direction === "asc" ? "↑" : "↓") : ""}${active.includes(c.key) ? " ●" : " ▾"}</span></button></th>`).join("")}<th scope="col">操作</th></tr></thead><tbody id="history-list"></tbody></table></div><p id="history-empty" class="muted" ${shown.length ? "hidden" : ""}>該当する学習履歴はありません。</p>${rows.some((r) => r.derived) ? '<p class="history-time-note">通し受験から切り出した大問は、大問別の解答時間を記録していないため「—」で表示します。</p>' : ""}`;
@@ -212,7 +233,7 @@ export function renderHistoryGrid(
   }
   root
     .querySelector(".table-wrap")
-    .addEventListener("scroll", closeHistoryMenu, { passive: true });
+    .addEventListener("scroll", closeMovedMenu, { passive: true });
   for (const r of shown) {
     const a = r.attempt,
       tr = document.createElement("tr");
@@ -220,7 +241,7 @@ export function renderHistoryGrid(
     tr.dataset.rowKey = r.key;
     tr.dataset.sectionId = r.sectionId || "";
     tr.dataset.derived = String(r.derived);
-    tr.innerHTML = `<td>${new Date(r.date).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(r.exam)}</th><td>${esc(r.derived ? r.scope.replace("（通し受験）", "") : r.scope)}${r.derived ? '<small class="history-source">通し受験から</small>' : ""}</td><td>${r.status}</td><td>${r.points === null ? "—" : r.points + " / " + r.maxPoints + "点"}</td><td>${r.rate === null ? "—" : r.rate.toFixed(1) + "%"}</td><td>${r.duration === null ? "—" : clock(r.duration)}</td><td><div class="actions history-row-actions"></div></td>`;
+    tr.innerHTML = `<td>${new Date(r.date).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(r.exam)}</th><td>${esc(r.derived ? r.scope.slice(0, r.scope.indexOf("（")) : r.scope)}${r.derived ? `<small class="history-source">${esc(r.fullMode)}</small>` : ""}</td><td>${r.status}</td><td>${r.points === null ? "—" : r.points + " / " + r.maxPoints + "点"}</td><td>${r.rate === null ? "—" : r.rate.toFixed(1) + "%"}</td><td>${r.duration === null ? "—" : clock(r.duration)}</td><td><div class="actions history-row-actions"></div></td>`;
     for (const [title, enabled, action, cls] of [
       ["採点結果", !!a.result, () => onOpen(r, "result"), ""],
       ["復習", !!a.result, () => onOpen(r, "review"), ""],

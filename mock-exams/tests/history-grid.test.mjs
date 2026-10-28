@@ -10,6 +10,7 @@ import {
   columnValues,
   filterKey,
   emptyGridState,
+  migrateHistoryScopeFilter,
 } from "../engine/history-grid.mjs";
 const exam = JSON.parse(
   readFileSync(new URL("../exams/001/1/exam.json", import.meta.url)),
@@ -39,6 +40,7 @@ test("section view includes five slices of each full attempt plus section practi
   const slices = rows.filter((r) => r.attempt.id === full.id);
   assert.equal(slices.length, 5);
   assert.ok(slices.every((r) => r.derived && r.duration === null));
+  assert.ok(slices.every((r) => r.fullMode === "回ごと・時間制限なし"));
   assert.equal(
     slices.reduce((n, r) => n + r.points, 0),
     full.result.points,
@@ -51,6 +53,21 @@ test("section view includes five slices of each full attempt plus section practi
   }
   assert.equal(rows.find((r) => r.attempt.id === section.id).duration, 3);
   assert.equal(JSON.stringify(samples), original);
+});
+test("saved scope filters retain both full time modes after relabelling", () => {
+  const rows = historyRows(samples, "section"),
+    state = emptyGridState();
+  state.filters.scope = { values: [JSON.stringify("第3問（通し受験）")] };
+  migrateHistoryScopeFilter(state, rows);
+  assert.equal(applyHistoryGrid(rows, state).length, 2);
+  assert.ok(
+    applyHistoryGrid(rows, state).every(
+      (r) => r.derived && r.sectionId === "q3",
+    ),
+  );
+  const saved = JSON.stringify(state);
+  migrateHistoryScopeFilter(state, rows);
+  assert.equal(JSON.stringify(state), saved);
 });
 test("zero grade is distinct from ungraded and section slicing is immutable", () => {
   const rows = historyRows(samples, "section");

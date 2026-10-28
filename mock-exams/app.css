@@ -957,23 +957,9 @@ button.subtle-button {
   display: flex;
   flex-direction: column;
 }
-.reading-layout > .sidebar {
-  order: 0;
-  position: static;
-  width: 100%;
-  max-height: none;
-  padding: 10px 16px;
-}
 .reading-layout > .book {
   order: 1;
   width: 100%;
-}
-.reading-layout #run-actions {
-  display: flex;
-  margin: 0;
-}
-.reading-layout .section-navigation {
-  grid-template-columns: repeat(5, 1fr);
 }
 .explanation-panes {
   display: grid;
@@ -994,15 +980,8 @@ button.subtle-button {
 .reading-layout .book-nav:empty {
   display: none;
 }
-.reading-layout > .sidebar {
-  position: sticky;
-  top: 0;
-  z-index: 4;
-  max-height: 45vh;
-  overflow: auto;
-}
 .reading-layout iframe {
-  scroll-margin-top: 160px;
+  scroll-margin-top: 12px;
 }
 
 /* The exam toolbar and the two panes start on the same baseline. */
@@ -1202,9 +1181,10 @@ button.filter-chip {
   background: transparent;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  position: relative;
   gap: 7px;
-  padding: 12px 9px;
+  padding: 12px 26px;
   font-size: 13px;
   white-space: nowrap;
 }
@@ -1213,8 +1193,22 @@ button.filter-chip {
   background: #deeee7;
 }
 .column-indicator {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: 11px;
   color: var(--mock-accent);
+}
+
+/* Reading controls scroll away with the page on every screen size. */
+.workspace-toolbar.reading-toolbar {
+  position: static;
+  padding: 0;
+  align-items: flex-start;
+}
+.reading-toolbar .book-nav {
+  flex: 1;
 }
 .history-source {
   display: block;

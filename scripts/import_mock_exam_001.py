@@ -4,6 +4,7 @@ Other exams supply their own adapter; engine uses only the documented data-* con
 from pathlib import Path
 from lxml import html, etree
 import json, hashlib, re
+from mock_exam_reading import prepare_reading
 ROOT=Path(__file__).resolve().parents[1]/'mock-exams'
 OUT=ROOT/'exams/001/1'
 SPEC=[
@@ -99,6 +100,7 @@ for section in exam['sections']:
    style.text=re.sub(r'@font-face\s*\{[^}]*\}','',style.text or '',flags=re.I)
   for link in document.xpath('//link[@rel="stylesheet"]'):
    if 'booklet.css' in link.get('href',''):link.set('href','../../../../booklet.css')
+  prepare_reading(document, section['id'], kind, exam['scoring'])
   (OUT/'screen'/filename).write_text('<!doctype html>\n'+html.tostring(document,encoding='unicode'),encoding='utf8')
   section['screenProblem' if kind=='problem' else 'screenSolution']='screen/'+filename
 (OUT/'exam.json').write_text(json.dumps(exam,ensure_ascii=False,indent=2)+'\n')

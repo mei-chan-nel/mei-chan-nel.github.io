@@ -22,6 +22,7 @@ import {
   emptyGridState,
 } from "./engine/history-grid.mjs";
 import { renderHistoryGrid, closeHistoryMenu } from "./ui/history-grid.mjs";
+import { alignReadingPanes } from "./ui/paired-reading.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 import {
@@ -51,7 +52,8 @@ let activeAnchor = null,
   bookReady = Promise.resolve(),
   historyExpanded = false,
   readingMode = false,
-  secondaryObserver = null;
+  secondaryObserver = null,
+  readingAlignment = null;
 const catalogView = {
   mode: "full",
   timeMode: "timed",
@@ -80,6 +82,8 @@ const restoreScroll = (top = 0) =>
 function setView(view) {
   if (documentLeaving) return;
   closeHistoryMenu();
+  readingAlignment?.();
+  readingAlignment = null;
   const previous = document.body.dataset.view;
   if (!navigationReplay && previous === "history")
     historyTableScroll = $(".history-page .table-wrap")?.scrollLeft || 0;
@@ -770,7 +774,7 @@ function renderWorkspace() {
   secondaryObserver?.disconnect();
   const reading = readingMode,
     split = reading && innerWidth >= 1000;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar"><nav class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div><aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside></div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (split ? " 問題・解説" : solution ? " 正答・解説" : " 問題") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : ""}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   $("#back-list").onclick = reading
     ? backFromReading
     : reviewing
@@ -791,13 +795,13 @@ function renderWorkspace() {
     }
   }
   if (reading) {
-    for (const kind of ["solution", "problem"])
+    for (const kind of split ? ["paired"] : ["solution", "problem"])
       for (const section of sections) {
         const b = button(
-          section.title + (kind === "solution" ? "解説" : "問題"),
+          section.title + (split ? "" : kind === "solution" ? "解説" : "問題"),
           () => {
             sectionId = section.id;
-            solution = kind === "solution";
+            solution = split || kind === "solution";
             renderWorkspace();
           },
         );
@@ -828,14 +832,12 @@ function renderWorkspace() {
         reading || reviewing ? "" : "primary",
       ),
     );
-  if (reading)
-    $("#run-actions").append(button(readingBackLabel(), backFromReading));
-  else if (reviewing)
+  if (reviewing && !reading)
     $("#run-actions").append(
       button("解説を読む", openReading),
       button(reviewBackLabel(), backFromReview),
     );
-  else
+  else if (!reading)
     $("#run-actions").append(
       button("採点する", doGrade, "primary"),
       button("中断", () => requestPause(false)),
@@ -978,13 +980,17 @@ function renderWorkspace() {
     }
   });
   if (split) {
+    let secondaryResolve;
+    const secondaryReady = new Promise((resolve) => {
+      secondaryResolve = resolve;
+    });
     const other = $("#paired-problem"),
       url = new URL(section.screenProblem || section.problem, base).href;
     documentText(url)
       .then((html) => {
-        if (seq !== uiSequence) return;
+        if (seq !== uiSequence) return secondaryResolve();
         other.onload = () => {
-          if (seq !== uiSequence) return;
+          if (seq !== uiSequence) return secondaryResolve();
           const d = other.contentDocument;
           for (const e of d.querySelectorAll("[data-field]")) {
             const f = exam.fields.find((f) => f.id === e.dataset.field);
@@ -1005,13 +1011,18 @@ function renderWorkspace() {
           secondaryObserver = new ResizeObserver(resize);
           secondaryObserver.observe(d.body);
           resize();
+          secondaryResolve();
         };
         other.srcdoc = html.replace(
           /<head[^>]*>/i,
           (match) => match + `<base href="${url}">`,
         );
       })
-      .catch(() => {});
+      .catch(() => secondaryResolve());
+    bookReady = Promise.all([bookReady, secondaryReady]).then(() => {
+      if (seq === uiSequence)
+        readingAlignment = alignReadingPanes(other, frame);
+    });
   }
   renderStatus();
   tick();

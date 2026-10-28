@@ -63,7 +63,10 @@ const server = http.createServer((req, res) => {
       .locator(".history-filters")
       .getByRole("button", { name, exact: true })
       .click();
-  const column = (key) => p.locator(`[data-history-column="${key}"]`).click();
+  const column = async (key) => {
+    await p.locator(`[data-history-column="${key}"]`).click();
+    await menu().waitFor({ state: "visible" });
+  };
   const apply = () =>
     menu().getByRole("button", { name: "適用", exact: true }).click();
   const reset = () =>

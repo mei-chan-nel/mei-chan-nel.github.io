@@ -3,6 +3,35 @@
 html {
   background: #f1f2f0 !important;
 }
+
+/* Paired reading has fluid pages; measured spacers align question boundaries.
+   Print documents and the answering workspace never receive this attribute. */
+@media screen {
+  table thead th,
+  table caption {
+    text-align: center !important;
+  }
+  html[data-paired-reading],
+  html[data-paired-reading] body {
+    background: white !important;
+  }
+  html[data-paired-reading] .sheet,
+  html[data-paired-reading] .page {
+    display: flow-root !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-block: 0 !important;
+    padding-block: 16px !important;
+  }
+  html[data-paired-reading] .reading-spacer {
+    display: flow-root;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    min-height: 0 !important;
+    clear: both;
+  }
+}
 body {
   margin: 0 !important;
 }

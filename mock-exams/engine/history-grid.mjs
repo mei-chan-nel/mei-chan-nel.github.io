@@ -27,13 +27,13 @@ export function historyRows(attempts, mode = "all", now = Date.now()) {
         const section = id && a.result?.sections?.find((s) => s.id === id),
           result = id ? section : a.result;
         const derived = !!id && a.mode !== "section";
+        const fullMode =
+          a.mode === "timed" ? "回ごと・60分" : "回ごと・時間制限なし";
         const title = id
           ? section?.title || sectionTitle(id)
           : a.mode === "section"
             ? sectionTitle(a.sectionIds[0])
-            : a.mode === "timed"
-              ? "回ごと・60分"
-              : "回ごと・時間制限なし";
+            : fullMode;
         return {
           key: a.id + ":" + (id || "all"),
           attempt: a,
@@ -41,7 +41,9 @@ export function historyRows(attempts, mode = "all", now = Date.now()) {
           derived,
           date: a.createdAt,
           exam: a.examId,
-          scope: title + (id ? (derived ? "（通し受験）" : "（大問別）") : ""),
+          scope:
+            title + (id ? (derived ? `（${fullMode}）` : "（大問別）") : ""),
+          fullMode: a.mode === "section" ? null : fullMode,
           status: isInterrupted(a)
             ? a.result
               ? "途中採点・中断中"
@@ -113,6 +115,33 @@ export const filterKey = (column, row) =>
           : `${row.points}/${row.maxPoints}`
         : row[column.key],
   );
+// Older navigation state used one shared "通し受験" checkbox for both time modes.
+// Expand that selection without altering the learner's stored attempts.
+export function migrateHistoryScopeFilter(state, rows) {
+  const values = state.filters?.scope?.values;
+  if (!values) return;
+  state.filters.scope.values = [
+    ...new Set(
+      values.flatMap((key) => {
+        let old;
+        try {
+          old = JSON.parse(key);
+        } catch {
+          return [key];
+        }
+        if (typeof old !== "string" || !old.endsWith("（通し受験）"))
+          return [key];
+        const title = old.slice(0, -"（通し受験）".length);
+        const matches = rows.filter(
+          (r) => r.derived && r.scope.startsWith(title + "（"),
+        );
+        return matches.length
+          ? matches.map((r) => JSON.stringify(r.scope))
+          : [key];
+      }),
+    ),
+  ];
+}
 export function columnValues(rows, column) {
   const seen = new Map();
   for (const row of rows) {

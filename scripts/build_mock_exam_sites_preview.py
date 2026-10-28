@@ -10,6 +10,14 @@ origin='https://study-atlas-mock-exams-preview.hal2718.chatgpt.site'
 dist=target/'dist'
 for name in ['site.css','site-header.js','home-learning.js','favicon.svg']:
  (dist/'assets').mkdir(exist_ok=True);shutil.copyfile(root/'assets'/name,dist/'assets'/name)
+# Keep dynamic shared navigation consistent with the rewritten static links.
+# Other portal pages live on Study Atlas, while the home and mock stay here.
+header=dist/'assets/site-header.js'
+nav_root='const siteUrl = (path) => new URL(path, siteRoot).href;'
+shared_header=header.read_text()
+assert nav_root in shared_header, 'Update Sites navigation adapter for the latest shared header'
+header.write_text(shared_header.replace(nav_root,
+ 'const siteUrl = (path) => path ? new URL(path, "https://mei-chan-nel.com/").href : siteRoot.href;'))
 # Replace only the dedicated mock-exams subtree. The source checkout stays separate.
 if (dist/'mock-exams').exists():shutil.rmtree(dist/'mock-exams')
 shutil.copytree(root/'mock-exams',dist/'mock-exams',ignore=shutil.ignore_patterns('tests','source','__pycache__','connection-check.html','connection-check.mjs'))
