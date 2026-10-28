@@ -668,7 +668,7 @@ async function renderCatalog() {
     const card = document.createElement("article");
     card.className = "exam-card catalog-exam";
     card.dataset.examId = entry.id;
-    card.innerHTML = `<div><div class="exam-card-title"><h3>No.${esc(entry.id)}</h3><span class="exam-status ${progress.status === "中断中" ? "in-progress" : progress.status === "採点済み" ? "completed" : ""}">${progress.status}</span></div><p>${catalogView.mode === "section" ? esc(sectionTitle) + "の演習" : "1回分・全大問"}${entry.publishedAt ? " · " + esc(entry.publishedAt.slice(0, 7).replace("-", "年") + "月") : ""}</p></div><div class="actions exam-card-actions"></div>`;
+    card.innerHTML = `<div><div class="exam-card-title"><h3>No.${esc(entry.id)}${catalogView.mode === "section" ? "の" + esc(sectionTitle) : ""}</h3><span class="exam-status ${progress.status === "中断中" ? "in-progress" : progress.status === "採点済み" ? "completed" : ""}">${progress.status}</span></div><p>${catalogView.mode === "section" ? esc(sectionTitle) + "の演習" : "1回分・全大問"}${entry.publishedAt ? " · " + esc(entry.publishedAt.slice(0, 7).replace("-", "年") + "月") : ""}</p></div><div class="actions exam-card-actions"></div>`;
     const start = () =>
       begin(
         entry,
@@ -819,9 +819,6 @@ function viewSections() {
   return navigationContext.scopeSectionId && (reviewing || readingMode)
     ? [navigationContext.scopeSectionId]
     : attempt.sectionIds;
-}
-function visibleFields() {
-  return exam.fields.filter((f) => viewSections().includes(f.sectionId));
 }
 function answers() {
   return reviewing ? reviewState.answers : attempt.answers;
@@ -1347,23 +1344,6 @@ $("#flag-answer").onclick = () => {
   persist();
   renderEditor();
   renderStatus();
-};
-$("#next-answer").onclick = async () => {
-  const fs = visibleFields(),
-    i = fs.findIndex((f) => f.id === selectedField),
-    next = fs.slice(i + 1).find((f) => !isLocked(f.id));
-  if (!next) return closeAnswer();
-  closeAnswer();
-  if (sectionId !== next.sectionId) {
-    sectionId = next.sectionId;
-    renderWorkspace();
-  }
-  await bookReady;
-  const anchor = frame.contentDocument.querySelector(
-    `[data-field="${next.id}"]`,
-  );
-  anchor?.scrollIntoView({ block: "center", behavior: "instant" });
-  openField(next.id, anchor);
 };
 $("#answer-dialog").addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
