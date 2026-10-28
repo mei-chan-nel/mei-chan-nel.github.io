@@ -1,4 +1,4 @@
-const { selectFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam } = require("./catalog-helpers.cjs");
 /* Direct RPC browser flow with deterministic HTTP responses; real SQL is tested separately. */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -45,10 +45,7 @@ const server = http.createServer((req, res) => {
     const { submissions } = await fixture(context, { dropAt: 2 });
     const url = "http://127.0.0.1:" + server.address().port + "/mock-exams/";
     await p.goto(url);
-    await selectFullExam(p);
-    await p
-      .getByRole("button", { name: "時間制限なしで解く", exact: true })
-      .click();
+    await startFullExam(p);
     const f = p.frameLocator("iframe");
     const choose = async (id, value) => {
       await f.locator(`[data-field="${id}"]`).first().click();
@@ -153,10 +150,7 @@ const server = http.createServer((req, res) => {
     assert.equal(submissions.length, 3);
     const firstId = (await local()).id;
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
-    await selectFullExam(p);
-    await p
-      .getByRole("button", { name: "時間制限なしで解く", exact: true })
-      .click();
+    await startFullExam(p);
     await choose("q1-ア", 0);
     await grade();
     await p.waitForFunction(

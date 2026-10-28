@@ -46,7 +46,12 @@ let activeAnchor = null,
   historyExpanded = false,
   readingMode = false,
   secondaryObserver = null;
-const catalogView = { mode: "full", sectionId: "q1", order: "recommended" };
+const catalogView = {
+  mode: "full",
+  timeMode: "timed",
+  sectionId: "q1",
+  order: "recommended",
+};
 const circle = (value) => "⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value;
 const resetTop = () =>
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
@@ -240,6 +245,10 @@ async function renderCatalog() {
         <p>大学入学共通テスト「情報Ⅰ」のオリジナル模試。<br>1回分を通して解くことも、大問ごとに練習することもできます。</p>
       </section>
       <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ"></nav>
+      <section id="time-picker" class="section-picker" aria-labelledby="time-picker-title" ${catalogView.mode === "full" ? "" : "hidden"}>
+        <h2 id="time-picker-title">受験時間を選ぶ</h2>
+        <div class="time-options" id="catalog-time" role="group" aria-label="受験時間"></div>
+      </section>
       <section id="section-picker" class="section-picker" aria-labelledby="section-picker-title" ${catalogView.mode === "section" ? "" : "hidden"}>
         <h2 id="section-picker-title">大問を選ぶ</h2>
         <div class="section-grid" id="catalog-sections" role="group" aria-label="演習する大問"></div>
@@ -286,6 +295,18 @@ async function renderCatalog() {
     b.setAttribute("aria-pressed", String(catalogView.mode === mode));
     $("#exam-modes").append(b);
   }
+  for (const [mode, title] of [
+    ["timed", "60分で受験する"],
+    ["untimed", "時間制限なしで解く"],
+  ]) {
+    const b = button(title, () => {
+      catalogView.timeMode = mode;
+      renderCatalog();
+      $('#catalog-time [aria-pressed="true"]').focus({ preventScroll: true });
+    });
+    b.setAttribute("aria-pressed", String(catalogView.timeMode === mode));
+    $("#catalog-time").append(b);
+  }
   for (const [id, title] of catalogSections) {
     const b = button(title, () => {
       catalogView.sectionId = id;
@@ -300,7 +321,7 @@ async function renderCatalog() {
   $("#catalog-context").textContent =
     catalogView.mode === "section"
       ? `${catalogSections.find(([id]) => id === catalogView.sectionId)[1]}の演習`
-      : "回ごとに受験";
+      : `回ごとに受験 · ${catalogView.timeMode === "timed" ? "60分" : "時間制限なし"}`;
   $("#catalog-sort").value = catalogView.order;
   $("#catalog-sort").onchange = (e) => {
     catalogView.order = e.target.value;
@@ -378,19 +399,41 @@ async function renderCatalog() {
     card.className = "exam-card catalog-exam";
     card.dataset.examId = entry.id;
     card.innerHTML = `<div><div class="exam-card-title"><h3>No.${esc(entry.id)}</h3><span class="exam-status ${progress.status === "中断中" ? "in-progress" : progress.status === "採点済み" ? "completed" : ""}">${progress.status}</span></div><p>${catalogView.mode === "section" ? esc(sectionTitle) + "の演習" : "1回分・全大問"}${entry.publishedAt ? " · " + esc(entry.publishedAt.slice(0, 7).replace("-", "年") + "月") : ""}</p></div><div class="actions exam-card-actions"></div>`;
-    card.querySelector(".actions").append(
-      button(
-        progress.resume ? "再開" : "選択",
-        () =>
-          progress.resume
-            ? openAttempt(progress.resume.id)
-            : catalogView.mode === "section"
-              ? begin(entry, "section", catalogView.sectionId)
-              : renderExamDetail(entry),
-        "primary",
-      ),
-      button("詳細・PDF", () => renderExamDetail(entry), "detail-link"),
-    );
+    const start = () =>
+      begin(
+        entry,
+        catalogView.mode === "section" ? "section" : catalogView.timeMode,
+        catalogView.mode === "section" ? catalogView.sectionId : undefined,
+      );
+    card
+      .querySelector(".actions")
+      .append(
+        button(
+          progress.resume ? "再開" : "選択",
+          () => (progress.resume ? openAttempt(progress.resume.id) : start()),
+          "primary",
+        ),
+      );
+    if (progress.resume)
+      card
+        .querySelector(".actions")
+        .append(button("最初から解く", start, "start-new"));
+    const pdfLinks = document.createElement("div");
+    pdfLinks.className = "pdf-links";
+    for (const [kind, title] of [
+      ["problem", "問題冊子PDF"],
+      ["solution", "解答解説PDF"],
+    ]) {
+      const a = document.createElement("a");
+      a.href = new URL(
+        kind + ".pdf",
+        new URL(".", new URL(entry.manifest, location.href)),
+      ).href;
+      a.download = `情報Ⅰ_実戦模試_No.${entry.id}_${title}.pdf`;
+      a.textContent = title;
+      pdfLinks.append(a);
+    }
+    card.querySelector(".actions").append(pdfLinks);
     $("#exam-list").append(card);
   }
   if (!history.length)
@@ -424,74 +467,10 @@ async function renderCatalog() {
     $("#history-list").append(row);
   }
 }
-async function renderExamDetail(entry) {
-  const seq = ++uiSequence;
-  app.innerHTML =
-    '<div class="catalog-page"><p role="status">模試の詳細を読み込んでいます…</p></div>';
-  try {
-    await loadExam(entry);
-    if (seq !== uiSequence) return;
-    const section =
-      catalogView.mode === "section" &&
-      exam.sections.find((s) => s.id === catalogView.sectionId);
-    const progress = catalogProgress(
-      entry,
-      store.list(),
-      catalogView.mode,
-      catalogView.sectionId,
-    );
-    app.innerHTML = `<section class="exam-card exam-detail"><button id="back-catalog" class="detail-link">← 模試No.の一覧に戻る</button><p class="eyebrow">${section ? "大問ごとに演習する" : "回ごとに受験する"}</p><h1>${esc(entry.title)}</h1><p class="detail-meta">${section ? `${esc(section.title)} · ${section.maxPoints}点` : `全大問 · ${exam.maxPoints}点 · ${exam.durationSeconds / 60}分`}</p><p>${section ? "選択した大問だけを解答・採点します。時間制限はありません。" : "時間あり・時間なしを選んで、第1問から第4問まで通して解きます。"}</p><div class="actions modes" id="exam-start"></div><section class="detail-print"><h2>PDFで解く・読む</h2><p class="muted">この模試No.の全大問を収録しています。</p><div class="actions print-actions"></div></section></section>`;
-    $("#back-catalog").onclick = () => {
-      renderCatalog();
-      resetTop();
-    };
-    if (progress.resume)
-      $("#exam-start").append(
-        button(
-          "中断した受験を再開",
-          () => openAttempt(progress.resume.id),
-          "primary",
-        ),
-      );
-    else if (progress.latest)
-      $("#exam-start").append(
-        button("前回の採点結果を開く", () => openAttempt(progress.latest.id)),
-      );
-    if (section)
-      $("#exam-start").append(
-        button(
-          `${section.title}を解く`,
-          () => begin(entry, "section", section.id),
-          "primary",
-        ),
-      );
-    else
-      $("#exam-start").append(
-        button("60分で受験する", () => begin(entry, "timed"), "primary"),
-        button("時間制限なしで解く", () => begin(entry, "untimed")),
-      );
-    for (const [kind, title] of [
-      ["problem", "問題冊子 PDF"],
-      ["solution", "正答・解説 PDF"],
-    ]) {
-      const a = document.createElement("a");
-      a.className = "mock-button";
-      a.href = new URL(kind + ".pdf", base).href;
-      a.target = "_blank";
-      a.rel = "noopener";
-      a.textContent = title;
-      $(".print-actions").append(a);
-    }
-    resetTop();
-  } catch {
-    if (seq !== uiSequence) return;
-    await renderCatalog();
-    notify("模試の詳細を読み込めませんでした。もう一度お試しください。");
-  }
-}
 async function begin(entry, mode, sid) {
   catalogView.mode = mode === "section" ? "section" : "full";
   if (sid) catalogView.sectionId = sid;
+  if (mode !== "section") catalogView.timeMode = mode;
   await loadExam(entry);
   attempt = createAttempt(exam, mode, sid);
   await lockAttempt(attempt.id);
@@ -513,6 +492,7 @@ async function openAttempt(id) {
   }
   catalogView.mode = a.mode === "section" ? "section" : "full";
   if (a.mode === "section") catalogView.sectionId = a.sectionIds[0];
+  else catalogView.timeMode = a.mode;
   const entry = entryFor(a.examId, a.examVersion);
   if (!entry)
     return notify("この履歴に対応する問題バージョンが見つかりません。");

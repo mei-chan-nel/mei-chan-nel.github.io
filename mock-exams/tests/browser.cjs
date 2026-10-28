@@ -1,4 +1,4 @@
-const { selectFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam } = require("./catalog-helpers.cjs");
 /* PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser.cjs */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -64,8 +64,7 @@ const server = http.createServer((req, res) => {
     let errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
     await p.goto(url);
-    await selectFullExam(p);
-    await p.getByText("時間制限なしで解く", { exact: true }).click();
+    await startFullExam(p);
     const f = p.frameLocator("iframe");
     for (const section of exam.sections) {
       await p
@@ -237,10 +236,7 @@ const server = http.createServer((req, res) => {
     assert.equal((await p.locator(".score").textContent()).trim(), "0 / 15");
     console.log("PASS: section-only maximum 15");
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
-    await selectFullExam(p);
-    await p
-      .getByRole("button", { name: "60分で受験する", exact: true })
-      .click();
+    await startFullExam(p, "timed");
     await f.locator('[data-field="q1-ア"]').first().waitFor();
     // Simulate an interrupted timed exam already past its deadline, then reopen it.
     const expired = await p.evaluate(() => {

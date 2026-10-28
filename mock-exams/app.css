@@ -281,15 +281,32 @@ button:disabled {
   margin: 0;
   flex-shrink: 0;
 }
-button.detail-link {
+.time-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.pdf-links {
+  display: grid;
+  gap: 8px;
+  margin-left: 10px;
+}
+.pdf-links a {
+  color: var(--mock-accent);
+  font-size: 13px;
+  text-underline-offset: 4px;
+  padding: 3px 0;
+}
+.pdf-links a:hover {
+  color: var(--mock-ink);
+}
+button.start-new {
   border-color: transparent;
   background: transparent;
-  font-size: 14px;
+  padding: 8px;
+  font-size: 13px;
   text-decoration: underline;
   text-underline-offset: 4px;
-}
-button.detail-link:hover {
-  background: #e6f2ef;
 }
 .history-entry {
   display: flex;
@@ -341,26 +358,6 @@ button.detail-link:hover {
   cursor: pointer;
   font-size: 14px;
 }
-.exam-detail h1 {
-  font-size: clamp(23px, 3vw, 30px);
-  margin: 12px 0;
-}
-.exam-detail > .detail-link {
-  padding-left: 0;
-  margin-bottom: 20px;
-}
-.detail-meta {
-  font-size: 19px;
-  font-weight: 600;
-}
-.detail-print {
-  margin-top: 30px;
-  border-top: 1px solid var(--mock-line);
-  padding-top: 16px;
-}
-.detail-print h2 {
-  font-size: 19px;
-}
 @media (max-width: 600px) {
   .mode-choices {
     grid-template-columns: 1fr;
@@ -404,7 +401,22 @@ button.detail-link:hover {
     justify-content: space-between;
   }
   .exam-card-actions .primary {
-    min-width: 115px;
+    min-width: 100px;
+  }
+  .pdf-links {
+    margin-left: auto;
+  }
+  .pdf-links a {
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+  }
+  .time-options {
+    gap: 8px;
+  }
+  .time-options button {
+    font-size: 14px;
+    padding: 10px 12px;
   }
   .history-entry {
     padding: 18px 12px;

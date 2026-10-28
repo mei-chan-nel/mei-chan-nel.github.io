@@ -103,30 +103,34 @@ const server = http.createServer((req, res) => {
     assert.equal(await p.locator("#section-picker").isVisible(), false);
     assert.equal(await p.locator(".catalog-exam").count(), 1);
     assert.equal(await p.locator(".exam-status").textContent(), "未受験");
+    assert.equal(await p.locator("#time-picker").isVisible(), true);
     assert.equal(
-      await p.getByRole("link", { name: "問題冊子 PDF", exact: true }).count(),
-      0,
+      await p.locator('#catalog-time [aria-pressed="true"]').textContent(),
+      "60分で受験する",
     );
-    await noOverflow(p);
-    await p.screenshot({
-      path: path.join(output, "catalog-desktop.png"),
-      fullPage: true,
-    });
-    await choose(p);
-    await p
-      .getByRole("button", { name: "60分で受験する", exact: true })
-      .waitFor();
-    assert.match(await p.locator(".detail-meta").textContent(), /100点.*60分/);
-    for (const a of await p.locator(".print-actions a").all()) {
+    assert.equal(await p.locator(".exam-detail").count(), 0);
+    // Both are true same-origin downloads, rather than links to a PDF viewer.
+    for (const title of ["問題冊子PDF", "解答解説PDF"]) {
+      const a = p.getByRole("link", { name: title, exact: true });
       assert.match(
         await a.getAttribute("href"),
         /exams\/001\/1\/(problem|solution)\.pdf$/,
       );
+      assert.equal(await a.getAttribute("target"), null);
+      const waiting = p.waitForEvent("download");
+      await a.click();
+      const file = await waiting;
+      assert.equal(await file.failure(), null);
       assert.equal(
-        (await p.request.get(await a.getAttribute("href"))).status(),
-        200,
+        file.suggestedFilename(),
+        `情報Ⅰ_実戦模試_No.001_${title}.pdf`,
       );
+      const data = fs.readFileSync(await file.path());
+      assert.equal(data.subarray(0, 4).toString(), "%PDF");
+      assert.ok(data.length > 1_000_000);
     }
+    assert.equal(await p.locator("#exam-list").isVisible(), true);
+    assert.equal(await p.evaluate(() => location.hash), "");
     assert.equal(
       await p.evaluate(
         () =>
@@ -138,6 +142,16 @@ const server = http.createServer((req, res) => {
     await p
       .getByRole("button", { name: "時間制限なしで解く", exact: true })
       .click();
+    assert.equal(
+      await p.locator('#catalog-time [aria-pressed="true"]').textContent(),
+      "時間制限なしで解く",
+    );
+    await noOverflow(p);
+    await p.screenshot({
+      path: path.join(output, "catalog-desktop.png"),
+      fullPage: true,
+    });
+    await choose(p);
     await p
       .frameLocator("#book-frame")
       .locator('[data-field="q1-ア"]')
@@ -151,6 +165,7 @@ const server = http.createServer((req, res) => {
     assert.equal(await p.locator(".exam-status").textContent(), "中断中");
     await mode(p, true);
     assert.equal(await p.locator("#catalog-sections button").count(), 5);
+    assert.equal(await p.locator("#time-picker").isVisible(), false);
     assert.equal(await p.locator(".exam-status").textContent(), "未受験");
     await p
       .locator("#catalog-sections")
@@ -187,9 +202,7 @@ const server = http.createServer((req, res) => {
       .locator("#catalog-sections")
       .getByRole("button", { name: "第3問", exact: true })
       .click();
-    await p.getByRole("button", { name: "詳細・PDF", exact: true }).click();
-    assert.match(await p.locator(".detail-meta").textContent(), /第3問.*25点/);
-    await p.getByRole("button", { name: "第3問を解く", exact: true }).click();
+    await choose(p);
     await p
       .frameLocator("#book-frame")
       .locator('[data-field="q3-ア"]')
@@ -256,21 +269,19 @@ const server = http.createServer((req, res) => {
       path: path.join(output, "catalog-section-mobile.png"),
       fullPage: true,
     });
-    await mobile
-      .getByRole("button", { name: "詳細・PDF", exact: true })
-      .click();
-    await mobile
-      .getByRole("button", { name: "第2問Bを解く", exact: true })
-      .waitFor();
-    await noOverflow(mobile);
-    await mobile
-      .getByRole("button", { name: "← 模試No.の一覧に戻る", exact: true })
-      .click();
-    await mode(mobile);
     await choose(mobile);
+    await mobile
+      .frameLocator("#book-frame")
+      .locator('[data-field="q2b-コ"]')
+      .first()
+      .waitFor();
+    assert.deepEqual((await attempt(mobile)).sectionIds, ["q2b"]);
+    await pause(mobile);
+    await mode(mobile);
     await mobile
       .getByRole("button", { name: "60分で受験する", exact: true })
       .click();
+    await choose(mobile);
     await mobile
       .frameLocator("#book-frame")
       .locator('[data-field="q1-ア"]')
@@ -338,7 +349,7 @@ const server = http.createServer((req, res) => {
     await noOverflow(many);
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: portal entry, two modes, No.001 only, full conditions/PDF, section-first same exam, separate statuses, resume/reload, repeat, shared history/review, mobile and 20-exam sorting (fixtures only)",
+      "PASS: portal entry, two modes, No.001 only, time selection/direct start/PDF downloads, section-first same exam, separate statuses, resume/reload, repeat, shared history/review, mobile and 20-exam sorting (fixtures only)",
     );
   } finally {
     await browser.close();

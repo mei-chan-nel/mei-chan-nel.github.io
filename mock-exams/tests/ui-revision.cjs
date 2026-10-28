@@ -1,4 +1,4 @@
-const { selectFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam } = require("./catalog-helpers.cjs");
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const http = require("node:http"),
   fs = require("node:fs"),
@@ -67,10 +67,7 @@ const server = http.createServer((req, res) => {
     });
     const url = "http://127.0.0.1:" + server.address().port + "/mock-exams/";
     await p.goto(url);
-    await selectFullExam(p);
-    await p
-      .getByRole("button", { name: "時間制限なしで解く", exact: true })
-      .click();
+    await startFullExam(p);
     const frame = () => p.frameLocator("#book-frame");
     await frame().locator('[data-field="q1-ア"]').first().click();
     await p.locator("#answer-options>button").nth(1).click();
@@ -220,10 +217,7 @@ const server = http.createServer((req, res) => {
       .click();
     assert.equal(requests.filter((b) => b.p_results).length, sent);
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
-    await selectFullExam(p);
-    await p
-      .getByRole("button", { name: "時間制限なしで解く", exact: true })
-      .click();
+    await startFullExam(p);
     await frame().locator('[data-field="q1-ア"]').first().click();
     await p.locator("#answer-options>button").nth(0).click();
     await p
