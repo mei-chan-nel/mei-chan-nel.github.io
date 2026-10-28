@@ -1,6 +1,6 @@
 # 作業再開メモ
 
-更新日：2026-10-28。
+更新日：2026-10-28 21:58（日本時間）。Sites配置成功を確認済み。
 
 - 開発元：`/workspace/mei-chan-nel.github.io`、ブランチ`feat/mock-exams-001`。GitHub Pages公開元mainは未反映。
 - 現行仕様の入口：[README.md](README.md)。追加・改訂は[ADDING-EXAMS.md](ADDING-EXAMS.md)。初期要件転載を現行仕様として実装し直さない。
