@@ -1,4 +1,4 @@
-/* Usage: PLAYWRIGHT_MODULE=/path/to/playwright node scripts/build_mock_exam_pdfs.cjs [solution|problem]
+/* Usage: PLAYWRIGHT_MODULE=/path/to/playwright node scripts/build_mock_exam_pdfs.cjs [solution|problem] [--manifest exams/002/1/exam.json]
    Requires Chromium, Python with PyMuPDF. No network access or secrets. */
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 const fs = require("node:fs"),
@@ -6,7 +6,20 @@ const fs = require("node:fs"),
   { spawnSync } = require("node:child_process");
 const http = require("node:http");
 const root = path.resolve(__dirname, "../mock-exams");
-const kinds = process.argv[2] ? [process.argv[2]] : ["problem", "solution"];
+let selectedManifest, selectedKind;
+const args = process.argv.slice(2);
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === "--manifest") selectedManifest = args[++i];
+  else if (!selectedKind) selectedKind = args[i];
+  else
+    throw Error("Usage: [solution|problem] [--manifest exams/002/1/exam.json]");
+}
+if (
+  args.includes("--manifest") &&
+  !/^exams\/[0-9]{3}\/[1-9][0-9]*\/exam\.json$/.test(selectedManifest || "")
+)
+  throw Error("Invalid manifest path");
+const kinds = selectedKind ? [selectedKind] : ["problem", "solution"];
 if (kinds.some((k) => !["problem", "solution"].includes(k)))
   throw Error("Invalid PDF kind");
 const server = http.createServer((req, res) => {
@@ -37,9 +50,9 @@ const server = http.createServer((req, res) => {
     args: ["--no-sandbox"],
   });
   try {
-    const entries = JSON.parse(
-      fs.readFileSync(path.join(root, "catalog.json")),
-    );
+    const entries = selectedManifest
+      ? [{ manifest: selectedManifest }]
+      : JSON.parse(fs.readFileSync(path.join(root, "catalog.json")));
     for (const entry of entries) {
       const dir = path.dirname(path.join(root, entry.manifest)),
         exam = JSON.parse(fs.readFileSync(path.join(root, entry.manifest)));
@@ -105,7 +118,7 @@ const server = http.createServer((req, res) => {
         const args = [
           path.join(__dirname, "merge_mock_exam_pdfs.py"),
           path.join(dir, kind + ".pdf"),
-          entry.id,
+          exam.id,
           ...files,
         ];
         const result = spawnSync("python", args, { encoding: "utf8" });

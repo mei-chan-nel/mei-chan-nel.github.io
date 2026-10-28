@@ -1,3 +1,4 @@
+import { fitBookFrame } from "./book-frame.mjs";
 // Add space only to the shorter side at each corresponding question boundary.
 // Both original documents keep their own tables, figures, styles and selection.
 export function alignReadingPanes(problemFrame, solutionFrame) {
@@ -23,23 +24,8 @@ export function alignReadingPanes(problemFrame, solutionFrame) {
       note.className = "reading-gap-note";
       note.hidden = true;
       const text = e.ownerDocument.createElement("span");
-      text.textContent =
-        side === 1
-          ? "左の問題と位置を合わせるための余白です。解説は下に続きます。"
-          : "右の解説と位置を合わせるための余白です。問題は下に続きます。";
-      const jump = e.ownerDocument.createElement("button");
-      jump.type = "button";
-      jump.textContent = side === 1 ? "解説へ ↓" : "問題へ ↓";
-      jump.onclick = () =>
-        window.scrollTo({
-          top:
-            window.scrollY +
-            frames[side].getBoundingClientRect().top +
-            e.getBoundingClientRect().top -
-            12,
-          behavior: "instant",
-        });
-      note.append(text, jump);
+      text.textContent = "位置を合わせるための余白です。";
+      note.append(text);
       spacer.append(note);
       e.before(spacer);
       return spacer;
@@ -73,10 +59,7 @@ export function alignReadingPanes(problemFrame, solutionFrame) {
         spacer.removeAttribute("aria-hidden");
       }
     }
-    frames.forEach((f, side) => {
-      f.style.height =
-        Math.ceil(docs[side].body.getBoundingClientRect().height) + "px";
-    });
+    frames.forEach(fitBookFrame);
   };
   const schedule = () => {
     if (queued || closed) return;

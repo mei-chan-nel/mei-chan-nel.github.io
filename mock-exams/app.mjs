@@ -2,7 +2,6 @@ import {
   grade,
   normalize,
   validateExam,
-  correctPatterns,
   calculateStats,
 } from "./engine/scoring.mjs";
 import {
@@ -22,6 +21,7 @@ import {
   emptyGridState,
 } from "./engine/history-grid.mjs";
 import { renderHistoryGrid, closeHistoryMenu } from "./ui/history-grid.mjs";
+import { fitBookFrame } from "./ui/book-frame.mjs";
 import { alignReadingPanes } from "./ui/paired-reading.mjs";
 import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
@@ -340,6 +340,11 @@ async function restoreNavigation(state) {
             ? "resume"
             : "result",
       );
+      if (!attempt) {
+        if (navigationContext.origin === "history") renderHistory();
+        else renderCatalog();
+        return;
+      }
       if (exam.sections.some((s) => s.id === state.sectionId))
         sectionId = state.sectionId;
       if (["reading", "reading-problem"].includes(state.view)) {
@@ -382,7 +387,19 @@ const button = (text, fn, cls = "") => {
   const b = document.createElement("button");
   b.textContent = text;
   b.className = cls;
-  b.onclick = fn;
+  b.onclick = async (event) => {
+    if (b.disabled) return;
+    b.disabled = true;
+    try {
+      await fn(event);
+    } catch (error) {
+      notify(
+        error.message || "操作を完了できませんでした。もう一度お試しください。",
+      );
+    } finally {
+      b.disabled = false;
+    }
+  };
   return b;
 };
 const time = (ms) => {
@@ -419,37 +436,69 @@ function entryFor(id, version) {
   }
   return null;
 }
+let loadingExam = false;
 async function loadExam(entry) {
+  if (loadingExam) return false;
+  loadingExam = true;
+  const sequence = uiSequence;
   const url = new URL(entry.manifest, location.href).href;
-  if (!manifests.has(url))
-    manifests.set(
-      url,
-      fetch(url).then((r) => {
-        if (!r.ok) throw Error("問題データを読み込めません");
-        return r.json();
-      }),
+  try {
+    if (!manifests.has(url))
+      manifests.set(
+        url,
+        fetch(url)
+          .then((r) => {
+            if (!r.ok)
+              throw Error(
+                "問題データを読み込めません。もう一度お試しください。",
+              );
+            return r.json();
+          })
+          .catch((error) => {
+            manifests.delete(url);
+            throw error;
+          }),
+      );
+    const loaded = await manifests.get(url);
+    if (sequence !== uiSequence) return false;
+    validateExam(loaded);
+    if (loaded.id !== entry.id || loaded.version !== entry.version)
+      throw Error("模試一覧と問題データの番号・版が一致しません。");
+    exam = loaded;
+    base = new URL(".", url);
+    for (const section of exam.sections)
+      for (const kind of ["problem", "solution"])
+        documentText(
+          new URL(
+            section[kind === "problem" ? "screenProblem" : "screenSolution"] ||
+              section[kind],
+            base,
+          ).href,
+        ).catch(() => {});
+    return true;
+  } catch (error) {
+    notify(
+      error.message || "問題データを読み込めません。もう一度お試しください。",
     );
-  exam = await manifests.get(url);
-  validateExam(exam);
-  base = new URL(".", url);
-  for (const section of exam.sections)
-    for (const kind of ["problem", "solution"])
-      documentText(
-        new URL(
-          section[kind === "problem" ? "screenProblem" : "screenSolution"] ||
-            section[kind],
-          base,
-        ).href,
-      ).catch(() => {});
+    return false;
+  } finally {
+    loadingExam = false;
+  }
 }
 function documentText(url) {
   if (!documents.has(url))
     documents.set(
       url,
-      fetch(url).then((r) => {
-        if (!r.ok) throw Error("問題を読み込めません");
-        return r.text();
-      }),
+      fetch(url)
+        .then((r) => {
+          if (!r.ok)
+            throw Error("問題を読み込めません。大問を選び直してください。");
+          return r.text();
+        })
+        .catch((error) => {
+          documents.delete(url);
+          throw error;
+        }),
     );
   return documents.get(url);
 }
@@ -760,7 +809,7 @@ async function begin(entry, mode, sid) {
   catalogView.mode = mode === "section" ? "section" : "full";
   if (sid) catalogView.sectionId = sid;
   if (mode !== "section") catalogView.timeMode = mode;
-  await loadExam(entry);
+  if (!(await loadExam(entry))) return;
   attempt = createAttempt(exam, mode, sid);
   await lockAttempt(attempt.id);
   reviewing = false;
@@ -788,7 +837,7 @@ async function openAttempt(id, action = "result", scope = null) {
   const entry = entryFor(a.examId, a.examVersion);
   if (!entry)
     return notify("この履歴に対応する問題バージョンが見つかりません。");
-  await loadExam(entry);
+  if (!(await loadExam(entry))) return;
   if (!(await lockAttempt(id)))
     return notify(
       "この受験は別のタブで開かれています。先にそちらを中断してください。",
@@ -1029,15 +1078,12 @@ function renderWorkspace() {
           scheduled = true;
           requestAnimationFrame(() => {
             scheduled = false;
-            if (seq === uiSequence)
-              frame.style.height =
-                Math.ceil(d.body.getBoundingClientRect().height) + "px";
+            if (seq === uiSequence) fitBookFrame(frame);
           });
         };
         frameObserver = new ResizeObserver(resize);
         frameObserver.observe(d.body);
-        frame.style.height =
-          Math.ceil(d.body.getBoundingClientRect().height) + "px";
+        fitBookFrame(frame);
         resize();
         resolve();
       };
@@ -1081,8 +1127,7 @@ function renderWorkspace() {
             w.append(t);
           });
           const resize = () => {
-            other.style.height =
-              Math.ceil(d.body.getBoundingClientRect().height) + "px";
+            fitBookFrame(other);
           };
           secondaryObserver = new ResizeObserver(resize);
           secondaryObserver.observe(d.body);

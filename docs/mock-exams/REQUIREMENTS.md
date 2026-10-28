@@ -1,4 +1,6 @@
-# 要件（Supabase部分は2026-10-27の最新指示で更新）
+# 初期要件の記録（現行仕様ではない）
+
+この文書は依頼当初の記録として保持する。その後のユーザー指示で変更された事項がある。現行仕様は[README.md](README.md)、追加手順は[ADDING-EXAMS.md](ADDING-EXAMS.md)、統計接続は[SUPABASE-DIRECT-RPC.md](SUPABASE-DIRECT-RPC.md)を参照する。
 
 # Study Atlas「情報Ⅰ」模試システムの構築
 

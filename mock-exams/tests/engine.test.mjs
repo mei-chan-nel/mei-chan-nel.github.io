@@ -142,6 +142,22 @@ test("storage backup recovery and write failure are explicit", () => {
     "broken",
   );
   assert.equal(store.load(a.id).id, a.id);
+  const main = [...m.keys()].find((k) => !k.endsWith("backup"));
+  m.delete(main);
+  assert.equal(store.list()[0].id, a.id, "backup-only attempt remains visible");
+  m.set(
+    main + "-corrupt",
+    JSON.stringify({
+      schemaVersion: 1,
+      id: a.id + "-corrupt",
+      statsDelivery: [],
+    }),
+  );
+  assert.equal(
+    store.list().length,
+    1,
+    "one malformed record must not hide a valid backup",
+  );
   s.setItem = () => {
     throw Error("quota");
   };

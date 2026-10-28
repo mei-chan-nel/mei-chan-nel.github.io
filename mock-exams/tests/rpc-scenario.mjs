@@ -17,12 +17,14 @@ export function verificationExam(id) {
   const choice = (id, sectionId) => ({
     id,
     sectionId,
+    label: id,
     type: "choice",
     choices: ["0", "1", "2"].map((value) => ({ value, text: value })),
   });
   const exam = {
     schemaVersion: 1,
     id,
+    title: "RPC接続検証",
     version: 1,
     durationSeconds: 3600,
     maxPoints: 9,
@@ -40,6 +42,7 @@ export function verificationExam(id) {
       {
         id: "single",
         sectionId: "q1",
+        question: 1,
         fields: ["a"],
         maxPoints: 2,
         rule: { kind: "exact", patterns: [["0"]] },
@@ -47,6 +50,7 @@ export function verificationExam(id) {
       {
         id: "pair",
         sectionId: "q1",
+        question: 2,
         fields: ["b", "c"],
         maxPoints: 3,
         rule: { kind: "unordered", patterns: [["1", "2"]] },
@@ -54,6 +58,7 @@ export function verificationExam(id) {
       {
         id: "partial",
         sectionId: "q2a",
+        question: 1,
         fields: ["d"],
         maxPoints: 4,
         rule: {

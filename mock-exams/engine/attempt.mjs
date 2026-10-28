@@ -75,12 +75,19 @@ export class AttemptStore {
     this.storage = storage;
   }
   list() {
-    const out = [];
+    const out = [],
+      ids = new Set();
     for (let i = 0; i < this.storage.length; i++) {
       const k = this.storage.key(i);
-      if (k.startsWith(PREFIX + "attempt:") && !k.endsWith(":backup")) {
-        const a = this.load(k.slice((PREFIX + "attempt:").length));
+      if (k?.startsWith(PREFIX + "attempt:"))
+        ids.add(k.slice((PREFIX + "attempt:").length).replace(/:backup$/, ""));
+    }
+    for (const id of ids) {
+      try {
+        const a = this.load(id);
         if (a && !a.discardedAt) out.push(a);
+      } catch {
+        /* One corrupt record must not hide the remaining history. */
       }
     }
     return out.sort((a, b) => b.createdAt - a.createdAt);

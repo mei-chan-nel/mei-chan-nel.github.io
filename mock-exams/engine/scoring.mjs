@@ -1,4 +1,5 @@
 // Deterministic browser scoring; scoring units are independent of input fields.
+import { validateDefinition } from "./definition.mjs";
 const blank = (value) => value === undefined || value === null || value === "";
 export function normalize(field, value) {
   if (blank(value)) return "";
@@ -122,36 +123,8 @@ export function correctPatterns(rule) {
   return rule.cases?.map((c) => c.answers) ?? [];
 }
 export function validateExam(exam) {
-  if (!Number.isInteger(exam.version) || exam.version < 1)
-    throw new Error("Exam version must be a positive integer");
-  if (exam.schemaVersion !== 1) throw new Error("Unsupported exam schema");
-  const ids = new Set(exam.fields.map((f) => f.id));
-  if (ids.size !== exam.fields.length) throw new Error("Duplicate field id");
-  const units = new Set();
-  const covered = new Set();
-  for (const u of exam.scoring) {
-    if (units.has(u.id) || !u.fields.length)
-      throw new Error("Duplicate or empty scoring unit");
-    units.add(u.id);
-    if (!exam.sections.some((s) => s.id === u.sectionId))
-      throw new Error("Unknown section");
-    for (const id of u.fields) {
-      if (!ids.has(id) || covered.has(id))
-        throw new Error("Unknown or duplicate scored field");
-      covered.add(id);
-    }
-  }
-  if (covered.size !== ids.size) throw new Error("Unscored field");
-  for (const s of exam.sections)
-    if (
-      exam.scoring
-        .filter((u) => u.sectionId === s.id)
-        .reduce((n, u) => n + u.maxPoints, 0) !== s.maxPoints
-    )
-      throw new Error("Section points mismatch");
-  if (exam.sections.reduce((n, s) => n + s.maxPoints, 0) !== exam.maxPoints)
-    throw new Error("Exam points mismatch");
-  grade(exam, {});
+  validateDefinition(exam);
+  if (grade(exam, {}).points !== 0) throw Error("Blank exam must score zero");
   return true;
 }
 export function calculateStats(exam, rows = []) {

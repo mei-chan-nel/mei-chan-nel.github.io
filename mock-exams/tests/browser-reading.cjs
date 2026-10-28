@@ -111,6 +111,7 @@ const server = http.createServer((req, res) => {
             e.dataset.readingUnits.split(" "),
           ),
           overflow: d.documentElement.scrollWidth - f.clientWidth,
+          verticalOverflow: d.documentElement.scrollHeight - f.clientHeight,
           summary: [...d.querySelectorAll("h1,h2")].some((h) =>
             /^(正答と配点|正答・配点|第1問 正答・配点|正答・詳細解説・配点)$/.test(
               h.textContent.trim(),
@@ -130,6 +131,7 @@ const server = http.createServer((req, res) => {
       assert.deepEqual(m.ids, expected);
       assert.equal(m.summary, false);
       assert.ok(m.overflow < 2);
+      assert.ok(m.verticalOverflow < 2, `frame scroll: ${m.verticalOverflow}`);
     });
     assert.ok(metrics.some((m) => m.spacerHeight > 0));
     return metrics[0].ids.length;
@@ -234,9 +236,8 @@ const server = http.createServer((req, res) => {
     await p.reload();
     await verifyPair("q4");
     const gap = frame().locator(".reading-gap-note:not([hidden])").first();
-    assert.ok((await gap.textContent()).includes("余白"));
-    await gap.getByRole("button", { name: "解説へ ↓", exact: true }).click();
-    assert.ok(await p.evaluate(() => scrollY > 300));
+    assert.equal(await gap.textContent(), "位置を合わせるための余白です。");
+    assert.equal(await gap.locator("button").count(), 0);
     await p.evaluate(() => scrollTo(0, 650));
     assert.ok((await p.locator(".reading-toolbar").boundingBox()).y < 0);
     await p.setViewportSize({ width: 900, height: 900 });
@@ -250,6 +251,55 @@ const server = http.createServer((req, res) => {
           es.every((e) => getComputedStyle(e).minHeight === "0px"),
         ),
     );
+    for (const s of exam.sections) {
+      await p
+        .locator("#section-navigation")
+        .getByRole("button", { name: s.title, exact: true })
+        .click();
+      await frame()
+        .locator('[data-reading-units^="' + s.id + '-"]')
+        .first()
+        .waitFor();
+      await p.waitForFunction(() => {
+        const f = document.querySelector("#book-frame");
+        return (
+          f.contentDocument.documentElement.scrollHeight <= f.clientHeight + 1
+        );
+      });
+      assert.equal(
+        await frame()
+          .locator(
+            ".pagehead,.page-head,.running,.footer,.pagenum,.page-number",
+          )
+          .count(),
+        0,
+      );
+      assert.ok(
+        !/Q[1-4][AB]?[_-]001\s*[／·]?\s*v?[1-9]\.[0-9]/.test(
+          await frame().locator("body").textContent(),
+        ),
+      );
+      await frame().locator("[data-reading-problem]").first().click();
+      await frame().locator("html[data-reading-fragment]").waitFor();
+      await p.waitForFunction(() => {
+        const f = document.querySelector("#book-frame");
+        return (
+          f.contentDocument.documentElement.scrollHeight <= f.clientHeight + 1
+        );
+      });
+      await p.waitForFunction(() => {
+        const f = document.querySelector("#book-frame");
+        return (
+          f.contentDocument.documentElement.scrollHeight <= f.clientHeight + 1
+        );
+      });
+      assert.equal(
+        await frame().locator(".pagehead,.page-head,.running,.footer").count(),
+        0,
+      );
+      await p.locator("#back-list").click();
+      await frame().locator("[data-reading-problem]").first().waitFor();
+    }
     await p.setViewportSize({ width: 390, height: 844 });
     assert.equal(await p.locator("#section-navigation button").count(), 5);
     assert.equal(
@@ -268,6 +318,12 @@ const server = http.createServer((req, res) => {
         .first()
         .waitFor();
       assert.equal(await frame().locator(".reading-spacer").count(), 0);
+      await p.waitForFunction(() => {
+        const f = document.querySelector("#book-frame");
+        return (
+          f.contentDocument.documentElement.scrollHeight <= f.clientHeight + 1
+        );
+      });
       assert.equal(
         await frame()
           .locator("h2")

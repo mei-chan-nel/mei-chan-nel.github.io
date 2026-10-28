@@ -21,6 +21,22 @@ header.write_text(shared_header.replace(nav_root,
 # Replace only the dedicated mock-exams subtree. The source checkout stays separate.
 if (dist/'mock-exams').exists():shutil.rmtree(dist/'mock-exams')
 shutil.copytree(root/'mock-exams',dist/'mock-exams',ignore=shutil.ignore_patterns('tests','source','__pycache__','connection-check.html','connection-check.mjs'))
+# Reuse Studio unchanged so completed-program links run inside the private preview.
+studio=dist/'program-trace/studio'
+if studio.exists():shutil.rmtree(studio)
+shutil.copytree(root/'program-trace/studio',studio)
+shutil.copyfile(root/'program-trace/icon.svg',studio.parent/'icon.svg')
+for page in studio.glob('*.html'):
+ d=html.fromstring(page.read_bytes())
+ for script in d.xpath('//script[contains(@src,"googlesyndication") or contains(@src,"manual-ads")]'):
+  script.drop_tree()
+ for a in d.xpath('//a[@href]'):
+  href=a.get('href')
+  if href.startswith('../') and href!='../../':
+   from urllib.parse import urljoin
+   a.set('href',urljoin('https://mei-chan-nel.com/program-trace/studio/',href))
+ for e in d.xpath('//meta[@name="robots"]'):e.set('content','noindex,nofollow')
+ page.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
 for file,is_home in [(root/'index.html',True),(root/'mock-exams/index.html',False)]:
  d=html.fromstring(file.read_bytes())
  for a in d.xpath('//a[@href]'):

@@ -3,10 +3,35 @@
 html {
   background: #f1f2f0 !important;
 }
+@media print {
+  section:has(> .sources) {
+    break-inside: avoid;
+  }
+}
 
 /* Paired reading has fluid pages; measured spacers align question boundaries.
    Print documents and the answering workspace never receive this attribute. */
 @media screen {
+  .studio-program-link {
+    margin: 8px 0 18px !important;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 12px;
+    font:
+      14px/1.8 system-ui,
+      sans-serif !important;
+  }
+  .studio-program-link a {
+    color: #126a65;
+    text-underline-offset: 3px;
+  }
+  .studio-program-link small {
+    color: #576968;
+  }
+  body {
+    display: flow-root !important;
+  }
   table thead th,
   table caption {
     text-align: center !important;
@@ -48,9 +73,10 @@ html {
     background: #f6f8f7;
     color: #536c69;
     text-align: center;
-    font: 14px/1.8 system-ui, sans-serif !important;
+    font:
+      14px/1.8 system-ui,
+      sans-serif !important;
   }
-  .reading-gap-note button,
   .unit-problem-actions button {
     border: 1px solid #b6ceca;
     border-radius: 7px;
@@ -68,7 +94,9 @@ html {
     justify-content: flex-end;
     margin: 20px 0 8px;
     color: #576968;
-    font: 14px/1.6 system-ui, sans-serif !important;
+    font:
+      14px/1.6 system-ui,
+      sans-serif !important;
   }
   html[data-reading-fragment] .sheet,
   html[data-reading-fragment] .page {

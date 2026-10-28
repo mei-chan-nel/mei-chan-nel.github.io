@@ -252,6 +252,9 @@ const server = http.createServer((req, res) => {
     await p.close();
     const timed = await context.newPage();
     await timed.goto(url);
+    // goto's load event can precede the module's awaited catalog fetch.
+    // Wait for the app before simulating a second, fragment-only navigation.
+    await timed.locator("#exam-list article").first().waitFor();
     await timed.evaluate(({ key, a }) => {
       a.updatedAt = Date.now();
       localStorage.setItem(key, JSON.stringify(a));
