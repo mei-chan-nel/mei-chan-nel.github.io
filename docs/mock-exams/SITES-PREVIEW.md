@@ -3,11 +3,11 @@
 URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 - Sites project_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571`
-- deployment_id: `appgdep_6ae1744d483881919435440381924f10`
-- version_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_6f29c3cd506c8191a35834cfaf2c3ecb`
+- deployment_id: `appgdep_6ae17f581d408191a5538b4a9ecda0a5`
+- version_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_82b2599b59ac81918bcea72013592daf`
 - 状態: succeeded（Sitesの保存・配置結果で確認）。新規作成時の本人専用の閲覧範囲を維持。
 - Sites専用チェックアウト: `/workspace/sites/study-atlas-mock-exams-preview`
-- 配置ソースcommit: `ca84abb302d5b004749d8621fadcc8463ae42e32`
+- 配置ソースcommit: `19363cee0cb8f8edcb418d04da17849f4feddf2c`
 - 統計先: ユーザーの追加指示により本番No.001（exam_id="001", exam_version=1）。テスト用IDへの変更は取り消し。
 
 一覧から受験・採点・中断再開・復習・PDFを確認できる。ルートはStudy Atlasのトップページで、そこから /mock-exams/ へ移動。ヘッダー・フッターのサイト内メニューは既存のStudy Atlasへ接続する。
@@ -40,3 +40,8 @@ GitHub Pagesの公開元mainは変更していない。Sites上で画面を確�
 2026-10-28 13:04日本時間更新：最新版main（dee8964）のサイトトップへ模試カードを追加し、共有メニューも重複なく既存サイトへ接続。回ごとの時間条件表示と表の列見出しの中央揃えを反映。PC解説は大問名で問題／解説を同時切替し、44採点単位を含む41対応箇所で左右の上端を整列。共通文章のア・イ、シ・ス・セは一緒に扱う。画面用の早見表、重複した戻る操作、解説サイドバーと固定メニューを撤去。スマホの解説／問題10切替は維持する。
 
 検証：engine/history-gridのnodeテスト、browser-reading、browser-grid、browser-navigationが成功。本文高さの変更・1050/1333/1440pxで全大問の左右のずれ1px未満、390pxで全大問の切替、早見表なし、復帰・再読込み、履歴不変、旧絞り込み条件の引継ぎ、閲覧時の記録RPC 0件を確認。PC/スマホの画像を確認し、プレビュー内の共有ナビの重複も修正した。原稿・PDF本文照合も成功。統計は模擬応答。本人専用範囲を維持し、Sitesの保存・配置結果succeededを確認。
+
+
+2026-10-28 13:51日本時間更新：解説末尾の作問方針・測定設計・開発用検証報告等を除去。正答・誤答の説明と出典を維持し、配布する解答解説PDFも32ページへ更新。PCの160px以上の位置合わせ余白は、上側に案内と本文へ進むボタンを表示。狭い画面は大問名の5ボタンから解説を開き、各解説の「問題を見る」から該当設問の画面へ移る。必要な共通資料は「共通の文章・図表を見る」で展開する。先読み済みHTMLと抽出結果をキャッシュして問題HTMLの再取得を抑える。
+
+検証：全44採点単位の抽出・必要な解答欄と図表、PCの左右対応と余白案内、900px／390pxの5ボタン、問題と解説の往復・戻る／進む・再読み込み・双方の表示位置、閲覧専用と個人成績不変をbrowser-readingで確認。browser-navigation、browser-grid、ui-revision、engine/history-gridテストも成功。原稿からの承認済み削除を反映した本文・図表の一致とPDF本文網羅も成功。閲覧時の記録RPCは0件（通信は模擬）。本人専用範囲を維持しSitesの保存・配置結果succeededを確認。
