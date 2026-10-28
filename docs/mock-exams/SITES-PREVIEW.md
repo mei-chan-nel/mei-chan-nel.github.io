@@ -3,11 +3,11 @@
 URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 - Sites project_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571`
-- deployment_id: `appgdep_6ae17f581d408191a5538b4a9ecda0a5`
-- version_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_82b2599b59ac81918bcea72013592daf`
+- deployment_id: `appgdep_6ae1a3c196bc81918ef41d730262ee23`
+- version_id: `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_227c8b30104c8191a23da274d8a8fed5`
 - 状態: succeeded（Sitesの保存・配置結果で確認）。新規作成時の本人専用の閲覧範囲を維持。
 - Sites専用チェックアウト: `/workspace/sites/study-atlas-mock-exams-preview`
-- 配置ソースcommit: `19363cee0cb8f8edcb418d04da17849f4feddf2c`
+- 配置ソースcommit: `4f8d13abb92c44132a01f9d2cbb05054841ead1f`
 - 統計先: ユーザーの追加指示により本番No.001（exam_id="001", exam_version=1）。テスト用IDへの変更は取り消し。
 
 一覧から受験・採点・中断再開・復習・PDFを確認できる。ルートはStudy Atlasのトップページで、そこから /mock-exams/ へ移動。ヘッダー・フッターのサイト内メニューは既存のStudy Atlasへ接続する。
@@ -45,3 +45,6 @@ GitHub Pagesの公開元mainは変更していない。Sites上で画面を確�
 2026-10-28 13:51日本時間更新：解説末尾の作問方針・測定設計・開発用検証報告等を除去。正答・誤答の説明と出典を維持し、配布する解答解説PDFも32ページへ更新。PCの160px以上の位置合わせ余白は、上側に案内と本文へ進むボタンを表示。狭い画面は大問名の5ボタンから解説を開き、各解説の「問題を見る」から該当設問の画面へ移る。必要な共通資料は「共通の文章・図表を見る」で展開する。先読み済みHTMLと抽出結果をキャッシュして問題HTMLの再取得を抑える。
 
 検証：全44採点単位の抽出・必要な解答欄と図表、PCの左右対応と余白案内、900px／390pxの5ボタン、問題と解説の往復・戻る／進む・再読み込み・双方の表示位置、閲覧専用と個人成績不変をbrowser-readingで確認。browser-navigation、browser-grid、ui-revision、engine/history-gridテストも成功。原稿からの承認済み削除を反映した本文・図表の一致とPDF本文網羅も成功。閲覧時の記録RPCは0件（通信は模擬）。本人専用範囲を維持しSitesの保存・配置結果succeededを確認。
+
+
+2026-10-28 16:27日本時間更新：大問別演習の模試カード名を「No.001の第1問」形式にし、選んだ大問を明示。回答ポップアップの「次の欄」と不要な移動処理を撤去。選択肢・数値入力・見直し・手動の欄移動と、一覧の開始・再開・スマホ幅をui-revision／browser-catalogで確認。記録通信は模擬応答。本人専用の閲覧範囲を維持し、Sitesの配置結果succeededを確認。
