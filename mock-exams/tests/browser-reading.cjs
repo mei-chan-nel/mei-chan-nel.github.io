@@ -350,6 +350,22 @@ const server = http.createServer((req, res) => {
       await frame().locator("body").getAttribute("data-reading-target"),
       "q4-09",
     );
+    assert.equal(await frame().locator(".problem-context").count(), 1);
+    assert.equal(
+      await frame().locator(".problem-context").getAttribute("open"),
+      null,
+    );
+    assert.ok(
+      (await frame().locator("body").innerText()).includes("表5を踏まえ"),
+    );
+    assert.ok(
+      !(await frame().locator("body").innerText()).includes(
+        "次の文章を読み，後の問い（問1〜5）",
+      ),
+    );
+    await frame().locator(".problem-context > summary").click();
+    assert.ok((await frame().locator("body").innerText()).includes("日合計D"));
+    await frame().locator(".problem-context > summary").click();
     assert.equal(
       await p.getByRole("button", { name: /採点する|中断/ }).count(),
       0,

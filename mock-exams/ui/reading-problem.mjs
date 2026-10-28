@@ -26,6 +26,39 @@ export function readingProblemHTML(source, unit) {
   d.body.dataset.readingTarget = unit.id;
   for (const e of d.querySelectorAll("[data-field]"))
     if (unit.fields.includes(e.dataset.field)) e.dataset.readingFocus = "true";
+  // Show the requested question immediately. Earlier shared material remains
+  // available in a disclosure, so a later question does not start with pages
+  // of context from previous questions.
+  let start = d.querySelector(`[data-reading-units~="${unit.id}"]`);
+  const firstField = d.querySelector('[data-reading-focus="true"]');
+  const fieldBlock =
+    firstField?.closest("figure") ||
+    firstField?.closest("p,fieldset,table,.qtitle");
+  if (
+    fieldBlock &&
+    (!start ||
+      fieldBlock.compareDocumentPosition(start) &
+        Node.DOCUMENT_POSITION_FOLLOWING)
+  )
+    start = fieldBlock;
+  if (start) {
+    const range = d.createRange();
+    range.setStart(d.body, 0);
+    range.setEndBefore(start);
+    const context = range.cloneContents();
+    if (
+      context.textContent.trim().length >= 160 ||
+      context.querySelector("table,figure,img,svg")
+    ) {
+      range.deleteContents();
+      const details = d.createElement("details");
+      details.className = "problem-context";
+      const summary = d.createElement("summary");
+      summary.textContent = "共通の文章・図表を見る";
+      details.append(summary, context);
+      d.body.prepend(details);
+    }
+  }
   const result = "<!doctype html>\n" + d.documentElement.outerHTML;
   if (!fragments.has(source)) fragments.set(source, new Map());
   fragments.get(source).set(unit.id, result);

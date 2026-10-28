@@ -85,6 +85,18 @@ html {
     outline: 2px solid #40816d;
     outline-offset: 2px;
   }
+  .problem-context {
+    margin: 0 0 12px;
+    padding: 12px 16px;
+    border: 1px solid #cbd7d5;
+    background: #f6f8f7;
+  }
+  .problem-context > summary {
+    cursor: pointer;
+    color: #126a65;
+    font-size: 14px;
+    line-height: 1.8;
+  }
 }
 body {
   margin: 0 !important;
