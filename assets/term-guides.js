@@ -57,6 +57,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "アルゴリズム": {
     "url": "/terms/algorithm/"
   },
+  "コミュニケーション": {
+    "url": "/terms/communication/"
+  },
   "サーバ": {
     "url": "/terms/server/"
   },
