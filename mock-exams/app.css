@@ -1115,11 +1115,9 @@ body[data-view="workspace"] > .preview-banner {
     background: #f4f6f4;
     padding: 5px 0;
     gap: 8px;
-    transition: transform 160ms ease;
   }
-  .workspace-toolbar.is-scroll-hidden {
-    transform: translateY(calc(-100% - 8px));
-    pointer-events: none;
+  .workspace-toolbar.answering-toolbar {
+    display: none;
   }
   .workspace-toolbar .book-nav {
     position: static;
@@ -1140,11 +1138,6 @@ body[data-view="workspace"] > .preview-banner {
   }
   .history-page-heading button {
     font-size: 13px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .workspace-toolbar {
-    transition: none;
   }
 }
 .history-grid-tools {

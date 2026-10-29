@@ -533,44 +533,11 @@ document.addEventListener("pointerdown", (event) => {
   )
     closeAnswer();
 });
-let toolbarScrollY = window.scrollY;
-function updateMobileToolbar(reset = false) {
-  const toolbar = $(".workspace-toolbar:not(.reading-toolbar)"),
-    y = Math.max(
-      0,
-      Math.min(
-        window.scrollY,
-        document.documentElement.scrollHeight - innerHeight,
-      ),
-    );
-  if (!toolbar) {
-    toolbarScrollY = y;
-    return;
-  }
-  const stickyStart =
-    toolbar.nextElementSibling.getBoundingClientRect().top +
-    window.scrollY -
-    toolbar.offsetHeight;
-  if (reset || innerWidth > 850 || y <= stickyStart) {
-    toolbar.classList.remove("is-scroll-hidden");
-    toolbarScrollY = y;
-    return;
-  }
-  // Accumulate small movements, ignoring elastic overscroll and direction jitter.
-  const delta = y - toolbarScrollY;
-  if (Math.abs(delta) < 10) return;
-  toolbar.classList.toggle("is-scroll-hidden", delta > 0);
-  toolbarScrollY = y;
-}
-window.addEventListener("resize", () => {
-  positionKeypad();
-  updateMobileToolbar(true);
-});
+window.addEventListener("resize", () => positionKeypad());
 window.addEventListener(
   "scroll",
   () => {
     positionKeypad();
-    updateMobileToolbar();
     const key = window.history.state?.studyAtlasMock?.entryKey;
     if (key && !navigationReplay && !documentLeaving)
       viewScrollPositions.set(key, window.scrollY);
@@ -946,12 +913,7 @@ function renderWorkspace() {
     },
     split = reading && !readingUnit && innerWidth >= 1000;
   if (reading && !readingUnit) solution = true;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : ""}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
-  updateMobileToolbar(true);
-  $(".workspace-toolbar").addEventListener("focusin", () => {
-    $(".workspace-toolbar").classList.remove("is-scroll-hidden");
-    toolbarScrollY = window.scrollY;
-  });
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   $("#back-list").onclick = reading
     ? backFromReading
     : reviewing
