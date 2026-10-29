@@ -1,20 +1,22 @@
 * { box-sizing: border-box; }
-body { margin: 0; color: #171b1c; background: #eef1ef; font: 16px/1.75 system-ui, sans-serif; }
+body { margin: 0; color: #171b1c; background: #eef1ef; font: 15.333px/1.85 system-ui, sans-serif; }
 .page { width: 210mm; min-height: 297mm; margin: 18px auto; padding: 16mm 17mm; background: white; }
-h1 { font-size: 21px; margin: 0 0 20px; }
-h2 { font-size: 18px; margin: 22px 0 12px; }
-h3 { font-size: 17px; margin: 22px 0 10px; }
-p { margin: 12px 0; }
-table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 15px; line-height: 1.5; }
+h1 { font-size: 16px; margin: 0 0 24px; }
+h2 { font-size: inherit; font-weight: 400; margin: 24px 0 12px; }
+h3 { font-size: inherit; font-weight: 400; margin: 20px 0 10px; }
+p { margin: 0 0 16px; text-indent: 1em; }
+.question { text-indent: 0; padding-left: 2.5em; position: relative; }
+.question-number { display: inline-block; min-width: 2.5em; margin-left: -2.5em; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13px; line-height: 1.6; }
 caption { font-weight: 600; margin-bottom: 8px; text-align: center; }
 th, td { border: 1px solid #717c79; padding: 6px 8px; text-align: center; }
-th { font-weight: 600; background: #f0f3f1; }
+th { font-weight: 400; background: white; }
 .left { text-align: left; }
 .mark { display: inline-block; min-width: 1.8em; border: 1px solid #333; text-align: center; line-height: 1.5; margin: 0 3px; }
-.choices { list-style: none; padding: 0; margin: 14px 0; }
-.choices li { display: grid; grid-template-columns: 1.7em minmax(0, 1fr); column-gap: 6px; margin: 10px 0; }
+.choices { list-style: none; padding: 0; margin: 17px 0 23px; }
+.choices li { display: grid; grid-template-columns: 1.7em minmax(0, 1fr); column-gap: 6px; margin: 0 0 17px; }
 .num { font-size: 1.05em; }
-.rules { border: 1px solid #a0aaa5; background: #f7f9f7; padding: 10px 14px 10px 32px; margin: 16px 0; }
+.rules { border: 1px solid #a0aaa5; background: white; padding: 10px 14px 10px 32px; margin: 16px 0; }
 .rules li { margin: 7px 0; }
 .note { font-size: 14px; color: #46534e; }
 .answer { font-weight: 600; color: #126a65; }
@@ -24,7 +26,9 @@ th { font-weight: 600; background: #f0f3f1; }
 }
 @media print {
   @page { size: A4; margin: 0; }
-  body { background: white; }
+  body { background: white; font-family: "Noto Serif CJK JP", "Yu Mincho", serif; font-size: 11.5pt; line-height: 1.75; }
+  .question { break-after: avoid; }
+  table { font-size: 10pt; }
   .page { height: 297mm; min-height: 297mm; margin: 0; break-after: page; }
   .page:last-child { break-after: auto; }
   h2, h3, caption { break-after: avoid; }
