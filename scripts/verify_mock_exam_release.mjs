@@ -40,6 +40,8 @@ try {
     "mock-exams/index.html",
     "mock-exams/app.mjs",
     "mock-exams/app.css",
+    "mock-exams/analytics.mjs",
+    "assets/site-analytics.js",
     "mock-exams/booklet.css",
     "mock-exams/catalog.json",
     "mock-exams/engine/stats.mjs",

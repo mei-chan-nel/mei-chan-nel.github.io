@@ -77,8 +77,37 @@ const server = http.createServer((req, res) => {
           : { items: [] },
       });
     });
+    await context.route("https://www.googletagmanager.com/**", (route) =>
+      route.fulfill({ body: "", contentType: "text/javascript" }),
+    );
     await page.goto(`http://127.0.0.1:${server.address().port}/mock-exams/`);
     await startFullExam(page, "untimed", exam.id);
+    await page.locator(".bottom-section-navigation button").first().waitFor();
+    assert.equal(
+      await page.locator(".bottom-section-navigation button").count(),
+      exam.sections.length,
+    );
+    assert.equal(
+      await page
+        .locator("#book-next")
+        .getByRole("button", { name: /→/ })
+        .count(),
+      0,
+    );
+    assert.equal(
+      await page.locator("[data-run-timer]").textContent(),
+      await page.locator("#timer").textContent(),
+    );
+    await page
+      .locator(".bottom-section-navigation")
+      .getByRole("button", { name: exam.sections.at(-1).title, exact: true })
+      .click();
+    assert.equal(
+      await page
+        .locator(".bottom-section-navigation [aria-current=true]")
+        .textContent(),
+      exam.sections.at(-1).title,
+    );
     for (const section of exam.sections) {
       await page
         .locator(".book-nav")
@@ -104,7 +133,23 @@ const server = http.createServer((req, res) => {
         }
       }
     }
-    await page.getByRole("button", { name: "採点する", exact: true }).click();
+    await page
+      .getByRole("button", { name: "採点する（問題末尾）", exact: true })
+      .click();
+    const events = await page.evaluate(() =>
+      (window.dataLayer || [])
+        .filter(
+          (args) => args[0] === "event" && args[1].startsWith("mock_exam_"),
+        )
+        .map((args) => [args[1], args[2]]),
+    );
+    assert.deepEqual(
+      events.map((e) => e[0]),
+      ["mock_exam_start", "mock_exam_grade"],
+    );
+    assert.equal(events[0][1].exam_mode, "untimed");
+    assert.equal(events[1][1].grading_type, "final");
+    assert.ok(events.every((e) => !new URL(e[1].page_location).hash));
     await page
       .getByRole("heading", { name: "採点結果", exact: true })
       .waitFor();
@@ -176,6 +221,27 @@ const server = http.createServer((req, res) => {
       await page.locator("#back-list").click();
       await link.waitFor();
     }
+    await page.locator("#back-list").click();
+    await page.getByRole("button", {name: "一覧に戻る", exact:true}).click();
+    await startFullExam(page, "timed", exam.id);
+    await page.locator("[data-run-timer]").waitFor();
+    assert.equal(await page.locator(".answering-toolbar").isVisible(), false);
+    assert.equal(await page.locator("#book-next").isVisible(), true);
+    await page.getByRole("button", {name:"中断（問題末尾）", exact:true}).click();
+    await page.getByRole("button", {name:"採点せずに中断", exact:true}).click();
+    await page.locator("#exam-modes").getByRole("button", {name:/大問ごとに演習する/}).click();
+    await page.locator("#catalog-sections").getByRole("button", {name:exam.sections[1].title,exact:true}).click();
+    await page.locator("#exam-list").getByRole("button", {name:"選択", exact:true}).click();
+    await page.locator("[data-run-timer]").waitFor();
+    assert.equal(await page.locator(".bottom-section-navigation button").count(),1);
+    await page.getByRole("button", {name:"中断（問題末尾）",exact:true}).click();
+    await page.getByRole("button", {name:"ここまでを採点して中断",exact:true}).click();
+    await page.getByRole("heading", {name:"採点結果",exact:true}).waitFor();
+    const activity = await page.evaluate(() => (window.dataLayer || []).filter(args => args[0] === "event" && args[1].startsWith("mock_exam_")).map(args => [args[1],args[2]]));
+    assert.deepEqual(activity.filter(e=>e[0]==="mock_exam_start").map(e=>e[1].exam_mode), ["untimed","timed","section"]);
+    assert.deepEqual(activity.filter(e=>e[0]==="mock_exam_pause").map(e=>e[1].pause_type), ["ungraded","graded"]);
+    assert.equal(activity.filter(e=>e[0]==="mock_exam_grade").at(-1)[1].grading_type,"interim");
+    assert.equal(activity.filter(e=>e[0]==="mock_exam_start").at(-1)[1].section_id,exam.sections[1].id);
     assert.equal(writes.length, 1, "reading must not write statistics");
     assert.deepEqual(errors, []);
     console.log(

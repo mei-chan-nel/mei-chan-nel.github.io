@@ -39,6 +39,7 @@ for page in studio.glob('*.html'):
  page.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
 for file,is_home in [(root/'index.html',True),(root/'mock-exams/index.html',False)]:
  d=html.fromstring(file.read_bytes())
+ for script in d.xpath('//script[contains(@src,"site-analytics.js")]'):script.drop_tree()
  for a in d.xpath('//a[@href]'):
   href=a.get('href')
   if is_home:

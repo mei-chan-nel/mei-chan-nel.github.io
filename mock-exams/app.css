@@ -800,6 +800,35 @@ dialog h2 {
   justify-content: flex-end;
   padding: 20px 0 30px;
 }
+.book-next.workspace-bottom {
+  display: block;
+  border-top: 1px solid var(--mock-line, #cbd7d5);
+  margin-top: 20px;
+}
+.bottom-section-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.bottom-section-navigation [aria-current="true"] {
+  background: var(--mock-ink);
+  color: white;
+}
+.bottom-run-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+.bottom-run-status p {
+  margin: 0;
+}
+.bottom-run-status .timer {
+  margin-left: 8px;
+  font-size: 1.35rem;
+}
 .answer-grid button {
   white-space: nowrap;
   padding: 7px 1px;
@@ -954,6 +983,9 @@ button.subtle-button {
   }
 }
 @media print {
+  .book-next.workspace-bottom {
+    display: none;
+  }
   .book-next,
   .section-navigation {
     display: none;

@@ -27,6 +27,7 @@ import { alignReadingPanes } from "./ui/paired-reading.mjs";
 import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
+import { trackExamAction } from "./analytics.mjs";
 import {
   catalogSections,
   catalogProgress,
@@ -827,6 +828,7 @@ async function begin(entry, mode, sid) {
   readingMode = false;
   sectionId = attempt.sectionIds[0];
   persist();
+  trackExamAction("start", exam, attempt);
   renderWorkspace();
   resetTop();
 }
@@ -893,6 +895,29 @@ function navigateSection(id) {
     frame?.scrollIntoView({ block: "start", behavior: "instant" }),
   );
 }
+function renderBottomControls(sections) {
+  const root = $("#book-next");
+  root.classList.add("workspace-bottom");
+  root.innerHTML = `<nav class="bottom-section-navigation" aria-label="大問を選ぶ（問題末尾）"></nav><div class="bottom-run-status"><p>${attempt.mode === "timed" ? "残り時間" : "解答時間"} <strong data-run-timer class="timer"></strong></p><div class="actions"></div></div>`;
+  for (const section of sections) {
+    const b = button(section.title, () => navigateSection(section.id));
+    b.setAttribute("aria-current", String(section.id === sectionId));
+    root.querySelector("nav").append(b);
+  }
+  for (const [title, action, style] of [
+    ["採点する", doGrade, "primary"],
+    ["中断", () => requestPause(false), ""],
+    [
+      navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る",
+      () => requestPause(true),
+      "",
+    ],
+  ]) {
+    const b = button(title, action, style);
+    b.setAttribute("aria-label", title + "（問題末尾）");
+    root.querySelector(".actions").append(b);
+  }
+}
 function renderWorkspace() {
   setView("workspace");
   closeAnswer();
@@ -946,7 +971,9 @@ function renderWorkspace() {
   }
   const next =
     !readingUnit && sections[sections.findIndex((s) => s.id === sectionId) + 1];
-  if (next)
+  if (!reading && !reviewing) {
+    renderBottomControls(sections);
+  } else if (next)
     $("#book-next").append(
       button(next.title + " →", () => navigateSection(next.id), "primary"),
     );
@@ -1417,6 +1444,7 @@ function requestPause(toList) {
       () => {
         pause(attempt);
         persist();
+        trackExamAction("pause", exam, attempt, "ungraded");
         leave();
       },
     ],
@@ -1429,18 +1457,28 @@ function doGrade(kind = "final") {
   submit(exam, attempt);
   attempt.gradingKind = kind === "interim" ? "interim" : "final";
   persist();
+  trackExamAction(
+    "grade",
+    exam,
+    attempt,
+    kind === "interim" ? "interim" : kind === "timeout" ? "timeout" : "final",
+  );
+  if (kind === "interim") trackExamAction("pause", exam, attempt, "graded");
   renderResults({ record: true });
 }
 function tick() {
   if (!attempt || !$("#timer")) return;
   const ms = elapsed(attempt);
-  $("#timer").textContent = reviewing
+  const label = reviewing
     ? "成績には反映しません"
     : time(
         attempt.mode === "timed"
           ? Math.max(0, exam.durationSeconds * 1000 - ms)
           : ms,
       );
+  document.querySelectorAll("#timer, [data-run-timer]").forEach((node) => {
+    node.textContent = label;
+  });
   if (
     !reviewing &&
     attempt.status === "active" &&
@@ -1449,7 +1487,7 @@ function tick() {
   ) {
     attempt.elapsedMs = exam.durationSeconds * 1000;
     attempt.startedAt = null;
-    doGrade();
+    doGrade("timeout");
     notify("制限時間になったため採点しました。");
   }
 }

@@ -13,11 +13,17 @@
   window.gtag("js", new Date());
   const isProgramStudio = /\/program-trace\/studio(?:\/|$)/i.test(window.location.pathname);
   const isCpuMemory = /\/lab\/cpu-memory(?:\/|$)/i.test(window.location.pathname);
+  const isMockExam = /\/mock-exams\/(?:index\.html)?$/.test(window.location.pathname);
   // Shared source lives in the fragment; analytics only receives the page URL.
-  window.gtag("config", GA_MEASUREMENT_ID, isProgramStudio || isCpuMemory ? {
+  const privateUrlConfig = {
     page_location: window.location.href.split("#")[0],
     page_referrer: document.referrer.split("#")[0],
-  } : {});
+  };
+  if (isMockExam) {
+    privateUrlConfig.page_location = window.location.origin + window.location.pathname;
+    privateUrlConfig.page_referrer = document.referrer.split(/[?#]/)[0];
+  }
+  window.gtag("config", GA_MEASUREMENT_ID, isProgramStudio || isCpuMemory || isMockExam ? privateUrlConfig : {});
 
   if (!document.querySelector(`script[data-site-analytics="ga4"][data-measurement-id="${GA_MEASUREMENT_ID}"]`)) {
     const analyticsScript = document.createElement("script");

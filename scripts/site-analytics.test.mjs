@@ -109,7 +109,18 @@ function* htmlPages(directory) {
   }
 }
 
-test("portal pages load analytics once; browser-local statistics and mock exam pages load none", () => {
+test("mock exam analytics omits attempt fragments and query values", () => {
+  const { window, run } = analyticsPage({
+    href: "https://mei-chan-nel.com/mock-exams/?private=value#attempt-uuid",
+    referrer: "https://mei-chan-nel.com/mock-exams/?private=previous#previous-uuid",
+  });
+  run();
+  const config = window.dataLayer.find((args) => args[0] === "config")[2];
+  assert.equal(config.page_location, "https://mei-chan-nel.com/mock-exams/");
+  assert.equal(config.page_referrer, "https://mei-chan-nel.com/mock-exams/");
+});
+
+test("portal and mock app load analytics once; local statistics and embedded exam documents load none", () => {
   const analyticsFile = new URL("assets/site-analytics.js", root);
   for (const file of htmlPages(root)) {
     const html = readFileSync(file, "utf8");
@@ -117,7 +128,7 @@ test("portal pages load analytics once; browser-local statistics and mock exam p
     if (!/<head\b/u.test(html)) continue;
     const tags = [...html.matchAll(/<script\b[^>]*\bsrc="([^"]+)"[^>]*>/gu)];
     const analytics = tags.filter((match) => new URL(match[1], file).pathname === analyticsFile.pathname);
-    if (["lab/statistics/", "mock-exams/"].some(path => file.pathname.startsWith(new URL(path, root).pathname))) {
+    if (["lab/statistics/", "mock-exams/"].some(path => file.pathname.startsWith(new URL(path, root).pathname)) && file.pathname !== new URL("mock-exams/index.html", root).pathname) {
       assert.equal(analytics.length, 0, file.pathname);
       assert.doesNotMatch(html, /googletagmanager|gtag\(/u, file.pathname);
       continue;

@@ -122,7 +122,7 @@ const server = http.createServer((req, res) => {
     await frame().locator('[data-field="q2a-ア"]').first().waitFor();
     await p
       .locator("#book-next")
-      .getByRole("button", { name: "第2問B →", exact: true })
+      .getByRole("button", { name: "第2問B", exact: true })
       .click();
     await frame().locator('[data-field="q2b-コ"]').first().waitFor();
     await p
