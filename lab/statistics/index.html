@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>統計・データ分析｜Interactive Lab</title>
+<meta name="description" content="自分のデータを使い、分布・代表値・相関などを可視化して確かめる統計ラボ。" />
+<meta property="og:type" content="website" /><meta property="og:locale" content="ja_JP" />
+<meta property="og:title" content="統計・データ分析｜Interactive Lab" /><meta property="og:description" content="自分のデータを使い、分布・代表値・相関などを可視化して確かめる統計ラボ。" />
+<meta property="og:url" content="https://mei-chan-nel.com/lab/statistics/" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+<link rel="canonical" href="https://mei-chan-nel.com/lab/statistics/" /><meta name="theme-color" content="#102f35" />
+<link rel="icon" href="../icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="../lab.css?v=3" />
+<link rel="stylesheet" href="../help/help.css?v=2" />
+<script type="module" src="../help/launcher.mjs?v=2"></script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"統計・データ分析","item":"https://mei-chan-nel.com/lab/statistics/"}]}</script>
+<link rel="stylesheet" href="./statistics.css" />
+<link rel="stylesheet" href="./workspace.css?v=20261025-final-polish" />
+<link rel="stylesheet" href="./data/data.css?v=20261026-final-upgrade" />
+
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+</head><body data-statistics="index">
+<a class="skip-link" href="#main-content">本文へ移動</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a></nav></div></header>
+<main id="main-content" class="lab-shell lab-content-page stat-page">
+<header class="statistics-home-heading"><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">Interactive Lab</a></nav><h1>統計・データ分析</h1><p class="workspace-purpose">データを動かす。見え方を比べる。根拠を持って判断する。</p></header>
+
+<section class="lab-category" aria-label="統計ラボ" style="--lab-accent:var(--amber-strong)"><div class="archive-field-grid lab-content-grid"><a href="./graph-reading/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">01</span><div><h2>グラフの選び方と読み取り</h2><p>データの種類や目的に応じて適切なグラフを選び、読み取ります。</p></div></a><a href="./missing-values/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">02</span><div><h2>欠損値とデータの扱い</h2><p>欠けたデータの扱い方によって、分析結果がどう変わるかを確かめます。</p></div></a><a href="./histogram/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">03</span><div><h2>データの分布</h2><p>データの分布を可視化し、中心やばらつき、特徴を調べます。</p></div></a><a href="./crosstab/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">04</span><div><h2>クロス集計</h2><p>2つの項目を組み合わせて集計し、人数や割合の違いを調べます。</p></div></a><a href="./correlation/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">05</span><div><h2>散布図と相関・回帰</h2><p>2つの量の関係を調べ、相関の強さや予測の方法を学びます。</p></div></a><a href="./time-series/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">06</span><div><h2>時系列データの分析</h2><p>時間とともに変化するデータから、傾向や周期性を読み取ります。</p></div></a><a href="./sampling/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">07</span><div><h2>標本調査と推定</h2><p>一部のデータから全体を推定し、推定結果のばらつきを確かめます。</p></div></a><a href="./hypothesis-test/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">08</span><div><h2>統計的な判断と仮説検定</h2><p>データから仮説を検証し、統計的な判断の方法を学びます。</p></div></a></div></section>
+<section id="academic" class="academic" aria-label="統計の見方"><details class="academic-section"><summary>統計の見方</summary><div class="explanation-content"><section aria-labelledby="guide-graph-reading"><h3 id="guide-graph-reading">01 グラフの選び方と読み取り</h3><p><strong>行うこと：</strong>気温の変化、降水量の内訳、日照と気温の関係を題材ごとのタブで比べ、別のグラフでは何が読み取りにくいかを確かめます。</p><p><strong>手法：</strong>棒は量の比較、折れ線は時間変化、散布図は2つの量の関係、ヒストグラムは分布、円グラフは全体の内訳を表します。</p></section><section aria-labelledby="guide-missing-values"><h3 id="guide-missing-values">02 欠損値とデータの扱い</h3><p><strong>行うこと：</strong>標準または読み込んだ欠損データを使い、比較表から0・平均・中央値・直前の値・線形補間を選んで、グラフや集計の違いを調べます。</p><p><strong>手法：</strong>欠損値は、値が0なのではなく分からない状態です。平均の分母になる件数を確かめ、集計方法による平均・分散の違いを読み取ります。</p></section><section aria-labelledby="guide-histogram"><h3 id="guide-histogram">03 データの分布</h3><p><strong>行うこと：</strong>階級幅やデータを変え、分布の形、中心、ばらつき、グループの違いを比べます。</p><p><strong>手法：</strong>ヒストグラムは、値を区間に分けて人数や個数を表す図です。箱ひげ図は中央値と四分位数を使って分布を要約します。平均・中央値で中心を、分散・標準偏差でばらつきを調べます。</p></section><section aria-labelledby="guide-crosstab"><h3 id="guide-crosstab">04 クロス集計</h3><p><strong>行うこと：</strong>人数と割合、学科別と合計を切り替え、合格率の違いや結論が逆転する理由を調べます。</p><p><strong>手法：</strong>クロス集計は、2つの分類を組み合わせて人数を数える方法です。行比率は行の合計を、列比率は列の合計を分母にします。グループごとの人数の偏りが、合計の割合にも影響します。</p></section><section aria-labelledby="guide-correlation"><h3 id="guide-correlation">05 散布図と相関・回帰</h3><p><strong>行うこと：</strong>点を動かし、相関係数や回帰直線、予測値がどう変わるかを調べます。</p><p><strong>手法：</strong>散布図は、同じ対象の2つの数値を点で表します。相関係数は直線的な関係の向きと強さを、回帰直線は一方の値からもう一方を予測する目安を示します。実際の値と予測値の差が残差です。</p></section><section aria-labelledby="guide-time-series"><h3 id="guide-time-series">06 時系列データの分析</h3><p><strong>行うこと：</strong>月別データを使い、長期的な増減、季節の繰り返し、伸び率を読み取ります。</p><p><strong>手法：</strong>移動平均は、近くの時点の値を平均して細かな変動をならします。自己相関は、時点をずらしたデータ同士の関係から周期を調べる方法です。季節調整では、毎年繰り返す季節の動きを取り除きます。</p></section><section aria-labelledby="guide-sampling"><h3 id="guide-sampling">07 標本調査と推定</h3><p><strong>行うこと：</strong>同じ母集団から何度も標本を取り、標本数や抽出方法による平均のぶれを比べます。</p><p><strong>手法：</strong>無作為抽出は、偶然の仕組みで調べる対象を選ぶ方法です。標本平均を使って母平均を推定し、標本によるぶれをもとに信頼区間を求めます。標本数を増やすと、平均のぶれは一般に小さくなります。</p></section><section aria-labelledby="guide-hypothesis-test"><h3 id="guide-hypothesis-test">08 統計的な判断と仮説検定</h3><p><strong>行うこと：</strong>帰無仮説と対立仮説を立て、参加者の平均正答率を基準と比べて判断します。第1種・第2種の誤りも学びます。</p><p><strong>手法：</strong>標準誤差は、標本平均のぶれの目安です。平均と基準の差を標準誤差で割ってZを求め、大標本の正規近似を使います。正規分布表から有意水準に対応する境目を読み、Zが棄却域に入るかを判断します。</p></section></div></details></section>
+</main>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a>
+<a href="../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../info1-quiz-app/questions/">問題を探す</a>
+<a href="../../terms/">用語一覧</a>
+<a href="../../archive/">解説動画</a>
+<a href="../../program-trace/">プログラムトレース</a>
+<a href="../../LectureNote/">講義ノート</a>
+<a href="../../lab/" aria-current="page">ラボ</a>
+<a href="../../study-guide.html">使い方</a>
+<a href="../../books/">書籍案内</a>
+<a href="../../about.html">このサイトについて</a>
+<a href="../../privacy.html">プライバシーポリシー</a>
+<a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<script type="module" src="../navigation.mjs?v=1"></script>
+</body></html>

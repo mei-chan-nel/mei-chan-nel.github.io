@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics/crosstab",
+  "name": "クロス集計",
+  "purpose": [
+    "割合の分母を確かめ、群別と合計で結論が逆転する理由を調べる。"
+  ],
+  "initialState": [
+    "標準は1973年UCバークレー大学大学院の学科A・Fの志願者。学科・性別・合否を匿名の行で表示。"
+  ],
+  "controls": [
+    "「クロス集計表」で「人数」「行比率」「列比率」「セル比率」を切替。「割合を比べる」で合格率、「実数を比べる」で分母の構成を見る。"
+  ],
+  "firstSteps": [
+    "「クロス集計表」を押し、「人数」から「行比率」に切り替える。行の合計を分母として読み比べる。"
+  ],
+  "experiments": [
+    "「割合を比べる」で合計と学科別の男女の合格率を比べ、「実数を比べる」で人数の偏りを見る。"
+  ],
+  "results": [
+    "行比率は行合計、列比率は列合計、セル比率は表全体が分母。合計の比率は群ごとの人数にも左右される。"
+  ],
+  "cautions": [
+    "標準は2学科の抜粋で全学の結論ではない。比率だけから差別や因果関係を断定しない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/crosstab/lab.mjs",
+      "lab/statistics/crosstab/records.mjs",
+      "lab/statistics/shared/samples.mjs"
+    ]
+  }
+}

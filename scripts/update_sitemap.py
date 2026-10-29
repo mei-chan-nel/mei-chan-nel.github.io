@@ -46,7 +46,17 @@ def read_portal_urls() -> list[str]:
         "mock-exams/index.html",
         "program-trace/studio/index.html",
         "program-trace/studio/guide.html",
+        "lab/index.html", "lab/cpu-memory/index.html", "lab/os-work/index.html", "lab/crypto-communication/index.html",
+        "lab/color-vision/index.html",
+        "lab/thinking-tools/index.html",
+        "lab/radix-conversion/index.html",
+        "lab/digital-image/index.html", "lab/image-compression/index.html",
+        "lab/digital-audio/index.html",
+        "lab/logic-circuit/index.html",
+        "lab/flowchart/index.html", "lab/packet-routing/index.html",
+        "lab/relational-database/index.html", "lab/question-map/index.html",
     ]
+    paths.extend(path.relative_to(ROOT).as_posix() for path in sorted((ROOT / "lab" / "statistics").glob("**/index.html")) if path.parent.name not in {"lorenz", "summary", "probability"})
     report_path = ROOT / "docs" / "video-library-build.json"
     if not report_path.is_file():
         raise ValueError(f"Video-library build report not found: {report_path}")

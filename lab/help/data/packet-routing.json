@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "packet-routing",
+  "name": "パケット通信とルーティング",
+  "purpose": [
+    "パケットの転送、障害、ルーティングテーブルの更新を観察する。"
+  ],
+  "initialState": [
+    "20ルータ・6LAN・8PC。初期送信はPC-A→PC-H、メッセージ入力済み。R13故障・R7—R8切断は学習済み。"
+  ],
+  "controls": [
+    "「送信」でメッセージを分割して送る。「送信設定」でPCと文章を変更。「障害を試す」の「経路上の回線を切断」で障害を作る。",
+    "機器・回線を選ぶと故障・復旧・接続等のメニューが開く。「パケット追跡」で実際の経路を見る。"
+  ],
+  "firstSteps": [
+    "「送信 ↗」を押し、青いパケットと「通信の結果」を見る。"
+  ],
+  "experiments": [
+    "「連続送信」中に経路を切断し、直後の消失と更新後の迂回を比較する。"
+  ],
+  "results": [
+    "青はデータ、オレンジは経路情報。破線はテーブルから予測した経路、追跡の実線は実際に通過した経路。全片到達でメッセージが復元される。"
+  ],
+  "cautions": [
+    "自動進行で停止・段階実行ボタンはない。OSPFを参考にしたモデルで、TCP再送や混雑などは扱わない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/packet-routing/app.mjs",
+      "lab/packet-routing/simulator.mjs",
+      "lab/packet-routing/index.html"
+    ]
+  }
+}

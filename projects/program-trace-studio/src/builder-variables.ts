@@ -1,8 +1,9 @@
 import { constantValue } from './expressions.js';
+import { hasValueReturn } from './builder-functions.js';
 import type { ExpressionContext, VariableChoice } from './expression-editor.js';
 import type { BuilderDocument, BuilderNode, Expr, InputSpec } from './types.js';
 
-export function builderContext(model: BuilderDocument, specs: Record<string, InputSpec>, base: 0 | 1): ExpressionContext {
+export function builderContext(model: BuilderDocument, specs: Record<string, InputSpec>, base: 0 | 1, functionId?: string): ExpressionContext {
   const catalog = new Map<string, VariableChoice>(), strings = new Set<string>();
   const add = (item: VariableChoice): void => {
     const previous = catalog.get(item.name);
@@ -32,8 +33,12 @@ export function builderContext(model: BuilderDocument, specs: Record<string, Inp
     if (node.kind === 'input') { const kind = specs[node.name]?.kind; add({ name: node.name, kind: kind === 'array' ? 'array' : kind === 'matrix' ? 'matrix' : 'variable' }); }
     if (node.kind === 'if' || node.kind === 'while') scan(node.condition);
     if (node.kind === 'print') node.args.forEach(scan);
+    if ((node.kind === 'return' || node.kind === 'call') && node.expression) scan(node.expression);
     if ('body' in node) node.body.forEach(visit); if (node.kind === 'if' && node.otherwise) visit(node.otherwise);
   }
-  model.nodes.forEach(visit);
-  return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base };
+  const functions = model.nodes.filter((node): node is Extract<BuilderNode, { kind: 'define' }> => node.kind === 'define');
+  const active = functions.find(node => node.id === functionId);
+  if (active) { active.parameters.forEach(name => add({ name, kind: 'variable' })); active.body.forEach(visit); }
+  else model.nodes.filter(node => node.kind !== 'define').forEach(visit);
+  return { variables: [...catalog.keys()], arrays: [...catalog.values()].filter(item => item.kind !== 'variable').map(item => item.name), catalog: [...catalog.values()], strings: [...strings], base, parameters: active?.parameters, activeFunction: active?.name, functions: functions.map(({ name, parameters, body }) => ({ name, parameters, returnsValue: hasValueReturn(body) })) };
 }

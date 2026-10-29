@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics/graph-reading",
+  "name": "グラフの選び方と読み取り",
+  "purpose": [
+    "問いに合うグラフ、軸、割合の分母を選ぶ。"
+  ],
+  "initialState": [
+    "標準は東京の2025年6〜7月61日分の日付・降水量・気温・日照時間。"
+  ],
+  "controls": [
+    "「気温の変化」「降水量の内訳」「日照と気温」のタブと、棒・折れ線・散布図・ヒストグラム・円グラフを切替。「読み取りを確かめる」で問いに答える。"
+  ],
+  "firstSteps": [
+    "「気温の変化」タブを押し、「折れ線」と「ヒストグラム」を切り替え、日付順が残るか比べる。"
+  ],
+  "experiments": [
+    "「降水量の内訳」で「日数の差を比べる」と「全体の割合を見る」を切り替える。"
+  ],
+  "results": [
+    "折れ線は時間変化、ヒストグラムは分布。円は全日数を100%にした気温帯や降水量区分の内訳。"
+  ],
+  "cautions": [
+    "気温の合計を円グラフの分母にしない。幅の異なる階級は度数密度を高さにし、面積が日数を表す。単位が異なる2軸の同じ高さは同じ量ではない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/graph-reading/lab.mjs",
+      "lab/statistics/graph-reading/model.mjs",
+      "lab/statistics/graph-reading/lessons.mjs"
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "pages": {
+    "cpu-memory": [
+      "cpu-memory.json"
+    ],
+    "thinking-tools": [
+      "thinking-tools.json"
+    ],
+    "crypto-communication": [
+      "crypto-communication.json"
+    ],
+    "os-work": [
+      "os-work.json"
+    ],
+    "color-vision": [
+      "color-vision.json"
+    ],
+    "question-map": [
+      "question-map.json"
+    ],
+    "relational-database": [
+      "relational-database.json"
+    ],
+    "radix-conversion": [
+      "radix-conversion.json"
+    ],
+    "packet-routing": [
+      "packet-routing.json"
+    ],
+    "image-compression": [
+      "image-compression.json"
+    ],
+    "digital-image": [
+      "digital-image.json"
+    ],
+    "digital-audio": [
+      "digital-audio.json"
+    ],
+    "logic-circuit": [
+      "logic-circuit.json"
+    ],
+    "flowchart": [
+      "flowchart.json"
+    ],
+    "statistics": [
+      "statistics.json"
+    ],
+    "statistics/graph-reading": [
+      "statistics.json",
+      "statistics/graph-reading.json"
+    ],
+    "statistics/missing-values": [
+      "statistics.json",
+      "statistics/missing-values.json"
+    ],
+    "statistics/histogram": [
+      "statistics.json",
+      "statistics/histogram.json"
+    ],
+    "statistics/crosstab": [
+      "statistics.json",
+      "statistics/crosstab.json"
+    ],
+    "statistics/correlation": [
+      "statistics.json",
+      "statistics/correlation.json"
+    ],
+    "statistics/time-series": [
+      "statistics.json",
+      "statistics/time-series.json"
+    ],
+    "statistics/sampling": [
+      "statistics.json",
+      "statistics/sampling.json"
+    ],
+    "statistics/hypothesis-test": [
+      "statistics.json",
+      "statistics/hypothesis-test.json"
+    ],
+    "statistics/projects": [
+      "statistics.json",
+      "statistics/projects.json"
+    ]
+  }
+}

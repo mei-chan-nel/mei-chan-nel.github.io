@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+  <title>進数の変換｜Interactive Lab｜情報Ⅰ Study Atlas</title>
+  <meta name="description" content="2進数・10進数・16進数の変換を、整数の割り算、小数の掛け算、桁の重み、4ビットの対応から学ぶインタラクティブラボ。循環小数にも対応。" />
+  <meta name="theme-color" content="#102f35" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ja_JP" />
+  <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+  <meta property="og:title" content="進数の変換｜Interactive Lab" />
+  <meta property="og:description" content="同じ数を、違う進数で。整数・小数の変換を途中計算から理解しよう。" />
+  <meta property="og:url" content="https://mei-chan-nel.com/lab/radix-conversion/" />
+  <link rel="canonical" href="https://mei-chan-nel.com/lab/radix-conversion/" />
+  <link rel="icon" href="../icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+  <link rel="stylesheet" href="./styles.css?v=6" />
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+  <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"進数の変換","item":"https://mei-chan-nel.com/lab/radix-conversion/"}]}</script>
+<meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:secure_url" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1734" />
+<meta property="og:image:height" content="907" />
+<meta property="og:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+<meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
+<link rel="stylesheet" href="../help/help.css?v=2" />
+<script type="module" src="../help/launcher.mjs?v=2"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">本文へ移動</a>
+  <header class="site-header"><div class="header-inner">
+    <a class="brand" href="../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+    <nav class="global-nav" aria-label="メインナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../program-trace/">プログラムトレース</a><a href="../../LectureNote/">講義ノート</a><a href="../../lab/" aria-current="page">ラボ</a></nav>
+  </div></header>
+  <main id="main-content" class="radix-shell">
+    <nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span aria-current="page">進数の変換</span></nav>
+    <header class="radix-hero">
+      <div><p class="eyebrow">INTERACTIVE LAB · デジタル表現</p><h1>進数の変換</h1><p class="radix-lead">桁の重みと計算の流れを、ひとつずつ見てみよう。</p></div>
+    </header>
+
+    <section class="input-panel" aria-label="変換する数値">
+      <form id="conversion-form" novalidate>
+        <div class="input-sentence">
+          <label class="base-field"><span>入力の進数</span><select id="source-base" name="source"><option value="2">2進数</option><option value="10" selected>10進数</option><option value="16">16進数</option></select></label>
+          <label class="number-field"><span>数値</span><input id="number-input" name="number" type="text" value="45.6875" maxlength="67" inputmode="decimal" autocomplete="off" spellcheck="false" autocapitalize="characters" aria-describedby="input-error" /></label>
+          <span class="sentence-particle">を</span>
+          <label class="base-field"><span>変換先の進数</span><select id="target-base" name="target"><option value="2" selected>2進数</option><option value="10">10進数</option><option value="16">16進数</option></select></label>
+          <span class="sentence-particle">に</span><button class="convert-button" type="submit">変換 <span aria-hidden="true">→</span></button>
+        </div>
+        <p id="input-error" class="input-error" role="alert" hidden></p>
+      </form>
+      <div class="examples"><span>変換の例</span><div id="example-buttons"><button type="button" data-example="decimal-binary">10進数 → 2進数</button><button type="button" data-example="decimal-hex">10進数 → 16進数</button><button type="button" data-example="position">2進数 → 10進数</button><button type="button" data-example="hex-decimal">16進数 → 10進数</button><button type="button" data-example="binary-hex">2進数 → 16進数</button><button type="button" data-example="hex-binary">16進数 → 2進数</button><button type="button" data-example="cycle">10進数 → 2進数（循環）</button></div></div>
+    </section>
+
+    <p id="conversion-status" class="visually-hidden" role="status" aria-live="polite" aria-atomic="true"></p>
+
+    <section id="working-section" class="working-section" aria-labelledby="working-heading" hidden>
+      <div class="working-heading"><h2 id="working-heading">途中計算</h2><p id="method-description"></p></div>
+      <div id="calculation-panels"></div>
+      <section id="assembly" class="result-panel" aria-labelledby="result-heading"></section>
+    </section>
+
+    <a class="lab-back" href="../#digital-representation">← Interactive Lab の一覧へ</a>
+    <noscript><p class="input-error">このラボの変換と途中計算にはJavaScriptが必要です。ブラウザでJavaScriptを有効にしてください。</p></noscript>
+  </main>
+  <div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>
+  <footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../">トップページ</a><a href="../../info1-quiz-app/app/">学習アプリ</a><a href="../../info1-quiz-app/questions/">問題を探す</a><a href="../../terms/">用語一覧</a><a href="../../archive/">解説動画</a><a href="../../program-trace/">プログラムトレース</a><a href="../../LectureNote/">講義ノート</a><a href="../../lab/" aria-current="page">ラボ</a><a href="../../study-guide.html">使い方</a><a href="../../books/">書籍案内</a><a href="../../about.html">このサイトについて</a><a href="../../privacy.html">プライバシーポリシー</a><a href="../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+  <script type="module" src="../navigation.mjs?v=1"></script>
+  <script type="module" src="./app.mjs?v=6"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "title": "duru-roomscene-lofi",
+  "displayTitle": "DURU Roomscene Lofi",
+  "creator": "DURU-AI / uncle-sheepsky",
+  "localFile": "./duru-roomscene-lofi.mp3",
+  "durationSeconds": 104.045714,
+  "mimeType": "audio/mpeg",
+  "license": "CC0-1.0",
+  "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "licenseFile": "./CC0-1.0.txt",
+  "sourcePage": "https://github.com/uncle-sheepsky/duru-ai-cc0-bgm",
+  "sourceFile": "https://github.com/uncle-sheepsky/duru-ai-cc0-bgm/blob/1f63fef279098a082f2f77b3f74940b2784d37b7/mp3/duru-roomscene-lofi.mp3",
+  "licenseEvidence": "https://github.com/uncle-sheepsky/duru-ai-cc0-bgm/blob/1f63fef279098a082f2f77b3f74940b2784d37b7/README.md#license--please-read",
+  "sourceRevision": "1f63fef279098a082f2f77b3f74940b2784d37b7",
+  "sourceSha256": "9b883265d8dbca53bedb3e2dcf07f26af19997a79828d1cc1713426af255a45e",
+  "sha256": "a5439152f4f2510c861358b9def3ee9b0dde7a68f4c7ab3f50d5232123589d53",
+  "modifications": "Re-encoded from the creator's 320 kbps MP3 to 96 kbps stereo MP3; complete track, no trimming.",
+  "verifiedOn": "2026-10-18",
+  "allTracks": "./tracks.json"
+}

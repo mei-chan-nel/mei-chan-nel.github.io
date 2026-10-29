@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "statistics/time-series",
+  "name": "時系列データの分析",
+  "purpose": [
+    "移動平均・自己相関・季節調整で月別の変化を読む。"
+  ],
+  "initialState": [
+    "標準は2016〜2025年120か月の家計調査のアイスクリームへの支出金額。"
+  ],
+  "controls": [
+    "「移動平均」「自己相関」「季節調整」「伸び率・指数」のタブを切替。移動平均の月数やずらす月数を変更し、点を選んでその月の計算を見る。"
+  ],
+  "firstSteps": [
+    "「移動平均」を押し、平均する月数を変えて元の値と線を見比べる。"
+  ],
+  "experiments": [
+    "「自己相関」で12か月ずらした関係を見て、「季節調整」で夏冬の差がどう変わるか確認する。"
+  ],
+  "results": [
+    "移動平均は細かな変動をならす。自己相関はずらした系列との関係。指数100は基準月と同じ、伸び率0%は増減なし。"
+  ],
+  "cautions": [
+    "季節調整は12か月中心移動平均を使う簡易加法モデルで、公的統計の調整法と同一ではない。端や比較月のない所は計算できない。周期があっても将来を保証しない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/statistics/time-series/lab.mjs",
+      "lab/statistics/time-series/model.mjs",
+      "lab/statistics/time-series/data.mjs"
+    ]
+  }
+}

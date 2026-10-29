@@ -1,0 +1,421 @@
+/* Fullscreen foundations. Scene-specific tracks live in quest.css. */
+.game-console.is-viewport {
+  overflow: clip;
+}
+.is-viewport .game-inner {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  max-width: 1600px;
+  min-height: 0;
+  margin: auto;
+  padding: 0 14px 12px;
+  gap: 8px;
+}
+.is-viewport .game-toolbar {
+  position: static;
+  min-height: 0;
+  padding: 0;
+}
+.is-viewport .game-logo small {
+  display: none;
+}
+.is-viewport .toolbar-button {
+  min-height: 34px;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+.is-viewport .game-toolbar > div {
+  gap: 5px;
+}
+.is-viewport #gameplay {
+  display: grid;
+  min-height: 0;
+}
+.is-viewport .round-nav {
+  margin: 0;
+  min-height: 0;
+}
+.is-viewport .round-nav button {
+  padding: 4px 10px;
+  min-height: 0;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.is-viewport .round-nav button span {
+  display: inline;
+  margin-right: 6px;
+  font-size: 9px;
+}
+.is-viewport .level-heading {
+  display: none;
+}
+.is-viewport .phase-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 0;
+}
+.is-viewport .stages {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  gap: 8px;
+}
+.is-viewport .stages li {
+  font-size: 10px;
+  line-height: 1.3;
+  padding-bottom: 2px;
+}
+.is-viewport .auth-control {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  flex-shrink: 0;
+}
+.is-viewport .auth-control label {
+  font-size: 10px;
+  gap: 5px;
+}
+.is-viewport .auth-control input {
+  width: 16px;
+  height: 16px;
+}
+.is-viewport .auth-control p {
+  display: none;
+}
+.is-viewport .play-layout {
+  display: grid;
+  height: 100%;
+  min-height: 0;
+  align-items: stretch;
+}
+.is-viewport .scene-column,
+.is-viewport .command-column {
+  display: grid;
+  min-height: 0;
+}
+.is-viewport .scene {
+  display: grid;
+  min-height: 0;
+  grid-template-rows: 22px minmax(0, 1fr) 28px;
+}
+.is-viewport .scene-top {
+  padding: 2px 8px;
+  font-size: 10px;
+  line-height: 1.3;
+}
+.story-game.is-viewport .network-scene {
+  min-height: 0;
+  padding: 45px 10px 7px;
+  gap: 8px;
+}
+.story-game.is-viewport .pixel-character {
+  width: 56px;
+  height: 70px;
+  margin: 0 auto 3px;
+}
+.story-game.is-viewport .charlie-sprite {
+  width: 48px;
+  height: 60px;
+}
+.story-game.is-viewport .character-name {
+  font-size: 15px;
+}
+.story-game.is-viewport .actor-bubble {
+  min-height: 18px;
+  padding: 1px 0;
+  font-size: 9px;
+}
+.story-game.is-viewport .relay-location {
+  font-size: 8px;
+  margin-top: 2px;
+}
+.story-game.is-viewport .relay-machine {
+  padding: 1px 5px;
+  max-width: 90px;
+  margin-bottom: 3px;
+}
+.story-game.is-viewport .relay-machine b {
+  font-size: 10px;
+}
+.story-game.is-viewport .actor > span:last-child {
+  font-size: 9px;
+}
+.story-game.is-viewport .packet-sprite {
+  top: 4px;
+  width: min(160px, 36%);
+  padding: 3px;
+}
+.story-game.is-viewport .packet-sprite b {
+  font-size: 10px;
+}
+.story-game.is-viewport .packet-sprite small {
+  font-size: 8px;
+}
+.story-game.is-viewport .packet-shape {
+  font-size: 17px;
+}
+.story-game.is-viewport #scene[data-at="charlie"] .packet-sprite {
+  top: 4px;
+  bottom: auto;
+}
+.is-viewport .packet-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 8px;
+}
+.is-viewport .packet-card > span {
+  font-size: 9px;
+  margin: 0;
+}
+.is-viewport .packet-card strong {
+  font-size: 11px;
+  margin: 0;
+}
+.is-viewport .packet-card details {
+  display: none;
+}
+.is-viewport .story-box {
+  margin: 0;
+  padding: 5px 10px;
+}
+.is-viewport .story-box > .box-label {
+  display: none;
+}
+.is-viewport .text-detail {
+  min-height: 22px;
+  padding: 0;
+  font-size: 9px;
+  float: right;
+}
+.info-dialog[open] {
+  display: grid;
+  grid-template-rows: 40px 36px minmax(0, 1fr) 40px;
+  width: min(820px, calc(100% - 24px));
+  height: min(520px, calc(100dvh - 24px));
+  max-height: none;
+  padding: 12px;
+  gap: 8px;
+  overflow: clip;
+}
+.info-dialog .tools-header {
+  padding: 0 0 5px;
+}
+.info-dialog .tools-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+.info-dialog .pixel-button {
+  min-height: 34px;
+  padding: 5px 10px;
+  font-size: 12px;
+  box-shadow: none;
+}
+.info-topics,
+.info-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-topics button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid var(--game-line);
+  color: var(--game-paper);
+  background: var(--game-panel);
+  font-size: 12px;
+}
+.info-topics button[aria-pressed="true"] {
+  color: var(--game-bg);
+  background: var(--game-violet);
+}
+.info-page {
+  display: grid;
+  min-height: 0;
+  align-content: center;
+  padding: 8px 12px;
+  border: 1px solid var(--game-line);
+}
+.info-page p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.info-pagination {
+  justify-content: space-between;
+  font-size: 11px;
+}
+.is-viewport[data-layout="narrow"] .round-nav button {
+  font-size: 10px;
+  padding: 3px 5px;
+}
+.is-viewport[data-layout="narrow"] .round-nav button span {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .stages li {
+  font-size: 8px;
+}
+.is-viewport[data-layout="narrow"] .auth-control label {
+  font-size: 9px;
+}
+.is-viewport[data-layout="narrow"]
+  .phase-row:has(.auth-control:not([hidden]))
+  .stages {
+  display: none;
+}
+.is-viewport[data-layout="narrow"] .auth-control {
+  flex: 1;
+  text-align: center;
+}
+.is-viewport[data-layout="narrow"] .scene {
+  grid-template-rows: 20px minmax(0, 1fr);
+}
+.is-viewport[data-layout="narrow"] .scene-top {
+  font-size: 8px;
+}
+.is-viewport[data-layout="narrow"] .packet-card {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"] .network-scene {
+  padding-top: 28px;
+  padding-bottom: 3px;
+}
+.story-game.is-viewport[data-layout="narrow"] .pixel-character {
+  width: 30px;
+  height: 38px;
+  margin-bottom: 1px;
+}
+.story-game.is-viewport[data-layout="narrow"] .charlie-sprite {
+  width: 28px;
+  height: 35px;
+}
+.story-game.is-viewport[data-layout="narrow"] .character-name {
+  font-size: 12px;
+}
+.story-game.is-viewport[data-layout="narrow"] .character-name small {
+  font-size: 7px;
+  margin-left: 2px;
+  padding: 0 2px;
+}
+.story-game.is-viewport[data-layout="narrow"] .actor-bubble,
+.story-game.is-viewport[data-layout="narrow"] .relay-machine,
+.story-game.is-viewport[data-layout="narrow"] .relay-location {
+  display: none;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-sprite {
+  top: 2px;
+  padding: 2px;
+  width: 128px;
+}
+.story-game.is-viewport[data-layout="narrow"] .packet-sprite small,
+.story-game.is-viewport[data-layout="narrow"] .packet-shape {
+  display: none;
+}
+@media (max-width: 550px) {
+  .is-viewport .game-logo {
+    font-size: 10px;
+  }
+  .is-viewport .toolbar-button {
+    padding: 5px 6px;
+    font-size: 10px;
+  }
+}
+@media (max-height: 560px) {
+  .is-viewport .stages li,
+  .is-viewport .auth-control label {
+    font-size: 9px;
+  }
+  .is-viewport .scene {
+    grid-template-rows: 18px minmax(0, 1fr) 22px;
+  }
+  .story-game.is-viewport .network-scene {
+    padding: 24px 5px 1px;
+  }
+  .story-game.is-viewport .pixel-character {
+    width: 24px;
+    height: 30px;
+    margin-bottom: 0;
+  }
+  .story-game.is-viewport .charlie-sprite {
+    width: 22px;
+    height: 28px;
+  }
+  .story-game.is-viewport .character-name {
+    font-size: 10px;
+  }
+  .story-game.is-viewport .actor-bubble,
+  .story-game.is-viewport .relay-machine,
+  .story-game.is-viewport .relay-location {
+    display: none;
+  }
+  .story-game.is-viewport .packet-sprite {
+    top: 1px;
+    width: 120px;
+    padding: 1px;
+  }
+  .story-game.is-viewport .packet-sprite small,
+  .story-game.is-viewport .packet-shape {
+    display: none;
+  }
+  .story-game.is-viewport .packet-sprite b {
+    font-size: 9px;
+  }
+  .is-viewport .packet-card > span {
+    display: none;
+  }
+  .is-viewport .packet-card strong {
+    font-size: 10px;
+  }
+  .info-dialog[open] {
+    grid-template-rows: 30px 30px minmax(0, 1fr) 32px;
+    padding: 8px;
+    gap: 5px;
+  }
+  .info-page p {
+    font-size: 12px;
+    line-height: 1.65;
+  }
+  .info-dialog .pixel-button,
+  .info-topics button {
+    min-height: 28px;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .scene {
+  grid-template-rows: minmax(0, 1fr);
+}
+.is-viewport[data-layout="narrow"][data-density="tiny"] .scene-top,
+.story-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .actor
+  > span:last-child {
+  display: none;
+}
+.info-dialog[open] {
+  grid-template-rows: 40px 36px minmax(0, 1fr);
+}
+.info-page {
+  display: block;
+  overflow: auto;
+  overscroll-behavior: contain;
+  align-content: start;
+}
+.info-page h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0 0 8px;
+  color: var(--game-gold);
+}
+.info-page section + section {
+  margin-top: 24px;
+}
+@media (max-height: 600px) {
+  .info-dialog[open] {
+    grid-template-rows: 30px 30px minmax(0, 1fr);
+  }
+}

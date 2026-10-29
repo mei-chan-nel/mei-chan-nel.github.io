@@ -7,3 +7,4 @@ import '../projects/program-trace-studio/test/tap-editor.test.mjs';
 import '../projects/program-trace-studio/test/input-editor.test.mjs';
 import '../projects/program-trace-studio/test/share-format.test.mjs';
 import '../projects/program-trace-studio/test/runner-sync.test.mjs';
+import '../projects/program-trace-studio/test/range.test.mjs';

@@ -1,0 +1,261 @@
+#fullscreen-toggle {
+  flex: 0 0 auto;
+  border-color: var(--ink);
+  font-weight: 700;
+}
+#fullscreen-toggle[aria-pressed="true"] {
+  color: var(--white);
+  background: var(--ink);
+}
+body.has-fullscreen-card { overflow: hidden; }
+
+/* Keep the same controls and app nodes; only their available space changes. */
+.os-workspace:is(.is-fullscreen, :fullscreen) {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100%;
+  height: 100dvh;
+  max-width: none;
+  margin: 0;
+  padding: max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right))
+    max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  display: grid;
+  grid-template-rows: 44px minmax(0, 1fr) 82px 40px;
+  gap: 8px;
+  overflow: hidden;
+  background: var(--paper);
+}
+.os-workspace.is-fullscreen .first-hint { display: none; }
+.os-workspace.is-fullscreen .transport {
+  height: 44px;
+  min-height: 0;
+  padding: 4px 8px;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+.os-workspace.is-fullscreen :is(.transport-buttons, .clock-controls) { min-height: 30px; }
+.os-workspace.is-fullscreen .transport button { min-height: 32px; padding: 3px 9px; }
+.os-workspace.is-fullscreen .experiment-grid {
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.14fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 8px;
+}
+.os-workspace.is-fullscreen .panel {
+  min-height: 0;
+  padding: 10px;
+  border-radius: 9px;
+}
+.os-workspace.is-fullscreen .panel-heading {
+  flex: 0 0 22px;
+  height: 22px;
+  margin-bottom: 6px;
+}
+.os-workspace.is-fullscreen .panel-heading h2 { font-size: 0.82rem; }
+.os-workspace.is-fullscreen .apps-panel { display: flex; flex-direction: column; }
+.os-workspace.is-fullscreen .app-launcher {
+  flex-shrink: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+.os-workspace.is-fullscreen .app-row {
+  height: 86px;
+  padding: 4px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: 42px 30px;
+  gap: 4px;
+}
+.os-workspace.is-fullscreen .app-name { grid-column: 1/-1; }
+.os-workspace.is-fullscreen .app-icon { display: none; }
+.os-workspace.is-fullscreen .app-name strong { height: 14px; line-height: 14px; font-size: 0.68rem; }
+.os-workspace.is-fullscreen .app-name small { height: 18px; line-height: 9px; font-size: 0.58rem; }
+.os-workspace.is-fullscreen .launcher-buffer { height: 10px; line-height: 10px; font-size: 0.55rem; }
+.os-workspace.is-fullscreen .app-row button { min-height: 30px; padding: 2px; font-size: 0.65rem; }
+.os-workspace.is-fullscreen .app-window {
+  flex: 1;
+  min-height: 0;
+  margin-top: 8px;
+  display: grid;
+  grid-template-rows: 26px 54px minmax(0, 1fr);
+}
+.os-workspace.is-fullscreen .window-bar { height: 26px; padding: 3px 8px; }
+.os-workspace.is-fullscreen .window-process-status {
+  height: 54px;
+  min-height: 0;
+  padding: 4px 8px;
+  grid-template-rows: 16px 26px;
+  gap: 3px;
+}
+.os-workspace.is-fullscreen .window-process-status strong { line-height: 16px; font-size: 0.73rem; }
+.os-workspace.is-fullscreen .window-process-status > span { line-height: 13px; }
+.os-workspace.is-fullscreen .app-content {
+  height: auto;
+  max-height: none;
+  min-height: 0;
+  padding: 8px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.os-workspace.is-fullscreen .empty-app { min-height: 180px; }
+.os-workspace.is-fullscreen .web-article {
+  height: clamp(120px, 25dvh, 210px);
+  min-height: 0;
+  max-height: none;
+}
+.os-workspace.is-fullscreen .cpu-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.os-workspace.is-fullscreen .cpu-current {
+  flex: 0 0 132px;
+  width: 100%;
+  height: 132px;
+  min-height: 132px;
+  max-height: 132px;
+  padding: 8px 10px;
+  grid-template-rows: 16px 30px 28px 4px 18px;
+  gap: 4px;
+}
+.os-workspace.is-fullscreen .cpu-caption { height: 16px; line-height: 16px; }
+.os-workspace.is-fullscreen .cpu-owner { height: 30px; line-height: 30px; font-size: 1.3rem; }
+.os-workspace.is-fullscreen .cpu-current p { height: 28px; line-height: 14px; font-size: 0.7rem; }
+.os-workspace.is-fullscreen .cpu-current small { height: 18px; line-height: 18px; }
+.os-workspace.is-fullscreen .queue-line { flex: 0 0 64px; height: 64px; padding: 5px 0; gap: 8px; }
+.os-workspace.is-fullscreen #ready-queue { height: 52px; gap: 3px; overflow-y: auto; scrollbar-gutter: stable; }
+.os-workspace.is-fullscreen .timeline-heading { flex: 0 0 20px; margin: 6px 0 4px; }
+.os-workspace.is-fullscreen .cpu-history {
+  flex: 0 0 40px;
+  height: 40px;
+  min-height: 0;
+  grid-template-columns: repeat(var(--history-columns, 24), minmax(0, 1fr));
+  gap: 2px;
+  padding: 2px 0;
+}
+.os-workspace.is-fullscreen .cpu-history :is(.history-cell, .history-placeholder) {
+  min-width: 0;
+  min-height: 0;
+  height: 36px;
+}
+.os-workspace.is-fullscreen .legend { flex: 0 0 36px; height: 36px; margin: 5px 0 0; gap: 2px 8px; font-size: 0.58rem; line-height: 14px; }
+.os-workspace.is-fullscreen .background-apps { flex: 0 0 auto; margin-top: 6px; padding-top: 6px; }
+.os-workspace.is-fullscreen .background-apps h3 { font-size: 0.68rem; }
+.os-workspace.is-fullscreen #background-launcher { margin-top: 5px; gap: 4px; }
+.os-workspace.is-fullscreen .background-row { height: 43px; min-height: 43px; padding: 4px; gap: 3px; }
+.os-workspace.is-fullscreen .background-name { font-size: 0.62rem; }
+.os-workspace.is-fullscreen .background-state { font-size: 0.57rem; }
+.os-workspace.is-fullscreen .memory-panel { margin: 0; padding: 6px 10px; }
+.os-workspace.is-fullscreen .memory-panel .panel-heading { height: 20px; margin-bottom: 4px; }
+.os-workspace.is-fullscreen .insight { height: 40px; min-height: 0; padding: 2px; gap: 6px; overflow: hidden; }
+.os-workspace.is-fullscreen .insight p { height: 36px; line-height: 18px; font-size: 0.7rem; }
+
+/* Portrait phones keep all three sections visible; long content scrolls inside. */
+@media (max-width: 700px) {
+  .os-workspace.is-fullscreen {
+    padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right))
+      max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+    grid-template-rows: 64px minmax(0, 1fr) 82px 40px;
+    gap: 6px;
+  }
+  .os-workspace.is-fullscreen .transport { height: 64px; flex-wrap: wrap; padding: 3px 6px; gap: 0; }
+  .os-workspace.is-fullscreen .transport-buttons { width: 100%; justify-content: space-between; gap: 4px; }
+  .os-workspace.is-fullscreen .transport button { font-size: 0.69rem; padding-inline: 7px; }
+  .os-workspace.is-fullscreen .transport #play { min-width: 80px; }
+  .os-workspace.is-fullscreen .clock-controls { min-height: 20px; margin-left: auto; }
+  .os-workspace.is-fullscreen .sim-clock { font-size: 0.62rem; }
+  .os-workspace.is-fullscreen .sim-clock strong { font-size: 1rem; }
+  .os-workspace.is-fullscreen .experiment-grid {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 6px;
+  }
+  .os-workspace.is-fullscreen .panel { padding: 6px; }
+  .os-workspace.is-fullscreen .panel-heading { flex-basis: 20px; height: 20px; margin-bottom: 4px; }
+  .os-workspace.is-fullscreen .panel-heading h2 { font-size: 0.73rem; }
+  .os-workspace.is-fullscreen .quiet { font-size: 0.57rem; }
+  .os-workspace.is-fullscreen .app-row { height: 80px; grid-template-rows: 38px 28px; }
+  .os-workspace.is-fullscreen .app-name strong { font-size: 0.62rem; }
+  .os-workspace.is-fullscreen .app-name small { height: 14px; line-height: 14px; white-space: nowrap; overflow-x: auto; }
+  .os-workspace.is-fullscreen .app-row button { min-height: 28px; }
+  .os-workspace.is-fullscreen .app-window { margin-top: 5px; grid-template-rows: 24px 48px minmax(0, 1fr); }
+  .os-workspace.is-fullscreen .window-bar { height: 24px; }
+  .os-workspace.is-fullscreen .window-process-status { height: 48px; padding: 3px 6px; grid-template-rows: 15px 24px; gap: 2px; }
+  .os-workspace.is-fullscreen .window-process-status strong { line-height: 15px; font-size: 0.67rem; }
+  .os-workspace.is-fullscreen .window-process-status > span { line-height: 12px; font-size: 0.62rem; }
+  .os-workspace.is-fullscreen .memory-panel { padding: 6px; }
+}
+
+@media (max-width: 700px), (max-height: 620px) {
+  .os-workspace.is-fullscreen .cpu-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    grid-template-rows: 20px 52px 18px 38px minmax(24px, 1fr) 60px;
+    gap: 3px 7px;
+    align-items: stretch;
+  }
+  .os-workspace.is-fullscreen .cpu-panel > .panel-heading { grid-column: 1/-1; grid-row: 1; margin: 0; }
+  .os-workspace.is-fullscreen .cpu-current { grid-column: 1; grid-row: 2/6; align-self: start; height: 126px; min-height: 126px; max-height: 126px; padding: 5px; grid-template-rows: 14px 26px minmax(0, 1fr) 4px 16px; gap: 2px; }
+  .os-workspace.is-fullscreen .cpu-caption { height: 14px; line-height: 14px; font-size: 0.56rem; }
+  .os-workspace.is-fullscreen .cpu-owner { height: 26px; line-height: 26px; font-size: 1rem; }
+  .os-workspace.is-fullscreen .cpu-current p { font-size: 0.59rem; line-height: 12px; }
+  .os-workspace.is-fullscreen .cpu-current small { height: 16px; line-height: 16px; font-size: 0.51rem; }
+  .os-workspace.is-fullscreen .queue-line { grid-column: 2; grid-row: 2; height: 52px; padding: 0 0 3px; font-size: 0.58rem; gap: 4px; }
+  .os-workspace.is-fullscreen #ready-queue { height: 48px; }
+  .os-workspace.is-fullscreen .queue-chip { font-size: 0.54rem; padding-inline: 3px; }
+  .os-workspace.is-fullscreen .timeline-heading { grid-column: 2; grid-row: 3; height: 18px; margin: 0; }
+  .os-workspace.is-fullscreen .timeline-heading h3 { font-size: 0.6rem; }
+  .os-workspace.is-fullscreen #history-range { display: none; }
+  .os-workspace.is-fullscreen .cpu-history { grid-column: 2; grid-row: 4; height: 38px; padding: 1px 0; gap: 1px; }
+  .os-workspace.is-fullscreen .cpu-history :is(.history-cell, .history-placeholder) { height: 36px; }
+  .os-workspace.is-fullscreen .legend { grid-column: 2; grid-row: 5; height: auto; margin: 0; gap: 1px 5px; font-size: 0.51rem; line-height: 12px; }
+  .os-workspace.is-fullscreen .background-apps { grid-column: 1/-1; grid-row: 6; margin: 0; padding-top: 2px; }
+  .os-workspace.is-fullscreen .background-apps h3 { font-size: 0.59rem; }
+  .os-workspace.is-fullscreen .background-hint { font-size: 0.51rem; }
+  .os-workspace.is-fullscreen #background-launcher { margin-top: 2px; }
+  .os-workspace.is-fullscreen .background-row { height: 35px; min-height: 35px; padding: 2px 4px; gap: 2px; }
+}
+
+/* A short landscape viewport puts launch controls beside the app window. */
+@media (max-height: 620px) {
+  .os-workspace.is-fullscreen { grid-template-rows: 44px minmax(0, 1fr) 82px; gap: 6px; padding: 6px; }
+  .os-workspace.is-fullscreen .insight { display: none; }
+  .os-workspace.is-fullscreen .panel { padding: 6px; }
+}
+@media (min-width: 701px) and (max-height: 620px) {
+  .os-workspace.is-fullscreen .apps-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 110px;
+    grid-template-rows: 22px minmax(0, 1fr);
+    gap: 5px;
+  }
+  .os-workspace.is-fullscreen .apps-panel > .panel-heading { grid-column: 1/-1; margin: 0; }
+  .os-workspace.is-fullscreen .app-launcher {
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(56px, 1fr));
+    gap: 4px;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .os-workspace.is-fullscreen .app-row { height: auto; grid-template-rows: 22px 26px; padding: 2px; gap: 2px; }
+  .os-workspace.is-fullscreen .app-name strong { height: 12px; line-height: 12px; font-size: 0.62rem; }
+  .os-workspace.is-fullscreen .app-name small { height: 10px; line-height: 10px; white-space: nowrap; overflow-x: auto; }
+  .os-workspace.is-fullscreen .launcher-buffer { display: none !important; }
+  .os-workspace.is-fullscreen .app-row button { min-height: 26px; }
+  .os-workspace.is-fullscreen .app-window { grid-column: 1; grid-row: 2; margin: 0; grid-template-rows: 24px 46px minmax(0, 1fr); }
+  .os-workspace.is-fullscreen .window-bar { height: 24px; }
+  .os-workspace.is-fullscreen .window-process-status { height: 46px; padding: 3px 6px; grid-template-rows: 14px 24px; gap: 1px; }
+  .os-workspace.is-fullscreen .window-process-status strong { line-height: 14px; font-size: 0.65rem; }
+  .os-workspace.is-fullscreen .window-process-status > span { line-height: 12px; font-size: 0.6rem; }
+}
+@media (max-width: 700px) and (max-height: 620px) {
+  .os-workspace.is-fullscreen { grid-template-rows: 64px minmax(0, 1fr) 82px; }
+}

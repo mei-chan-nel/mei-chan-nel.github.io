@@ -1,12 +1,12 @@
 {
   "status": "pass",
-  "validated_on": "2026-10-07",
+  "validated_on": "2026-10-28",
   "publisher_id": "ca-pub-6257644709224446",
   "slot_configuration": {
     "display": "7759620808",
     "article": "7839511857"
   },
-  "target_pages": 97,
+  "target_pages": 119,
   "boundary_tests": {
     "1": [],
     "5": [],
@@ -368,6 +368,15 @@
       ]
     },
     {
+      "path": "terms/algorithm/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/authentication/index.html",
       "format": "in-article",
       "content_count": null,
@@ -378,6 +387,15 @@
     },
     {
       "path": "terms/availability/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/backup/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -414,6 +432,15 @@
     },
     {
       "path": "terms/bps/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/byte/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -539,6 +566,15 @@
       ]
     },
     {
+      "path": "terms/encoding/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/encryption/index.html",
       "format": "in-article",
       "content_count": null,
@@ -576,6 +612,15 @@
     },
     {
       "path": "terms/hexadecimal/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/html/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -764,7 +809,25 @@
       ]
     },
     {
+      "path": "terms/quantization/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
       "path": "terms/ransomware/index.html",
+      "format": "in-article",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "term content"
+      ]
+    },
+    {
+      "path": "terms/rgb/index.html",
       "format": "in-article",
       "content_count": null,
       "ad_count": 1,
@@ -968,6 +1031,141 @@
       "ad_count": 1,
       "positions_after": [
         "program trace main"
+      ]
+    },
+    {
+      "path": "lab/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/cpu-memory/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/os-work/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/crypto-communication/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/color-vision/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/thinking-tools/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/radix-conversion/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/digital-image/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/image-compression/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/digital-audio/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/logic-circuit/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/flowchart/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/packet-routing/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/relational-database/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
+      ]
+    },
+    {
+      "path": "lab/question-map/index.html",
+      "format": "responsive-display",
+      "content_count": null,
+      "ad_count": 1,
+      "positions_after": [
+        "interactive lab main"
       ]
     }
   ],

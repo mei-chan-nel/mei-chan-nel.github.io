@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "color-vision",
+  "name": "色覚シミュレーター",
+  "purpose": [
+    "色だけに頼らず情報を伝える改善を考える。"
+  ],
+  "initialState": [
+    "学習用の文化祭案内を、通常・P型・D型・T型の4種類で比較する画面。初期工程は「0 ページ全体」。"
+  ],
+  "controls": [
+    "工程の「拡大して観察」「改善する」「全体を見る」を順に押す。「完成品を見る」で改善後へ。",
+    "倍率・「全体に戻す」で見える範囲を変更。自分の画像のモードでも4種類を比較できる。"
+  ],
+  "firstSteps": [
+    "4種類の案内を見比べ、最初の改善項目の「拡大して観察」を押す。次に「改善する」で違いを見る。"
+  ],
+  "experiments": [
+    "色の変更だけでなく、文字・形・模様などの手がかりが増えた場所を探す。"
+  ],
+  "results": [
+    "同じ部分の判別しやすさと、説明欄の変更内容を比較する。コントラスト比は元の色から計算する。"
+  ],
+  "cautions": [
+    "見え方はシミュレーションで個人差がある。診断や万人の見え方の再現ではない。コントラスト比だけで使いやすさを断定しない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/color-vision/app.mjs",
+      "lab/color-vision/lesson.mjs",
+      "lab/color-vision/simulation.mjs",
+      "lab/color-vision/index.html"
+    ]
+  }
+}

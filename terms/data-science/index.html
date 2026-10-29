@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
     <title>データサイエンスとは｜情報Ⅰ 用語解説｜Study Atlas</title>
     <meta name="description" content="データサイエンスの基本的な流れ、前処理、代表値、可視化、ビッグデータ、データマイニングなどを高校「情報Ⅰ」向けに解説します。" />
     <meta name="study-atlas-term-tag" content="データサイエンス" />
@@ -37,8 +38,9 @@
           <a href="../../info1-quiz-app/questions/">問題を探す</a>
           <a href="../" aria-current="page">用語一覧</a>
           <a href="../../archive/">解説動画</a>
-          <a href="../../LectureNote/">講義ノート</a>
           <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
         </nav>
       </div>
     </header>
@@ -317,6 +319,7 @@
           </ul>
           <p>などが使われます。</p>
           <p>可視化すると、表だけでは分かりにくい傾向や外れ値を発見しやすくなります。</p>
+          <p>以下のグラフはすべて<strong>教材用の架空のデータ</strong>による例です。画像をクリック・タップすると拡大して確認できます。</p>
 
           <h3>棒グラフ</h3>
           <p><strong>棒グラフ</strong>は、複数の項目について、数量や割合の<strong>大きさを比較するとき</strong>に適しています。</p>
@@ -336,6 +339,12 @@
           <p class="term-formula">A商品：100個<br />B商品：150個<br />C商品：80個</p>
           <p>なら、棒グラフにすることで、B商品の販売数量が最も多いことが視覚的に分かります。</p>
           <p>棒グラフでは、それぞれの棒が<strong>別々のカテゴリを表している</strong>ため、通常、棒と棒の間には間隔を空けます。</p>
+
+          <figure class="term-note-figure">
+            <a href="../../assets/terms/data-science/01_bar.svg" target="_blank" rel="noopener" aria-label="棒グラフの例を拡大して見る">
+              <img src="../../assets/terms/data-science/01_bar.svg" width="720" height="446" loading="lazy" decoding="async" alt="商品Aは100個、商品Bは150個、商品Cは80個の販売数量を比較した棒グラフ。商品Bの棒が最も高い。" />
+            </a>
+          </figure>
 
           <h3>折れ線グラフ</h3>
           <p><strong>折れ線グラフ</strong>は、時間の経過などに伴う<strong>連続的な変化や推移を見るとき</strong>に適しています。</p>
@@ -358,6 +367,12 @@
           <p>といった<strong>変化の傾向</strong>を把握しやすくなります。</p>
           <p>棒グラフが「項目同士の大きさの比較」に適しているのに対して、折れ線グラフは<strong>時間などの順序に沿った変化を見ること</strong>に適しています。</p>
 
+          <figure class="term-note-figure">
+            <a href="../../assets/terms/data-science/02_line.svg" target="_blank" rel="noopener" aria-label="折れ線グラフの例を拡大して見る">
+              <img src="../../assets/terms/data-science/02_line.svg" width="720" height="446" loading="lazy" decoding="async" alt="1月から12月の月別平均気温をつないだ折れ線グラフ。冬から夏に上がり、秋から冬に下がる。" />
+            </a>
+          </figure>
+
           <h3>散布図</h3>
           <p><strong>散布図</strong>は、二つの数値データの間にどのような関係があるかを調べるときに用います。</p>
           <p>一つ一つのデータについて、</p>
@@ -379,6 +394,12 @@
           <p>このような二つの変数の関係を<strong>相関</strong>といいます。</p>
           <p>ただし、散布図から関係が見つかったとしても、それだけで<strong>一方がもう一方の原因であるとは限りません</strong>。</p>
           <p>また、折れ線グラフでは点を順番につないで「変化」を見るのに対し、散布図では通常、点を線で結ばず、<strong>点の分布のしかたから二つの変数の関係を見る</strong>ことになります。</p>
+
+          <figure class="term-note-figure">
+            <a href="../../assets/terms/data-science/03_scatter.svg" target="_blank" rel="noopener" aria-label="散布図の例を拡大して見る">
+              <img src="../../assets/terms/data-science/03_scatter.svg" width="720" height="446" loading="lazy" decoding="async" alt="30日間の最高気温と飲料販売数を対応させた散布図。気温が高いほど販売数が多い傾向を示す。" />
+            </a>
+          </figure>
 
           <h3>ヒストグラム</h3>
           <p><strong>ヒストグラム</strong>は、多数の数値データが<strong>どの範囲にどれくらい分布しているか</strong>を見るためのグラフです。</p>
@@ -404,6 +425,12 @@
           <p><strong>棒グラフ</strong><br />→ 商品A、商品B、商品Cなど、<strong>別々のカテゴリの大きさを比較する</strong>。<br />棒の高さで値を表します。</p>
           <p><strong>ヒストグラム</strong><br />→ 得点や身長などの<strong>連続した数値を範囲ごとに分け、その分布を見る</strong>。<br />棒の面積で値を表します。階級の幅が変わる場合（年収の集計で100万円ごとに区切り、最後に1000万円以上とまとめるなど）棒の横幅を大きくして、その分高さを低くすることがあります。</p>
           <p>ヒストグラムでは隣り合う階級が連続していることを表すため、通常、棒同士を隙間なく並べます。</p>
+
+          <figure class="term-note-figure">
+            <a href="../../assets/terms/data-science/04_histogram.svg" target="_blank" rel="noopener" aria-label="ヒストグラムの例を拡大して見る">
+              <img src="../../assets/terms/data-science/04_histogram.svg" width="720" height="446" loading="lazy" decoding="async" alt="100人のテスト得点を10点幅の階級で集計したヒストグラム。50点以上60点未満が24人で最も多く、棒が隙間なく並ぶ。" />
+            </a>
+          </figure>
 
           <h3>箱ひげ図</h3>
           <p><strong>箱ひげ図</strong>は、数値データの<strong>中心やばらつき、分布の違いを簡潔に比較する</strong>ためのグラフです。</p>
@@ -433,6 +460,12 @@
           <p>などを比較しやすくなります。</p>
           <p>ヒストグラムが<strong>分布の形を詳しく見る</strong>のに向いているのに対し、箱ひげ図は、複数の集団について<strong>中心やばらつきをコンパクトに比較する</strong>ときに便利です。</p>
 
+          <figure class="term-note-figure">
+            <a href="../../assets/terms/data-science/05_boxplot.svg" target="_blank" rel="noopener" aria-label="箱ひげ図の例を拡大して見る">
+              <img src="../../assets/terms/data-science/05_boxplot.svg" width="720" height="446" loading="lazy" decoding="async" alt="A組とB組のテスト得点の箱ひげ図。B組の中央値がやや高く、A組の得点のばらつきは大きい。" />
+            </a>
+          </figure>
+
           <h3>ヒートマップ</h3>
           <p><strong>ヒートマップ</strong>は、数値の大小を<strong>色の違いや濃淡</strong>で表す方法です。</p>
           <p>たとえば、</p>
@@ -457,6 +490,12 @@
           <p>この変換では、</p>
           <p>log(1＋0)＝0</p>
           <p>なので0を扱うことができ、非常に大きな値の差を圧縮できます。その結果、小さい値の違いもヒートマップ上で見やすくなります。</p>
+
+          <figure class="term-note-figure">
+            <a href="../../assets/terms/data-science/06_heatmap.svg" target="_blank" rel="noopener" aria-label="ヒートマップの例を拡大して見る">
+              <img src="../../assets/terms/data-science/06_heatmap.svg" width="720" height="446" loading="lazy" decoding="async" alt="月曜日から日曜日までの曜日と時間帯別来客数を色で示したヒートマップ。金曜日の18時から20時が75人で最も多く、濃い色で示される。" />
+            </a>
+          </figure>
 
           <h3>グラフの使い分け</h3>
           <p>どのグラフを使うかは、<strong>何を知りたいか</strong>によって決まります。</p>
@@ -661,7 +700,7 @@
               <p class="term-related-keywords">関連キーワード：データサイエンス／外れ値・欠損値</p>
             </div>
           </details>
-        </article>
+        <aside class="term-section"><h2>データを動かして確かめよう</h2><p><a href="../../lab/statistics/">統計・データ分析の9つのラボ</a>で、分布・代表値・相関・抽出・検定などを実験できます。<a href="../../lab/statistics/projects/">横断分析課題</a>では、同じデータを複数の方法で調べます。</p></aside></article>
       </section>
 
       <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
@@ -696,10 +735,11 @@
           <a href="../../info1-quiz-app/questions/">問題を探す</a>
           <a href="../../terms/">用語一覧</a>
           <a href="../../archive/">解説動画</a>
-          <a href="../../LectureNote/">講義ノート</a>
           <a href="../../program-trace/">プログラムトレース</a>
-          <a href="../../books/">書籍案内</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../lab/">ラボ</a>
           <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
           <a href="../../about.html">このサイトについて</a>
           <a href="../../privacy.html">プライバシーポリシー</a>
           <a href="../../sitemap.html">サイトマップ</a>
@@ -707,6 +747,6 @@
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../../assets/site-header.js?v=2026100501"></script>
+    <script src="../../assets/site-header.js?v=2026101201"></script>
   </body>
 </html>

@@ -167,6 +167,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../assets/site-analytics.js?v=2026101201" defer></script>
     <title>用語一覧｜情報Ⅰ 用語解説｜Study Atlas</title>
     <meta name="description" content="情報Ⅰ Study Atlasで公開中の用語解説一覧です。情報Ⅰの用語をタグ一覧のNo.順から探せます。" />
     <meta name="theme-color" content="#102f35" />
@@ -197,8 +198,9 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="./" aria-current="page">用語一覧</a>
           <a href="../archive/">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="../program-trace/">プログラムトレース</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
         </nav>
       </div>
     </header>
@@ -236,10 +238,11 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
           <a href="../archive/">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="../program-trace/">プログラムトレース</a>
-          <a href="../books/">書籍案内</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
           <a href="../study-guide.html">使い方</a>
+          <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
           <a href="../sitemap.html">サイトマップ</a>
@@ -247,7 +250,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026100501"></script>
+    <script src="../assets/site-header.js?v=2026101201"></script>
   </body>
 </html>
 '''

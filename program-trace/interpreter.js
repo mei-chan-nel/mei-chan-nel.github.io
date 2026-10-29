@@ -455,14 +455,19 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
         const increment = loop?.increment ?? numeric(expression(instruction.step, "increment"));
         const end = loop?.end ?? numeric(expression(instruction.end, "end"));
         if (increment === 0) throw new Error("増やす値・減らす値は 0 以外にしてください。");
-        const candidate = loop ? numeric(read(variables(), instruction.name)) + increment : numeric(expression(instruction.start, "start"));
-        const before = write(instruction.name, candidate);
-        const result = increment > 0 ? candidate <= end : candidate >= end;
-        const comparison = increment > 0 ? "<=" : ">=";
-        event.condition = { expression: `${instruction.name} ${comparison} ${formatValue(end)}`, resolved: `${formatValue(candidate)} ${comparison} ${formatValue(end)}`, result };
+        // Keep the sequence cursor in this loop's call frame. Assignments to the
+        // visible counter, including in a nested loop, never advance the cursor.
+        const candidate = loop ? loop.nextValue : numeric(expression(instruction.start, "start"));
+        const result = candidate !== null && (increment > 0 ? candidate <= end : candidate >= end);
+        event.condition = { expression: "数列に次の値がある", resolved: result ? `数列に次の値がある（${formatValue(candidate)}）` : "数列に次の値がある", result };
+        if (!loop) frame.loopCounts[instruction.line] = 0;
         if (result) {
+          const before = write(instruction.name, candidate);
+          event.assignments.push({ name: instruction.name, indices: [], before, after: candidate, sources: [] });
           const iteration = (loop?.iteration ?? 0) + 1;
-          frame.loopFrames[frame.pc] = { increment, end, iteration };
+          const nextValue = candidate + increment;
+          frame.loopFrames[frame.pc] = { increment, end, iteration,
+            nextValue: (increment > 0 ? nextValue <= end : nextValue >= end) ? nextValue : null };
           frame.loopCounts[instruction.line] = iteration;
           frame.pc = instruction.bodyEntry;
         } else {
@@ -470,8 +475,10 @@ export function step(compiled, previous, parameters, { input: rawInput } = {}) {
           frame.pc = instruction.next;
           if (!loop) state.skippedLines = instruction.bodyLines;
         }
-        event.title = result ? "範囲内 → 繰り返す" : "範囲を超えた → 繰り返しを終了";
-        event.explanation = `${loop ? `${instruction.name} を ${formatValue(before)} から ${formatValue(candidate)} に${increment > 0 ? "増やし" : "減らし"}ました。` : `${instruction.name} に開始値 ${formatValue(candidate)} を入れました。`}${formatValue(candidate)} ${increment > 0 ? "≤" : "≥"} ${formatValue(end)} は「${result ? "真" : "偽"}」です。${result ? `内側の処理を実行します（${frame.loopCounts[instruction.line]}回目）。` : "繰り返しの次の行へ進みます。"}`;
+        event.title = result ? "次の値を代入 → 繰り返す" : "次の値がない → 繰り返しを終了";
+        event.explanation = result
+          ? `数列の${loop ? "次の値" : "開始値"} ${formatValue(candidate)} を ${instruction.name} に代入しました。内側の処理を実行します（${frame.loopCounts[instruction.line]}回目）。`
+          : `${loop ? "数列の値をすべて使いました。" : "指定した範囲に値がないため、一度も繰り返しません。"}${instruction.name} の値は変更せず、繰り返しの次の行へ進みます。`;
         break;
       }
       case "define":

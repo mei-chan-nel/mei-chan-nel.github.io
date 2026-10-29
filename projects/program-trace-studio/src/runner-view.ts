@@ -6,7 +6,7 @@ import { createAssignmentFlow } from './assignment-flow.js';
 import { createVariableScroll } from './variable-scroll.js';
 import { matchesReference, previewIndices } from './runner-model.js';
 import type { ProgramInfo, ViewState, Draft, Value, TraceEvent } from './types.js';
-const keywords = /^(?:もし|ならば|そうでなければ|そうでなくもし|繰り返す|増やしながら|減らしながら|の間繰り返す|表示する|要素数|乱数|and|or|not|真|偽)$/u;
+const keywords = /^(?:定義する|返す|もし|ならば|そうでなければ|そうでなくもし|繰り返す|増やしながら|減らしながら|の間繰り返す|表示する|要素数|乱数|and|or|not|真|偽)$/u;
 export function colorCode(source: string): HTMLElement {
   const result = element('span', 'source-code');
   // Tokenization is for display only. Invalid text is displayed verbatim.
@@ -42,6 +42,7 @@ export class RunnerView {
     this.renderedVariables = undefined; this.renderedOutputLength = -1; this.assignmentFlow.update(null);
     const list = byId('program-lines'); list.replaceChildren();
     for (const [index, line] of info.lines.entries()) {
+      if (/^定義する\s/u.test(line.code)) list.append(element('li', 'program-section', `関数：${line.code.replace(/^定義する\s+/u, '').replace(/[:：]$/u, '')}`));
       const row = element('li', 'program-line'); row.dataset.line = String(line.line);
       row.append(element('span', 'line-number', `（${line.line}）`));
       const next = info.lines[index + 1], text = element('span', 'source-code'), markers = branchMarkers(line.depth, next?.depth ?? -1, !!next && /^(?:そうでなくもし|そうでなければ)/u.test(next.code));
@@ -78,6 +79,9 @@ export class RunnerView {
     if (state.error) this.rowMap.get(state.error.line)?.classList.add('is-error');
     byId('current-line-label').textContent = displayedLine === null ? '' : `（${displayedLine}）行`;
     byId('step-count').textContent = `${state.steps.toLocaleString('ja-JP')} ステップ`;
+    const calls = state.frames.slice(1).map(frame => `${frame.name}()`);
+    const scope = byId('function-scope'); scope.hidden = !calls.length;
+    scope.textContent = calls.length ? `呼び出し：${calls.join(' → ')} ／ ${calls.at(-1)} 内の変数を表示` : '';
     byId('status-text').textContent = status.input ? '外部からの入力待ち' : state.error ? '実行を停止しました' : state.completed ? '実行完了' : running ? `自動実行中（${speed}秒）` : status.paused ? '一時停止中' : state.steps ? '1行ずつ実行中' : '準備できました';
     byId('status-dot').classList.toggle('running', running); byId('status-dot').classList.toggle('complete', state.completed);
     byId('completion-message').hidden = !state.completed || !!state.error;

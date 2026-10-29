@@ -1,6 +1,7 @@
 import { ProgramEditor } from './editor.js';
 import { RunnerView } from './runner-view.js';
 import { createFullscreen } from './fullscreen.js';
+import { bindFlowchartConversion } from './flowchart-link.js';
 import { bindStepKeys } from './step-keys.js';
 import { ProgramStorage } from './storage.js';
 import { documentJSON, parseDocument, validateInput } from './documents.js';
@@ -18,6 +19,7 @@ let worker: Worker | undefined, generation = 0, busy = false, preparing = false,
 let info: ProgramInfo | undefined, state: ViewState | undefined, activeDraft: Draft = emptyDraft();
 let storage: ProgramStorage | undefined, savedId: string | undefined, storageError = '';
 let running = false, paused = false, timer = 0, speed = 0.5, autosaveTimer = 0, runnerVisible = false;
+let canGoBack = false;
 let inputRequest: WorkerResponse['request'], inputField: ValueEditor | undefined, resumeAfterInput = false;
 let sharedSource = false, pendingLoad: { draft: Draft; id?: string } | undefined;
 let shareGeneration = 0;
@@ -34,7 +36,7 @@ if (document.body.dataset.studioEntry === 'shared' || /^#v\d/u.test(location.has
 const view = new RunnerView(pause);
 const fullscreen = createFullscreen({
   runner: byId('runner-view'), surface: byId('fullscreen-surface'), mount: byId('fullscreen-workspace'), entryButton: byId<HTMLButtonElement>('fullscreen-button'),
-  controls: { next: byId<HTMLButtonElement>('next-button'), reset: byId<HTMLButtonElement>('reset-button'), edit: byId<HTMLButtonElement>('edit-values-button'), play: byId<HTMLButtonElement>('play-button'), speed: byId<HTMLButtonElement>('speed-button') },
+  controls: { previous: byId<HTMLButtonElement>('previous-button'), next: byId<HTMLButtonElement>('next-button'), reset: byId<HTMLButtonElement>('reset-button'), edit: byId<HTMLButtonElement>('edit-values-button'), play: byId<HTMLButtonElement>('play-button'), speed: byId<HTMLButtonElement>('speed-button') },
   speedPanel: byId('speed-panel'), closeSpeed: closeSpeedPanel, onLayout: () => view.layout(),
 });
 const editor = new ProgramEditor(edited);
@@ -48,7 +50,8 @@ function errorMessage(error: unknown): string { return error instanceof Error ? 
 function guarded(action: () => void): void { try { action(); } catch (error) { showMessage(errorMessage(error), true); } }
 function clearShareLocation(): void {
   if (document.body.dataset.studioEntry !== 'shared' && !/^#v\d/u.test(location.hash)) return;
-  history.replaceState(null, '', new URL('./', location.href).pathname + location.search); document.body.dataset.studioEntry = 'editor';
+  const url = new URL('./', location.href); url.search = location.search; url.searchParams.delete('edit');
+  history.replaceState(null, '', url.pathname + url.search); document.body.dataset.studioEntry = 'editor';
 }
 function edited(): void {
   sharedSource = false; clearShareLocation();
@@ -110,6 +113,7 @@ byId('new-save').addEventListener('click', () => {
 function controls(): void {
   const ended = !!state?.completed, finalDismissed = ended && state?.currentLine === null;
   byId<HTMLButtonElement>('next-button').disabled = busy || !state || finalDismissed || !!state.error || running || !!inputRequest;
+  byId<HTMLButtonElement>('previous-button').disabled = busy || !worker || !canGoBack || !!inputRequest;
   byId<HTMLButtonElement>('play-button').disabled = (!state || ended && !state.steps || !!state.error || busy || !!inputRequest) && !running;
   byId<HTMLButtonElement>('reset-button').disabled = !state || preparing;
   byId<HTMLButtonElement>('edit-values-button').disabled = busy || !info?.editable.length;
@@ -132,7 +136,7 @@ function schedule(): void { window.clearTimeout(timer); if (running && !busy && 
 function createWorker(): Worker {
   if (typeof Worker !== 'function') throw new StudioError('このブラウザでは実行機能を利用できません。新しいブラウザで開いてください。');
   worker?.terminate();
-  const nextWorker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' });
+  const nextWorker = new Worker(new URL('./worker.js?v=20261023-range', import.meta.url), { type: 'module' });
   nextWorker.addEventListener('message', (event: MessageEvent<WorkerResponse>) => receive(event.data));
   nextWorker.addEventListener('error', () => failWorker('実行処理を読み込めませんでした。ページを再読み込みしてください。'));
   worker = nextWorker; return nextWorker;
@@ -156,6 +160,7 @@ function prepare(fromShare = false): void {
 function showRunner(): void {
   runnerVisible = true; byId('editor-view').hidden = true; byId('runner-view').hidden = false; byId('to-editor').hidden = false;
   byId('runner-document-tools').append(byId('document-tools'));
+  byId('fullscreen-button').before(byId('flowchart-button'));
   document.body.classList.add('is-tracing'); byId('studio-title').textContent = activeDraft.title;
   byId('studio-title').focus({ preventScroll: true });
 }
@@ -164,6 +169,7 @@ function showEditor(): void {
   pause(); worker?.terminate(); worker = undefined; generation++; busy = preparing = false; window.clearTimeout(watchdog);
   runnerVisible = false; byId('editor-view').hidden = false; byId('runner-view').hidden = true; byId('to-editor').hidden = true;
   byId('editor-document-tools').append(byId('document-tools'));
+  byId('document-tools').append(byId('flowchart-button'));
   document.body.classList.remove('is-tracing'); byId('studio-title').replaceChildren(document.createTextNode('プログラムを、'), element('em', '', '書いて動かす。'));
   controls(); editor.focus();
 }
@@ -183,16 +189,15 @@ function receive(message: WorkerResponse): void {
     }
     controls(); return;
   }
-  const prepared = preparing;
   if (message.info) info = message.info;
   if (message.state) state = message.state;
   if (preparing) { preparing = false; if (!info || !state) return; view.prepare(info, activeDraft); showRunner(); }
-  if (message.kind === 'ready') byId('run-error').hidden = true;
+  canGoBack = !!message.canGoBack;
+  byId('run-error').hidden = true;
   if (state?.completed) { running = false; paused = false; window.clearTimeout(timer); }
-  renderView(message.outputAppend ?? [], message.kind === 'ready');
+  renderView(message.outputAppend ?? [], message.kind === 'ready' || !!message.outputReset);
   controls();
   if (message.request) { openInput(message.request); return; }
-  if (prepared && sharedSource) showMessage('共有されたプログラムです。「次へ」で実行できます。');
   if (state && !running && !message.request) byId('execution-announcement').textContent = `${state.currentLine === null ? '実行前' : `${state.currentLine}行目を実行`}${state.completed ? '。実行が終わりました。' : ''}`;
   // Restarting autoplay after completion first resets the Worker, then steps.
   if (message.kind === 'ready' && running && !state?.completed) { next(); return; }
@@ -201,6 +206,7 @@ function receive(message: WorkerResponse): void {
 byId('prepare-button').addEventListener('click', () => prepare());
 byId('to-editor').addEventListener('click', () => showEditor());
 byId('next-button').addEventListener('click', next);
+byId('previous-button').addEventListener('click', () => { if (busy || !worker || !canGoBack || inputRequest) return; pause(); paused = false; send('previous'); });
 byId('reset-button').addEventListener('click', () => { pause(); paused = false; closeSpeedPanel(); byId('run-error').hidden = true; if (worker) send('reset'); else prepare(); });
 byId('play-button').addEventListener('click', () => {
   if (running) { pause(); return; } if (!state || state.error || busy || inputRequest || state.completed && !state.steps) return;
@@ -353,6 +359,9 @@ byId('native-share').addEventListener('click', async () => {
 });
 byId('recover-draft').addEventListener('click', () => guarded(() => { if (recoveryDraft) openExport(recoveryDraft, true); }));
 window.addEventListener('pagehide', () => { pause(); if (!sharedSource && !recoveryDraft) autosave(); });
+function openSharedProgram(): void {
+  if (new URLSearchParams(location.search).get('edit') !== '1') prepare(true);
+}
 window.addEventListener('hashchange', async () => {
   if (!/^#v\d/u.test(location.hash) && document.body.dataset.studioEntry !== 'shared') return;
   protectSharedPage();
@@ -360,7 +369,7 @@ window.addEventListener('hashchange', async () => {
   for (const openDialog of document.querySelectorAll<HTMLDialogElement>('dialog[open]')) openDialog.close();
   try {
     const decoded = await decodeShare(location.hash); if (token !== shareGeneration) return;
-    showEditor(); editor.set(decoded); savedId = undefined; sharedSource = true; savedFingerprint = draftFingerprint(currentDraft()); prepare(true);
+    showEditor(); editor.set(decoded); savedId = undefined; sharedSource = true; savedFingerprint = draftFingerprint(currentDraft()); openSharedProgram();
   } catch (error) { if (token === shareGeneration) { showEditor(); showMessage(errorMessage(error), true); } }
 });
 async function start(): Promise<void> {
@@ -386,8 +395,9 @@ async function start(): Promise<void> {
       if (saved) { savedId = saved.id; savedFingerprint = current; }
     } catch { /* An unreadable named-save list must not discard the recovered draft. */ }
   }
-  if (sharedSource) prepare(true);
+  if (sharedSource) openSharedProgram();
   else if (error) showMessage(error, true);
   else byId('draft-status').textContent = '下書きはこのブラウザに自動保存されます';
 }
+bindFlowchartConversion({read: currentDraft, pause});
 void start();

@@ -1,0 +1,678 @@
+/* Two contextual actions share the same stage and dialogue throughout. */
+.quest-game .command-box {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 180px;
+}
+.quest-game .choice-list {
+  display: grid;
+  align-content: center;
+}
+.quest-game .choice-list .command {
+  width: 100%;
+  margin: 0;
+  text-align: left;
+}
+.quest-game .command.suggested .command-icon {
+  color: var(--game-gold);
+}
+.quest-game .command strong {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.quest-game .command small {
+  font-size: 11px;
+  line-height: 1.4;
+}
+.quest-game .choice-confirm {
+  padding: 14px;
+  display: grid;
+  align-content: center;
+  gap: 12px;
+}
+.quest-game #choice-summary {
+  margin: 0;
+  color: var(--game-paper);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.quest-game .choice-buttons {
+  display: flex;
+  gap: 10px;
+}
+.quest-game .choice-buttons button {
+  flex: 1;
+  min-height: 42px;
+  padding: 8px;
+  font-size: 13px;
+  box-shadow: none;
+}
+.quest-game .command-wait {
+  align-self: center;
+  margin: 0;
+  padding: 14px;
+  color: var(--game-soft);
+  font-size: 13px;
+}
+.quest-game .record-card {
+  border: 1px solid var(--game-line);
+  background: #183b40;
+  margin-top: 10px;
+  padding: 9px 12px;
+  display: grid;
+  gap: 6px;
+}
+.quest-game .record-card > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+.quest-game .record-card > div > span:first-child {
+  min-width: 38px;
+  color: var(--game-soft);
+  font-size: 10px;
+}
+.quest-game .record-card strong {
+  font:
+    600 13px/1.4 Consolas,
+    monospace;
+}
+.quest-game #edited-message {
+  color: var(--game-gold);
+}
+.quest-game .outgoing-card {
+  margin-top: 8px;
+}
+.quest-game .outgoing-card > span {
+  font-size: 10px;
+}
+.quest-game .outgoing-card strong {
+  font-size: 12px;
+}
+.quest-game .dialogue-controls {
+  justify-content: center;
+}
+.quest-game #dialogue-previous {
+  margin: 0 auto;
+}
+.quest-game #bob-result {
+  margin-top: 5px;
+  color: var(--game-gold);
+}
+.quest-game .story-box {
+  min-height: 70px;
+}
+.quest-game.is-viewport .game-inner {
+  grid-template-rows: 44px minmax(0, 1fr);
+}
+.quest-game.is-viewport #gameplay {
+  grid-template-rows: 32px 24px minmax(0, 1fr) 132px;
+  gap: 8px;
+}
+.quest-game.is-viewport .play-layout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 10px;
+}
+.quest-game.is-viewport .scene-column {
+  grid-template-rows: minmax(0, 1fr) 64px !important;
+  gap: 6px;
+}
+.quest-game.is-viewport .command-column {
+  grid-template-rows: minmax(0, 1fr) 58px 32px;
+  gap: 6px;
+}
+.quest-game.is-viewport .command-box {
+  min-height: 0;
+  grid-template-rows: 28px minmax(0, 1fr);
+}
+.quest-game.is-viewport .command-heading {
+  padding: 5px 10px;
+}
+.quest-game.is-viewport .command-heading .box-label {
+  font-size: 11px;
+}
+.quest-game.is-viewport .choice-list {
+  min-height: 0;
+  grid-auto-rows: minmax(44px, 1fr);
+}
+.quest-game.is-viewport .choice-list .command {
+  min-height: 0;
+  padding: 8px 10px;
+}
+.quest-game.is-viewport .command strong {
+  font-size: 13px;
+}
+.quest-game.is-viewport .command small {
+  font-size: 10px;
+}
+.quest-game.is-viewport .choice-confirm {
+  min-height: 0;
+  padding: 10px;
+  gap: 10px;
+}
+.quest-game.is-viewport #choice-summary {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.quest-game.is-viewport .record-card {
+  margin: 0;
+  padding: 6px 10px;
+  gap: 3px;
+}
+.quest-game.is-viewport .record-card strong {
+  font-size: 12px;
+}
+.quest-game.is-viewport .outgoing-card {
+  display: flex;
+  gap: 8px;
+  min-height: 0;
+  margin: 0;
+  padding: 4px 9px;
+}
+.quest-game.is-viewport .outgoing-card strong {
+  font-size: 11px;
+}
+.quest-game.is-viewport .outgoing-card > span {
+  display: none;
+}
+.quest-game.is-viewport .story-box {
+  min-height: 0;
+}
+.quest-game.is-viewport .story-box h3 {
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.3;
+}
+.quest-game.is-viewport .goal-line {
+  padding-top: 2px;
+  margin-top: 2px;
+}
+.quest-game.is-viewport .goal-line p {
+  font-size: 11px;
+  margin: 0;
+  line-height: 1.4;
+}
+.quest-game.is-viewport .goal-line b {
+  display: none;
+}
+.quest-game.is-viewport .dialogue-box {
+  min-height: 0;
+  margin: 0;
+  grid-template-columns: 45px minmax(0, 1fr) 100px;
+  gap: 10px;
+  padding: 8px 10px;
+}
+.quest-game.is-viewport .dialogue-portrait svg {
+  height: 54px;
+}
+.quest-game.is-viewport .dialogue-controls {
+  gap: 4px;
+}
+.quest-game.is-viewport .dialogue-options button {
+  min-height: 20px;
+  font-size: 9px;
+}
+.quest-game.is-viewport #feedback {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.quest-game.is-viewport #dialogue-next {
+  min-height: 38px;
+  font-size: 11px;
+  padding: 5px;
+}
+.quest-game.is-viewport .scene-top {
+  font-size: 10px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .scene-column,
+.quest-game.is-viewport[data-layout="narrow"] .command-column {
+  display: contents;
+}
+.quest-game.is-viewport[data-layout="narrow"] .play-layout {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(112px, 1fr) 42px minmax(124px, 1fr) 48px 28px;
+  gap: 6px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .scene {
+  grid-row: 1;
+}
+.quest-game.is-viewport[data-layout="narrow"] .story-box {
+  grid-row: 2;
+  padding: 4px 8px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .story-box h3 {
+  display: none;
+}
+.quest-game.is-viewport[data-layout="narrow"] .goal-line {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.quest-game.is-viewport[data-layout="narrow"] .command-box {
+  grid-row: 3;
+}
+.quest-game.is-viewport[data-layout="narrow"] .record-card {
+  grid-row: 4;
+  padding: 4px 8px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .outgoing-card {
+  grid-row: 5;
+}
+.quest-game.is-viewport[data-layout="narrow"] .dialogue-box {
+  grid-template-columns: 30px minmax(0, 1fr) 75px;
+  gap: 6px;
+  padding: 7px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .dialogue-portrait svg {
+  height: 38px;
+}
+.quest-game.is-viewport[data-layout="narrow"] #feedback {
+  font-size: 12px;
+  line-height: 1.55;
+}
+.quest-game.is-viewport[data-layout="narrow"] .record-card > div {
+  gap: 5px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .record-card strong {
+  font-size: 11px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .command strong {
+  font-size: 12px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .command-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+}
+.quest-game.is-viewport[data-layout="narrow"] .choice-buttons button {
+  min-height: 36px;
+  font-size: 12px;
+}
+@media (max-height: 560px) {
+  .quest-game.is-viewport .game-inner {
+    grid-template-rows: 32px minmax(0, 1fr);
+    gap: 4px;
+    padding: 0 8px 6px;
+  }
+  .quest-game.is-viewport .game-toolbar {
+    min-height: 0;
+  }
+  .quest-game.is-viewport .toolbar-button {
+    min-height: 28px;
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+  .quest-game.is-viewport #gameplay {
+    grid-template-rows: 24px 18px minmax(0, 1fr) 96px;
+    gap: 5px;
+  }
+  .quest-game.is-viewport .scene-column {
+    grid-template-rows: minmax(0, 1fr) 42px !important;
+    gap: 4px;
+  }
+  .quest-game.is-viewport .command-column {
+    grid-template-rows: minmax(0, 1fr) 42px 24px;
+    gap: 4px;
+  }
+  .quest-game.is-viewport .command-box {
+    grid-template-rows: 20px minmax(0, 1fr);
+  }
+  .quest-game.is-viewport .command-heading {
+    padding: 2px 8px;
+  }
+  .quest-game.is-viewport .command-heading .box-label {
+    font-size: 10px;
+  }
+  .quest-game.is-viewport .choice-list {
+    grid-auto-rows: minmax(34px, 1fr);
+  }
+  .quest-game.is-viewport .choice-list .command {
+    padding: 4px 7px;
+    gap: 6px;
+  }
+  .quest-game.is-viewport .command strong {
+    font-size: 11px;
+  }
+  .quest-game.is-viewport .command small {
+    display: none;
+  }
+  .quest-game.is-viewport .command-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+  .quest-game.is-viewport .choice-confirm {
+    padding: 4px 7px;
+    gap: 5px;
+  }
+  .quest-game.is-viewport #choice-summary {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .quest-game.is-viewport .choice-buttons {
+    gap: 6px;
+  }
+  .quest-game.is-viewport .choice-buttons button {
+    min-height: 32px;
+    padding: 4px;
+    font-size: 11px;
+  }
+  .quest-game.is-viewport .record-card {
+    padding: 3px 8px;
+    gap: 1px;
+  }
+  .quest-game.is-viewport .record-card strong {
+    font-size: 11px;
+  }
+  .quest-game.is-viewport .record-card > div > span:first-child {
+    font-size: 9px;
+  }
+  .quest-game.is-viewport .outgoing-card strong {
+    font-size: 10px;
+  }
+  .quest-game.is-viewport .story-box h3 {
+    font-size: 11px;
+  }
+  .quest-game.is-viewport .goal-line p {
+    font-size: 10px;
+    line-height: 1.3;
+  }
+  .quest-game.is-viewport .story-box .text-detail {
+    display: none;
+  }
+  .quest-game.is-viewport .dialogue-box {
+    grid-template-columns: 26px minmax(0, 1fr) 80px;
+    gap: 6px;
+    padding: 5px 7px;
+  }
+  .quest-game.is-viewport .dialogue-portrait svg {
+    height: 32px;
+  }
+  .quest-game.is-viewport #feedback {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .quest-game.is-viewport #result-heading {
+    font-size: 11px;
+    margin: 0 0 3px;
+  }
+  .quest-game.is-viewport #dialogue-next {
+    min-height: 32px;
+    font-size: 10px;
+  }
+  .quest-game.is-viewport #dialogue-label {
+    display: none;
+  }
+  .quest-game.is-viewport .command-wait {
+    font-size: 11px;
+    padding: 7px;
+  }
+  .quest-game.is-viewport #bob-result {
+    font-size: 10px;
+    margin-top: 3px;
+  }
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"] #gameplay {
+  grid-template-rows: 24px 16px minmax(0, 1fr) 96px;
+  gap: 4px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .play-layout {
+  grid-template-rows: 68px 28px minmax(116px, 1fr) 40px 22px;
+  gap: 4px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"] .story-box {
+  padding: 2px 7px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .story-box
+  h3 {
+  display: none;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"] .goal-line {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .goal-line
+  p {
+  font-size: 10px;
+  line-height: 1.25;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .dialogue-box {
+  grid-template-columns: 22px minmax(0, 1fr) 64px;
+  gap: 4px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .dialogue-portrait
+  svg {
+  height: 28px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .network-scene {
+  padding-top: 19px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .pixel-character {
+  width: 23px;
+  height: 29px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="tiny"]
+  .character-name {
+  font-size: 10px;
+}
+/* The learner chooses a key for this scene's single operation. */
+.quest-game .key-picker {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 32px;
+  padding: 6px;
+  gap: 6px;
+}
+.quest-game .key-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  min-height: 0;
+  align-content: center;
+}
+.quest-game .key-card {
+  display: grid;
+  align-content: center;
+  text-align: left;
+  gap: 2px;
+  padding: 5px 7px;
+  min-height: 40px;
+  border: 1px solid var(--game-line);
+  background: #214449;
+  color: var(--game-paper);
+}
+.quest-game .key-card strong {
+  font-size: 12px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.quest-game .key-card small {
+  font-size: 9px;
+  line-height: 1.3;
+  color: var(--game-soft);
+}
+.quest-game .key-card[aria-pressed="true"] {
+  border-color: var(--game-gold);
+  background: #38504b;
+}
+.quest-game .key-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+.quest-game .key-pagination button {
+  min-height: 32px;
+  min-width: 36px;
+  border: 1px solid var(--game-line);
+  background: var(--game-panel);
+  color: var(--game-paper);
+  font-size: 11px;
+  padding: 4px 8px;
+}
+.quest-game .key-pagination span {
+  font-size: 10px;
+  color: var(--game-soft);
+}
+.quest-game .key-pagination #key-back {
+  margin-right: auto;
+}
+.quest-game.is-viewport .key-card strong {
+  font-size: 11px;
+}
+.quest-game.is-viewport[data-layout="narrow"][data-density="compact"]
+  .key-picker,
+.quest-game.is-viewport[data-density="tiny"] .key-picker {
+  padding: 3px 6px;
+  gap: 4px;
+}
+.quest-game.is-viewport[data-density="tiny"] .key-card {
+  padding: 4px 6px;
+}
+.quest-game.is-viewport[data-density="tiny"] .command-heading .box-label {
+  font-size: 9px;
+}
+/* Use the learning app's answer palette, with text as well as color. */
+.quest-game .command-box[data-tone="correct"],
+.quest-game #action-result[data-tone="correct"] {
+  background: #e7f5ea;
+  color: #137333;
+  border-color: #137333;
+}
+.quest-game .command-box[data-tone="wrong"],
+.quest-game #action-result[data-tone="wrong"] {
+  background: #fcebea;
+  color: #b42318;
+  border-color: #b42318;
+}
+.quest-game [data-tone="correct"] #command-label,
+.quest-game [data-tone="correct"] #result-heading,
+.quest-game [data-tone="correct"] #feedback {
+  color: #137333;
+}
+.quest-game [data-tone="wrong"] #command-label,
+.quest-game [data-tone="wrong"] #result-heading,
+.quest-game [data-tone="wrong"] #feedback {
+  color: #b42318;
+}
+.quest-game [data-tone="correct"] .dialogue-label,
+.quest-game [data-tone="wrong"] .dialogue-label {
+  color: inherit;
+}
+.quest-game [data-tone="correct"] #dialogue-label,
+.quest-game [data-tone="correct"] #dialogue-position,
+.quest-game [data-tone="correct"] #bob-result,
+.quest-game [data-tone="correct"] .dialogue-options button,
+.quest-game [data-tone="correct"] .command-wait {
+  color: #137333;
+}
+.quest-game [data-tone="wrong"] #dialogue-label,
+.quest-game [data-tone="wrong"] #dialogue-position,
+.quest-game [data-tone="wrong"] #bob-result,
+.quest-game [data-tone="wrong"] .dialogue-options button,
+.quest-game [data-tone="wrong"] .command-wait {
+  color: #b42318;
+}
+
+/* Answer panels have pale backgrounds; all action text uses the panel ink. */
+.quest-game .command-box[data-tone="correct"] .command,
+.quest-game .command-box[data-tone="wrong"] .command,
+.quest-game
+  .command-box[data-tone="correct"]
+  .command
+  :is(strong, small, .command-icon, i),
+.quest-game
+  .command-box[data-tone="wrong"]
+  .command
+  :is(strong, small, .command-icon, i) {
+  color: inherit;
+}
+.quest-game .command-box[data-tone="correct"] .command-icon,
+.quest-game .command-box[data-tone="wrong"] .command-icon {
+  border-color: currentColor;
+}
+.quest-game .command-box[data-tone="correct"] .command:hover:not(:disabled),
+.quest-game .command-box[data-tone="wrong"] .command:hover:not(:disabled) {
+  background: #0000000a;
+}
+.quest-game .command small:empty {
+  display: none;
+}
+
+.quest-game .answer-explanation {
+  align-self: stretch;
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  padding: 12px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: inherit;
+}
+@media (max-height: 560px) {
+  .quest-game.is-viewport .answer-explanation {
+    padding: 6px 8px;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+}
+
+.quest-game .story-box .text-detail {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  float: right;
+  min-height: 30px;
+  padding: 4px 8px;
+  margin: 0 0 4px 8px;
+  border: 1px solid #729b94;
+  border-radius: 4px;
+  background: #244b4d;
+  color: #e1f5ec;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  box-shadow: 0 2px 0 #0e252b;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+.quest-game .story-box .text-detail:hover {
+  background: #31635e;
+  border-color: #b3e2cd;
+}
+.quest-game .story-box .text-detail:focus-visible {
+  outline: 2px solid var(--game-gold);
+  outline-offset: 3px;
+}
+.quest-game .story-box .text-detail:active {
+  box-shadow: none;
+  transform: translateY(1px);
+}
+.quest-game .text-detail .detail-chevron {
+  font-size: 16px;
+  line-height: 1;
+}
+.quest-game.is-viewport .story-box .text-detail {
+  min-height: 24px;
+  padding: 3px 6px;
+  font-size: 10px;
+}
+@media (max-height: 560px) {
+  .quest-game.is-viewport .story-box .text-detail {
+    display: none;
+  }
+}

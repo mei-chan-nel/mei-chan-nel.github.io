@@ -116,6 +116,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../assets/site-analytics.js?v=2026101201" defer></script>
     <title>{e(title)}</title>
     <meta name="description" content="{e(description)}" />
     <meta name="theme-color" content="#102f35" />
@@ -147,8 +148,9 @@ def header(current: str) -> str:
         ("questions", "../info1-quiz-app/questions/", "問題を探す"),
         ("terms", "../terms/", "用語一覧"),
         ("archive", "./", "解説動画"),
-        ("lecture", "../LectureNote/", "講義ノート"),
         ("trace", "../program-trace/", "プログラムトレース"),
+        ("lecture", "../LectureNote/", "講義ノート"),
+        ("lab", "../lab/", "ラボ"),
     ]
     nav = "".join(
         f'<a href="{href}"{(" aria-current=\"page\"" if key == current else "")}>{label}</a>'
@@ -177,10 +179,11 @@ def footer() -> str:
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
           <a href="./">解説動画</a>
-          <a href="../LectureNote/">講義ノート</a>
           <a href="../program-trace/">プログラムトレース</a>
-          <a href="../books/">書籍案内</a>
+          <a href="../LectureNote/">講義ノート</a>
+          <a href="../lab/">ラボ</a>
           <a href="../study-guide.html">使い方</a>
+          <a href="../books/">書籍案内</a>
           <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
           <a href="../sitemap.html">サイトマップ</a>
@@ -188,7 +191,7 @@ def footer() -> str:
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026100501"></script>
+    <script src="../assets/site-header.js?v=2026101201"></script>
   </body>
 </html>
 """
@@ -264,6 +267,8 @@ def video_controls(number: int, videos: list[dict[str, str]], section_id: str) -
         if index == 1 and number in trace_programs():
             href = f"../program-trace/run.html?from={section_id}#{trace_programs()[number]}"
             trace = f'<a class="program-trace-link" href="{e(href)}">1行ずつ実行する</a>'
+            flow_href = f"../lab/flowchart/?from={section_id}&question={trace_programs()[number]}#run"
+            trace += f'\n              <a class="program-flowchart-link program-trace-link" href="{e(flow_href)}">フローチャートで表示する</a>'
         controls.append(
             f'''<div class="video-control">
               <div class="video-action-row">
@@ -586,6 +591,7 @@ def main() -> int:
         "programming_code_blocks": sum(1 for genre in genres if genre["field_id"] == "programming" for question in genre["questions"] if question_parts(question, str(genre["id"]))[1]),
         "trace_program_count": len(trace_programs()),
         "trace_link_count": len(trace_programs()) + len(course['questions']),
+        "flowchart_link_count": len(trace_programs()) + len(course['questions']),
     }
     REPORT_PATH.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"questions=330 genres={len(genres)} course_questions={len(course['questions'])} pages={len(generated_pages)} videos={report['video_count']}")

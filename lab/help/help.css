@@ -1,0 +1,31 @@
+/* Shared by every lab. Deliberately scoped to avoid altering experiment buttons. */
+.lab-help-heading { position: relative; padding-inline-end: 256px !important; min-height: 48px; }
+.lab-help-heading > .lab-help { position: absolute; inset-block-start: 12px; inset-inline-end: 0; }
+.lab-help .lab-help__button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 44px; padding: 10px 16px; margin: 0; border: 1px solid #28675e;
+  border-radius: 12px; background: #eff8f4; color: #174d45;
+  font: 700 14px/1.4 system-ui, sans-serif; white-space: nowrap;
+  box-shadow: 0 2px 6px #102f350a; cursor: pointer;
+}
+.lab-help .lab-help__button:hover { background: #deeee6; }
+.lab-help .lab-help__button:disabled { opacity: .65; cursor: wait; }
+.lab-help__button:focus-visible, .lab-help-feedback :is(button, summary, textarea):focus-visible {
+  outline: 3px solid #15756c; outline-offset: 3px;
+}
+.lab-help__button svg { flex: 0 0 20px; }
+.lab-help-feedback { font: 14px/1.7 system-ui, sans-serif; color: #234740; }
+.lab-help-feedback [hidden] { display: none !important; }
+.lab-help__status { margin: 8px 0; }
+.lab-help__recovery { margin: 10px 0 18px; padding: 12px 16px; background: #f3f8f6; border: 1px solid #acc7bc; border-radius: 12px; }
+.lab-help__recovery summary { cursor: pointer; min-height: 32px; padding-block: 6px; }
+.lab-help__recovery label { display: block; font-weight: 700; }
+.lab-help__recovery textarea { display: block; width: 100%; min-width: 0; box-sizing: border-box; padding: 12px; margin: 8px 0; border: 1px solid #6d8e82; border-radius: 6px; font: 16px/1.6 system-ui, sans-serif; background: white; color: #183b32; resize: vertical; }
+.lab-help__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.lab-help__actions button { padding: 10px 14px; min-height: 44px; border: 1px solid #28675e; border-radius: 8px; background: white; color: #174d45; font: inherit; cursor: pointer; }
+.lab-help__copy-status:empty { display: none; }
+@media (max-width: 760px) {
+  .lab-help-heading { padding-inline-end: 0 !important; flex-wrap: wrap; }
+  .lab-help-heading > .lab-help { position: static; flex-basis: 100%; grid-column: 1 / -1; width: 100%; margin-block: 12px 4px; }
+}
+@media print { .lab-help, .lab-help-feedback { display: none !important; } .lab-help-heading { padding-inline-end: 0 !important; } }

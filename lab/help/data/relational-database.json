@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "relational-database",
+  "name": "リレーショナルデータベース",
+  "purpose": [
+    "表の定義・結合・射影・選択でデータを取り出す。"
+  ],
+  "initialState": [
+    "初回は学生24人・部員36件・部活7つの架空データで「1 定義」。以前の作業があれば復元する。"
+  ],
+  "controls": [
+    "「2 結合」でカードや対応列をつなぎ、基準となるテーブルを選ぶ。「3 射影」で表示列を選択。「4 選択」で条件を指定。",
+    "セルは直接入力後Enter等で確定。「読込」で例やJSONを選び、「保存」で書き出す。"
+  ],
+  "firstSteps": [
+    "「2 結合」を開き、学生・部員・部活をつなぐ線と、下の「結合した表」を見る。"
+  ],
+  "experiments": [
+    "「3 射影」で列を減らし、「4 選択」で部活名の条件を確かめる。初期例は結合39行から将棋部6行へ絞られる。"
+  ],
+  "results": [
+    "結合は列を対応させ、射影は列を取り出し、選択は行を絞る。基準表の未対応行は空欄として残る。"
+  ],
+  "cautions": [
+    "基準を残す左外部結合。複数所属で行が増える。初期の射影は重複行を残す。SQL入力や実DBへの接続機能はない。"
+  ],
+  "review": {
+    "sourceCommit": "c68fe5034c92b75231fb7eeef9982608ee0eaa0d",
+    "sources": [
+      "lab/relational-database/app.mjs",
+      "lab/relational-database/model.mjs",
+      "lab/tools/templates/relational-database.html"
+    ]
+  }
+}
