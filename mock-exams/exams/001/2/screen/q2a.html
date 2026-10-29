@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>第2問A　問題</title><link rel="stylesheet" href="../q2a.css"><meta name="robots" content="noindex, follow"><link rel="stylesheet" href="../../../../booklet.css"></head>
+<body data-section="q2a">
+<section class="page" id="library-records" data-reading-for="q2a-01 q2a-02">
+<h1>第2問A（15点）</h1>
+<p>Sさんは，図書委員として本の貸出・返却を手伝っている。学校図書館では，同じ題名の本を複数冊所蔵しているため，<strong>本の題名を区別する書誌番号</strong>と，<strong>本1冊ずつを区別する資料番号</strong>を分けて管理している。</p>
+<p>表1と表2は，10月10日の返却受付を始める前の記録である。表2の返却日の「—」は，その貸出がまだ返却されていないことを示す。表にない貸出記録はないものとする。</p>
+<table><caption>表1　所蔵する本</caption><thead><tr><th>資料番号</th><th>書誌番号</th><th>題名</th></tr></thead><tbody>
+<tr><td>C101</td><td>B01</td><td>情報のしくみ</td></tr><tr><td>C102</td><td>B01</td><td>情報のしくみ</td></tr><tr><td>C201</td><td>B02</td><td>データの見方</td></tr><tr><td>C202</td><td>B02</td><td>データの見方</td></tr>
+</tbody></table>
+<table><caption>表2　貸出記録</caption><thead><tr><th>貸出番号</th><th>資料番号</th><th>生徒番号</th><th>貸出日</th><th>返却日</th></tr></thead><tbody>
+<tr><td>L01</td><td>C101</td><td>S01</td><td>10月1日</td><td>10月8日</td></tr>
+<tr><td>L02</td><td>C102</td><td>S02</td><td>10月2日</td><td>—</td></tr>
+<tr><td>L03</td><td>C201</td><td>S03</td><td>10月3日</td><td>—</td></tr>
+<tr><td>L04</td><td>C101</td><td>S04</td><td>10月9日</td><td>—</td></tr>
+<tr><td>L05</td><td>C202</td><td>S04</td><td>10月9日</td><td>—</td></tr>
+</tbody></table>
+<h2 data-reading-units="q2a-01">問1</h2>
+<p>現在「情報のしくみ」を借りている生徒番号の組合せとして最も適当なものを，次の⓪～③から一つ選べ。<span class="mark" data-field="q2a-ア" data-original="ア">ア</span></p>
+<ol class="choices">
+<li data-choice-fields="q2a-ア" data-choice-value="0"><span class="num">⓪</span><span>S01，S02</span></li>
+<li data-choice-fields="q2a-ア" data-choice-value="1"><span class="num">①</span><span>S02，S03</span></li>
+<li data-choice-fields="q2a-ア" data-choice-value="2"><span class="num">②</span><span>S02，S04</span></li>
+<li data-choice-fields="q2a-ア" data-choice-value="3"><span class="num">③</span><span>S01，S02，S04</span></li>
+</ol></section>
+<section class="page" id="library-return" data-reading-for="q2a-02">
+<h2 data-reading-units="q2a-02">問2</h2>
+<p>生徒S04が資料C101を返却した。窓口では，本に付いた資料番号を読み取り，該当する貸出記録に返却日を記録する。過去に誰が借りたかも調べられるよう，貸出記録は残しておく。</p>
+<p>今回の貸出だけを返却済みにし，過去の貸出記録や他の本の貸出記録を正しく保つための処理として適当なものを，次の⓪～⑤から<strong>二つ</strong>選び，<span class="mark" data-field="q2a-イ" data-original="イ">イ</span>・<span class="mark" data-field="q2a-ウ" data-original="ウ">ウ</span>にマークせよ。ただし，解答の順序は問わない。</p>
+<ol class="choices">
+<li data-choice-fields="q2a-イ q2a-ウ" data-choice-value="0"><span class="num">⓪</span><span>資料C101の貸出記録を全て削除する。</span></li>
+<li data-choice-fields="q2a-イ q2a-ウ" data-choice-value="1"><span class="num">①</span><span>資料番号がC101で，返却日が「—」の貸出記録を選び，その返却日を記録する。</span></li>
+<li data-choice-fields="q2a-イ q2a-ウ" data-choice-value="2"><span class="num">②</span><span>書誌番号B01に対応する全ての貸出記録に，同じ返却日を記録する。</span></li>
+<li data-choice-fields="q2a-イ q2a-ウ" data-choice-value="3"><span class="num">③</span><span>資料番号がC101で，貸出日が最も古い記録に返却日を記録する。</span></li>
+<li data-choice-fields="q2a-イ q2a-ウ" data-choice-value="4"><span class="num">④</span><span>生徒番号がS04の全ての貸出記録に，同じ返却日を記録する。</span></li>
+<li data-choice-fields="q2a-イ q2a-ウ" data-choice-value="5"><span class="num">⑤</span><span>貸出番号L04を変えずに返却日を記録し，L01の記録は書き換えない。</span></li>
+</ol></section>
+<section class="page" id="library-reservations" data-reading-for="q2a-03 q2a-04">
+<h2>問3</h2>
+<p>貸出中の本を予約できる機能を加えた。同じ題名ならどの1冊でも借りられるよう，予約は<strong>資料番号ではなく書誌番号</strong>に対して受け付ける。B01に対する予約は表3の3件であり，他に予約はない。</p>
+<table><caption>表3　返却前の予約記録</caption><thead><tr><th>予約番号</th><th>書誌番号</th><th>生徒番号</th><th>受付順</th><th>状態</th></tr></thead><tbody>
+<tr><td>R01</td><td>B01</td><td>S05</td><td>1</td><td>待ち</td></tr><tr><td>R02</td><td>B01</td><td>S06</td><td>2</td><td>待ち</td></tr><tr><td>R03</td><td>B01</td><td>S07</td><td>3</td><td>待ち</td></tr>
+</tbody></table>
+<p>予約の処理は，次の規則に従う。</p>
+<ul class="rules"><li>本が返却されたら，現在の貸出記録に返却日を記録する。その本と同じ書誌番号で，状態が「待ち」の予約のうち，受付順が最も早い1件を選び，返却された本をその生徒のために取り置く。選んだ予約だけを「取置中」にする。</li>
+<li>取り置いた本をその生徒に渡したとき，新しい貸出記録を追加し，その予約だけを「完了」にする。</li></ul>
+<h3 data-reading-units="q2a-03">a</h3>
+<p>C101が返却され，R01の生徒のために取り置かれた。続いてC102も返却されたが，まだどの生徒にも本を渡していない。このとき，C102を取り置く対象となる予約番号として最も適当なものを，次の⓪～③から一つ選べ。<span class="mark" data-field="q2a-エ" data-original="エ">エ</span></p>
+<ol class="choices"><li data-choice-fields="q2a-エ" data-choice-value="0"><span class="num">⓪</span><span>R01</span></li><li data-choice-fields="q2a-エ" data-choice-value="1"><span class="num">①</span><span>R02</span></li><li data-choice-fields="q2a-エ" data-choice-value="2"><span class="num">②</span><span>R03</span></li><li data-choice-fields="q2a-エ" data-choice-value="3"><span class="num">③</span><span>対象となる予約はない</span></li></ol>
+</section>
+<section class="page" data-reading-for="q2a-04">
+<h3 data-reading-units="q2a-04">問3　b</h3>
+<p>aの処理の後，S05にC101を渡した。新しい貸出番号をL06とすると，この直後の記録として最も適当なものを，次の⓪～③から一つ選べ。<span class="mark" data-field="q2a-オ" data-original="オ">オ</span></p>
+<table><thead><tr><th>選択肢</th><th>R01の状態</th><th>R02の状態</th><th>L06の資料番号／生徒番号</th></tr></thead><tbody>
+<tr data-choice-fields="q2a-オ" data-choice-value="0"><td>⓪</td><td>完了</td><td>完了</td><td>C102／S05</td></tr>
+<tr data-choice-fields="q2a-オ" data-choice-value="1"><td>①</td><td>取置中</td><td>取置中</td><td>C101／S05</td></tr>
+<tr data-choice-fields="q2a-オ" data-choice-value="2"><td>②</td><td>完了</td><td>取置中</td><td>C101／S05</td></tr>
+<tr data-choice-fields="q2a-オ" data-choice-value="3"><td>③</td><td>完了</td><td>待ち</td><td>C101／S05</td></tr>
+</tbody></table></section>
+<section class="page" id="library-concurrency" data-reading-for="q2a-05 q2a-06">
+<h2>問4</h2>
+<p>問1～3とは別の場面を考える。資料C201は返却済みで，予約もない。二つの窓口端末A・Bで，それぞれ別の生徒がC201を借りようとした。</p>
+<p>現在のシステムは，貸出を次の二段階に分けている。</p>
+<ul class="rules"><li><strong>確認：</strong>その資料番号に未返却の貸出記録がなければ「貸出可」，あれば「貸出不可」とし，その結果を各端末に保存する。</li>
+<li><strong>貸出処理：</strong>保存済みの結果が「貸出可」なら新しい貸出記録を追加し，貸出完了を通知する。「貸出不可」なら記録を追加せず，貸し出せないことを通知する。この段階では未返却の記録を調べ直さない。</li></ul>
+<table><caption>表4　二つの端末の処理順</caption><thead><tr><th>順番</th><th>端末A</th><th>端末B</th></tr></thead><tbody>
+<tr><td>1</td><td>確認</td><td>—</td></tr><tr><td>2</td><td>—</td><td>確認</td></tr><tr><td>3</td><td>貸出処理</td><td>—</td></tr><tr><td>4</td><td>—</td><td>貸出処理</td></tr>
+</tbody></table>
+<h3 data-reading-units="q2a-05">a</h3>
+<p>表4の順に処理した場合の通知として最も適当なものを，次の⓪～③から一つ選べ。<span class="mark" data-field="q2a-カ" data-original="カ">カ</span></p>
+<ol class="choices"><li data-choice-fields="q2a-カ" data-choice-value="0"><span class="num">⓪</span><span>Aだけに貸出完了を通知する。</span></li><li data-choice-fields="q2a-カ" data-choice-value="1"><span class="num">①</span><span>Bだけに貸出完了を通知する。</span></li><li data-choice-fields="q2a-カ" data-choice-value="2"><span class="num">②</span><span>A・Bの両方に貸し出せないことを通知する。</span></li><li data-choice-fields="q2a-カ" data-choice-value="3"><span class="num">③</span><span>A・Bの両方に貸出完了を通知する。</span></li></ol>
+</section>
+<section class="page" data-reading-for="q2a-06">
+<h3 data-reading-units="q2a-06">問4　b</h3>
+<p>同じ1冊に未返却の貸出記録が二つできることを防ぐための変更として最も適当なものを，次の⓪～③から一つ選べ。<span class="mark" data-field="q2a-キ" data-original="キ">キ</span></p>
+<ol class="choices"><li data-choice-fields="q2a-キ" data-choice-value="0"><span class="num">⓪</span><span>確認を，画面を最初に開いたときだけ行う。</span></li><li data-choice-fields="q2a-キ" data-choice-value="1"><span class="num">①</span><span>借りる生徒番号が異なれば，同じ資料への貸出処理を同時に進めてよいことにする。</span></li><li data-choice-fields="q2a-キ" data-choice-value="2"><span class="num">②</span><span>記録を追加する直前にも確認する。ただし，その再確認と追加の間には，他の端末の処理が入ってよいことにする。</span></li><li data-choice-fields="q2a-キ" data-choice-value="3"><span class="num">③</span><span>同じ資料番号に対する「未返却の記録がないことの確認」と「新しい貸出記録の追加」を一続きに行い，その途中に他の端末の同じ資料への処理が入らないようにする。</span></li></ol>
+</section></body></html>

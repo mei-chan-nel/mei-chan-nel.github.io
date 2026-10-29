@@ -1,0 +1,32 @@
+* { box-sizing: border-box; }
+body { margin: 0; color: #171b1c; background: #eef1ef; font: 16px/1.75 system-ui, sans-serif; }
+.page { width: 210mm; min-height: 297mm; margin: 18px auto; padding: 16mm 17mm; background: white; }
+h1 { font-size: 21px; margin: 0 0 20px; }
+h2 { font-size: 18px; margin: 22px 0 12px; }
+h3 { font-size: 17px; margin: 22px 0 10px; }
+p { margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 15px; line-height: 1.5; }
+caption { font-weight: 600; margin-bottom: 8px; text-align: center; }
+th, td { border: 1px solid #717c79; padding: 6px 8px; text-align: center; }
+th { font-weight: 600; background: #f0f3f1; }
+.left { text-align: left; }
+.mark { display: inline-block; min-width: 1.8em; border: 1px solid #333; text-align: center; line-height: 1.5; margin: 0 3px; }
+.choices { list-style: none; padding: 0; margin: 14px 0; }
+.choices li { display: grid; grid-template-columns: 1.7em minmax(0, 1fr); column-gap: 6px; margin: 10px 0; }
+.num { font-size: 1.05em; }
+.rules { border: 1px solid #a0aaa5; background: #f7f9f7; padding: 10px 14px 10px 32px; margin: 16px 0; }
+.rules li { margin: 7px 0; }
+.note { font-size: 14px; color: #46534e; }
+.answer { font-weight: 600; color: #126a65; }
+@media (max-width: 800px) {
+  .page { width: 100%; min-height: 0; padding: 20px 16px; margin: 0; }
+  table { font-size: 14px; }
+}
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: white; }
+  .page { height: 297mm; min-height: 297mm; margin: 0; break-after: page; }
+  .page:last-child { break-after: auto; }
+  h2, h3, caption { break-after: avoid; }
+  tr, .choices li { break-inside: avoid; }
+}

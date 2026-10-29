@@ -9,6 +9,10 @@ on:
         description: Git ref for mei-chan-nel/info1-quiz-app
         required: false
         default: main
+      verify_mock_rpc:
+        description: Also run the live RPC scenario using a new qa_mock_ ID
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -48,6 +52,15 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Check mock exam data, grading and documents
+        run: |
+          python -m pip install lxml PyMuPDF
+          node --test portal/mock-exams/tests/*.test.mjs
+          cd portal
+          node scripts/check_mock_exams.mjs
+          python scripts/validate_mock_exam_content.py
+          python scripts/validate_mock_exam_001_v2.py
+
       - name: Check Studio TypeScript build
         # Runtime files are committed for static hosting; keep them synchronized.
         run: |
@@ -62,3 +75,43 @@ jobs:
           --app-root app
           --portal-ref HEAD
           --app-ref HEAD
+
+  verify-production:
+    needs: validate
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out released portal
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Verify published files and existing RPCs
+        env:
+          REQUEST_RPC_WRITE: ${{ inputs.verify_mock_rpc || false }}
+        shell: bash
+        run: |
+          rpc_args=()
+          # Test writes only when the published exam catalog changes, or when
+          # explicitly requested. All writes use a fresh qa_mock_<UUID> ID.
+          if [[ "$REQUEST_RPC_WRITE" == "true" ]] || ! git show HEAD^:mock-exams/catalog.json > "$RUNNER_TEMP/previous-mock-catalog.json" 2>/dev/null || ! cmp -s "$RUNNER_TEMP/previous-mock-catalog.json" mock-exams/catalog.json; then
+            rpc_args+=(--rpc-write)
+          fi
+          node scripts/verify_mock_exam_release.mjs --wait-seconds 600 --report "$RUNNER_TEMP/mock-exam-release.json" "${rpc_args[@]}"
+
+      - name: Save release verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mock-exam-release-verification
+          path: ${{ runner.temp }}/mock-exam-release.json
+          if-no-files-found: warn

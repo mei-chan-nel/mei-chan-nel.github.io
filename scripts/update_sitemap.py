@@ -43,6 +43,7 @@ def read_portal_urls() -> list[str]:
         "LectureNote/statistics.html",
         "LectureNote/programming.html",
         "program-trace/index.html",
+        "mock-exams/index.html",
         "program-trace/studio/index.html",
         "program-trace/studio/guide.html",
         "lab/index.html", "lab/cpu-memory/index.html", "lab/os-work/index.html", "lab/crypto-communication/index.html",

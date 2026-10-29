@@ -2,12 +2,17 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 import { prepareMap, verifySourceText, SpatialIndex, fitCamera, project, unproject, zoomAbout, viewBounds,
   stageAt, labelCandidates, placeLabels, spatialOrder, overlaps, historyRecords, heatField, rateColor, colorRate, regionalColorRange, coastContours, labelPresentation, questionPresentation, cardFocus, surroundingQuestions, placeQuestionCards, practiceCandidates, samplePractice, initialPracticeCircle } from "../lab/question-map/map-model.mjs";
 import { parseStatsConfig, normalizeStats, loadQuestionStats } from "../lab/question-map/question-stats.mjs";
 
 // Local checkouts use the repository name; integrated CI checks out to app/.
-const appRoot = ["../../info1-quiz-app/", "../../app/"].map(path => new URL(path, import.meta.url))
+const appRoots = process.env.STUDY_ATLAS_APP_ROOT
+  ? [pathToFileURL(resolve(process.env.STUDY_ATLAS_APP_ROOT) + sep)]
+  : ["../../info1-quiz-app/", "../../app/"].map(path => new URL(path, import.meta.url));
+const appRoot = appRoots
   .find(path => existsSync(new URL("data/questions/completed_questions.json", path)));
 if (!appRoot) throw new Error("隣接する学習アプリのチェックアウトが見つかりません。");
 

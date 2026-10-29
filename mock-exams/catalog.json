@@ -1,0 +1,15 @@
+[
+  {
+    "id": "001",
+    "version": 2,
+    "title": "情報Ⅰ 実戦模試 No.001",
+    "publishedAt": "2026-10-29",
+    "manifest": "exams/001/2/exam.json",
+    "versions": [
+      {
+        "version": 1,
+        "manifest": "exams/001/1/exam.json"
+      }
+    ]
+  }
+]

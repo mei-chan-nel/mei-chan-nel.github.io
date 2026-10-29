@@ -1,0 +1,313 @@
+const {
+  startFullExam,
+  gradeInterim,
+  reviewFromResults,
+  exitReviewToCatalog,
+} = require("./catalog-helpers.cjs");
+/* PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser.cjs */
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
+const fs = require("node:fs"),
+  http = require("node:http"),
+  path = require("node:path"),
+  assert = require("node:assert/strict");
+const root = path.resolve(__dirname, "../.."),
+  output =
+    process.env.MOCK_QA_OUTPUT || path.resolve(root, "../work/mock-exam-qa");
+fs.mkdirSync(output, { recursive: true });
+const exam = require("./catalog-helpers.cjs").loadCurrentExam(root).exam;
+const perfect = Object.fromEntries(
+  exam.scoring.flatMap((u) =>
+    u.fields.map((f, i) => [f, u.rule.patterns[0][i]]),
+  ),
+);
+const server = http.createServer((req, res) => {
+  let file = path.resolve(
+    root,
+    "." + decodeURIComponent(req.url.split("?")[0]),
+  );
+  if (!file.startsWith(root + path.sep)) {
+    res.writeHead(403).end();
+    return;
+  }
+  try {
+    if (fs.statSync(file).isDirectory()) file = path.join(file, "index.html");
+    res.setHeader(
+      "Content-Type",
+      {
+        ".html": "text/html; charset=utf-8",
+        ".mjs": "text/javascript",
+        ".js": "text/javascript",
+        ".json": "application/json",
+        ".css": "text/css",
+        ".woff2": "font/woff2",
+        ".pdf": "application/pdf",
+      }[path.extname(file)] || "application/octet-stream",
+    );
+    res.end(fs.readFileSync(file));
+  } catch {
+    res.writeHead(404).end();
+  }
+});
+(async () => {
+  await new Promise((r) => server.listen(0, "127.0.0.1", r));
+  const url = "http://127.0.0.1:" + server.address().port + "/mock-exams/";
+  const b = await chromium.launch({
+    executablePath: process.env.CHROMIUM_PATH || "/usr/bin/chromium",
+    headless: true,
+    args: ["--no-sandbox"],
+  });
+  try {
+    const context = await b.newContext({
+      viewport: { width: 1440, height: 1000 },
+    });
+    await context.route("https://*.supabase.co/**", (r) =>
+      r.fulfill({ json: { items: [] } }),
+    );
+    const p = await context.newPage();
+    let errors = [];
+    p.on("pageerror", (e) => errors.push(e.message));
+    await p.goto(url);
+    await startFullExam(p);
+    const f = p.frameLocator("iframe");
+    for (const section of exam.sections) {
+      await p
+        .locator(".book-nav button")
+        .filter({ hasText: section.title })
+        .first()
+        .click();
+      await f.locator(`[data-field^="${section.id}-"]`).first().waitFor();
+      await p.screenshot({
+        path: path.join(output, section.id + "-desktop.png"),
+      });
+      for (const field of exam.fields.filter(
+        (x) => x.sectionId === section.id,
+      )) {
+        await f.locator(`[data-field="${field.id}"]`).first().click();
+        if (field.type === "text") {
+          await p
+            .locator(".keypad button")
+            .filter({ hasText: new RegExp("^" + perfect[field.id] + "$") })
+            .click();
+          await p.locator("#close-answer").click();
+        } else {
+          await p
+            .locator("#answer-options>button")
+            .nth(Number(perfect[field.id]))
+            .click();
+        }
+        assert.ok(
+          (
+            await f.locator(`[data-field="${field.id}"]`).allTextContents()
+          ).every((s) => s.length > 0),
+        );
+      }
+    }
+    await gradeInterim(p);
+    await p.getByRole("heading", { name: "採点結果" }).waitFor();
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "100 / 100点",
+    );
+    await p.screenshot({ path: path.join(output, "result.png") });
+    console.log("PASS: all 49 answers through UI -> 100/100");
+    await p.getByRole("button", { name: "解答を再開", exact: true }).click();
+    await f.locator("[data-field]").first().waitFor();
+    assert.equal(await f.locator("[data-verdict]").count(), 0);
+    await p.locator(".book-nav button").filter({ hasText: "第1問" }).click();
+    await f.locator('[data-field="q1-ウ"]').first().click();
+    await p.locator("#clear-answer").click();
+    await p.locator("#flag-answer").click();
+    await p.locator("#close-answer").click();
+    await p.getByRole("button", { name: "中断", exact: true }).click();
+    await p
+      .getByRole("button", { name: "採点せずに中断", exact: true })
+      .click();
+    await p
+      .locator("#exam-list")
+      .getByRole("button", { name: "再開", exact: true })
+      .click();
+    await f.locator('[data-field="q1-ウ"]').first().waitFor();
+    assert.equal(
+      await f.locator('[data-field="q1-ウ"]').first().textContent(),
+      "ウ",
+    );
+    const other = await context.newPage();
+    await other.goto(p.url());
+    await other
+      .getByText(
+        "この受験は別のタブで開かれています。先にそちらを中断してください。",
+      )
+      .waitFor();
+    await other.close();
+    console.log("PASS: clear, flag, pause/resume, concurrent-tab lock");
+    await gradeInterim(p);
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "97 / 100点",
+    );
+    await reviewFromResults(p);
+    await f.locator('[data-field="q1-ウ"]').first().waitFor();
+    assert.equal(
+      await f.locator('[data-field="q1-エ"]').first().textContent(),
+      "エ C",
+    );
+    assert.equal(
+      await f
+        .locator('[data-field="q1-ア"]')
+        .first()
+        .getAttribute("aria-disabled"),
+      "true",
+    );
+    await p.setViewportSize({ width: 390, height: 844 });
+    await f.locator('[data-field="q1-ウ"]').first().click();
+    assert.equal(
+      await p.locator("#answer-dialog").evaluate((d) => d.open),
+      false,
+    );
+    assert.equal(
+      await p
+        .getByRole("button", { name: "復習を採点する", exact: true })
+        .count(),
+      0,
+    );
+    assert.equal(
+      await p.evaluate(
+        () =>
+          JSON.parse(
+            localStorage[
+              "study-atlas:mock-exams:v1:attempt:" + location.hash.slice(1)
+            ],
+          ).result.points,
+      ),
+      97,
+    );
+    console.log(
+      "PASS: immutable review preserves submitted answers and original 97 points",
+    );
+    for (const s of exam.sections) {
+      await p
+        .locator(".book-nav button")
+        .filter({ hasText: s.title })
+        .first()
+        .click();
+      await f.locator(`[data-field^="${s.id}-"]`).first().waitFor();
+      const dims = await f
+        .locator("body")
+        .evaluate((el) => [el.clientWidth, el.scrollWidth]);
+      assert.ok(dims[1] <= dims[0] + 1, s.id + " horizontal overflow");
+      await p.screenshot({ path: path.join(output, s.id + "-mobile.png") });
+    }
+    console.log(
+      "PASS: five sections at 390px without document horizontal overflow",
+    );
+    await f.locator("[data-zoom]").first().click();
+    await p.locator("#figure-dialog").waitFor({ state: "visible" });
+    assert.ok(await p.locator("#figure-dialog svg,#figure-dialog img").count());
+    await p.locator("#close-figure").click();
+    console.log("PASS: graph zoom");
+    await p.locator(".book-nav button").filter({ hasText: "第3問" }).click();
+    await f
+      .locator('[data-field="q3-カ"][data-display="content"]')
+      .first()
+      .waitFor();
+    assert.match(
+      await f
+        .locator('[data-field="q3-カ"][data-display="content"]')
+        .first()
+        .textContent(),
+      /Zaiko/,
+    );
+    console.log("PASS: selected formula inserted into program");
+    await exitReviewToCatalog(p);
+    await p
+      .locator("#exam-modes")
+      .getByRole("button", { name: /大問ごとに演習する/ })
+      .click();
+    await p.getByRole("button", { name: "第2問B", exact: true }).click();
+    await p
+      .locator("#exam-list")
+      .getByRole("button", { name: "選択", exact: true })
+      .click();
+    await f.locator('[data-field="q2b-コ"]').first().waitFor();
+    await p.getByRole("button", { name: "採点する", exact: true }).click();
+    assert.equal(
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
+      "0 / 15点",
+    );
+    console.log("PASS: section-only maximum 15");
+    await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await startFullExam(p, "timed");
+    await f.locator('[data-field="q1-ア"]').first().waitFor();
+    // Simulate an interrupted timed exam already past its deadline, then reopen it.
+    const expired = await p.evaluate(() => {
+      const key = Object.keys(localStorage).find(
+        (k) => k.includes(location.hash.slice(1)) && !k.endsWith(":backup"),
+      );
+      const a = JSON.parse(localStorage[key]);
+      a.startedAt = Date.now() - 3601000;
+      return { key, a };
+    });
+    await p.close();
+    const timed = await context.newPage();
+    await timed.goto(url);
+    // goto's load event can precede the module's awaited catalog fetch.
+    // Wait for the app before simulating a second, fragment-only navigation.
+    await timed.locator("#exam-list article").first().waitFor();
+    await timed.evaluate(({ key, a }) => {
+      a.updatedAt = Date.now();
+      localStorage.setItem(key, JSON.stringify(a));
+      localStorage.setItem(key + ":backup", JSON.stringify(a));
+    }, expired);
+    await timed.goto(url + "#" + expired.a.id);
+    // Fragment-only navigation does not reload a previously loaded document.
+    await timed.reload();
+    try {
+      await timed
+        .getByRole("heading", { name: "採点結果", exact: true })
+        .waitFor({ timeout: 10000 });
+    } catch (error) {
+      console.log(
+        "Deadline navigation diagnosis",
+        await timed.evaluate((id) => {
+          const a = JSON.parse(
+            localStorage["study-atlas:mock-exams:v1:attempt:" + id],
+          );
+          return {
+            url: location.href,
+            view: document.body.dataset.view,
+            state: history.state,
+            notice: document.querySelector("#notice").textContent,
+            heading: document.querySelector("#app h1")?.textContent,
+            status: a.status,
+            mode: a.mode,
+            elapsed: a.elapsedMs,
+            started: a.startedAt,
+            now: Date.now(),
+            points: a.result?.points,
+          };
+        }, expired.a.id),
+      );
+      throw error;
+    }
+    assert.equal(
+      (
+        await timed.locator(".summary-table tfoot td").first().textContent()
+      ).trim(),
+      "0 / 100点",
+    );
+    console.log("PASS: timed resume auto-grades at deadline");
+
+    assert.deepEqual(errors, []);
+    console.log("PASS: no page errors");
+    await context.close();
+  } finally {
+    await b.close();
+    server.closeAllConnections();
+    server.close();
+  }
+})().catch((e) => {
+  console.error(e);
+  server.closeAllConnections();
+  server.close();
+  process.exitCode = 1;
+});
