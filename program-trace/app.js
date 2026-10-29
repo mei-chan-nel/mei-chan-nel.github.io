@@ -156,7 +156,7 @@ function showExample(entry) {
   ui["runner-view"].hidden = false;
   document.body.classList.add("is-tracing");
   ui["runner-title"].textContent = example.title;
-  document.title = `${example.collection === "video" ? "Q" : "例"}${example.number} ${example.title}｜情報Ⅰ Study Atlas`;
+  document.title = `${example.collection === "video" ? "Q" : "例"}${example.number} ${example.title}｜プログラムトレース｜情報Ⅰ Study Atlas`;
   buildNavigation();
   buildProgram();
   buildVariables();

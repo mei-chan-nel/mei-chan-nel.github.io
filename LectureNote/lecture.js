@@ -17,7 +17,7 @@
     "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
   }[char]));
 
-  document.title = `情報Ⅰ Study Atlas｜講義ノート｜${fieldLabels[field] || field}`;
+  document.title = `${fieldLabels[field] || field}｜講義ノート｜情報Ⅰ Study Atlas`;
 
   const storedBookmark = bookmarkStore?.get(field) || null;
   const savedBookmark = storedBookmark && page.sections.some((section) => section.id === storedBookmark.sectionId)

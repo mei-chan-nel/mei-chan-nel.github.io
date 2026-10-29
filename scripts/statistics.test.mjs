@@ -65,7 +65,7 @@ test("nested shell adds statistics breadcrumb and preserves original one-level a
     slug: "statistics/test",
     body: "",
   });
-  assert.ok(nested.includes('href="../../icon.svg"'));
+  assert.ok(nested.includes('href="/assets/favicon.svg"'));
   assert.ok(nested.includes('href="../../../lab/"'));
   const old = renderPage({
     name: "Test",
@@ -73,7 +73,7 @@ test("nested shell adds statistics breadcrumb and preserves original one-level a
     slug: "old",
     body: "",
   });
-  assert.ok(old.includes('href="../icon.svg"'));
+  assert.ok(old.includes('href="/assets/favicon.svg"'));
   assert.ok(old.includes('href="../../assets/site.css'));
 });
 

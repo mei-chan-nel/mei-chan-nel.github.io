@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+from normalize_site_metadata import normalize_tree
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -109,7 +110,12 @@ def main() -> int:
         "",
     ]
     OUTPUT_PATH.write_text("\n".join(lines), encoding="utf-8")
-    print(f"portal_urls={len(portal_urls)} app_urls={len(urls) - len(portal_urls)} total={len(urls)}")
+    normalized_pages = normalize_tree(ROOT)
+    normalized_pages.extend(normalize_tree(app_root))
+    print(
+        f"portal_urls={len(portal_urls)} app_urls={len(urls) - len(portal_urls)} "
+        f"total={len(urls)} normalized_pages={len(normalized_pages)}"
+    )
     return 0
 
 

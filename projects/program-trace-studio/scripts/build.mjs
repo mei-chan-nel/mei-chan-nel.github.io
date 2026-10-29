@@ -23,7 +23,7 @@ const shell = (await readFile(new URL('public/index.html.in', project), 'utf8'))
 for (const name of ['index.html', 'share.html', 'guide.html']) {
   const shared = name === 'share.html';
   const guide = name === 'guide.html';
-  const source = guide ? shell.slice(0, shell.indexOf('<body')).replace(/  <script type="module"[^\n]+\n/, '').replace('<title>プログラムトレース Studio｜', '<title>プログラムの作り方｜プログラムトレース Studio｜') + await readFile(new URL('public/guide.html.in', project), 'utf8') : shell;
+  const source = guide ? shell.slice(0, shell.indexOf('<body')).replace(/  <script type="module"[^\n]+\n/, '').replace('<title>プログラムトレース Studio｜情報Ⅰ Study Atlas</title>', '<title>プログラムの作り方｜情報Ⅰ Study Atlas</title>') + await readFile(new URL('public/guide.html.in', project), 'utf8') : shell;
   const html = source.replace('<!--site-header-->', header).replace('<!--site-footer-->', footer)
     .replaceAll('%%ROBOTS%%', shared ? 'noindex, follow' : 'index, follow')
     .replaceAll('%%CANONICAL%%', `https://mei-chan-nel.com/program-trace/studio/${shared ? 'share.html' : guide ? 'guide.html' : ''}`)

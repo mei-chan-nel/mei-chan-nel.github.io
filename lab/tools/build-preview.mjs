@@ -86,7 +86,7 @@ for (const { id, name } of pages) {
       `<script>${scripts.join("\n").replace(/<\/script/gi, "<\\/script")}</script></body>`,
   );
   const icon = Buffer.from(
-    await readFile(new URL("lab/icon.svg", repository)),
+    await readFile(new URL("assets/favicon.svg", repository)),
   ).toString("base64");
   html = html.replace(
     /<link rel="icon"[^>]*>/g,

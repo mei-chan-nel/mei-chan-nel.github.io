@@ -10,6 +10,7 @@ import hashlib
 import json
 import re
 import shutil
+from normalize_site_metadata import normalize_tree
 
 ROOT = Path(__file__).resolve().parents[1] / 'mock-exams/exams/001'
 OLD, OUT = ROOT / '1', ROOT / '2'
@@ -140,6 +141,7 @@ def build():
 
     shutil.copyfile(OUT / 'source/q2a.css', OUT / 'q2a.css')
     (OUT / 'exam.json').write_text(json.dumps(exam, ensure_ascii=False, indent=2) + '\n')
+    normalize_tree(OUT)
     # Keep independently reviewed v2 answers/cases separate from generation.
     # Do not overwrite them from the old exam or from scoring patterns.
     assert (OUT / 'source/qa.json').is_file(), 'Add the reviewed v2 QA data'

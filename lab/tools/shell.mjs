@@ -35,8 +35,8 @@ export function renderPage({
   const prefix = "../".repeat(depth + 1);
   const local = depth ? "../".repeat(depth) : "./";
   const title = slug
-    ? `${name}｜Interactive Lab`
-    : "Interactive Lab｜情報Ⅰ Study Atlas";
+    ? `${name}｜ラボ｜情報Ⅰ Study Atlas`
+    : "ラボ｜情報Ⅰ Study Atlas";
   const url = `https://mei-chan-nel.com/lab/${slug ? slug + "/" : ""}`;
   const crumbs = [
     {
@@ -65,7 +65,7 @@ export function renderPage({
 <meta property="og:title" content="${title}" /><meta property="og:description" content="${description}" />
 <meta property="og:url" content="${url}" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
 <link rel="canonical" href="${url}" /><meta name="theme-color" content="#102f35" />
-<link rel="icon" href="${local}icon.svg" type="image/svg+xml" />
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="${prefix}assets/site.css?v=2026100303" />
 <link rel="stylesheet" href="${local}lab.css?v=3" />${help ? `\n<link rel="stylesheet" href="${local}help/help.css?v=2" />\n<script type="module" src="${local}help/launcher.mjs?v=2"></script>` : ""}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>

@@ -8,6 +8,7 @@ from mock_exam_001_reading import prepare_reading, trim_solution, mark_problem_f
 from mock_exam_editorial import learner_wording, clean_screen_chrome
 from mock_exam_001_editorial import revise_solution
 from mock_exam_001_studio import add_studio_links
+from normalize_site_metadata import normalize_tree
 ROOT=Path(__file__).resolve().parents[1]/'mock-exams'
 OUT=ROOT/'exams/001/1'
 SPEC=[
@@ -108,6 +109,7 @@ for section in exam['sections']:
   (OUT/'screen'/filename).write_text('<!doctype html>\n'+html.tostring(document,encoding='unicode'),encoding='utf8')
   section['screenProblem' if kind=='problem' else 'screenSolution']='screen/'+filename
 (OUT/'exam.json').write_text(json.dumps(exam,ensure_ascii=False,indent=2)+'\n')
+normalize_tree(OUT)
 # Regenerating this exam must never overwrite the catalog or another version.
 # Registration is a separate step: node scripts/register_mock_exam.mjs <manifest>.
 print(f'Imported {len(exam["fields"])} fields, {len(exam["scoring"])} scoring units, 100 points.')

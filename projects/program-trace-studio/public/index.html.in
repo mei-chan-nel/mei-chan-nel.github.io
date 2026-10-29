@@ -32,7 +32,7 @@
   <meta property="og:url" content="%%CANONICAL%%">
   <meta property="og:image" content="https://mei-chan-nel.com/assets/og-study-atlas.png">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="icon" type="image/svg+xml" href="../icon.svg">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
   <link rel="stylesheet" href="./trace-base.css?v=20261009-function-help3">
   <link rel="stylesheet" href="./studio.css?v=20261009-function-help3">

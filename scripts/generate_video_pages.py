@@ -136,7 +136,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
     <meta name="twitter:image" content="{OG_IMAGE_URL}" />
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{e(canonical)}" />
-    <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026100303" />{ad_scripts}{video_embed_script}
   </head>"""
 
@@ -391,7 +391,7 @@ def archive_index(fields: list[dict[str, object]], course: dict[str, object]) ->
         {course_card}
       </section>'''
         )
-    title = "情報Ⅰ Study Atlas｜解説動画一覧"
+    title = "解説動画一覧｜情報Ⅰ Study Atlas"
     description = "情報Ⅰの一問一答330問を、情報社会・情報デザイン・デジタル・ネットワーク・プログラミングの5分野と21ジャンルで学べる解説動画一覧です。"
     schema = structured_data({
         "@context": "https://schema.org",
@@ -423,7 +423,7 @@ def archive_index(fields: list[dict[str, object]], course: dict[str, object]) ->
 def genre_page(genre: dict[str, object], genres: list[dict[str, object]]) -> str:
     questions = list(genre["questions"])
     path = f"archive/{genre['id']}.html"
-    title = f"情報Ⅰ Study Atlas｜解説動画｜{genre['field_label']}｜{genre['label']}"
+    title = f"{genre['label']}｜解説動画｜情報Ⅰ Study Atlas"
     description = f"情報Ⅰ「{genre['field_label']}・{genre['label']}」の一問一答{len(questions)}問。答えを確認し、必要な問題だけ解説動画で学べます。"
     cards = render_video_cards(
         questions,
@@ -462,7 +462,7 @@ def genre_page(genre: dict[str, object], genres: list[dict[str, object]]) -> str
 def course_page(course: dict[str, object], genres: list[dict[str, object]]) -> str:
     questions = list(course["questions"])
     path = f"archive/{course['id']}.html"
-    title = f"情報Ⅰ Study Atlas｜解説動画｜{course['label']}"
+    title = f"{course['label']}｜解説動画｜情報Ⅰ Study Atlas"
     description = f"プログラミングの解説動画を指定順の{len(questions)}問で学ぶ最短コースです。"
     cards = render_video_cards(
         questions,
