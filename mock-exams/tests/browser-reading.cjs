@@ -59,9 +59,7 @@ const server = http.createServer((req, res) => {
   });
   const url = "http://127.0.0.1:" + server.address().port;
   const sample = "00000000-0000-4000-8000-000000000103";
-  const exam = JSON.parse(
-    fs.readFileSync(path.join(root, "mock-exams/exams/001/1/exam.json")),
-  );
+  const exam = require("./catalog-helpers.cjs").loadCurrentExam(root).exam;
   const frame = () => p.frameLocator("#book-frame");
   const read = () =>
     p.evaluate(
@@ -348,7 +346,10 @@ const server = http.createServer((req, res) => {
       exam.sections.map((s) => [
         s.id,
         fs.readFileSync(
-          path.join(root, "mock-exams/exams/001/1", s.screenProblem),
+          path.join(
+            require("./catalog-helpers.cjs").loadCurrentExam(root).directory,
+            s.screenProblem,
+          ),
           "utf8",
         ),
       ]),

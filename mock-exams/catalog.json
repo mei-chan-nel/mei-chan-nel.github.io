@@ -1,8 +1,14 @@
 [
   {
     "id": "001",
-    "version": 1,
+    "version": 2,
     "title": "情報Ⅰ 実戦模試 No.001",
-    "manifest": "exams/001/1/exam.json"
+    "manifest": "exams/001/2/exam.json",
+    "versions": [
+      {
+        "version": 1,
+        "manifest": "exams/001/1/exam.json"
+      }
+    ]
   }
 ]

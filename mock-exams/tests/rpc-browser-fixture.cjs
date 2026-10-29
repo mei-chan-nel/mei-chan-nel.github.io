@@ -6,7 +6,9 @@ module.exports = async (context, { dropAt = 0 } = {}) => {
     const req = route.request(),
       body = req.postDataJSON();
     assert.equal(typeof body.p_exam_version, "number");
-    assert.equal(body.p_exam_version, 1);
+    assert.ok(
+      Number.isSafeInteger(body.p_exam_version) && body.p_exam_version >= 1,
+    );
     const key = body.p_exam_id + "@" + body.p_exam_version;
     if (!tables.has(key)) tables.set(key, new Map());
     const table = tables.get(key);

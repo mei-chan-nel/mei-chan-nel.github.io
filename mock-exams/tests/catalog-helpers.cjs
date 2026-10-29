@@ -1,3 +1,19 @@
+// Browser checks follow the published catalog; explicit legacy fixtures stay
+// pinned to their version in tests of migration/archived history.
+exports.loadCurrentExam = (root, id = "001") => {
+  const fs = require("node:fs"),
+    path = require("node:path");
+  const entry = JSON.parse(
+    fs.readFileSync(path.join(root, "mock-exams/catalog.json")),
+  ).find((e) => e.id === id);
+  const file = path.join(root, "mock-exams", entry.manifest);
+  return {
+    entry,
+    directory: path.dirname(file),
+    exam: JSON.parse(fs.readFileSync(file)),
+  };
+};
+
 // Start a fresh run, including when a different run is paused.
 exports.startFullExam = async (page, mode = "untimed", id = "001") => {
   await page

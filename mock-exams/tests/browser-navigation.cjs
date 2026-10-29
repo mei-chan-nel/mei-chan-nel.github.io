@@ -10,9 +10,7 @@ const root = path.resolve(
   ),
   output = path.resolve(__dirname, "../../../work/mock-exam-review");
 fs.mkdirSync(output, { recursive: true });
-const exam = JSON.parse(
-  fs.readFileSync(path.join(root, "mock-exams/exams/001/1/exam.json")),
-);
+const exam = require("./catalog-helpers.cjs").loadCurrentExam(root).exam;
 // Exercise partial-score styling without changing any distributed exam data.
 exam.scoring.find((u) => u.id === "q1-03").rule = {
   kind: "cases",
@@ -59,8 +57,10 @@ const server = http.createServer((req, res) => {
     errors = [],
     writes = [];
   p.on("pageerror", (e) => errors.push(e.message));
-  await context.route("**/exams/001/1/exam.json", (r) =>
-    r.fulfill({ json: exam }),
+  await context.route(
+    "**/" +
+      require("./catalog-helpers.cjs").loadCurrentExam(root).entry.manifest,
+    (r) => r.fulfill({ json: exam }),
   );
   await context.route("https://*.supabase.co/**", (r) => {
     const body = r.request().postDataJSON();

@@ -22,6 +22,7 @@ import {
 } from "./engine/history-grid.mjs";
 import { renderHistoryGrid, closeHistoryMenu } from "./ui/history-grid.mjs";
 import { fitBookFrame } from "./ui/book-frame.mjs";
+import { prepareBookDocument, updateTableHints } from "./ui/book-document.mjs";
 import { alignReadingPanes } from "./ui/paired-reading.mjs";
 import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
@@ -426,6 +427,11 @@ function persist() {
     return false;
   }
 }
+function archivedEdition(id, version) {
+  return catalog.some(
+    (e) => e.id === id && e.version > compatibleVersion(id, version),
+  );
+}
 function entryFor(id, version) {
   version = compatibleVersion(id, version);
   const current = catalog.find((e) => e.id === id && e.version === version);
@@ -824,7 +830,10 @@ function renderHistory() {
     notify("ブラウザ保存を利用できません。設定を確認してください。");
   }
   renderHistoryGrid($("#history-grid"), {
-    rows: historyRows(history, historyFilter),
+    rows: historyRows(history, historyFilter).map((row) => ({
+      ...row,
+      archived: archivedEdition(row.attempt.examId, row.attempt.examVersion),
+    })),
     state: historyGrids[historyFilter],
     onChange: renderHistory,
     onReset: () => {
@@ -937,7 +946,7 @@ function renderWorkspace() {
     },
     split = reading && !readingUnit && innerWidth >= 1000;
   if (reading && !readingUnit) solution = true;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : ""}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : ""}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   updateMobileToolbar(true);
   $(".workspace-toolbar").addEventListener("focusin", () => {
     $(".workspace-toolbar").classList.remove("is-scroll-hidden");
@@ -1036,23 +1045,11 @@ function renderWorkspace() {
           if ($("#answer-dialog").classList.contains("keypad-popup"))
             closeAnswer();
         });
-        for (const option of d.querySelectorAll("[data-choice-fields]")) {
-          const mark = option.querySelector(
-            ":scope > .opt-index,:scope > .option-index",
-          );
-          if (mark) mark.textContent = circle(option.dataset.choiceValue);
-        }
+        prepareBookDocument(d);
         // External links cannot navigate the application frame.
         d.querySelectorAll('a[href^="http"]').forEach((a) => {
           a.target = "_blank";
           a.rel = "noopener";
-        });
-        d.querySelectorAll("table").forEach((t) => {
-          if (t.parentElement.classList.contains("table-scroll")) return;
-          const w = d.createElement("div");
-          w.className = "table-scroll";
-          t.before(w);
-          w.append(t);
         });
         d.querySelectorAll("[data-zoom]").forEach((b) => {
           b.onclick = () => {
@@ -1117,11 +1114,15 @@ function renderWorkspace() {
           scheduled = true;
           requestAnimationFrame(() => {
             scheduled = false;
-            if (seq === uiSequence) fitBookFrame(frame);
+            if (seq === uiSequence) {
+              updateTableHints(d);
+              fitBookFrame(frame);
+            }
           });
         };
         frameObserver = new ResizeObserver(resize);
         frameObserver.observe(d.body);
+        d.fonts?.ready.then(resize);
         fitBookFrame(frame);
         resize();
         resolve();
@@ -1159,17 +1160,14 @@ function renderWorkspace() {
               e.textContent = displayValue(f, attempt.gradedAnswers?.[f.id], e);
           }
           syncBook(d);
-          d.querySelectorAll("table").forEach((t) => {
-            const w = d.createElement("div");
-            w.className = "table-scroll";
-            t.before(w);
-            w.append(t);
-          });
+          prepareBookDocument(d);
           const resize = () => {
+            updateTableHints(d);
             fitBookFrame(other);
           };
           secondaryObserver = new ResizeObserver(resize);
           secondaryObserver.observe(d.body);
+          d.fonts?.ready.then(resize);
           resize();
           secondaryResolve();
         };
@@ -1661,7 +1659,7 @@ function renderResults({ record = false } = {}) {
   const current = attempt,
     r = sliceResult(current.result, navigationContext.scopeSectionId);
   if (!r) return renderWorkspace();
-  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
+  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
   if (isInterrupted(current))
     $("#result-actions").append(button("解答を再開", () => resumeGraded()));
   $("#result-actions").append(

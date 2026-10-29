@@ -14,9 +14,7 @@ const root = path.resolve(__dirname, "../.."),
   output =
     process.env.MOCK_QA_OUTPUT || path.resolve(root, "../work/mock-exam-qa");
 fs.mkdirSync(output, { recursive: true });
-const exam = JSON.parse(
-  fs.readFileSync(path.join(root, "mock-exams/exams/001/1/exam.json")),
-);
+const exam = require("./catalog-helpers.cjs").loadCurrentExam(root).exam;
 const perfect = Object.fromEntries(
   exam.scoring.flatMap((u) =>
     u.fields.map((f, i) => [f, u.rule.patterns[0][i]]),

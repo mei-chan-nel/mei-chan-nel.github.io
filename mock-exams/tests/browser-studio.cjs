@@ -44,7 +44,13 @@ const server = http.createServer((req, res) => {
   await context.route("https://**", (r) => r.abort());
   try {
     const origin = "http://127.0.0.1:" + server.address().port;
-    await page.goto(origin + "/mock-exams/exams/001/1/screen/q3-solution.html");
+    await page.goto(
+      origin +
+        "/mock-exams/" +
+        require("./catalog-helpers.cjs")
+          .loadCurrentExam(root)
+          .entry.manifest.replace("exam.json", "screen/q3-solution.html"),
+    );
     for (const number of [2, 4]) {
       const [studio] = await Promise.all([
         context.waitForEvent("page"),

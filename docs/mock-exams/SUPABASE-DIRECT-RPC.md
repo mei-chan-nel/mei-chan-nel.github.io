@@ -6,12 +6,12 @@
 
 ## 接続契約
 
-`engine/stats.mjs`が次の2つの既存RPCへ直接POSTする。問題版はJSONの整数 **1**。問題データとcatalogも整数版に統一し、教材は`exams/001/1/`に配置する。
+`engine/stats.mjs`が次の2つの既存RPCへ直接POSTする。問題版はJSONの正の整数。No.001の現行版は **2**（`exams/001/2/`）。改訂前の **1** も旧履歴用に保持する。取得・記録とも受験時の問題版を送り、版をまたいで統計を混ぜない。
 
 ```json
 {
   "p_exam_id": "001",
-  "p_exam_version": 1,
+  "p_exam_version": 2,
   "p_results": [
     {"section_id":"q2a","scoring_id":"q2a-02","answer":"1|_","earned_points":0,"max_points":3}
   ]

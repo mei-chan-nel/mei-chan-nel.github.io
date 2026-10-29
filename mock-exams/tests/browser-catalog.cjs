@@ -112,9 +112,16 @@ const server = http.createServer((req, res) => {
     // Both are true same-origin downloads, rather than links to a PDF viewer.
     for (const title of ["問題冊子PDF", "解答解説PDF"]) {
       const a = p.getByRole("link", { name: title, exact: true });
-      assert.match(
+      assert.equal(
         await a.getAttribute("href"),
-        /exams\/001\/1\/(problem|solution)\.pdf$/,
+        origin +
+          "/mock-exams/" +
+          require("./catalog-helpers.cjs")
+            .loadCurrentExam(root)
+            .entry.manifest.replace(
+              "exam.json",
+              title === "問題冊子PDF" ? "problem.pdf" : "solution.pdf",
+            ),
       );
       assert.equal(await a.getAttribute("target"), null);
       const waiting = p.waitForEvent("download");

@@ -286,7 +286,10 @@ const server = http.createServer((req, res) => {
     const resumedId = await p.evaluate(async () => {
       const { createAttempt, submit, AttemptStore } =
           await import("./engine/attempt.mjs"),
-        exam = await fetch("./exams/001/1/exam.json").then((r) => r.json());
+        entry = (await fetch("./catalog.json").then((r) => r.json())).find(
+          (e) => e.id === "001",
+        ),
+        exam = await fetch(entry.manifest).then((r) => r.json());
       const a = createAttempt(exam, "untimed");
       a.isSample = true;
       a.answers = { "q1-ア": "0" };

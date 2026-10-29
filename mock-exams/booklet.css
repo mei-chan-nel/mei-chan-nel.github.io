@@ -12,6 +12,10 @@ html {
 /* Paired reading has fluid pages; measured spacers align question boundaries.
    Print documents and the answering workspace never receive this attribute. */
 @media screen {
+  .table-hint:not([data-overflow="true"]),
+  .table-hint[hidden] {
+    display: none !important;
+  }
   .studio-program-link {
     margin: 8px 0 18px !important;
     display: flex;

@@ -71,7 +71,7 @@ const server = http.createServer((req, res) => {
           if (kind === "solution")
             await page.addStyleTag({
               content:
-                "@page{size:A4;margin:16mm 18mm 18mm} .sheet{width:174mm!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;break-after:page}.sheet:last-child{break-after:auto}.pagehead,.pagenum,.page-foot,.footer{display:none!important}.solution{padding:0!important;width:auto!important;max-width:none!important}.card{box-shadow:none!important}",
+                "@page{size:A4;margin:16mm 18mm 18mm} .sheet,.page,body[data-section] .sheet,body[data-section] .page{width:174mm!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;break-after:page}.sheet:last-child,.page:last-child{break-after:auto}.pagehead,.pagenum,.page-foot,.footer{display:none!important}.solution{padding:0!important;width:auto!important;max-width:none!important}.card{box-shadow:none!important}",
             });
           if (kind === "problem") {
             const fits = await page.evaluate(() =>

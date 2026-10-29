@@ -10,9 +10,7 @@ const http = require("node:http"),
   path = require("node:path"),
   assert = require("node:assert/strict");
 const root = path.resolve(__dirname, "../.."),
-  exam = JSON.parse(
-    fs.readFileSync(path.join(root, "mock-exams/exams/001/1/exam.json")),
-  );
+  exam = require("./catalog-helpers.cjs").loadCurrentExam(root).exam;
 const server = http.createServer((req, res) => {
   let p = path.resolve(root, "." + decodeURIComponent(req.url.split("?")[0]));
   if (p !== root && !p.startsWith(root + path.sep)) {

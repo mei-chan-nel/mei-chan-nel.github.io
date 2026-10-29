@@ -79,7 +79,10 @@ const server = http.createServer((req, res) => {
         ).statsDelivery?.["q1-01"]?.state === "sent",
     );
     assert.equal(submissions.length, 1);
-    assert.equal((await local()).examVersion, 1);
+    assert.equal(
+      (await local()).examVersion,
+      require("./catalog-helpers.cjs").loadCurrentExam(root).exam.version,
+    );
     await resume();
     await choose("q1-ア", 0);
     await choose("q1-イ", 3);

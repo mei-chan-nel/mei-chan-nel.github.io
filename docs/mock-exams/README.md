@@ -11,6 +11,7 @@
 | 統計RPC・送信状態・計算式 | [SUPABASE-DIRECT-RPC.md](SUPABASE-DIRECT-RPC.md) |
 | Windowsで本番通信を確認 | [WINDOWS-LOCAL-TEST.md](WINDOWS-LOCAL-TEST.md) |
 | Sitesの公開先・最新配置 | [SITES-PREVIEW.md](SITES-PREVIEW.md) |
+| No.001・版2の改訂と検証 | [REVIEW-2026-10-29.md](REVIEW-2026-10-29.md) |
 | 全体見直しの結果・確認限界 | [REVIEW-2026-10-28.md](REVIEW-2026-10-28.md) |
 
 ## 構成
@@ -25,7 +26,9 @@
 - `problem.pdf`, `solution.pdf`: 版固定の配布冊子。
 - `source/`: 元原稿と、正答・設問番号を独立に確認した`qa.json`。Sitesでは配信対象外。
 
-No.001は49解答欄・44採点単位・100点。大問はq1=20、q2a=15、q2b=15、q3=25、q4=25。問題冊子は32ページ、解答解説は34ページ。実在しない回は一覧へ追加しない。
+No.001の現行問題版は整数2。第2問Aは学校図書館の題材へ全面改訂し、旧版1の履歴・統計とは分ける。旧版の履歴・結果・復習・解説には「改訂前」を表示し、元の教材で開く。
+
+No.001は49解答欄・44採点単位・100点。大問はq1=20、q2a=15、q2b=15、q3=25、q4=25。問題冊子は33ページ、解答解説は34ページ。実在しない回は一覧へ追加しない。
 
 ## 現行動作
 
@@ -62,9 +65,10 @@ Sitesだけにサンプル6件を初回追加する。通常の本番サイト�
 node scripts/check_mock_exams.mjs
 node --test mock-exams/tests/*.test.mjs
 # No.001の原稿との編集差分も確認
-python3 scripts/validate_mock_exam_content.py
+python3 scripts/validate_mock_exam_content.py  # 旧版1の原稿照合
+python3 scripts/validate_mock_exam_001_v2.py   # 現行版の原稿・時刻・図・図書館の記録と状態
 # 任意の新しい回を一覧へ登録する前にも操作検証できる
-PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser-added-exam.cjs exams/001/1/exam.json
+PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser-added-exam.cjs exams/001/2/exam.json
 ```
 
 ブラウザはChromium（`CHROMIUM_PATH`指定可）、Node.jsは22以降、Pythonは3.10以降＋lxml・PyMuPDF。PDF生成にはfontToolsと`fc-match`、日本語フォントも必要。閲覧にはこれらの開発依存は不要。

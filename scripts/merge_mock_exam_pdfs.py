@@ -16,7 +16,9 @@ font_path = subprocess.check_output(['fc-match', '-f', '%{file}', 'Noto Sans CJK
 footer = f'情報Ⅰ StudyAtlas 実戦模試 No.{number}'
 with tempfile.TemporaryDirectory(prefix='atlas-footer-') as folder:
     font = TTFont(font_path, fontNumber=0)
-    sub = subset.Subsetter()
+    # CID-keyed CFF fonts keep their original character IDs. Renumbering glyphs
+    # produces correct extracted text but wrong visible characters in MuPDF.
+    sub = subset.Subsetter(options=subset.Options(retain_gids=True))
     sub.populate(text=footer + '— 0123456789')
     sub.subset(font)
     font_file = Path(folder) / 'footer.otf'

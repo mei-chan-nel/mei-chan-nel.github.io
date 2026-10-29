@@ -241,7 +241,7 @@ export function renderHistoryGrid(
     tr.dataset.rowKey = r.key;
     tr.dataset.sectionId = r.sectionId || "";
     tr.dataset.derived = String(r.derived);
-    tr.innerHTML = `<td>${new Date(r.date).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(r.exam)}</th><td>${esc(r.derived ? r.scope.slice(0, r.scope.indexOf("（")) : r.scope)}${r.derived ? `<small class="history-source">${esc(r.fullMode)}</small>` : ""}</td><td>${r.status}</td><td>${r.points === null ? "—" : r.points + " / " + r.maxPoints + "点"}</td><td>${r.rate === null ? "—" : r.rate.toFixed(1) + "%"}</td><td>${r.duration === null ? "—" : clock(r.duration)}</td><td><div class="actions history-row-actions"></div></td>`;
+    tr.innerHTML = `<td>${new Date(r.date).toLocaleString("ja-JP")}${a.isSample ? '<span class="sample-label">サンプル</span>' : ""}</td><th>No.${esc(r.exam)}${r.archived ? '<small class="history-source">改訂前</small>' : ""}</th><td>${esc(r.derived ? r.scope.slice(0, r.scope.indexOf("（")) : r.scope)}${r.derived ? `<small class="history-source">${esc(r.fullMode)}</small>` : ""}</td><td>${r.status}</td><td>${r.points === null ? "—" : r.points + " / " + r.maxPoints + "点"}</td><td>${r.rate === null ? "—" : r.rate.toFixed(1) + "%"}</td><td>${r.duration === null ? "—" : clock(r.duration)}</td><td><div class="actions history-row-actions"></div></td>`;
     for (const [title, enabled, action, cls] of [
       ["採点結果", !!a.result, () => onOpen(r, "result"), ""],
       ["復習", !!a.result, () => onOpen(r, "review"), ""],
