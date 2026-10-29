@@ -90,6 +90,6 @@ py -3 -m http.server 8765 --bind 127.0.0.1
 
 ## この一式で確認済みの範囲と公開方針
 
-Codex側では、提供されたRPCのSQLを使った一時PostgreSQL、ブラウザの模擬通信を検証済み。配布サーバーはPowerShell 7.4.6/Linuxで実際に起動し、HTTP配信・ブラウザ操作・結果JSON保存を検証した。Windows標準PowerShell 5.1に対応する構文と.NET APIで記述しているが、Windows実機の動作はこの手順で確認する。Windows PC上での実Supabase通信は、この手順で得られる結果JSONによって確認する。現時点で実通信の成功結果はまだ得ていない。
+Codex側では、提供されたRPCのSQLを使った一時PostgreSQL、ブラウザの模擬通信を検証済み。配布サーバーはPowerShell 7.4.6/Linuxで実際に起動し、HTTP配信・ブラウザ操作・結果JSON保存を検証した。Windows標準PowerShell 5.1に対応する構文と.NET APIで記述しているが、Windows実機の動作はこの手順で確認する。Windows PC上での実Supabase通信は、この手順で得られる結果JSONによって確認する。
 
-**本番サイトへのデプロイは行わない。Windowsで実接続の検証が成功し、結果を確認してから進める。**
+公開はユーザーの指示に基づきmainへ反映する。GitHub Actionsからも同じ専用IDの実接続検証を実行できる。[公開確認](RELEASE.md)。このWindows用ツールは、手元のブラウザで接続を調べるための任意の検証手段として保持する。

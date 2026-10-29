@@ -147,5 +147,5 @@ PDFの片方だけを更新する場合は`build_mock_exam_pdfs.cjs solution --m
 - 途中採点→再開→新規単位のみ送信、最終採点、履歴、復習、戻る／進む、PDFダウンロードを確認する。
 - 新版の場合は旧版の保存済み履歴を旧版で開けることを確認する。共通動作は`browser-loading.cjs`でも検証する。
 - `python3 scripts/build_mock_exam_sites_preview.py`で既存Sitesへ配信するファイルを生成し、同じ本人専用Siteを更新する。公開手順は[SITES-PREVIEW.md](SITES-PREVIEW.md)。
-- 実通信の試験は`connection-check.html`の`qa_mock_...` IDを使用する。自動テストは本番統計を書き換えない。
-- GitHub Pages本番公開は、ユーザーのローカル実接続確認後。既存学習アプリと公開元mainは勝手に変更しない。
+- 実通信の試験は`connection-check.html`または公開確認スクリプトの`qa_mock_...` IDを使用する。通常のNo.001等の統計へテスト回答を混ぜない。
+- ユーザーが公開を指示した変更は、PRの統合検証を通してmainへマージする。公開後のファイル・PDF・RPCの確認は[RELEASE.md](RELEASE.md)を参照。模試の追加に既存学習アプリのコードや追加SQLは不要。

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -88,9 +89,9 @@ def repository_metadata(label: str, repo: Path, expected_ref: str | None) -> Non
             )
 
 
-def run_step(label: str, cwd: Path, command: list[str]) -> None:
+def run_step(label: str, cwd: Path, command: list[str], extra_env: dict[str, str] | None = None) -> None:
     print(f"\n== {label} ==")
-    completed = subprocess.run(command, cwd=cwd)
+    completed = subprocess.run(command, cwd=cwd, env={**os.environ, **(extra_env or {})})
     if completed.returncode:
         raise RuntimeError(f"{label} failed with exit code {completed.returncode}")
 
@@ -126,6 +127,7 @@ def main() -> int:
             "portal JavaScript tests",
             portal_root,
             ["node", "--test", *(str(path.relative_to(portal_root)) for path in portal_test_files)],
+            extra_env={"STUDY_ATLAS_APP_ROOT": str(app_root)},
         )
         run_step(
             "portal validation",

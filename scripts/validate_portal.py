@@ -482,7 +482,7 @@ def main() -> int:
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
     action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む", "しくみを体験する")
+    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む", "しくみを体験する", "実戦模試に挑戦する")
     if action_match is None:
         errors.append("index.html: home action card grid is missing")
     else:
@@ -494,7 +494,7 @@ def main() -> int:
             errors.append("index.html: the 用語を調べる card must link to ./terms/")
         if 'href="./lab/"' not in action_text:
             errors.append("index.html: the しくみを体験する card must link to ./lab/")
-    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./program-trace/", "./lab/", "./study-guide.html", "./books/", "./terms/"):
+    for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./program-trace/", "./lab/", "./mock-exams/", "./study-guide.html", "./books/", "./terms/"):
         if f'href="{href}"' not in top_text:
             errors.append(f"index.html: primary link is missing: {href}")
     archive_index_text = (ROOT / "archive" / "index.html").read_text(encoding="utf-8")

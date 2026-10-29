@@ -11,6 +11,7 @@
 | 統計RPC・送信状態・計算式 | [SUPABASE-DIRECT-RPC.md](SUPABASE-DIRECT-RPC.md) |
 | Windowsで本番通信を確認 | [WINDOWS-LOCAL-TEST.md](WINDOWS-LOCAL-TEST.md) |
 | Sitesの公開先・最新配置 | [SITES-PREVIEW.md](SITES-PREVIEW.md) |
+| GitHub Pagesへの公開と確認 | [RELEASE.md](RELEASE.md) |
 | No.001・版2の改訂と検証 | [REVIEW-2026-10-29.md](REVIEW-2026-10-29.md) |
 | 全体見直しの結果・確認限界 | [REVIEW-2026-10-28.md](REVIEW-2026-10-28.md) |
 
@@ -75,4 +76,4 @@ PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser-added-exam.c
 
 通常操作の回帰テストは`browser.cjs`、`ui-revision.cjs`、`browser-catalog.cjs`、`browser-stats.cjs`、`browser-loading.cjs`。Sites用distのテストは`browser-history.cjs`、`browser-grid.cjs`、`browser-navigation.cjs`、`browser-reading.cjs`、`browser-studio.cjs`。実行前に`python3 scripts/build_mock_exam_sites_preview.py`で配布内容を更新する。統計通信は全て模擬応答。本番接続の成功と混同しない。
 
-現在のCodex環境ではSupabaseへの接続はプロキシで制限されている。実通信とSafari/iOS実機は未確認。GitHub Pagesの本番公開はWindowsでの確認後に行う。Sitesは既存の本人専用プレビューを更新する。
+GitHub Pagesの公開元はmain。公開時は統合検証に加え、配信ファイル・PDFと既存RPCをGitHub Actionsで確認する。模試一覧の変更時には専用テストIDで実際の記録・読戻しも行う。[公開手順と結果の確認方法](RELEASE.md)。Codex実行環境からの直接通信はプロキシで制限されるため、その403をSupabaseの応答と混同しない。DB内部の関数定義の取得とSafari/iOS実機は別途確認が必要。Sitesは本人専用プレビューとして扱う。

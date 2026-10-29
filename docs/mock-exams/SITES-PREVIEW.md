@@ -46,4 +46,4 @@ Sitesに配置したファイルで、49欄の採点、履歴、PCの左右整�
 
 統計通信の自動テストは模擬応答。Codex環境のプロキシ制限により、本番RPCの実送受信・実DB定義の取得は未確認。[Windowsの実接続確認手順](WINDOWS-LOCAL-TEST.md)を使う。Safari/iOS実機は未確認。
 
-GitHub Pagesの公開元mainは変更していない。本番サイトへの反映はユーザーのローカル検証後に行う。
+Sitesは本人専用プレビュー。本番公開はGitHub Pagesのmainを使用し、公開確認は[RELEASE.md](RELEASE.md)の手順で行う。Sites用のサンプル履歴や設定は本番ファイルへ含めない。
