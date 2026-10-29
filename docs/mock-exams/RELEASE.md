@@ -2,6 +2,18 @@
 
 本番URLは https://mei-chan-nel.com/mock-exams/ 。GitHub Pagesの公開元は`mei-chan-nel/mei-chan-nel.github.io`のmain。No.001の初回公開日は2026年10月29日、現行問題版は整数2。本人専用Sitesのサンプル履歴は本番に含めない。
 
+## 初回公開の検証結果
+
+2026年10月29日15:32（日本時間）に、実装commit `7cb6e0805a104aa26bddd51d442b67c060a452e6`の公開を確認した。[PR #24](https://github.com/mei-chan-nel/mei-chan-nel.github.io/pull/24)はmainへマージ済み。[GitHub Pagesの配置](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40829661972)と[統合検証・本番確認](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40829662008)は成功。
+
+- 配信中のページ・コード・教材・両PDF、計25ファイルのSHA-256がコミットと一致。
+- 既存Publishable keyでNo.001・版2の統計取得に成功。
+- 専用ID `qa_mock_9aa94c0b821e403b81552f453ba2c604`・版1で、以下の記録・読戻しシナリオがすべて成功。No.001へテスト回答は送信していない。
+- 部分点、複数マーク、一部空欄、未採点・全未回答の除外、途中採点後の新規単位のみ送信、既送信の回答変更、再受験、復習・保存復元時の再送防止、記録後に応答が失われた場合の個人成績保持を確認。
+- 詳細JSON：[mock-exam-release-verification](https://github.com/mei-chan-nel/mei-chan-nel.github.io/actions/runs/40829662008/artifacts/12877114906)。
+
+DB内部の実関数定義の取得、Safari/iOS・Windows実機、ブラウザのCORSはこのActions確認の対象外。PC・スマホの画面操作はローカルChromiumと模擬通信で検証した。
+
 ## 公開の流れ
 
 1. [追加・改訂手順](ADDING-EXAMS.md)で問題・解説・採点・PDFを検証する。

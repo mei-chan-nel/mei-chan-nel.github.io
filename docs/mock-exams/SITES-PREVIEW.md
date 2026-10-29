@@ -44,6 +44,6 @@ Studioは既存`program-trace/studio/`をそのままコピーして、同じプ
 
 Sitesに配置したファイルで、49欄の採点、履歴、PCの左右整列、900px・390pxの解説、設問別表示からの復帰、Studio2本の実行完了をローカルで確認。旧版1の履歴が元の工具レンタル問題・15点で開けること、版1／2で統計取得が分かれることも確認。Sitesの配信完了は配置サービスの`succeeded`で確認した。
 
-統計通信の自動テストは模擬応答。Codex環境のプロキシ制限により、本番RPCの実送受信・実DB定義の取得は未確認。[Windowsの実接続確認手順](WINDOWS-LOCAL-TEST.md)を使う。Safari/iOS実機は未確認。
+Sites画面の統計通信の自動テストは模擬応答。本番公開時には通常のGitHub Actions環境で既存RPCの実送受信を確認済み（専用IDのみ）。[公開時の検証結果](RELEASE.md#初回公開の検証結果)。実DB内部の関数定義とSafari/iOS実機は未確認。[Windowsの実接続確認手順](WINDOWS-LOCAL-TEST.md)も保持する。
 
 Sitesは本人専用プレビュー。本番公開はGitHub Pagesのmainを使用し、公開確認は[RELEASE.md](RELEASE.md)の手順で行う。Sites用のサンプル履歴や設定は本番ファイルへ含めない。
