@@ -73,6 +73,44 @@ const server = http.createServer((req, res) => {
             content:
               ".pagehead,.page-head,.running-head,.running-header,.sheet-header,.pagenum,.page-number,.page-foot,.page-footer,.footer{display:none!important}",
           });
+          if (kind === "problem" && s.id === "q1") {
+            // PDF-only subject heading, following the common-test booklet.
+            // Keep the answering/reading HTML and the exam content unchanged.
+            await page.evaluate(() => {
+              const sheet = document.querySelector(".sheet,.page");
+              if (!sheet) throw Error("Missing first problem page");
+              const heading = document.createElement("div");
+              heading.style.cssText =
+                'text-align:center;padding-top:4mm;margin:0 0 12mm;font-family:"Noto Serif CJK JP",serif;color:#000';
+              const title = document.createElement("div");
+              title.style.cssText =
+                "display:flex;justify-content:center;gap:16mm;font-size:25pt;font-weight:700;line-height:1.4";
+              for (const char of "情報Ⅰ") {
+                const span = document.createElement("span");
+                span.textContent = char;
+                title.append(span);
+              }
+              const note = document.createElement("div");
+              note.textContent = "（全問必答）";
+              note.style.cssText =
+                "margin-top:3mm;font-size:12pt;font-weight:700;line-height:1.6;letter-spacing:.55em;text-indent:.55em";
+              heading.append(title, note);
+              const question = sheet.querySelector("h1,h2");
+              const match = question?.textContent.match(/^(第1問)[\s　]+(.+)$/);
+              if (match) {
+                const number = document.createElement("span");
+                number.textContent = match[1];
+                number.style.cssText = "font-size:14pt;font-weight:700";
+                question.style.cssText =
+                  "font-size:10.5pt;font-weight:400;line-height:1.75;margin:0 0 24px";
+                question.replaceChildren(
+                  number,
+                  document.createTextNode("　" + match[2]),
+                );
+              }
+              sheet.prepend(heading);
+            });
+          }
           if (
             kind === "problem" &&
             exam.id === "001" &&
