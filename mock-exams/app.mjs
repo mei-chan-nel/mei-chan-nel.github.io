@@ -618,7 +618,7 @@ async function renderCatalog() {
     <div class="catalog-page">
       <section class="intro catalog-intro">
         <p class="eyebrow">PRACTICE / INFORMATION I</p>
-        <h1>情報Ⅰ 実戦模試</h1>
+        <h1>情報Ⅰ 実戦演習</h1>
         <p>大学入学共通テスト「情報Ⅰ」のオリジナル模試。<br>1回分を通して解くことも、大問ごとに練習することもできます。</p>
       </section>
       <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ"></nav>
@@ -759,7 +759,7 @@ async function renderCatalog() {
         kind + ".pdf",
         new URL(".", new URL(entry.manifest, location.href)),
       ).href;
-      a.download = `情報Ⅰ_実戦模試_No.${entry.id}_${title}.pdf`;
+      a.download = `情報Ⅰ_実戦演習_No.${entry.id}_${title}.pdf`;
       a.textContent = title;
       pdfLinks.append(a);
     }
