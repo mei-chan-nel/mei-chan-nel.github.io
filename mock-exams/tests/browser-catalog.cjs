@@ -96,7 +96,7 @@ const server = http.createServer((req, res) => {
     await p.goto(origin + "/");
     await p.locator('a[href="./mock-exams/"]').first().click();
     await p
-      .getByRole("heading", { name: "情報Ⅰ 実戦模試", exact: true })
+      .getByRole("heading", { name: "情報Ⅰ 実戦演習", exact: true })
       .waitFor();
     await p.locator("#exam-list .catalog-exam").waitFor();
     assert.equal(await p.locator(".mode-choice").count(), 2);
@@ -130,7 +130,7 @@ const server = http.createServer((req, res) => {
       assert.equal(await file.failure(), null);
       assert.equal(
         file.suggestedFilename(),
-        `情報Ⅰ_実戦模試_No.001_${title}.pdf`,
+        `情報Ⅰ_実戦演習_No.001_${title}.pdf`,
       );
       const data = fs.readFileSync(await file.path());
       assert.equal(data.subarray(0, 4).toString(), "%PDF");
@@ -299,7 +299,7 @@ const server = http.createServer((req, res) => {
     const fixtures = Array.from({ length: 20 }, (_, i) => ({
       id: String(i + 1).padStart(3, "0"),
       version: 1,
-      title: "情報Ⅰ 実戦模試 No." + String(i + 1).padStart(3, "0"),
+      title: "情報Ⅰ 実戦演習 No." + String(i + 1).padStart(3, "0"),
       manifest: "exams/001/1/exam.json",
     }));
     await many.route("**/mock-exams/catalog.json", (r) =>

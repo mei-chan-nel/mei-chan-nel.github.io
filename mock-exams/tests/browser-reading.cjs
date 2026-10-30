@@ -139,7 +139,7 @@ const server = http.createServer((req, res) => {
     const cards = await p.locator(".home-action-card h3").allTextContents();
     assert.equal(
       cards[cards.indexOf("しくみを体験する") + 1],
-      "実戦模試に挑戦する",
+      "実戦演習に挑戦する",
     );
     assert.ok(
       (await p.locator(".hero-lead").textContent()).includes(
@@ -163,7 +163,7 @@ const server = http.createServer((req, res) => {
       path: path.join(output, "latest-home-desktop.png"),
       fullPage: true,
     });
-    await p.getByRole("link", { name: /実戦模試に挑戦する/ }).click();
+    await p.getByRole("link", { name: /実戦演習に挑戦する/ }).click();
     assert.ok(p.url().endsWith("/mock-exams/"));
     await p.getByRole("button", { name: "学習履歴", exact: true }).click();
     await p.locator('[data-attempt-id="' + sample + '"]').waitFor();

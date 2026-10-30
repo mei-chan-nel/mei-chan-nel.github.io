@@ -13,7 +13,7 @@ for file in files:
     with fitz.open(file) as part:
         doc.insert_pdf(part)
 font_path = subprocess.check_output(['fc-match', '-f', '%{file}', 'Noto Sans CJK JP']).decode()
-footer = f'情報Ⅰ StudyAtlas 実戦模試 No.{number}'
+footer = f'情報Ⅰ StudyAtlas 実戦演習 No.{number}'
 with tempfile.TemporaryDirectory(prefix='atlas-footer-') as folder:
     font = TTFont(font_path, fontNumber=0)
     # CID-keyed CFF fonts keep their original character IDs. Renumbering glyphs
