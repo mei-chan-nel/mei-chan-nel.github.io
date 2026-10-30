@@ -1,0 +1,38 @@
+name: One-time rename of published exam PDF footers
+
+on:
+  push:
+    branches:
+      - chore/rename-jissen-enshu
+    paths:
+      - .github/workflows/rename-mock-pdf-footers.yml
+
+permissions:
+  contents: write
+
+jobs:
+  update-pdfs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install PDF dependencies and Japanese font
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install PyMuPDF fonttools
+      - name: Replace footer in current and retained PDF editions
+        run: python scripts/update_mock_exam_pdf_footers.py
+      - name: Commit updated PDF bytes to this branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mock-exams/exams/001/1/problem.pdf mock-exams/exams/001/1/solution.pdf mock-exams/exams/001/2/problem.pdf mock-exams/exams/001/2/solution.pdf
+          git diff --cached --stat
+          git diff --cached --quiet && { echo "PDFs were not changed"; exit 1; }
+          git commit -m "Update all published exam PDF footer labels to 実戦演習"
+          git push origin HEAD:chore/rename-jissen-enshu
