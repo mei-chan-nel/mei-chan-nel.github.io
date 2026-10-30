@@ -247,7 +247,7 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: "この採点結果を破棄する", exact: true })
       .click();
     await p
-      .getByRole("heading", { name: "情報Ⅰ 実戦模試", exact: true })
+      .getByRole("heading", { name: "情報Ⅰ 実戦演習", exact: true })
       .waitFor();
     await p.getByRole("button", { name: "学習履歴", exact: true }).click();
     assert.equal(await p.locator("#history-list .actions").count(), 1);

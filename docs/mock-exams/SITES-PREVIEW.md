@@ -1,4 +1,4 @@
-# Sitesでの実戦模試プレビュー
+# Sitesでの実戦演習プレビュー
 
 URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 

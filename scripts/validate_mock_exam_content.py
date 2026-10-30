@@ -16,7 +16,7 @@ def body(path):
  return d.find('body')
 missing=[]
 for kind,col in [('problem',1),('solution',2)]:
- pdf=fitz.open(root/(kind+'.pdf'));pdftext=norm(''.join(p.get_text() for p in pdf));pdftext=re.sub(r'情報IStudyAtlas実戦模試No\.001[—―-]\d+[—―-]','',pdftext)
+ pdf=fitz.open(root/(kind+'.pdf'));pdftext=norm(''.join(p.get_text() for p in pdf));pdftext=re.sub(r'情報IStudyAtlas実戦演習No\.001[—―-]\d+[—―-]','',pdftext)
  for row in pairs:
   original=body(root/'source'/row[col]);imported=body(root/(row[0]+('-solution' if kind=='solution' else '')+'.html'))
   if kind=='solution':

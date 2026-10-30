@@ -1,4 +1,4 @@
-# 実戦模試の公開と確認
+# 実戦演習の公開と確認
 
 本番URLは https://mei-chan-nel.com/mock-exams/ 。GitHub Pagesの公開元は`mei-chan-nel/mei-chan-nel.github.io`のmain。No.001の初回公開日は2026年10月29日、現行問題版は整数2。本人専用Sitesのサンプル履歴は本番に含めない。
 
