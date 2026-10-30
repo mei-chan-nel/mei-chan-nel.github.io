@@ -31,7 +31,7 @@ def clean(d):
  for c in ['toolbar','site-bar']:
   for e in cls(d,c):e.drop_tree()
  return d
-exam={'schemaVersion':1,'id':'001','version':1,'title':'情報Ⅰ 実戦模試 No.001','durationSeconds':3600,'maxPoints':100,'sections':[],'fields':[],'scoring':[]}
+exam={'schemaVersion':1,'id':'001','version':1,'title':'情報Ⅰ 実戦演習 No.001','durationSeconds':3600,'maxPoints':100,'sections':[],'fields':[],'scoring':[]}
 for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
  d=clean(html.fromstring((OUT/'source'/problem).read_bytes()))
  fields={c:{'id':sid+'-'+c,'sectionId':sid,'label':c,'type':'choice','choices':[]} for c in letters}
