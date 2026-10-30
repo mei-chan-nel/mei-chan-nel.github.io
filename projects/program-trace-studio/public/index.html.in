@@ -30,7 +30,8 @@
   <meta property="og:title" content="プログラムトレース Studio｜情報Ⅰ Study Atlas">
   <meta property="og:description" content="自分のプログラムを書いて、1行ずつ動きを確かめよう。">
   <meta property="og:url" content="%%CANONICAL%%">
-  <meta property="og:image" content="https://mei-chan-nel.com/assets/og-study-atlas.png">
+  <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png">
+  <meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
   <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
