@@ -635,3 +635,56 @@ body {
     color: #687577;
   }
 }
+
+/* Common-test headings: one hierarchy for printed and on-screen problems. */
+body[data-section] .exam-section-heading {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 1.75 !important;
+  text-align: left !important;
+  text-indent: 0 !important;
+  margin: 0 0 24px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+body[data-section] .exam-section-number {
+  font-size: 18px !important;
+  font-weight: 700 !important;
+}
+body[data-section="q3"] .qtitle > b:first-child {
+  font-weight: 400 !important;
+}
+body[data-section="q4"] .exam-question {
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+  text-indent: 0 !important;
+  margin: 0 0 16px !important;
+}
+@media print {
+  body[data-section] .exam-section-heading {
+    font-size: 10.5pt !important;
+  }
+  body[data-section] .exam-section-number {
+    font-size: 14pt !important;
+  }
+  body[data-section="q4"] .exam-question {
+    font-size: 11.5pt !important;
+  }
+  body[data-section="q4"] .page {
+    padding-inline: 20mm !important;
+  }
+  /* Fit the first Q2A page without scaling its common-size heading. */
+  body[data-section="q2a"] .page:first-of-type table {
+    margin-block: 10px !important;
+  }
+  body[data-section="q2a"] .page:first-of-type th,
+  body[data-section="q2a"] .page:first-of-type td {
+    padding-block: 5px !important;
+  }
+}
+@media screen and (min-width: 801px) {
+  body[data-section="q4"] .page {
+    padding-inline: 20mm !important;
+  }
+}

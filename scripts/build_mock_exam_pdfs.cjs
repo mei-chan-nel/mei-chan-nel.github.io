@@ -120,14 +120,16 @@ const server = http.createServer((req, res) => {
             await page.evaluate(() => {
               const part = document.querySelector("h1");
               const heading = document.createElement("h2");
-              heading.textContent =
-                "第2問　次の問い（A・B）に答えよ。（配点30）";
+              heading.className = "exam-section-heading";
+              heading.innerHTML =
+                '<span class="exam-section-number">第2問</span>　次の問い（A・B）に答えよ。（配点30）';
               heading.style.cssText =
                 "font-size:12pt;font-weight:700;margin:0 0 24px;text-indent:0";
               part.before(heading);
               part.textContent = "A　次の問い（問1～4）に答えよ。（配点15）";
+              part.className = "exam-part-heading";
               part.style.cssText =
-                "font-size:11.5pt;font-weight:400;margin:0 0 16px";
+                "font-size:10.5pt;font-weight:400;margin:0 0 16px";
             });
           }
           if (kind === "solution")

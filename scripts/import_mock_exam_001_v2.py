@@ -10,6 +10,7 @@ import hashlib
 import json
 import re
 import shutil
+from mock_exam_editorial import normalize_problem_typography
 from normalize_site_metadata import normalize_tree
 
 ROOT = Path(__file__).resolve().parents[1] / 'mock-exams/exams/001'
@@ -140,6 +141,12 @@ def build():
         field['choices'] = [{'value': value, 'text': label} for value, label in choices.items()]
 
     shutil.copyfile(OUT / 'source/q2a.css', OUT / 'q2a.css')
+    for section in exam['sections']:
+        for key in ('problem', 'screenProblem'):
+            path = OUT / section[key]
+            d = document(path)
+            normalize_problem_typography(d, section['id'])
+            write(d, path)
     (OUT / 'exam.json').write_text(json.dumps(exam, ensure_ascii=False, indent=2) + '\n')
     normalize_tree(OUT)
     # Keep independently reviewed v2 answers/cases separate from generation.
