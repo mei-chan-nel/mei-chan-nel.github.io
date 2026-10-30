@@ -111,7 +111,8 @@ def validate(manifest, skip_pdf=False):
                 need(len(pdf) > 0 and all(abs(p.rect.width-595.28) < 1 and abs(p.rect.height-841.89) < 1 for p in pdf), f'Not A4: {kind}.pdf')
                 text = norm(''.join(p.get_text() for p in pdf))
                 footer = norm(f'情報Ⅰ StudyAtlas 実戦演習 No.{exam["id"]}')
-                need(footer in text, f'Wrong/missing PDF No.: {kind}')
+                need(all(norm(p.get_text()).count(footer) == 1 for p in pdf), f'Wrong/missing PDF footer on a page: {kind}')
+                need('実戦模試' not in text, f'Old PDF brand remains: {kind}')
                 text = re.sub(re.escape(footer) + r'[—―-]\d+[—―-]', '', text)
                 for sid, d in documents:
                     for node in d.xpath('//style|//script'):
