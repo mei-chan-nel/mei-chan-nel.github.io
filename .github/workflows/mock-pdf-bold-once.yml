@@ -1,0 +1,53 @@
+name: Temporary PDF render for question-number font weight
+on:
+  push:
+    branches:
+      - fix/mock-pdf-question-bold-20261101
+permissions:
+  contents: write
+jobs:
+  regenerate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PDF rendering prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y fonts-noto-cjk
+          python -m pip install PyMuPDF fonttools
+          npm install --prefix /tmp/atlas-pdf-deps playwright@1.56.1
+          node /tmp/atlas-pdf-deps/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Regenerate only the problem booklet
+        run: |
+          export PLAYWRIGHT_MODULE=/tmp/atlas-pdf-deps/node_modules/playwright
+          export CHROMIUM_PATH=$(node -e 'console.log(require(process.env.PLAYWRIGHT_MODULE).chromium.executablePath())')
+          node scripts/build_mock_exam_pdfs.cjs problem --manifest exams/001/2/exam.json
+      - name: Confirm page count and contents are unchanged
+        run: |
+          git show HEAD:mock-exams/exams/001/2/problem.pdf > /tmp/prior-mock-problem.pdf
+          python - <<'PY'
+          import fitz
+          before=fitz.open('/tmp/prior-mock-problem.pdf')
+          after=fitz.open('mock-exams/exams/001/2/problem.pdf')
+          assert len(before)==len(after), f'Page count changed: {len(before)} vs {len(after)}'
+          for i,(a,b) in enumerate(zip(before,after),1):
+              assert ''.join(a.get_text().split())==''.join(b.get_text().split()), f'Visible text changed at page {i}'
+          print(f'Text unchanged across {len(after)} pages')
+          PY
+          git status --short
+      - name: Commit regenerated PDF to the feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mock-exams/exams/001/2/problem.pdf
+          git diff --cached --quiet && { echo "No PDF change"; exit 1; }
+          git commit -m "Regenerate problem PDF with bold question labels"
+          git push origin HEAD:fix/mock-pdf-question-bold-20261101
