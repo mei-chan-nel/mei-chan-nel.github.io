@@ -132,6 +132,36 @@ const server = http.createServer((req, res) => {
                 "font-size:10.5pt;font-weight:400;margin:0 0 16px";
             });
           }
+          // PDF only: emphasize just the "問n" label, not the question text.
+          if (kind === "problem") {
+            const boldLabels = await page.evaluate(() => {
+              const selector = {
+                q1: ".sheet p",
+                q2a: ".question-number",
+                q2b: "p.question > b:first-child",
+                q3: ".qtitle > b:first-child",
+                q4: "p.exam-question",
+              }[document.body.dataset.section];
+              if (!selector) return 0;
+              let changed = 0;
+              for (const element of document.querySelectorAll(selector)) {
+                const first = element.firstChild;
+                if (!first || first.nodeType !== Node.TEXT_NODE) continue;
+                const match = first.textContent.match(/^(問[0-9]+)(?=[\\s　]|$)/);
+                if (!match) continue;
+                const bold = document.createElement("strong");
+                bold.textContent = match[1];
+                bold.style.setProperty("font-weight", "700", "important");
+                element.insertBefore(bold, first);
+                first.textContent = first.textContent.slice(match[1].length);
+                changed++;
+              }
+              return changed;
+            });
+            const expected = { q1: 4, q2a: 6, q2b: 4, q3: 3, q4: 5 };
+            if (boldLabels !== expected[s.id])
+              throw Error("Question-number bolding failed: " + s.id + " (" + boldLabels + ")");
+          }
           if (kind === "solution")
             await page.addStyleTag({
               content:
