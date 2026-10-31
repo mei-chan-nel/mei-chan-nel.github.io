@@ -147,7 +147,7 @@ const server = http.createServer((req, res) => {
               for (const element of document.querySelectorAll(selector)) {
                 const first = element.firstChild;
                 if (!first || first.nodeType !== Node.TEXT_NODE) continue;
-                const match = first.textContent.match(/^(問[0-9]+)(?=[\\s　]|$)/);
+                const match = first.textContent.match(/^(問[0-9]+)(?=[\s　]|$)/);
                 if (!match) continue;
                 const bold = document.createElement("strong");
                 bold.textContent = match[1];
