@@ -16,6 +16,7 @@
     "id": "002",
     "version": 1,
     "title": "情報Ⅰ 実戦演習 No.002",
-    "manifest": "exams/002/1/exam.json"
+    "manifest": "exams/002/1/exam.json",
+    "publishedAt": "2026-11-01"
   }
 ]

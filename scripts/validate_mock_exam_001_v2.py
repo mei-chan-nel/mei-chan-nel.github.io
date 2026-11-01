@@ -8,6 +8,7 @@ import unicodedata
 from mock_exam_editorial import learner_wording
 from mock_exam_001_reading import trim_solution
 from mock_exam_001_editorial import revise_solution
+from normalize_mock_exam_solutions import normalize as normalize_solution_headings
 from import_mock_exam_001_v2 import revise_q1
 
 ROOT = Path(__file__).resolve().parents[1] / 'mock-exams/exams/001'
@@ -118,6 +119,7 @@ for section, original_section in zip(exam['sections'], old['sections']):
             if kind == 'solution' and sid != 'q2a':
                 trim_solution(source, sid); revise_solution(source, sid)
         generated = doc(V2 / section[kind])
+        if kind == 'solution': normalize_solution_headings(source, exam)
         assert norm(source.find('body').text_content()) == norm(generated.find('body').text_content()), (sid, kind)
         assert len(source.xpath('//svg|//img')) == len(generated.xpath('//svg|//img')), (sid, kind)
 print('PASS v2 approved source/body/figure comparison for all five sections')

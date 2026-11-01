@@ -60,6 +60,7 @@ jobs:
           node scripts/check_mock_exams.mjs
           python scripts/validate_mock_exam_content.py
           python scripts/validate_mock_exam_001_v2.py
+          python scripts/validate_mock_exam_002.py
 
       - name: Check Studio TypeScript build
         # Runtime files are committed for static hosting; keep them synchronized.
