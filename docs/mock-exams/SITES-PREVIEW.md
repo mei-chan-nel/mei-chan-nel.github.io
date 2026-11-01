@@ -4,6 +4,11 @@ URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 ## 最新配置（2026-11-01）
 
+おすすめ順・表の配置・ラボ連携の追加反映：2026-11-01 16:25（日本時間）、配置成功。本番未変更。
+ソース`10c33563fdc5ea44f2deb4dcaf127fc040384286`、deployment `appgdep_6ae6e96dcb188191b537ff9bd2a210bf`、version `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_7817f90a32e88191a2af6d04d9501b4f`。
+
+## 直前の配置（同日）
+
 設問番号・No.002の解説・初期読み込みを見直し、本人専用Sitesへ反映。本番GitHub Pagesは未変更。
 
 - 作業元：`feat/mock-exams-002` のローカルcommit `fe96f6451bb2a01709f15af1f6d439884cef72e7`。公開GitHubへpushしていない。
