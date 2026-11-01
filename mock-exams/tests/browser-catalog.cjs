@@ -82,7 +82,7 @@ const server = http.createServer((req, res) => {
       .click();
   const choose = (p) =>
     p
-      .locator("#exam-list")
+      .locator('[data-exam-id="001"]')
       .getByRole("button", { name: "選択", exact: true })
       .click();
   const noOverflow = async (p) =>
@@ -98,11 +98,18 @@ const server = http.createServer((req, res) => {
     await p
       .getByRole("heading", { name: "情報Ⅰ 実戦演習", exact: true })
       .waitFor();
-    await p.locator("#exam-list .catalog-exam").waitFor();
+    await p.locator("#exam-list .catalog-exam").first().waitFor();
     assert.equal(await p.locator(".mode-choice").count(), 2);
     assert.equal(await p.locator("#section-picker").isVisible(), false);
-    assert.equal(await p.locator(".catalog-exam").count(), 1);
-    assert.equal(await p.locator(".exam-status").textContent(), "未受験");
+    assert.equal(
+      await p.locator(".catalog-exam").count(),
+      JSON.parse(fs.readFileSync(path.join(root, "mock-exams/catalog.json")))
+        .length,
+    );
+    assert.equal(
+      await p.locator('[data-exam-id="001"] .exam-status').textContent(),
+      "未受験",
+    );
     assert.equal(await p.locator("#time-picker").isVisible(), true);
     assert.equal(
       await p.locator('#catalog-time [aria-pressed="true"]').textContent(),
@@ -111,7 +118,9 @@ const server = http.createServer((req, res) => {
     assert.equal(await p.locator(".exam-detail").count(), 0);
     // Both are true same-origin downloads, rather than links to a PDF viewer.
     for (const title of ["問題冊子PDF", "解答解説PDF"]) {
-      const a = p.getByRole("link", { name: title, exact: true });
+      const a = p
+        .locator('[data-exam-id="001"]')
+        .getByRole("link", { name: title, exact: true });
       assert.equal(
         await a.getAttribute("href"),
         origin +
@@ -169,11 +178,17 @@ const server = http.createServer((req, res) => {
     assert.equal(full.examId, "001");
     assert.equal(full.sectionIds.length, 5);
     await pause(p);
-    assert.equal(await p.locator(".exam-status").textContent(), "中断中");
+    assert.equal(
+      await p.locator('[data-exam-id="001"] .exam-status').textContent(),
+      "中断中",
+    );
     await mode(p, true);
     assert.equal(await p.locator("#catalog-sections button").count(), 5);
     assert.equal(await p.locator("#time-picker").isVisible(), false);
-    assert.equal(await p.locator(".exam-status").textContent(), "未受験");
+    assert.equal(
+      await p.locator('[data-exam-id="001"] .exam-status').textContent(),
+      "未受験",
+    );
     await p
       .locator("#catalog-sections")
       .getByRole("button", { name: "第3問", exact: true })
@@ -202,12 +217,18 @@ const server = http.createServer((req, res) => {
       "0 / 25点",
     );
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
-    assert.equal(await p.locator(".exam-status").textContent(), "採点済み");
+    assert.equal(
+      await p.locator('[data-exam-id="001"] .exam-status').textContent(),
+      "採点済み",
+    );
     await p
       .locator("#catalog-sections")
       .getByRole("button", { name: "第1問", exact: true })
       .click();
-    assert.equal(await p.locator(".exam-status").textContent(), "未受験");
+    assert.equal(
+      await p.locator('[data-exam-id="001"] .exam-status').textContent(),
+      "未受験",
+    );
     await p
       .locator("#catalog-sections")
       .getByRole("button", { name: "第3問", exact: true })
@@ -221,7 +242,10 @@ const server = http.createServer((req, res) => {
     assert.notEqual((await attempt(p)).id, section.id);
     await pause(p);
     await mode(p);
-    assert.equal(await p.locator(".exam-status").textContent(), "中断中");
+    assert.equal(
+      await p.locator('[data-exam-id="001"] .exam-status').textContent(),
+      "中断中",
+    );
     await p
       .locator("#exam-list")
       .getByRole("button", { name: "再開", exact: true })
@@ -302,9 +326,14 @@ const server = http.createServer((req, res) => {
       title: "情報Ⅰ 実戦演習 No." + String(i + 1).padStart(3, "0"),
       manifest: "exams/001/1/exam.json",
     }));
-    await many.route("**/mock-exams/catalog.json", (r) =>
-      r.fulfill({ json: fixtures }),
-    );
+    await many.route("**/mock-exams/", async (r) => {
+      const response = await r.fetch();
+      const body = (await response.text()).replace(
+        /(<script id="exam-catalog" type="application\/json">)[\s\S]*?(<\/script>)/,
+        (_, a, b) => a + JSON.stringify(fixtures) + b,
+      );
+      return r.fulfill({ response, body });
+    });
     await many.goto(origin + "/mock-exams/");
     await many.locator(".catalog-exam").nth(19).waitFor();
     assert.deepEqual((await many.locator(".catalog-exam").all()).length, 20);
@@ -356,7 +385,7 @@ const server = http.createServer((req, res) => {
     await noOverflow(many);
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: portal entry, two modes, No.001 only, time selection/direct start/PDF downloads, section-first same exam, separate statuses, resume/reload, repeat, shared history/review, mobile and 20-exam sorting (fixtures only)",
+      "PASS: portal entry, two modes, registered exams, time selection/direct start/PDF downloads, section-first same exam, separate statuses, resume/reload, repeat, shared history/review, mobile and 20-exam sorting (fixtures only)",
     );
   } finally {
     await browser.close();

@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="../assets/site.css" />
     <link rel="stylesheet" href="app.css?v=20261029-bottom-controls" />
     <script src="../assets/site-analytics.js?v=20261029-mock" defer></script>
-    <script type="module" src="app.mjs?v=20261101-ios-iframe"></script>
+    <script type="module" src="entry.mjs?v=20261101-fast-catalog"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -42,8 +42,9 @@
       }
     </script>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  </head>
-  <body>
+  <script id="exam-catalog" type="application/json">[{"id":"001","version":2,"title":"情報Ⅰ 実戦演習 No.001","publishedAt":"2026-10-29","manifest":"exams/001/2/exam.json","versions":[{"version":1,"manifest":"exams/001/1/exam.json"}]},{"id":"002","version":1,"title":"情報Ⅰ 実戦演習 No.002","manifest":"exams/002/1/exam.json"}]</script>
+</head>
+  <body data-view="catalog">
     <header class="site-header">
       <div class="header-inner">
         <a class="brand" href="../">
@@ -57,9 +58,30 @@
       </div>
     </header>
     <main id="app">
-      <h1>情報Ⅰ 実戦演習</h1>
-      <p role="status">模試を読み込んでいます…</p>
-    </main>
+    <div class="catalog-page">
+      <section class="intro catalog-intro">
+        <p class="eyebrow">PRACTICE / INFORMATION I</p>
+        <h1>情報Ⅰ 実戦演習</h1>
+        <p>大学入学共通テスト「情報Ⅰ」のオリジナル模試。<br>1回分を通して解くことも、大問ごとに練習することもできます。</p>
+      </section>
+      <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ"><button class="mode-choice" data-mode="full" aria-pressed="true"><span class="mode-meta">1回分を通して</span><strong>回ごとに受験する</strong><span>60分・100点の本番形式で実力を確かめる。</span></button><button class="mode-choice" data-mode="section" aria-pressed="false"><span class="mode-meta">大問を選んで</span><strong>大問ごとに演習する</strong><span>取り組みたい大問を選んで重点的に練習する。</span></button></nav>
+      <section id="time-picker" class="section-picker" aria-labelledby="time-picker-title" >
+        <h2 id="time-picker-title">受験時間を選ぶ</h2>
+        <div class="time-options" id="catalog-time" role="group" aria-label="受験時間"><button data-time="timed" aria-pressed="true">60分で受験する</button><button data-time="untimed" aria-pressed="false">時間制限なしで解く</button></div>
+      </section>
+      <section id="section-picker" class="section-picker" aria-labelledby="section-picker-title" hidden>
+        <h2 id="section-picker-title">大問を選ぶ</h2>
+        <div class="section-grid" id="catalog-sections" role="group" aria-label="演習する大問"><button data-section="q1" aria-pressed="true">第1問</button><button data-section="q2a" aria-pressed="false">第2問A</button><button data-section="q2b" aria-pressed="false">第2問B</button><button data-section="q3" aria-pressed="false">第3問</button><button data-section="q4" aria-pressed="false">第4問</button></div>
+      </section>
+      <section class="exam-picker" aria-labelledby="exam-picker-title">
+        <div class="catalog-list-heading">
+          <div><p class="eyebrow" id="catalog-context">回ごとに受験 · 60分</p><h2 id="exam-picker-title">模試No.を選ぶ</h2></div>
+          <label class="catalog-sort">並び順<select id="catalog-sort"><option value="recommended" selected>おすすめ順</option><option value="newest" >新しい順</option><option value="number" >番号順</option></select></label>
+        </div>
+        <div id="exam-list"><article class="exam-card catalog-exam" data-exam-id="001"><div><div class="exam-card-title"><h3>No.001</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年10月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="001">選択</button><div class="pdf-links"><a href="exams/001/2/problem.pdf" download="情報Ⅰ_実戦演習_No.001_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/001/2/solution.pdf" download="情報Ⅰ_実戦演習_No.001_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="002"><div><div class="exam-card-title"><h3>No.002</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問</p></div><div class="actions exam-card-actions"><button class="primary" data-start="002">選択</button><div class="pdf-links"><a href="exams/002/1/problem.pdf" download="情報Ⅰ_実戦演習_No.002_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/002/1/solution.pdf" download="情報Ⅰ_実戦演習_No.002_解答解説PDF.pdf">解答解説PDF</a></div></div></article></div>
+      </section>
+      <div class="catalog-history-actions"><button id="open-history">学習履歴</button></div>
+    </div></main>
     <p id="notice" role="status" aria-live="polite"></p>
     <dialog id="answer-dialog" aria-labelledby="answer-title">
       <header>

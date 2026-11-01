@@ -1,4 +1,33 @@
 /* No.002's source-specific layout; scoring and source snapshots stay separate. */
+.solution-answer {
+  margin: 0.7em 0 1em;
+  line-height: 1.8;
+}
+.explanation-choices {
+  list-style: none;
+  padding-left: 0;
+}
+.explanation-choices > li {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr);
+  gap: 0.4em;
+  margin: 0.7em 0;
+}
+.explanation-choices > li::before {
+  content: none !important;
+}
+.explanation-choices .num {
+  position: static !important;
+  grid-column: 1;
+}
+.explanation-choices > li > div {
+  grid-column: 2;
+  min-width: 0;
+}
+.explanation-choices p {
+  margin: 0;
+  text-indent: 0;
+}
 @media screen {
   body {
     font-family: system-ui, sans-serif !important;
@@ -14,7 +43,7 @@
   }
   .explanation-unit h2 {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
   }
   .opt-index,
   .option-index,

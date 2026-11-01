@@ -3,6 +3,7 @@ from pathlib import Path
 from lxml import html, etree
 import copy, hashlib, json, re, subprocess, unicodedata
 from mock_exam_editorial import clean_screen_chrome, learner_wording, normalize_problem_typography
+from mock_exam_002_editorial import revise_solution
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'mock-exams/exams/002/1'
 SPEC = [
@@ -258,14 +259,9 @@ def build():
      label=etree.Element('b');label.text=match[1];label.tail=match[2];paragraph.insert(0,label)
   clean_screen_chrome(p)
   normalize_problem_typography(p,sid)
-  for element in list(p.iter()):
-   if element.tag not in ('p','b','strong','span','h2'):continue
-   match=re.match(r'^(問[0-9０-９]+)(?=[\s　]|$)(.*)',element.text or '',re.S)
-   if match:
-    label=etree.Element('span',{'data-question-number':'true'})
-    label.text=match[1];label.tail=match[2];element.text=None;element.insert(0,label)
   s=trim_and_align_solution(clean(read(solution)),sid);s.find('body').set('data-section',sid)
   clean_screen_chrome(s)
+  revise_solution(s,sid,fields,letters,answers,units)
   if sid=='q3':drafts=studio_links(s)
   for kind,document in [('problem',p),('solution',s)]:
    for screen in [False,True]:

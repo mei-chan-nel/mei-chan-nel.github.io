@@ -1,3 +1,4 @@
+import { renderCatalogContents } from "./ui/catalog-page.mjs";
 import {
   grade,
   normalize,
@@ -31,8 +32,6 @@ import { fetchStats } from "./engine/stats.mjs";
 import { trackExamAction } from "./analytics.mjs";
 import {
   catalogSections,
-  catalogProgress,
-  sortCatalog,
   isInterrupted,
 } from "./engine/catalog.mjs";
 const $ = (s) => document.querySelector(s),
@@ -474,15 +473,6 @@ async function loadExam(entry) {
       throw Error("模試一覧と問題データの番号・版が一致しません。");
     exam = loaded;
     base = new URL(".", url);
-    for (const section of exam.sections)
-      for (const kind of ["problem", "solution"])
-        documentText(
-          new URL(
-            section[kind === "problem" ? "screenProblem" : "screenSolution"] ||
-              section[kind],
-            base,
-          ).href,
-        ).catch(() => {});
     return true;
   } catch (error) {
     notify(
@@ -615,158 +605,23 @@ function leave(destination = navigationContext.origin) {
 async function renderCatalog() {
   setView("catalog");
   uiSequence++;
-  app.innerHTML = `
-    <div class="catalog-page">
-      <section class="intro catalog-intro">
-        <p class="eyebrow">PRACTICE / INFORMATION I</p>
-        <h1>情報Ⅰ 実戦演習</h1>
-        <p>大学入学共通テスト「情報Ⅰ」のオリジナル模試。<br>1回分を通して解くことも、大問ごとに練習することもできます。</p>
-      </section>
-      <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ"></nav>
-      <section id="time-picker" class="section-picker" aria-labelledby="time-picker-title" ${catalogView.mode === "full" ? "" : "hidden"}>
-        <h2 id="time-picker-title">受験時間を選ぶ</h2>
-        <div class="time-options" id="catalog-time" role="group" aria-label="受験時間"></div>
-      </section>
-      <section id="section-picker" class="section-picker" aria-labelledby="section-picker-title" ${catalogView.mode === "section" ? "" : "hidden"}>
-        <h2 id="section-picker-title">大問を選ぶ</h2>
-        <div class="section-grid" id="catalog-sections" role="group" aria-label="演習する大問"></div>
-      </section>
-      <section class="exam-picker" aria-labelledby="exam-picker-title">
-        <div class="catalog-list-heading">
-          <div><p class="eyebrow" id="catalog-context"></p><h2 id="exam-picker-title">模試No.を選ぶ</h2></div>
-          <label class="catalog-sort">並び順<select id="catalog-sort"><option value="recommended">おすすめ順</option><option value="newest">新しい順</option><option value="number">番号順</option></select></label>
-        </div>
-        <div id="exam-list"></div>
-      </section>
-      <div class="catalog-history-actions"><button id="open-history">学習履歴</button></div>
-    </div>`;
-  for (const [mode, title, description, meta] of [
-    [
-      "full",
-      "回ごとに受験する",
-      "60分・100点の本番形式で実力を確かめる。",
-      "1回分を通して",
-    ],
-    [
-      "section",
-      "大問ごとに演習する",
-      "取り組みたい大問を選んで重点的に練習する。",
-      "大問を選んで",
-    ],
-  ]) {
-    const b = button(
-      "",
-      () => {
-        catalogView.mode = mode;
-        renderCatalog();
-        $('#exam-modes [aria-pressed="true"]').focus({ preventScroll: true });
-      },
-      "mode-choice",
-    );
-    b.innerHTML = `<span class="mode-meta">${meta}</span><strong>${title}</strong><span>${description}</span>`;
-    b.setAttribute("aria-pressed", String(catalogView.mode === mode));
-    $("#exam-modes").append(b);
-  }
-  for (const [mode, title] of [
-    ["timed", "60分で受験する"],
-    ["untimed", "時間制限なしで解く"],
-  ]) {
-    const b = button(title, () => {
-      catalogView.timeMode = mode;
-      renderCatalog();
-      $('#catalog-time [aria-pressed="true"]').focus({ preventScroll: true });
-    });
-    b.setAttribute("aria-pressed", String(catalogView.timeMode === mode));
-    $("#catalog-time").append(b);
-  }
-  for (const [id, title] of catalogSections) {
-    const b = button(title, () => {
-      catalogView.sectionId = id;
-      renderCatalog();
-      $('#catalog-sections [aria-pressed="true"]').focus({
-        preventScroll: true,
-      });
-    });
-    b.setAttribute("aria-pressed", String(catalogView.sectionId === id));
-    $("#catalog-sections").append(b);
-  }
-  $("#catalog-context").textContent =
-    catalogView.mode === "section"
-      ? `${catalogSections.find(([id]) => id === catalogView.sectionId)[1]}の演習`
-      : `回ごとに受験 · ${catalogView.timeMode === "timed" ? "60分" : "時間制限なし"}`;
-  $("#catalog-sort").value = catalogView.order;
-  $("#catalog-sort").onchange = (e) => {
-    catalogView.order = e.target.value;
-    renderCatalog();
-    $("#catalog-sort").focus({ preventScroll: true });
-  };
-  $("#open-history").onclick = () => renderHistory();
   let history = [];
   try {
     history = store.list();
   } catch {
     notify("ブラウザ保存を利用できません。設定を確認してください。");
   }
-  const sectionTitle = catalogSections.find(
-    ([id]) => id === catalogView.sectionId,
-  )[1];
-  for (const entry of sortCatalog(
+  renderCatalogContents({
+    target: app,
     catalog,
     history,
-    catalogView.mode,
-    catalogView.sectionId,
-    catalogView.order,
-  )) {
-    const progress = catalogProgress(
-      entry,
-      history,
-      catalogView.mode,
-      catalogView.sectionId,
-    );
-    const card = document.createElement("article");
-    card.className = "exam-card catalog-exam";
-    card.dataset.examId = entry.id;
-    card.innerHTML = `<div><div class="exam-card-title"><h3>No.${esc(entry.id)}${catalogView.mode === "section" ? "の" + esc(sectionTitle) : ""}</h3><span class="exam-status ${progress.status === "中断中" ? "in-progress" : progress.status === "採点済み" ? "completed" : ""}">${progress.status}</span></div><p>${catalogView.mode === "section" ? esc(sectionTitle) + "の演習" : "1回分・全大問"}${entry.publishedAt ? " · " + esc(entry.publishedAt.slice(0, 7).replace("-", "年") + "月") : ""}</p></div><div class="actions exam-card-actions"></div>`;
-    const start = () =>
-      begin(
-        entry,
-        catalogView.mode === "section" ? "section" : catalogView.timeMode,
-        catalogView.mode === "section" ? catalogView.sectionId : undefined,
-      );
-    card
-      .querySelector(".actions")
-      .append(
-        button(
-          progress.resume ? "再開" : "選択",
-          () =>
-            progress.resume
-              ? openAttempt(progress.resume.id, "resume")
-              : start(),
-          "primary",
-        ),
-      );
-    if (progress.resume)
-      card
-        .querySelector(".actions")
-        .append(button("最初から解く", start, "primary"));
-    const pdfLinks = document.createElement("div");
-    pdfLinks.className = "pdf-links";
-    for (const [kind, title] of [
-      ["problem", "問題冊子PDF"],
-      ["solution", "解答解説PDF"],
-    ]) {
-      const a = document.createElement("a");
-      a.href = new URL(
-        kind + ".pdf",
-        new URL(".", new URL(entry.manifest, location.href)),
-      ).href;
-      a.download = `情報Ⅰ_実戦演習_No.${entry.id}_${title}.pdf`;
-      a.textContent = title;
-      pdfLinks.append(a);
-    }
-    card.querySelector(".actions").append(pdfLinks);
-    $("#exam-list").append(card);
-  }
+    catalogView,
+    onChange: renderCatalog,
+    onStart: begin,
+    onResume: (id) => openAttempt(id, "resume"),
+    onHistory: renderHistory,
+    onError: (error) => notify(error.message),
+  });
 }
 let historyFilter = "all";
 const historyGrids = Object.fromEntries(
@@ -1753,58 +1608,68 @@ function resumeGraded() {
     renderWorkspace();
   }
 }
-try {
-  catalog = await fetch("catalog.json").then((r) => r.json());
-  if (document.querySelector('meta[name="mock-exams-preview-samples"]')) {
-    try {
-      const { seedPreviewHistory } =
-        await import("./engine/preview-history.mjs");
-      await seedPreviewHistory(catalog, store);
-    } catch {
-      notify("サンプル履歴を準備できませんでした。");
+export async function initializeApp({ entries, view, action } = {}) {
+  try {
+    catalog =
+      entries ||
+      (await fetch("catalog.json").then((r) => {
+        if (!r.ok) throw Error("模試一覧を取得できません。");
+        return r.json();
+      }));
+    if (view) Object.assign(catalogView, view);
+    // Bind the full app's catalog before a potentially failing manifest request.
+    // A failed first start must leave working controls available for retry.
+    if (["begin", "resume", "history"].includes(action?.kind)) renderCatalog();
+    let saved = window.history.state?.studyAtlasMock;
+    if (!saved) {
+      try {
+        saved = JSON.parse(sessionStorage.getItem(navigationKey));
+      } catch {}
     }
-  }
-  let saved = window.history.state?.studyAtlasMock;
-  if (!saved) {
-    try {
-      saved = JSON.parse(sessionStorage.getItem(navigationKey));
-    } catch {}
-  }
-  const fragment = location.hash.slice(1);
-  if (
-    saved &&
-    ((fragment === "history" && saved.view === "history") ||
-      (fragment && fragment === saved.id) ||
-      (!fragment && saved.view === "catalog"))
-  )
-    await restoreNavigation(saved);
-  else if (fragment === "history") renderHistory();
-  else if (fragment && store.load(fragment)) await openAttempt(fragment);
-  else await renderCatalog();
-  window.addEventListener("popstate", (event) => {
     const fragment = location.hash.slice(1);
-    const stored =
-      fragment && fragment !== "history" ? store.load(fragment) : null;
-    const routed = event.state?.studyAtlasMock;
-    const matches =
-      routed &&
-      (fragment === "history"
-        ? routed.view === "history"
-        : fragment
-          ? routed.id === fragment
-          : routed.view === "catalog");
-    const state =
-      (matches ? routed : null) ||
-      (fragment === "history"
-        ? { view: "history" }
-        : stored
-          ? { view: stored.result ? "results" : "workspace", id: fragment }
-          : { view: "catalog" });
-    restoreNavigation(state).catch(() => {
-      navigationReplay = false;
-      if (!documentLeaving) leave("catalog");
+    if (action?.kind === "begin")
+      await begin(
+        catalog.find((e) => e.id === action.examId),
+        action.mode,
+        action.sectionId,
+      );
+    else if (action?.kind === "resume") await openAttempt(action.id, "resume");
+    else if (action?.kind === "history") renderHistory();
+    else if (
+      saved &&
+      ((fragment === "history" && saved.view === "history") ||
+        (fragment && fragment === saved.id) ||
+        (!fragment && saved.view === "catalog"))
+    )
+      await restoreNavigation(saved);
+    else if (fragment === "history") renderHistory();
+    else if (fragment && store.load(fragment)) await openAttempt(fragment);
+    else await renderCatalog();
+    window.addEventListener("popstate", (event) => {
+      const fragment = location.hash.slice(1);
+      const stored =
+        fragment && fragment !== "history" ? store.load(fragment) : null;
+      const routed = event.state?.studyAtlasMock;
+      const matches =
+        routed &&
+        (fragment === "history"
+          ? routed.view === "history"
+          : fragment
+            ? routed.id === fragment
+            : routed.view === "catalog");
+      const state =
+        (matches ? routed : null) ||
+        (fragment === "history"
+          ? { view: "history" }
+          : stored
+            ? { view: stored.result ? "results" : "workspace", id: fragment }
+            : { view: "catalog" });
+      restoreNavigation(state).catch(() => {
+        navigationReplay = false;
+        if (!documentLeaving) leave("catalog");
+      });
     });
-  });
-} catch (e) {
-  app.innerHTML = `<p class="error-note">読み込みに失敗しました。${esc(e.message)}</p>`;
+  } catch (e) {
+    app.innerHTML = `<p class="error-note">読み込みに失敗しました。${esc(e.message)}</p>`;
+  }
 }

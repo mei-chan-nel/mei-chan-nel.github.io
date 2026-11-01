@@ -102,7 +102,7 @@ const server = http.createServer((req, res) => {
       .locator("#catalog-sections")
       .getByRole("button", { name: "第2問B", exact: true })
       .click();
-    const card = p.locator("#exam-list article").first();
+    const card = p.locator('[data-exam-id="001"]');
     assert.equal(
       await card
         .getByRole("button", { name: "再開", exact: true })

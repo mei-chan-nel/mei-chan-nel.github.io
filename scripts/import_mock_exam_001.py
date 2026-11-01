@@ -9,6 +9,7 @@ from mock_exam_editorial import learner_wording, clean_screen_chrome
 from mock_exam_001_editorial import revise_solution
 from mock_exam_001_studio import add_studio_links
 from normalize_site_metadata import normalize_tree
+from mock_exam_editorial import bold_question_numbers
 ROOT=Path(__file__).resolve().parents[1]/'mock-exams'
 OUT=ROOT/'exams/001/1'
 SPEC=[
@@ -86,6 +87,7 @@ for sid,title,points,problem,solution,ver,letters,answers,units in SPEC:
  for n,(cs,p) in enumerate(units):
   exam['scoring'].append({'id':f'{sid}-{n+1:02}','sectionId':sid,'question':question_numbers[sid][n],'fields':[fields[c]['id'] for c in cs],'maxPoints':p,'rule':{'kind':'unordered' if (sid,cs) in [('q2a',['イ','ウ']),('q4',['エ','オ'])] else 'exact','patterns':[[answers[letters.index(c)] for c in cs]]}})
  d.find('body').set('data-section',sid)
+ bold_question_numbers(d)
  head=d.find('head');etree.SubElement(head,'meta',name='robots',content='noindex, follow');link=etree.SubElement(head,'link',rel='stylesheet',href='../../../booklet.css')
  (OUT/f'{sid}.html').write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
  sol=clean(html.fromstring((OUT/'source'/solution).read_bytes()));trim_solution(sol,sid);revise_solution(sol,sid);etree.SubElement(sol.find('head'),'meta',name='robots',content='noindex, follow');etree.SubElement(sol.find('head'),'link',rel='stylesheet',href='../../../booklet.css')

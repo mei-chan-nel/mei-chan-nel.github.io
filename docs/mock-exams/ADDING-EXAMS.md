@@ -135,7 +135,9 @@ node scripts/check_mock_exams.mjs
 node --test mock-exams/tests/*.test.mjs
 ```
 
-`import_mock_exam_002.py`は追加原稿に合わせて作るファイル名の例で、あらかじめ存在するコマンドではない。正答・必要な図表・設問の意味を自動推測して登録する機能は設けない。
+登録処理は初期表示用の`index.html`と埋め込みカタログも共通の一覧描画から生成する。一覧の表示内容を変えた場合も`node scripts/build_mock_exam_entry.mjs`を実行する。初期HTML・埋め込みカタログ・`catalog.json`の一致は`entry.test.mjs`で検査する。
+
+`import_mock_exam_002.py`はNo.002原稿専用のアダプターであり、別の原稿には専用の変換処理を用意する。正答・必要な図表・設問の意味を自動推測して登録する機能は設けない。
 
 PDFの片方だけを更新する場合は`build_mock_exam_pdfs.cjs solution --manifest ...`または`problem --manifest ...`。対象指定なしではcatalogの現行版だけを生成し、旧版PDFは書き換えない。
 

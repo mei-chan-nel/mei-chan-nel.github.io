@@ -1,5 +1,6 @@
 // Run only after authoring/QA: node scripts/register_mock_exam.mjs exams/002/1/exam.json
 import path from "node:path";
+import { buildEntry } from "./build_mock_exam_entry.mjs";
 import { writeFileSync, renameSync, rmSync } from "node:fs";
 import {
   mockRoot,
@@ -36,6 +37,7 @@ try {
     writeFileSync(temp, JSON.stringify(after, null, 2) + "\n");
     renameSync(temp, file);
   }
+  buildEntry();
   console.log(
     `Registered No.${exam.id} v${exam.version}; other exams and old editions retained.`,
   );

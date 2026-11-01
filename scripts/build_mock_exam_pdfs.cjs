@@ -169,10 +169,9 @@ const server = http.createServer((req, res) => {
               }
               return changed;
             });
-            const expected = { q1: 4, q2a: 6, q2b: 4, q3: 3, q4: 5 };
             const expectedCount =
-              exam.id === "001"
-                ? expected[s.id]
+              exam.id === "001" && exam.version === 2 && s.id === "q2a"
+                ? 6 // Revised Q2A has separate a/b prompts within 問3・問4.
                 : Math.max(
                     ...exam.scoring
                       .filter((u) => u.sectionId === s.id)

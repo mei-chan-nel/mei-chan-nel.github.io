@@ -654,6 +654,10 @@ body[data-section] .exam-section-number {
 body[data-section="q3"] .qtitle > b:first-child {
   font-weight: 400 !important;
 }
+/* Bold the question label alone in both screen and print versions. */
+body[data-section] [data-question-number] {
+  font-weight: 700 !important;
+}
 body[data-section="q4"] .exam-question {
   font-size: 16px !important;
   font-weight: 400 !important;
