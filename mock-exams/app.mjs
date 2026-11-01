@@ -22,6 +22,7 @@ import {
 } from "./engine/history-grid.mjs";
 import { renderHistoryGrid, closeHistoryMenu } from "./ui/history-grid.mjs";
 import { fitBookFrame } from "./ui/book-frame.mjs";
+import { bookFrameSrcdoc } from "./ui/book-srcdoc.mjs";
 import { prepareBookDocument, updateTableHints } from "./ui/book-document.mjs";
 import { alignReadingPanes } from "./ui/paired-reading.mjs";
 import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
@@ -938,7 +939,7 @@ function renderWorkspace() {
     },
     split = reading && !readingUnit && innerWidth >= 1000;
   if (reading && !readingUnit) solution = true;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin allow-scripts"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin allow-scripts"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   $("#back-list").onclick = reading
     ? backFromReading
     : reviewing
@@ -1116,10 +1117,7 @@ function renderWorkspace() {
         resize();
         resolve();
       };
-      frame.srcdoc = html.replace(
-        /<head[^>]*>/i,
-        (match) => match + `<base href="${url}">`,
-      );
+      frame.srcdoc = bookFrameSrcdoc(html, url);
     } catch (error) {
       if (seq === uiSequence)
         $(".book").prepend(
@@ -1160,10 +1158,7 @@ function renderWorkspace() {
           resize();
           secondaryResolve();
         };
-        other.srcdoc = html.replace(
-          /<head[^>]*>/i,
-          (match) => match + `<base href="${url}">`,
-        );
+        other.srcdoc = bookFrameSrcdoc(html, url);
       })
       .catch(() => secondaryResolve());
     bookReady = Promise.all([bookReady, secondaryReady]).then(() => {
