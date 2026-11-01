@@ -139,7 +139,7 @@ test("portal and mock app load analytics once; local statistics and embedded exa
     assert.match(tag[0], /\bdefer\b/u, file.pathname);
     assert.doesNotMatch(tag[0], /\basync\b/u, file.pathname);
     for (const header of tags.filter((match) => match[1].includes("assets/site-header.js"))) {
-      assert.equal(new URL(header[1], file).searchParams.get("v"), "2026101201", file.pathname);
+      assert.equal(new URL(header[1], file).searchParams.get("v"), "20261101-nav-order", file.pathname);
     }
   }
   const header = readFileSync(new URL("assets/site-header.js", root), "utf8");

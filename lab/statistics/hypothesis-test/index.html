@@ -29,14 +29,17 @@
 <meta name="twitter:image:alt" content="情報Ⅰ Study Atlasの学習マップ" />
 </head><body data-statistics="hypothesis-test" data-stat-lab="hypothesis-test">
 <a class="skip-link" href="#main-content">本文へ移動</a>
-<header class="site-header"><div class="header-inner"><a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション"><a href="../../../">トップページ</a>
+<header class="site-header"><div class="header-inner"><a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション">
+<a href="../../../">トップページ</a>
 <a href="../../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../../mock-exams/">実践演習</a>
+<a href="../../../lab/" aria-current="page">ラボ</a>
 <a href="../../../info1-quiz-app/questions/">問題を探す</a>
 <a href="../../../terms/">用語一覧</a>
-<a href="../../../archive/">解説動画</a>
 <a href="../../../program-trace/">プログラムトレース</a>
+<a href="../../../archive/">解説動画</a>
 <a href="../../../LectureNote/">講義ノート</a>
-<a href="../../../lab/" aria-current="page">ラボ</a></nav></div></header>
+</nav></div></header>
 <main id="main-content" class="lab-shell lab-content-page stat-page">
 <header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>統計的な判断と仮説検定</h1><p class="workspace-purpose">参加者の平均からZを計算し、正規分布表の境目と比べて判断する。</p><p class="workspace-intro">SNSのプロフィール画像が本物かAI生成か、見た目で判断できるでしょうか。顔写真を見分ける実験の315人分の回答を使い、データの読み取りから仮説・計算・判断・解釈へ、一段階ずつ進みます。</p></div><label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker"><option value="graph-reading" >グラフの選び方と読み取り</option><option value="missing-values" >欠損値とデータの扱い</option><option value="histogram" >データの分布</option><option value="crosstab" >クロス集計</option><option value="correlation" >散布図と相関・回帰</option><option value="time-series" >時系列データの分析</option><option value="sampling" >標本調査と推定</option><option value="hypothesis-test" selected>統計的な判断と仮説検定</option><option value="projects" >横断分析課題</option></select></label></header>
 <section id="statistics-workspace" class="statistics-workspace" aria-label="統計的な判断と仮説検定の操作画面"><div class="workspace-screenbar"><span class="workspace-screen-title">統計的な判断と仮説検定</span><button data-stat-fullscreen type="button" aria-expanded="false">⛶ 全画面</button></div>
@@ -49,18 +52,21 @@
 <div id="data-provenance"></div>
 <nav class="stat-related" aria-label="次の学習"><a href="../">統計ラボの一覧へ →</a><a href="../projects/">同じデータで分析を比べる →</a></nav><script id="statistics-module-list" type="application/json">["./app.mjs?v=20261026-final-upgrade","./crosstab/records.mjs?v=20261026-final-upgrade","./data-tab.mjs?v=20261026-final-upgrade","./data/codec.mjs?v=20261026-final-upgrade","./data/context.mjs?v=20261026-final-upgrade","./data/files.mjs?v=20261026-final-upgrade","./data/schema.mjs?v=20261026-final-upgrade","./data/view.mjs?v=20261026-final-upgrade","./fullscreen.mjs?v=20261026-final-upgrade","./histogram/model.mjs?v=20261026-final-upgrade","./hypothesis-test/charts.mjs?v=20261026-final-upgrade","./hypothesis-test/data.mjs?v=20261026-final-upgrade","./hypothesis-test/guide.mjs?v=20261026-final-upgrade","./hypothesis-test/lab.mjs?v=20261026-final-upgrade","./hypothesis-test/mean-model.mjs?v=20261026-final-upgrade","./hypothesis-test/normal-model.mjs?v=20261026-final-upgrade","./learning.mjs?v=20261026-final-upgrade","./probability/model.mjs?v=20261026-final-upgrade","./sampling/model.mjs?v=20261026-final-upgrade","./shared/chart-layout.mjs?v=20261026-final-upgrade","./shared/csv.mjs?v=20261026-final-upgrade","./shared/data-model.mjs?v=20261026-final-upgrade","./shared/data.mjs?v=20261026-final-upgrade","./shared/fullscreen-layout.mjs?v=20261026-final-upgrade","./shared/math.mjs?v=20261026-final-upgrade","./shared/public-data.mjs?v=20261026-final-upgrade","./shared/reading.mjs?v=20261026-final-upgrade","./shared/samples.mjs?v=20261026-final-upgrade","./shared/sources.mjs?v=20261026-final-upgrade","./shared/ui.mjs?v=20261026-final-upgrade","./shared/validation.mjs?v=20261026-final-upgrade","./time-series/data.mjs?v=20261026-final-upgrade","./time-series/model.mjs?v=20261026-final-upgrade","./workbench.mjs?v=20261026-final-upgrade"]</script>
 </main>
-<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="../../../">トップページ</a>
+<footer class="site-footer"><div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション">
+<a href="../../../">トップページ</a>
 <a href="../../../info1-quiz-app/app/">学習アプリ</a>
+<a href="../../../mock-exams/">実践演習</a>
+<a href="../../../lab/" aria-current="page">ラボ</a>
 <a href="../../../info1-quiz-app/questions/">問題を探す</a>
 <a href="../../../terms/">用語一覧</a>
-<a href="../../../archive/">解説動画</a>
 <a href="../../../program-trace/">プログラムトレース</a>
+<a href="../../../archive/">解説動画</a>
 <a href="../../../LectureNote/">講義ノート</a>
-<a href="../../../lab/" aria-current="page">ラボ</a>
+<a href="../../../about.html">このサイトについて</a>
 <a href="../../../study-guide.html">使い方</a>
 <a href="../../../books/">書籍案内</a>
-<a href="../../../about.html">このサイトについて</a>
 <a href="../../../privacy.html">プライバシーポリシー</a>
-<a href="../../../sitemap.html">サイトマップ</a></nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
+<a href="../../../sitemap.html">サイトマップ</a>
+</nav></div><p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p></footer>
 <script type="module" src="../../navigation.mjs?v=1"></script>
 </body></html>

@@ -145,12 +145,13 @@ def header(current: str) -> str:
     links = [
         ("home", "../", "トップページ"),
         ("app", "../info1-quiz-app/app/", "学習アプリ"),
+        ("mock", "../mock-exams/", "実践演習"),
+        ("lab", "../lab/", "ラボ"),
         ("questions", "../info1-quiz-app/questions/", "問題を探す"),
         ("terms", "../terms/", "用語一覧"),
-        ("archive", "./", "解説動画"),
         ("trace", "../program-trace/", "プログラムトレース"),
+        ("archive", "./", "解説動画"),
         ("lecture", "../LectureNote/", "講義ノート"),
-        ("lab", "../lab/", "ラボ"),
     ]
     nav = "".join(
         f'<a href="{href}"{(" aria-current=\"page\"" if key == current else "")}>{label}</a>'
@@ -176,22 +177,23 @@ def footer() -> str:
         <nav aria-label="フッターナビゲーション">
           <a href="../">トップページ</a>
           <a href="../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../mock-exams/">実践演習</a>
+          <a href="../lab/">ラボ</a>
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>
-          <a href="./">解説動画</a>
           <a href="../program-trace/">プログラムトレース</a>
+          <a href="./">解説動画</a>
           <a href="../LectureNote/">講義ノート</a>
-          <a href="../lab/">ラボ</a>
+          <a href="../about.html">このサイトについて</a>
           <a href="../study-guide.html">使い方</a>
           <a href="../books/">書籍案内</a>
-          <a href="../about.html">このサイトについて</a>
           <a href="../privacy.html">プライバシーポリシー</a>
           <a href="../sitemap.html">サイトマップ</a>
         </nav>
       </div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script src="../assets/site-header.js?v=2026101201"></script>
+    <script src="../assets/site-header.js?v=20261101-nav-order"></script>
   </body>
 </html>
 """

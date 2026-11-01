@@ -15,7 +15,9 @@
     `${siteRootPath}index.html`.toLowerCase(),
   ]);
   const activeSection =
-    pagePath.includes("/info1-quiz-app/app/") || /^\/app\//.test(pagePath)
+    pagePath.includes("/mock-exams/")
+      ? "mock"
+      : pagePath.includes("/info1-quiz-app/app/") || /^\/app\//.test(pagePath)
       ? "app"
       : pagePath.includes("/info1-quiz-app/questions/") ||
           /^\/questions\//.test(pagePath)
@@ -44,21 +46,23 @@
                               ? "home"
                               : "";
 
+  // Order matches the homepage: main content, supporting learning tools, then other pages.
   const navItems = [
     ["home", siteUrl(""), "トップページ"],
     ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
+    ["mock", siteUrl("mock-exams/"), "実践演習"],
+    ["lab", siteUrl("lab/"), "ラボ"],
     ["questions", siteUrl("info1-quiz-app/questions/"), "問題を探す"],
     ["terms", siteUrl("terms/"), "用語一覧"],
-    ["archive", siteUrl("archive/"), "解説動画"],
     ["trace", siteUrl("program-trace/"), "プログラムトレース"],
+    ["archive", siteUrl("archive/"), "解説動画"],
     ["lecture", siteUrl("LectureNote/"), "講義ノート"],
-    ["lab", siteUrl("lab/"), "ラボ"],
   ];
   const footerItems = [
     ...navItems,
+    ["about", siteUrl("about.html"), "このサイトについて"],
     ["study", siteUrl("study-guide.html"), "使い方"],
     ["books", siteUrl("books/"), "書籍案内"],
-    ["about", siteUrl("about.html"), "このサイトについて"],
     ["privacy", siteUrl("privacy.html"), "プライバシーポリシー"],
     ["sitemap", siteUrl("sitemap.html"), "サイトマップ"],
   ];
