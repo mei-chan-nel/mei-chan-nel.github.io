@@ -829,6 +829,21 @@ function renderWorkspace() {
     !readingUnit && sections[sections.findIndex((s) => s.id === sectionId) + 1];
   if (!reading && !reviewing) {
     renderBottomControls(sections);
+  } else if (reading) {
+    // Mirror the actual top controls, including the contextual return action.
+    const toolbar = $(".reading-toolbar");
+    const bottom = toolbar.cloneNode(true);
+    bottom.classList.remove("reading-toolbar");
+    bottom.classList.add("reading-bottom-toolbar");
+    for (const node of bottom.querySelectorAll("[id]")) node.removeAttribute("id");
+    const originalButtons = toolbar.querySelectorAll("button");
+    bottom.querySelectorAll("button").forEach((b, i) => {
+      b.onclick = () => {
+        originalButtons[i].click();
+        if (originalButtons[i].closest("nav")) resetTop();
+      };
+    });
+    $("#book-next").append(bottom);
   } else if (next)
     $("#book-next").append(
       button(next.title + " →", () => navigateSection(next.id), "primary"),

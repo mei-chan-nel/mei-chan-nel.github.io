@@ -1243,12 +1243,14 @@ button.filter-chip {
 }
 
 /* Reading controls scroll away with the page on every screen size. */
-.workspace-toolbar.reading-toolbar {
+.workspace-toolbar.reading-toolbar,
+.workspace-toolbar.reading-bottom-toolbar {
   position: static;
   padding: 0;
   align-items: flex-start;
 }
-.reading-toolbar .book-nav {
+.reading-toolbar .book-nav,
+.reading-bottom-toolbar .book-nav {
   flex: 1;
 }
 .history-source {
@@ -1360,3 +1362,5 @@ button.column-clear {
   margin-top: 8px;
   text-decoration: underline;
 }
+
+.reading-bottom-toolbar { width: 100%; margin-bottom: 0; }
