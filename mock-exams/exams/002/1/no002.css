@@ -87,3 +87,11 @@ fieldset.choices legend {
 /* Explicit column roles override the submitted sheets' global alignment. */
 [data-column-align="left"], td[data-column-align="left"] p { text-align:left !important; }
 [data-column-align="center"] { text-align:center !important; }
+
+/* Circled digits already contain their outline; do not frame them again. */
+body[data-section="q2b"] .choice > .num {
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  line-height: 1.9 !important;
+}

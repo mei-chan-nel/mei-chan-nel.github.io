@@ -692,3 +692,8 @@ body[data-section="q4"] .exam-question {
     padding-inline: 20mm !important;
   }
 }
+
+/* Keep every section's document canvas the same color on screen. */
+@media screen {
+  html, body { background: #fff !important; }
+}
