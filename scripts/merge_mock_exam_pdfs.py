@@ -24,11 +24,31 @@ with tempfile.TemporaryDirectory(prefix='atlas-footer-') as folder:
     font_file = Path(folder) / 'footer.otf'
     font.save(font_file)
     for i, p in enumerate(doc):
-        p.insert_font(fontname='AtlasJP', fontfile=str(font_file))
+        # Chromium can share Resources/Font dictionaries across pages. Isolate
+        # both before adding a page font, or a later page can overwrite its name.
+        kind, value = doc.xref_get_key(p.xref, 'Resources')
+        if kind in ('xref', 'dict'):
+            resources = doc.get_new_xref()
+            doc.update_object(resources, doc.xref_object(int(value.split()[0])) if kind == 'xref' else value)
+            doc.xref_set_key(p.xref, 'Resources', f'{resources} 0 R')
+            font_kind, font_value = doc.xref_get_key(resources, 'Font')
+            if font_kind == 'xref':
+                fonts = doc.get_new_xref()
+                doc.update_object(fonts, doc.xref_object(int(font_value.split()[0])))
+                doc.xref_set_key(resources, 'Font', f'{fonts} 0 R')
+            p = doc.reload_page(p)
+
+        footer_xref = p.insert_font(fontname='AtlasJP', fontfile=str(font_file))
         p.insert_textbox(fitz.Rect(20, p.rect.height-23, p.rect.width-20, p.rect.height-6),
                          footer, fontname='AtlasJP', fontsize=7, align=2)
         p.insert_textbox(fitz.Rect(0, p.rect.height-23, p.rect.width, p.rect.height-6),
                          f'— {i+1} —', fontname='AtlasJP', fontsize=8, align=1)
+        # Retain the mapping even when MuPDF reuses an already embedded font.
+        font_kind, font_value = doc.xref_get_key(resources, 'Font')
+        if font_kind == 'xref':
+            doc.xref_set_key(int(font_value.split()[0]), 'AtlasJP', f'{footer_xref} 0 R')
+        else:
+            doc.xref_set_key(resources, 'Font/AtlasJP', f'{footer_xref} 0 R')
     # Do not subset the original embedded CFF fonts: some source font programs
     # cannot be re-subset by MuPDF. They are already browser-generated subsets.
     doc.save(out, garbage=4, deflate=True)

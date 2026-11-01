@@ -95,3 +95,46 @@ body[data-section="q2b"] .choice > .num {
   height: auto !important;
   line-height: 1.9 !important;
 }
+
+/* No.002 answer boxes follow Q3; ordinary spaces are supplied by the adapter. */
+body[data-section] [data-field] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 2.3em !important;
+  width: auto !important;
+  height: 1.7em !important;
+  padding: 0 .4em !important;
+  margin-inline: 0 !important;
+  border: 2px solid #222 !important;
+  border-radius: 0 !important;
+  line-height: 1 !important;
+  text-indent: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: 500 !important;
+  vertical-align: baseline !important;
+  white-space: nowrap !important;
+}
+body[data-section] [data-field].numeric-blank,
+body[data-section] [data-field].digit,
+body[data-section] [data-field].direct {
+  min-width: 1.4em !important;
+  padding-inline: .14em !important;
+}
+body[data-section="q4"] .option > .option-index {
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  line-height: 1.9 !important;
+}
+@media print {
+  body { font-family: "Noto Serif CJK JP", "Yu Mincho", serif !important; font-size: 11pt !important; }
+  body[data-section] [data-field] { font-size: 11pt !important; }
+  body[data-section] .code [data-field] {
+    font-size: 9pt !important;
+    min-width: 2em !important;
+    height: 1.45em !important;
+  }
+}
