@@ -1,0 +1,63 @@
+name: One-shot No.002 Q2A PDF lead cleanup
+on:
+  push:
+    branches:
+      - fix/no002-pdf-duplicate-lead
+    paths:
+      - .github/workflows/one-shot-no002-pdf.yml
+permissions:
+  contents: write
+jobs:
+  correct:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Remove exactly one repeated sentence from PDF page 9
+        run: |
+          python -m pip install PyMuPDF
+          python - <<'PY'
+          import fitz, pathlib, tempfile, os, unicodedata, re
+          path = pathlib.Path("mock-exams/exams/002/1/problem.pdf")
+          with fitz.open(path) as doc:
+              assert len(doc) == 32, f"Unexpected page count: {len(doc)}"
+              original = [p.get_text() for p in doc]
+              page = doc[8]
+              matches = []
+              for block in page.get_text("dict")["blocks"]:
+                  for line in block.get("lines", []):
+                      s = "".join(span["text"] for span in line["spans"])
+                      n = re.sub(r"\s", "", unicodedata.normalize("NFKC", s))
+                      if "次の文章を読み" in n and "後の問い" in n and "答えよ" in n and "問1" in n:
+                          matches.append((s, fitz.Rect(line["bbox"])))
+              assert len(matches) == 1, f"Expected exactly one repeated lead on page 9, found {matches}"
+              match, rect = matches[0]
+              print("Redacting duplicated lead:", match, "at", rect)
+              # Do not reflow, scale, or modify the surrounding text or artwork.
+              page.add_redact_annot(rect, fill=(1, 1, 1))
+              page.apply_redactions(images=0, graphics=0, text=0)
+              fd, tmp = tempfile.mkstemp(suffix=".pdf", dir=path.parent)
+              os.close(fd)
+              doc.save(tmp, garbage=4, deflate=True)
+          with fitz.open(tmp) as revised:
+              assert len(revised) == 32
+              after = [p.get_text() for p in revised]
+              assert all(original[i] == after[i] for i in range(32) if i != 8)
+              assert "次の文章を読み" not in after[8]
+              assert "商店街で" in after[8]
+              assert len(after[8]) < len(original[8]) - 10
+          os.replace(tmp, path)
+          print("PASS: 32-page PDF; only the duplicated sentence on page 9 removed")
+          PY
+      - name: Commit PDF patch to PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add mock-exams/exams/002/1/problem.pdf
+          git diff --cached --quiet && { echo "PDF unchanged" >&2; exit 1; }
+          git commit -m "PDF: remove redundant No.002 Q2A lead sentence (version unchanged)"
+          git push origin HEAD:fix/no002-pdf-duplicate-lead
