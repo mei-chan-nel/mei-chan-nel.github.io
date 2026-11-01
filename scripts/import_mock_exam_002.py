@@ -281,6 +281,12 @@ def build():
      for action in cls(d,'studio-program-link'):action.drop_tree()
     if screen:
      for style in d.xpath('//style'):style.text=re.sub(r'@font-face\s*\{[^}]*\}','',style.text or '',flags=re.I)
+    for blank in d.xpath('//*[@data-field]'):
+     previous=blank.getprevious()
+     if previous is None:
+      parent=blank.getparent();parent.text=(parent.text or '').rstrip(' ')+' '
+     else:previous.tail=(previous.tail or '').rstrip(' ')+' '
+     blank.tail=' '+(blank.tail or '').lstrip(' ')
     align_tables(d)
     head=d.find('head')
     etree.SubElement(head,'meta',name='robots',content='noindex, follow')
