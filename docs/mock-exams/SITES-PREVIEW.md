@@ -2,7 +2,52 @@
 
 URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
-## 最新配置
+## 最新配置（2026-11-01）
+
+おすすめ順・表の配置・ラボ連携の追加反映：2026-11-01 16:25（日本時間）、配置成功。本番未変更。
+ソース`10c33563fdc5ea44f2deb4dcaf127fc040384286`、deployment `appgdep_6ae6e96dcb188191b537ff9bd2a210bf`、version `appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_7817f90a32e88191a2af6d04d9501b4f`。
+
+## 直前の配置（同日）
+
+設問番号・No.002の解説・初期読み込みを見直し、本人専用Sitesへ反映。本番GitHub Pagesは未変更。
+
+- 作業元：`feat/mock-exams-002` のローカルcommit `fe96f6451bb2a01709f15af1f6d439884cef72e7`。公開GitHubへpushしていない。
+- Sites配置ソース：`66942aec130e66fc0de12c9f5c4a38bf9f82fe8e`。
+- deployment_id：`appgdep_6ae6e6876f648191bc25f1a9419225ff`。
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_5d16d2cfa6748191a63c4ef6cb2be06e`。
+- 配置結果：`succeeded`。2026-11-01 16:13（日本時間）。本人専用の閲覧範囲を維持。
+- No.001現行版2・旧版1とNo.002の「問n」を画面・問題PDFで太字に統一。No.002解説は正答・配点・選択肢番号・正誤理由を整理した。No.002の解説PDFは34ページ。採点定義・問題版・元原稿は変更していない。
+- 一覧を初期HTMLに含め、受験・履歴・解説の画面本体は操作時に取得。方式・大問・並び順だけでは問題本文・解説・RPCを取得しない。初回の問題取得失敗後の再試行も確認した。
+- 全回・旧版の教材／PDF検査、単体テスト11件、一覧の20回分検査、既存履歴・復習・復帰、PC／スマホ解説、No.002全55欄の採点・46単位の模擬送信・全対応点の左右整列が通過。
+- 配布アーカイブ148ファイルがpush済みソースと一致。Sites配信対象から元原稿・QA・テストを除外し、本番の模試統計へ検証データを送っていない。
+
+## No.002初回取り込み（同日）
+
+No.002を本人専用Sitesへ追加した。本番GitHub Pagesは変更していない。[取り込み・検証](REVIEW-002.md)。
+
+- 作業元：`feat/mock-exams-002` のローカルcommit `77578fe`。未公開のNo.002は公開GitHubへpushしていない。
+- Sites配置ソース：`67bfec28776a673e575b7399866e084bfd1b5bf1`。
+- deployment_id：`appgdep_6ae6de2c89c48191a801f4bddc1b2d06`。
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_6832ec780cbc819189ebdaad7b6c0234`。
+- 配置結果：`succeeded`。2026-11-01 15:37（日本時間）。本人専用の閲覧範囲を維持。
+- No.002：整数版1、55解答欄・46採点単位・100点。問題PDF32ページ・解説PDF31ページ。
+- 配布物の検証：2回分の一覧、PDFダウンロード、全55欄入力→100点、46単位の送信形式、3受験モード、全大問の左右対応、スマホの設問別表示・復帰を確認。No.001の既存解説・履歴復帰も確認した。RPCは模擬応答で、本番の模試統計には検証データを送っていない。
+- 配布アーカイブの146ファイルがpush済みcommitと一致。原稿・QA・テストを含めず、既存No.001の教材に変更がないことも確認した。
+
+## 本番との同期（同日、No.002取り込み前）
+
+No.002の取り込み前に、本番main `67f8345234af1efc739c4390e40a25aabbc31212` を同期した。
+
+- 作業ブランチ：`feat/mock-exams-002`。GitHubへ保存済み。本番mainのコード変更は行っていない。
+- 本番から保持した変更：実戦演習への名称変更、PDFの「問n」の太字化、iOS Safariの入力修正、StudioのSNS画像設定修正。
+- Sites配置ソース：`cc9364a6beee3ea0e52bad8cf711a0eb91efa0a2`。
+- deployment_id：`appgdep_6ae6abc78ccc81918961b9808bdef2c5`。
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_ff1abc6df500819182f2ee3570d17dfc`。
+- 配置結果：`succeeded`。2026-11-01 12:02（日本時間）。本人専用の公開範囲を維持。
+- 検証：67個の実行・教材ファイルが本番ソースと一致。原稿・採点・PDF検査、Sites専用の履歴・復習・再開・PC／スマホ解説・設問別表示を検証済み。Sitesのサンプル履歴・noindexは維持、GAタグはプレビューから除外。
+- No.002は未登録。次の取り込みではこのブランチと既存Sitesを継続して使用する。
+
+## 前回配置（2026-10-29）
 
 - 確認日時：2026-10-29 14:38（日本時間）。Sitesの配置結果は`succeeded`。
 - project_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571`
@@ -25,7 +70,7 @@ URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 ## 統計・履歴
 
-通常の受験は、ユーザーの許可に基づき本番No.001（exam_id="001", exam_version=2）へ匿名集計する。ブラウザから既存2RPCへ直接接続する。既存学習アプリのコード・保存領域は変更しない。
+通常の受験は、ユーザーの許可に基づき、選んだ模試のID・版（No.001は`exam_id="001", exam_version=2`、No.002は`exam_id="002", exam_version=1`）へ匿名集計する。ブラウザから既存2RPCへ直接接続する。既存学習アプリのコード・保存領域は変更しない。
 
 Sitesだけに成績確認用のサンプル履歴6件を初回追加する。サンプル・復習・解説閲覧では記録RPCを呼ばない。既存履歴やサンプル削除状態を上書きしない。
 

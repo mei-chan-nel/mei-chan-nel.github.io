@@ -1,8 +1,10 @@
 """Prepare the existing Sites checkout; never changes its hosting identity."""
 from pathlib import Path
 from lxml import html
-import json,shutil
+import json,shutil,subprocess
 root=Path(__file__).resolve().parents[1]
+subprocess.run(['node',str(root/'scripts/build_mock_exam_entry.mjs')],check=True)
+subprocess.run(['python',str(root/'scripts/normalize_mock_exam_solutions.py')],check=True)
 target=root.parent/'sites/study-atlas-mock-exams-preview'
 manifest=json.loads((target/'.openai/hosting.json').read_text())
 assert manifest['project_id']=='appgprj_6ae110a637e08191bc9ddecdd9bb6571'
@@ -57,4 +59,4 @@ for file,is_home in [(root/'index.html',True),(root/'mock-exams/index.html',Fals
   d.find('body').insert(1,note)
  path=dist/('index.html' if is_home else 'mock-exams/index.html')
  path.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
-print('Sites preview prepared: Study Atlas top → mock-exams; production statistics No.001')
+print('Sites preview prepared: Study Atlas top → mock-exams; statistics use each exam ID/version')

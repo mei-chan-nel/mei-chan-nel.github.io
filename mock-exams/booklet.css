@@ -654,6 +654,10 @@ body[data-section] .exam-section-number {
 body[data-section="q3"] .qtitle > b:first-child {
   font-weight: 400 !important;
 }
+/* Bold the question label alone in both screen and print versions. */
+body[data-section] [data-question-number] {
+  font-weight: 700 !important;
+}
 body[data-section="q4"] .exam-question {
   font-size: 16px !important;
   font-weight: 400 !important;
@@ -686,5 +690,89 @@ body[data-section="q4"] .exam-question {
 @media screen and (min-width: 801px) {
   body[data-section="q4"] .page {
     padding-inline: 20mm !important;
+  }
+}
+
+/* Keep every section's document canvas the same color on screen. */
+@media screen {
+  html, body { background: #fff !important; }
+}
+
+/* One heading hierarchy for every exam's solution units. */
+body[data-section] .solution-unit-heading {
+  font-size: 18px !important; font-weight: 700 !important;
+  line-height: 1.6 !important; text-align: left !important;
+  text-indent: 0 !important; border: 0 !important;
+  margin: 24px 0 8px !important; padding: 0 !important;
+  break-after: avoid;
+}
+body[data-section] .solution-unit-answer {
+  font-size: 16px !important; line-height: 1.8 !important;
+  text-align: left !important; text-indent: 0 !important;
+  margin: 0 0 12px !important; break-after: avoid;
+}
+body[data-section] .solution-topic {
+  font-size: 16px !important; font-weight: 600 !important;
+  text-align: left !important; text-indent: 0 !important;
+  margin: 0 0 12px !important; break-after: avoid;
+}
+@media print {
+  body[data-section] .solution-unit-heading { font-size: 12pt !important; }
+  body[data-section] .solution-unit-answer,
+  body[data-section] .solution-topic { font-size: 10.5pt !important; }
+}
+
+/* Answering pages: responsive presentation is selected from the outer viewport,
+   not the smaller iframe beside the PC answer menu. Print/reading stay separate. */
+@media screen {
+  html[data-book-layout] footer,
+  html[data-book-layout] .pagehead,
+  html[data-book-layout] .page-head,
+  html[data-book-layout] .page-foot,
+  html[data-book-layout] .page-footer,
+  html[data-book-layout] .sheet-header,
+  html[data-book-layout] .sheet-footer,
+  html[data-book-layout] .running,
+  html[data-book-layout] .running-head,
+  html[data-book-layout] .running-header,
+  html[data-book-layout] .pagenum,
+  html[data-book-layout] .page-number,
+  html[data-book-layout] .version,
+  html[data-book-layout] .footer,
+  html[data-book-layout] .book-source { display: none !important; }
+
+  html[data-book-layout="paper"]:not([data-paired-reading]):not([data-solution-reading]):not([data-reading-fragment]),
+  html[data-book-layout="paper"]:not([data-paired-reading]):not([data-solution-reading]):not([data-reading-fragment]) body {
+    background: #f1f2f0 !important;
+  }
+  html[data-book-layout]:not([data-paired-reading]):not([data-solution-reading]):not([data-reading-fragment]) body > main {
+    width: 100% !important; max-width: none !important;
+    padding: 0 !important; margin: 0 !important;
+    background: transparent !important; box-shadow: none !important;
+  }
+  html[data-book-layout="paper"]:not([data-paired-reading]):not([data-solution-reading]):not([data-reading-fragment]) :is(.sheet,.page) {
+    display: flow-root !important;
+    width: 100% !important; max-width: 182mm !important;
+    min-height: 257mm !important; height: auto !important;
+    margin: 0 auto 24px !important;
+    padding: 60px clamp(24px, 7%, 77px) !important;
+    background: #fff !important;
+    border: 1px solid #e0e3df !important;
+    box-shadow: 0 2px 10px #00000010 !important;
+    overflow: visible !important;
+  }
+  html[data-book-layout]:not([data-paired-reading]):not([data-solution-reading]):not([data-reading-fragment]) .page-body {
+    min-height: 0 !important; height: auto !important;
+  }
+  html[data-book-layout="continuous"] :is(.sheet,.page) {
+    display: flow-root !important;
+    width: 100% !important; max-width: none !important;
+    min-height: 0 !important; height: auto !important;
+    margin: 0 !important; padding: 20px 16px !important;
+    border: 0 !important; box-shadow: none !important;
+    overflow: visible !important;
+  }
+  html[data-book-layout="continuous"] :is(.sheet + .sheet,.page + .page) {
+    padding-top: 8px !important;
   }
 }

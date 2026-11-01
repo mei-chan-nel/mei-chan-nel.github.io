@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第2問B「欠落した通信データの復元」正答・解説・配点｜情報Ⅰ Study Atlas</title><style>body{margin:0;background:#f3f4f5;color:#17212b;font:16px/1.95 ReportSerif,"Yu Mincho",serif}main{max-width:1050px;margin:28px auto;background:white;padding:45px 50px}h1{font-size:27px;line-height:1.5;margin:0 0 30px}h2{font-size:21px;margin-top:42px;border-bottom:1px solid #ccd4db;padding-bottom:8px}h3{font-size:18px;margin-top:30px}p{margin:14px 0}table{border-collapse:collapse;font-size:14px;line-height:1.8;width:100%;margin:20px 0}th,td{border:1px solid #bdc7cf;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef2f5}a{color:#174f80}code{font:13px/1.7 monospace;background:#f0f2f3;padding:2px 4px}.table-wrap{overflow-x:auto}strong{font-weight:700}.toolbar{background:white;border-bottom:1px solid #ddd;text-align:center;padding:9px;font-family:system-ui,sans-serif}button{padding:7px 20px;background:white;border:1px solid #aaa;border-radius:4px;cursor:pointer}@media(max-width:700px){main{margin:0;padding:24px 18px}h1{font-size:22px}}@media print{body{background:white;font-size:10.5pt}main{max-width:none;margin:0;padding:0}h1{font-size:17pt}h2{font-size:13pt}h3{font-size:11pt}table{font-size:9pt}th,td{padding:5px 7px}tr{break-inside:avoid}.toolbar{display:none}a{color:inherit;text-decoration:none}.table-wrap{overflow:visible}}@page{size:A4;margin:17mm}.toolbar{font-family:ReportSerif,serif}button{font:inherit}</style><meta name="robots" content="noindex, follow"><link rel="stylesheet" href="../../../../booklet.css"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>第2問B「欠落した通信データの復元」正答・解説・配点｜情報Ⅰ Study Atlas</title><style>body{margin:0;background:#f3f4f5;color:#17212b;font:16px/1.95 ReportSerif,"Yu Mincho",serif}main{max-width:1050px;margin:28px auto;background:white;padding:45px 50px}h1{font-size:27px;line-height:1.5;margin:0 0 30px}h2{font-size:21px;margin-top:42px;border-bottom:1px solid #ccd4db;padding-bottom:8px}h3{font-size:18px;margin-top:30px}p{margin:14px 0}table{border-collapse:collapse;font-size:14px;line-height:1.8;width:100%;margin:20px 0}th,td{border:1px solid #bdc7cf;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eef2f5}a{color:#174f80}code{font:13px/1.7 monospace;background:#f0f2f3;padding:2px 4px}.table-wrap{overflow-x:auto}strong{font-weight:700}.toolbar{background:white;border-bottom:1px solid #ddd;text-align:center;padding:9px;font-family:system-ui,sans-serif}button{padding:7px 20px;background:white;border:1px solid #aaa;border-radius:4px;cursor:pointer}@media(max-width:700px){main{margin:0;padding:24px 18px}h1{font-size:22px}}@media print{body{background:white;font-size:10.5pt}main{max-width:none;margin:0;padding:0}h1{font-size:17pt}h2{font-size:13pt}h3{font-size:11pt}table{font-size:9pt}th,td{padding:5px 7px}tr{break-inside:avoid}.toolbar{display:none}a{color:inherit;text-decoration:none}.table-wrap{overflow:visible}}@page{size:A4;margin:17mm}.toolbar{font-family:ReportSerif,serif}button{font:inherit}</style><meta name="robots" content="noindex, follow"><link rel="stylesheet" href="../../../../booklet.css"><link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 </head><body><main><h2>演算の性質</h2>
 <p>同じ位置のビットについて、0 ⊕ 0＝0、1 ⊕ 1＝0となる。したがって同じブロックを2回含めると、その2回分は打ち消し合う。例えば、P＝A ⊕ B ⊕ Cなら、P ⊕ A ⊕ C＝Bである。これは元の値がどのようなビット列でも成り立つ。</p>
 <p>各ビットで独立した演算なので、4ビットの例を長いブロックに広げても同じ仕組みを使える。通常の整数の足し算のような繰り上がりはない。</p>
-<h2 data-reading-units="q2b-01">問1：生成と逆向きの復元</h2>
+<h2 class="solution-unit-heading" data-reading-units="q2b-01" data-solution-heading="1">問1　コ</h2><p class="solution-unit-answer"><strong>正答　コ：①（1点）</strong></p><p class="solution-topic">生成と逆向きの復元</p>
 <p><strong>コ：1（0001）。</strong> A ⊕ B＝1010 ⊕ 1100＝0110。これにC＝0111を演算すると、0110 ⊕ 0111＝0001となる。</p>
-<p data-reading-units="q2b-02"><strong>サ：6（1110）。</strong> 届いているA、C、Pを使い、B＝P ⊕ A ⊕ Cとする。0111 ⊕ 0101＝0010、0010 ⊕ 1100＝1110である。逆算に通常の引き算を使う必要はない。</p>
-<h2 data-reading-units="q2b-03">問2：復元の順序と、直接復元する式</h2>
+<h2 class="solution-unit-heading" data-reading-units="q2b-02" data-solution-heading="1">問1　サ</h2><p class="solution-unit-answer"><strong>正答　サ：⑥（2点）</strong></p><p><strong>サ：6（1110）。</strong> 届いているA、C、Pを使い、B＝P ⊕ A ⊕ Cとする。0111 ⊕ 0101＝0010、0010 ⊕ 1100＝1110である。逆算に通常の引き算を使う必要はない。</p>
+<h2 class="solution-unit-heading" data-reading-units="q2b-03" data-solution-heading="1">問2　シ</h2><p class="solution-unit-answer"><strong>正答　シ：③（2点）</strong></p><p class="solution-topic">復元の順序と、直接復元する式</p>
 <p>方式Ⅰの関係はP＝A ⊕ B ⊕ C、Q＝B ⊕ C ⊕ Dである。欠落はAとC、届いているのはB、D、P、Q。</p>
 <p><strong>シ：3。</strong> この手順では、各段階でPとQのいずれか一方だけと、値が分かっている元のブロックを使う。Qには欠落したCだけが含まれるため、C＝Q ⊕ B ⊕ DでCを復元できる。次に、そのCを使い、A＝P ⊕ B ⊕ CでAを復元できる。</p>
 <div class="table-wrap"><table>
@@ -16,7 +16,7 @@
 <tr><td>2</td><td>誤り</td><td>Qの式にはAが含まれず，Qと既知のブロックからAを求められないため，誤りである。</td></tr>
 <tr><td>3</td><td>正しい</td><td>QでCを復元し、その結果をPに使えばAを復元できる</td></tr>
 </table></div>
-<p data-reading-units="q2b-04"><strong>ス：1。</strong> こちらはPとQの両方を使う。P ⊕ Q＝A ⊕ B ⊕ C ⊕ B ⊕ C ⊕ D＝A ⊕ D。これにDを演算するとAになる。Cの具体的な値を途中で求める必要はない。</p>
+<h2 class="solution-unit-heading" data-reading-units="q2b-04" data-solution-heading="1">問2　ス</h2><p class="solution-unit-answer"><strong>正答　ス：①（2点）</strong></p><p><strong>ス：1。</strong> こちらはPとQの両方を使う。P ⊕ Q＝A ⊕ B ⊕ C ⊕ B ⊕ C ⊕ D＝A ⊕ D。これにDを演算するとAになる。Cの具体的な値を途中で求める必要はない。</p>
 <div class="table-wrap"><table>
 <tr><th>選択肢</th><th>式を整理した結果</th><th>判断</th></tr>
 <tr><td>0：P ⊕ Q ⊕ B</td><td>A ⊕ B ⊕ D</td><td>BとDが等しくなければB ⊕ Dは0にならず，求めたいAと異なる値になるため，不適である。</td></tr>
@@ -24,7 +24,7 @@
 <tr><td>2：P ⊕ B ⊕ D</td><td>A ⊕ C ⊕ D</td><td>CとDが等しくなければC ⊕ Dは0にならず，求めたいAと異なる値になるため，不適である。</td></tr>
 <tr><td>3：Q ⊕ B ⊕ D</td><td>C</td><td>式の結果はCであり，求めたいAではないため，不適である。</td></tr>
 </table></div>
-<h2 data-reading-units="q2b-05">問3：二つの復元用ブロックでも区別できない場合</h2>
+<h2 class="solution-unit-heading" data-reading-units="q2b-05" data-solution-heading="1">問3　セ</h2><p class="solution-unit-answer"><strong>正答　セ：③（2点）</strong></p><p class="solution-topic">二つの復元用ブロックでも区別できない場合</p>
 <p><strong>セ：3（BとC）。</strong> AとDが届いているので、PからもQからもB ⊕ Cを求められる。しかしBとCそれぞれの値は決まらない。式が二つあっても、未知のブロックについて同じ関係しか得られなければ復元できない。</p>
 <p>例えばA＝D＝0000のとき、B＝0000、C＝1111と、B＝0101、C＝1010では、どちらもP＝Q＝1111になる。届いたA、D、P、Qが同じなのに元のB、Cは異なるため、一意には復元できない。</p>
 <div class="table-wrap"><table>
@@ -37,7 +37,7 @@
 <tr><td>5：C、D</td><td>PとA、BでC。そのCとQ、BでD</td><td>復元できるため，「復元できない組合せ」としては不適である。</td></tr>
 </table></div>
 <p>これは欠落数だけで復元の可否が決まらない例である。</p>
-<h2 data-reading-units="q2b-06">問4a：追加情報で変わる復元の範囲</h2>
+<h2 class="solution-unit-heading" data-reading-units="q2b-06" data-solution-heading="1">問4　ソ・タ</h2><p class="solution-unit-answer"><strong>正答　ソ：6・タ：①（完答で3点）</strong></p><p class="solution-topic">追加情報で変わる復元の範囲</p>
 <p><strong>ソ：6。</strong> 方式Ⅰで復元できた5通りは、P、Qが届いているので方式Ⅱでも復元できる。方式Ⅰでは復元できなかったB、Cの組も、RからC＝R ⊕ Aを求め、次にB＝P ⊕ A ⊕ Cとして復元できる。したがって6通り全てで元の4個を復元できる。</p>
 <p><strong>タ：1（Bだけ）。</strong> A～Dが全て欠落しても、PとRは届いている。P ⊕ R＝A ⊕ B ⊕ C ⊕ A ⊕ C＝Bなので、Bを復元できる。</p>
 <p>Bが分かっても、残る関係はA ⊕ C＝RとC ⊕ D＝Q ⊕ Bである。Cの値を一つ選ぶと、それに応じてAとDを決められるため、A、C、Dそれぞれの値は一意にならない。</p>
@@ -50,7 +50,7 @@
 </table></div>
 <p>例えばP＝Q＝R＝0000が届いた場合、元のA、B、C、Dが全て0000でも、A＝C＝D＝1111でB＝0000でも矛盾しない。Bだけは両方で0000と決まっている。</p>
 <p>一部を復元できることと、元のデータ全体を復元できることを区別する。元のブロックが届かなかった数だけで、復元の可否を決めることはできない。</p>
-<h2 data-reading-units="q2b-07">問4b：復元用のデータも欠落する場合</h2>
+<h2 class="solution-unit-heading" data-reading-units="q2b-07" data-solution-heading="1">問4　チ</h2><p class="solution-unit-answer"><strong>正答　チ：①（3点）</strong></p><p class="solution-topic">復元用のデータも欠落する場合</p>
 <p><strong>チ：1（A、C、Q）。</strong> 届いているのはB、D、P、R。Pから得られるのはA ⊕ C＝P ⊕ Bであり、R＝A ⊕ Cと同じ関係である。Dは届いていても、Dを使ったQが欠落しているため、AとCを区別する手掛かりを増やせない。</p>
 <div class="table-wrap"><table>
 <tr><th>選択肢・欠落</th><th>届いたブロック</th><th>復元の可否と根拠</th></tr>

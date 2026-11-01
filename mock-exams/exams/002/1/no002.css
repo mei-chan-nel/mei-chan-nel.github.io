@@ -1,0 +1,97 @@
+/* No.002's source-specific layout; scoring and source snapshots stay separate. */
+.solution-answer {
+  margin: 0.7em 0 1em;
+  line-height: 1.8;
+}
+.explanation-choices {
+  list-style: none;
+  padding-left: 0;
+}
+.explanation-choices > li {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr);
+  gap: 0.4em;
+  margin: 0.7em 0;
+}
+.explanation-choices > li::before {
+  content: none !important;
+}
+.explanation-choices .num {
+  position: static !important;
+  grid-column: 1;
+}
+.explanation-choices > li > div {
+  grid-column: 2;
+  min-width: 0;
+}
+.explanation-choices p {
+  margin: 0;
+  text-indent: 0;
+}
+@media screen {
+  body {
+    font-family: system-ui, sans-serif !important;
+  }
+  .solution,
+  main.solution {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .explanation-unit {
+    display: flow-root;
+    margin: 0 0 24px;
+  }
+  .explanation-unit h2 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .opt-index,
+  .option-index,
+  .choice-num,
+  .choice-label {
+    text-indent: 0;
+  }
+}
+/* Keep option numbers and the first text line on one baseline. */
+.options li {
+  align-items: start;
+}
+fieldset.choices {
+  padding-top: 12px;
+  margin-top: 18px;
+}
+fieldset.choices legend {
+  padding-inline: 6px;
+  margin-bottom: 6px;
+}
+@media print {
+  .explanation-unit {
+    break-inside: auto;
+    margin: 0 0 6mm;
+  }
+  .explanation-unit h2,
+  .audit-group h3 {
+    break-after: avoid;
+  }
+  .solution,
+  main.solution {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .studio-program-link {
+    display: none;
+  }
+}
+
+/* Explicit column roles override the submitted sheets' global alignment. */
+[data-column-align="left"], td[data-column-align="left"] p { text-align:left !important; }
+[data-column-align="center"] { text-align:center !important; }
+
+/* Circled digits already contain their outline; do not frame them again. */
+body[data-section="q2b"] .choice > .num {
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  line-height: 1.9 !important;
+}

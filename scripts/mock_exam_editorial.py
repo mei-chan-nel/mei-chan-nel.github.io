@@ -37,6 +37,25 @@ def normalize_problem_typography(document, section_id):
             heading.tag = 'p'
             heading.set('class', 'exam-question')
             combine(heading, paragraph)
+    bold_question_numbers(document)
+
+
+def bold_question_numbers(document):
+    """Mark only 問n, not the following prompt, in every problem edition."""
+    import re
+    from lxml import etree
+    for element in list(document.iter()):
+        if element.tag not in ('p', 'b', 'strong', 'span', 'h2'):
+            continue
+        if element.get('data-question-number') or element.xpath('ancestor::*[@data-question-number]'):
+            continue
+        match = re.match(r'^(問[0-9０-９]+)(?=[\s　]|$)(.*)', element.text or '', re.S)
+        if not match:
+            continue
+        label = etree.Element('span', {'data-question-number': 'true'})
+        label.text, label.tail = match.groups()
+        element.text = None
+        element.insert(0, label)
 
 
 def clean_screen_chrome(document):

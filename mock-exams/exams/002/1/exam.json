@@ -1,0 +1,2052 @@
+{
+  "schemaVersion": 1,
+  "id": "002",
+  "version": 1,
+  "title": "情報Ⅰ 実戦演習 No.002",
+  "durationSeconds": 3600,
+  "maxPoints": 100,
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問",
+      "maxPoints": 20,
+      "sourceVersion": "1.2.3",
+      "problem": "q1.html",
+      "solution": "q1-solution.html",
+      "screenProblem": "screen/q1.html",
+      "screenSolution": "screen/q1-solution.html",
+      "sourceProblem": "source/Q1_002_problem.html",
+      "sourceSolution": "source/Q1_002_answers.html",
+      "sourceSha256": "ce444263194cc6094014bd88294ae5498c0f2313213a862ecb37092170cb6e4e",
+      "solutionSha256": "f64ddd9dffa271075754d63644e15137b2eac89e9f95cb37e7494f5cad552bfc"
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A",
+      "maxPoints": 15,
+      "sourceVersion": "2.3.1",
+      "problem": "q2a.html",
+      "solution": "q2a-solution.html",
+      "screenProblem": "screen/q2a.html",
+      "screenSolution": "screen/q2a-solution.html",
+      "sourceProblem": "source/Q2A_002_problem_v2.3.1.html",
+      "sourceSolution": "source/Q2A_002_answers_v2.3.1.html",
+      "sourceSha256": "c70a042d0f755245150d2931b1af0d84479387dd28a27ffba8ed6a4efa49fb3f",
+      "solutionSha256": "22a100432646fef874b4817df4d38f84ec9f246f8a3d1cae8923fe5b675bb5d2"
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B",
+      "maxPoints": 15,
+      "sourceVersion": "1.3.3",
+      "problem": "q2b.html",
+      "solution": "q2b-solution.html",
+      "screenProblem": "screen/q2b.html",
+      "screenSolution": "screen/q2b-solution.html",
+      "sourceProblem": "source/Q2B_002_problem_v1.3.3.html",
+      "sourceSolution": "source/Q2B_002_answers_v1.3.3.html",
+      "sourceSha256": "828211bd94486e8a0018e5f3d737f99acba05c38e2517e01a96d0355f25ef95a",
+      "solutionSha256": "628c444009fb0329249d07a94a17a846770d6f182528f19682850b8dae4526e8"
+    },
+    {
+      "id": "q3",
+      "title": "第3問",
+      "maxPoints": 25,
+      "sourceVersion": "2.3.1",
+      "problem": "q3.html",
+      "solution": "q3-solution.html",
+      "screenProblem": "screen/q3.html",
+      "screenSolution": "screen/q3-solution.html",
+      "sourceProblem": "source/Q3_002_v2.3.1.html",
+      "sourceSolution": "source/Q3_002_solution_v2.3.1.html",
+      "sourceSha256": "78a8f2414d7c0d1e8e9ac3896d6db29595c6159080dcf58b8a21a3c5cbffa91a",
+      "solutionSha256": "8ec050b447663ca23c9de92e509106eddd169d575fbc7046611d17b6681cd417"
+    },
+    {
+      "id": "q4",
+      "title": "第4問",
+      "maxPoints": 25,
+      "sourceVersion": "1.3.3",
+      "problem": "q4.html",
+      "solution": "q4-solution.html",
+      "screenProblem": "screen/q4.html",
+      "screenSolution": "screen/q4-solution.html",
+      "sourceProblem": "source/Q4_002_problem_v1.3.3.html",
+      "sourceSolution": "source/Q4_002_explanation_v1.3.3.html",
+      "sourceSha256": "5190d86928a8335944d2b5f45a7c5a4b28293d501ed438d552b4e4db9d5a2451",
+      "solutionSha256": "906c0afb6900272cb450cf32156e53773f856a52c095c85785db36536247bf3b"
+    }
+  ],
+  "fields": [
+    {
+      "id": "q1-ア",
+      "sectionId": "q1",
+      "label": "ア",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "画像検索で同じ画像の過去の掲載例が見つからなかったため，今回の地震による被害を撮影した画像だと判断した。"
+        },
+        {
+          "value": "1",
+          "text": "AI画像判定ツールで生成AIによる画像の可能性が高いと示されたため，今回の地震による被害を撮影した画像ではないと判断した。"
+        },
+        {
+          "value": "2",
+          "text": "今回の地震が発生する前に同じ画像が公開されていたことを確認できたため，今回の地震による被害を撮影した画像ではないと判断した。"
+        },
+        {
+          "value": "3",
+          "text": "公的機関の発表で同じ地域の建物の倒壊が確認されたため，投稿された画像も今回の地震による被害を撮影したものだと判断した。"
+        }
+      ]
+    },
+    {
+      "id": "q1-イ",
+      "sectionId": "q1",
+      "label": "イ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "パスワードを入力し，続けて，暗記している暗証番号を入力する。"
+        },
+        {
+          "value": "1",
+          "text": "パスワードを入力し，続けて，登録してある秘密の質問に回答する。"
+        },
+        {
+          "value": "2",
+          "text": "本人に発行されたICカードを読み取り，続けて，登録してある指紋と照合する。"
+        },
+        {
+          "value": "3",
+          "text": "登録してある指紋と照合し，続けて，登録してある顔の特徴と照合する。"
+        }
+      ]
+    },
+    {
+      "id": "q1-ウ",
+      "sectionId": "q1",
+      "label": "ウ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q1-エ",
+      "sectionId": "q1",
+      "label": "エ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q1-オ",
+      "sectionId": "q1",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "474，474474，474"
+        },
+        {
+          "value": "1",
+          "text": "474，475474，474"
+        },
+        {
+          "value": "2",
+          "text": "474，474474，475"
+        },
+        {
+          "value": "3",
+          "text": "474，475474，475"
+        }
+      ]
+    },
+    {
+      "id": "q1-カ",
+      "sectionId": "q1",
+      "label": "カ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "3/2倍"
+        },
+        {
+          "value": "1",
+          "text": "3倍"
+        },
+        {
+          "value": "2",
+          "text": "6倍"
+        },
+        {
+          "value": "3",
+          "text": "9/2倍"
+        }
+      ]
+    },
+    {
+      "id": "q1-キ",
+      "sectionId": "q1",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "タンクの水が足りていて，土が乾いている"
+        },
+        {
+          "value": "1",
+          "text": "タンクの水が不足していて，土が乾いている"
+        },
+        {
+          "value": "2",
+          "text": "タンクの水が足りていて，土が乾いていない"
+        },
+        {
+          "value": "3",
+          "text": "タンクの水が不足していて，土が乾いていない"
+        }
+      ]
+    },
+    {
+      "id": "q1-ク",
+      "sectionId": "q1",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "回路⓪"
+        },
+        {
+          "value": "1",
+          "text": "回路①"
+        },
+        {
+          "value": "2",
+          "text": "回路②"
+        },
+        {
+          "value": "3",
+          "text": "回路③"
+        }
+      ]
+    },
+    {
+      "id": "q1-ケ",
+      "sectionId": "q1",
+      "label": "ケ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "写真ID"
+        },
+        {
+          "value": "1",
+          "text": "題名"
+        },
+        {
+          "value": "2",
+          "text": "撮影者ID"
+        },
+        {
+          "value": "3",
+          "text": "表示名"
+        }
+      ]
+    },
+    {
+      "id": "q1-コ",
+      "sectionId": "q1",
+      "label": "コ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "写真ID"
+        },
+        {
+          "value": "1",
+          "text": "題名"
+        },
+        {
+          "value": "2",
+          "text": "撮影者ID"
+        },
+        {
+          "value": "3",
+          "text": "表示名"
+        }
+      ]
+    },
+    {
+      "id": "q1-サ",
+      "sectionId": "q1",
+      "label": "サ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "F01，F02，F03"
+        },
+        {
+          "value": "1",
+          "text": "F01，F04，F05"
+        },
+        {
+          "value": "2",
+          "text": "F02，F04，F05"
+        },
+        {
+          "value": "3",
+          "text": "F01，F03，F05"
+        }
+      ]
+    },
+    {
+      "id": "q1-シ",
+      "sectionId": "q1",
+      "label": "シ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "写真ID"
+        },
+        {
+          "value": "1",
+          "text": "号，ページ"
+        },
+        {
+          "value": "2",
+          "text": "号，写真ID"
+        },
+        {
+          "value": "3",
+          "text": "号，ページ，写真ID"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ア",
+      "sectionId": "q2a",
+      "label": "ア",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "客の端末が客の入力した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "1",
+          "text": "客の端末がPOSレジで計算した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "2",
+          "text": "客の端末が読み取ったコードに含まれる金額を用いて支払要求を送る"
+        },
+        {
+          "value": "3",
+          "text": "店のPOSレジが客の入力した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "4",
+          "text": "店のPOSレジがPOSレジで計算した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "5",
+          "text": "店のPOSレジが読み取ったコードに含まれる金額を用いて支払要求を送る"
+        }
+      ]
+    },
+    {
+      "id": "q2a-イ",
+      "sectionId": "q2a",
+      "label": "イ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "客の端末が客の入力した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "1",
+          "text": "客の端末がPOSレジで計算した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "2",
+          "text": "客の端末が読み取ったコードに含まれる金額を用いて支払要求を送る"
+        },
+        {
+          "value": "3",
+          "text": "店のPOSレジが客の入力した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "4",
+          "text": "店のPOSレジがPOSレジで計算した金額を用いて支払要求を送る"
+        },
+        {
+          "value": "5",
+          "text": "店のPOSレジが読み取ったコードに含まれる金額を用いて支払要求を送る"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ウ",
+      "sectionId": "q2a",
+      "label": "ウ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "方式Aは入力額を店員が確認する負担があるが，レジごとに異なるコードを置けば，POSレジの金額と自動で照合できる。"
+        },
+        {
+          "value": "1",
+          "text": "方式Bは店に読取機能が必要だが，客のコードから金額を得られるので，POSレジとDNC Payを連携させる必要がない。"
+        },
+        {
+          "value": "2",
+          "text": "方式Aは店の読取機能やPOSレジとの連携を必要としない。方式Bはそれらが必要だが，客が金額を手入力する際の誤りを減らせる。"
+        },
+        {
+          "value": "3",
+          "text": "方式Bは読取機能やPOSレジとの連携が必要だが，金額を自動計算するので，商品の種類・個数の誤登録による誤りも防げる。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-エ",
+      "sectionId": "q2a",
+      "label": "エ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "方式A・Bとも支払要求を送れるが，店は結果を受信できない。"
+        },
+        {
+          "value": "1",
+          "text": "方式A・Bとも，店が結果を受信できないので支払要求を送れない。"
+        },
+        {
+          "value": "2",
+          "text": "方式Aでは客が支払要求を送れるが，方式Bでは店から送れない。"
+        },
+        {
+          "value": "3",
+          "text": "方式Bでは客のコードを使うので，店の要求も客の通信回線を通して送れる。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-オ",
+      "sectionId": "q2a",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Cでは同額の別の会計にも同じ請求番号を使い回せるので，会計ごとにコードを作る回数を減らせる。"
+        },
+        {
+          "value": "1",
+          "text": "Cでは客の金額入力と店員による入力額の確認を省けるが，POSレジとの連携と，会計ごとのコード表示が必要になる。"
+        },
+        {
+          "value": "2",
+          "text": "CではPOSレジの計算額をサーバへ送るので，商品の種類や個数を誤って登録しても，サーバが金額を自動で修正できる。"
+        },
+        {
+          "value": "3",
+          "text": "Cでは店側に読取機能を追加せずに済むので，POSレジとの連携も不要となり，Aと同じ紙のコードを使い続けられる。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-カ",
+      "sectionId": "q2a",
+      "label": "カ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Cでは店の決済用スキャナが必要であり，客にコードを示す画面は不要になる。"
+        },
+        {
+          "value": "1",
+          "text": "Cでは店の決済用スキャナは不要になるが，客にコードを示す画面が必要になる。"
+        },
+        {
+          "value": "2",
+          "text": "Cでは店の決済用スキャナと，客にコードを示す画面の両方が必要になる。"
+        },
+        {
+          "value": "3",
+          "text": "Cでは店の決済用スキャナも，客にコードを示す画面も不要になる。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-キ",
+      "sectionId": "q2a",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "店員は元のコードを再表示し，客はそのコードで再び支払操作をする"
+        },
+        {
+          "value": "1",
+          "text": "店員は新しい請求番号のコードを表示し，客はそのコードで支払操作をする"
+        },
+        {
+          "value": "2",
+          "text": "店員は元の請求を支払済みとして会計に反映し，客には再操作を求めない"
+        },
+        {
+          "value": "3",
+          "text": "店員は新しい請求番号のコードを表示し，客は支払操作をせず待つ"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ク",
+      "sectionId": "q2a",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "店員は元のコードを再表示し，客はそのコードで再び支払操作をする"
+        },
+        {
+          "value": "1",
+          "text": "店員は新しい請求番号のコードを表示し，客はそのコードで支払操作をする"
+        },
+        {
+          "value": "2",
+          "text": "店員は元の請求を支払済みとして会計に反映し，客には再操作を求めない"
+        },
+        {
+          "value": "3",
+          "text": "店員は新しい請求番号のコードを表示し，客は支払操作をせず待つ"
+        }
+      ]
+    },
+    {
+      "id": "q2b-コ",
+      "sectionId": "q2b",
+      "label": "コ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "配置⓪"
+        },
+        {
+          "value": "1",
+          "text": "配置①"
+        },
+        {
+          "value": "2",
+          "text": "配置②"
+        },
+        {
+          "value": "3",
+          "text": "配置③"
+        }
+      ]
+    },
+    {
+      "id": "q2b-サ",
+      "sectionId": "q2b",
+      "label": "サ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q2b-シ",
+      "sectionId": "q2b",
+      "label": "シ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "L × R"
+        },
+        {
+          "value": "1",
+          "text": "L × (1 − C)"
+        },
+        {
+          "value": "2",
+          "text": "C × (1 − R)"
+        },
+        {
+          "value": "3",
+          "text": "C × R"
+        }
+      ]
+    },
+    {
+      "id": "q2b-ス",
+      "sectionId": "q2b",
+      "label": "ス",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "L × R"
+        },
+        {
+          "value": "1",
+          "text": "L × (1 − C)"
+        },
+        {
+          "value": "2",
+          "text": "C × (1 − R)"
+        },
+        {
+          "value": "3",
+          "text": "C × R"
+        }
+      ]
+    },
+    {
+      "id": "q2b-セ",
+      "sectionId": "q2b",
+      "label": "セ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "1回目：2台，2回目：2台"
+        },
+        {
+          "value": "1",
+          "text": "1回目：2台，2回目：3台"
+        },
+        {
+          "value": "2",
+          "text": "1回目：3台，2回目：3台"
+        },
+        {
+          "value": "3",
+          "text": "1回目：3台，2回目：4台"
+        }
+      ]
+    },
+    {
+      "id": "q2b-ソ",
+      "sectionId": "q2b",
+      "label": "ソ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "配置⓪"
+        },
+        {
+          "value": "1",
+          "text": "配置①"
+        },
+        {
+          "value": "2",
+          "text": "配置②"
+        },
+        {
+          "value": "3",
+          "text": "配置③"
+        }
+      ]
+    },
+    {
+      "id": "q2b-タ",
+      "sectionId": "q2b",
+      "label": "タ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Pが一つ前の更新直前の配置と異なる"
+        },
+        {
+          "value": "1",
+          "text": "Wが前回求めた値より小さい"
+        },
+        {
+          "value": "2",
+          "text": "Wが0より大きい"
+        },
+        {
+          "value": "3",
+          "text": "Pに含まれる1と0が同じ個数である"
+        }
+      ]
+    },
+    {
+      "id": "q2b-チ",
+      "sectionId": "q2b",
+      "label": "チ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q2b-ツ",
+      "sectionId": "q2b",
+      "label": "ツ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-ア",
+      "sectionId": "q3",
+      "label": "ア",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-イ",
+      "sectionId": "q3",
+      "label": "イ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-ウ",
+      "sectionId": "q3",
+      "label": "ウ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-エ",
+      "sectionId": "q3",
+      "label": "エ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "部屋３の机配置が終わるのを待つ必要があるため。"
+        },
+        {
+          "value": "1",
+          "text": "部屋３の掲示が終わるのを待つ必要があるため。"
+        },
+        {
+          "value": "2",
+          "text": "部屋２の設営が完了するのを待つ必要があるため。"
+        },
+        {
+          "value": "3",
+          "text": "部屋１の点検が終わるのを待つ必要があるため。"
+        }
+      ]
+    },
+    {
+      "id": "q3-オ",
+      "sectionId": "q3",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Keiji[r]"
+        },
+        {
+          "value": "1",
+          "text": "Tsukue[r]"
+        },
+        {
+          "value": "2",
+          "text": "Kiki[r]"
+        },
+        {
+          "value": "3",
+          "text": "Aki[r]"
+        }
+      ]
+    },
+    {
+      "id": "q3-カ",
+      "sectionId": "q3",
+      "label": "カ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "最大値(Aki[1], Aki[2])"
+        },
+        {
+          "value": "1",
+          "text": "最大値(Aki[2], Aki[3])"
+        },
+        {
+          "value": "2",
+          "text": "Aki[1] + Aki[3]"
+        },
+        {
+          "value": "3",
+          "text": "最大値(Aki[1], Aki[3])"
+        }
+      ]
+    },
+    {
+      "id": "q3-キ",
+      "sectionId": "q3",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Kiki[r] == 0"
+        },
+        {
+          "value": "1",
+          "text": "Aki[2] == 0"
+        },
+        {
+          "value": "2",
+          "text": "Kiki[r] > 0"
+        },
+        {
+          "value": "3",
+          "text": "Kiki[r] > Aki[2]"
+        }
+      ]
+    },
+    {
+      "id": "q3-ク",
+      "sectionId": "q3",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "最大値(Aki[1], Aki[2])"
+        },
+        {
+          "value": "1",
+          "text": "Aki[1] + Aki[2]"
+        },
+        {
+          "value": "2",
+          "text": "最大値(Aki[2], Aki[3])"
+        },
+        {
+          "value": "3",
+          "text": "最大値(Aki[1], Aki[3])"
+        }
+      ]
+    },
+    {
+      "id": "q3-ケ",
+      "sectionId": "q3",
+      "label": "ケ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Junbi[r]"
+        },
+        {
+          "value": "1",
+          "text": "t + Junbi[r]"
+        },
+        {
+          "value": "2",
+          "text": "最大値(t, Junbi[r])"
+        },
+        {
+          "value": "3",
+          "text": "最大値(t, Aki[2])"
+        }
+      ]
+    },
+    {
+      "id": "q3-コ",
+      "sectionId": "q3",
+      "label": "コ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Sumi[i] == 1"
+        },
+        {
+          "value": "1",
+          "text": "Sumi[i] == 0"
+        },
+        {
+          "value": "2",
+          "text": "Sumi[k] == 0"
+        },
+        {
+          "value": "3",
+          "text": "Junbi[i] == 0"
+        }
+      ]
+    },
+    {
+      "id": "q3-サ",
+      "sectionId": "q3",
+      "label": "サ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Junbi[i] <= Junbi[r]"
+        },
+        {
+          "value": "1",
+          "text": "i < r"
+        },
+        {
+          "value": "2",
+          "text": "Junbi[i] > Junbi[r]"
+        },
+        {
+          "value": "3",
+          "text": "Junbi[i] < Junbi[r]"
+        }
+      ]
+    },
+    {
+      "id": "q3-シ",
+      "sectionId": "q3",
+      "label": "シ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "i"
+        },
+        {
+          "value": "1",
+          "text": "r"
+        },
+        {
+          "value": "2",
+          "text": "k"
+        },
+        {
+          "value": "3",
+          "text": "Junban[k]"
+        }
+      ]
+    },
+    {
+      "id": "q3-ス",
+      "sectionId": "q3",
+      "label": "ス",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "外側の繰返しの前"
+        },
+        {
+          "value": "1",
+          "text": "外側の繰返しの中・内側の繰返しの前"
+        },
+        {
+          "value": "2",
+          "text": "未点検の各候補を調べる中"
+        },
+        {
+          "value": "3",
+          "text": "点検済みにした後・表示する前"
+        }
+      ]
+    },
+    {
+      "id": "q3-セ",
+      "sectionId": "q3",
+      "label": "セ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-ソ",
+      "sectionId": "q3",
+      "label": "ソ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-タ",
+      "sectionId": "q3",
+      "label": "タ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q4-ア",
+      "sectionId": "q4",
+      "label": "ア",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "中央値は区分4の方が高く，四分位範囲も区分4の方が大きい"
+        },
+        {
+          "value": "1",
+          "text": "中央値も四分位範囲も，区分3と区分4で等しい"
+        },
+        {
+          "value": "2",
+          "text": "中央値は区分4の方が高く，四分位範囲は両区分で等しい"
+        },
+        {
+          "value": "3",
+          "text": "中央値は両区分で等しく，四分位範囲は区分4の方が大きい"
+        }
+      ]
+    },
+    {
+      "id": "q4-イ",
+      "sectionId": "q4",
+      "label": "イ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "15点以上の人数も割合も，区分1・2の群の方が大きい"
+        },
+        {
+          "value": "1",
+          "text": "15点以上の人数は区分3・4の群の方が多く，割合は区分1・2の群の方が高い"
+        },
+        {
+          "value": "2",
+          "text": "15点以上の人数は区分1・2の群の方が多く，割合は区分3・4の群の方が高い"
+        },
+        {
+          "value": "3",
+          "text": "15点以上の人数も割合も，区分3・4の群の方が大きい"
+        }
+      ]
+    },
+    {
+      "id": "q4-ウ",
+      "sectionId": "q4",
+      "label": "ウ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "最終評価点の平均も評価点差の平均も，区分3・4の群の方が大きい"
+        },
+        {
+          "value": "1",
+          "text": "最終評価点の平均は区分3・4の群の方が大きいが，評価点差の平均は区分1・2の群の方が大きい"
+        },
+        {
+          "value": "2",
+          "text": "最終評価点の平均は区分1・2の群の方が大きいが，評価点差の平均は区分3・4の群の方が大きい"
+        },
+        {
+          "value": "3",
+          "text": "最終評価点の平均も評価点差の平均も，区分1・2の群の方が大きい"
+        }
+      ]
+    },
+    {
+      "id": "q4-エ",
+      "sectionId": "q4",
+      "label": "エ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Sより大きく，評価点差が正の生徒の割合は，図3の見えている点を数えるだけでは求められない"
+        },
+        {
+          "value": "1",
+          "text": "Sより大きく，評価点差が正の生徒の割合は，図3の見えている点を数えれば求められる"
+        },
+        {
+          "value": "2",
+          "text": "Sより小さく，評価点差が正の生徒の割合は，図3の見えている点を数えるだけでは求められない"
+        },
+        {
+          "value": "3",
+          "text": "Sより小さく，評価点差が正の生徒の割合は，図3の見えている点を数えれば求められる"
+        }
+      ]
+    },
+    {
+      "id": "q4-オ",
+      "sectionId": "q4",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0〜9点では小さく，10〜14点と15〜20点では大きい"
+        },
+        {
+          "value": "1",
+          "text": "0〜9点と10〜14点では大きく，15〜20点では小さい"
+        },
+        {
+          "value": "2",
+          "text": "0〜9点では大きく，10〜14点と15〜20点では小さい"
+        },
+        {
+          "value": "3",
+          "text": "0〜9点，10〜14点，15〜20点すべてで小さい"
+        }
+      ]
+    },
+    {
+      "id": "q4-カ",
+      "sectionId": "q4",
+      "label": "カ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "（19×（−1.16）＋50×（−0.74）＋23×0.00）÷92"
+        },
+        {
+          "value": "1",
+          "text": "（（−1.16）＋（−0.74）＋0.00）÷3"
+        },
+        {
+          "value": "2",
+          "text": "（142×（−1.16）＋188×（−0.74）＋65×0.00）÷395"
+        },
+        {
+          "value": "3",
+          "text": "（123×（−1.16）＋138×（−0.74）＋42×0.00）÷303"
+        }
+      ]
+    },
+    {
+      "id": "q4-キ",
+      "sectionId": "q4",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "隔たりは大きくなった。元の区分3・4の群では，平均差の小さい第1期評価点0〜9点の生徒の割合が395人全体より低く，その群の平均差が押し上げられていた"
+        },
+        {
+          "value": "1",
+          "text": "隔たりは大きくなった。元の区分3・4の群では，平均差の大きい第1期評価点15〜20点の生徒の割合が395人全体より低く，その群の平均差が押し下げられていた"
+        },
+        {
+          "value": "2",
+          "text": "隔たりは小さくなった。元の区分3・4の群では，平均差の小さい第1期評価点0〜9点の生徒の割合が395人全体より高く，その群の平均差が押し下げられていた"
+        },
+        {
+          "value": "3",
+          "text": "隔たりは小さくなった。元の区分3・4の群では，平均差の大きい第1期評価点15〜20点の生徒の割合が395人全体より高く，その群の平均差が押し上げられていた"
+        }
+      ]
+    },
+    {
+      "id": "q4-ク",
+      "sectionId": "q4",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "評価点差は等しいが，予測値との差はQの方が大きい"
+        },
+        {
+          "value": "1",
+          "text": "評価点差は等しいが，予測値との差はSの方が大きい"
+        },
+        {
+          "value": "2",
+          "text": "評価点差はSの方が大きいが，予測値との差はQの方が大きい"
+        },
+        {
+          "value": "3",
+          "text": "評価点差はSの方が大きく，予測値との差もSの方が大きい"
+        }
+      ]
+    },
+    {
+      "id": "q4-ケ",
+      "sectionId": "q4",
+      "label": "ケ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "方法Bで誤差が3点を超えた9人は，全員が方法Aでも誤差が3点を超えていたので，大きく外れる生徒は同じである。"
+        },
+        {
+          "value": "1",
+          "text": "方法Aから方法Bに変えると，誤差が3点超から3点以下になる生徒は19人だが，反対に3点以下から3点超になる生徒も1人いる。"
+        },
+        {
+          "value": "2",
+          "text": "120人の記録も回帰直線を求める計算に加え，その120人で表6を作り直せば，まだ使っていない生徒への予測の比較を続けられる。"
+        },
+        {
+          "value": "3",
+          "text": "表6から，学習時間が区分1・2の群でも区分3・4の群でも，方法Aから方法Bに変えると誤差が3点を超える割合が下がったと判断できる。"
+        },
+        {
+          "value": "4",
+          "text": "第1期が終わった時点で予測を知らせる目的なら，表6で誤差が小さい方法Bをそのまま選ぶことはできず，その時点で使える情報を考慮する必要がある。"
+        }
+      ]
+    },
+    {
+      "id": "q4-コ",
+      "sectionId": "q4",
+      "label": "コ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "方法Bで誤差が3点を超えた9人は，全員が方法Aでも誤差が3点を超えていたので，大きく外れる生徒は同じである。"
+        },
+        {
+          "value": "1",
+          "text": "方法Aから方法Bに変えると，誤差が3点超から3点以下になる生徒は19人だが，反対に3点以下から3点超になる生徒も1人いる。"
+        },
+        {
+          "value": "2",
+          "text": "120人の記録も回帰直線を求める計算に加え，その120人で表6を作り直せば，まだ使っていない生徒への予測の比較を続けられる。"
+        },
+        {
+          "value": "3",
+          "text": "表6から，学習時間が区分1・2の群でも区分3・4の群でも，方法Aから方法Bに変えると誤差が3点を超える割合が下がったと判断できる。"
+        },
+        {
+          "value": "4",
+          "text": "第1期が終わった時点で予測を知らせる目的なら，表6で誤差が小さい方法Bをそのまま選ぶことはできず，その時点で使える情報を考慮する必要がある。"
+        }
+      ]
+    }
+  ],
+  "scoring": [
+    {
+      "id": "q1-01",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-02",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-03",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-ウ",
+        "q1-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-04",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-05",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-06",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-キ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-07",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-08",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-ケ",
+        "q1-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-09",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-10",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-01",
+      "sectionId": "q2a",
+      "question": 1,
+      "fields": [
+        "q2a-ア",
+        "q2a-イ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-02",
+      "sectionId": "q2a",
+      "question": 2,
+      "fields": [
+        "q2a-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-03",
+      "sectionId": "q2a",
+      "question": 2,
+      "fields": [
+        "q2a-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-04",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-オ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-05",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-06",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-キ",
+        "q2a-ク"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-01",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-コ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-02",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "8"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-03",
+      "sectionId": "q2b",
+      "question": 2,
+      "fields": [
+        "q2b-シ",
+        "q2b-ス"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-04",
+      "sectionId": "q2b",
+      "question": 3,
+      "fields": [
+        "q2b-セ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-05",
+      "sectionId": "q2b",
+      "question": 3,
+      "fields": [
+        "q2b-ソ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-06",
+      "sectionId": "q2b",
+      "question": 4,
+      "fields": [
+        "q2b-タ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-07",
+      "sectionId": "q2b",
+      "question": 4,
+      "fields": [
+        "q2b-チ",
+        "q2b-ツ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3",
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-01",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-ア",
+        "q3-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-02",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-ウ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-03",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-04",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-05",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-06",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-キ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-07",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-08",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-09",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-10",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-11",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-シ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-12",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ス"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-13",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-セ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-14",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ソ",
+        "q3-タ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4",
+            "9"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-01",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-02",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-03",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-ウ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-04",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-エ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-05",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-06",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-カ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-07",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-キ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-08",
+      "sectionId": "q4",
+      "question": 5,
+      "fields": [
+        "q4-ク"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-09",
+      "sectionId": "q4",
+      "question": 5,
+      "fields": [
+        "q4-ケ",
+        "q4-コ"
+      ],
+      "maxPoints": 4,
+      "rule": {
+        "kind": "unordered",
+        "patterns": [
+          [
+            "1",
+            "4"
+          ]
+        ]
+      }
+    }
+  ]
+}

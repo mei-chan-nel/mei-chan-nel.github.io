@@ -47,7 +47,7 @@ export function sortCatalog(entries, history, mode, sectionId, order) {
     return (
       rank[catalogProgress(a, history, mode, sectionId).status] -
         rank[catalogProgress(b, history, mode, sectionId).status] ||
-      newest(a, b)
+      numberOrder(b, a)
     );
   });
 }

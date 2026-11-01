@@ -205,6 +205,12 @@ const server = http.createServer((req, res) => {
         .evaluate((e) => getComputedStyle(e).position),
       "static",
     );
+    const footer = p.locator(".reading-bottom-toolbar");
+    assert.deepEqual(await footer.locator("button").allTextContents(), await p.locator(".reading-toolbar button").allTextContents());
+    await footer.getByRole("button", {name:"第3問",exact:true}).click();
+    await currentPair("q3");
+    await p.locator(".reading-bottom-toolbar").getByRole("button", {name:"第1問",exact:true}).click();
+    await currentPair("q1");
     let coverage = 0;
     for (const s of exam.sections) {
       await p

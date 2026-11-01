@@ -39,6 +39,10 @@ try {
     "sitemap.xml",
     "mock-exams/index.html",
     "mock-exams/app.mjs",
+    "mock-exams/entry.mjs",
+    "mock-exams/ui/catalog-page.mjs",
+    "mock-exams/ui/book-document.mjs",
+    "mock-exams/ui/book-frame.mjs",
     "mock-exams/app.css",
     "mock-exams/analytics.mjs",
     "assets/site-analytics.js",
@@ -55,6 +59,7 @@ try {
       paths.add(directory + (section.screenProblem || section.problem));
       paths.add(directory + (section.screenSolution || section.solution));
     }
+    if (exam.id === "002") paths.add(directory + "no002.css");
     paths.add(directory + "problem.pdf");
     paths.add(directory + "solution.pdf");
   }
