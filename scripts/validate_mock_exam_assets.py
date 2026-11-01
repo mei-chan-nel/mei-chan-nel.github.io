@@ -118,7 +118,7 @@ def validate(manifest, skip_pdf=False):
                     for node in d.xpath('//style|//script'):
                         node.drop_tree()
                     for node in d.find('body').iter():
-                        if not isinstance(node.tag, str) or node.tag in ('metadata', 'title'):
+                        if not isinstance(node.tag, str) or node.tag in ('metadata', 'title', 'desc'):
                             continue
                         if any(a.tag == 'metadata' or 'figure-description' in a.get('class', '') or 'mobile-diagram' in a.get('class', '') for a in node.iterancestors()):
                             continue

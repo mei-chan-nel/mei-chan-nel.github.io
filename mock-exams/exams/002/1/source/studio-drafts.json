@@ -1,0 +1,20 @@
+[
+  {
+    "version": 1,
+    "title": "No.002 第3問 完成した図2",
+    "source": "Tsukue = [12, 6, 5, 4, 6]\nKeiji = [7, 10, 5, 7, 6]\nKiki = [10, 0, 24, 0, 0]\nJunban = [1, 2, 3, 4, 5]\nheyasu = 要素数(Tsukue)\nAki = [0, 0, 0]\nJunbi = [0, 0, 0, 0, 0]\nj を 1 から heyasu まで 1 ずつ増やしながら繰り返す：\n  r = Junban[j]\n  Aki[1] = Aki[1] + Tsukue[r]\n  Aki[3] = Aki[3] + Keiji[r]\n  Junbi[r] = 最大値(Aki[1], Aki[3])\n  もし Kiki[r] > 0 ならば：\n    Aki[2] = 最大値(Aki[1], Aki[2]) + Kiki[r]\n    Junbi[r] = 最大値(Junbi[r], Aki[2])\nt = 0\nj を 1 から heyasu まで 1 ずつ増やしながら繰り返す：\n  r = Junban[j]\n  t = 最大値(t, Junbi[r]) + 5\n表示する(\"全室の点検終了は\", t, \"分\")\n\n定義する 最大値(x, y)：\n  もし x > y ならば：\n    返す x\n  返す y",
+    "settings": {
+      "indexBase": 1,
+      "inputs": {}
+    }
+  },
+  {
+    "version": 1,
+    "title": "No.002 第3問 完成した図3",
+    "source": "Tsukue = [12, 6, 5, 4, 6]\nKeiji = [7, 10, 5, 7, 6]\nKiki = [10, 0, 24, 0, 0]\nJunban = [3, 1, 2, 4, 5]\nheyasu = 要素数(Tsukue)\nAki = [0, 0, 0]\nJunbi = [0, 0, 0, 0, 0]\nj を 1 から heyasu まで 1 ずつ増やしながら繰り返す：\n  r = Junban[j]\n  Aki[1] = Aki[1] + Tsukue[r]\n  Aki[3] = Aki[3] + Keiji[r]\n  Junbi[r] = 最大値(Aki[1], Aki[3])\n  もし Kiki[r] > 0 ならば：\n    Aki[2] = 最大値(Aki[1], Aki[2]) + Kiki[r]\n    Junbi[r] = 最大値(Junbi[r], Aki[2])\nSumi = [0, 0, 0, 0, 0]\nt = 0\nk を 1 から heyasu まで 1 ずつ増やしながら繰り返す：\n  r = 0\n  i を 1 から heyasu まで 1 ずつ増やしながら繰り返す：\n    もし Sumi[i] == 0 ならば：\n      もし r == 0 ならば：\n        r = i\n      そうでなければ：\n        もし Junbi[i] < Junbi[r] ならば：\n          r = i\n  t = 最大値(t, Junbi[r]) + 5\n  Sumi[r] = 1\n  表示する(\"部屋\", r, \"の点検終了は\", t, \"分\")\n\n定義する 最大値(x, y)：\n  もし x > y ならば：\n    返す x\n  返す y",
+    "settings": {
+      "indexBase": 1,
+      "inputs": {}
+    }
+  }
+]

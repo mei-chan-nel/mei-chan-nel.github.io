@@ -57,4 +57,4 @@ for file,is_home in [(root/'index.html',True),(root/'mock-exams/index.html',Fals
   d.find('body').insert(1,note)
  path=dist/('index.html' if is_home else 'mock-exams/index.html')
  path.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'),encoding='utf8')
-print('Sites preview prepared: Study Atlas top → mock-exams; production statistics No.001')
+print('Sites preview prepared: Study Atlas top → mock-exams; statistics use each exam ID/version')

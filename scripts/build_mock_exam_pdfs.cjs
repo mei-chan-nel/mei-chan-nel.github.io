@@ -111,43 +111,54 @@ const server = http.createServer((req, res) => {
               sheet.prepend(heading);
             });
           }
-          if (
-            kind === "problem" &&
-            exam.id === "001" &&
-            exam.version === 2 &&
-            s.id === "q2a"
-          ) {
-            await page.evaluate(() => {
-              const part = document.querySelector("h1");
-              const heading = document.createElement("h2");
-              heading.className = "exam-section-heading";
-              heading.innerHTML =
-                '<span class="exam-section-number">第2問</span>　次の問い（A・B）に答えよ。（配点30）';
-              heading.style.cssText =
-                "font-size:12pt;font-weight:700;margin:0 0 24px;text-indent:0";
-              part.before(heading);
-              part.textContent = "A　次の問い（問1～4）に答えよ。（配点15）";
-              part.className = "exam-part-heading";
-              part.style.cssText =
-                "font-size:10.5pt;font-weight:400;margin:0 0 16px";
-            });
+          if (kind === "problem" && s.id === "q2a") {
+            await page.evaluate(
+              ({ questions, points, partPoints }) => {
+                const part = document.querySelector("h1");
+                const heading = document.createElement("h2");
+                heading.className = "exam-section-heading";
+                heading.innerHTML = `<span class="exam-section-number">第2問</span>　次の問い（A・B）に答えよ。（配点${points}）`;
+                heading.style.cssText =
+                  "font-size:12pt;font-weight:700;margin:0 0 24px;text-indent:0";
+                part.before(heading);
+                part.textContent = `A　次の問い（問1～${questions}）に答えよ。（配点${partPoints}）`;
+                part.className = "exam-part-heading";
+                part.style.cssText =
+                  "font-size:10.5pt;font-weight:400;margin:0 0 16px";
+              },
+              {
+                questions: Math.max(
+                  ...exam.scoring
+                    .filter((u) => u.sectionId === "q2a")
+                    .map((u) => u.question),
+                ),
+                points: exam.sections
+                  .filter((s) => ["q2a", "q2b"].includes(s.id))
+                  .reduce((n, s) => n + s.maxPoints, 0),
+                partPoints: s.maxPoints,
+              },
+            );
           }
           // PDF only: emphasize just the "問n" label, not the question text.
           if (kind === "problem") {
             const boldLabels = await page.evaluate(() => {
-              const selector = {
-                q1: ".sheet p",
-                q2a: ".question-number",
-                q2b: "p.question > b:first-child",
-                q3: ".qtitle > b:first-child",
-                q4: "p.exam-question",
-              }[document.body.dataset.section];
+              const selector = document.querySelector("[data-question-number]")
+                ? "[data-question-number]"
+                : {
+                    q1: ".sheet p",
+                    q2a: ".question-number",
+                    q2b: "p.question > b:first-child",
+                    q3: ".qtitle > b:first-child",
+                    q4: "p.exam-question",
+                  }[document.body.dataset.section];
               if (!selector) return 0;
               let changed = 0;
               for (const element of document.querySelectorAll(selector)) {
                 const first = element.firstChild;
                 if (!first || first.nodeType !== Node.TEXT_NODE) continue;
-                const match = first.textContent.match(/^(問[0-9]+)(?=[\s　]|$)/);
+                const match = first.textContent.match(
+                  /^(問[0-9]+)(?=[\s　]|$)/,
+                );
                 if (!match) continue;
                 const bold = document.createElement("strong");
                 bold.textContent = match[1];
@@ -159,8 +170,22 @@ const server = http.createServer((req, res) => {
               return changed;
             });
             const expected = { q1: 4, q2a: 6, q2b: 4, q3: 3, q4: 5 };
-            if (boldLabels !== expected[s.id])
-              throw Error("Question-number bolding failed: " + s.id + " (" + boldLabels + ")");
+            const expectedCount =
+              exam.id === "001"
+                ? expected[s.id]
+                : Math.max(
+                    ...exam.scoring
+                      .filter((u) => u.sectionId === s.id)
+                      .map((u) => u.question),
+                  );
+            if (boldLabels !== expectedCount)
+              throw Error(
+                "Question-number bolding failed: " +
+                  s.id +
+                  " (" +
+                  boldLabels +
+                  ")",
+              );
           }
           if (kind === "solution")
             await page.addStyleTag({

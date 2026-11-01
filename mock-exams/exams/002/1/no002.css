@@ -1,0 +1,56 @@
+/* No.002's source-specific layout; scoring and source snapshots stay separate. */
+@media screen {
+  body {
+    font-family: system-ui, sans-serif !important;
+  }
+  .solution,
+  main.solution {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .explanation-unit {
+    display: flow-root;
+    margin: 0 0 24px;
+  }
+  .explanation-unit h2 {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .opt-index,
+  .option-index,
+  .choice-num,
+  .choice-label {
+    text-indent: 0;
+  }
+}
+/* Keep option numbers and the first text line on one baseline. */
+.options li {
+  align-items: start;
+}
+fieldset.choices {
+  padding-top: 12px;
+  margin-top: 18px;
+}
+fieldset.choices legend {
+  padding-inline: 6px;
+  margin-bottom: 6px;
+}
+@media print {
+  .explanation-unit {
+    break-inside: auto;
+    margin: 0 0 6mm;
+  }
+  .explanation-unit h2,
+  .audit-group h3 {
+    break-after: avoid;
+  }
+  .solution,
+  main.solution {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .studio-program-link {
+    display: none;
+  }
+}

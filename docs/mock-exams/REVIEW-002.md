@@ -1,0 +1,30 @@
+# No.002 取り込み・確認記録
+
+2026-11-01。`002.zip`の10原稿を、既存の実戦演習アプリへ取り込んだ。本番mainには反映せず、本人専用Sitesで調整する。
+
+## データと原稿
+
+- `exam_id="002"`、整数`exam_version=1`。55解答欄・46採点単位・100点。大問別配点は20・15・15・25・25点。
+- 原稿は`mock-exams/exams/002/1/source/`に変更せず保持。画面用・PDF用HTMLは`scripts/import_mock_exam_002.py`で再生成する。正答・配点・設問番号は独立した`source/qa.json`と照合する。
+- 冒頭の正答・配点一覧、末尾の測定意図・全体検証など、解説に不要な付録を除去。各設問の根拠、プログラムトレース、データ出典・ライセンスは保持した。
+- 既存の入力、途中採点、再開、履歴、復習、採点単位別RPC送信をそのまま利用する。第4問ケ・コは順不同の完答、その他の複数欄は入力順の完答として採点する。新規RPC・サービスは追加しない。
+- PCの問題・解説を44組の位置で整列。狭い画面では採点単位の「問題を見る」と元の解説への復帰を使用する。
+- 第3問の完成プログラム2本には既存Studioの共有リンクを付けた。印刷版には操作リンクを含めない。
+
+## 検証
+
+- 全55欄の入力から100点、46単位のRPCペイロード、時間あり／なし・大問演習、PC／スマホ解説・設問別表示をブラウザで確認した。統計通信は模擬応答であり、本番No.001／002への検証データは送っていない。
+- 問題PDF32ページ・解説PDF31ページ。A4寸法、本文の欠落、素材、原稿ハッシュ、選択肢、採点・表示アンカーを検査済み。
+- 標本化・量子化、論理回路、交通流の同時更新、作業時間、加重平均・予測誤差を独立計算で検証した。
+- Studioで完成プログラムを実行し、初期の点検完了62分、改善後49分を確認した。
+- 全模試の教材検査と既存単体テストを実行し、No.001の現行版2・履歴用旧版1も通過した。
+
+## 再調整
+
+1. 原稿との差分が必要な場合は、No.002専用の変換スクリプトと独立QAデータを編集する。元の10原稿は保持する。
+2. `python scripts/import_mock_exam_002.py`、`python scripts/validate_mock_exam_002.py`、`node --test mock-exams/tests/content-002.test.mjs`で再確認する。
+3. HTML変更後は`PLAYWRIGHT_MODULE=/path/to/playwright node scripts/build_mock_exam_pdfs.cjs --manifest exams/002/1/exam.json`でPDFを再生成し、`node scripts/check_mock_exams.mjs`で全模試を検査する。
+4. `PLAYWRIGHT_MODULE=/path/to/playwright node mock-exams/tests/browser-added-exam.cjs exams/002/1/exam.json`で実入力・採点・解説を検査する。
+5. `python scripts/build_mock_exam_sites_preview.py`で既存Sitesの配布物を更新する。公開指示があるまでは本番main／公開GitHubへNo.002を送らない。
+
+取り込み方全般は[追加手順](ADDING-EXAMS.md)、Sitesの配置情報は[Sitesプレビュー](SITES-PREVIEW.md)を参照する。
