@@ -3,12 +3,12 @@ from pathlib import Path
 from lxml import html, etree
 import copy, hashlib, json, re, subprocess, unicodedata
 from mock_exam_editorial import clean_screen_chrome, learner_wording, normalize_problem_typography
-from mock_exam_002_editorial import revise_solution
+from mock_exam_002_editorial import revise_solution, revise_problem
 from mock_exam_002_tables import align_tables
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'mock-exams/exams/002/1'
 SPEC = [
- ('q1','第1問',20,'Q1_002_problem.html','Q1_002_answers.html','1.2.3','アイウエオカキクケコサシ','121613020232',
+ ('q1','第1問',20,'Q1_002_problem.html','Q1_002_answers.html','1.2.3','アイウエオカキクケコサシ','221613020232',
   [('ア',2,1),('イ',2,1),('ウエ',2,2),('オ',2,2),('カ',2,2),('キ',2,3),('ク',2,3),('ケコ',2,4),('サ',2,4),('シ',2,4)],'ウエ'),
  ('q2a','第2問A',15,'Q2A_002_problem_v2.3.1.html','Q2A_002_answers_v2.3.1.html','2.3.1','アイウエオカキク','04221101',
   [('アイ',3,1),('ウ',2,2),('エ',2,2),('オ',3,3),('カ',2,3),('キク',3,3)],''),
@@ -247,7 +247,7 @@ def build():
  for sid,title,points,problem,solution,ver,letters,answers,units,numeric in SPEC:
   assert len(letters)==len(answers),(sid,len(letters),len(answers))
   fields={c:{'id':sid+'-'+c,'sectionId':sid,'label':c,'type':'text' if c in numeric else 'choice',**({'allowed':'0123456789','maxLength':1} if c in numeric else {'choices':[]})} for c in letters}
-  p=bind(clean(read(problem)),sid,fields);p.find('body').set('data-section',sid)
+  p=clean(read(problem));revise_problem(p,sid);p=bind(p,sid,fields);p.find('body').set('data-section',sid)
   # Normalize only the display of the section number, preserving the original source.
   headings=p.xpath('//h1|//h2'); h=headings[0] if headings else None
   if sid=='q3':h.text=(h.text or '').replace('第３問','第3問')

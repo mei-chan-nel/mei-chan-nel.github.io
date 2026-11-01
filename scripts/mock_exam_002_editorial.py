@@ -1,6 +1,9 @@
 """Learner-facing No.002 revisions. Original submitted files stay unchanged."""
 from lxml import etree, html
 import re
+import json
+from pathlib import Path
+REVISION = json.loads((Path(__file__).resolve().parents[1]/"mock-exams/exams/002/1/source/q1-a-revision.json").read_text())
 
 CIRCLES = '⓪①②③④⑤⑥⑦⑧⑨'
 
@@ -201,6 +204,13 @@ def revise_solution(d, sid, fields, letters, answers, units):
             if value:
                 value = re.sub(r'(選択肢|回路)([0-9])', lambda m: m[1] + CIRCLES[int(m[2])], value)
                 setattr(e, attr, value)
+    if sid == 'q1':
+        section=d.xpath('//body/section[1]')[0]
+        paragraph=next(p for p in section.xpath('./p') if text(p).startswith('同じ画像が多く'))
+        replace_text(paragraph,'画像の信頼性は，画像そのものの来歴と，投稿で説明された出来事との対応を確かめて判断する。今回の地震より前の公開を確認できれば，今回の被害を撮影した画像ではないと判断できる。')
+        for i,row in enumerate(section.xpath('.//table[1]//tr[td]')):
+            mark_option(row.xpath('./td')[0],i,i==2)
+            replace_text(row.xpath('./td')[-1],REVISION['reasons'][i])
     add_answers(d, sid, fields, letters, answers, units)
     return d
 
@@ -244,3 +254,14 @@ def add_answers(d, sid, fields, letters, answers, units):
             if not text(anchor): anchor.drop_tree()
         else:
             anchor.addnext(p)
+
+
+def revise_problem(d,sid):
+    if sid != 'q1': return
+    p=d.xpath('//section[1]/p[@class="subq"]')[0]
+    blank=p.xpath('.//span[contains(@class,"blank")]')[0]
+    for child in list(p): p.remove(child)
+    p.text='a　'+REVISION['prompt']+'　'
+    p.append(blank)
+    for li,value in zip(d.xpath('//section[1]//ol[1]/li'),REVISION['choices']):
+        replace_text(li.xpath('./div')[0],value)
