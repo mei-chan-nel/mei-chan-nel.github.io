@@ -257,6 +257,26 @@ def add_answers(d, sid, fields, letters, answers, units):
 
 
 def revise_problem(d,sid):
+    if sid == 'q2a':
+        values = [
+            '客の端末が客の入力した金額を用いて支払要求を送る',
+            '客の端末がPOSレジで計算した金額を用いて支払要求を送る',
+            '客の端末が読み取ったコードに含まれる金額を用いて支払要求を送る',
+            '店のPOSレジが客の入力した金額を用いて支払要求を送る',
+            '店のPOSレジがPOSレジで計算した金額を用いて支払要求を送る',
+            '店のPOSレジが読み取ったコードに含まれる金額を用いて支払要求を送る',
+        ]
+        options = d.xpath('(//ol)[1]/li')
+        assert len(options) == 6
+        for option, value in zip(options, values):
+            content = option.xpath('./div')
+            if content: replace_text(content[0], value)
+            else:
+                label = option[0]
+                for child in list(option)[1:]: option.remove(child)
+                option.text = None
+                label.tail = value
+        return
     if sid != 'q1': return
     p=d.xpath('//section[1]/p[@class="subq"]')[0]
     blank=p.xpath('.//span[contains(@class,"blank")]')[0]
