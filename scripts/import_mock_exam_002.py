@@ -1,5 +1,6 @@
 """Explicit No.002 adapter. Originals are retained; no catalog/No.001 writes."""
 from pathlib import Path
+from normalize_mock_exam_solutions import build as normalize_solutions
 from lxml import html, etree
 import copy, hashlib, json, re, subprocess, unicodedata
 from mock_exam_editorial import clean_screen_chrome, learner_wording, normalize_problem_typography
@@ -293,6 +294,7 @@ def build():
   exam['sections'].append({'id':sid,'title':title,'maxPoints':points,'sourceVersion':ver,'problem':sid+'.html','solution':sid+'-solution.html','screenProblem':'screen/'+sid+'.html','screenSolution':'screen/'+sid+'-solution.html','sourceProblem':'source/'+problem,'sourceSolution':'source/'+solution,'sourceSha256':hashlib.sha256((OUT/'source'/problem).read_bytes()).hexdigest(),'solutionSha256':hashlib.sha256((OUT/'source'/solution).read_bytes()).hexdigest()})
  (OUT/'exam.json').write_text(json.dumps(exam,ensure_ascii=False,indent=2)+'\n')
  (OUT/'source/studio-drafts.json').write_text(json.dumps(drafts,ensure_ascii=False,indent=2)+'\n')
+ normalize_solutions([OUT/'exam.json'])
  assert sum(u['maxPoints'] for u in exam['scoring'])==100
  print(f'Imported No.002: {len(exam["fields"])} fields, {len(exam["scoring"])} units, 100 points. Catalog unchanged.')
 if __name__=='__main__':build()

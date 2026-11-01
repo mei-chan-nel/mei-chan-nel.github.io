@@ -4,6 +4,7 @@ Unchanged sections use v1's reviewed documents; revised source snapshots are
 retained here. Q2A is newly authored, with explicit bindings instead of XPath.
 """
 from pathlib import Path
+from normalize_mock_exam_solutions import build as normalize_solutions
 from lxml import html, etree
 import copy
 import hashlib
@@ -149,6 +150,7 @@ def build():
             write(d, path)
     (OUT / 'exam.json').write_text(json.dumps(exam, ensure_ascii=False, indent=2) + '\n')
     normalize_tree(OUT)
+    normalize_solutions([OUT / "exam.json"])
     # Keep independently reviewed v2 answers/cases separate from generation.
     # Do not overwrite them from the old exam or from scoring patterns.
     assert (OUT / 'source/qa.json').is_file(), 'Add the reviewed v2 QA data'

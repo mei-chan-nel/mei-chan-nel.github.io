@@ -697,3 +697,27 @@ body[data-section="q4"] .exam-question {
 @media screen {
   html, body { background: #fff !important; }
 }
+
+/* One heading hierarchy for every exam's solution units. */
+body[data-section] .solution-unit-heading {
+  font-size: 18px !important; font-weight: 700 !important;
+  line-height: 1.6 !important; text-align: left !important;
+  text-indent: 0 !important; border: 0 !important;
+  margin: 24px 0 8px !important; padding: 0 !important;
+  break-after: avoid;
+}
+body[data-section] .solution-unit-answer {
+  font-size: 16px !important; line-height: 1.8 !important;
+  text-align: left !important; text-indent: 0 !important;
+  margin: 0 0 12px !important; break-after: avoid;
+}
+body[data-section] .solution-topic {
+  font-size: 16px !important; font-weight: 600 !important;
+  text-align: left !important; text-indent: 0 !important;
+  margin: 0 0 12px !important; break-after: avoid;
+}
+@media print {
+  body[data-section] .solution-unit-heading { font-size: 12pt !important; }
+  body[data-section] .solution-unit-answer,
+  body[data-section] .solution-topic { font-size: 10.5pt !important; }
+}

@@ -2,6 +2,7 @@
 Other exams supply their own adapter; engine uses only the documented data-* contract.
 """
 from pathlib import Path
+from normalize_mock_exam_solutions import build as normalize_solutions
 from lxml import html, etree
 import json, hashlib, re
 from mock_exam_001_reading import prepare_reading, trim_solution, mark_problem_fragments
@@ -115,3 +116,5 @@ normalize_tree(OUT)
 # Regenerating this exam must never overwrite the catalog or another version.
 # Registration is a separate step: node scripts/register_mock_exam.mjs <manifest>.
 print(f'Imported {len(exam["fields"])} fields, {len(exam["scoring"])} scoring units, 100 points.')
+
+normalize_solutions([OUT / "exam.json"])
