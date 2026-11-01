@@ -15,6 +15,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "CPU": {
     "url": "/terms/cpu/"
   },
+  "DNS": {
+    "url": "/terms/dns/"
+  },
   "HTML": {
     "url": "/terms/html/"
   },

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>DNSとは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="DNSの役割やドメイン名、DNSサーバによる名前解決、Webアクセスや電子メールでの利用、キャッシュと障害を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="DNS" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="DNSとは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="DNSの役割やドメイン名、DNSサーバによる名前解決、Webアクセスや電子メールでの利用、キャッシュと障害を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/dns/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/dns/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実践演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">DNS</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">DNS</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>DNSの役割</h2>
+          <p><strong>DNS（Domain Name System：ドメインネームシステム）</strong>は、ドメイン名やホスト名とIPアドレスなどの情報を対応付け、通信先を調べられるようにする仕組みです。</p>
+          <p>インターネットでは、通信先の機器を識別するためにIPアドレスが使われます。例えば、IPv4アドレスは <code>192.0.2.1</code> のように数字とドットを組み合わせて表されます。しかし、このような数値を人間が覚えたり、直接入力したりするのは不便です。</p>
+          <p>そこで、<code>www.example.jp</code> のような、人間にとって覚えやすい名前が利用されています。DNSを使えば、この名前に対応するIPアドレスを調べることができます。</p>
+          <p>このように、<strong>ドメイン名やホスト名から対応するIPアドレスなどを調べる処理を「名前解決」といいます。</strong></p>
+          <p>例えば、Webブラウザで <code>www.example.jp</code> にアクセスする場合、DNSによって対応するIPアドレスを調べ、そのアドレスを使ってWebサーバに接続します。</p>
+          <p>DNSは、キーワードからWebページを探す検索エンジンではなく、Webページの内容を提供したり、通信データを転送したりする仕組みでもありません。通信先を特定するための情報を提供することが主な役割です。</p>
+          <p>なお、DNSでは一つの名前に複数のIPアドレスを対応付けることもできます。また、IPアドレス以外にも、電子メールの配送先などに関する情報を管理しています。</p>
+        </section>
+
+        <section>
+          <h2>ドメイン名とURL</h2>
+          <p>ドメイン名は、インターネット上の組織やサービスなどを識別するための名前です。</p>
+          <p>例えば、次のURLを考えます。</p>
+          <p><code>https://www.example.co.jp/jouhou/index.html</code></p>
+          <p>このURLは、次のように分けられます。</p>
+          <ul>
+            <li><code>https</code>：通信に使用する方式を示します。</li>
+            <li><code>www</code>：ホストを表す名前です。</li>
+            <li><code>example.co.jp</code>：ドメイン名です。</li>
+            <li><code>/jouhou/index.html</code>：サーバ上の資源を示すパスです。</li>
+          </ul>
+          <p><code>www</code> を含む <code>www.example.co.jp</code> は、ホストを表す完全な名前であり、<strong>完全修飾ドメイン名（FQDN：Fully Qualified Domain Name）</strong>と呼ばれます。また、<code>www.example.co.jp</code> 全体を単にドメイン名と呼ぶこともあります。</p>
+          <p>ドメイン名はドットで区切られた階層構造をもち、右側ほど上位の階層を表します。例えば、<code>jp</code> はトップレベルドメインであり、<code>co.jp</code>、<code>example.co.jp</code> の順に下位の階層になります。</p>
+          <p>同じ階層で同じドメイン名を複数の組織がそれぞれ独立して登録することはできません。一方、一つのドメイン名の下に複数のホスト名を設けることはできます。</p>
+        </section>
+
+        <section>
+          <h2>DNSサーバと名前解決の仕組み</h2>
+          <p><strong>DNSサーバ</strong>は、ドメイン名とIPアドレスなどの対応情報を管理したり、問い合わせに回答したりするサーバです。</p>
+          <p>DNSは、世界中のすべてのドメイン名を一台のサーバで管理しているわけではありません。多数のDNSサーバが、<strong>階層的・分散的に情報を管理しています。</strong></p>
+          <p>主なDNSサーバの役割は次のとおりです。</p>
+          <ul>
+            <li><strong>ルートDNSサーバ</strong>：DNSの階層構造の最上位に位置し、トップレベルドメインを担当するDNSサーバの情報を案内します。</li>
+            <li><strong>トップレベルドメインを担当するDNSサーバ</strong>：<code>jp</code> や <code>com</code> などについて、下位のドメインを管理するDNSサーバの情報（<code>co.jp</code> など）を案内します。</li>
+            <li><strong>権威DNSサーバ</strong>：担当するドメインについて、IPアドレスなどの正式なDNS情報を管理します。</li>
+            <li><strong>DNSキャッシュサーバ</strong>：利用者からの問い合わせを受け、必要に応じて他のDNSサーバへ問い合わせて結果を返します。</li>
+          </ul>
+          <p>例えば、<code>www.example.co.jp</code> のIPアドレスを調べる場合、端末は通常、設定されたDNSキャッシュサーバなどに問い合わせます。そこに情報がなければ、DNSの階層構造をたどり（jpのDNSサーバ→co.jpのDNSサーバ→example.co.jpのDNSサーバのようにして）、必要な情報を取得します。</p>
+          <p>この仕組みにより、膨大な数のドメイン名を分散して管理できます。また、複数のDNSサーバを設けることで、一部に障害が発生した場合の影響を抑えることもできます。</p>
+        </section>
+
+        <section>
+          <h2>Webページが表示されるまでの流れ</h2>
+          <p>WebブラウザにURLを入力してからWebページが表示されるまでには、DNSによる名前解決やWebサーバとの通信が行われます。</p>
+          <p>基本的な処理の順序は次のとおりです。</p>
+          <ol>
+            <li><strong>URLの入力</strong>：利用者がブラウザにURLを入力します。</li>
+            <li><strong>DNSへの問い合わせ</strong>：URLに含まれるホスト名に対応するIPアドレスを調べます。</li>
+            <li><strong>DNSからの回答</strong>：名前解決によって対応するIPアドレスを取得します。</li>
+            <li><strong>Webサーバへの接続と要求</strong>：取得したIPアドレスを使ってWebサーバへ接続し、HTTPの要求を送信します。</li>
+            <li><strong>Webサーバからの応答</strong>：WebサーバがHTMLなどのデータを返します。</li>
+            <li><strong>ブラウザによる表示</strong>：受信したHTMLなどを解析し、Webページを画面に表示します。</li>
+          </ol>
+          <p>つまり、基本的な順序は次のようになります。</p>
+          <p class="term-formula"><strong>DNSへの問い合わせ → IPアドレスの取得 → Webサーバへの接続とHTTP要求 → サーバからの応答 → ブラウザによる解析・表示</strong></p>
+          <p>実際には、過去の名前解決の結果が保存されていれば、DNSへの問い合わせが省略されることもあります。</p>
+        </section>
+
+        <section>
+          <h2>電子メールの配送とDNS</h2>
+          <p>DNSは、Webページへのアクセスだけでなく、電子メールの配送にも利用されます。</p>
+          <p>例えば、次のメールアドレスを考えます。</p>
+          <p><code>shinobu@example.ed.jp</code></p>
+          <p>メールアドレスは <code>@</code> を境に分けられ、<code>shinobu</code> は受信者を表す部分、<code>example.ed.jp</code> は受信側のドメイン名です。</p>
+          <p>メールを送信するとき、送信側メールサーバは、受信側のドメイン名をもとに配送先のメールサーバを調べます。このとき、DNSの<strong>MXレコード</strong>と呼ばれる情報が利用されます。MXレコードには、そのドメイン宛ての電子メールを受け取るメールサーバの名前などが登録されています。</p>
+          <p>メールアドレスに誤りがある場合、<strong>ドメイン名の誤りとユーザ名の誤りでは、検出される段階が異なります。</strong></p>
+          <p>例えば、次の二つの誤ったメールアドレスを考えます。</p>
+          <ul>
+            <li><code>shinobu@exaaample.ed.jp</code>（ドメイン名の誤り）</li>
+            <li><code>sinobu@example.ed.jp</code>（ユーザ名の誤り）</li>
+          </ul>
+          <p>一つ目では、<code>exaaample.ed.jp</code> がドメイン名です。このドメイン名が存在しない場合、送信側メールサーバはDNSなどを利用して配送先を調べる段階で、配送できないことを検出します。</p>
+          <p>二つ目のように、ドメイン名が正しく、受信者のユーザ名だけが間違っている場合には、送信側メールサーバは配送先のメールサーバを調べられます。その後、受信側メールサーバがユーザの存在を確認し、宛先が存在しないことを検出する場合があります。</p>
+          <p>このように、メールが届かない原因を考える際には、ドメイン名とユーザ名のどちらが間違っているのかを区別することが重要です。</p>
+        </section>
+
+        <section>
+          <h2>DNSのキャッシュと障害</h2>
+          <p>DNSには、名前解決の結果を一時的に保存する<strong>キャッシュ</strong>という仕組みがあります。</p>
+          <p>以前に調べたIPアドレスなどを保存しておけば、同じ名前について毎回DNSサーバへ問い合わせる必要がなくなり、名前解決にかかる時間やサーバへの負荷を減らすことができます。</p>
+          <p>DNSの情報には、通常、<strong>TTL（Time To Live）</strong>と呼ばれるキャッシュの有効期間が設定されています。</p>
+          <p>例えば、WebサーバのIPアドレスを変更した場合、権威DNSサーバの情報を更新しても、利用者側のキャッシュに古いIPアドレスが残っていることがあります。そのため、キャッシュの有効期間が終了するまでは、古いIPアドレスが使われ、新しいWebサーバへ接続できない場合があります。</p>
+          <p>つまり、<strong>DNSの登録情報を変更しても、すべての利用者に直ちに反映されるとは限りません。</strong></p>
+          <p>また、DNSに障害や設定の誤りがあると、ドメイン名からIPアドレスを調べられず、Webページにアクセスできなくなることがあります。</p>
+          <p>例えば、ドメイン名を指定するとWebページを開けないが、同じサーバのIPアドレスを直接指定すると開ける場合には、DNSによる名前解決に問題がある可能性が高いです。</p>
+          <p>ただし、実際のWebサイトでは、一つのIPアドレスで複数のサイトを提供している場合や、HTTPSの証明書による確認が行われる場合があるため、IPアドレスを直接指定しても必ず同じページが表示されるとは限りません。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>DNS · EXAMPLE</span><span>ITパスポートH21春期 問59（改題）</span></div>
+          <h3>DNSの説明として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>インターネット上の情報を検索するための検索サービス</p></li>
+            <li><span>1</span><p>ドメイン名やホスト名とIPアドレスを対応付ける仕組み</p></li>
+            <li><span>2</span><p>オンラインショッピングで支払い金額を計算する仕組み</p></li>
+            <li><span>3</span><p>個人のメールアドレスだけを管理する住所録</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．ドメイン名やホスト名とIPアドレスを対応付ける仕組み</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>DNSは、ドメイン名やホスト名とIPアドレスを対応付け、名前から通信先を見つけられるようにする仕組みです。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートH21春期 問59（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：DNS</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">DNSの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="DNS"
+          data-limit="5"
+          data-exclude-stem="DNSの説明として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=DNS">DNSの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"DNSとは","description":"DNSの役割やドメイン名、DNSサーバによる名前解決、Webアクセスや電子メールでの利用、キャッシュと障害を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/dns/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"DNS","item":"https://mei-chan-nel.com/terms/dns/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実践演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>
