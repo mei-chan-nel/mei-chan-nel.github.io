@@ -4,6 +4,20 @@ URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 ## 最新配置（2026-11-01）
 
+設問番号・No.002の解説・初期読み込みを見直し、本人専用Sitesへ反映。本番GitHub Pagesは未変更。
+
+- 作業元：`feat/mock-exams-002` のローカルcommit `fe96f6451bb2a01709f15af1f6d439884cef72e7`。公開GitHubへpushしていない。
+- Sites配置ソース：`66942aec130e66fc0de12c9f5c4a38bf9f82fe8e`。
+- deployment_id：`appgdep_6ae6e6876f648191bc25f1a9419225ff`。
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_5d16d2cfa6748191a63c4ef6cb2be06e`。
+- 配置結果：`succeeded`。2026-11-01 16:13（日本時間）。本人専用の閲覧範囲を維持。
+- No.001現行版2・旧版1とNo.002の「問n」を画面・問題PDFで太字に統一。No.002解説は正答・配点・選択肢番号・正誤理由を整理した。No.002の解説PDFは34ページ。採点定義・問題版・元原稿は変更していない。
+- 一覧を初期HTMLに含め、受験・履歴・解説の画面本体は操作時に取得。方式・大問・並び順だけでは問題本文・解説・RPCを取得しない。初回の問題取得失敗後の再試行も確認した。
+- 全回・旧版の教材／PDF検査、単体テスト11件、一覧の20回分検査、既存履歴・復習・復帰、PC／スマホ解説、No.002全55欄の採点・46単位の模擬送信・全対応点の左右整列が通過。
+- 配布アーカイブ148ファイルがpush済みソースと一致。Sites配信対象から元原稿・QA・テストを除外し、本番の模試統計へ検証データを送っていない。
+
+## No.002初回取り込み（同日）
+
 No.002を本人専用Sitesへ追加した。本番GitHub Pagesは変更していない。[取り込み・検証](REVIEW-002.md)。
 
 - 作業元：`feat/mock-exams-002` のローカルcommit `77578fe`。未公開のNo.002は公開GitHubへpushしていない。
