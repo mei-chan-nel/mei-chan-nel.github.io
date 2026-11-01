@@ -1,6 +1,8 @@
+import { setBookLayout } from "./book-document.mjs";
 // Measure content, not the root viewport (which would prevent a frame shrinking).
 // body is a flow root so page margins and floats are included in its size.
 export function fitBookFrame(frame) {
+  if (frame.contentDocument) setBookLayout(frame.contentDocument, frame.ownerDocument.defaultView.innerWidth);
   const body = frame.contentDocument?.body;
   if (!body) return;
   const rect = body.getBoundingClientRect();

@@ -12,6 +12,7 @@ export function prepareBookDocument(document) {
     table.before(wrapper);
     wrapper.append(table);
   }
+  setBookLayout(document);
   updateTableHints(document);
 }
 
@@ -22,4 +23,12 @@ export function updateTableHints(document) {
     hint.hidden = !overflow;
     hint.dataset.overflow = String(overflow);
   }
+}
+
+// Use the outer viewport: a narrow document pane on a PC is still paper mode.
+export function setBookLayout(document, width = globalThis.innerWidth || 1024) {
+  if (!document.querySelector("[data-field]")) return;
+  const layout = width <= 800 ? "continuous" : "paper";
+  if (document.documentElement.dataset.bookLayout !== layout)
+    document.documentElement.dataset.bookLayout = layout;
 }
