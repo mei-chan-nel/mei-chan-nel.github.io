@@ -468,6 +468,41 @@ def main() -> int:
             if target is not None and not target.exists():
                 errors.append(f"{source.relative_to(ROOT)}: broken local link {href}")
 
+    # Keep the About and How-to content orders aligned with the homepage hierarchy.
+    about_text = (ROOT / "about.html").read_text(encoding="utf-8")
+    about_table_match = re.search(r'<table class="about-content-table">([\s\S]*?)</table>', about_text)
+    expected_about_links = (
+        "./info1-quiz-app/app/", "./mock-exams/", "./lab/",
+        "./info1-quiz-app/questions/", "./terms/", "./program-trace/",
+        "./archive/", "./LectureNote/", "./books/",
+    )
+    if about_table_match is None:
+        errors.append("about.html: content table is missing")
+    else:
+        about_rows = re.findall(r'<tr>([\s\S]*?)</tr>', about_table_match.group(1))
+        about_links = [re.search(r'<a href="([^"]+)"', row) for row in about_rows]
+        if len(about_rows) != len(expected_about_links) or any(m is None for m in about_links) or tuple(m.group(1) for m in about_links) != expected_about_links:
+            errors.append("about.html: content table is not aligned with homepage order")
+    guide_text = (ROOT / "study-guide.html").read_text(encoding="utf-8")
+    guide_toc_match = re.search(r'<nav class="table-of-contents"[^>]*>([\s\S]*?)</nav>', guide_text)
+    expected_guide_ids = (
+        "learning-paths", "app", "mock-exams", "lab", "search", "terms",
+        "trace", "studio", "resources", "lecture", "books", "routine",
+    )
+    if guide_toc_match is None:
+        errors.append("study-guide.html: contents navigation is missing")
+    else:
+        guide_toc_ids = re.findall(r'<a href="#([^"]+)"', guide_toc_match.group(1))
+        if tuple(guide_toc_ids) != expected_guide_ids:
+            errors.append("study-guide.html: table of contents is not aligned with homepage order")
+    guide_section_ids = re.findall(r'<section id="([^"]+)">', guide_text)
+    if tuple(guide_section_ids) != expected_guide_ids:
+        errors.append("study-guide.html: guide sections are not aligned with contents navigation")
+    for n, id_ in enumerate(expected_guide_ids[1:], start=1):
+        section_match = re.search(r'<section id="' + re.escape(id_) + r'">\s*<h2>([^<]+)</h2>', guide_text)
+        if section_match is None or not section_match.group(1).startswith(f"{n}．"):
+            errors.append(f"study-guide.html: section numbering mismatch at {id_}")
+
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     main_match = re.search(r'<main id="main-content">(.*?)</main>', top_text, flags=re.DOTALL)
     main_text = main_match.group(1) if main_match else ""
