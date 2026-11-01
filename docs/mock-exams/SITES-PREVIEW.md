@@ -2,7 +2,20 @@
 
 URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
-## 最新配置
+## 最新配置（2026-11-01）
+
+No.002の取り込み前に、本番main `67f8345234af1efc739c4390e40a25aabbc31212` を同期した。
+
+- 作業ブランチ：`feat/mock-exams-002`。GitHubへ保存済み。本番mainのコード変更は行っていない。
+- 本番から保持した変更：実戦演習への名称変更、PDFの「問n」の太字化、iOS Safariの入力修正、StudioのSNS画像設定修正。
+- Sites配置ソース：`cc9364a6beee3ea0e52bad8cf711a0eb91efa0a2`。
+- deployment_id：`appgdep_6ae6abc78ccc81918961b9808bdef2c5`。
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_ff1abc6df500819182f2ee3570d17dfc`。
+- 配置結果：`succeeded`。2026-11-01 12:02（日本時間）。本人専用の公開範囲を維持。
+- 検証：67個の実行・教材ファイルが本番ソースと一致。原稿・採点・PDF検査、Sites専用の履歴・復習・再開・PC／スマホ解説・設問別表示を検証済み。Sitesのサンプル履歴・noindexは維持、GAタグはプレビューから除外。
+- No.002は未登録。次の取り込みではこのブランチと既存Sitesを継続して使用する。
+
+## 前回配置（2026-10-29）
 
 - 確認日時：2026-10-29 14:38（日本時間）。Sitesの配置結果は`succeeded`。
 - project_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571`
