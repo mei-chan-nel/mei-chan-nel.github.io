@@ -470,7 +470,7 @@ def main() -> int:
 
     # Keep the About and How-to content orders aligned with the homepage hierarchy.
     about_text = (ROOT / "about.html").read_text(encoding="utf-8")
-    about_table_match = re.search(r'<table class="about-content-table">([\s\S]*?)</table>', about_text)
+    about_table_match = re.search(r'<table class="about-content-table">[\s\S]*?<tbody>([\s\S]*?)</tbody>', about_text)
     expected_about_links = (
         "./info1-quiz-app/app/", "./mock-exams/", "./lab/",
         "./info1-quiz-app/questions/", "./terms/", "./program-trace/",
