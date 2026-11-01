@@ -509,8 +509,10 @@ def main() -> int:
         for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実践演習"), ("./lab/", "Interactive Lab")):
             if not re.search(r'<a class="home-action-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
                 errors.append(f"index.html: main content card/link mismatch: {label}")
-        if "共通テスト形式の実践的な模試を行います。" not in action_text:
+        if "共通テスト形式の模試を60分で通して受験するほか、大問ごとの演習もできます。" not in action_text:
             errors.append("index.html: mock exam description is outdated")
+        if "さまざまなアプリを操作し、実験や可視化を通して情報のしくみを学べます。" not in action_text:
+            errors.append("index.html: interactive lab description is outdated")
         if "home-action-card--main" in action_text or "home-action-label" in action_text:
             errors.append("index.html: former learning app highlight remains")
     if sub_match is None or '<div class="home-misc-grid">' not in sub_match.group(1):
