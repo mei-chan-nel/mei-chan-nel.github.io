@@ -30,10 +30,7 @@ import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 import { trackExamAction } from "./analytics.mjs";
-import {
-  catalogSections,
-  isInterrupted,
-} from "./engine/catalog.mjs";
+import { catalogSections, isInterrupted } from "./engine/catalog.mjs";
 const $ = (s) => document.querySelector(s),
   app = $("#app"),
   store = new AttemptStore();
@@ -835,7 +832,8 @@ function renderWorkspace() {
     const bottom = toolbar.cloneNode(true);
     bottom.classList.remove("reading-toolbar");
     bottom.classList.add("reading-bottom-toolbar");
-    for (const node of bottom.querySelectorAll("[id]")) node.removeAttribute("id");
+    for (const node of bottom.querySelectorAll("[id]"))
+      node.removeAttribute("id");
     const originalButtons = toolbar.querySelectorAll("button");
     bottom.querySelectorAll("button").forEach((b, i) => {
       b.onclick = () => {
@@ -1413,14 +1411,25 @@ function requestDiscard(id, scope = null) {
       renderHistory();
     }
   };
-  if (!scope) return remove();
+  if (!scope) {
+    const verb = document.body.dataset.view === "results" ? "破棄" : "削除";
+    ask(
+      `この${verb === "破棄" ? "採点結果を破棄" : "学習履歴を削除"}しますか？この端末の履歴から削除され、取り消せません。`,
+      [
+        ["キャンセル", () => {}],
+        [verb + "する", remove],
+      ],
+    );
+    $("#action-options").lastElementChild.classList.add("subtle-danger");
+    return;
+  }
   const title =
     catalogSections.find(([value]) => value === scope)?.[1] || "この大問";
   ask(
     `${title}は通し受験から表示しています。削除すると元の通し受験全体の履歴が消えます。`,
     [
-      ["元の通し受験の履歴を削除する", remove],
       ["キャンセル", () => {}],
+      ["元の通し受験の履歴を削除する", remove],
     ],
   );
 }

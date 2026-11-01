@@ -141,6 +141,17 @@ const server = http.createServer((req, res) => {
       await p.getByRole("button", { name: "解答に戻る", exact: true }).count(),
       0,
     );
+    const beforeDiscard = await p.evaluate(() => JSON.stringify(localStorage));
+    await p.locator("#discard-result").click();
+    await p.locator("#action-dialog").waitFor({ state: "visible" });
+    assert.ok(
+      (await p.locator("#action-title").textContent()).includes("破棄"),
+    );
+    await p.getByRole("button", { name: "キャンセル", exact: true }).click();
+    assert.equal(
+      await p.evaluate(() => JSON.stringify(localStorage)),
+      beforeDiscard,
+    );
     assert.equal(await p.locator(".score").count(), 0);
     assert.ok(
       !(await p.locator(".results").textContent()).includes("解答時間"),
@@ -194,6 +205,16 @@ const server = http.createServer((req, res) => {
     await history();
     await screenshot("history-mobile");
     await row(103).getByRole("button", { name: "削除", exact: true }).click();
+    await p.locator("#action-dialog").waitFor({ state: "visible" });
+    assert.equal(await p.locator("#history-list tr").count(), 6);
+    await p.getByRole("button", { name: "キャンセル", exact: true }).click();
+    assert.equal(await p.locator("#history-list tr").count(), 6);
+    await row(103).getByRole("button", { name: "削除", exact: true }).click();
+    await p.keyboard.press("Escape");
+    assert.equal(await p.locator("#history-list tr").count(), 6);
+    await row(103).getByRole("button", { name: "削除", exact: true }).click();
+    await p.getByRole("button", { name: "削除する", exact: true }).click();
+
     await p.reload();
     await p.locator("#history-list tr").nth(4).waitFor();
     assert.equal(
@@ -291,6 +312,24 @@ const server = http.createServer((req, res) => {
       await p.getByRole("button", { name: "解答に戻る", exact: true }).count(),
       0,
     );
+    const removedId = new URL(p.url()).hash.slice(1);
+    await p.locator("#discard-result").click();
+    assert.ok(
+      await p
+        .getByRole("heading", { name: "採点結果", exact: true })
+        .isVisible(),
+    );
+    await p.getByRole("button", { name: "破棄する", exact: true }).click();
+    await p.locator("#exam-list").waitFor();
+    assert.ok(
+      await p.evaluate(
+        (id) =>
+          JSON.parse(localStorage["study-atlas:mock-exams:v1:attempt:" + id])
+            .discardedAt,
+        removedId,
+      ),
+    );
+    assert.equal(writes.length, 1);
     assert.deepEqual(errors, []);
     console.log(
       "PASS: separate history, 6 persistent samples, filters/reload/delete/review/resume, final/interim actions, table-edge geometry and scrolling, hidden header, aligned/sticky sidebar, no sample statistics, ordinary final transmission",
