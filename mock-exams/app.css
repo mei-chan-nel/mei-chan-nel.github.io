@@ -1365,58 +1365,7 @@ button.column-clear {
 
 .reading-bottom-toolbar { width: 100%; margin-bottom: 0; }
 
-/* The catalog belongs to the portal; the answering/reading workspace stays neutral. */
+/* Match the portal background while retaining the original catalog controls. */
 body[data-view="catalog"] {
-  --mock-ink: var(--ink);
-  --mock-accent: var(--coral-strong);
-  --mock-line: var(--line);
-  --mock-muted: var(--ink-soft);
   background: var(--paper);
-  color: var(--ink);
-}
-body[data-view="catalog"] .catalog-intro {
-  padding: 20px 0 30px;
-  margin-bottom: 28px;
-  border-bottom: 1px solid var(--line);
-}
-body[data-view="catalog"] .catalog-intro h1 {
-  font-family: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
-  font-weight: 500;
-  font-size: clamp(2.5rem, 5vw, 3.6rem);
-  line-height: 1.25;
-  letter-spacing: -.035em;
-}
-body[data-view="catalog"] .mode-choice,
-body[data-view="catalog"] .catalog-exam {
-  background: var(--white);
-  border-radius: 18px;
-  border-color: var(--line);
-}
-body[data-view="catalog"] .mode-choice[aria-pressed="true"] {
-  background: #fff0e9;
-  border-color: var(--coral-strong);
-}
-body[data-view="catalog"] .mode-choice:hover,
-body[data-view="catalog"] .catalog-exam:hover {
-  box-shadow: var(--shadow);
-}
-body[data-view="catalog"] button:not(.mode-choice),
-body[data-view="catalog"] .mock-button {
-  border-radius: 999px;
-}
-body[data-view="catalog"] button:not(.primary):not([aria-pressed="true"]):not(.mode-choice),
-body[data-view="catalog"] select {
-  background: var(--white);
-}
-body[data-view="catalog"] button:hover:not(.primary):not([aria-pressed="true"]) {
-  background: var(--paper-deep);
-}
-body[data-view="catalog"] button:focus-visible,
-body[data-view="catalog"] a:focus-visible,
-body[data-view="catalog"] select:focus-visible {
-  outline-color: var(--coral-strong);
-}
-@media (max-width: 600px) {
-  body[data-view="catalog"] .catalog-intro { padding: 8px 0 20px; }
-  body[data-view="catalog"] .catalog-intro h1 { font-size: clamp(2rem, 8vw, 2.75rem); }
 }
