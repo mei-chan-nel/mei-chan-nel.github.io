@@ -90,3 +90,8 @@ test("interim grading stays resumable even with a graded status", () => {
   };
   assert.equal(catalogProgress(entries[0], [a], "full").resume, a);
 });
+
+test('recommended uses descending exam numbers even when publication dates disagree',()=>{
+ const e=[{...entries[0],publishedAt:'2027-01-01'},{...entries[1],publishedAt:'2026-01-01'}];
+ assert.deepEqual(sortCatalog(e,[],'full','q1','recommended').map(x=>x.id),['002','001']);
+});

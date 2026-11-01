@@ -4,6 +4,7 @@ from lxml import html, etree
 import copy, hashlib, json, re, subprocess, unicodedata
 from mock_exam_editorial import clean_screen_chrome, learner_wording, normalize_problem_typography
 from mock_exam_002_editorial import revise_solution
+from mock_exam_002_tables import align_tables
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'mock-exams/exams/002/1'
 SPEC = [
@@ -242,6 +243,7 @@ def build():
  OUT.mkdir(exist_ok=True);(OUT/'screen').mkdir(exist_ok=True)
  exam={'schemaVersion':1,'id':'002','version':1,'title':'情報Ⅰ 実戦演習 No.002','durationSeconds':3600,'maxPoints':100,'sections':[],'fields':[],'scoring':[]}
  drafts=[]
+ lab_links=json.loads(subprocess.check_output(['node',str(ROOT/'scripts/mock_exam_lab_links.mjs')],text=True))
  for sid,title,points,problem,solution,ver,letters,answers,units,numeric in SPEC:
   assert len(letters)==len(answers),(sid,len(letters),len(answers))
   fields={c:{'id':sid+'-'+c,'sectionId':sid,'label':c,'type':'text' if c in numeric else 'choice',**({'allowed':'0123456789','maxLength':1} if c in numeric else {'choices':[]})} for c in letters}
@@ -263,6 +265,14 @@ def build():
   clean_screen_chrome(s)
   revise_solution(s,sid,fields,letters,answers,units)
   if sid=='q3':drafts=studio_links(s)
+  for key,url in lab_links.items():
+   anchors=s.xpath('//*[@data-reading-units="'+key+'"]')
+   if not anchors:continue
+   action=etree.Element('p',{'class':'studio-program-link'})
+   a=etree.SubElement(action,'a',href=url,target='_blank',rel='noopener')
+   a.text='論理回路ラボで動かす ↗' if sid=='q1' else 'フローチャートラボで動かす ↗'
+   anchors[0].addnext(action)
+
   for kind,document in [('problem',p),('solution',s)]:
    for screen in [False,True]:
     d=copy.deepcopy(document)
@@ -270,6 +280,7 @@ def build():
      for action in cls(d,'studio-program-link'):action.drop_tree()
     if screen:
      for style in d.xpath('//style'):style.text=re.sub(r'@font-face\s*\{[^}]*\}','',style.text or '',flags=re.I)
+    align_tables(d)
     head=d.find('head')
     etree.SubElement(head,'meta',name='robots',content='noindex, follow')
     etree.SubElement(head,'link',rel='stylesheet',href=('../../../../' if screen else '../../../')+'booklet.css')

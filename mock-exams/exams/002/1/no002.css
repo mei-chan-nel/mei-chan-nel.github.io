@@ -83,3 +83,7 @@ fieldset.choices legend {
     display: none;
   }
 }
+
+/* Explicit column roles override the submitted sheets' global alignment. */
+[data-column-align="left"], td[data-column-align="left"] p { text-align:left !important; }
+[data-column-align="center"] { text-align:center !important; }
