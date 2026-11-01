@@ -438,8 +438,8 @@ def main() -> int:
         and not path.is_relative_to(ROOT / "mock-exams" / "exams")
     )
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "プログラムトレース", "講義ノート", "ラボ")
-    expected_footer_labels = (*expected_nav_labels, "使い方", "書籍案内", "このサイトについて", "プライバシーポリシー", "サイトマップ")
+    expected_nav_labels = ("トップページ", "学習アプリ", "実践演習", "ラボ", "問題を探す", "用語一覧", "プログラムトレース", "解説動画", "講義ノート")
+    expected_footer_labels = (*expected_nav_labels, "このサイトについて", "使い方", "書籍案内", "プライバシーポリシー", "サイトマップ")
     for path in page_paths:
         try:
             page_text = path.read_text(encoding="utf-8")
@@ -468,12 +468,73 @@ def main() -> int:
             if target is not None and not target.exists():
                 errors.append(f"{source.relative_to(ROOT)}: broken local link {href}")
 
+    shared_header = (ROOT / "assets" / "site-header.js").read_text(encoding="utf-8")
+    shared_header_items = re.search(r'const navItems = \[([\s\S]*?)\];', shared_header)
+    if shared_header_items is None:
+        errors.append("site-header.js: shared menu items missing")
+    else:
+        shared_labels = re.findall(r'\["[^"]+", siteUrl\("[^"]*"\), "([^"]+)"\]', shared_header_items.group(1))
+        if tuple(shared_labels) != expected_nav_labels:
+            errors.append("site-header.js: shared menu order differs from static header")
+    if 'pagePath.includes("/mock-exams/")' not in shared_header:
+        errors.append("site-header.js: mock exam menu selection missing")
+
+    # Keep the About and How-to content orders aligned with the homepage hierarchy.
+    about_text = (ROOT / "about.html").read_text(encoding="utf-8")
+    about_table_match = re.search(r'<table class="about-content-table">[\s\S]*?<tbody>([\s\S]*?)</tbody>', about_text)
+    expected_about_links = (
+        "./info1-quiz-app/app/", "./mock-exams/", "./lab/",
+        "./info1-quiz-app/questions/", "./terms/", "./program-trace/",
+        "./archive/", "./LectureNote/", "./books/",
+    )
+    if about_table_match is None:
+        errors.append("about.html: content table is missing")
+    else:
+        about_rows = re.findall(r'<tr>([\s\S]*?)</tr>', about_table_match.group(1))
+        about_links = [re.search(r'<a href="([^"]+)"', row) for row in about_rows]
+        if len(about_rows) != len(expected_about_links) or any(m is None for m in about_links) or tuple(m.group(1) for m in about_links) != expected_about_links:
+            errors.append("about.html: content table is not aligned with homepage order")
+    guide_text = (ROOT / "study-guide.html").read_text(encoding="utf-8")
+    guide_toc_match = re.search(r'<nav class="table-of-contents"[^>]*>([\s\S]*?)</nav>', guide_text)
+    expected_guide_ids = (
+        "learning-paths", "app", "mock-exams", "lab", "search", "terms",
+        "trace", "studio", "resources", "lecture", "books", "routine",
+    )
+    if guide_toc_match is None:
+        errors.append("study-guide.html: contents navigation is missing")
+    else:
+        guide_toc_ids = re.findall(r'<a href="#([^"]+)"', guide_toc_match.group(1))
+        if tuple(guide_toc_ids) != expected_guide_ids:
+            errors.append("study-guide.html: table of contents is not aligned with homepage order")
+    guide_section_ids = re.findall(r'<section id="([^"]+)">', guide_text)
+    if tuple(guide_section_ids) != expected_guide_ids:
+        errors.append("study-guide.html: guide sections are not aligned with contents navigation")
+    for n, id_ in enumerate(expected_guide_ids[1:], start=1):
+        section_match = re.search(r'<section id="' + re.escape(id_) + r'">\s*<h2>([^<]+)</h2>', guide_text)
+        if section_match is None or not section_match.group(1).startswith(f"{n}．"):
+            errors.append(f"study-guide.html: section numbering mismatch at {id_}")
+
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     main_match = re.search(r'<main id="main-content">(.*?)</main>', top_text, flags=re.DOTALL)
     main_text = main_match.group(1) if main_match else ""
-    if '<p class="eyebrow">CHOOSE YOUR STEP</p><h2 id="home-actions-heading">何をしますか？</h2>' not in top_text:
-        errors.append("index.html: home action heading is missing or outdated")
-    class_positions = [main_text.find(marker) for marker in ('class="hero"', 'class="section home-actions-section"', 'class="section home-misc-section"')]
+    if '<h2 id="home-actions-heading">メインコンテンツ</h2>' not in top_text:
+        errors.append("index.html: main content heading is missing or outdated")
+    if '<h2 id="home-sub-heading">サブコンテンツ</h2>' not in top_text:
+        errors.append("index.html: sub content heading is missing")
+    if '<h2 id="home-misc-heading">その他</h2>' not in top_text:
+        errors.append("index.html: other content heading is missing")
+    if any(text in main_text for text in ("INFORMATION I · STUDY ATLAS", "高校「情報Ⅰ」を、わかりやすく学ぶ", "CHOOSE YOUR STEP", "LEARNING RESOURCES", "SUPPORTING INFORMATION")):
+        errors.append("index.html: removed introductory labels remain")
+    if '<small>StudyAtlas</small>' not in main_text:
+        errors.append("index.html: hero map label is missing")
+    if '情報Ⅰを学ぶための総合学習サイトです。すべての教材を無料で利用でき、日々の授業から大学入学共通テスト対策まで幅広く活用していただけます。' not in main_text:
+        errors.append("index.html: introductory description is outdated")
+    if '<span class="card-arrow"' in main_text:
+        errors.append("index.html: home card arrows should be removed")
+    class_positions = [main_text.find(marker) for marker in (
+        'class="hero"', 'class="section home-actions-section"',
+        'class="section home-sub-section"', 'class="section home-misc-section"',
+    )]
     if any(position < 0 for position in class_positions) or class_positions != sorted(class_positions):
         errors.append("index.html: required top-page section order is missing")
     if "MAIN LEARNING TOOL" in main_text or 'class="section section-app"' in main_text:
@@ -481,19 +542,47 @@ def main() -> int:
     hero_map_match = re.search(r'<div class="hero-map"[^>]*>.*?</div>\s*</div>', top_text, flags=re.DOTALL)
     if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
         errors.append("index.html: counts/history hook/map requirements are not satisfied")
-    action_match = re.search(r'<div class="home-action-grid">(.*?)</div>', main_text, flags=re.DOTALL)
-    expected_actions = ("学習アプリ", "問題を探す", "用語を調べる", "解説動画を見る", "プログラムを実行する", "講義ノートを読む", "しくみを体験する", "実戦演習に挑戦する")
-    if action_match is None:
-        errors.append("index.html: home action card grid is missing")
+    action_match = re.search(r'<section class="section home-actions-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
+    sub_match = re.search(r'<section class="section home-sub-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
+    if action_match is None or '<div class="home-action-grid">' not in action_match.group(1):
+        errors.append("index.html: main content card grid is missing")
     else:
         action_text = action_match.group(1)
+        expected_actions = ("学習アプリ", "実践演習", "Interactive Lab")
         action_positions = [action_text.find(f"<h3>{label}</h3>") for label in expected_actions]
         if any(position < 0 for position in action_positions) or action_positions != sorted(action_positions):
-            errors.append("index.html: home action cards are missing or out of order")
-        if 'href="./terms/"' not in action_text:
-            errors.append("index.html: the 用語を調べる card must link to ./terms/")
-        if 'href="./lab/"' not in action_text:
-            errors.append("index.html: the しくみを体験する card must link to ./lab/")
+            errors.append("index.html: main content cards are missing or out of order")
+        for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実践演習"), ("./lab/", "Interactive Lab")):
+            if not re.search(r'<a class="home-action-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
+                errors.append(f"index.html: main content card/link mismatch: {label}")
+        if "共通テスト形式の模試を60分で通して受験するほか、大問ごとの演習もできます。" not in action_text:
+            errors.append("index.html: mock exam description is outdated")
+        if "さまざまなアプリを操作し、実験や可視化を通して情報のしくみを学べます。" not in action_text:
+            errors.append("index.html: interactive lab description is outdated")
+        if "home-action-card--main" in action_text or "home-action-label" in action_text:
+            errors.append("index.html: former learning app highlight remains")
+    if sub_match is None or '<div class="home-misc-grid">' not in sub_match.group(1):
+        errors.append("index.html: sub content card grid is missing")
+    else:
+        sub_text = sub_match.group(1)
+        expected_sub = ("問題を探す", "用語を調べる", "プログラムを実行する", "解説動画を見る", "講義ノートを読む")
+        sub_positions = [sub_text.find(f"<h3>{label}</h3>") for label in expected_sub]
+        if any(position < 0 for position in sub_positions) or sub_positions != sorted(sub_positions):
+            errors.append("index.html: sub content cards are missing or out of order")
+        for href, label in (("./info1-quiz-app/questions/", "問題を探す"), ("./terms/", "用語を調べる"), ("./program-trace/", "プログラムを実行する"), ("./archive/", "解説動画を見る"), ("./LectureNote/", "講義ノートを読む")):
+            if not re.search(r'<a class="home-misc-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<h3>' + re.escape(label) + r'</h3>', sub_text):
+                errors.append(f"index.html: sub content card/link mismatch: {label}")
+    misc_match = re.search(r'<section class="section home-misc-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
+    if misc_match is None:
+        errors.append("index.html: other content section is missing")
+    else:
+        misc_text = misc_match.group(1)
+        expected_misc = ("このサイトについて", "使い方", "書籍案内")
+        misc_positions = [misc_text.find(f"<h3>{label}</h3>") for label in expected_misc]
+        if any(position < 0 for position in misc_positions) or misc_positions != sorted(misc_positions):
+            errors.append("index.html: other content cards are missing or out of order")
+        if 'href="./about.html"' not in misc_text:
+            errors.append("index.html: other content about link missing")
     for href in ("./info1-quiz-app/app/", "./info1-quiz-app/questions/", "./archive/", "./LectureNote/", "./program-trace/", "./lab/", "./mock-exams/", "./study-guide.html", "./books/", "./terms/"):
         if f'href="{href}"' not in top_text:
             errors.append(f"index.html: primary link is missing: {href}")
@@ -509,7 +598,7 @@ def main() -> int:
     if "info1LearningRecord:v1" not in home_learning or "summarizeQuestionRecord" not in home_learning or "これまで延べ${attempts}問に回答" not in home_learning or "StudyAtlasLecture" in home_learning:
         errors.append("home-learning.js: safe question-history summary is missing or lecture state leaked")
     site_css = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
-    for marker in (".home-action-grid", ".home-misc-grid", ".video-genre-back-link"):
+    for marker in (".home-action-grid", ".home-action-heading", ".home-misc-grid", ".video-genre-back-link"):
         if marker not in site_css:
             errors.append(f"site.css: required reorganized layout style is missing: {marker}")
     for marker in (".archive-genre-section", ".archive-genre-links", ".archive-genre-link", ".page-numbers", ".page-ellipsis", ".pagination-top", ".field-grid", ".field-card", ".topic-list", ".key-advice"):
