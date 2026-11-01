@@ -123,8 +123,8 @@ img { max-width: 100%; }
 .home-action-card:focus-visible, .home-misc-card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
 .home-action-icon { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 50%; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--white)); font-size: 1.8rem; font-weight: 500; line-height: 1; }
 .home-action-card h3 { margin: 0; font-family: Georgia, "Yu Mincho", serif; font-size: 1.48rem; font-weight: 500; }
-.home-action-card > p { margin-top: 16px; }
 .home-action-card p { margin: 0; color: var(--ink-soft); font-size: .84rem; line-height: 1.85; }
+.home-action-card > p:not(.home-app-summary) { margin-top: 16px; }
 .home-action-card .home-app-summary { margin-top: 12px; color: color-mix(in srgb, var(--ink-soft) 72%, var(--white)); font-size: .72rem; line-height: 1.65; }
 .home-misc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .home-misc-card { min-height: 144px; padding: 24px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 16px; border-radius: 18px; }
