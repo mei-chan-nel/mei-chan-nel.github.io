@@ -438,8 +438,8 @@ def main() -> int:
         and not path.is_relative_to(ROOT / "mock-exams" / "exams")
     )
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "問題を探す", "用語一覧", "解説動画", "プログラムトレース", "講義ノート", "ラボ")
-    expected_footer_labels = (*expected_nav_labels, "使い方", "書籍案内", "このサイトについて", "プライバシーポリシー", "サイトマップ")
+    expected_nav_labels = ("トップページ", "学習アプリ", "実践演習", "ラボ", "問題を探す", "用語一覧", "プログラムトレース", "解説動画", "講義ノート")
+    expected_footer_labels = (*expected_nav_labels, "このサイトについて", "使い方", "書籍案内", "プライバシーポリシー", "サイトマップ")
     for path in page_paths:
         try:
             page_text = path.read_text(encoding="utf-8")
@@ -467,6 +467,17 @@ def main() -> int:
             target = local_target(source, href, APP_ROOT)
             if target is not None and not target.exists():
                 errors.append(f"{source.relative_to(ROOT)}: broken local link {href}")
+
+    shared_header = (ROOT / "assets" / "site-header.js").read_text(encoding="utf-8")
+    shared_header_items = re.search(r'const navItems = \[([\s\S]*?)\];', shared_header)
+    if shared_header_items is None:
+        errors.append("site-header.js: shared menu items missing")
+    else:
+        shared_labels = re.findall(r'\["[^"]+", siteUrl\("[^"]*"\), "([^"]+)"\]', shared_header_items.group(1))
+        if tuple(shared_labels) != expected_nav_labels:
+            errors.append("site-header.js: shared menu order differs from static header")
+    if 'pagePath.includes("/mock-exams/")' not in shared_header:
+        errors.append("site-header.js: mock exam menu selection missing")
 
     # Keep the About and How-to content orders aligned with the homepage hierarchy.
     about_text = (ROOT / "about.html").read_text(encoding="utf-8")
