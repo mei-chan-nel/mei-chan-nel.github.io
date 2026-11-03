@@ -73,10 +73,71 @@
           <h3>出題条件を選んで始める</h3>
           <ol>
             <li>出題分野と出題数を選びます。</li>
+            <li>「詳細な設定」の出題方法で「苦手重点出題」を選ぶと、誤答した内容に関連する未解答の類題を優先します。異なる5題以上の誤答履歴で解放されます。</li>
             <li>回答状況で絞り込むときは「詳細な設定」を開きます。「まだ答えていない問題のみ」「間違えたままの問題のみ」「3回連続正答の問題を除く」などを選べます。</li>
             <li>「計算問題」では、「すべて」「除く」「計算だけ」から選べます。</li>
             <li>「挑戦を開始」を押し、選択肢を選びます。正答と解説を確認し、「次の問題」で進みます。</li>
           </ol>
+          <p>対象問題数には、出題方法・出題分野・回答状況・計算問題を反映した問題プールの件数が表示されます。苦手重点出題で候補が不足するときは、同じ絞り込み条件を守って通常出題から補います。</p>
+          <details class="study-summary" id="question-selection-details">
+            <summary><strong>問題プールと抽選確率のしくみ（通常出題・苦手重点出題）</strong></summary>
+            <p>「問題プール」は、抽選の候補になる問題の集まりです。対象問題数はその件数を表し、各問題が選ばれやすいかどうかは「重み」で調整します。同じ問題は、1回の挑戦の中では重複して出題しません。</p>
+
+            <h4>共通の絞り込み条件</h4>
+            <p>選んだ出題分野・回答状況・計算問題の条件をすべて満たす問題を候補にします。分野を複数選ぶと、そのいずれかに属する問題が対象です。</p>
+            <ul>
+              <li><strong>回答状況：</strong>「すべての問題」「まだ答えていない問題のみ」「間違えたままの問題のみ」「3回連続正答の問題を除く」から選びます。「間違えたまま」は最後の解答が誤答の問題、「3回連続正答」は直近3回がすべて正答の問題です。</li>
+              <li><strong>計算問題：</strong>「すべて」「除く」「計算だけ」から選びます。</li>
+            </ul>
+            <p>苦手重点出題に切り替えても、これらの条件はそのまま適用します。例えば「未解答のみ」を選ぶと、解答済みの問題は苦手の手掛かりには使いますが、出題候補からは外れます。</p>
+
+            <h4>通常出題：問題プールと選ぶ順序</h4>
+            <p>通常出題の対象問題数は、上の条件に合うすべての問題の件数です。抽選では、まず候補を分野別に分け、残っている問題数に比例して分野を選びます。例えば、候補が20題の分野と10題の分野なら、最初に選ばれる分野の確率は約67%と約33%です。分野ごとの出題数を同じにそろえる方式ではありません。</p>
+            <p>次に、選ばれた分野の中で、次の2つを掛け合わせた重みに比例して1題を選びます。</p>
+            <ol>
+              <li><strong>全体の解答回数による補正：</strong>利用者全体で解答された回数が比較的少ない問題を、少し選ばれやすくします。比較の基準は、今回の候補を分野別に分けたときの、解答回数が1回以上の問題の中央値です。補正値は「（中央値＋4）÷（その問題の解答回数＋4）」の平方根を取り、0.75〜1.75の範囲に収めます。中央値が0、または集計データを取得できない場合は、この補正を1にします。</li>
+              <li><strong>自分が最近答えた問題への補正：</strong>このブラウザで過去7日以内に答えた候補を新しい順に並べ、候補全体の10%に相当する件数まで、重みを0.25倍にします。10%の件数は端数を切り上げます。該当する問題が少ない場合は、その問題だけが対象です。正答・誤答のどちらも含みます。</li>
+            </ol>
+            <p>例えば、ある分野に残った2題の最終的な重みが1.5と0.75なら、その分野が選ばれた後に各問題を引く確率は約67%と約33%です。すべての候補の重みが同じなら、各問題は同じ確率で選ばれます。通常出題には、誤答した内容から類題へ苦手度を広げる処理はありません。</p>
+
+            <h4>苦手重点出題：苦手に関連する問題プール</h4>
+            <p>このブラウザの学習記録で、過去に一度でも誤答した異なる問題が5題以上になると利用できます。同じ問題を何度間違えても1題と数え、後から正答しても数に残ります。判定には選択中の分野に限らず履歴全体を使い、学習記録を削除すると改めて判定します。</p>
+            <p>まず、全分野の学習記録から、苦手の手掛かりとなる初期値を付けます。</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th scope="col">学習履歴</th><th scope="col">初期値</th></tr></thead>
+                <tbody>
+                  <tr><td>最後の解答が誤答</td><td>1.0</td></tr>
+                  <tr><td>過去に誤答したが、最後は正答</td><td>0.3</td></tr>
+                  <tr><td>誤答経験がない</td><td>0</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>次に、各問題に設定された上位5題の類題を使い、次の3つを足して関連度の重みを作ります。</p>
+            <ul>
+              <li><strong>元の問題へ30%：</strong>初期値の30%を元の問題自身に加えます。</li>
+              <li><strong>直接の類題へ60%：</strong>初期値の60%を、上位5題へ均等に配ります。</li>
+              <li><strong>類題の類題へ10%：</strong>もう1段階先まで進み、初期値の10%を各経路へ均等に配ります。</li>
+            </ul>
+            <p>例えば初期値1.0の問題なら、元の問題へ0.3、直接の類題1題につき0.12、2段階目の1経路につき0.004を加えます。複数の問題や経路から同じ問題に届いた値は合計し、2段階目で元の問題に戻る経路も加算します。類題の向きに沿って進み、3段階以上には広げません。この30%・60%・10%は重みを作る配分で、出題数の割合を固定するものではありません。</p>
+            <p>さらに、未解答の類題を優先するため、関連度の重みに次の係数を掛けます。解答済みの問題も、ここまでの関連度を計算する手掛かりとして使います。</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th scope="col">候補の解答状況</th><th scope="col">最後に掛ける係数</th></tr></thead>
+                <tbody>
+                  <tr><td>未解答</td><td>1.0</td></tr>
+                  <tr><td>最後の解答が誤答</td><td>0.1</td></tr>
+                  <tr><td>最後が正答（誤答経験の有無によらない）</td><td>0.05</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p>こうして重みが付いた問題に、出題分野・回答状況・計算問題の条件を適用したものが、苦手重点出題の問題プールです。画面の対象問題数は、確率の大小にかかわらず、このプールに含まれる異なる問題の件数を表示します。設定や学習記録が変わると、プールの内容や件数も変わります。</p>
+            <p>苦手重点出題では、このプール全体から最終的な重みに比例して抽選します。同じ重みの候補は同じ確率で選ばれます。通常出題の分野別の抽選や、全体の解答回数・最近答えた問題への補正は、苦手重点出題の重みに重ねて適用しません。</p>
+
+            <h4>複数問を選ぶときと、候補が不足するとき</h4>
+            <p>1題選ぶたびに、その問題を今回の候補から外して次を抽選します。残る候補に応じて確率が変わるため、最初の1題の確率と、5問セットに含まれる確率は異なります。重みはセットを作る際に決め、挑戦の途中で毎問作り直すことはありません。</p>
+            <p>苦手重点出題のプールが指定の出題数に足りない場合は、不足分だけを通常出題の方法で補います。補充でも、選択した分野・回答状況・計算問題の条件を守り、すでに選んだ問題は除きます。そのため、表示された苦手の対象問題数より多く出題される場合や、苦手の対象が0問でもほかの条件に合う問題から出題できる場合があります。条件に合う全問題も指定数より少ない場合は、その件数までの出題になります。</p>
+          </details>
           <h3>気になる問題を確認する</h3>
           <ul>
             <li>あとで見返したい問題は「保存」を押します。</li>
@@ -242,7 +303,7 @@
       <div class="footer-grid"><div><p class="footer-brand">情報Ⅰ Study Atlas</p><p class="footer-copy">知識を、ひろげ、つなげる</p></div><nav aria-label="フッターナビゲーション"><a href="./">トップページ</a><a href="./info1-quiz-app/app/">学習アプリ</a><a href="./mock-exams/">実践演習</a><a href="./lab/">ラボ</a><a href="./info1-quiz-app/questions/">問題を探す</a><a href="./terms/">用語一覧</a><a href="./program-trace/">プログラムトレース</a><a href="./archive/">解説動画</a><a href="./LectureNote/">講義ノート</a><a href="./about.html">このサイトについて</a><a href="./study-guide.html">使い方</a><a href="./books/">書籍案内</a><a href="./privacy.html">プライバシーポリシー</a><a href="./sitemap.html">サイトマップ</a></nav></div>
       <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
     </footer>
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"Study Atlasの教材を組み合わせた学び方と、学習アプリ、詳しい用語解説、動画、プログラムトレース、Studio、講義ノート、Interactive Lab、実戦演習の操作・保存方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-10-29","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"情報Ⅰ Study Atlas｜使い方","description":"Study Atlasの教材を組み合わせた学び方と、学習アプリ、詳しい用語解説、動画、プログラムトレース、Studio、講義ノート、Interactive Lab、実戦演習の操作・保存方法を紹介します。","datePublished":"2026-07-14","dateModified":"2026-11-03","inLanguage":"ja","isAccessibleForFree":true,"mainEntityOfPage":"https://mei-chan-nel.com/study-guide.html","author":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/about.html"},"publisher":{"@type":"Organization","name":"めいちゃんねる","url":"https://mei-chan-nel.com/"},"about":["情報Ⅰ","情報1","大学入学共通テスト","使い方"],"audience":{"@type":"EducationalAudience","educationalRole":"student"}}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"トップページ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"使い方","item":"https://mei-chan-nel.com/study-guide.html"}]}</script>
     <script src="./assets/site-header.js?v=20261101-nav-order"></script>
   </body>
