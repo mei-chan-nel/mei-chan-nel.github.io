@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>ドメイン名とは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="ドメイン名の構造やURLとの違い、DNSや電子メールでの利用、安全性の確認方法を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ドメイン名" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ドメイン名とは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="ドメイン名の構造やURLとの違い、DNSや電子メールでの利用、安全性の確認方法を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/domain-name/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/domain-name/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実践演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ドメイン名</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">ドメイン名</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <p><strong>ドメイン名</strong>とは、インターネット上のコンピュータやサーバ、Webサイトなどを識別するために使われる、人間にとって覚えやすい文字列です。</p>
+          <p>インターネット上で通信する際には、通信先を識別するためにIPアドレスが使われます。例えば、IPv4アドレスは <code>192.0.2.1</code> のように数値で表されます。しかし、IPアドレスは人間にとって覚えにくく、サーバの移転などによって変更されることもあります。</p>
+          <p>そこで、IPアドレスの代わりに <code>www.example.com</code> のような名前を使って通信先を指定できるようにしたものが、ドメイン名です。</p>
+          <p>ドメイン名はWebサイトの閲覧だけでなく、電子メールの送受信など、インターネット上のさまざまなサービスで利用されています。</p>
+        </section>
+
+        <section>
+          <h2>ドメイン名の構造</h2>
+          <p>ドメイン名は、ピリオド（.）で区切られた複数の部分から構成され、<strong>右側ほど上位になる階層構造</strong>をもっています。</p>
+          <p>例えば、<code>www.example.co.jp</code> は次のように分けられます。</p>
+          <table>
+            <thead>
+              <tr><th>部分</th><th>意味</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>jp</code></td><td>トップレベルドメイン。日本を表します。</td></tr>
+              <tr><td><code>co</code></td><td><code>jp</code> の下位にある区分。企業向けの登録区分を表します。</td></tr>
+              <tr><td><code>example</code></td><td>登録した組織などを識別する名前です。</td></tr>
+              <tr><td><code>www</code></td><td>Webサーバなどに付けられるホスト名として使われる部分です。</td></tr>
+            </tbody>
+          </table>
+          <p>最も右側に位置する <code>jp</code>、<code>com</code>、<code>net</code> などを<strong>トップレベルドメイン（TLD）</strong>といいます。<code>jp</code> は日本を表す国別トップレベルドメインであり、<code>com</code> や <code>net</code> は分野別トップレベルドメインの例です。</p>
+          <p>日本の <code>jp</code> ドメインには、組織の種類によって登録資格が定められた区分もあります。代表的なものには、企業向けの <code>co.jp</code>、大学などの高等教育機関や学校法人などを対象とする <code>ac.jp</code>、小学校・中学校・高等学校などを対象とする <code>ed.jp</code>、政府機関などを対象とする <code>go.jp</code> があります。</p>
+          <p><code>www.example.co.jp</code> の場合、<code>example.co.jp</code> が組織などによって登録されたドメイン名です。その左側にある <code>www</code> はWebサービスに使われることの多い名前ですが、必ず付けなければならないわけではありません。</p>
+          <p>同じ階層で同じドメイン名を複数の組織がそれぞれ独立して登録することはできません。一方、一つのドメイン名の下に複数のホスト名を設けることはできます。</p>
+          <p>DNSの階層上での位置を省略せずに表した名前を<strong>完全修飾ドメイン名（FQDN：Fully Qualified Domain Name）</strong>といいます。<code>www.example.co.jp</code> はその例です。厳密には、ルートを表す末尾のピリオドを付けて <code>www.example.co.jp.</code> と表すこともあります。</p>
+          <p>なお、一般には <code>www.example.co.jp</code> のようなホスト名を含む名前全体も、単にドメイン名と呼ぶことがあります。</p>
+        </section>
+
+        <section>
+          <h2>URLとドメイン名の違い</h2>
+          <p><strong>URL（Uniform Resource Locator）</strong>は、インターネット上のWebページやファイルなどの場所と、それらにアクセスする方法を表すものです。</p>
+          <p>例えば、次のURLを考えます。</p>
+          <p><code>https://www.example.co.jp/jouhou/index.html</code></p>
+          <p>このURLは、次のように分けられます。</p>
+          <table>
+            <thead>
+              <tr><th>部分</th><th>意味</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>https</code></td><td>通信に利用する方式（プロトコル）です。</td></tr>
+              <tr><td><code>www.example.co.jp</code></td><td>接続先を表すホスト名です。</td></tr>
+              <tr><td><code>example.co.jp</code></td><td>登録されたドメイン名です。</td></tr>
+              <tr><td><code>/jouhou/index.html</code></td><td>サーバ内の対象となるページなどを示すパスです。</td></tr>
+            </tbody>
+          </table>
+          <p>ドメイン名は通信先を名前で識別するためのものであり、URLはその通信先にあるWebページやファイルなどを指定するためのものです。</p>
+        </section>
+
+        <section>
+          <h2>ドメイン名とDNSの関係</h2>
+          <p>コンピュータがインターネット上で通信するためには、通常、接続先のIPアドレスを知る必要があります。</p>
+          <p>そこで、ドメイン名とIPアドレスなどの情報を対応付ける仕組みとして、<strong>DNS（Domain Name System）</strong>が利用されます。</p>
+          <p>例えば、利用者がWebブラウザに <code>www.example.com</code> と入力すると、一般に次のような流れで通信が行われます。</p>
+          <ol>
+            <li>利用者がブラウザで <code>www.example.com</code> を指定します。</li>
+            <li>コンピュータがDNSを利用して、その名前に対応するIPアドレスを調べます。</li>
+            <li>DNSから得られたIPアドレスを使って、通信先のWebサーバへ接続します。</li>
+            <li>WebサーバからWebページのデータを受信し、ブラウザに表示します。</li>
+          </ol>
+          <p>このように、ドメイン名などの名前から対応するIPアドレスを調べる処理を<strong>名前解決</strong>といいます。</p>
+          <p>DNSでは、主に次のような情報を扱います。</p>
+          <ul>
+            <li><strong>Aレコード</strong>：ドメイン名などとIPv4アドレスの対応を表します。</li>
+            <li><strong>AAAAレコード</strong>：ドメイン名などとIPv6アドレスの対応を表します。</li>
+            <li><strong>MXレコード</strong>：そのドメイン宛ての電子メールを受け取るメールサーバを指定します。</li>
+          </ul>
+          <p>なお、ドメイン名とIPアドレスは必ずしも一対一に対応するわけではありません。一つのドメイン名に複数のIPアドレスを対応付けたり、複数のドメイン名を同じIPアドレスに対応付けたりすることもできます。</p>
+        </section>
+
+        <section>
+          <h2>DNSの階層的・分散的な管理</h2>
+          <p>インターネット上には膨大な数のドメイン名が存在するため、それらの情報を一台のDNSサーバですべて管理しているわけではありません。</p>
+          <p>DNSは、<strong>複数のDNSサーバが情報を階層的・分散的に管理する仕組み</strong>です。</p>
+          <p>例えば、<code>www.example.co.jp</code> の名前解決では、必要に応じて次のような階層をたどって情報を調べます。</p>
+          <ol>
+            <li>最上位のルートDNSサーバから、<code>jp</code> を担当するDNSサーバの情報を得ます。</li>
+            <li><code>jp</code> を担当するDNSサーバから、<code>co.jp</code> 以下を調べるための情報を得ます。</li>
+            <li>さらに問い合わせを進め、<code>example.co.jp</code> を担当するDNSサーバを調べます。</li>
+            <li>最終的に、<code>www.example.co.jp</code> に対応するIPアドレスなどの情報を取得します。</li>
+          </ol>
+          <p>実際には、利用者のコンピュータから問い合わせを受けたDNSリゾルバが、必要なDNSサーバへの問い合わせを行います。また、一度調べた情報を一定期間保存する<strong>キャッシュ</strong>によって、毎回すべての階層をたどらずに名前解決できる場合もあります。</p>
+          <p>このような分散管理によって、膨大な数のドメイン名を扱うことができ、管理や運用の負荷を分散できます。</p>
+          <p>ドメイン名は階層構造によって管理されており、登録済みの同じドメイン名を、無関係な複数の組織がそれぞれ独立して重複登録することはできません。ただし、ドメイン名の管理者は、その下位にサブドメインを設けて利用できます。</p>
+        </section>
+
+        <section>
+          <h2>DNSに問題が発生した場合</h2>
+          <p>DNSによる名前解決ができなくなると、通信先のWebサーバが正常に稼働していても、ドメイン名を使ってアクセスできないことがあります。</p>
+          <p>例えば、次のような状況を考えます。</p>
+          <ul>
+            <li><code>www.example.com</code> を指定するとWebページを開けません。</li>
+            <li>同じWebサーバのIPアドレスを直接指定するとWebページを開けます。</li>
+          </ul>
+          <p>この場合、Webサーバそのものや通信経路には問題がなく、<strong>DNSによってドメイン名をIPアドレスに対応付ける処理に問題が生じている可能性が高い</strong>と考えられます。</p>
+          <p>ただし、実際のWebサイトでは一つのIPアドレスで複数のサイトを運用している場合があり、IPアドレスを直接指定しても同じページが表示されるとは限りません。</p>
+        </section>
+
+        <section>
+          <h2>メールアドレスとドメイン名</h2>
+          <p>ドメイン名は電子メールの送受信にも利用されます。</p>
+          <p>メールアドレスは、一般に次のような形式で表されます。</p>
+          <p><code>shinobu@example.ed.jp</code></p>
+          <p><code>@</code> より前の <code>shinobu</code> は、利用者名などを表す部分（ローカル部）です。一方、<code>@</code> より後ろの <code>example.ed.jp</code> はドメイン名であり、どの組織やメールシステム宛てのメールであるかを識別するために使われます。</p>
+          <p>電子メールを送信するとき、送信側メールサーバは、受信者のドメイン名を基にDNSなどを利用して配送先のメールサーバを調べ、メールを届けようとします。</p>
+          <p>そのため、メールアドレスを間違えたときは、<strong><code>@</code> の前を間違えたのか、後ろを間違えたのか</strong>によって、配信できないことが検出される段階が異なります。</p>
+          <p>例えば、正しいメールアドレスが <code>shinobu@example.ed.jp</code> の場合を考えます。</p>
+          <h3>① ユーザ名を間違えた場合</h3>
+          <p><code>sinobu@example.ed.jp</code>（正しいユーザ名は <code>shinobu</code>）</p>
+          <p><code>example.ed.jp</code> というドメイン名が存在し、メールサーバも正常に利用できるなら、送信側は受信側メールサーバを調べて接続できます。しかし、受信側に <code>sinobu</code> という利用者名が存在しない場合、受信側メールサーバがその誤りを検出します。</p>
+          <h3>② ドメイン名を間違えた場合</h3>
+          <p><code>shinobu@exmple.ed.jp</code>（正しいドメイン名は <code>example.ed.jp</code>）</p>
+          <p><code>@</code> より後ろの <code>exmple.ed.jp</code> が存在しないドメイン名であれば、送信側メールサーバは配送先を調べる段階で問題を検出します。</p>
+          <p>このように、メールアドレスでは <code>@</code> の前後を区別することが重要です。</p>
+          <p>なお、存在しない利用者名をどの段階で検出するかは、メールサーバの設定や運用方法によって異なります。受信側メールサーバが宛先確認時に存在しない利用者名をエラーとして返す設定であれば、上記①のようになります。</p>
+        </section>
+
+        <section>
+          <h2>ドメイン名とWebサイトの安全性</h2>
+          <p>ドメイン名は、Webサイトが正規のものかどうかを確認する際にも重要です。</p>
+          <p>悪意のある第三者が、銀行や通販サイトなどの正規のドメイン名とよく似た文字列を使って偽のWebサイトを作成し、利用者からIDやパスワードなどをだまし取ろうとする場合があります。こうした手口は<strong>フィッシング</strong>と呼ばれます。</p>
+          <p>例えば、正規サイトのドメイン名と一文字だけ異なるドメイン名を使い、画面のデザインやロゴを正規サイトに似せている場合があります。</p>
+          <p>検索結果の上位に表示されたり、広告として表示されたりしていても、それだけで正規サイトであるとは判断できません。</p>
+          <p>特に、個人情報や認証情報を入力する前には、URLのドメイン名を確認することが大切です。不審なドメイン名に気付いた場合は情報を入力せず、事前に登録した正規のブックマークや公式アプリなどからアクセスし直すことが望ましいです。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ドメイン名 · EXAMPLE</span><span>ITパスポートR6公開問題 問71（改題）</span></div>
+          <h3>インターネットで使われるドメイン名の説明として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>通信で使うデータ形式や手順を定めた約束の名称</p></li>
+            <li><span>1</span><p>コンピュータやWebサイトなどを識別するための名前</p></li>
+            <li><span>2</span><p>Webサーバ内で表示するファイルの保存場所だけを示す文字列</p></li>
+            <li><span>3</span><p>ネットワークに接続した機器へ割り当てる数値の識別情報</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．コンピュータやWebサイトなどを識別するための名前</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ドメイン名は、Webサイトや組織のサーバなどを人が扱いやすい名前で識別するために使われます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>ITパスポートR6公開問題 問71（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ドメイン名</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ドメイン名の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ドメイン名"
+          data-limit="5"
+          data-exclude-stem="インターネットで使われるドメイン名の説明として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ドメイン名">ドメイン名の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ドメイン名とは","description":"ドメイン名の構造やURLとの違い、DNSや電子メールでの利用、安全性の確認方法を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/domain-name/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ドメイン名","item":"https://mei-chan-nel.com/terms/domain-name/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実践演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>

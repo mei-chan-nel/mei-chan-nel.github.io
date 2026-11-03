@@ -87,6 +87,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "データ量": {
     "url": "/terms/data-volume/"
   },
+  "ドメイン名": {
+    "url": "/terms/domain-name/"
+  },
   "バイト": {
     "url": "/terms/byte/"
   },
