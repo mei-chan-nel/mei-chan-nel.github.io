@@ -208,6 +208,10 @@ img { max-width: 100%; }
 .prose-content th, .prose-content td { padding: 13px 15px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
 .prose-content th { background: var(--paper-deep); font-size: .8rem; }
 .prose-content td { color: var(--ink-soft); font-size: .82rem; }
+.quiz-selection-details { margin: 16px 0 24px; color: var(--ink-soft); font-size: .82rem; }
+.quiz-selection-details > summary { cursor: pointer; font-size: .8rem; font-weight: 400; }
+.quiz-selection-details p, .quiz-selection-details li { font-size: .82rem; }
+.quiz-selection-details h4 { font-size: .9rem; }
 .study-summary, .table-of-contents { margin-bottom: 42px; padding: 28px 30px; border: 1px solid var(--line); border-radius: 18px; background: var(--white); }
 .study-summary strong { color: var(--ink); }
 .table-of-contents h2 { border-bottom: 0; font-size: 1.15rem; }
