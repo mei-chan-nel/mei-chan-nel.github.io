@@ -438,7 +438,7 @@ def main() -> int:
         and not path.is_relative_to(ROOT / "mock-exams" / "exams")
     )
     parsers: dict[Path, PageParser] = {}
-    expected_nav_labels = ("トップページ", "学習アプリ", "実践演習", "ラボ", "問題を探す", "用語一覧", "プログラムトレース", "解説動画", "講義ノート")
+    expected_nav_labels = ("トップページ", "学習アプリ", "実戦演習", "ラボ", "問題を探す", "用語一覧", "プログラムトレース", "解説動画", "講義ノート")
     expected_footer_labels = (*expected_nav_labels, "このサイトについて", "使い方", "書籍案内", "プライバシーポリシー", "サイトマップ")
     for path in page_paths:
         try:
@@ -548,11 +548,11 @@ def main() -> int:
         errors.append("index.html: main content card grid is missing")
     else:
         action_text = action_match.group(1)
-        expected_actions = ("学習アプリ", "実践演習", "Interactive Lab")
+        expected_actions = ("学習アプリ", "実戦演習", "Interactive Lab")
         action_positions = [action_text.find(f"<h3>{label}</h3>") for label in expected_actions]
         if any(position < 0 for position in action_positions) or action_positions != sorted(action_positions):
             errors.append("index.html: main content cards are missing or out of order")
-        for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実践演習"), ("./lab/", "Interactive Lab")):
+        for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実戦演習"), ("./lab/", "Interactive Lab")):
             if not re.search(r'<a class="home-action-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
                 errors.append(f"index.html: main content card/link mismatch: {label}")
         if "共通テスト形式の模試を60分で通して受験するほか、大問ごとの演習もできます。" not in action_text:
