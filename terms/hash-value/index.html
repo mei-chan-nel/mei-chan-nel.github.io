@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>ハッシュ値とは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="ハッシュ値と暗号学的ハッシュ関数の性質、完全性の確認、デジタル署名、ブロックチェーン、ハッシュ表での利用を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="ハッシュ値" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="ハッシュ値とは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="ハッシュ値と暗号学的ハッシュ関数の性質、完全性の確認、デジタル署名、ブロックチェーン、ハッシュ表での利用を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/hash-value/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/hash-value/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026091001" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実践演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">ハッシュ値</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">ハッシュ値</h1>
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「ハッシュ値」とは</h2>
+          <p><strong>ハッシュ値</strong>とは、データに一定の計算を行って得られる値です。この計算に使う規則や仕組みを<strong>ハッシュ関数</strong>といいます。</p>
+          <p>ハッシュ関数は、文字列、数値、画像、ファイルなど、さまざまなデータに適用できます。同じハッシュ関数を使えば、同じデータからは必ず同じハッシュ値が得られます。</p>
+          <p>ハッシュ値は、主に次のような目的で利用されます。</p>
+          <ul>
+            <li><strong>データの完全性の確認</strong>：ファイルなどの内容が変更されていないかを調べる</li>
+            <li><strong>データの高速な検索</strong>：データから格納位置を計算し、目的のデータを効率よく探す</li>
+            <li><strong>データの同一性の確認</strong>：複数のファイルが同じ内容かどうかを調べる</li>
+            <li><strong>デジタル署名やブロックチェーン</strong>：データの改ざんを検出しやすくする</li>
+          </ul>
+          <p>これらの用途では、ハッシュ関数に求められる性質が異なります。特に、情報セキュリティで使用するものを<strong>暗号学的ハッシュ関数</strong>といいます。</p>
+        </section>
+
+        <section>
+          <h2>ハッシュ関数とハッシュ値の基本的な性質</h2>
+          <p>ハッシュ関数には、次のような基本的な性質があります。</p>
+
+          <h3>① 同じデータからは同じハッシュ値が得られる</h3>
+          <p>ハッシュ関数による計算結果は、入力したデータによって決まります。同じハッシュ関数に同じデータを入力すれば、何度計算しても同じハッシュ値になります。</p>
+
+          <h3>② 異なるデータから同じハッシュ値が得られることがある</h3>
+          <p>ハッシュ関数では、多くの種類のデータを、限られた範囲の値に対応させます。</p>
+          <p>そのため、異なるデータから同じハッシュ値が得られることがあります。この現象を<strong>衝突</strong>といいます。</p>
+          <p>例えば、整数を10で割った余りをハッシュ値とする場合、13と23はいずれも余りが3になります。</p>
+          <p class="term-formula">13 mod 10 ＝ 3<br />23 mod 10 ＝ 3</p>
+          <p>このように、異なる入力から同じハッシュ値が得られることを衝突といいます。ここで、<strong>modは割り算の余りを求める演算</strong>を表します。</p>
+
+          <h3>③ 用途によって計算方法や必要な性質が異なる</h3>
+          <p>ハッシュ関数には、割り算の余りを利用するような単純なものもあれば、複雑な計算を行う暗号学的ハッシュ関数もあります。</p>
+          <p>単純なハッシュ関数は、配列の格納位置を求める場合などに利用されます。一方、ファイルの改ざん検出などでは、意図的に衝突を起こすことが難しい、安全性の高い暗号学的ハッシュ関数が必要になります。</p>
+        </section>
+
+        <section>
+          <h2>暗号学的ハッシュ関数</h2>
+          <p>情報セキュリティでは、SHA-256などの<strong>暗号学的ハッシュ関数</strong>が利用されます。</p>
+          <p>暗号学的ハッシュ関数には、次のような特徴があります。</p>
+
+          <h3>① 入力データの長さにかかわらず、一定の長さの値が得られる</h3>
+          <p>例えば、SHA-256では、入力したデータの長さにかかわらず、256ビットのハッシュ値が得られます。</p>
+          <p>256ビットは16進数で64桁に相当します。ファイルが数KBでも数GBでも、得られるハッシュ値の長さは同じです。</p>
+
+          <h3>② 入力データが少し変わるだけで、ハッシュ値が大きく変化する</h3>
+          <p>暗号学的ハッシュ関数では、元のデータが1ビットだけ変わった場合でも、ハッシュ値は通常、大きく異なる値になります。</p>
+          <p>この性質は、ファイルの一部が書き換えられた場合などに、その変化を検出するために役立ちます。</p>
+
+          <h3>③ ハッシュ値から元のデータを復元することが難しい</h3>
+          <p>安全な暗号学的ハッシュ関数は、ハッシュ値だけから元のデータを求めることが実用上困難になるように設計されています。</p>
+
+          <h3>④ 同じハッシュ値をもつ異なるデータを見つけることが難しい</h3>
+          <p>異なるデータから同じハッシュ値が得られる衝突は、理論上避けられません。しかし、安全な暗号学的ハッシュ関数では、衝突するデータの組合せを見つけることが非常に難しくなるように設計されています。</p>
+          <p>このような性質を利用することで、ファイルの内容を比較したり、改ざんを検出したりできます。</p>
+        </section>
+
+        <section>
+          <h2>ハッシュ値による改ざん検出と完全性</h2>
+          <p>情報セキュリティの重要な要素には、<strong>機密性・完全性・可用性</strong>があります。</p>
+          <p>このうち、ハッシュ値の照合が主に関係するのは<strong>完全性</strong>です。</p>
+          <p>完全性とは、情報が不正に変更されたり、破壊されたりしていない状態が保たれていることです。</p>
+          <p>例えば、ソフトウェアの配布元が、ダウンロード用ファイルとともに正しいハッシュ値を公開している場合を考えます。</p>
+          <p>利用者は、ダウンロードしたファイルから同じハッシュ関数でハッシュ値を計算し、配布元が公開した値と比較します。</p>
+
+          <h3>二つのハッシュ値が一致した場合</h3>
+          <p>ファイルの内容が配布元のものと同じである可能性が非常に高いと判断できます。</p>
+          <p>ただし、ハッシュ値の衝突が理論上起こり得るため、必ずしも一致を保証するわけではありません。</p>
+
+          <h3>二つのハッシュ値が一致しなかった場合</h3>
+          <p>ファイルの内容が異なっていると判断できます。</p>
+          <p>通信中のデータの破損、保存時の異常、第三者による改ざんなどが考えられます。そのため、ファイルを実行せず、入手経路を確認して再取得するなどの対応が必要です。</p>
+
+          <p>なお、ハッシュ値を比較する際には、<strong>比較対象となる正しいハッシュ値を信頼できる方法で入手すること</strong>が重要です。</p>
+          <p>攻撃者がファイルと公開ハッシュ値の両方を書き換えた場合、単純に値を照合するだけでは不正を発見できないことがあります。</p>
+          <figure class="term-note-figure">
+            <img src="./assets/01_hash_integrity.svg" alt="配布元から安全に入手したハッシュ値と、受信したファイルから計算した値を比較する図。一致すれば内容が同じである可能性が高く、不一致なら破損や改ざんなどが考えられます。" width="960" height="450" loading="lazy" />
+          </figure>
+        </section>
+
+        <section>
+          <h2>デジタル署名とハッシュ値</h2>
+          <p><strong>デジタル署名</strong>は、データの改ざんを検出し、署名に使用された秘密鍵の持ち主を確認するための仕組みです。</p>
+          <p>デジタル署名には、暗号学的ハッシュ関数と公開鍵暗号方式などの技術が利用されます。</p>
+          <p>一般的なデジタル署名の処理では、送信者は送信するデータからハッシュ値を計算し、自分の<strong>秘密鍵</strong>を使って署名を作成します。</p>
+          <p>受信者は、送信者の<strong>公開鍵</strong>を使って署名を検証します。この検証では、受信したデータから計算したハッシュ値などを利用し、署名がそのデータに対して正しく作成されたものかを調べます。</p>
+          <p>署名の検証が成功すれば、署名後にデータが変更されていないことと、対応する秘密鍵を持つ者が署名したことを確認できます。</p>
+          <p>一方で、その公開鍵が本当に送信者本人のものであるかについては、電子証明書などによって確認する必要があります。</p>
+        </section>
+
+        <section>
+          <h2>ブロックチェーンとハッシュ値</h2>
+          <p><strong>ブロックチェーン</strong>は、取引などの記録をまとめた「ブロック」を、順序を保ちながら鎖のようにつなげて管理する技術です。</p>
+          <p>一般的なブロックチェーンでは、各ブロックに、取引データなどとともに<strong>直前のブロックのハッシュ値</strong>などが記録されます。</p>
+          <p>例えば、ブロックA、B、Cが順番につながっている場合、ブロックBにはブロックAのハッシュ値が、ブロックCにはブロックBのハッシュ値が記録されます。</p>
+          <p>このとき、過去のブロックAの内容が書き換えられると、ブロックAのハッシュ値が変化するため、ブロックBに記録されている値との整合性が失われます。</p>
+          <p>このように、ハッシュ値を利用してブロック同士を関連付けることにより、過去の記録の改ざんを検出しやすくしています。</p>
+          <p>さらに、複数のコンピュータで記録を共有し、記録の正しさを確認する仕組みなどと組み合わせることで、不正な書き換えを難しくしています。</p>
+          <figure class="term-note-figure">
+            <img src="./assets/03_blockchain.svg" alt="各ブロックが直前のブロックのハッシュ値を記録してつながる図。ブロックAの内容を書き換えるとハッシュ値が変わり、ブロックBに記録された値と不整合になります。" width="960" height="500" loading="lazy" />
+          </figure>
+        </section>
+
+        <section>
+          <h2>ハッシュ値を利用したデータの検索</h2>
+          <p>ハッシュ値は情報セキュリティだけでなく、データの格納や検索にも利用されます。</p>
+          <p>データの値からハッシュ関数によって格納位置を求め、その位置にデータを保存する仕組みを<strong>ハッシュ表（ハッシュテーブル）</strong>といいます。</p>
+          <p>例えば、10個の要素をもつ配列A[0]～A[9]に、整数のデータを格納する場合を考えます。</p>
+          <p>ハッシュ関数を、</p>
+          <p class="term-formula">h(k) ＝ k mod 10</p>
+          <p>とすると、整数kを10で割った余りが格納位置になります。</p>
+          <p>例えば、16は10で割った余りが6なので、A[6]に格納します。43は余りが3なので、A[3]に格納します。</p>
+          <p>この方法では、検索したいデータから格納位置を直接計算できるため、先頭から順番に探す方法と比べて、効率よく検索できる場合があります。</p>
+          <p>この方法では、異なるデータから同じ格納位置が求められることがあります。</p>
+          <p>例えば、43と73はいずれも10で割った余りが3なので、どちらもA[3]に格納しようとします。</p>
+          <p>このような衝突に対応するためには、別の格納位置を調べるなどの工夫が必要になります。</p>
+          <figure class="term-note-figure">
+            <img src="./assets/02_hash_collision.svg" alt="43と73を10で割った余りはいずれも3となり、どちらもハッシュ表のA[3]を指します。先に43をA[3]へ格納し、73は次の空き位置A[4]へ格納する例です。" width="960" height="450" loading="lazy" />
+          </figure>
+        </section>
+
+        <section>
+          <h2>ハッシュ値について注意すること</h2>
+          <p>ハッシュ値を理解するときは、特に次の点に注意する必要があります。</p>
+          <ul>
+            <li><strong>ハッシュ値は暗号化されたデータではありません。</strong>ハッシュ値を復号して元のデータを復元することはできません。</li>
+            <li><strong>ハッシュ値が一致しても、元データが必ずしも同じとは限りません。</strong>異なるデータから同じ値が得られる衝突が理論上起こり得るためです。ただし、安全な暗号学的ハッシュ関数では、意図的に衝突を見つけることが非常に難しくなっています。</li>
+            <li><strong>データの検索用とセキュリティ用では、ハッシュ関数に求められる性質が異なります。</strong>検索用のハッシュ関数は格納位置を効率よく計算することを重視しますが、暗号学的ハッシュ関数は元データの推測や意図的な衝突を困難にすることを重視します。</li>
+          </ul>
+          <p>また、ハッシュ値は、データの著作権者、圧縮率、ファイルのパスワードなどを直接表すものではありません。</p>
+          <p>ハッシュ値とは、<strong>データから一定の規則で計算される値</strong>であり、その性質を利用して、データの完全性の確認、同一内容のファイルの検索、効率的なデータの格納や検索など、さまざまな処理を実現するものです。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>ハッシュ値 · EXAMPLE</span><span>情報セキュリティマネジメントR5公開問題 問5（改題）</span></div>
+          <h3>送信者が公開したハッシュ値と、受信したファイルから計算したハッシュ値が一致した。この結果から主に判断できることはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>ファイルの著作権者</p></li>
+            <li><span>1</span><p>ファイルの圧縮率</p></li>
+            <li><span>2</span><p>ファイルが改ざんされていない可能性</p></li>
+            <li><span>3</span><p>ファイルを開くためのパスワード</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．ファイルが改ざんされていない可能性</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>ハッシュ値はデータから計算される短い値で、元データが少し変わると値も変わります。したがって、改ざん検出に利用できます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>情報セキュリティマネジメントR5公開問題 問5（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：ハッシュ値／改竄</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">ハッシュ値の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="ハッシュ値"
+          data-limit="5"
+          data-exclude-stem="送信者が公開したハッシュ値と、受信したファイルから計算したハッシュ値が一致した。この結果から主に判断できることはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=ハッシュ値">ハッシュ値の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"ハッシュ値とは","description":"ハッシュ値と暗号学的ハッシュ関数の性質、完全性の確認、デジタル署名、ブロックチェーン、ハッシュ表での利用を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/hash-value/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"ハッシュ値","item":"https://mei-chan-nel.com/terms/hash-value/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実践演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>

@@ -90,6 +90,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "ドメイン名": {
     "url": "/terms/domain-name/"
   },
+  "ハッシュ値": {
+    "url": "/terms/hash-value/"
+  },
   "バイト": {
     "url": "/terms/byte/"
   },
