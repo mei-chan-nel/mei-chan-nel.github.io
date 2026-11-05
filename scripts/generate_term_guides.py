@@ -195,7 +195,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
         <nav class="global-nav" aria-label="メインナビゲーション">
           <a href="../">トップページ</a>
           <a href="../info1-quiz-app/app/">学習アプリ</a>
-          <a href="../mock-exams/">実践演習</a>
+          <a href="../mock-exams/">実戦演習</a>
           <a href="../lab/">ラボ</a>
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="./" aria-current="page">用語一覧</a>
@@ -236,7 +236,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
         <nav aria-label="フッターナビゲーション">
           <a href="../">トップページ</a>
           <a href="../info1-quiz-app/app/">学習アプリ</a>
-          <a href="../mock-exams/">実践演習</a>
+          <a href="../mock-exams/">実戦演習</a>
           <a href="../lab/">ラボ</a>
           <a href="../info1-quiz-app/questions/">問題を探す</a>
           <a href="../terms/">用語一覧</a>

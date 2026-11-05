@@ -50,7 +50,7 @@
   const navItems = [
     ["home", siteUrl(""), "トップページ"],
     ["app", siteUrl("info1-quiz-app/app/"), "学習アプリ"],
-    ["mock", siteUrl("mock-exams/"), "実践演習"],
+    ["mock", siteUrl("mock-exams/"), "実戦演習"],
     ["lab", siteUrl("lab/"), "ラボ"],
     ["questions", siteUrl("info1-quiz-app/questions/"), "問題を探す"],
     ["terms", siteUrl("terms/"), "用語一覧"],
