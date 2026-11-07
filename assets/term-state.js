@@ -57,6 +57,12 @@
     return new Map([...totals].map(([tag, { W, C }]) => [tag, W === 0 ? 0 : W * (CONFIG.baseCoefficient + CONFIG.ratioCoefficient * W / (W + C))]));
   }
 
+  function initialConditions(terms, scores, states) {
+    const recommended = terms.filter(({tag})=>(scores.get(tag)||0)>0);
+    if (!recommended.length) return {view:"all",filter:"all"};
+    return {view:"recommended",filter:recommended.some(({tag})=>!states[tag]?.read)?"unread":"all"};
+  }
+
   function searchRank(titles, body, words) {
     const normalizedTitles = titles.map(normalize);
     const normalizedBody = normalize(body);
@@ -217,5 +223,5 @@
   };
 
   window.StudyAtlasTerms = Object.freeze({ CONFIG, normalize, keywords, questionState, loadLearning, hasWrongHistory,
-    recommendationScores, searchRank, matchRanges, excerpt, selectTerms, createStore, lazyData, createReadingClock, mergeCoverage, coverageRatio, visibleRange });
+    recommendationScores, initialConditions, searchRank, matchRanges, excerpt, selectTerms, createStore, lazyData, createReadingClock, mergeCoverage, coverageRatio, visibleRange });
 })();

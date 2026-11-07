@@ -107,7 +107,7 @@ test('clearing input during load restores normal list after completion',async()=
 });
 
 const learning={v:1,q:{center_style_seed_0005:[10,0,0],center_style_seed_0013:[2,1,1],center_style_seed_0017:[3,3,1]}};
-test('recommendation defaults, score order, eight combinations, and persisted preferences',async()=>{
+test('recommendation defaults, score order, eight combinations, and defaults on reopening',async()=>{
   const {context,page,errors}=await setup({'info1LearningRecord:v1':learning,'studyAtlasTerms:v1':{v:1,terms:{'改竄':{read:true,favorite:true},'公開鍵暗号方式':{read:true}}}});
   let searchRequests=0;
   page.on('request',request=>{if(request.url().endsWith('/term-search.json')) searchRequests++});
@@ -126,7 +126,8 @@ test('recommendation defaults, score order, eight combinations, and persisted pr
     }
   }
   await page.reload();
-  assert.equal(await page.getByRole('radio',{name:'お気に入り',exact:true}).isChecked(),true);
+  await page.waitForFunction(count=>document.querySelector('[data-term-count]').textContent===`${count}件`,unreadRecommendations.length);
+  assert.equal(await page.getByRole('radio',{name:'未読',exact:true}).isChecked(),true);
   assert.equal(await page.locator('#term-search').inputValue(),'');
   assert.equal(searchRequests,0);
   assert.deepEqual(errors,[]);
@@ -344,5 +345,39 @@ test('jumping to a lower match stays unread until 70% has actually appeared',asy
     },fraction);
   }
   assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
+  await context.close();
+});
+
+
+test('all-read recommendations start with all, and no matching recommendations start at the full list',async()=>{
+  for (const noRecommendations of [false,true]) {
+    const {context,page}=await setup({
+      'info1LearningRecord:v1': noRecommendations?{v:1,q:{removed_question:[1,0,0]}}:learning,
+      'studyAtlasTerms:v1':{v:1,terms:Object.fromEntries(recommended.map(tag=>[tag,{read:true}]))},
+      'studyAtlasTermPreferences:v1':{view:'all',filter:'favorite'},
+    });
+    await page.goto(`${base}/terms/`);
+    const expected=noRecommendations?termCount:recommended.length;
+    await page.waitForFunction(count=>document.querySelector('[data-term-count]').textContent===`${count}件`,expected);
+    assert.equal(await page.locator(`input[name="term-view"][value="${noRecommendations?'all':'recommended'}"]`).isChecked(),true);
+    assert.equal(await page.getByRole('radio',{name:'すべて',exact:true}).isChecked(),true);
+    await context.close();
+  }
+});
+
+test('late recommendation loading does not override a search or an explicit view choice',async()=>{
+  const {context,page}=await setup({'info1LearningRecord:v1':learning});
+  let release;
+  const gate=new Promise(resolve=>{release=resolve});
+  await page.route('**/data/term-question-tags.json',async route=>{await gate;await route.continue()});
+  await page.goto(`${base}/terms/`,{waitUntil:"domcontentloaded"});
+  await page.locator('#term-search').fill('オーバーフロー');
+  await page.locator('.term-excerpt-link').waitFor();
+  const done=page.waitForResponse('**/data/term-question-tags.json');
+  release();
+  await (await done).finished();
+  assert.equal(await page.getByRole('radio',{name:'用語一覧',exact:true}).isChecked(),true);
+  assert.equal(await page.getByRole('radio',{name:'すべて',exact:true}).isChecked(),true);
+  assert.equal(await page.locator('#term-search').inputValue(),'オーバーフロー');
   await context.close();
 });

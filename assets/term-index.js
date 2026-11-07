@@ -44,11 +44,7 @@
   });
   let view = model.hasWrongHistory(records) ? "recommended" : "all";
   let filter = view === "recommended" ? "unread" : "all";
-  try {
-    const saved = JSON.parse(storage.getItem(CONFIG.preferencesKey) || "null");
-    if (["all", "recommended"].includes(saved?.view)) view = saved.view;
-    if (["all", "unread", "read", "favorite"].includes(saved?.filter)) filter = saved.filter;
-  } catch (_) { /* Use history-based defaults. */ }
+  let initialViewPending = view === "recommended";
   search.value = "";
   controls.hidden = false;
 
@@ -130,9 +126,15 @@
     catch (_) { searchState = "error"; }
     render(); // Always uses the latest input, including an input cleared during loading.
   }
+  function applyInitialView() {
+    if (!initialViewPending) return;
+    ({view,filter} = model.initialConditions(terms,scores,store.read()));
+    readFilterSnapshot = null;
+    initialViewPending = false;
+  }
   async function ensureRecommendations() {
-    if (!model.hasWrongHistory(records)) { scores = new Map(); render(); return; }
-    if (questionTags) { scores = model.recommendationScores(records, questionTags); render(); return; }
+    if (!model.hasWrongHistory(records)) { scores = new Map(); applyInitialView(); render(); return; }
+    if (questionTags) { scores = model.recommendationScores(records, questionTags); applyInitialView(); render(); return; }
     if (recommendationState === "loading") return;
     recommendationState = "loading";
     render();
@@ -140,6 +142,7 @@
       questionTags = await loadTags();
       scores = model.recommendationScores(records, questionTags);
       recommendationState = "ready";
+      applyInitialView();
     } catch (_) { recommendationState = "error"; }
     render();
   }
@@ -148,6 +151,7 @@
     else if (event.target.name === "term-filter") filter = event.target.value;
     else return;
     search.value = "";
+    initialViewPending = false;
     readFilterSnapshot = null;
     try { storage.setItem(CONFIG.preferencesKey, JSON.stringify({ view, filter })); } catch (_) { storageError(); }
     render();
@@ -155,9 +159,11 @@
   });
   controls.addEventListener("click", (event) => {
     const radio = event.target.closest('input[name="term-filter"]');
+    if (radio) initialViewPending = false;
     if (radio?.value === filter) { readFilterSnapshot = null; render(); }
   });
   function broadenSearch() {
+    initialViewPending = false;
     readFilterSnapshot = null;
     view = "all";
     filter = "all";

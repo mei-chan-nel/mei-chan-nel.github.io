@@ -181,3 +181,12 @@ test('coverage merges only displayed regions, counts overlaps once, and ignores 
   assert.equal(result.read,true);
   assert.ok(result.reach>=0.7);
 });
+
+
+test('initial view prioritizes unread recommendations, then all recommendations, then all terms',()=>{
+  const scores=new Map([['Alpha',1],['Beta',2]]);
+  assert.deepEqual(plain(model.initialConditions(terms,scores,{Alpha:{read:true}})),{view:'recommended',filter:'unread'});
+  assert.deepEqual(plain(model.initialConditions(terms,scores,{Alpha:{read:true},Beta:{read:true}})),{view:'recommended',filter:'all'});
+  assert.deepEqual(plain(model.initialConditions(terms,new Map(),{})),{view:'all',filter:'all'});
+  assert.deepEqual(plain(model.initialConditions(terms,new Map([['Alpha',0]]),{})),{view:'all',filter:'all'});
+});
