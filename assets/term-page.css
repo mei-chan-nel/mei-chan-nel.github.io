@@ -299,3 +299,25 @@
 .term-favorite:focus-visible, .term-controls input:focus-visible, .term-controls button:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }
 .term-page-state { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+
+.term-controls fieldset:first-child { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
+.term-controls fieldset:first-child label { justify-content: center; border: 0; border-radius: 9px; font-weight: 700; padding: 10px 8px; }
+.term-controls fieldset:first-child label:has(:checked) { background: var(--ink); color: var(--white); box-shadow: 0 2px 5px rgb(16 47 53 / 12%); }
+.term-controls fieldset:nth-child(2) { gap: 8px; }
+.term-controls fieldset:nth-child(2) label { padding: 5px 16px; border: 1px solid var(--line); border-radius: 24px; color: var(--ink-soft); }
+.term-controls fieldset:nth-child(2) label:has(:checked) { border-color: var(--ink); color: var(--ink); background: var(--white); font-weight: 700; }
+.term-controls input[type="radio"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.term-controls label:has(input:focus-visible) { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
+.term-controls label:hover { background: var(--white); }
+#term-search { border-color: var(--line); border-radius: 10px; padding: 13px 16px; box-shadow: 0 2px 6px rgb(16 47 53 / 3%); }
+#term-search:focus { border-color: var(--blue-strong); }
+.term-result-count { margin: 24px 0 12px; font-variant-numeric: tabular-nums; }
+.term-list-item .term-excerpt-link { display: block; min-height: 44px; padding: 0 2px 8px; font-size: .84rem; line-height: 1.8; font-weight: 400; color: var(--ink-soft); text-decoration: none; }
+.term-excerpt-link strong { font-weight: 800; color: var(--ink); }
+.term-list-item .term-excerpt-link:hover { color: var(--ink); text-decoration: underline; }
+.term-search-hit { color: inherit; background: #fff0b5; font-weight: 800; scroll-margin-block: 140px; }
+@media (max-width: 420px) {
+  .term-controls fieldset:first-child label { font-size: .8rem; }
+  .term-controls fieldset:nth-child(2) { gap: 6px; }
+  .term-controls fieldset:nth-child(2) label { padding: 5px 12px; font-size: .82rem; }
+}

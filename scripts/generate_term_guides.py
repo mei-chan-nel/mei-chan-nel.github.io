@@ -16,7 +16,7 @@ INDEX_PATH = TERMS_ROOT / "index.html"
 DEFAULT_TAG_LIST_PATH = ROOT / "data" / "term-tag-list.json"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
-FEATURE_VERSION = "2026110701"
+FEATURE_VERSION = "2026110702"
 
 
 class ExplanationParser(HTMLParser):
@@ -301,10 +301,9 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
         <h1>用語一覧</h1>
       </header>
 
-      <section class="term-list-section" aria-labelledby="term-list-heading">
+      <section class="term-list-section" aria-label="用語一覧">
         <div class="term-section-heading">
           <p class="eyebrow">{linked_count} GUIDES</p>
-          <h2 id="term-list-heading">用語から探す</h2>
         </div>
         <div class="term-controls" data-term-controls hidden>
           <fieldset>

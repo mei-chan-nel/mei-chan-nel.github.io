@@ -153,7 +153,7 @@ test('recommendation fetch failure offers retry and normal list remains availabl
   await context.close();
 });
 
-test('favorite keyboard toggle, persisted read invariant, cross-tab sync, mobile layout and a11y',async()=>{
+test('favorite keyboard toggle, independent read state, cross-tab sync, mobile layout and a11y',async()=>{
   const {context,page,errors}=await setup({}, {width:390,height:844});
   await page.goto(`${base}/terms/`);
   const favorite=page.getByRole('button',{name:'ビットをお気に入りに登録',exact:true});
@@ -164,12 +164,12 @@ test('favorite keyboard toggle, persisted read invariant, cross-tab sync, mobile
   const article=await context.newPage();
   await article.goto(`${base}/terms/bit/`);
   await article.getByRole('button',{name:'ビットをお気に入りから解除',exact:true}).waitFor();
-  assert.equal(await article.locator('[data-term-read-status]').textContent(),'既読');
+  assert.equal(await article.locator('[data-term-read-status]').textContent(),'未読');
   await article.getByRole('button',{name:'ビットをお気に入りから解除',exact:true}).click();
   await page.getByRole('button',{name:'ビットをお気に入りに登録',exact:true}).waitFor();
-  assert.equal(await article.locator('[data-term-read-status]').textContent(),'既読');
+  assert.equal(await article.locator('[data-term-read-status]').textContent(),'未読');
   await page.reload();
-  assert.equal(await page.locator('li').filter({has:page.locator('a[href="./bit/"]')}).locator('.term-read-status').textContent(),'既読');
+  assert.equal(await page.locator('li').filter({has:page.locator('a[href="./bit/"]')}).locator('.term-read-status').textContent(),'未読');
   await checkAxe(page);
   await checkAxe(article);
   for(const target of [page,article]) assert.equal(await target.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
@@ -177,42 +177,46 @@ test('favorite keyboard toggle, persisted read invariant, cross-tab sync, mobile
   await context.close();
 });
 
-test('read timer excludes background, requires 70% body reach, and survives revisit',async()=>{
+test('ten foreground seconds OR 70% reach marks read, background time is excluded',async()=>{
   const {context,page,errors}=await setup();
   await page.clock.install();
   await page.goto(`${base}/terms/bit/`);
   await page.bringToFront();
-  await page.clock.runFor(21000);
-  assert.equal(await page.locator('[data-term-read-status]').textContent(),'未読');
-  await page.evaluate(()=>{
-    Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});
-    document.dispatchEvent(new Event('visibilitychange'));
-  });
-  await page.clock.runFor(30000);
-  await page.evaluate(()=>{
-    Object.defineProperty(document,'visibilityState',{configurable:true,value:'visible'});
-    document.dispatchEvent(new Event('visibilitychange'));
-    const body=document.querySelector('#term-explanation');
-    const rect=body.getBoundingClientRect();
-    window.scrollTo({top:window.scrollY+rect.top+rect.height*0.72-innerHeight,behavior:'instant'});
-  });
-  await page.clock.runFor(1100);
-  assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読',await page.evaluate(()=>JSON.stringify({stored:localStorage.getItem('studyAtlasTerms:v1'),rect:document.querySelector('#term-explanation').getBoundingClientRect().toJSON(),focus:document.hasFocus()})));
-  // A second article demonstrates that background time cannot meet the time condition.
-  await page.goto(`${base}/terms/bps/`);
   await page.clock.runFor(5000);
-  await page.evaluate(()=>{
-    const body=document.querySelector('#term-explanation');const rect=body.getBoundingClientRect();
-    window.scrollTo({top:window.scrollY+rect.top+rect.height-innerHeight,behavior:'instant'});
-    Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'));
-  });
-  await page.clock.runFor(40000);
+  assert.equal(await page.locator('[data-term-read-status]').textContent(),'未読');
+  await page.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'hidden'});document.dispatchEvent(new Event('visibilitychange'))});
+  await page.clock.runFor(30000);
   assert.equal(await page.locator('[data-term-read-status]').textContent(),'未読');
   await page.evaluate(()=>{Object.defineProperty(document,'visibilityState',{configurable:true,value:'visible'});document.dispatchEvent(new Event('visibilitychange'))});
-  await page.clock.runFor(16000);
+  await page.clock.runFor(6000);
+  assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
+  await page.goto(`${base}/terms/bps/`);
+  await page.evaluate(()=>{
+    const rect=document.querySelector('#term-explanation').getBoundingClientRect();
+    scrollTo({top:scrollY+rect.top+rect.height*.72-innerHeight,behavior:'instant'});
+    dispatchEvent(new Event('scroll'));
+  });
   assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
   await page.reload();
   assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
+  assert.deepEqual(errors,[]);
+  await context.close();
+});
+
+test('excerpt bolds normalized matches and opens the matching explanation location',async()=>{
+  const {context,page,errors}=await setup();
+  await page.goto(`${base}/terms/`);
+  assert.equal(await page.getByText('用語から探す',{exact:true}).count(),0);
+  await page.locator('#term-search').fill('オーバーフロー');
+  const snippet=page.locator('li').filter({has:page.locator('a[href^="./bit/"]')}).locator('.term-excerpt-link');
+  await snippet.waitFor();
+  assert.equal(await snippet.locator('strong').first().textContent(),'オーバーフロー');
+  await snippet.click();
+  await page.waitForURL('**/terms/bit/#term-find=*');
+  const hit=page.locator('mark.term-search-hit').first();
+  await hit.waitFor();
+  assert.equal(await hit.textContent(),'オーバーフロー');
+  assert.equal(await hit.evaluate(node=>{const r=node.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight}),true);
   assert.deepEqual(errors,[]);
   await context.close();
 });

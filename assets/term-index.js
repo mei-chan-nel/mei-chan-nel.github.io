@@ -38,7 +38,7 @@
     snippet.className = "term-search-excerpt";
     snippet.hidden = true;
     node.append(status, star, snippet);
-    return { tag, node, status, star, icon, snippet };
+    return { tag, node, link, status, star, icon, snippet };
   });
   let view = model.hasWrongHistory(records) ? "recommended" : "all";
   let filter = view === "recommended" ? "unread" : "all";
@@ -76,7 +76,24 @@
     const selected = model.selectTerms(terms, { view: fallback ? "all" : view, filter, query: ready ? search.value : "", scores, states, searchData });
     for (const term of selected) {
       term.node.hidden = false;
-      term.snippet.textContent = term.excerpt;
+      term.snippet.replaceChildren();
+      const words = model.keywords(search.value);
+      term.link.href = `./${new URL(term.link.href).pathname.split("/").filter(Boolean).at(-1)}/${ready ? "#term-find=" + encodeURIComponent(words.join(" ")) : ""}`;
+      if (term.excerpt) {
+        const jump = document.createElement("a");
+        jump.href = term.link.href;
+        jump.className = "term-excerpt-link";
+        let cursor = 0;
+        for (const [start,end] of model.matchRanges(term.excerpt, words)) {
+          jump.append(document.createTextNode(term.excerpt.slice(cursor,start)));
+          const strong = document.createElement("strong");
+          strong.textContent = term.excerpt.slice(start,end);
+          jump.append(strong);
+          cursor = end;
+        }
+        jump.append(document.createTextNode(term.excerpt.slice(cursor)));
+        term.snippet.append(jump);
+      }
       term.snippet.hidden = !term.excerpt;
       list.append(term.node);
     }

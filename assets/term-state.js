@@ -6,7 +6,7 @@
     preferencesKey: "studyAtlasTermPreferences:v1",
     learningKey: "info1LearningRecord:v1",
     legacyLearningKey: "info1QuizStats:v4",
-    readTimeMs: 20_000,
+    readTimeMs: 10_000,
     readReach: 0.7,
     wrongWeight: 1,
     recoveredWeight: 0.5,
@@ -72,20 +72,39 @@
       words.filter((word) => normalizedTitles.some((title) => title.startsWith(word))).length];
   }
 
-  function excerpt(body, words, length = 110) {
-    // Map normalized characters back to source offsets so NFKC expansions do not shift the excerpt.
+  function matchRanges(text, words) {
     let normalized = "";
-    const offsets = [];
-    // Keep voiced marks with their base character (e.g. half-width ｶﾞ → ガ).
-    for (const match of String(body).matchAll(/[^\p{M}\uFF9E\uFF9F][\p{M}\uFF9E\uFF9F]*|[\p{M}\uFF9E\uFF9F]+/gu)) {
+    const starts = [], ends = [];
+    for (const match of String(text).matchAll(/[^\p{M}\uFF9E\uFF9F][\p{M}\uFF9E\uFF9F]*|[\p{M}\uFF9E\uFF9F]+/gu)) {
       const part = match[0].normalize("NFKC").toLowerCase();
       normalized += part;
-      for (let index = 0; index < part.length; index += 1) offsets.push(match.index);
+      for (let i = 0; i < part.length; i++) { starts.push(match.index); ends.push(match.index + match[0].length); }
     }
-    const matches = words.map((word) => normalized.indexOf(word)).filter((index) => index >= 0);
+    const ranges = [];
+    for (const word of words) {
+      if (!word) continue;
+      let index = normalized.indexOf(word);
+      while (index >= 0) {
+        ranges.push([starts[index], ends[index + word.length - 1]]);
+        index = normalized.indexOf(word, index + word.length);
+      }
+    }
+    ranges.sort((a,b) => a[0]-b[0] || b[1]-a[1]);
+    const merged = [];
+    for (const range of ranges) {
+      const last = merged.at(-1);
+      if (last && range[0] <= last[1]) last[1] = Math.max(last[1],range[1]);
+      else merged.push(range);
+    }
+    return merged;
+  }
+
+  function excerpt(body, words, length = 110) {
+    const matches = matchRanges(body, words);
     if (!matches.length) return "";
-    const start = Math.max(0, offsets[Math.min(...matches)] - 28);
-    return `${start ? "…" : ""}${body.slice(start, start + length)}${start + length < body.length ? "…" : ""}`;
+    const start = Math.max(0, matches[0][0] - 4);
+    const end = Math.max(start + length, matches[0][1]);
+    return `${start ? "…" : ""}${body.slice(start, end)}${end < body.length ? "…" : ""}`;
   }
 
   function selectTerms(terms, { view, filter, query, scores, states, searchData }) {
@@ -110,7 +129,7 @@
   function cleanStates(value) {
     if (!object(value) || value.v !== 1 || !object(value.terms)) return {};
     return Object.fromEntries(Object.entries(value.terms).filter(([, state]) => object(state)).map(([tag, state]) => [tag, {
-      read: state.read === true || state.favorite === true,
+      read: state.read === true,
       favorite: state.favorite === true,
       time: Number.isFinite(state.time) ? Math.min(CONFIG.readTimeMs, Math.max(0, state.time)) : 0,
       reach: Number.isFinite(state.reach) ? Math.min(1, Math.max(0, state.reach)) : 0,
@@ -130,7 +149,6 @@
       const states = read();
       const state = { read: false, favorite: false, time: 0, reach: 0, ...states[tag] };
       transform(state);
-      state.read = state.read || state.favorite;
       memory = { ...states, [tag]: state };
       try { storage.setItem(CONFIG.storageKey, JSON.stringify({ v: 1, terms: memory })); failed = false; }
       catch (_) { failed = true; onError(); }
@@ -143,7 +161,7 @@
       progress: (tag, elapsed, reach) => update(tag, (state) => {
         state.time = Math.min(CONFIG.readTimeMs, state.time + Math.max(0, elapsed));
         state.reach = Math.max(state.reach, reach);
-        if (state.time >= CONFIG.readTimeMs && state.reach >= CONFIG.readReach) state.read = true;
+        if (state.time >= CONFIG.readTimeMs || state.reach >= CONFIG.readReach) state.read = true;
       }),
     };
   }
@@ -175,5 +193,5 @@
   };
 
   window.StudyAtlasTerms = Object.freeze({ CONFIG, normalize, keywords, questionState, loadLearning, hasWrongHistory,
-    recommendationScores, searchRank, excerpt, selectTerms, createStore, lazyData, reachRatio, createReadingClock });
+    recommendationScores, searchRank, matchRanges, excerpt, selectTerms, createStore, lazyData, reachRatio, createReadingClock });
 })();

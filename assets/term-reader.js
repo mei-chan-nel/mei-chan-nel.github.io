@@ -30,7 +30,7 @@
     elapsed += clock(performance.now(), foreground);
     if (foreground) reach = Math.max(reach, model.reachRatio(body.getBoundingClientRect(), window.innerHeight));
     const state = store.read()[tag];
-    const complete = (state?.time || 0) + elapsed >= model.CONFIG.readTimeMs && Math.max(reach, state?.reach || 0) >= model.CONFIG.readReach;
+    const complete = (state?.time || 0) + elapsed >= model.CONFIG.readTimeMs || Math.max(reach, state?.reach || 0) >= model.CONFIG.readReach;
     if (force || elapsed >= 1000 || complete) {
       if (!state?.read && (elapsed > 0 || reach > (state?.reach || 0))) {
         store.progress(tag, elapsed, reach);
@@ -52,4 +52,52 @@
   window.setInterval(() => sample(), 1000);
   render();
   sample();
+})();
+
+// Locate normalized search words inside the explanation, preserving the article markup.
+(() => {
+  const model = window.StudyAtlasTerms;
+  const body = document.querySelector('#term-explanation');
+  if (!model || !body) return;
+  function jumpToMatch() {
+    if (!location.hash.startsWith('#term-find=')) return;
+    let words;
+    try { words = model.keywords(decodeURIComponent(location.hash.slice(11))).slice(0,20); } catch (_) { return; }
+    body.querySelectorAll('mark.term-search-hit').forEach(mark => mark.replaceWith(document.createTextNode(mark.textContent)));
+    const walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    let text = '', node;
+    while ((node = walker.nextNode())) {
+      if (node.parentElement.closest('script,style,nav,button,.choice-list,[data-manual-ad]')) continue;
+      nodes.push({node, start:text.length});
+      text += node.textContent;
+    }
+    const ranges = model.matchRanges(text, words);
+    let first;
+    for (const {node,start} of nodes) {
+      const local = ranges.map(([a,b]) => [Math.max(0,a-start),Math.min(node.length,b-start)]).filter(([a,b])=>a<b);
+      if (!local.length) continue;
+      const fragment = document.createDocumentFragment();
+      let cursor = 0;
+      for (const [a,b] of local) {
+        fragment.append(document.createTextNode(node.textContent.slice(cursor,a)));
+        const mark = document.createElement('mark');
+        mark.className = 'term-search-hit';
+        mark.textContent = node.textContent.slice(a,b);
+        fragment.append(mark);
+        first ||= mark;
+        cursor = b;
+      }
+      fragment.append(document.createTextNode(node.textContent.slice(cursor)));
+      node.replaceWith(fragment);
+    }
+    if (first) {
+      first.tabIndex = -1;
+      first.focus({preventScroll:true});
+      first.scrollIntoView({block:'center',behavior:'instant'});
+    }
+  }
+  window.addEventListener('hashchange',jumpToMatch);
+  window.addEventListener('load',jumpToMatch,{once:true});
+  jumpToMatch();
 })();

@@ -54,28 +54,31 @@ test('all eight view/filter combinations preserve score order and exclude score 
   }
 });
 
-test('favorite always implies read, removal preserves read, and stores share persisted state', () => {
+test('favorites and read status are independent and shared between stores', () => {
   const disk = storage();
   const first = model.createStore(disk);
-  assert.equal(first.toggleFavorite('Alpha').read,true);
+  assert.equal(first.toggleFavorite('Alpha').read,false);
   const second = model.createStore(disk);
   assert.equal(second.read().Alpha.favorite,true);
-  assert.equal(second.toggleFavorite('Alpha').read,true);
+  assert.equal(second.toggleFavorite('Alpha').read,false);
   assert.equal(first.read().Alpha.favorite,false);
+  first.progress('Alpha',10000,0);
+  assert.equal(first.toggleFavorite('Alpha').read,true);
+  assert.equal(first.toggleFavorite('Alpha').read,true);
   disk.setItem(model.CONFIG.storageKey,JSON.stringify({v:1,terms:{Beta:{favorite:true,read:false}}}));
-  assert.equal(first.read().Beta.read,true);
+  assert.equal(first.read().Beta.read,false);
   const blocked = model.createStore({getItem(){throw Error()},setItem(){throw Error()}});
   assert.equal(blocked.toggleFavorite('Alpha').favorite,true);
-  assert.equal(blocked.read().Alpha.read,true);
+  assert.equal(blocked.read().Alpha.read,false);
   assert.equal(blocked.toggleFavorite('Alpha').favorite,false);
 });
 
-test('reading requires both foreground cumulative time and body reach, persists across visits', () => {
+test('reading requires ten seconds OR body reach, persists across visits', () => {
   const disk = storage();
   let store = model.createStore(disk);
-  assert.equal(store.progress('Alpha',20000,0.69).read,false);
+  assert.equal(store.progress('Alpha',0,0.69).read,false);
   assert.equal(store.progress('Alpha',0,0.7).read,true);
-  assert.equal(store.progress('Beta',19999,1).read,false);
+  assert.equal(store.progress('Beta',9999,0).read,false);
   store = model.createStore(disk);
   assert.equal(store.progress('Beta',1,0).read,true);
   assert.equal(model.reachRatio({top:100,height:500},800),1); // Short/no-scroll article.
@@ -135,4 +138,13 @@ test('lazy data fetch deduplicates in-flight and successful requests, and permit
   await assert.rejects(retry());
   assert.equal((await retry()).ok,true);
   assert.equal(failedCalls,2);
+});
+
+
+test('normalized highlight ranges preserve source width, voiced marks and overlapping keywords', () => {
+  assert.deepEqual(plain(model.matchRanges('ｶﾞｲﾄﾞ ＡＢＣ abc',['ガイド','abc','ab'])),[[0,5],[6,9],[10,13]]);
+  const body = '前'.repeat(100)+'needle'+'後'.repeat(200);
+  const snippet = model.excerpt(body,['needle']);
+  assert.equal(snippet.indexOf('needle'),5);
+  assert.ok(snippet.slice(snippet.indexOf('needle')+6).length>90);
 });
