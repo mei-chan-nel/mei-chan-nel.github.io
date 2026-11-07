@@ -78,9 +78,6 @@ test('failed/invalid search data keeps normal list usable and explicit retry suc
   await page.locator('#term-search').fill('ビット');
   await page.getByRole('button',{name:'検索データを再読み込み'}).waitFor();
   assert.equal((await visibleTags(page)).length,termCount);
-  await page.getByRole('radio',{name:'既読',exact:true}).check();
-  assert.equal((await visibleTags(page)).length,0);
-  await page.getByRole('radio',{name:'すべて',exact:true}).check();
   await page.getByRole('button',{name:'検索データを再読み込み'}).click();
   await page.waitForFunction(()=>document.querySelector('#term-search-message').textContent.includes('読み込めません'));
   await page.getByRole('button',{name:'検索データを再読み込み'}).click();
@@ -269,7 +266,7 @@ test('read buttons toggle both ways, sync across tabs and keep manual unread dur
   await context.close();
 });
 
-test('search broadens on input and submit, allows later filtering, and Enter blurs except during IME composition',async()=>{
+test('search broadens on input and submit, clears search when scope changes, and Enter blurs except during IME composition',async()=>{
   const {context,page}=await setup();
   await page.goto(`${base}/terms/`);
   await page.getByRole('radio',{name:'あなたへのおすすめ',exact:true}).check();
@@ -281,11 +278,34 @@ test('search broadens on input and submit, allows later filtering, and Enter blu
   assert.equal(await page.getByRole('radio',{name:'すべて',exact:true}).isChecked(),true);
   await page.getByRole('radio',{name:'既読',exact:true}).check();
   assert.equal((await visibleTags(page)).length,0);
+  assert.equal(await search.inputValue(),'');
+  await search.fill('オーバーフロー');
+  await page.getByRole('radio',{name:'あなたへのおすすめ',exact:true}).check();
+  assert.equal(await search.inputValue(),'');
+  assert.equal(await page.getByRole('radio',{name:'あなたへのおすすめ',exact:true}).isChecked(),true);
+  await search.fill('オーバーフロー');
   await search.focus();
   await search.evaluate(node=>node.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',isComposing:true,bubbles:true})));
   assert.equal(await search.evaluate(node=>document.activeElement===node),true);
   await search.press('Enter');
   assert.equal(await search.evaluate(node=>document.activeElement===node),false);
   assert.equal((await visibleTags(page)).includes('ビット'),true);
+  await context.close();
+});
+
+
+test('scope changes during delayed search loading keep the cleared query after completion',async()=>{
+  const {context,page}=await setup();
+  let release;
+  const gate=new Promise(resolve=>{release=resolve});
+  await page.route('**/data/term-search.json',async route=>{await gate;await route.fulfill({json:searchData})});
+  await page.goto(`${base}/terms/`);
+  await page.locator('#term-search').fill('ビット');
+  await page.getByRole('radio',{name:'未読',exact:true}).check();
+  assert.equal(await page.locator('#term-search').inputValue(),'');
+  release();
+  assert.equal((await visibleTags(page)).length,termCount);
+  assert.equal(await page.getByRole('radio',{name:'未読',exact:true}).isChecked(),true);
+  assert.equal(await page.locator('#term-search-message').textContent(),'');
   await context.close();
 });

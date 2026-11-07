@@ -140,6 +140,7 @@
     if (event.target.name === "term-view") view = event.target.value;
     else if (event.target.name === "term-filter") filter = event.target.value;
     else return;
+    search.value = "";
     try { storage.setItem(CONFIG.preferencesKey, JSON.stringify({ view, filter })); } catch (_) { storageError(); }
     render();
     if (view === "recommended") void ensureRecommendations();
