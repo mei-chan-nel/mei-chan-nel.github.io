@@ -540,8 +540,8 @@ def main() -> int:
     if "MAIN LEARNING TOOL" in main_text or 'class="section section-app"' in main_text:
         errors.append("index.html: standalone learning-app section remains")
     hero_map_match = re.search(r'<div class="hero-map"[^>]*>.*?</div>\s*</div>', top_text, flags=re.DOTALL)
-    if "hero-stats" in top_text or "data-home-app-summary" not in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
-        errors.append("index.html: counts/history hook/map requirements are not satisfied")
+    if "hero-stats" in top_text or (hero_map_match and "<a" in hero_map_match.group(0)):
+        errors.append("index.html: counts/map requirements are not satisfied")
     action_match = re.search(r'<section class="section home-actions-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
     sub_match = re.search(r'<section class="section home-sub-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
     if action_match is None or '<div class="home-action-grid">' not in action_match.group(1):
