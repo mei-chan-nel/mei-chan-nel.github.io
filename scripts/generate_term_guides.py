@@ -16,7 +16,7 @@ INDEX_PATH = TERMS_ROOT / "index.html"
 DEFAULT_TAG_LIST_PATH = ROOT / "data" / "term-tag-list.json"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
-FEATURE_VERSION = "2026110704"
+FEATURE_VERSION = "2026110705"
 
 
 class ExplanationParser(HTMLParser):

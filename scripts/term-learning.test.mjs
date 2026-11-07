@@ -62,7 +62,7 @@ test('favorites and read status are independent and shared between stores', () =
   assert.equal(second.read().Alpha.favorite,true);
   assert.equal(second.toggleFavorite('Alpha').read,false);
   assert.equal(first.read().Alpha.favorite,false);
-  first.progress('Alpha',10000,0);
+  first.progress('Alpha',10000,[]);
   assert.equal(first.toggleFavorite('Alpha').read,true);
   assert.equal(first.toggleFavorite('Alpha').read,true);
   disk.setItem(model.CONFIG.storageKey,JSON.stringify({v:1,terms:{Beta:{favorite:true,read:false}}}));
@@ -76,14 +76,14 @@ test('favorites and read status are independent and shared between stores', () =
 test('reading requires ten seconds OR body reach, persists across visits', () => {
   const disk = storage();
   let store = model.createStore(disk);
-  assert.equal(store.progress('Alpha',0,0.69).read,false);
-  assert.equal(store.progress('Alpha',0,0.7).read,true);
-  assert.equal(store.progress('Beta',9999,0).read,false);
+  assert.equal(store.progress('Alpha',0,[[0,0.69]]).read,false);
+  assert.equal(store.progress('Alpha',0,[[0,0.7]]).read,true);
+  assert.equal(store.progress('Beta',9999,[]).read,false);
   store = model.createStore(disk);
-  assert.equal(store.progress('Beta',1,0).read,true);
-  assert.equal(model.reachRatio({top:100,height:500},800),1); // Short/no-scroll article.
-  assert.equal(model.reachRatio({top:1000,height:1000},800),0);
-  assert.equal(model.reachRatio({top:-200,height:1000},500),0.7);
+  assert.equal(store.progress('Beta',1,[]).read,true);
+  assert.equal(model.coverageRatio(model.visibleRange({top:100,height:500},800)),1); // Short/no-scroll article.
+  assert.equal(model.coverageRatio(model.visibleRange({top:1000,height:1000},800)),0);
+  assert.deepEqual(plain(model.visibleRange({top:-200,height:1000},500)),[[0.2,0.7]]);
   const tick = model.createReadingClock(0,true);
   assert.equal(tick(7000,false),7000);
   assert.equal(tick(99000,true),0);
@@ -160,9 +160,24 @@ test('manual unread survives automatic progress and keeps favorites until the ne
   assert.equal(store.toggleRead('Alpha').read,true);
   assert.equal(store.toggleRead('Alpha').read,false);
   assert.equal(store.read().Alpha.favorite,true);
-  assert.equal(store.progress('Alpha',20000,1).read,false);
+  assert.equal(store.progress('Alpha',20000,[[0,1]]).read,false);
   assert.equal(model.createStore(disk).read().Alpha.manualUnread,true);
   store.beginReading('Alpha');
-  assert.equal(store.progress('Alpha',9999,0).read,false);
-  assert.equal(store.progress('Alpha',1,0).read,true);
+  assert.equal(store.progress('Alpha',9999,[]).read,false);
+  assert.equal(store.progress('Alpha',1,[]).read,true);
+});
+
+
+test('coverage merges only displayed regions, counts overlaps once, and ignores legacy farthest reach',()=>{
+  const disk=storage();
+  disk.setItem(model.CONFIG.storageKey,JSON.stringify({v:1,terms:{Alpha:{read:false,reach:1,time:0}}}));
+  let store=model.createStore(disk);
+  assert.equal(store.read().Alpha.reach,0);
+  assert.equal(store.progress('Alpha',0,[[0.8,1]]).read,false);
+  assert.ok(Math.abs(store.progress('Alpha',0,[[0.8,1]]).reach-0.2)<1e-12);
+  store=model.createStore(disk);
+  assert.equal(store.progress('Alpha',0,[[0,0.3],[0.1,0.4]]).read,false);
+  const result=store.progress('Alpha',0,[[0.35,0.75]]);
+  assert.equal(result.read,true);
+  assert.ok(result.reach>=0.7);
 });

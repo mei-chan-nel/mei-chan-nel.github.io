@@ -127,6 +127,20 @@
     });
   }
 
+  function mergeCoverage(ranges) {
+    const sorted = (Array.isArray(ranges) ? ranges : []).filter(range => Array.isArray(range) && range.length === 2 && range.every(Number.isFinite))
+      .map(([start,end]) => [Math.max(0,start),Math.min(1,end)]).filter(([start,end])=>end>start).sort((a,b)=>a[0]-b[0]);
+    const merged = [];
+    for (const [start,end] of sorted) {
+      const last=merged.at(-1);
+      if (last && start<=last[1]) last[1]=Math.max(last[1],end);
+      else merged.push([start,end]);
+    }
+    return merged;
+  }
+  const coverageRatio = ranges => mergeCoverage(ranges).reduce((sum,[start,end])=>sum+end-start,0);
+  const visibleRange = (rect,viewportHeight) => rect.height>0 ? mergeCoverage([[Math.max(0,-rect.top/rect.height),Math.min(1,(viewportHeight-rect.top)/rect.height)]]) : [];
+
   function cleanStates(value) {
     if (!object(value) || value.v !== 1 || !object(value.terms)) return {};
     return Object.fromEntries(Object.entries(value.terms).filter(([, state]) => object(state)).map(([tag, state]) => [tag, {
@@ -134,7 +148,8 @@
       manualUnread: state.manualUnread === true,
       favorite: state.favorite === true,
       time: Number.isFinite(state.time) ? Math.min(CONFIG.readTimeMs, Math.max(0, state.time)) : 0,
-      reach: Number.isFinite(state.reach) ? Math.min(1, Math.max(0, state.reach)) : 0,
+      coverage: mergeCoverage(state.coverage),
+      reach: coverageRatio(state.coverage),
     }]));
   }
 
@@ -149,7 +164,7 @@
     }
     function update(tag, transform) {
       const states = read();
-      const state = { read: false, favorite: false, time: 0, reach: 0, ...states[tag] };
+      const state = { read: false, favorite: false, time: 0, reach: 0, coverage: [], ...states[tag] };
       transform(state);
       memory = { ...states, [tag]: state };
       try { storage.setItem(CONFIG.storageKey, JSON.stringify({ v: 1, terms: memory })); failed = false; }
@@ -162,14 +177,15 @@
       toggleRead: (tag) => update(tag, (state) => {
         state.read = !state.read;
         state.manualUnread = !state.read;
-        if (!state.read) { state.time = 0; state.reach = 0; }
+        if (!state.read) { state.time = 0; state.reach = 0; state.coverage = []; }
       }),
       beginReading: (tag) => update(tag, (state) => { state.manualUnread = false; }),
       toggleFavorite: (tag) => update(tag, (state) => { state.favorite = !state.favorite; }),
-      progress: (tag, elapsed, reach) => update(tag, (state) => {
+      progress: (tag, elapsed, ranges) => update(tag, (state) => {
         if (state.manualUnread) return;
         state.time = Math.min(CONFIG.readTimeMs, state.time + Math.max(0, elapsed));
-        state.reach = Math.max(state.reach, reach);
+        state.coverage = mergeCoverage([...state.coverage, ...ranges]);
+        state.reach = coverageRatio(state.coverage);
         if (state.time >= CONFIG.readTimeMs || state.reach >= CONFIG.readReach) state.read = true;
       }),
     };
@@ -189,7 +205,6 @@
     };
   }
 
-  const reachRatio = (rect, viewportHeight) => rect.height > 0 ? Math.min(1, Math.max(0, (viewportHeight - rect.top) / rect.height)) : 0;
   const createReadingClock = (now, active) => {
     let previous = now;
     let running = active;
@@ -202,5 +217,5 @@
   };
 
   window.StudyAtlasTerms = Object.freeze({ CONFIG, normalize, keywords, questionState, loadLearning, hasWrongHistory,
-    recommendationScores, searchRank, matchRanges, excerpt, selectTerms, createStore, lazyData, reachRatio, createReadingClock });
+    recommendationScores, searchRank, matchRanges, excerpt, selectTerms, createStore, lazyData, createReadingClock, mergeCoverage, coverageRatio, visibleRange });
 })();

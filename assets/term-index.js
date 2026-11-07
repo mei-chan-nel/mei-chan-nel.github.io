@@ -61,6 +61,7 @@
   const loadSearch = model.lazyData(() => loadJSON("../data/term-search.json"), (data) => isObject(data) && terms.every(({ tag }) => typeof data[tag]?.title === "string" && typeof data[tag]?.body === "string"));
   const loadTags = model.lazyData(() => loadJSON("../data/term-question-tags.json"), (data) => isObject(data) && Object.values(data).every((tags) => Array.isArray(tags) && tags.every((tag) => typeof tag === "string")));
 
+  let readFilterSnapshot = null;
   function render() {
     const focused = document.activeElement;
     const states = store.read();
@@ -76,8 +77,14 @@
     }
     const searching = model.keywords(search.value).length > 0;
     const ready = searching && searchState === "ready";
+    list.classList.toggle("is-searching", ready);
     const fallback = view === "recommended" && recommendationState === "error";
-    const selected = model.selectTerms(terms, { view: fallback ? "all" : view, filter, query: ready ? search.value : "", scores, states, searchData });
+    if (filter === "read" || filter === "unread") {
+      readFilterSnapshot ||= Object.fromEntries(terms.map(({tag})=>[tag, Boolean(states[tag]?.read)]));
+    }
+    const filterStates = readFilterSnapshot && (filter === "read" || filter === "unread")
+      ? Object.fromEntries(terms.map(({tag})=>[tag, {...states[tag], read: readFilterSnapshot[tag]}])) : states;
+    const selected = model.selectTerms(terms, { view: fallback ? "all" : view, filter, query: ready ? search.value : "", scores, states: filterStates, searchData });
     for (const term of selected) {
       term.node.hidden = false;
       term.snippet.replaceChildren();
@@ -141,11 +148,17 @@
     else if (event.target.name === "term-filter") filter = event.target.value;
     else return;
     search.value = "";
+    readFilterSnapshot = null;
     try { storage.setItem(CONFIG.preferencesKey, JSON.stringify({ view, filter })); } catch (_) { storageError(); }
     render();
     if (view === "recommended") void ensureRecommendations();
   });
+  controls.addEventListener("click", (event) => {
+    const radio = event.target.closest('input[name="term-filter"]');
+    if (radio?.value === filter) { readFilterSnapshot = null; render(); }
+  });
   function broadenSearch() {
+    readFilterSnapshot = null;
     view = "all";
     filter = "all";
     try { storage.setItem(CONFIG.preferencesKey, JSON.stringify({ view, filter })); } catch (_) { storageError(); }

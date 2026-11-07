@@ -294,7 +294,7 @@
 .term-list-item[hidden], .term-controls[hidden], .term-page-state[hidden] { display: none; }
 .term-read-status { color: var(--ink-soft); font-size: .75rem; white-space: nowrap; }
 .term-favorite { display: inline-grid; place-items: center; width: 44px; min-width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--ink-soft); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.term-favorite[aria-pressed="true"] { color: var(--amber-strong); }
+.term-favorite[aria-pressed="true"] { color: #527d86; }
 .term-favorite:hover { background: var(--paper-deep); }
 .term-favorite:focus-visible, .term-controls input:focus-visible, .term-controls button:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }
@@ -314,7 +314,7 @@
 .term-result-count { margin: 24px 0 12px; font-variant-numeric: tabular-nums; }
 .term-list-item .term-excerpt-link { display: block; min-height: 44px; padding: 0 2px 8px; font-size: .84rem; line-height: 1.8; font-weight: 400; color: var(--ink-soft); text-decoration: none; }
 .term-excerpt-link strong { font-weight: 800; color: var(--ink); }
-.term-list-item .term-excerpt-link:hover { color: var(--ink); text-decoration: underline; }
+.term-list-item .term-excerpt-link:hover, .term-list-item .term-excerpt-link:focus-visible { color: var(--ink); text-decoration: none; }
 .term-search-hit { color: inherit; background: #fff0b5; font-weight: inherit; outline: none; scroll-margin-block: 140px; }
 @media (max-width: 420px) {
   .term-controls fieldset:first-child label { font-size: .8rem; }
@@ -323,7 +323,9 @@
 }
 
 button.term-read-status { min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink-soft); font: inherit; font-size: .75rem; cursor: pointer; }
-button.term-read-status[aria-pressed="true"] { background: var(--paper-deep); border-color: var(--ink-soft); color: var(--ink); }
+button.term-read-status[aria-pressed="true"] { background: #dceee2; border-color: #8ab49b; color: #24553b; }
 button.term-read-status:hover { border-color: var(--ink); }
 button.term-read-status:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-excerpt-link { white-space: pre-line; }
+
+.term-list.is-searching a:hover, .term-list.is-searching a:focus-visible { text-decoration: none; }

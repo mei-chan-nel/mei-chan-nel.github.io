@@ -27,23 +27,23 @@
   let pageActive = true;
   const clock = model.createReadingClock(performance.now(), active());
   let elapsed = 0;
-  let reach = 0;
+  let ranges = [];
   function sample(force = false) {
     const foreground = pageActive && active();
     elapsed += clock(performance.now(), foreground);
-    if (foreground) reach = Math.max(reach, model.reachRatio(body.getBoundingClientRect(), window.innerHeight));
+    if (foreground) ranges = model.mergeCoverage([...ranges, ...model.visibleRange(body.getBoundingClientRect(), window.innerHeight)]);
     const state = store.read()[tag];
-    const complete = (state?.time || 0) + elapsed >= model.CONFIG.readTimeMs || Math.max(reach, state?.reach || 0) >= model.CONFIG.readReach;
+    const complete = (state?.time || 0) + elapsed >= model.CONFIG.readTimeMs || model.coverageRatio([...(state?.coverage || []), ...ranges]) >= model.CONFIG.readReach;
     if (force || elapsed >= 1000 || complete) {
-      if (!state?.read && (elapsed > 0 || reach > (state?.reach || 0))) {
-        store.progress(tag, elapsed, reach);
+      if (!state?.read && (elapsed > 0 || ranges.length > 0)) {
+        store.progress(tag, elapsed, ranges);
         render();
       }
-      elapsed = 0;
+      elapsed = 0; ranges = [];
     }
   }
   status.addEventListener("click", () => {
-    elapsed = 0; reach = 0;
+    elapsed = 0; ranges = [];
     clock(performance.now(), pageActive && active());
     store.toggleRead(tag); render();
   });

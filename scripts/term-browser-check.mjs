@@ -193,6 +193,14 @@ test('ten foreground seconds OR 70% reach marks read, background time is exclude
     scrollTo({top:scrollY+rect.top+rect.height*.72-innerHeight,behavior:'instant'});
     dispatchEvent(new Event('scroll'));
   });
+  assert.equal(await page.locator('[data-term-read-status]').textContent(),'未読');
+  for (const fraction of Array.from({length:25},(_,index)=>index*.04)) {
+    await page.evaluate(fraction=>{
+      const rect=document.querySelector('#term-explanation').getBoundingClientRect();
+      scrollTo({top:scrollY+rect.top+rect.height*fraction,behavior:'instant'});
+      dispatchEvent(new Event('scroll'));
+    },fraction);
+  }
   assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
   await page.reload();
   assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
@@ -208,6 +216,8 @@ test('excerpt bolds normalized matches and opens the matching explanation locati
   const snippet=page.locator('li').filter({has:page.locator('a[href^="./bit/"]')}).locator('.term-excerpt-link');
   await snippet.waitFor();
   assert.equal(await snippet.locator('strong').first().textContent(),'オーバーフロー');
+  await snippet.hover();
+  assert.equal(await snippet.evaluate(node=>getComputedStyle(node).textDecorationLine),'none');
   await snippet.click();
   await page.waitForURL('**/terms/bit/#term-find=*');
   const hit=page.locator('mark.term-search-hit').first();
@@ -262,6 +272,13 @@ test('read buttons toggle both ways, sync across tabs and keep manual unread dur
   await page.getByRole('button',{name:'ビットを未読に戻す',exact:true}).waitFor();
   await page.getByRole('radio',{name:'既読',exact:true}).check();
   await page.getByRole('button',{name:'ビットを未読に戻す',exact:true}).click();
+  assert.equal((await visibleTags(page)).includes('ビット'),true);
+  await page.getByRole('radio',{name:'既読',exact:true}).click();
+  assert.equal((await visibleTags(page)).includes('ビット'),false);
+  await page.getByRole('radio',{name:'未読',exact:true}).check();
+  await page.getByRole('button',{name:'ビットを既読にする',exact:true}).click();
+  assert.equal((await visibleTags(page)).includes('ビット'),true);
+  await page.getByRole('radio',{name:'未読',exact:true}).click();
   assert.equal((await visibleTags(page)).includes('ビット'),false);
   await context.close();
 });
@@ -307,5 +324,25 @@ test('scope changes during delayed search loading keep the cleared query after c
   assert.equal((await visibleTags(page)).length,termCount);
   assert.equal(await page.getByRole('radio',{name:'未読',exact:true}).isChecked(),true);
   assert.equal(await page.locator('#term-search-message').textContent(),'');
+  await context.close();
+});
+
+
+test('jumping to a lower match stays unread until 70% has actually appeared',async()=>{
+  const {context,page}=await setup();
+  await page.clock.install();
+  await page.goto(`${base}/terms/bit/#term-find=${encodeURIComponent('オーバーフロー')}`);
+  await page.bringToFront();
+  await page.locator('mark.term-search-hit').first().waitFor();
+  await page.clock.runFor(1500);
+  assert.equal(await page.locator('[data-term-read-status]').textContent(),'未読');
+  for(const fraction of [0,.12,.24,.36,.48,.6]) {
+    await page.evaluate(fraction=>{
+      const rect=document.querySelector('#term-explanation').getBoundingClientRect();
+      scrollTo({top:scrollY+rect.top+rect.height*fraction,behavior:'instant'});
+      dispatchEvent(new Event('scroll'));
+    },fraction);
+  }
+  assert.equal(await page.locator('[data-term-read-status]').textContent(),'既読');
   await context.close();
 });
