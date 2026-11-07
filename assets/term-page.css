@@ -315,9 +315,15 @@
 .term-list-item .term-excerpt-link { display: block; min-height: 44px; padding: 0 2px 8px; font-size: .84rem; line-height: 1.8; font-weight: 400; color: var(--ink-soft); text-decoration: none; }
 .term-excerpt-link strong { font-weight: 800; color: var(--ink); }
 .term-list-item .term-excerpt-link:hover { color: var(--ink); text-decoration: underline; }
-.term-search-hit { color: inherit; background: #fff0b5; font-weight: 800; scroll-margin-block: 140px; }
+.term-search-hit { color: inherit; background: #fff0b5; font-weight: inherit; outline: none; scroll-margin-block: 140px; }
 @media (max-width: 420px) {
   .term-controls fieldset:first-child label { font-size: .8rem; }
   .term-controls fieldset:nth-child(2) { gap: 6px; }
   .term-controls fieldset:nth-child(2) label { padding: 5px 12px; font-size: .82rem; }
 }
+
+button.term-read-status { min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink-soft); font: inherit; font-size: .75rem; cursor: pointer; }
+button.term-read-status[aria-pressed="true"] { background: var(--paper-deep); border-color: var(--ink-soft); color: var(--ink); }
+button.term-read-status:hover { border-color: var(--ink); }
+button.term-read-status:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
+.term-excerpt-link { white-space: pre-line; }

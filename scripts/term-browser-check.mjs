@@ -61,7 +61,7 @@ test('initial/focus/whitespace do not fetch; first input loads once and uses the
   assert.equal((await visibleTags(page)).length,termCount);
   await page.getByRole('radio',{name:'未読',exact:true}).check();
   await page.locator('#term-search').fill('ビット');
-  assert.equal(await page.getByRole('radio',{name:'未読',exact:true}).isChecked(),true);
+  assert.equal(await page.getByRole('radio',{name:'すべて',exact:true}).isChecked(),true);
   assert.equal(requests,1);
   assert.deepEqual(errors,[]);
   await context.close();
@@ -216,6 +216,7 @@ test('excerpt bolds normalized matches and opens the matching explanation locati
   const hit=page.locator('mark.term-search-hit').first();
   await hit.waitFor();
   assert.equal(await hit.textContent(),'オーバーフロー');
+  assert.equal(await hit.evaluate(node=>getComputedStyle(node).outlineStyle),'none');
   assert.equal(await hit.evaluate(node=>{const r=node.getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight}),true);
   assert.deepEqual(errors,[]);
   await context.close();
@@ -244,4 +245,47 @@ test('short article without scrolling, blocked storage, and no-JavaScript fallba
   assert.equal((await visibleTags(staticPage)).length,termCount);
   assert.equal(await staticPage.locator('[data-term-controls]').isVisible(),false);
   await staticContext.close();
+});
+
+
+test('read buttons toggle both ways, sync across tabs and keep manual unread during the current visit',async()=>{
+  const {context,page}=await setup();
+  await page.goto(`${base}/terms/`);
+  await page.getByRole('button',{name:'ビットを既読にする',exact:true}).click();
+  const article=await context.newPage();
+  await article.clock.install();
+  await article.goto(`${base}/terms/bit/`);
+  await article.getByRole('button',{name:'ビットを未読に戻す',exact:true}).click();
+  await article.clock.runFor(20000);
+  assert.equal(await article.locator('[data-term-read-status]').textContent(),'未読');
+  await page.getByRole('button',{name:'ビットを既読にする',exact:true}).waitFor();
+  await article.reload();
+  await article.clock.runFor(11000);
+  assert.equal(await article.locator('[data-term-read-status]').textContent(),'既読');
+  await page.getByRole('button',{name:'ビットを未読に戻す',exact:true}).waitFor();
+  await page.getByRole('radio',{name:'既読',exact:true}).check();
+  await page.getByRole('button',{name:'ビットを未読に戻す',exact:true}).click();
+  assert.equal((await visibleTags(page)).includes('ビット'),false);
+  await context.close();
+});
+
+test('search broadens on input and submit, allows later filtering, and Enter blurs except during IME composition',async()=>{
+  const {context,page}=await setup();
+  await page.goto(`${base}/terms/`);
+  await page.getByRole('radio',{name:'あなたへのおすすめ',exact:true}).check();
+  await page.getByRole('radio',{name:'既読',exact:true}).check();
+  const search=page.locator('#term-search');
+  await search.fill('オーバーフロー');
+  await page.locator('.term-excerpt-link').waitFor();
+  assert.equal(await page.getByRole('radio',{name:'用語一覧',exact:true}).isChecked(),true);
+  assert.equal(await page.getByRole('radio',{name:'すべて',exact:true}).isChecked(),true);
+  await page.getByRole('radio',{name:'既読',exact:true}).check();
+  assert.equal((await visibleTags(page)).length,0);
+  await search.focus();
+  await search.evaluate(node=>node.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',isComposing:true,bubbles:true})));
+  assert.equal(await search.evaluate(node=>document.activeElement===node),true);
+  await search.press('Enter');
+  assert.equal(await search.evaluate(node=>document.activeElement===node),false);
+  assert.equal((await visibleTags(page)).includes('ビット'),true);
+  await context.close();
 });

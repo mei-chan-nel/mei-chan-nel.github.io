@@ -110,7 +110,8 @@ test('multi-keyword AND, title match count, width/case normalization, and excerp
   assert.deepEqual(plain(model.keywords('  Alpha  alpha　Beta  ')),['alpha','beta']);
   const longBody = '前'.repeat(200) + 'ＡＬＰＨＡ' + '後'.repeat(200);
   assert.ok(model.excerpt(longBody,['alpha']).includes('ＡＬＰＨＡ'));
-  assert.ok(model.excerpt(longBody,['alpha']).length < 120);
+  assert.ok(model.excerpt(longBody,['alpha']).startsWith('前'));
+  assert.ok(model.excerpt(longBody,['alpha']).length < 310);
   assert.ok(model.excerpt('前'.repeat(200)+'ｶﾞｲﾄﾞの解説',['ガイド'.toLowerCase()]).includes('ｶﾞｲﾄﾞ'));
 });
 
@@ -145,6 +146,23 @@ test('normalized highlight ranges preserve source width, voiced marks and overla
   assert.deepEqual(plain(model.matchRanges('ｶﾞｲﾄﾞ ＡＢＣ abc',['ガイド','abc','ab'])),[[0,5],[6,9],[10,13]]);
   const body = '前'.repeat(100)+'needle'+'後'.repeat(200);
   const snippet = model.excerpt(body,['needle']);
-  assert.equal(snippet.indexOf('needle'),5);
+  assert.equal(snippet.indexOf('needle'),100);
+  assert.equal(model.excerpt('最初の文。対象のneedleです。続き',['needle']).startsWith('…対象のneedle'),true);
+  assert.equal(model.excerpt('見出し\n新しい行のneedleです',['needle']).startsWith('…新しい行のneedle'),true);
   assert.ok(snippet.slice(snippet.indexOf('needle')+6).length>90);
+});
+
+
+test('manual unread survives automatic progress and keeps favorites until the next visit', () => {
+  const disk=storage();
+  const store=model.createStore(disk);
+  store.toggleFavorite('Alpha');
+  assert.equal(store.toggleRead('Alpha').read,true);
+  assert.equal(store.toggleRead('Alpha').read,false);
+  assert.equal(store.read().Alpha.favorite,true);
+  assert.equal(store.progress('Alpha',20000,1).read,false);
+  assert.equal(model.createStore(disk).read().Alpha.manualUnread,true);
+  store.beginReading('Alpha');
+  assert.equal(store.progress('Alpha',9999,0).read,false);
+  assert.equal(store.progress('Alpha',1,0).read,true);
 });

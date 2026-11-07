@@ -25,7 +25,9 @@
   const terms = [...list.children].map((node) => {
     const link = node.querySelector("a");
     const tag = link.textContent.trim();
-    const status = document.createElement("span");
+    const status = document.createElement("button");
+    status.type = "button";
+    status.dataset.termReadToggle = tag;
     status.className = "term-read-status";
     const star = document.createElement("button");
     star.type = "button";
@@ -65,6 +67,8 @@
     for (const term of terms) {
       const state = states[term.tag] || {};
       term.status.textContent = state.read ? "既読" : "未読";
+      term.status.setAttribute("aria-pressed", String(Boolean(state.read)));
+      term.status.setAttribute("aria-label", `${term.tag}を${state.read ? "未読に戻す" : "既読にする"}`);
       term.star.setAttribute("aria-pressed", String(Boolean(state.favorite)));
       term.star.setAttribute("aria-label", `${term.tag}をお気に入り${state.favorite ? "から解除" : "に登録"}`);
       term.icon.textContent = state.favorite ? "★" : "☆";
@@ -99,7 +103,7 @@
     }
     // Nodes retain their identity (and keyboard focus) when reordered.
     for (const term of terms) if (term.node.hidden) list.append(term.node);
-    if (focused?.matches("[data-term-favorite]") && !focused.closest("li").hidden) focused.focus({ preventScroll: true });
+    if (focused?.matches("[data-term-favorite], [data-term-read-toggle]") && !focused.closest("li").hidden) focused.focus({ preventScroll: true });
     list.setAttribute("aria-busy", String(searching && searchState === "loading" || view === "recommended" && recommendationState === "loading"));
     countNode.textContent = `${ready ? "検索結果 " : ""}${selected.length}件${searching && !ready ? "（通常の一覧）" : ""}`;
     if (!selected.length && !(view === "recommended" && recommendationState === "loading")) countNode.textContent += " — 条件に合う用語はありません";
@@ -140,15 +144,30 @@
     render();
     if (view === "recommended") void ensureRecommendations();
   });
-  search.addEventListener("input", () => { render(); void ensureSearch(); });
+  function broadenSearch() {
+    view = "all";
+    filter = "all";
+    try { storage.setItem(CONFIG.preferencesKey, JSON.stringify({ view, filter })); } catch (_) { storageError(); }
+  }
+  search.addEventListener("input", () => {
+    if (model.keywords(search.value).length) broadenSearch();
+    render(); void ensureSearch();
+  });
+  search.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || event.isComposing || event.keyCode === 229) return;
+    event.preventDefault();
+    if (model.keywords(search.value).length) broadenSearch();
+    render(); void ensureSearch(); search.blur();
+  });
   searchRetry.addEventListener("click", () => { void ensureSearch(); });
   recommendationRetry.addEventListener("click", () => { void ensureRecommendations(); });
   list.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-term-favorite]");
+    const button = event.target.closest("[data-term-favorite], [data-term-read-toggle]");
     if (!button) return;
-    store.toggleFavorite(button.dataset.termFavorite);
+    if (button.hasAttribute("data-term-read-toggle")) store.toggleRead(button.dataset.termReadToggle);
+    else store.toggleFavorite(button.dataset.termFavorite);
     render();
-    if (button.closest("li").hidden) search.focus({ preventScroll: true });
+    if (button.closest("li").hidden) controls.querySelector('input[name="term-filter"]:checked').focus({ preventScroll: true });
   });
   const refresh = () => {
     store.reload();

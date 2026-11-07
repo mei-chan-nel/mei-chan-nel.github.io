@@ -102,8 +102,9 @@
   function excerpt(body, words, length = 110) {
     const matches = matchRanges(body, words);
     if (!matches.length) return "";
-    const start = Math.max(0, matches[0][0] - 4);
-    const end = Math.max(start + length, matches[0][1]);
+    const position = matches[0][0];
+    const start = Math.max(body.lastIndexOf("。", position - 1), body.lastIndexOf("\n", position - 1), body.lastIndexOf("！", position - 1), body.lastIndexOf("？", position - 1)) + 1;
+    const end = Math.max(start + length, matches[0][1] + 90);
     return `${start ? "…" : ""}${body.slice(start, end)}${end < body.length ? "…" : ""}`;
   }
 
@@ -130,6 +131,7 @@
     if (!object(value) || value.v !== 1 || !object(value.terms)) return {};
     return Object.fromEntries(Object.entries(value.terms).filter(([, state]) => object(state)).map(([tag, state]) => [tag, {
       read: state.read === true,
+      manualUnread: state.manualUnread === true,
       favorite: state.favorite === true,
       time: Number.isFinite(state.time) ? Math.min(CONFIG.readTimeMs, Math.max(0, state.time)) : 0,
       reach: Number.isFinite(state.reach) ? Math.min(1, Math.max(0, state.reach)) : 0,
@@ -157,8 +159,15 @@
     return {
       read,
       reload() { failed = false; return read(); },
+      toggleRead: (tag) => update(tag, (state) => {
+        state.read = !state.read;
+        state.manualUnread = !state.read;
+        if (!state.read) { state.time = 0; state.reach = 0; }
+      }),
+      beginReading: (tag) => update(tag, (state) => { state.manualUnread = false; }),
       toggleFavorite: (tag) => update(tag, (state) => { state.favorite = !state.favorite; }),
       progress: (tag, elapsed, reach) => update(tag, (state) => {
+        if (state.manualUnread) return;
         state.time = Math.min(CONFIG.readTimeMs, state.time + Math.max(0, elapsed));
         state.reach = Math.max(state.reach, reach);
         if (state.time >= CONFIG.readTimeMs || state.reach >= CONFIG.readReach) state.read = true;

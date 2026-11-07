@@ -16,7 +16,7 @@ INDEX_PATH = TERMS_ROOT / "index.html"
 DEFAULT_TAG_LIST_PATH = ROOT / "data" / "term-tag-list.json"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
-FEATURE_VERSION = "2026110702"
+FEATURE_VERSION = "2026110703"
 
 
 class ExplanationParser(HTMLParser):
@@ -37,7 +37,7 @@ class ExplanationParser(HTMLParser):
             set(attributes.get("class", "").split()) & {"choice-list", "manual-ad-slot", "term-practice-section"}
         ) or "data-manual-ad" in attributes
         if body and tag in {"p", "h2", "h3", "h4", "li", "br", "tr", "td", "th", "section"}:
-            self.body.append(" ")
+            self.body.append("\n")
         if tag not in {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}:
             self.stack.append((tag, title, body, excluded))
 
@@ -66,7 +66,7 @@ def enhance_term_page(text: str) -> str:
     controls = '''
         <!-- term-learning:start -->
         <div class="term-page-state" data-term-page-state hidden>
-          <span class="term-read-status" data-term-read-status>未読</span>
+          <button class="term-read-status" type="button" data-term-read-status aria-pressed="false" aria-label="既読にする">未読</button>
           <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
         </div>
         <p class="term-storage-message" data-term-storage-message role="status"></p>
@@ -86,7 +86,7 @@ def build_search_data(pages):
         parser = ExplanationParser()
         parser.feed(page.path.read_text(encoding="utf-8"))
         title = " ".join("".join(parser.title).split())
-        body = " ".join("".join(parser.body).split())
+        body = "\n".join(" ".join(line.split()) for line in "".join(parser.body).splitlines() if line.strip())
         if not title or not body:
             raise ValueError(f"{page.path}: article title/explanation missing")
         result[page.tag] = {"title": title, "body": body}
@@ -319,7 +319,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
             <label><input type="radio" name="term-filter" value="favorite" />お気に入り</label>
           </fieldset>
           <label class="term-search-label" for="term-search">キーワード検索</label>
-          <input id="term-search" type="search" placeholder="タイトル・解説本文を検索" autocomplete="off" aria-controls="term-results" aria-describedby="term-search-message" />
+          <input id="term-search" type="search" enterkeyhint="search" placeholder="タイトル・解説本文を検索" autocomplete="off" aria-controls="term-results" aria-describedby="term-search-message" />
           <div class="term-data-message"><span id="term-search-message" role="status"></span><button type="button" data-search-retry hidden>検索データを再読み込み</button></div>
           <div class="term-data-message"><span data-recommendation-message role="status"></span><button type="button" data-recommendation-retry hidden>おすすめを再読み込み</button></div>
           <p class="term-storage-message" data-term-storage-message role="status"></p>

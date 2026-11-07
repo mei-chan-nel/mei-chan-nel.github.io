@@ -10,12 +10,15 @@
   const store = model.createStore(storage, () => {
     document.querySelector("[data-term-storage-message]").textContent = "このブラウザでは既読・お気に入りを保存できません。";
   });
+  if (store.read()[tag]?.manualUnread) store.beginReading(tag);
   const button = controls.querySelector("[data-term-favorite]");
   const status = controls.querySelector("[data-term-read-status]");
   function render() {
     const state = store.read()[tag] || {};
     controls.hidden = false;
     status.textContent = state.read ? "既読" : "未読";
+    status.setAttribute("aria-pressed", String(Boolean(state.read)));
+    status.setAttribute("aria-label", `${tag}を${state.read ? "未読に戻す" : "既読にする"}`);
     button.setAttribute("aria-pressed", String(Boolean(state.favorite)));
     button.setAttribute("aria-label", `${tag}をお気に入り${state.favorite ? "から解除" : "に登録"}`);
     button.firstElementChild.textContent = state.favorite ? "★" : "☆";
@@ -39,6 +42,11 @@
       elapsed = 0;
     }
   }
+  status.addEventListener("click", () => {
+    elapsed = 0; reach = 0;
+    clock(performance.now(), pageActive && active());
+    store.toggleRead(tag); render();
+  });
   button.addEventListener("click", () => { sample(true); store.toggleFavorite(tag); render(); });
   window.addEventListener("scroll", () => sample(), { passive: true });
   window.addEventListener("resize", () => sample());
