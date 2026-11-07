@@ -11,6 +11,7 @@ import re
 from copy import deepcopy
 from html import escape
 from pathlib import Path
+from generate_term_guides import enhance_term_page
 from urllib.request import Request, urlopen
 
 from lxml import html
@@ -492,7 +493,7 @@ def render_page(article: dict, body, question: dict) -> str:
     )
     body_html = serialize_explanation(body.xpath("./*")[: next(i for i, element in enumerate(body.xpath("./*")) if element.tag == "h2" and "確認問題" in direct_text(element))])
     explanation = question["explanation"]
-    return f'''<!doctype html>
+    return enhance_term_page(f'''<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
@@ -628,7 +629,7 @@ def render_page(article: dict, body, question: dict) -> str:
     <script src="../../assets/site-header.js?v=2026101201"></script>
   </body>
 </html>
-'''
+''')
 
 
 def main() -> int:

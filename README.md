@@ -23,6 +23,9 @@ assets/site.css            共通デザイン
 assets/site-analytics.js   全ページ共通のGA4初期化（ヘッダーに依存しない）
 assets/term-page.css       用語一覧・用語解説のデザイン
 assets/term-guides.js      用語タグと解説URLの生成レジストリ
+assets/term-state.js       用語の推薦・検索・ブラウザ内保存の共通処理
+assets/term-index.js       用語一覧の表示切り替え・絞り込み・検索
+assets/term-reader.js      用語解説の既読判定・お気に入り
 assets/video-embeds.js     クリック時の動画埋め込み
 assets/home-learning.js    学習履歴サマリー
 assets/manual-ads.js       手動AdSenseユニットの中央設定・初回初期化
@@ -32,6 +35,8 @@ projects/program-trace-studio/  自作プログラムの編集・実行・保存
 data/video-questions.json  問題・答え・動画情報
 data/video-curriculum.json 5分野・21ジャンル・最短コースの正本
 data/term-tag-list.json    ExcelのNo.順を保持する公開用の用語タグ一覧
+data/term-search.json      タイトル・解説本文だけの検索データ（初回入力時に取得）
+data/term-question-tags.json  問題IDと公開済み用語タグの対応表
 scripts/generate_video_pages.py
 scripts/generate_term_guides.py
 scripts/import_note_term_pages.py
@@ -179,6 +184,8 @@ python scripts/update_sitemap.py --app-root ..\info1-quiz-app
 ```
 
 用語一覧はExcelのNo.順を正本にし、用語ページのタグメタデータを走査して、公開ページがある用語だけをリンク付きで生成します。記事未作成のタグは表示されず、ページ追加後にこの生成処理を実行すると自動的に一覧へ加わります。URLのslugを推測して手動登録する必要はありません。
+同じ処理で検索用データと問題タグ対応表を生成し、全用語ページに既読・お気に入りの共通機能を適用します。用語本文の更新や問題タグの変更後にも再生成してください。隣接アプリが別名・別配置の場合は `--app-root <アプリのルート>` を指定します。`--check` で生成物の同期を確認でき、統合検証とCIもこの検査を行います。
+一覧では学習履歴に基づくおすすめ、既読・未読・お気に入りの絞り込み、タイトルと解説本文のAND検索を利用できます。学習履歴や既読・お気に入りは外部送信しません。保存形式・推薦式・検索順位・ブラウザ確認手順は [docs/TERM_LEARNING.md](docs/TERM_LEARNING.md) を参照してください。
 通常の生成・検証では `data/term-tag-list.json` を読み込み、PC固有のファイルや追加ライブラリに依存しません。
 元のExcelを更新したときは、`openpyxl` が使える環境で次を実行して公開用スナップショットを更新します。
 

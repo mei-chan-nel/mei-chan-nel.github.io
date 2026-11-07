@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 from dataclasses import dataclass
 from html import escape
 from html.parser import HTMLParser
@@ -15,6 +16,88 @@ INDEX_PATH = TERMS_ROOT / "index.html"
 DEFAULT_TAG_LIST_PATH = ROOT / "data" / "term-tag-list.json"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
+FEATURE_VERSION = "2026110701"
+
+
+class ExplanationParser(HTMLParser):
+    """Only the article heading and explanation; never site chrome or exercises."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.stack: list[tuple[str, bool, bool, bool]] = []
+        self.title: list[str] = []
+        self.body: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        attributes = dict(attrs)
+        parent = self.stack[-1] if self.stack else ("", False, False, False)
+        title = parent[1] or attributes.get("id") == "term-heading"
+        body = parent[2] or attributes.get("id") == "term-explanation"
+        excluded = parent[3] or tag in {"script", "style", "nav", "button"} or bool(
+            set(attributes.get("class", "").split()) & {"choice-list", "manual-ad-slot", "term-practice-section"}
+        ) or "data-manual-ad" in attributes
+        if body and tag in {"p", "h2", "h3", "h4", "li", "br", "tr", "td", "th", "section"}:
+            self.body.append(" ")
+        if tag not in {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}:
+            self.stack.append((tag, title, body, excluded))
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        self.handle_endtag(tag)
+
+    def handle_endtag(self, tag):
+        for index in range(len(self.stack) - 1, -1, -1):
+            if self.stack[index][0] == tag:
+                del self.stack[index:]
+                break
+
+    def handle_data(self, data):
+        if not self.stack or self.stack[-1][3]:
+            return
+        if self.stack[-1][1]:
+            self.title.append(data)
+        if self.stack[-1][2]:
+            self.body.append(data)
+
+
+def enhance_term_page(text: str) -> str:
+    """Idempotent shared feature installation for existing and newly imported pages."""
+    text = re.sub(r'\n\s*<!-- term-learning:start -->.*?<!-- term-learning:end -->', '', text, flags=re.S)
+    controls = '''
+        <!-- term-learning:start -->
+        <div class="term-page-state" data-term-page-state hidden>
+          <span class="term-read-status" data-term-read-status>未読</span>
+          <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
+        </div>
+        <p class="term-storage-message" data-term-storage-message role="status"></p>
+        <!-- term-learning:end -->'''
+    text, count = re.subn(r'(<h1\b[^>]*id="term-heading"[^>]*>.*?</h1>)', lambda match: match[1] + controls, text, count=1, flags=re.S)
+    if count != 1 or 'id="term-explanation"' not in text:
+        raise ValueError("Term page requires term-heading and term-explanation IDs")
+    text = re.sub(r'assets/term-page\.css\?v=\d+', f'assets/term-page.css?v={FEATURE_VERSION}', text)
+    text = re.sub(r'\n\s*<script src="../../assets/term-(?:state|reader)\.js[^\"]*" defer></script>', '', text)
+    scripts = '\n'.join(f'    <script src="../../assets/term-{name}.js?v={FEATURE_VERSION}" defer></script>' for name in ("state", "reader"))
+    return re.sub(r'\s*</head>', lambda _: '\n' + scripts + '\n  </head>', text, count=1)
+
+
+def build_search_data(pages):
+    result = {}
+    for page in pages:
+        parser = ExplanationParser()
+        parser.feed(page.path.read_text(encoding="utf-8"))
+        title = " ".join("".join(parser.title).split())
+        body = " ".join("".join(parser.body).split())
+        if not title or not body:
+            raise ValueError(f"{page.path}: article title/explanation missing")
+        result[page.tag] = {"title": title, "body": body}
+    return result
+
+
+def build_question_tags(app_root: Path, pages):
+    questions = json.loads((app_root / "data/questions/completed_questions.json").read_text(encoding="utf-8"))
+    tags = {page.tag for page in pages}
+    return {question["id"]: list(dict.fromkeys(tag for tag in question["tags"] if tag in tags))
+            for question in questions if any(tag in tags for tag in question["tags"])}
 
 
 class TermMetaParser(HTMLParser):
@@ -182,7 +265,9 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     <link rel="canonical" href="{SITE_ORIGIN}/terms/" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026083001" />
-    <link rel="stylesheet" href="../assets/term-page.css?v=2026090602" />
+    <link rel="stylesheet" href="../assets/term-page.css?v={FEATURE_VERSION}" />
+    <script src="../assets/term-state.js?v={FEATURE_VERSION}" defer></script>
+    <script src="../assets/term-index.js?v={FEATURE_VERSION}" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -221,7 +306,27 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
           <p class="eyebrow">{linked_count} GUIDES</p>
           <h2 id="term-list-heading">用語から探す</h2>
         </div>
-        <ul class="term-list">
+        <div class="term-controls" data-term-controls hidden>
+          <fieldset>
+            <legend class="visually-hidden">表示対象</legend>
+            <label><input type="radio" name="term-view" value="recommended" />あなたへのおすすめ</label>
+            <label><input type="radio" name="term-view" value="all" checked />用語一覧</label>
+          </fieldset>
+          <fieldset>
+            <legend class="visually-hidden">既読・お気に入りで絞り込み</legend>
+            <label><input type="radio" name="term-filter" value="all" checked />すべて</label>
+            <label><input type="radio" name="term-filter" value="unread" />未読</label>
+            <label><input type="radio" name="term-filter" value="read" />既読</label>
+            <label><input type="radio" name="term-filter" value="favorite" />お気に入り</label>
+          </fieldset>
+          <label class="term-search-label" for="term-search">キーワード検索</label>
+          <input id="term-search" type="search" placeholder="タイトル・解説本文を検索" autocomplete="off" aria-controls="term-results" aria-describedby="term-search-message" />
+          <div class="term-data-message"><span id="term-search-message" role="status"></span><button type="button" data-search-retry hidden>検索データを再読み込み</button></div>
+          <div class="term-data-message"><span data-recommendation-message role="status"></span><button type="button" data-recommendation-retry hidden>おすすめを再読み込み</button></div>
+          <p class="term-storage-message" data-term-storage-message role="status"></p>
+        </div>
+        <p class="term-result-count" data-term-count role="status">{linked_count}件</p>
+        <ul class="term-list" id="term-results">
             {list_html}
         </ul>
       </section>
@@ -262,7 +367,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Generate the term registry and static term index.")
     parser.add_argument("--tag-list", type=Path, default=DEFAULT_TAG_LIST_PATH)
     parser.add_argument("--update-tag-list", action="store_true", help="Save the supplied Excel tag list to the checked-in JSON snapshot.")
+    parser.add_argument("--app-root", type=Path, default=ROOT.parent / "info1-quiz-app")
+    parser.add_argument("--check", action="store_true", help="Fail if any generated term artifact is stale.")
     args = parser.parse_args()
+    if args.check and args.update_tag_list:
+        parser.error("--check cannot be combined with --update-tag-list")
 
     pages = scan_term_pages()
     tags = read_tag_list(args.tag_list.expanduser().resolve())
@@ -279,10 +388,20 @@ def main() -> None:
             raise SystemExit("--update-tag-list requires --tag-list with the authoritative Excel workbook.")
         DEFAULT_TAG_LIST_PATH.write_text(json.dumps(tags, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    TERMS_ROOT.mkdir(parents=True, exist_ok=True)
-    OUTPUT_PATH.write_text(render(registry), encoding="utf-8")
-    INDEX_PATH.write_text(render_term_list(tags, pages), encoding="utf-8")
+    outputs = {OUTPUT_PATH: render(registry), INDEX_PATH: render_term_list(tags, pages)}
+    for name, data in (("term-search.json", build_search_data(pages)), ("term-question-tags.json", build_question_tags(args.app_root, pages))):
+        outputs[ROOT / "data" / name] = json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n"
+    outputs.update({page.path: enhance_term_page(page.path.read_text(encoding="utf-8")) for page in pages})
+    stale = []
+    for path, content in outputs.items():
+        if args.check:
+            if not path.is_file() or path.read_text(encoding="utf-8") != content:
+                stale.append(str(path.relative_to(ROOT)))
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8")
+    if stale:
+        raise SystemExit("Stale term artifacts: " + ", ".join(stale))
     linked_count = sum(tag in registry for tag in tags)
     print(
         f"Generated {OUTPUT_PATH.relative_to(ROOT)} with {len(registry)} term guide(s); "

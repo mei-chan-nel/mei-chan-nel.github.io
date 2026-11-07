@@ -106,6 +106,16 @@ def main() -> int:
         repository_metadata("app", app_root, args.app_ref)
 
         run_step(
+            "term data and page consistency",
+            portal_root,
+            [sys.executable, "scripts/generate_term_guides.py", "--app-root", str(app_root), "--check"],
+        )
+        run_step(
+            "term generation tests",
+            portal_root,
+            [sys.executable, "-m", "unittest", "discover", "-s", "scripts", "-p", "term_generation_test.py"],
+        )
+        run_step(
             "program trace execution entry consistency",
             portal_root,
             [sys.executable, "scripts/build_program_trace_pages.py", "--check"],
