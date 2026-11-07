@@ -9,6 +9,14 @@ const axe = readFileSync(require.resolve(process.env.AXE_MODULE || 'axe-core/axe
 const base = process.env.TERM_TEST_URL || 'http://127.0.0.1:8773';
 const searchData = JSON.parse(readFileSync(new URL('../data/term-search.json', import.meta.url),'utf8'));
 const termCount = Object.keys(searchData).length;
+const questionTags = JSON.parse(readFileSync(new URL('../data/term-question-tags.json', import.meta.url),'utf8'));
+const tagOrder = JSON.parse(readFileSync(new URL('../data/term-tag-list.json', import.meta.url),'utf8'));
+const recommended = [...questionTags.center_style_seed_0005, ...questionTags.center_style_seed_0013].sort((a,b)=> {
+  const weight = tag => questionTags.center_style_seed_0005.includes(tag) ? 1 : 0.5;
+  return weight(b)-weight(a) || tagOrder.indexOf(a)-tagOrder.indexOf(b);
+});
+const readTags = ['改竄','公開鍵暗号方式'];
+const unreadRecommendations = recommended.filter(tag=>!readTags.includes(tag));
 let browser;
 before(async()=>{browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH || '/usr/bin/chromium',headless:true,args:['--no-sandbox']})});
 after(async()=>{await browser?.close()});
@@ -107,11 +115,11 @@ test('recommendation defaults, score order, eight combinations, and persisted pr
   let searchRequests=0;
   page.on('request',request=>{if(request.url().endsWith('/term-search.json')) searchRequests++});
   await page.goto(`${base}/terms/`);
-  await page.waitForFunction(()=>document.querySelector('[data-term-count]').textContent==='1件');
+  await page.waitForFunction(count=>document.querySelector('[data-term-count]').textContent===`${count}件`,unreadRecommendations.length);
   assert.equal(await page.getByRole('radio',{name:'あなたへのおすすめ'}).isChecked(),true);
   assert.equal(await page.getByRole('radio',{name:'未読',exact:true}).isChecked(),true);
-  assert.deepEqual(await visibleTags(page),['共通鍵暗号方式']);
-  const expected={recommended:{all:['改竄','共通鍵暗号方式','公開鍵暗号方式'],unread:['共通鍵暗号方式'],read:['改竄','公開鍵暗号方式'],favorite:['改竄']},all:{all:termCount,unread:termCount-2,read:2,favorite:1}};
+  assert.deepEqual(await visibleTags(page),unreadRecommendations);
+  const expected={recommended:{all:recommended,unread:unreadRecommendations,read:recommended.filter(tag=>readTags.includes(tag)),favorite:['改竄']},all:{all:termCount,unread:termCount-2,read:2,favorite:1}};
   for(const [view,filters]of Object.entries(expected)) {
     await page.locator(`input[name="term-view"][value="${view}"]`).check();
     for(const [filter,result]of Object.entries(filters)) {
@@ -136,11 +144,11 @@ test('recommendation fetch failure offers retry and normal list remains availabl
   await page.getByRole('button',{name:'おすすめを再読み込み'}).waitFor();
   assert.equal((await visibleTags(page)).length,termCount);
   await page.getByRole('button',{name:'おすすめを再読み込み'}).click();
-  await page.waitForFunction(()=>document.querySelector('[data-term-count]').textContent==='3件');
+  await page.waitForFunction(count=>document.querySelector('[data-term-count]').textContent===`${count}件`,recommended.length);
   await page.getByRole('radio',{name:'用語一覧',exact:true}).check();
   assert.equal((await visibleTags(page)).length,termCount);
   await page.getByRole('radio',{name:'あなたへのおすすめ'}).check();
-  await page.waitForFunction(()=>document.querySelector('[data-term-count]').textContent==='3件');
+  await page.waitForFunction(count=>document.querySelector('[data-term-count]').textContent===`${count}件`,recommended.length);
   assert.equal(attempts,2);
   await context.close();
 });
