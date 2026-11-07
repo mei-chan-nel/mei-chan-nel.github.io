@@ -776,3 +776,8 @@ body[data-section] .solution-topic {
     padding-top: 8px !important;
   }
 }
+
+/* Common-test scope endings sit below the text, rather than at mid-line. */
+.scope-mark.is-end i {
+  bottom: 0 !important;
+}
