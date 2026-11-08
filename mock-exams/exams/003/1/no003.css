@@ -1,0 +1,165 @@
+/* No.003's source-specific layout; scoring and source snapshots stay separate. */
+.solution-answer {
+  margin: 0.7em 0 1em;
+  line-height: 1.8;
+}
+.explanation-choices {
+  list-style: none;
+  padding-left: 0;
+}
+.explanation-choices > li {
+  display: grid;
+  grid-template-columns: 1.6em minmax(0, 1fr);
+  gap: 0.4em;
+  margin: 0.7em 0;
+}
+.explanation-choices > li::before {
+  content: none !important;
+}
+.explanation-choices .num {
+  position: static !important;
+  grid-column: 1;
+}
+.explanation-choices > li > div {
+  grid-column: 2;
+  min-width: 0;
+}
+.explanation-choices p {
+  margin: 0;
+  text-indent: 0;
+}
+@media screen {
+  body {
+    font-family: system-ui, sans-serif !important;
+  }
+  .solution,
+  main.solution {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .explanation-unit {
+    display: flow-root;
+    margin: 0 0 24px;
+  }
+  .explanation-unit h2 {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .opt-index,
+  .option-index,
+  .choice-num,
+  .choice-label {
+    text-indent: 0;
+  }
+}
+/* Keep option numbers and the first text line on one baseline. */
+.options li {
+  align-items: start;
+}
+fieldset.choices {
+  padding-top: 12px;
+  margin-top: 18px;
+}
+fieldset.choices legend {
+  padding-inline: 6px;
+  margin-bottom: 6px;
+}
+@media print {
+  .explanation-unit {
+    break-inside: auto;
+    margin: 0 0 6mm;
+  }
+  .explanation-unit h2,
+  .audit-group h3 {
+    break-after: avoid;
+  }
+  .solution,
+  main.solution {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .studio-program-link {
+    display: none;
+  }
+}
+
+/* Explicit column roles override the submitted sheets' global alignment. */
+[data-column-align="left"], td[data-column-align="left"] p { text-align:left !important; }
+[data-column-align="center"] { text-align:center !important; }
+
+/* Circled digits already contain their outline; do not frame them again. */
+body[data-section="q2b"] .choice > .num {
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  line-height: 1.9 !important;
+}
+
+/* No.003 answer boxes follow Q3; ordinary spaces are supplied by the adapter. */
+body[data-section] [data-field] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  min-width: 2.3em !important;
+  width: auto !important;
+  height: 1.7em !important;
+  padding: 0 .4em !important;
+  margin-inline: 0 !important;
+  border: 2px solid #222 !important;
+  border-radius: 0 !important;
+  line-height: 1 !important;
+  text-indent: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  font-weight: 500 !important;
+  vertical-align: baseline !important;
+  white-space: nowrap !important;
+}
+body[data-section] [data-field].numeric-blank,
+body[data-section] [data-field].digit,
+body[data-section] [data-field].direct {
+  min-width: 1.4em !important;
+  padding-inline: .14em !important;
+}
+body[data-section="q4"] .option > .option-index {
+  border: 0 !important;
+  border-radius: 0 !important;
+  height: auto !important;
+  line-height: 1.9 !important;
+}
+@media print {
+  body { font-family: "Noto Serif CJK JP", "Yu Mincho", serif !important; font-size: 11pt !important; }
+  body[data-section] [data-field] { font-size: 11pt !important; }
+  body[data-section] .code [data-field] {
+    font-size: 9pt !important;
+    min-width: 2em !important;
+    height: 1.45em !important;
+  }
+}
+
+/* The source papers use different page and explanation containers. */
+@media screen {
+  body { background: white !important; }
+  .sheet, .page { background: white !important; }
+  body[data-section] .explanation-unit { padding: 0; }
+  .num, .option-number, .mark { font-family: inherit !important; }
+  .opts li, ol.choices li { align-items: baseline; }
+  .choice > .num, .option-number, .choices .num { border: 0 !important; border-radius: 0 !important; }
+  .solution-unit-heading { text-align: left !important; }
+  .explanation-unit p { text-align: left !important; }
+  body[data-section] main.solution { width: 100% !important; padding: 20px 16px !important; box-sizing: border-box; }
+}
+.choice > .num, .option-number, .choices .num { border: 0 !important; border-radius: 0 !important; }
+.choice, .option { align-items: baseline; }
+body[data-section="q3"] .code { border-radius: 0; }
+body[data-section="q3"] .code-row { height: auto; min-height: 1.8em; }
+body[data-section="q3"] .choices .option-text { white-space: normal; }
+@media print {
+  svg { font-family: "Noto Serif CJK JP", serif !important; }
+  body[data-section="q4"] .page { display: block !important; }
+  .sheet, .page { overflow: visible !important; }
+  .explanation-unit { break-inside: auto !important; }
+  .solution-unit-heading { break-after: avoid; }
+}

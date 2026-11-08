@@ -18,5 +18,11 @@
     "title": "情報Ⅰ 実戦演習 No.002",
     "manifest": "exams/002/1/exam.json",
     "publishedAt": "2026-11-01"
+  },
+  {
+    "id": "003",
+    "version": 1,
+    "title": "情報Ⅰ 実戦演習 No.003",
+    "manifest": "exams/003/1/exam.json"
   }
 ]
