@@ -6,7 +6,14 @@ URL: https://study-atlas-mock-exams-preview.hal2718.chatgpt.site
 
 No.001現行版2・旧版1とNo.002を保持し、No.003版1を追加。公開済みmain `c93c857afc641a211d968ec99ce1e77571328a58` のトップページ・共有ヘッダーを使用。作業はローカル `feat/mock-exams-003`、未公開原稿を公開GitHubへpushしない。[取り込みと検証](REVIEW-003.md)。
 
-配置ID・ソースSHAは今回の配置成功後に記録する。既存の本人専用アクセスを維持し、本番Pagesは変更しない。
+2026-11-08 09:56（日本時間）、`succeeded`。既存の本人専用アクセスを維持。本番Pagesは未変更。
+
+- 作業元commit：`c818b2545575ed37f32e72b4d0b4cf08d4d1017f`。
+- Sitesの配置ソース：`2c647e7d67a1f2085351b4d4e343264bdd8c282d`（private sourceへpush済み）。
+- deployment_id：`appgdep_6aefc890ce8481919cfadd7946658d6d`。
+- version_id：`appgprj_6ae110a637e08191bc9ddecdd9bb6571~appgver_94ca37c233ac8191b86043322ea0702f`。
+- `.openai/hosting.json` とdistの173ファイルを同commitからアーカイブし、全バイトの一致を検査して配置。
+
 
 ## 過去の配置（2026-11-01）
 
