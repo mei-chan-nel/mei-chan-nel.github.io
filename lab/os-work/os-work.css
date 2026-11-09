@@ -863,10 +863,6 @@ th {
   .os-heading h1 {
     font-size: 2rem;
   }
-  .breadcrumb {
-    font-size: 0.65rem;
-    padding-top: 16px;
-  }
   .transport {
     align-items: flex-start;
     flex-direction: column;

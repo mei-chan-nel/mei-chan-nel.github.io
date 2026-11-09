@@ -264,7 +264,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="{SITE_ORIGIN}/terms/" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026110905" />
+    <link rel="stylesheet" href="../assets/site.css?v=2026110906" />
     <link rel="stylesheet" href="../assets/term-page.css?v={FEATURE_VERSION}" />
     <script src="../assets/term-state.js?v={FEATURE_VERSION}" defer></script>
     <script src="../assets/term-index.js?v={FEATURE_VERSION}" defer></script>

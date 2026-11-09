@@ -37,7 +37,7 @@ test("all active statistics labs have real modules, data views and valid nested 
     assert.ok(html.includes('data-load-state="shell"'));
     assert.ok(html.includes('class="chart-placeholder"'));
     assert.ok(!html.includes('site-analytics.js'));
-    assert.ok(html.includes('href="../../../assets/site.css'));
+    assert.ok(html.includes('href="../../../assets/site.css?v=2026110906'));
     assert.ok(html.includes('href="../../lab.css'));
     assert.ok(html.includes('id="experiment-insight"'));
     assert.ok(html.includes('id="analysis-flow"'));
@@ -74,7 +74,7 @@ test("nested shell adds statistics breadcrumb and preserves original one-level a
     body: "",
   });
   assert.ok(old.includes('href="/assets/favicon.svg"'));
-  assert.ok(old.includes('href="../../assets/site.css'));
+  assert.ok(old.includes('href="../../assets/site.css?v=2026110906'));
 });
 
 import "../lab/statistics/foundations/model.test.mjs";

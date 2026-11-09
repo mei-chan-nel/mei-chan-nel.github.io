@@ -513,7 +513,7 @@ def render_page(article: dict, body, question: dict) -> str:
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="{canonical}" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
     <link rel="stylesheet" href="../../assets/term-page.css?v=2026090602" />
     <script async src="{ADSENSE_LOADER}" crossorigin="anonymous"></script>
     <script src="../../assets/manual-ads.js?v=2026080901" defer></script>

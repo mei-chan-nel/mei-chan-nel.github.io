@@ -137,7 +137,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{e(canonical)}" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026110905" />{ad_scripts}{video_embed_script}
+    <link rel="stylesheet" href="../assets/site.css?v=2026110906" />{ad_scripts}{video_embed_script}
   </head>"""
 
 

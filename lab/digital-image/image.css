@@ -1,11 +1,6 @@
 .lab-content-page {
   padding-bottom: 24px;
 }
-.lab-content-page .breadcrumb {
-  padding: 4px 0;
-  margin: 10px 0 8px;
-  font-size: 0.72rem;
-}
 .image-heading {
   display: flex;
   align-items: center;

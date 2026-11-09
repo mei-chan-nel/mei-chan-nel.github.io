@@ -15,7 +15,7 @@
   <meta name="theme-color" content="#102f35" />
   <link rel="canonical" href="https://mei-chan-nel.com/lab/packet-routing/" />
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="../../assets/site.css?v=2026100303" />
+  <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
   <link rel="stylesheet" href="./packet-routing.css?v=1" />
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Study Atlas","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"Interactive Lab","item":"https://mei-chan-nel.com/lab/"},{"@type":"ListItem","position":3,"name":"パケット通信とルーティング","item":"https://mei-chan-nel.com/lab/packet-routing/"}]}</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
@@ -46,7 +46,7 @@
 <a href="../../LectureNote/">講義ノート</a>
 </nav></div></header>
   <main id="main-content" class="routing-lab">
-    <nav class="breadcrumb" aria-label="パンくず"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">Interactive Lab</a><span aria-hidden="true">/</span><span>ネットワーク</span></nav>
+    <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../">ラボ</a><span aria-hidden="true">/</span><span>ネットワーク</span></nav>
     <header class="routing-title"><div><p class="eyebrow">INTERACTIVE LAB / NETWORK</p><h1>パケット通信とルーティング</h1><p>道が途切れたとき、メッセージはどう届く？</p></div><details class="help"><summary>使い方・しくみ</summary><div class="help-content"><h2>まず、送ってみよう</h2><ol><li>ヘッダーの「送信設定」で送信元・宛先カードを押し、図のPCかPCカードを選んで「送信」。青い点がパケットです。</li><li>「連続送信」を始め、経路上の回線を選んで「切断」。ルータも選んで故障させられます。</li><li>オレンジの経路情報が伝わり、テーブルが変化すると、後のパケットが別の道を通ります。</li></ol><h2>自由に実験する</h2><p>ヘッダーの「機器を追加」からルータ・LAN・PCをドラッグして追加。本体のドラッグは選択・移動、選択中の機器を囲むサークルからのドラッグは回線接続です。サークルにマウスを重ねると＋のカーソルになります。緑の候補まで引いて離してください。機器の「他の機器と接続」を押し、緑の候補を選ぶ方法でも配線できます。余白を押すと取り消せます。機器や回線を選ぶと、近くに故障・切断・復旧などの操作が表示されます。図の余白は表示の移動、ピンチは拡大・縮小です。キーボードでは追加ボタン→図でEnterを押して配置できます。機器にフォーカスしてCを押し、接続先の機器でEnterを押すと配線できます。</p><h2>このモデルの約束</h2><p>OSPFを参考にした、1つのエリアのリンクステート方式です。ルータがそれぞれ持つ経路情報から、回線コストの合計が最小の経路を計算します。検知は約2.4秒、隣への情報伝達は約0.75秒、再計算は約0.4秒。時間は観察しやすく調整しています。</p><p>LANには1台のルータを接続し、PCのIPアドレスは自動設定します。パケットの自動再送・TCP・OSPFのエリア分割や実際の制御パケット形式は扱いません。全パケットが届いたときにメッセージを組み立てます。</p></div></details></header>
     <noscript><p class="notice">この教材を動かすにはJavaScriptを有効にしてください。</p></noscript>
     <section class="network-panel" aria-labelledby="network-heading">

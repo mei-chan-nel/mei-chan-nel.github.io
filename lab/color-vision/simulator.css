@@ -10,7 +10,6 @@ button:focus-visible, select:focus-visible, input:focus-visible, .viewport:focus
 .header-inner { width: min(1560px, calc(100% - 48px)); min-height: 66px; }
 .brand-mark { width: 35px; height: 35px; }
 .simulator { width: min(1560px, calc(100% - 48px)); margin: auto; }
-.breadcrumb { padding: 8px 0 3px; font-size: 10px; }
 .sim-hero { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 5px 0 16px; }
 .sim-eyebrow { margin: 0 0 8px; color: var(--sim-accent); font: 700 10px Arial,sans-serif; letter-spacing: .16em; }
 .sim-eyebrow span { color: var(--ink-soft); margin-left: 10px; font-size: 9px; }

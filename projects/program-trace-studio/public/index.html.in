@@ -34,7 +34,7 @@
   <meta name="twitter:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
-  <link rel="stylesheet" href="../../assets/site.css?v=2026100303">
+  <link rel="stylesheet" href="../../assets/site.css?v=2026110906">
   <link rel="stylesheet" href="./trace-base.css?v=20261009-function-help3">
   <link rel="stylesheet" href="./studio.css?v=20261009-function-help3">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
@@ -47,7 +47,7 @@
 <!--site-header-->
 <script src="../../assets/site-header.js?v=20261101-nav-order" defer></script>
 <main id="main-content" class="trace-shell">
-  <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><span>Studio</span></nav>
+  <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><span>Studio</span></nav>
   <div class="studio-heading">
     <div><p class="eyebrow">プログラムトレース Studio</p><h1 id="studio-title" tabindex="-1">プログラムを、<em>書いて動かす。</em></h1></div>
     <button id="to-editor" class="button" type="button" hidden>プログラムを編集</button>

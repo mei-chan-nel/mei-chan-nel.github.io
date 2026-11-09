@@ -10,7 +10,7 @@ const esc = (s) =>
 const selector = (id) =>
   `<label class="lab-picker" for="lab-picker"><span>ほかの統計ラボへ</span><select id="lab-picker">${labs.map(([slug, title]) => `<option value="${slug}" ${id === slug ? "selected" : ""}>${title}</option>`).join("")}<option value="projects" ${id === "projects" ? "selected" : ""}>横断分析課題</option></select></label>`;
 const heading = (name, purpose, id, intro) =>
-  `<header class="workspace-heading"><div><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../../">Interactive Lab</a><span aria-hidden="true"> / </span><a href="../">統計・データ分析</a></nav><h1>${name}</h1><p class="workspace-purpose">${purpose}</p><p class="workspace-intro">${intro}</p></div>${selector(id)}</header>`;
+  `<header class="workspace-heading"><div><h1>${name}</h1><p class="workspace-purpose">${purpose}</p><p class="workspace-intro">${intro}</p></div>${selector(id)}</header>`;
 const academic = (body) =>
   `<section id="academic" class="academic" aria-labelledby="academic-heading"><h2 id="academic-heading">統計のしくみと読み取り方</h2><p>操作で気になったことを、定義・計算方法・前提から確かめられます。読みたい項目を開いてください。</p>${body}</section>`;
 // Fetch static dependency branches in parallel only after boot has let the UI
@@ -67,8 +67,7 @@ async function save(slug, body, scripts = []) {
     .replace(
       "<body>",
       `<body data-statistics="${slug || "index"}"${experiences[slug] ? ` data-stat-lab="${slug}"` : ""}>`,
-    )
-    .replace(/<nav class="breadcrumb"[\s\S]*?<\/nav>\n/, "");
+    );
   const url = new URL(
     slug ? `./${slug}/index.html` : "./index.html",
     import.meta.url,
@@ -112,7 +111,7 @@ const homeGuides = {
 };
 await save(
   "",
-  `<header class="statistics-home-heading"><nav class="workspace-breadcrumb" aria-label="現在位置"><a href="../">Interactive Lab</a></nav><h1>統計・データ分析</h1><p class="workspace-purpose">データを動かす。見え方を比べる。根拠を持って判断する。</p></header>
+  `<header class="statistics-home-heading"><h1>統計・データ分析</h1><p class="workspace-purpose">データを動かす。見え方を比べる。根拠を持って判断する。</p></header>
 
 <section class="lab-category" aria-label="統計ラボ" style="--lab-accent:var(--amber-strong)"><div class="archive-field-grid lab-content-grid">${labs.map(([id, title], i) => `<a href="./${id}/" class="archive-field-card" style="grid-template-columns:42px 1fr;min-height:88px"><span aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h2>${title}</h2></div></a>`).join("")}</div></section>
 <section id="academic" class="academic" aria-label="統計の見方"><details class="academic-section"><summary>統計の見方</summary><div class="explanation-content">${labs.map(([id, title], i) => `<section aria-labelledby="guide-${id}"><h3 id="guide-${id}">${String(i + 1).padStart(2, "0")} ${esc(title)}</h3><p><strong>行うこと：</strong>${esc(homeGuides[id][0])}</p><p><strong>手法：</strong>${esc(homeGuides[id][1])}</p></section>`).join("")}</div></details></section>`,

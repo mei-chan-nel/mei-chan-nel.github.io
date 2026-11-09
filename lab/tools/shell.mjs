@@ -66,7 +66,7 @@ export function renderPage({
 <meta property="og:url" content="${url}" /><meta property="og:site_name" content="情報Ⅰ Study Atlas" />
 <link rel="canonical" href="${url}" /><meta name="theme-color" content="#102f35" />
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-<link rel="stylesheet" href="${prefix}assets/site.css?v=2026100303" />
+<link rel="stylesheet" href="${prefix}assets/site.css?v=2026110906" />
 <link rel="stylesheet" href="${local}lab.css?v=3" />${help ? `\n<link rel="stylesheet" href="${local}help/help.css?v=2" />\n<script type="module" src="${local}help/launcher.mjs?v=2"></script>` : ""}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
 <script src="${prefix}assets/manual-ads.js?v=2026080901" defer></script>
@@ -86,7 +86,7 @@ ${scripts.map((path) => `<script type="module" src="./${path}"></script>`).join(
 <a class="skip-link" href="#main-content">本文へ移動</a>
 <header class="site-header"><div class="header-inner"><a class="brand" href="${prefix}"><span class="brand-mark" aria-hidden="true">I</span><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a><nav class="global-nav" aria-label="メインナビゲーション">${links(nav, prefix)}</nav></div></header>
 <main id="main-content" class="lab-shell ${slug ? "lab-content-page" : ""}">
-<nav class="breadcrumb" aria-label="パンくず"><a href="${prefix}">Study Atlas</a><span aria-hidden="true">/</span>${slug ? `<a href="${local}">Interactive Lab</a><span aria-hidden="true">/</span>${depth > 1 ? `<a href="../">統計・データ分析</a><span aria-hidden="true">/</span>` : ""}<span>${name}</span>` : "<span>Interactive Lab</span>"}</nav>
+<nav class="breadcrumb" aria-label="パンくずリスト"><a href="${prefix}">学習トップ</a><span aria-hidden="true">/</span>${slug ? `<a href="${local}">ラボ</a><span aria-hidden="true">/</span>${depth > 1 ? `<a href="../">統計・データ分析</a><span aria-hidden="true">/</span>` : ""}<span aria-current="page">${name}</span>` : '<span aria-current="page">ラボ</span>'}</nav>
 ${body}
 </main>
 <div class="manual-ad-slot manual-ad-slot--display" data-manual-ad="display" data-ad-placement="after-interactive-lab-main" hidden></div>

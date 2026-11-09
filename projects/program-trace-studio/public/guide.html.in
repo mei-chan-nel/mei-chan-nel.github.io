@@ -3,7 +3,7 @@
 <!--site-header-->
 <script src="../../assets/site-header.js?v=20261101-nav-order" defer></script>
 <main id="main-content" class="trace-shell studio-guide">
-  <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">Study Atlas</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><a href="./">Studio</a><span aria-hidden="true">/</span><span>作り方</span></nav>
+  <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../">プログラムトレース</a><span aria-hidden="true">/</span><a href="./">Studio</a><span aria-hidden="true">/</span><span>作り方</span></nav>
   <div class="studio-heading"><div><p class="eyebrow">プログラムトレース Studio</p><h1>プログラムの作り方</h1></div><a class="button" href="./">Studioを開く →</a></div>
   <article class="panel guide-article">
     <p>各行の処理を選び、値や条件を設定してプログラムを組み立てます。字下げや「｜」「⎿」は自動で付きます。</p>

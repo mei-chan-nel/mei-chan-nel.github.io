@@ -15,12 +15,6 @@
   min-width: 0;
   max-width: 850px;
 }
-.workspace-breadcrumb {
-  font-size: 0.78rem;
-  color: #597067;
-  margin-bottom: 16px;
-}
-.workspace-breadcrumb a,
 .stat-related a,
 .academic a,
 .text-link {
