@@ -1,0 +1,54 @@
+name: Rebuild No.003 problem PDF for layout changes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mock-exams/exams/003/1/no003.css'
+      - 'mock-exams/exams/003/1/q4.html'
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install PDF build dependencies
+        run: |
+          python -m pip install PyMuPDF fonttools
+          npm install --no-save --no-package-lock playwright
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+          echo "CHROMIUM_PATH=$(node -e "process.stdout.write(require('playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      - name: Build the No.003 problem PDF from published HTML and CSS
+        run: node scripts/build_mock_exam_pdfs.cjs problem --manifest exams/003/1/exam.json
+      - name: Check the resulting booklet
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import fitz
+          filename = Path("mock-exams/exams/003/1/problem.pdf")
+          with fitz.open(filename) as pdf:
+              assert len(pdf) == 36, f"Unexpected page count: {len(pdf)}"
+              assert "第4問" in pdf[27].get_text(), "No.003 Q4 is not on page 28"
+          print("Verified No.003 problem PDF: 36 pages, Q4 starts on page 28.")
+          PY
+      - name: Publish regenerated PDF
+        run: |
+          git add mock-exams/exams/003/1/problem.pdf
+          if ! git diff --cached --quiet; then
+            git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Rebuild No.003 problem PDF without Q4 choice borders'
+            git push
+          fi
