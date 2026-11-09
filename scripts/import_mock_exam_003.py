@@ -341,6 +341,15 @@ def build():
                     siblings=list(page);index=siblings.index(heading)
                     for e in siblings[index:]:fresh.append(e)
                     page.addnext(fresh)
+        if sid == 'q4':
+            # The published Q4 uses plain, unframed choice lists, including PDF print.
+            # Preserve the submitted source snapshot while normalizing its embedded CSS.
+            boxed = '.completion>.choices{border:1px solid #444;padding:10px 14px;margin-top:16px}'
+            unboxed = '.completion>.choices{border:0;padding:0;margin-top:12px}'
+            source_styles = p.xpath('//style')
+            assert any(boxed in (style.text or '') for style in source_styles)
+            for style in source_styles:
+                style.text = (style.text or '').replace(boxed, unboxed)
         if sid in ('q2a','q4'):
             for h in p.xpath('//h2'):
                 value=unicodedata.normalize('NFKC',text(h))
