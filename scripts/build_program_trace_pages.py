@@ -39,6 +39,7 @@ def render_runner(source: str) -> str:
     result = replace_cards(result, "")
     result = re.sub(r'src="\./library\.js(\?[^"\s]*)?"', r'src="./app.js\1"', result)
     result = result.replace(LIBRARY_URL, LIBRARY_URL + "run.html")
+    result = result.replace('class="trace-shell"', 'class="trace-shell trace-shell--runner"', 1)
     result = result.replace(
         '<section id="library-view" aria-labelledby="library-title">',
         '<section id="library-view" aria-labelledby="library-title" hidden>',

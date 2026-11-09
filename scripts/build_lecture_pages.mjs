@@ -127,6 +127,15 @@ const validatePage = (field, page, html) => {
     throw new Error(`${field}: static lecture boundary markers are missing`);
   }
   if (/\{\{[^{}]+\}\}/.test(html)) throw new Error(`${field}: unresolved cloze marker remains`);
+  // Video dimensions alone do not reserve a ratio before lazy metadata loads.
+  for (const [tag] of html.matchAll(/<video\b[^>]*>/g)) {
+    const width = Number(tag.match(/\bwidth="(\d+)"/)?.[1]);
+    const height = Number(tag.match(/\bheight="(\d+)"/)?.[1]);
+    const ratio = tag.match(/--media-aspect:\s*(\d+)\s*\/\s*(\d+)/);
+    if (!width || !height || !ratio || Number(ratio[1]) * height !== Number(ratio[2]) * width) {
+      throw new Error(`${field}: video must reserve --media-aspect matching its width and height`);
+    }
+  }
   const ids = [...html.matchAll(/<[a-z][^>]*\sid="([^"]+)"[^>]*>/gi)].map((match) => match[1]);
   const duplicateIds = [...new Set(ids.filter((id, index) => ids.indexOf(id) !== index))];
   if (duplicateIds.length) throw new Error(`${field}: duplicate IDs: ${duplicateIds.join(", ")}`);
