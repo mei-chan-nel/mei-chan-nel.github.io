@@ -68,6 +68,23 @@ const server = http.createServer((req, res) => {
           );
           await page.emulateMedia({ media: "print" });
           await page.evaluate(() => document.fonts.ready);
+          if (kind === "problem" && exam.id === "003" && s.id === "q4") {
+            // Verify the actual PDF rendering environment, not just source CSS.
+            const choiceBorders = await page.evaluate(() =>
+              [...document.querySelectorAll(".completion > ol.choices")].map(
+                (element) => {
+                  const style = getComputedStyle(element);
+                  return [style.borderTopWidth, style.borderTopStyle];
+                },
+              ),
+            );
+            if (
+              choiceBorders.length !== 9 ||
+              choiceBorders.some(([width, style]) => width !== "0px" || style !== "none")
+            )
+              throw Error("No.003 Q4 choice groups must not have enclosing borders: " + JSON.stringify(choiceBorders));
+            console.log("No.003 Q4 choices: 9 unboxed groups in print CSS");
+          }
           // Running source/version labels are editorial metadata, not booklet content.
           await page.addStyleTag({
             content:
