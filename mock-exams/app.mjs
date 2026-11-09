@@ -26,7 +26,11 @@ import { fitBookFrame } from "./ui/book-frame.mjs";
 import { bookFrameSrcdoc } from "./ui/book-srcdoc.mjs";
 import { prepareBookDocument, updateTableHints } from "./ui/book-document.mjs";
 import { alignReadingPanes } from "./ui/paired-reading.mjs";
-import { readingProblemHTML, addProblemLinks } from "./ui/reading-problem.mjs";
+import { readingProblemHTML } from "./ui/reading-problem.mjs";
+import {
+  interleavedProblemHTML,
+  mountInterleavedExplanations,
+} from "./ui/interleaved-reading.mjs";
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 import { trackExamAction } from "./analytics.mjs";
@@ -523,13 +527,30 @@ document.addEventListener("pointerdown", (event) => {
     closeAnswer();
 });
 window.addEventListener("resize", () => positionKeypad());
+let scrollSaveTimer;
 window.addEventListener(
   "scroll",
   () => {
     positionKeypad();
     const key = window.history.state?.studyAtlasMock?.entryKey;
-    if (key && !navigationReplay && !documentLeaving)
+    if (key && navigationReady && !navigationReplay && !documentLeaving) {
       viewScrollPositions.set(key, window.scrollY);
+      clearTimeout(scrollSaveTimer);
+      scrollSaveTimer = setTimeout(() => {
+        const current = window.history.state?.studyAtlasMock;
+        if (documentLeaving || navigationReplay || current?.entryKey !== key)
+          return;
+        const saved = { ...current, scrollY: viewScrollPositions.get(key) };
+        window.history.replaceState(
+          { studyAtlasMock: saved },
+          "",
+          location.href,
+        );
+        try {
+          sessionStorage.setItem(navigationKey, JSON.stringify(saved));
+        } catch {}
+      }, 100);
+    }
   },
   { passive: true },
 );
@@ -789,9 +810,10 @@ function renderWorkspace() {
             ?.fields || [],
       ),
     },
-    split = reading && !readingUnit && innerWidth >= 1000;
+    split = reading && !readingUnit && innerWidth >= 1000,
+    interleaved = reading && !readingUnit && !split;
   if (reading && !readingUnit) solution = true;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : split ? " 問題・解説" : " 解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin allow-scripts"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin allow-scripts"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : " 問題・解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin allow-scripts"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin allow-scripts"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   $("#back-list").onclick = reading
     ? backFromReading
     : reviewing
@@ -881,7 +903,7 @@ function renderWorkspace() {
   frame = $("#book-frame");
   const section = exam.sections.find((s) => s.id === sectionId),
     url = new URL(
-      reading && (solution || split)
+      reading && !interleaved && (solution || split)
         ? section.screenSolution || section.solution
         : section.screenProblem || section.problem,
       base,
@@ -889,6 +911,16 @@ function renderWorkspace() {
   bookReady = new Promise(async (resolve) => {
     try {
       let html = await documentText(url);
+      let explanationHTML, explanationURL;
+      let inlineReady = Promise.resolve();
+      if (interleaved) {
+        explanationURL = new URL(
+          section.screenSolution || section.solution,
+          base,
+        ).href;
+        explanationHTML = await documentText(explanationURL);
+        html = interleavedProblemHTML(html);
+      }
       if (readingUnit) html = readingProblemHTML(html, readingUnit);
       if (seq !== uiSequence) return resolve();
       frame.onload = () => {
@@ -897,8 +929,14 @@ function renderWorkspace() {
         if (!d?.body) return resolve();
         if (reading && !readingUnit)
           d.documentElement.setAttribute("data-solution-reading", "");
-        if (reading && !split && !readingUnit)
-          addProblemLinks(d, exam, openReadingProblem);
+        if (interleaved) {
+          readingAlignment = mountInterleavedExplanations(
+            frame,
+            explanationHTML,
+            explanationURL,
+          );
+          inlineReady = readingAlignment.ready;
+        }
         d.addEventListener("pointerdown", () => {
           if ($("#answer-dialog").classList.contains("keypad-popup"))
             closeAnswer();
@@ -965,7 +1003,7 @@ function renderWorkspace() {
             };
           });
         }
-        if (!solution || !reading) syncBook();
+        if (!solution || !reading || interleaved) syncBook(d, interleaved);
         let scheduled = false;
         const resize = () => {
           if (scheduled) return;
@@ -983,7 +1021,10 @@ function renderWorkspace() {
         d.fonts?.ready.then(resize);
         fitBookFrame(frame);
         resize();
-        resolve();
+        inlineReady.then(() => {
+          if (interleaved) d.documentElement.dataset.interleavedReady = "true";
+          resolve();
+        });
       };
       frame.srcdoc = bookFrameSrcdoc(html, url);
     } catch (error) {
@@ -1095,8 +1136,8 @@ function displayValue(f, value, e) {
   return `${label} ${circle(value)}`;
 }
 
-function syncBook(d = frame?.contentDocument) {
-  if (!d || (d === frame?.contentDocument && solution)) return;
+function syncBook(d = frame?.contentDocument, force = false) {
+  if (!d || (!force && d === frame?.contentDocument && solution)) return;
   const result = reviewing ? reviewState.result : attempt.result;
   const values = reviewing
     ? reviewState.answers

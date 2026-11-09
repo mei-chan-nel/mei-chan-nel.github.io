@@ -43,6 +43,7 @@ try {
     "mock-exams/ui/catalog-page.mjs",
     "mock-exams/ui/book-document.mjs",
     "mock-exams/ui/book-frame.mjs",
+    "mock-exams/ui/interleaved-reading.mjs",
     "mock-exams/app.css",
     "mock-exams/analytics.mjs",
     "assets/site-analytics.js",
