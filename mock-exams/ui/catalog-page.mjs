@@ -104,6 +104,7 @@ export function catalogMarkup(
     .join("");
   return `
     <div class="catalog-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">実戦演習</span></nav>
       <h1 class="visually-hidden">情報Ⅰ 実戦演習</h1>
       <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ">${modes}</nav>
       <section id="time-picker" class="section-picker" aria-labelledby="time-picker-title" ${catalogView.mode === "full" ? "" : "hidden"}>

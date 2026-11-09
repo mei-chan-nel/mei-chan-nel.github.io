@@ -3,11 +3,13 @@ import { AttemptStore } from "./engine/attempt.mjs";
 import {
   defaultCatalogView,
   renderCatalogContents,
-} from "./ui/catalog-page.mjs?v=2026110904";
+} from "./ui/catalog-page.mjs?v=2026110905";
 const target = document.querySelector("#app"),
   store = new AttemptStore();
 const entries = JSON.parse(document.querySelector("#exam-catalog").textContent);
 const key = "study-atlas:mock-exams:navigation:v1";
+// Opening the catalog starts at the top, without replaying a saved scroll offset.
+history.scrollRestoration = "manual";
 const view = defaultCatalogView();
 let application, samples;
 const notify = (error) => {
@@ -35,7 +37,7 @@ async function launch(action) {
   application = (async () => {
     if (action?.kind === "history" || (!action && location.hash))
       await sampleHistory();
-    const { initializeApp } = await import("./app.mjs?v=20261101-entry");
+    const { initializeApp } = await import("./app.mjs?v=2026110905");
     await initializeApp({ entries, view, action });
   })().catch((error) => {
     application = null;
@@ -84,8 +86,6 @@ else {
   const saved = savedNavigation();
   if (saved?.view === "catalog") Object.assign(view, saved.catalog);
   render();
-  if (saved?.view === "catalog" && saved.scrollY)
-    requestAnimationFrame(() => window.scrollTo(0, saved.scrollY));
   // Preview fixtures are unrelated to first paint. No exam documents or RPCs
   // are requested on the normal catalog path.
   const prepare = () =>

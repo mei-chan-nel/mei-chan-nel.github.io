@@ -137,7 +137,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{e(canonical)}" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026110904" />{ad_scripts}{video_embed_script}
+    <link rel="stylesheet" href="../assets/site.css?v=2026110905" />{ad_scripts}{video_embed_script}
   </head>"""
 
 
@@ -385,10 +385,10 @@ def archive_index(fields: list[dict[str, object]], course: dict[str, object]) ->
             )
         course_card = ""
         if field["id"] == "programming":
-            course_card = f'''<a class="archive-course-card" href="{page_href(str(course['id']))}"><div><p class="eyebrow">SEPARATE COURSE</p><h3>{e(course['label'])}</h3><p>{e(course['description'])}</p><small>{len(course['questions'])}問・指定順で学習</small></div><span class="card-arrow" aria-hidden="true">→</span></a>'''
+            course_card = f'''<a class="archive-course-card" href="{page_href(str(course['id']))}"><div><h3>{e(course['label'])}</h3><p>{e(course['description'])}</p><small>{len(course['questions'])}問・指定順で学習</small></div><span class="card-arrow" aria-hidden="true">→</span></a>'''
         field_sections.append(
             f'''      <section class="archive-field-section" id="{e(field['id'])}" aria-labelledby="{e(field['id'])}-heading">
-        <div class="section-heading"><div><p class="eyebrow">FIELD {index:02d}</p><h2 id="{e(field['id'])}-heading">{e(field['label'])}</h2></div><p>{e(field['description'])}</p></div>
+        <div class="section-heading"><div><h2 id="{e(field['id'])}-heading">{e(field['label'])}</h2></div><p>{e(field['description'])}</p></div>
         <div class="archive-field-grid">{''.join(cards)}</div>
         {course_card}
       </section>'''
@@ -408,8 +408,7 @@ def archive_index(fields: list[dict[str, object]], course: dict[str, object]) ->
     <main id="main-content" class="subpage simple-page archive-page">
       <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">解説動画</span></nav>
       <h1 class="visually-hidden">解説動画で学ぶ 情報Ⅰ一問一答</h1>
-      <section class="archive-intro" aria-labelledby="archive-fields-heading">
-        <div><p class="eyebrow">SELECT A FIELD</p><h2 id="archive-fields-heading">分野から選ぶ</h2></div>
+      <section class="archive-intro" aria-label="分野別の解説動画">
         {''.join(field_sections)}
       </section>
     </main>
