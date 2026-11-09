@@ -114,6 +114,7 @@ img { max-width: 100%; }
 .home-sub-section { padding-top: 0; padding-bottom: 88px; }
 .home-misc-section { padding-top: 0; }
 .home-section-title { margin-bottom: 28px; }
+.home-page .home-section-title h2 { font-size: clamp(1.7rem, 3.2vw, 2.65rem); }
 .home-action-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .home-action-card, .home-misc-card { --accent: var(--coral-strong); position: relative; color: var(--ink); background: var(--white); border: 1px solid var(--line); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
 .home-action-card { min-height: 210px; padding: 24px; display: flex; flex-direction: column; border-radius: 22px; }
