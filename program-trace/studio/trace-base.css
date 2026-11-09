@@ -22,7 +22,7 @@ h1:focus { outline: none; }
 .trace-shell { width: min(1240px, calc(100% - 64px)); margin: 0 auto; padding-bottom: 52px; }
 /* Reserve the first viewport while the execution modules initialize. */
 .trace-shell--runner { min-height: calc(100svh - var(--site-header-height, 0px)); }
-.breadcrumb { display: flex; align-items: center; gap: 12px; margin: 0; min-height: 56px; font-size: .69rem; color: var(--muted); }
+.breadcrumb { display: flex; align-items: center; gap: 12px; margin: 0; min-height: 56px; font-size: 1rem; font-weight: 600; color: var(--muted); }
 .breadcrumb a { text-decoration: none; }
 .breadcrumb a:hover { text-decoration: underline; }
 .breadcrumb > span[aria-hidden] { color: #8b9590; }
@@ -32,7 +32,7 @@ h1:focus { outline: none; }
 .library-heading h1 em { font-style: normal; color: var(--coral-strong); }
 .lead { margin: 16px 0 0; color: var(--ink-soft); font-size: .88rem; line-height: 1.9; }
 .section-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: 22px; border-top: 1px solid var(--line); }
-.section-label h2 { margin: 0; font-size: .98rem; font-weight: 700; }
+.section-label h2 { margin: 0; font-size: 1.5rem; font-weight: 700; }
 .example-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 18px; }
 .studio-collection { margin-bottom: 34px; }
 .studio-collection .section-label { border-top: 0; padding-top: 0; }
@@ -320,14 +320,14 @@ dialog form { padding: 30px; }
 }
 @media (max-width: 600px) {
   .trace-shell { width: calc(100% - 28px); }
-  .breadcrumb { min-height: 44px; font-size: .61rem; }
+  .breadcrumb { min-height: 44px; font-size: 1rem; }
   .library-heading { margin-bottom: 20px; padding: 18px 0 25px; }
   .eyebrow { font-size: .58rem; }
   .library-heading h1 { font-size: 1.85rem; }
   .lead { font-size: .75rem; margin-top: 13px; }
   .desktop-break { display: none; }
   .section-label { padding-top: 18px; margin-bottom: 15px; }
-  .section-label h2 { font-size: .88rem; }
+  .section-label h2 { font-size: 1.25rem; }
   .example-card, .example-card:nth-child(n+4), .example-card:last-child { grid-column: span 12; padding: 20px; }
   .card-description { min-height: 0; }
   .preview-line { font-size: .73rem; grid-template-columns: 41px minmax(0, 1fr); }
