@@ -331,6 +331,22 @@ def build():
             for name in ['toolbar','site-bar','subject','all-required','foot','meta']:
                 for e in cls(d,name):e.drop_tree()
             clean_screen_chrome(d)
+        if sid=='q1':
+            for source in cls(s,'sources'):source.drop_tree()
+            # Keep existing page breaks and start each independent question anew.
+            for heading in list(p.xpath('//p[@class="question"]')):
+                page=heading.getparent()
+                if any(text(e) for e in list(page)[:list(page).index(heading)] if e.tag!='h1'):
+                    fresh=etree.Element('section',{'class':'sheet'})
+                    siblings=list(page);index=siblings.index(heading)
+                    for e in siblings[index:]:fresh.append(e)
+                    page.addnext(fresh)
+        if sid in ('q2a','q4'):
+            for h in p.xpath('//h2'):
+                value=unicodedata.normalize('NFKC',text(h))
+                if re.fullmatch(r'問[1-4]',value):
+                    h.tag='p';h.set('class','exam-question')
+                    h.text=value+'　次の問い（'+('a～c' if sid=='q4' and value=='問4' else 'a・b')+'）に答えよ。'
         # Remove the paper-only A-F to circled-letter instruction, including nested spans.
         for e in p.xpath('//p[contains(.,"当てはまる文字がA")]'):e.drop_tree()
         if sid=='q2a':
