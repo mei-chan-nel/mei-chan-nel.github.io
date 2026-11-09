@@ -187,10 +187,7 @@ const server = http.createServer((req, res) => {
       .locator("#section-navigation")
       .getByRole("button", { name: "第3問", exact: true })
       .click();
-    await frame().locator('[data-reading-problem="q3-05"]').click();
-    await frame().locator("html[data-reading-fragment]").waitFor();
-    await p.locator("#back-list").click();
-    await frame().locator('[data-reading-problem="q3-05"]').waitFor();
+    await frame().locator('[data-explanation-units~="q3-05"]').waitFor();
     await p.locator("#back-list").click();
     await p.locator(".review-note").waitFor();
     await frame().locator('[data-field="q2a-ア"]').first().waitFor();

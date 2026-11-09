@@ -209,32 +209,75 @@ const server = http.createServer((req, res) => {
         .locator(`[data-reading-units~="${id}"]`)
         .waitFor();
     }
-    await page.setViewportSize({ width: 390, height: 844 });
-    for (const section of exam.sections) {
-      await page
-        .locator("#section-navigation")
-        .getByRole("button", { name: section.title, exact: true })
-        .click();
-      const id = exam.scoring.find((u) => u.sectionId === section.id).id;
-      const link = page
-        .frameLocator("#book-frame")
-        .locator(`[data-reading-problem="${id}"]`);
-      await link.click();
-      const firstField = exam.scoring.find((u) => u.id === id).fields[0];
-      await page
-        .frameLocator("#book-frame")
-        .locator(`[data-field="${firstField}"]`)
-        .first()
-        .waitFor();
-      assert.ok(
+    for (const width of [390, 900]) {
+      await page.setViewportSize({ width, height: 844 });
+      for (const section of exam.sections) {
         await page
+          .locator("#section-navigation")
+          .getByRole("button", { name: section.title, exact: true })
+          .click();
+        const expected = exam.scoring
+          .filter((u) => u.sectionId === section.id)
+          .map((u) => u.id);
+        await page.waitForFunction((expected) => {
+          const d = document.querySelector("#book-frame")?.contentDocument;
+          const boxes = [
+            ...(d?.querySelectorAll("[data-explanation-units]") || []),
+          ];
+          return (
+            boxes
+              .flatMap((b) => b.dataset.explanationUnits.split(" "))
+              .join() === expected.join() &&
+            boxes.every((b) =>
+              b
+                .querySelector("iframe")
+                ?.contentDocument?.querySelector("[data-reading-units]"),
+            )
+          );
+        }, expected);
+        const metrics = await page
           .frameLocator("#book-frame")
           .locator("body")
-          .evaluate((b) => b.scrollWidth <= b.clientWidth + 1),
-      );
-      await page.locator("#back-list").click();
-      await link.waitFor();
+          .evaluate((b) => ({
+            overflow: b.scrollWidth - b.clientWidth,
+            order: [...b.children].map((e) => e.className),
+            inputs: [...b.querySelectorAll("[data-field]")].every(
+              (e) => e.dataset.readonly === "true",
+            ),
+            boxes: [...b.querySelectorAll("[data-explanation-units]")].map(
+              (e) => ({
+                ids: e.dataset.explanationUnits,
+                actual: [
+                  ...e
+                    .querySelector("iframe")
+                    .contentDocument.querySelectorAll("[data-reading-units]"),
+                ]
+                  .flatMap((a) => a.dataset.readingUnits.split(" "))
+                  .join(" "),
+              }),
+            ),
+          }));
+        assert.ok(metrics.overflow < 2, JSON.stringify(metrics));
+        assert.equal(metrics.inputs, true);
+        metrics.order.forEach((c, i) =>
+          assert.equal(
+            c,
+            i % 2 ? "interleaved-explanation" : "interleaved-problem",
+          ),
+        );
+        metrics.boxes.forEach((b) => assert.equal(b.ids, b.actual));
+        if (process.env.READING_SCREENSHOTS) {
+          await page.frameLocator("#book-frame").locator(".interleaved-explanation").first().scrollIntoViewIfNeeded();
+          await page.screenshot({
+            path: `/tmp/reading-${exam.id}-${section.id}-${width}.png`,
+          });
+        }
+      }
     }
+    // A wide viewport restores the existing two-pane presentation.
+    await page.setViewportSize({ width: 1333, height: 900 });
+    await page.locator("#paired-problem").waitFor();
+    await page.setViewportSize({ width: 390, height: 844 });
     await page.locator("#back-list").click();
     await page.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     await startFullExam(page, "timed", exam.id);

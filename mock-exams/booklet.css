@@ -781,3 +781,21 @@ body[data-section] .solution-topic {
 .scope-mark.is-end i {
   bottom: 0 !important;
 }
+
+@media screen {
+  html[data-interleaved-reading], html[data-interleaved-reading] body { background:white!important; }
+  html[data-interleaved-reading] :is(.sheet,.page,.book,.page-body) {
+    width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;
+    margin:0!important;padding:12px 16px!important;border:0!important;box-shadow:none!important;
+  }
+  .interleaved-problem { display:flow-root; }
+  .interleaved-explanation {
+    display:flow-root;margin:12px 16px 28px;padding:14px 16px;
+    border:1px solid #c8dcd5;border-radius:8px;background:#f1f7f4;
+  }
+  .interleaved-label { margin:0 0 8px!important;color:#37665a;font:700 13px/1.6 system-ui,sans-serif;text-indent:0!important; }
+  .interleaved-explanation iframe { display:block;width:100%;border:0;min-height:40px; }
+}
+@media screen {
+  html[data-interleaved-reading] :is(.page-body,.book) { padding:0!important; }
+}
