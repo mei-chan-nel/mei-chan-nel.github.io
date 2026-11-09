@@ -52,7 +52,8 @@ test("all active statistics labs have real modules, data views and valid nested 
     ])
       assert.ok(!html.includes(`id="${removed}"`));
     assert.ok(html.includes('id="academic"'));
-    assert.ok(html.includes('class="workspace-intro"'));
+    assert.ok(!html.includes('class="workspace-intro"'));
+    assert.ok(html.includes('class="lab-page-actions"'));
     assert.ok(!html.includes('id="learning-dialog"'));
     assert.ok(!html.includes('class="stat-badge"'));
     assert.ok(html.includes(`data-stat-lab="${id}"`));

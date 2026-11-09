@@ -1,6 +1,13 @@
-/* Shared by every lab. Deliberately scoped to avoid altering experiment buttons. */
-.lab-help-heading { position: relative; padding-inline-end: 256px !important; min-height: 48px; }
-.lab-help-heading > .lab-help { position: absolute; inset-block-start: 12px; inset-inline-end: 0; }
+/* Shared breadcrumb and help action row. */
+.lab-page-top { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.lab-page-top > .breadcrumb { flex: 1; min-width: 0; }
+.lab-page-top > .lab-help { flex: 0 0 auto; }
+.lab-page-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 12px; margin-bottom: 16px; }
+@media (max-width: 760px) {
+  .lab-page-top { flex-direction: column; align-items: stretch; gap: 0; }
+  .lab-page-top > .breadcrumb { padding-bottom: 12px; }
+  .lab-page-top > .lab-help { align-self: flex-start; margin-bottom: 20px; }
+}
 .lab-help .lab-help__button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; padding: 10px 16px; margin: 0; border: 1px solid #28675e;
@@ -24,8 +31,4 @@
 .lab-help__actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .lab-help__actions button { padding: 10px 14px; min-height: 44px; border: 1px solid #28675e; border-radius: 8px; background: white; color: #174d45; font: inherit; cursor: pointer; }
 .lab-help__copy-status:empty { display: none; }
-@media (max-width: 760px) {
-  .lab-help-heading { padding-inline-end: 0 !important; flex-wrap: wrap; }
-  .lab-help-heading > .lab-help { position: static; flex-basis: 100%; grid-column: 1 / -1; width: 100%; margin-block: 12px 4px; }
-}
-@media print { .lab-help, .lab-help-feedback { display: none !important; } .lab-help-heading { padding-inline-end: 0 !important; } }
+@media print { .lab-help, .lab-help-feedback { display: none !important; } }

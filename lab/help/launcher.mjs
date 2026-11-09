@@ -2,7 +2,7 @@ import { pageKey, composePrompt, validateGuide, launchPlan, CHATGPT_URL } from "
 
 const root = new URL("../", import.meta.url);
 const key = pageKey(location.pathname, root.pathname);
-const heading = document.querySelector("main h1")?.closest("header");
+const heading = document.querySelector("main .breadcrumb");
 if (key && heading) installHelp(heading);
 
 function installHelp(heading) {
@@ -24,13 +24,14 @@ function installHelp(heading) {
   recovery.hidden = true;
   recovery.innerHTML = '<summary>ChatGPTが開かない・質問が渡らない場合</summary><p>質問文をコピーし、ChatGPTの入力欄に貼り付けて送信してください。</p><label for="lab-help-prompt">この教材の質問文</label><textarea id="lab-help-prompt" readonly rows="7" spellcheck="false"></textarea><div class="lab-help__actions"><button type="button" data-help-copy>質問文をコピー</button><button type="button" data-help-open>ChatGPTを開く</button></div><p class="lab-help__copy-status" role="status"></p>';
   host.append(button);
-  // Reserve space in the existing heading; never float over experiment controls.
-  heading.classList.add("lab-help-heading");
-  heading.append(host);
+  const row = document.createElement("div");
+  row.className = "lab-page-top";
+  heading.before(row);
+  row.append(heading, host);
   const feedback = document.createElement("div");
   feedback.className = "lab-help-feedback";
   feedback.append(status, recovery);
-  heading.after(feedback);
+  row.after(feedback);
   const textarea = recovery.querySelector("textarea");
   let pending, prompt = "", busy = false;
 

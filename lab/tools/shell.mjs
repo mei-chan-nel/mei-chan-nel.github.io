@@ -67,7 +67,7 @@ export function renderPage({
 <link rel="canonical" href="${url}" /><meta name="theme-color" content="#102f35" />
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="${prefix}assets/site.css?v=2026110906" />
-<link rel="stylesheet" href="${local}lab.css?v=3" />${help ? `\n<link rel="stylesheet" href="${local}help/help.css?v=2" />\n<script type="module" src="${local}help/launcher.mjs?v=2"></script>` : ""}
+<link rel="stylesheet" href="${local}lab.css?v=3" />${help ? `\n<link rel="stylesheet" href="${local}help/help.css?v=2026110907" />\n<script type="module" src="${local}help/launcher.mjs?v=2026110907"></script>` : ""}
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
 <script src="${prefix}assets/manual-ads.js?v=2026080901" defer></script>
 <script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: crumbs })}</script>
