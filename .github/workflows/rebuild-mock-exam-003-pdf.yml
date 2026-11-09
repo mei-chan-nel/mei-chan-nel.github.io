@@ -8,6 +8,7 @@ on:
       - 'mock-exams/exams/003/1/q4.html'
       - 'mock-exams/exams/003/1/screen/q4.html'
       - 'scripts/import_mock_exam_003.py'
+      - 'scripts/build_mock_exam_pdfs.cjs'
       - '.github/workflows/rebuild-mock-exam-003-pdf.yml'
 
 concurrency:
