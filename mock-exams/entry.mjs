@@ -3,7 +3,7 @@ import { AttemptStore } from "./engine/attempt.mjs";
 import {
   defaultCatalogView,
   renderCatalogContents,
-} from "./ui/catalog-page.mjs";
+} from "./ui/catalog-page.mjs?v=2026110904";
 const target = document.querySelector("#app"),
   store = new AttemptStore();
 const entries = JSON.parse(document.querySelector("#exam-catalog").textContent);

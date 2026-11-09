@@ -104,11 +104,7 @@ export function catalogMarkup(
     .join("");
   return `
     <div class="catalog-page">
-      <section class="intro catalog-intro">
-        <p class="eyebrow">PRACTICE / INFORMATION I</p>
-        <h1>情報Ⅰ 実戦演習</h1>
-        <p>大学入学共通テスト「情報Ⅰ」のオリジナル模試。<br>1回分を通して解くことも、大問ごとに練習することもできます。</p>
-      </section>
+      <h1 class="visually-hidden">情報Ⅰ 実戦演習</h1>
       <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ">${modes}</nav>
       <section id="time-picker" class="section-picker" aria-labelledby="time-picker-title" ${catalogView.mode === "full" ? "" : "hidden"}>
         <h2 id="time-picker-title">受験時間を選ぶ</h2>

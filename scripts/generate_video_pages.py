@@ -137,7 +137,7 @@ def head(title: str, description: str, canonical_path: str, *, ads: bool = False
     <meta name="twitter:image:alt" content="{OG_IMAGE_ALT}" />
     <link rel="canonical" href="{e(canonical)}" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026100303" />{ad_scripts}{video_embed_script}
+    <link rel="stylesheet" href="../assets/site.css?v=2026110904" />{ad_scripts}{video_embed_script}
   </head>"""
 
 
@@ -405,14 +405,9 @@ def archive_index(fields: list[dict[str, object]], course: dict[str, object]) ->
     }) + structured_data(breadcrumb_data([("学習トップ", SITE_ORIGIN), ("解説動画", f"{SITE_ORIGIN}archive/")]))
     return f'''{head(title, description, "archive/")}
 {header("archive")}
-    <main id="main-content" class="subpage archive-page">
+    <main id="main-content" class="subpage simple-page archive-page">
       <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">解説動画</span></nav>
-      <header class="page-hero compact-hero">
-        <p class="eyebrow">VIDEO QUESTION ARCHIVE</p>
-        <h1>解説動画で学ぶ<br />情報Ⅰ一問一答</h1>
-        <p>分野を選び、ジャンルを選び、問題を考える。答えを確かめたあと、必要なときだけ解説動画を開けます。</p>
-        <dl class="archive-stats"><div><dt>問題</dt><dd>330問</dd></div><div><dt>分野</dt><dd>5分野</dd></div><div><dt>ジャンル</dt><dd>21ジャンル</dd></div></dl>
-      </header>
+      <h1 class="visually-hidden">解説動画で学ぶ 情報Ⅰ一問一答</h1>
       <section class="archive-intro" aria-labelledby="archive-fields-heading">
         <div><p class="eyebrow">SELECT A FIELD</p><h2 id="archive-fields-heading">分野から選ぶ</h2></div>
         {''.join(field_sections)}

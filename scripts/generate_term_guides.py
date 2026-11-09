@@ -264,7 +264,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="canonical" href="{SITE_ORIGIN}/terms/" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="../assets/site.css?v=2026083001" />
+    <link rel="stylesheet" href="../assets/site.css?v=2026110904" />
     <link rel="stylesheet" href="../assets/term-page.css?v={FEATURE_VERSION}" />
     <script src="../assets/term-state.js?v={FEATURE_VERSION}" defer></script>
     <script src="../assets/term-index.js?v={FEATURE_VERSION}" defer></script>
@@ -291,15 +291,12 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
       </div>
     </header>
 
-    <main id="main-content" class="subpage terms-index">
+    <main id="main-content" class="subpage simple-page terms-index">
       <nav class="breadcrumb" aria-label="パンくずリスト">
         <a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">用語一覧</span>
       </nav>
 
-      <header class="page-hero compact-hero">
-        <p class="eyebrow">TERM INDEX</p>
-        <h1>用語一覧</h1>
-      </header>
+      <h1 class="visually-hidden">用語一覧</h1>
 
       <section class="term-list-section" aria-label="用語一覧">
         <div class="term-section-heading">

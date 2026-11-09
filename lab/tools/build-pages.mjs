@@ -19,7 +19,7 @@ const cards = (group) =>
         `<a class="archive-field-card" href="./${esc(content.id)}/"><span aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(content.name)}</h3><p>${esc(content.description)}</p></div><b aria-hidden="true">→</b></a>`,
     )
     .join("\n");
-const home = `<header class="lab-hero"><h1 id="lab-title">Interactive <em>Lab.</em></h1><p class="lab-tagline">触って、変えて、仕組みが見えてくる。</p></header>
+const home = `<h1 id="lab-title" class="visually-hidden">Interactive Lab</h1>
 ${groups.map((g, i) => `<section class="lab-category" id="${g.id}" aria-labelledby="heading-${g.id}" style="--lab-accent:var(--${g.color}-strong)"><div class="section-heading lab-category-heading"><div class="category-title"><span class="category-number" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><h2 id="heading-${g.id}">${g.name}</h2></div><p>${g.hint}</p></div><div class="archive-field-grid lab-content-grid">${cards(g)}</div></section>`).join("\n")}`;
 const pages = new Map([
   [

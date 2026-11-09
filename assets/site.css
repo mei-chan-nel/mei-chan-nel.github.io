@@ -535,3 +535,8 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
   .home-misc-card p, .home-action-card .home-app-summary { display: none; }
   .home-action-card > p:not(.home-app-summary) { display: block; margin: 0; padding-left: 56px; font-size: .76rem; line-height: 1.55; }
 }
+
+/* Entrance pages begin with content instead of a large introduction. */
+.simple-page > .archive-intro { padding-top: 24px; }
+.simple-page > .prose-content, .simple-page > .book-list { margin-top: 24px; padding-top: 0; }
+.lab-shell > h1.visually-hidden + .lab-category { border-top: 0; padding-top: 24px; }

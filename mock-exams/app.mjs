@@ -1,4 +1,4 @@
-import { renderCatalogContents } from "./ui/catalog-page.mjs";
+import { renderCatalogContents } from "./ui/catalog-page.mjs?v=2026110904";
 import {
   grade,
   normalize,
