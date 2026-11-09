@@ -99,6 +99,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "バックアップ": {
     "url": "/terms/backup/"
   },
+  "パケット": {
+    "url": "/terms/packet/"
+  },
   "パスワード": {
     "url": "/terms/password/"
   },

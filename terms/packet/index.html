@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>パケットとは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="パケットの構造とパケット交換方式、ルーティング、TCP・UDPの違い、TCP/IPの階層での役割を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="パケット" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="パケットとは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="パケットの構造とパケット交換方式、ルーティング、TCP・UDPの違い、TCP/IPの階層での役割を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/packet/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/packet/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026110706" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+    <script src="../../assets/term-state.js?v=2026110706" defer></script>
+    <script src="../../assets/term-reader.js?v=2026110706" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">パケット</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · NETWORK</p>
+        <h1 id="term-heading">パケット</h1>
+        <!-- term-learning:start -->
+        <div class="term-page-state" data-term-page-state hidden>
+          <button class="term-read-status" type="button" data-term-read-status aria-pressed="false" aria-label="既読にする">未読</button>
+          <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
+        </div>
+        <p class="term-storage-message" data-term-storage-message role="status"></p>
+        <!-- term-learning:end -->
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「パケット」とは</h2>
+          <p><strong>パケット（packet）</strong>とは、ネットワークでデータを送受信するときに用いる、データの小さなまとまりです。</p>
+          <p>インターネットでは、画像や動画、Webページなどのデータを送受信するとき、大きなデータを小さな単位に分けて送ることがあります。この小さな単位をパケットといいます。</p>
+          <p>パケットには、実際に送りたいデータだけでなく、宛先などの情報も付けられます。</p>
+        </section>
+
+        <section>
+          <h2>パケットの仕組み</h2>
+          <h3>データを小さく分けて送る</h3>
+          <p>例えば、「ABCDEF」というデータを送信する場合を考えます。</p>
+          <p class="term-formula">元のデータ：［ A B C D E F ］</p>
+          <p>これを次のように分割して送ります。</p>
+          <ul>
+            <li>パケット1：［ A B ］</li>
+            <li>パケット2：［ C D ］</li>
+            <li>パケット3：［ E F ］</li>
+          </ul>
+          <p>それぞれのパケットはネットワークを通じて送られ、受信側では必要に応じて元のデータに組み立て直されます。</p>
+          <p>データを小さく分けることで、複数の利用者が同じ通信回線を使いやすくなります。また、一部のデータが失われた場合に、その部分だけを送り直す仕組みも実現できます。</p>
+
+          <h3>パケットの構造</h3>
+          <p>パケットは、大きく分けると次の二つの部分から構成されます。</p>
+          <table>
+            <thead><tr><th>部分</th><th>役割</th></tr></thead>
+            <tbody>
+              <tr><td>ヘッダ</td><td>宛先や送信元など、通信に必要な情報を記録する</td></tr>
+              <tr><td>データ部</td><td>実際に送りたいデータを格納する</td></tr>
+            </tbody>
+          </table>
+          <p>例えば、インターネットで使われるIPパケットには、次のような情報が含まれます。</p>
+          <p class="term-formula">［ ヘッダ ｜ データ部 ］</p>
+          <p>ヘッダには、送信元IPアドレスや宛先IPアドレスなどが記録されています。</p>
+          <p>ネットワーク機器は、この宛先IPアドレスなどを確認して、パケットを適切な方向へ転送します。</p>
+        </section>
+
+        <section>
+          <h2>パケット交換方式とは</h2>
+          <p><strong>パケット交換方式</strong>とは、データをパケットに分けて送受信する通信方式です。</p>
+          <p>インターネットでは、このパケット交換方式が利用されています。</p>
+
+          <h3>パケット交換方式の特徴</h3>
+          <p>パケット交換方式の大きな特徴は、<strong>複数の利用者が通信回線を共有できること</strong>です。</p>
+          <p>AさんがWebページを閲覧し、Bさんが動画を視聴し、Cさんがメールを送信している場合を考えます。パケット交換方式では、それぞれの通信のパケットを同じ回線に流すことができます。</p>
+          <p>ある利用者がデータを送っていない間には、ほかの利用者が回線を使えるため、通信回線を効率よく利用しやすくなります。</p>
+          <p>また、ネットワークの障害などによって、パケットが通る経路を変更できる場合もあります。</p>
+          <p>ただし、通信が集中すると回線が混雑し、パケットの到着が遅れたり、失われたりすることもあります。</p>
+
+          <h3>回線交換方式との違い</h3>
+          <p>パケット交換方式と対比されるのが、<strong>回線交換方式</strong>です。</p>
+          <p>回線交換方式は、通信を始めるときに送信側と受信側の間の通信経路を確保し、通信が終わるまで使い続ける方式です。従来の電話網などで利用されてきました。</p>
+          <table>
+            <thead><tr><th>比較項目</th><th>パケット交換方式</th><th>回線交換方式</th></tr></thead>
+            <tbody>
+              <tr><td>データの送り方</td><td>小さなパケットに分けて送る</td><td>確保した経路を使って送る</td></tr>
+              <tr><td>通信経路</td><td>通信中に変わる場合がある</td><td>通信中は確保した経路を使う</td></tr>
+              <tr><td>回線の共有</td><td>複数の通信で共有しやすい</td><td>確保した部分は原則として他の通信に使えない</td></tr>
+              <tr><td>主な特徴</td><td>回線を効率よく利用しやすい</td><td>通信に必要な資源を確保しやすい</td></tr>
+            </tbody>
+          </table>
+          <p><strong>パケット交換方式では、通信中に専用の経路を占有し続ける必要がない</strong>という点が重要です。</p>
+          <p>なお、パケット交換方式は、有線通信でも無線通信でも利用できます。</p>
+        </section>
+
+        <section>
+          <h2>ルータとルーティング</h2>
+          <h3>ルータの役割</h3>
+          <p><strong>ルータ（router）</strong>とは、異なるネットワークを接続し、パケットを適切な転送先へ送る機器です。</p>
+          <p>例えば、家庭のパソコンからインターネット上のWebサーバへアクセスする場合、パケットは複数のルータを経由して送られることがあります。</p>
+          <p class="term-formula">パソコンA → ルータ1 → ルータ2 → サーバB</p>
+          <p>ルータは、パケットの宛先IPアドレスを確認し、次にどの機器へ転送すればよいかを判断します。</p>
+
+          <h3>ルーティングとは</h3>
+          <p><strong>ルーティング（routing）</strong>とは、パケットを宛先へ届けるための経路を選ぶことです。</p>
+          <p>ルータは、経路表（ルーティングテーブル）と呼ばれる情報を使って、パケットの転送先を決めます。</p>
+          <p>AからBへ向かう経路が次のように二つあるとします。</p>
+          <ul>
+            <li>経路①：A → ルータ1 → ルータ2 → B</li>
+            <li>経路②：A → ルータ1 → ルータ3 → B</li>
+          </ul>
+          <p>ネットワークの状態や経路情報の変更によって、利用する経路が切り替わることがあります。</p>
+          <p>そのため、<strong>同じ送信元から送られたパケットでも、必ずしもすべて同じ経路を通るとは限りません。</strong></p>
+        </section>
+
+        <section>
+          <h2>パケットは必ず順番どおりに届くわけではない</h2>
+          <p>パケットは、必ずしも送信した順番どおりに届くとは限りません。</p>
+          <p>例えば、送信側が次の順番でパケットを送ったとします。</p>
+          <p class="term-formula">送信：［1］［2］［3］［4］</p>
+          <p>途中でパケットが通る経路や通信にかかる時間が異なると、受信側では次のような順番になることもあります。</p>
+          <p class="term-formula">受信：［1］［3］［4］［2］</p>
+          <p>また、ネットワークの混雑などによって、パケットが途中で失われる場合もあります。</p>
+          <p>インターネットでは、パケットを宛先へ届けようとしますが、<strong>必ず届くことや、順番どおりに届くことまでは保証しません。</strong></p>
+          <p>そこで、通信の目的に応じて、TCPやUDPといったプロトコルが利用されます。</p>
+        </section>
+
+        <section>
+          <h2>TCPとUDPの違い</h2>
+          <p>TCPとUDPは、どちらもインターネットでデータを送受信するために使われるプロトコルです。</p>
+          <p>ただし、通信の信頼性や速さに対する考え方が異なります。</p>
+
+          <h3>TCP：正確にデータを届けることを重視</h3>
+          <p><strong>TCP（Transmission Control Protocol）</strong>は、データを正しい順序で、欠けることなく届けることを重視するプロトコルです。</p>
+          <p>TCPには、次のような仕組みがあります。</p>
+          <ul>
+            <li><strong>順序の管理：</strong>データに順序を示す番号を付け、正しい順番に並べる。</li>
+            <li><strong>確認応答：</strong>受信側がデータを受け取ったことを送信側に知らせる。</li>
+            <li><strong>再送：</strong>届かなかったデータを送り直す。</li>
+          </ul>
+          <p>次のようにデータを送った場合を考えます。</p>
+          <p class="term-formula">送信：［1］［2］［3］［4］</p>
+          <p class="term-formula">受信：［1］［欠落］［3］［4］</p>
+          <p>TCPでは、確認応答などを利用してデータの欠落を見つけ、必要なデータを再送します。</p>
+          <p>また、順序が入れ替わって届いた場合にも、正しい順序に並べてからアプリケーションに渡します。</p>
+          <p>これにより、ファイルのダウンロードなど、データが欠けたり順番が入れ替わったりすると困る通信に適しています。</p>
+          <p>ただし、確認応答や再送などの処理が必要になるため、その分だけ通信に時間がかかる場合があります。</p>
+
+          <h3>UDP：処理の少なさや速さを重視</h3>
+          <p><strong>UDP（User Datagram Protocol）</strong>は、TCPのような到着確認や再送、順序の管理を基本的には行わないプロトコルです。</p>
+          <p>例えば、UDPで次のようにデータを送った場合を考えます。</p>
+          <p class="term-formula">送信：［1］［2］［3］［4］</p>
+          <p class="term-formula">受信：［1］［3］［4］</p>
+          <p>途中で［2］が失われても、UDP自身はそれを送り直しません。また、届いたデータの順序を自動的に並べ直すこともしません。</p>
+          <p>そのため、TCPよりも通信の制御が単純で、余分な処理を少なくできます。</p>
+          <p>例えば、オンラインゲームや音声通話などでは、古いデータを何度も送り直すよりも、新しいデータを素早く届けることが重要な場合があります。このような通信にはUDPが利用されることがあります。</p>
+          <p>ただし、UDPを使えば必ずTCPより速くなるわけではありません。また、UDPを利用するアプリケーションが独自に再送などの仕組みを設けることもあります。</p>
+
+          <h3>TCPとUDPの比較</h3>
+          <table>
+            <thead><tr><th>比較項目</th><th>TCP</th><th>UDP</th></tr></thead>
+            <tbody>
+              <tr><td>データの到着確認</td><td>ある</td><td>基本的にない</td></tr>
+              <tr><td>届かなかったデータの再送</td><td>行う</td><td>基本的に行わない</td></tr>
+              <tr><td>データの順序管理</td><td>行う</td><td>基本的に行わない</td></tr>
+              <tr><td>特徴</td><td>信頼性が高い</td><td>通信の制御が単純</td></tr>
+              <tr><td>利用例</td><td>ファイル転送など</td><td>音声通話、オンラインゲームなど</td></tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section>
+          <h2>TCP/IPの階層構造</h2>
+          <p>インターネットでは、さまざまなプロトコルが役割を分担して通信を実現しています。</p>
+          <p>この役割分担を整理したものが、TCP/IPの階層モデルです。</p>
+          <table>
+            <thead><tr><th>階層</th><th>主な役割</th><th>代表的なプロトコル</th></tr></thead>
+            <tbody>
+              <tr><td>アプリケーション層</td><td>Web閲覧などのサービスに関する通信</td><td>HTTP、DNS</td></tr>
+              <tr><td>トランスポート層</td><td>データの送受信や信頼性の管理など</td><td>TCP、UDP</td></tr>
+              <tr><td>インターネット層</td><td>IPアドレスに基づいてパケットを配送する</td><td>IP</td></tr>
+              <tr><td>ネットワークインタフェース層</td><td>ネットワーク内でデータを転送する</td><td>Ethernet、Wi-Fi</td></tr>
+            </tbody>
+          </table>
+          <p>ここでは、特に次の役割の違いを理解しておくことが重要です。</p>
+          <ul>
+            <li><strong>IP：</strong>パケットを宛先へ配送する。</li>
+            <li><strong>TCP：</strong>データの欠落や順序の乱れに対応する。</li>
+            <li><strong>UDP：</strong>到着確認や再送などを基本的に行わず、データを送る。</li>
+          </ul>
+          <p>また、通信で送るデータのまとまりには、階層によって異なる呼び方があります。</p>
+          <p>例えば、TCPで扱うデータのまとまりを「セグメント」、IPで扱うものを「IPパケット」、Ethernetなどで扱うものを「フレーム」といいます。</p>
+          <p>基本的な考え方は共通しており、それぞれの階層で必要な情報を付けながらデータを送っています。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>パケット · EXAMPLE</span><span>オリジナル問題</span></div>
+          <h3>パケット交換方式として最も適切な説明はどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>通信中は送受信者間の物理回線を占有し続ける方式。</p></li>
+            <li><span>1</span><p>送信データを必ず一つの画像ファイルにする方式。</p></li>
+            <li><span>2</span><p>データを小さなパケットに分け、ネットワークで順に転送する方式。</p></li>
+            <li><span>3</span><p>全ての通信を一台の端末だけで処理する方式。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．データを小さなパケットに分け、ネットワークで順に転送する方式。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>パケット交換方式は、データを小さなパケットに分け、それぞれに宛先などの情報を付けてネットワーク上で転送する方式です。複数の通信が回線を共有でき、混雑や障害に応じて別の経路を選びやすくなります。一方、パケットに分けるだけで正しい順序や到着が保証されるわけではなく、再送や順序制御などはTCPなど別の仕組みが担います。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル問題</dd></dl>
+              <p class="term-related-keywords">関連キーワード：パケット交換方式／パケット</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">パケットの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button class="button button-primary term-challenge-button" type="button" data-term-challenge-button data-tag="パケット" data-limit="5" data-exclude-stem="パケット交換方式として最も適切な説明はどれか。">アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=パケット">パケットの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"パケットとは","description":"パケットの構造とパケット交換方式、ルーティング、TCP・UDPの違い、TCP/IPの階層での役割を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/packet/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"パケット","item":"https://mei-chan-nel.com/terms/packet/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>
