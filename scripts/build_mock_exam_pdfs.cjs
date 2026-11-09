@@ -79,11 +79,11 @@ const server = http.createServer((req, res) => {
               ),
             );
             if (
-              choiceBorders.length !== 9 ||
+              choiceBorders.length !== 6 ||
               choiceBorders.some(([width, style]) => width !== "0px" || style !== "none")
             )
               throw Error("No.003 Q4 choice groups must not have enclosing borders: " + JSON.stringify(choiceBorders));
-            console.log("No.003 Q4 choices: 9 unboxed groups in print CSS");
+            console.log("No.003 Q4 choices: 6 unboxed completion groups in print CSS");
           }
           // Running source/version labels are editorial metadata, not booklet content.
           await page.addStyleTag({
