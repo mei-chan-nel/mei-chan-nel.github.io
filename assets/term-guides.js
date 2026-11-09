@@ -138,6 +138,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "メディアリテラシ": {
     "url": "/terms/media-literacy/"
   },
+  "ユニバーサルデザイン": {
+    "url": "/terms/universal-design/"
+  },
   "ユーザインターフェース": {
     "url": "/terms/user-interface/"
   },
