@@ -544,3 +544,15 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .archive-field-section > .section-heading { margin-bottom: 14px; }
 .archive-field-section > .archive-field-grid { margin-top: 0; }
 .archive-field-section + .archive-field-section { margin-top: 48px; }
+
+/* Compact, content-width cards in the homepage's "その他" section. */
+.home-misc-section .home-section-title { margin-bottom: 16px; }
+.home-other-grid { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+.home-other-card { display: inline-flex; width: auto; min-height: 48px; padding: 8px 12px; align-items: center; gap: 9px; border-radius: 12px; }
+.home-other-card .home-action-icon { width: 30px; height: 30px; flex: 0 0 30px; font-size: 1rem; }
+.home-other-card h3 { margin: 0; font-family: inherit; font-size: .9rem; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+@media (max-width: 380px) {
+  .home-other-grid { gap: 8px; }
+  .home-other-card { padding: 8px 10px; gap: 8px; }
+  .home-other-card h3 { font-size: .84rem; }
+}
