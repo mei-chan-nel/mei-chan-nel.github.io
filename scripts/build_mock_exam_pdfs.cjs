@@ -121,7 +121,7 @@ const server = http.createServer((req, res) => {
                 heading.style.cssText =
                   "font-size:12pt;font-weight:700;margin:0 0 24px;text-indent:0";
                 part.before(heading);
-                part.textContent = `A　次の問い（問1～${questions}）に答えよ。（配点${partPoints}）`;
+                part.textContent = `A　次の文章を読み，後の問い（問1～問${questions}）に答えよ。（配点${partPoints}）`;
                 part.className = "exam-part-heading";
                 part.style.cssText =
                   "font-size:10.5pt;font-weight:400;margin:0 0 16px";
@@ -138,6 +138,15 @@ const server = http.createServer((req, res) => {
                 partPoints: s.maxPoints,
               },
             );
+          }
+          if (kind === "problem" && s.id === "q2b") {
+            await page.evaluate(({questions, points}) => {
+              const part = [...document.querySelectorAll("h1,p")].find(e => /^(?:第2問B|B)[\s　]/.test(e.textContent.trim()));
+              if (!part) throw Error("Missing B heading");
+              part.textContent = `B　次の文章を読み，後の問い（問1～問${questions}）に答えよ。（配点${points}）`;
+              part.className = "exam-part-heading";
+              part.style.cssText = "font-size:10.5pt;font-weight:400;margin:0 0 16px";
+            }, {questions:Math.max(...exam.scoring.filter(u=>u.sectionId==="q2b").map(u=>u.question)),points:s.maxPoints});
           }
           // PDF only: emphasize just the "問n" label, not the question text.
           if (kind === "problem") {

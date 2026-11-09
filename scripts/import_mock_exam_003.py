@@ -374,7 +374,9 @@ def build():
                 if not screen:
                     for action in cls(d,'studio-program-link'):action.drop_tree()
                     if kind=='problem' and sid=='q2b':
-                        one(d,'//*[@class="exam-section-number"]').text='B'
+                        h=one(d,'//*[@class="exam-section-number"]');h.text='B';h.tail='　次の文章を読み，後の問い（問1～問3）に答えよ。（配点15）'
+                if not screen and kind=='problem' and sid=='q2a':
+                    h=one(d,'//*[@class="exam-section-number"]');h.tail='　次の文章を読み，後の問い（問1～問4）に答えよ。（配点15）'
                 images(d,screen)
                 for b in d.xpath('//*[@data-field]'):
                     previous=b.getprevious()
