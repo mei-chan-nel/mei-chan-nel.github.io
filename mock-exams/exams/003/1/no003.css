@@ -96,6 +96,13 @@ body[data-section="q2b"] .choice > .num {
   line-height: 1.9 !important;
 }
 
+/* No.003 Q4 uses unboxed choice lists; keep the small answer blanks boxed. */
+body[data-section="q4"] .completion > ol.choices {
+  border: 0 !important;
+  padding: 0 !important;
+  margin-top: 12px;
+}
+
 /* No.003 answer boxes follow Q3; ordinary spaces are supplied by the adapter. */
 body[data-section] [data-field] {
   display: inline-flex !important;
