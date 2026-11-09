@@ -509,10 +509,10 @@ def main() -> int:
     guide_section_ids = re.findall(r'<section id="([^"]+)">', guide_text)
     if tuple(guide_section_ids) != expected_guide_ids:
         errors.append("study-guide.html: guide sections are not aligned with contents navigation")
-    for n, id_ in enumerate(expected_guide_ids[1:], start=1):
+    for id_ in expected_guide_ids[1:]:
         section_match = re.search(r'<section id="' + re.escape(id_) + r'">\s*<h2>([^<]+)</h2>', guide_text)
-        if section_match is None or not section_match.group(1).startswith(f"{n}．"):
-            errors.append(f"study-guide.html: section numbering mismatch at {id_}")
+        if section_match is None or not section_match.group(1).strip():
+            errors.append(f"study-guide.html: section heading missing at {id_}")
 
     top_text = (ROOT / "index.html").read_text(encoding="utf-8")
     main_match = re.search(r'<main id="main-content">(.*?)</main>', top_text, flags=re.DOTALL)

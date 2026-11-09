@@ -19,7 +19,7 @@ nav_root='const siteUrl = (path) => new URL(path, siteRoot).href;'
 shared_header=header.read_text()
 assert nav_root in shared_header, 'Update Sites navigation adapter for the latest shared header'
 header.write_text(shared_header.replace(nav_root,
- 'const siteUrl = (path) => path ? new URL(path, "https://mei-chan-nel.com/").href : siteRoot.href;'))
+ 'const siteUrl = (path) => !path || path.startsWith("mock-exams/") ? new URL(path, siteRoot).href : new URL(path, "https://mei-chan-nel.com/").href;'))
 # Replace only the dedicated mock-exams subtree. The source checkout stays separate.
 if (dist/'mock-exams').exists():shutil.rmtree(dist/'mock-exams')
 shutil.copytree(root/'mock-exams',dist/'mock-exams',ignore=shutil.ignore_patterns('tests','source','__pycache__','connection-check.html','connection-check.mjs'))

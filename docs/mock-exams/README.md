@@ -15,6 +15,7 @@
 | GitHub Pagesへの公開と確認 | [RELEASE.md](RELEASE.md) |
 | No.001・版2の改訂と検証 | [REVIEW-2026-10-29.md](REVIEW-2026-10-29.md) |
 | No.002の取り込みと確認 | [REVIEW-002.md](REVIEW-002.md) |
+| No.003の取り込みと確認（Sitesのみ） | [REVIEW-003.md](REVIEW-003.md) |
 | 全体見直しの結果・確認限界 | [REVIEW-2026-10-28.md](REVIEW-2026-10-28.md) |
 
 ## 構成
