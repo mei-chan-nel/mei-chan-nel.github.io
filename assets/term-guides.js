@@ -150,6 +150,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "ランサムウェア": {
     "url": "/terms/ransomware/"
   },
+  "ルータ": {
+    "url": "/terms/router/"
+  },
   "不正アクセス": {
     "url": "/terms/unauthorized-access/"
   },
