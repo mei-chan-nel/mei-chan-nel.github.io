@@ -204,6 +204,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "機械学習": {
     "url": "/terms/machine-learning/"
   },
+  "正規化": {
+    "url": "/terms/normalization/"
+  },
   "画像": {
     "url": "/terms/image/"
   },

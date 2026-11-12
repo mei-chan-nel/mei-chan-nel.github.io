@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>正規化とは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="データベースの正規化について、データの重複、更新・挿入・削除異常、表の分割、主キーと外部キー、関数従属、検索速度との関係を解説します。" />
+    <meta name="study-atlas-term-tag" content="正規化" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="正規化とは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="データベースの正規化について、データの重複、更新・挿入・削除異常、表の分割、主キーと外部キー、関数従属、検索速度との関係を解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/normalization/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/normalization/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026110706" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+    <script src="../../assets/term-state.js?v=2026110706" defer></script>
+    <script src="../../assets/term-reader.js?v=2026110706" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">正規化</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DATA</p>
+        <h1 id="term-heading">正規化</h1>
+        <!-- term-learning:start -->
+        <div class="term-page-state" data-term-page-state hidden>
+          <button class="term-read-status" type="button" data-term-read-status aria-pressed="false" aria-label="既読にする">未読</button>
+          <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
+        </div>
+        <p class="term-storage-message" data-term-storage-message role="status"></p>
+        <!-- term-learning:end -->
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「正規化」とは</h2>
+          <p><strong>正規化（Normalization）</strong>とは、関係データベースにおいて、データの重複や矛盾が生じにくいように、表（テーブル）の構成を整理することです。</p>
+          <p>データベースでは、顧客、商品、注文などの情報を表の形式で管理します。しかし、これらの情報をすべて一つの表にまとめると、同じ内容を何度も記録することになり、データの管理が難しくなる場合があります。</p>
+          <p>例えば、注文のたびに顧客の氏名や住所を記録していると、同じ顧客が繰り返し注文するたびに、同じ氏名や住所が保存されます。</p>
+          <p>この状態で顧客の住所が変更された場合、複数の行を修正しなければなりません。一部の行を修正し忘れると、同じ顧客について異なる住所が記録されてしまいます。</p>
+          <p>正規化では、<strong>情報の種類や項目間の関係に着目して表を適切に分割し、識別番号などを使って関連付ける</strong>ことで、このような問題を起こりにくくします。</p>
+          <p>正規化の主な目的は、次の三つです。</p>
+          <ul>
+            <li><strong>データの重複を減らす：</strong>同じ情報を複数の場所に繰り返し保存することを避けます。</li>
+            <li><strong>データの整合性を保つ：</strong>同じ事実について矛盾する情報が記録されることを防ぎやすくします。</li>
+            <li><strong>データの追加・更新・削除を適切に行えるようにする：</strong>一部の情報を変更したときに、別の情報へ悪影響が生じにくい構造にします。</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>正規化を行わない場合の問題点</h2>
+          <p>学校の生徒と所属する部活動を管理するデータベースを考えます。</p>
+          <p>次の表には、生徒の情報と部活動の情報が一緒に記録されています。</p>
+          <p><strong>正規化前の所属一覧表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">生徒名</th><th scope="col">部活コード</th><th scope="col">部活名</th><th scope="col">顧問名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>101</td><td>田中</td><td>B01</td><td>野球部</td><td>山本</td></tr>
+              <tr><td>102</td><td>佐藤</td><td>B01</td><td>野球部</td><td>山本</td></tr>
+              <tr><td>103</td><td>鈴木</td><td>B02</td><td>美術部</td><td>高橋</td></tr>
+              <tr><td>104</td><td>伊藤</td><td>B01</td><td>野球部</td><td>山本</td></tr>
+              <tr><td>104</td><td>伊藤</td><td>B02</td><td>美術部</td><td>高橋</td></tr>
+            </tbody>
+          </table>
+          <p>この表では、野球部に所属する生徒が3人いるため、「野球部ー山本」という情報が3回記録されています。</p>
+          <p>このような構造では、次の三つの問題が生じることがあります。</p>
+
+          <h3>① 更新異常</h3>
+          <p>野球部の顧問が山本先生から中村先生に変更された場合、野球部に所属するすべての生徒の行を修正する必要があります。</p>
+          <p>ところが、一部の行を修正し忘れると、次のようになります。</p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">部活名</th><th scope="col">顧問名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>101</td><td>野球部</td><td>中村</td></tr>
+              <tr><td>102</td><td>野球部</td><td>山本</td></tr>
+              <tr><td>104</td><td>野球部</td><td>中村</td></tr>
+            </tbody>
+          </table>
+          <p>同じ野球部なのに、顧問名が異なっています。</p>
+          <p>このように、データの更新によって矛盾が発生することを<strong>更新異常</strong>といいます。</p>
+
+          <h3>② 挿入異常</h3>
+          <p>新しく「科学部」を設立したものの、まだ所属する生徒がいない場合を考えます。</p>
+          <p>この表で学籍番号を含む所属情報を必須としていると、生徒が決まるまで科学部の情報を登録できません。</p>
+          <p>このように、本来登録できるはずの情報が、別の情報がないために登録できないなどの問題を<strong>挿入異常</strong>といいます。</p>
+
+          <h3>③ 削除異常</h3>
+          <p>美術部に所属する生徒が全員退部したとします。</p>
+          <p>所属情報の行をすべて削除すると、美術部の名称や顧問名までデータベースから失われてしまいます。</p>
+          <p>部活動そのものが廃止されたわけではないにもかかわらず、部活動の情報が消えてしまうのです。</p>
+          <p>このように、ある情報を削除した際に、残すべき別の情報まで失われることを<strong>削除異常</strong>といいます。</p>
+          <p>正規化は、これらの更新異常・挿入異常・削除異常を起こしにくくするために行います。</p>
+        </section>
+
+        <section>
+          <h2>正規化によって表を分割する</h2>
+          <p>先ほどの所属一覧表を、生徒表、部活表、所属関係表の三つに分割します。</p>
+          <p><strong>生徒表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">生徒名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>101</td><td>田中</td></tr>
+              <tr><td>102</td><td>佐藤</td></tr>
+              <tr><td>103</td><td>鈴木</td></tr>
+              <tr><td>104</td><td>伊藤</td></tr>
+            </tbody>
+          </table>
+          <p><strong>部活表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">部活コード</th><th scope="col">部活名</th><th scope="col">顧問名</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>B01</td><td>野球部</td><td>山本</td></tr>
+              <tr><td>B02</td><td>美術部</td><td>高橋</td></tr>
+            </tbody>
+          </table>
+          <p><strong>所属関係表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">学籍番号</th><th scope="col">部活コード</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>101</td><td>B01</td></tr>
+              <tr><td>102</td><td>B01</td></tr>
+              <tr><td>103</td><td>B02</td></tr>
+              <tr><td>104</td><td>B01</td></tr>
+              <tr><td>104</td><td>B02</td></tr>
+            </tbody>
+          </table>
+          <p>この構造では、生徒の氏名は生徒表、部活動の名称や顧問名は部活表で管理します。</p>
+          <p>所属関係表には、どの生徒がどの部活動に所属しているかという関係だけを記録します。</p>
+          <p>例えば、野球部の顧問が変更された場合、部活表のB01の行を一か所更新するだけで済みます。</p>
+          <p>また、所属する生徒がいない部活動も部活表に登録できます。生徒が全員退部しても、部活表の情報は残ります。</p>
+          <p>さらに、伊藤さんのように複数の部活動に所属する生徒も、所属関係表に複数行を記録することで表現できます。</p>
+          <p>このように、<strong>異なる種類の情報を適切に分離すると、重複を減らし、データの整合性を保ちやすくなります。</strong></p>
+        </section>
+
+        <section>
+          <h2>主キーと外部キーの役割</h2>
+          <p>正規化によって表を分割した場合、それぞれの表を関連付ける仕組みが必要です。</p>
+          <p>そのときに重要なのが、<strong>主キー（Primary Key）</strong>と<strong>外部キー（Foreign Key）</strong>です。</p>
+
+          <h3>主キー</h3>
+          <p>主キーとは、表の各行を一意に識別するための項目、または項目の組合せです。</p>
+          <p>例えば、生徒表では「学籍番号」を主キーとして利用できます。</p>
+          <p>同姓同名の生徒がいても、学籍番号が異なれば区別できます。</p>
+          <p>主キーの値は重複できず、空値（NULL）にもできません。</p>
+          <p>なお、主キーは複数の項目を組み合わせて設定することもできます。</p>
+          <p>たとえば、所属関係表では、「学籍番号」と「部活コード」の組合せを主キーにすることで、一つ一つの所属関係を識別できます。</p>
+
+          <h3>外部キー</h3>
+          <p>外部キーとは、別の表の主キーなどを参照し、表同士の関係を表すための項目です。</p>
+          <p>例えば、所属関係表の「部活コード」は、部活表の「部活コード」を参照します。</p>
+          <p>これにより、所属関係表に部活名や顧問名を保存しなくても、必要に応じて部活表から情報を取得できます。</p>
+          <p>同様に、所属関係表の「学籍番号」は、生徒表の「学籍番号」を参照します。</p>
+          <p>このように、<strong>主キーで各行を識別し、外部キーで表同士を関連付ける</strong>ことで、複数の表に分けた情報を組み合わせて利用できます。</p>
+        </section>
+
+        <section>
+          <h2>どのような基準で表を分けるのか</h2>
+          <p>正規化では、どの項目の値が決まると、別のどの項目の値が決まるのかを考えます。</p>
+          <p>例えば、商品番号によって商品名と単価が一意に決まるとします。</p>
+          <ul>
+            <li>商品番号「P01」なら、商品名は「ノート」、単価は150円</li>
+            <li>商品番号「P02」なら、商品名は「ペン」、単価は100円</li>
+          </ul>
+          <p>このように、ある項目の値が決まると別の項目の値が一意に決まる関係を、<strong>関数従属</strong>といいます。</p>
+          <p>この例では、商品番号が決まれば商品名と単価が決まります。</p>
+          <p>次の受注表を考えます。</p>
+          <p><strong>正規化前の受注表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">受注番号</th><th scope="col">発注者名</th><th scope="col">商品番号</th><th scope="col">商品名</th><th scope="col">個数</th><th scope="col">単価</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>001</td><td>田中</td><td>P01</td><td>ノート</td><td>2</td><td>150</td></tr>
+              <tr><td>002</td><td>佐藤</td><td>P02</td><td>ペン</td><td>3</td><td>100</td></tr>
+              <tr><td>003</td><td>鈴木</td><td>P01</td><td>ノート</td><td>5</td><td>150</td></tr>
+            </tbody>
+          </table>
+          <p>この表では、同じ商品の商品名と単価が注文のたびに繰り返し記録されています。</p>
+          <p>そこで、商品番号によって決まる情報を商品表へ分離します。</p>
+          <p><strong>受注表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">受注番号</th><th scope="col">発注者名</th><th scope="col">商品番号</th><th scope="col">個数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>001</td><td>田中</td><td>P01</td><td>2</td></tr>
+              <tr><td>002</td><td>佐藤</td><td>P02</td><td>3</td></tr>
+              <tr><td>003</td><td>鈴木</td><td>P01</td><td>5</td></tr>
+            </tbody>
+          </table>
+          <p><strong>商品表</strong></p>
+          <table>
+            <thead>
+              <tr><th scope="col">商品番号</th><th scope="col">商品名</th><th scope="col">単価</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>P01</td><td>ノート</td><td>150</td></tr>
+              <tr><td>P02</td><td>ペン</td><td>100</td></tr>
+            </tbody>
+          </table>
+          <p>このように分割すると、商品名と単価は商品表だけで管理できます。</p>
+          <p>受注表には、どの商品をいくつ注文したかを示す商品番号と個数を残します。</p>
+          <p>二つの表に共通する商品番号を使えば、どの注文でどの商品が購入されたかを調べられます。</p>
+          <p>つまり、<strong>表を分割するときには、情報を適切に分離するだけでなく、関連付けるための識別番号を残すことが重要</strong>です。</p>
+          <p>なお、この例では商品番号によって単価が決まることを前提としています。</p>
+          <p>実際の販売管理では、商品価格が変更されることがあります。過去の取引価格を保存する必要がある場合は、販売時点の単価を受注明細表に記録するなど、情報の意味に応じた設計が必要です。</p>
+          <p>正規化は、必要な情報を無条件に削除することではありません。</p>
+        </section>
+
+        <section>
+          <h2>正規化と検索速度の関係</h2>
+          <p>正規化を行うと、同じ情報を繰り返し保存する必要が減り、データの整合性を保ちやすくなります。</p>
+          <p>一方で、表が複数に分割されるため、必要な情報を取り出す際に複数の表を結合する処理が必要になることがあります。</p>
+          <p>例えば、受注表に商品名を保存せず、商品番号だけを保存している場合、商品名を表示するには商品表を参照する必要があります。</p>
+          <p>そのため、<strong>正規化によって必ず検索速度が向上するわけではありません。</strong></p>
+          <p>実際のシステムでは、データの整合性と検索性能のバランスを考えて設計します。</p>
+          <p>場合によっては、検索処理などを高速化するため、一部の情報を意図的に重複して保存することもあります。このような設計を<strong>非正規化</strong>と呼びます。</p>
+          <p>ただし、非正規化によって情報を重複保存する場合には、変更時に矛盾が発生しないよう、適切に更新する仕組みが必要です。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>正規化 · EXAMPLE</span><span>応用情報技術者H29秋期午前 問27（改題）</span></div>
+          <h3>データベースの表を正規化してデータの重複を減らす主な効果として、最も適当なものはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>同じ内容を複数箇所で管理することが減り、更新時の不整合を起こしにくくなる。</p></li>
+            <li><span>1</span><p>どのような検索でも、複数の表を関連付ける必要がなくなる。</p></li>
+            <li><span>2</span><p>データをすべて画像として保存できるようになる。</p></li>
+            <li><span>3</span><p>同じデータを意図的に何度も保存するので、更新ミスが増える。</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>0．同じ内容を複数箇所で管理することが減り、更新時の不整合を起こしにくくなる。</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>正規化は、データの重複を減らし、更新時の不整合を起こしにくくするために行います。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>応用情報技術者H29秋期午前 問27（改題）</dd></dl>
+              <p class="term-related-keywords">関連キーワード：正規化</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">正規化の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="正規化"
+          data-limit="5"
+          data-exclude-stem="データベースの表を正規化してデータの重複を減らす主な効果として、最も適当なものはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=正規化">正規化の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"正規化とは","description":"データベースの正規化について、データの重複、更新・挿入・削除異常、表の分割、主キーと外部キー、関数従属、検索速度との関係を解説します。","url":"https://mei-chan-nel.com/terms/normalization/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"正規化","item":"https://mei-chan-nel.com/terms/normalization/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>
