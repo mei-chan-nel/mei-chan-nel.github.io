@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="656" height="241" viewBox="0 0 656 241" role="img" aria-label="2の補数表現における最上位ビットの負の重み">
+<title>2の補数表現における最上位ビットの負の重み</title>
+<rect x="0.8" y="0.8" width="654.4" height="239.4" rx="11" fill="none" stroke="#D8DEE5" stroke-width="1.5"/>
+<text x="117.0" y="52" text-anchor="middle" font-size="23" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">−8</text>
+<text x="218.0" y="52" text-anchor="middle" font-size="23" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">＋4</text>
+<text x="319.0" y="52" text-anchor="middle" font-size="23" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">＋2</text>
+<text x="420.0" y="52" text-anchor="middle" font-size="23" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">＋1</text>
+<rect x="76" y="70" width="82" height="74" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="117.0" y="120.32" text-anchor="middle" font-size="37" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="177" y="70" width="82" height="74" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="218.0" y="120.32" text-anchor="middle" font-size="37" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="278" y="70" width="82" height="74" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="319.0" y="120.32" text-anchor="middle" font-size="37" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="379" y="70" width="82" height="74" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="420.0" y="120.32" text-anchor="middle" font-size="37" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<text x="321" y="200" text-anchor="middle" font-size="26" font-weight="500" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">−8 ＋ 2 ＝ −6</text></svg>

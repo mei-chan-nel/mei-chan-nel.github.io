@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="696" height="325" viewBox="0 0 696 325" role="img" aria-label="4ビットの符号付き加算でのオーバフロー">
+<title>4ビットの符号付き加算でのオーバフロー</title>
+<rect x="0.8" y="0.8" width="694.4" height="323.4" rx="11" fill="none" stroke="#D8DEE5" stroke-width="1.5"/>
+<rect x="102" y="16" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="136.5" y="58.160000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="183" y="16" width="69" height="62" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="217.5" y="58.160000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="264" y="16" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="298.5" y="58.160000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="345" y="16" width="69" height="62" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="379.5" y="58.160000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<text x="489" y="56" text-anchor="start" font-size="23" font-weight="400" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">＋5</text>
+<text x="79" y="143.92000000000002" text-anchor="middle" font-size="34" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">+</text>
+<rect x="102" y="103" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="136.5" y="145.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="183" y="103" width="69" height="62" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="217.5" y="145.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="264" y="103" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="298.5" y="145.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="345" y="103" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="379.5" y="145.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<text x="489" y="143" text-anchor="start" font-size="23" font-weight="400" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">＋4</text>
+<line x1="84" y1="177" x2="427" y2="177" stroke="#757A80" stroke-width="1.8" stroke-linecap="round"/>
+<rect x="102" y="195" width="69" height="62" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="136.5" y="237.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="183" y="195" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="217.5" y="237.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="264" y="195" width="69" height="62" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="298.5" y="237.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="345" y="195" width="69" height="62" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="379.5" y="237.16" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<text x="489" y="234" text-anchor="start" font-size="21" font-weight="400" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">−7 と解釈</text>
+<text x="353" y="299" text-anchor="middle" font-size="20" font-weight="400" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">本来の結果は 9（範囲は −8 ～ 7）</text></svg>

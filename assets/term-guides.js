@@ -216,6 +216,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "著作権": {
     "url": "/terms/copyright/"
   },
+  "補数": {
+    "url": "/terms/complement/"
+  },
   "記憶装置": {
     "url": "/terms/memory/"
   },

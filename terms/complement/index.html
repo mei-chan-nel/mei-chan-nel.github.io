@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>補数とは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="補数の意味と2の補数の求め方、2の補数表現による負の整数・減算・オーバフローを高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="補数" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="補数とは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="補数の意味と2の補数の求め方、2の補数表現による負の整数・減算・オーバフローを高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/complement/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/complement/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026110706" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+    <script src="../../assets/term-state.js?v=2026110706" defer></script>
+    <script src="../../assets/term-reader.js?v=2026110706" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">補数</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">補数</h1>
+        <!-- term-learning:start -->
+        <div class="term-page-state" data-term-page-state hidden>
+          <button class="term-read-status" type="button" data-term-read-status aria-pressed="false" aria-label="既読にする">未読</button>
+          <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
+        </div>
+        <p class="term-storage-message" data-term-storage-message role="status"></p>
+        <!-- term-learning:end -->
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「補数」とは</h2>
+          <p><strong>補数</strong>とは、ある数に加えると、決められた桁数の一つ上の位に繰り上がるような数のことです。</p>
+          <p>例えば、10進数では7に3を加えると10になり、265に735を加えると1000になります。このように、ある数に足すことで、10や100、1000などへとちょうど桁数が1つ増加する値のことです。</p>
+          <p>コンピュータが扱う2進数でも、同じ考え方が使われます。</p>
+          <p>例えば、1010₂に対して110₂を加えると、10000₂となります。したがって、2進数1010₂に対する補数は110₂です。</p>
+          <p>2進数での補数（2の補数）は、コンピュータで負の整数を表したり、引き算を足し算に置き換えたりするために広く利用されています。</p>
+        </section>
+
+        <section>
+          <h2>ビット数を固定して考える</h2>
+          <p>2の補数を理解するためには、まず、コンピュータが決められたビット数で整数を扱うことを知っておく必要があります。</p>
+          <p>1ビットは0または1のいずれかを表すため、nビットでは2<sup>n</sup>通りのビット列を作ることができます。</p>
+          <p>例えば、4ビットでは、</p>
+          <p class="term-formula">2<sup>4</sup>＝16通り</p>
+          <p>のビット列を表すことができます。</p>
+          <p>符号なし整数として扱う場合、0000₂から1111₂までを使って、10進数では0から15までの整数を表せます。</p>
+          <p>ここで、4ビットの1111₂（15）に1を加えると、次のようになります。</p>
+          <p class="term-formula">1111₂＋0001₂＝10000₂</p>
+          <p>結果の10000₂は5ビットになるため、4ビットには収まりません。</p>
+          <p>4ビットだけで計算する場合は、左端にはみ出した1を捨て、下位4ビットの0000₂だけを残します。</p>
+          <p>このように、<strong>ビット数を固定した計算では、上位の桁があふれると、その部分を除いた結果が残ります。</strong></p>
+          <p>2の補数は、この性質を利用したものです。</p>
+        </section>
+
+        <section>
+          <h2>2の補数の求め方</h2>
+          <p>2の補数は、ビットの操作だけで求められます。その方法は、次の2段階です。</p>
+          <ol>
+            <li>各ビットの0と1を入れ替える。</li>
+            <li>入れ替えたビット列に1を加える。</li>
+          </ol>
+          <p>例えば、4ビットの0110₂の2の補数を求めます。</p>
+          <p><strong>手順①　0と1を入れ替える</strong></p>
+          <p class="term-formula">0110 → 1001</p>
+          <p><strong>手順②　1を加える</strong></p>
+          <p class="term-formula">1001＋0001＝1010</p>
+          <p>したがって、0110₂の2の補数は1010₂です。</p>
+          <figure class="term-note-figure">
+            <img src="./assets/02_twos_complement_steps.svg" width="680" height="335" loading="lazy" decoding="async" alt="4ビットの0110を各ビット反転して1001にし、1を加えて2の補数1010を求める手順。" />
+          </figure>
+          <p>実際に、0110₂と1010₂を加えると、</p>
+          <p class="term-formula">0110₂＋1010₂＝10000₂</p>
+          <p>となり、4ビットからあふれた左端の1を捨てると、下位4ビットは0000₂になります。</p>
+          <p>この操作は、ビット数が変わっても同じです。</p>
+          <p>例えば、8ビットの00000110₂なら、</p>
+          <p class="term-formula">00000110 → 11111001 → 11111010</p>
+          <p>となります。</p>
+          <p><strong>「すべてのビットを反転し、最後に1を加える」という手順を覚えておけば、どのビット数でも2の補数を求められます。</strong></p>
+        </section>
+
+        <section>
+          <h2>2の補数による負の整数の表現</h2>
+          <p>ここまで、2の補数を「加えると、決められたビット数の範囲で0になる数」として考えてきました。</p>
+          <p>この性質を利用すると、負の整数を2進数で表すことができます。</p>
+          <p>例えば、通常の整数の計算では、</p>
+          <p class="term-formula">6＋（−6）＝0</p>
+          <p>となります。</p>
+          <p>一方、4ビットの2進数では、</p>
+          <p class="term-formula">0110₂＋1010₂＝10000₂</p>
+          <p>となり、下位4ビットは0000₂になります。</p>
+          <p>つまり、4ビットの計算では、1010₂を−6として扱うと、通常の整数と同じように6と−6を加えて0にできます。</p>
+          <p>このように、<strong>2の補数を利用して負の整数を表す方法を「2の補数表現」</strong>といいます。</p>
+          <p>4ビットの例では、次のようになります。</p>
+          <ul>
+            <li>＋6 → 0110₂</li>
+            <li>−6 → 1010₂</li>
+          </ul>
+
+          <h3>最上位ビットと符号</h3>
+          <p>2の補数表現では、最も左側にあるビットを<strong>最上位ビット</strong>といい、その値によって整数の正負を判断できます。</p>
+          <ul>
+            <li>最上位ビットが0：0または正の整数</li>
+            <li>最上位ビットが1：負の整数</li>
+          </ul>
+          <p>例えば、4ビットの0101₂は＋5、1010₂は−6です。</p>
+          <p>ただし、これは2の補数表現として解釈した場合です。同じ1010₂でも、符号なし整数として扱えば10を表します。</p>
+          <p><strong>ビット列が表す値は、そのビット列を符号なし整数として扱うか、2の補数表現として扱うかによって異なります。</strong></p>
+
+          <h3>4ビットの2の補数表現</h3>
+          <p>4ビットの16通りのビット列は、2の補数表現では次の整数に対応します。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>4ビットの2の補数表現</caption>
+              <thead><tr><th scope="col">ビット列</th><th scope="col">10進数</th><th scope="col">ビット列</th><th scope="col">10進数</th></tr></thead>
+              <tbody>
+                <tr><td>0000</td><td>0</td><td>1000</td><td>−8</td></tr>
+                <tr><td>0001</td><td>1</td><td>1001</td><td>−7</td></tr>
+                <tr><td>0010</td><td>2</td><td>1010</td><td>−6</td></tr>
+                <tr><td>0011</td><td>3</td><td>1011</td><td>−5</td></tr>
+                <tr><td>0100</td><td>4</td><td>1100</td><td>−4</td></tr>
+                <tr><td>0101</td><td>5</td><td>1101</td><td>−3</td></tr>
+                <tr><td>0110</td><td>6</td><td>1110</td><td>−2</td></tr>
+                <tr><td>0111</td><td>7</td><td>1111</td><td>−1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>この表から、4ビットの2の補数表現では、−8から7までの整数を表せることが分かります。また、0000₂は0、1111₂は−1を表します。</p>
+          <p>このように、2の補数表現では、最上位ビットが0のビット列を0以上の整数に、1のビット列を負の整数に割り当てています。</p>
+        </section>
+
+        <section>
+          <h2>2の補数表現で表せる整数の範囲</h2>
+          <p>4ビットの2の補数表現では、−8から7までの整数を表せることが分かりました。それでは、ビット数が増えるとどうなるでしょうか。</p>
+          <p>nビットでは、全部で2<sup>n</sup>通りのビット列があります。2の補数表現では、その半分を負の整数に、残りの半分を0以上の整数に割り当てます。</p>
+          <p>したがって、表現できる整数の範囲は次のようになります。</p>
+          <p class="term-formula"><strong>最小値：−2<sup>n−1</sup><br />最大値：2<sup>n−1</sup>−1</strong></p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>ビット数と2の補数表現の範囲</caption>
+              <thead><tr><th scope="col">ビット数</th><th scope="col">最小値</th><th scope="col">最大値</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">4ビット</th><td>−8</td><td>7</td></tr>
+                <tr><th scope="row">6ビット</th><td>−32</td><td>31</td></tr>
+                <tr><th scope="row">8ビット</th><td>−128</td><td>127</td></tr>
+                <tr><th scope="row">16ビット</th><td>−32768</td><td>32767</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>例えば、8ビットの2の補数表現では、</p>
+          <p class="term-formula">最小値：−2<sup>7</sup>＝−128<br />最大値：2<sup>7</sup>−1＝127</p>
+          <p>となります。</p>
+          <p>負の数のほうがひとつ多く表せます。負の数の個数と0以上（0と正の数）の個数が一致しています。</p>
+        </section>
+
+        <section>
+          <h2>10進数と2の補数表現の変換</h2>
+          <p>ここまでの仕組みを使うと、10進数の負の整数を2の補数表現に変換したり、反対にビット列から整数を求めたりできます。</p>
+
+          <h3>① 10進数の負の整数を2の補数表現にする</h3>
+          <p>例として、10進数の−18を、<strong>8ビットの2の補数表現</strong>で表してみます。</p>
+          <p><strong>手順①　絶対値を2進数に変換する</strong></p>
+          <p>18を2進数で表すと10010₂です。8ビットで表すため、左側に0を加えます。</p>
+          <p class="term-formula">18 → 00010010₂</p>
+          <p><strong>手順②　各ビットの0と1を入れ替える</strong></p>
+          <p class="term-formula">00010010 → 11101101</p>
+          <p><strong>手順③　1を加える</strong></p>
+          <p class="term-formula">11101101＋00000001＝11101110</p>
+          <figure class="term-note-figure">
+            <img src="./assets/05_minus18_8bit.svg" width="890" height="350" loading="lazy" decoding="async" alt="18を8ビットの00010010で表し、全ビットを反転して11101101にした後、1を加えて−18の表現11101110を求める手順。" />
+          </figure>
+          <p>したがって、<strong>−18の8ビットの2の補数表現は11101110₂</strong>です。</p>
+
+          <h3>② 2の補数表現から10進数に変換する</h3>
+          <p>今度は、負の整数を表すビット列から、10進数を求めてみましょう。</p>
+          <p>例えば、4ビットの2の補数表現1010₂を考えます。最上位ビットが1なので、この数は負の整数です。</p>
+          <p>そこで、1010₂の2の補数を求めます。</p>
+          <p class="term-formula">1010 → 0101 → 0110</p>
+          <p>0110₂は10進数の6なので、元の1010₂は−6を表します。</p>
+          <p>つまり、<strong>負の整数を表すビット列の2の補数を求めると、その整数の絶対値を調べられます。</strong></p>
+          <p>ただし、−8のように、絶対値が同じビット数の符号付き整数では表せない場合もあります。その場合は、必要に応じてビット数を増やして考えます。</p>
+
+          <h3>③ 各ビットの重みを使う方法</h3>
+          <p>2の補数表現は、各ビットの重みを利用して10進数に変換することもできます。</p>
+          <p>通常の4ビットの2進数では、各ビットの重みは左から8、4、2、1です。一方、2の補数表現では、<strong>最上位ビットの重みを負の数として考えます。</strong></p>
+          <p>4ビットの場合、重みは左から−8、4、2、1です。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>4ビットの重みを使った1010₂の計算</caption>
+              <thead><tr><th scope="col">ビットの位置</th><th scope="col">左端</th><th scope="col"></th><th scope="col"></th><th scope="col">右端</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">重み</th><td>−8</td><td>4</td><td>2</td><td>1</td></tr>
+                <tr><th scope="row">1010₂</th><td>1</td><td>0</td><td>1</td><td>0</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="term-note-figure">
+            <img src="./assets/06_signed_bit_weights.svg" width="656" height="241" loading="lazy" decoding="async" alt="4ビットの2の補数表現1010では、各桁の重みを−8、4、2、1とし、−8×1＋2×1＝−6と計算する。" />
+          </figure>
+          <p>したがって、</p>
+          <p class="term-formula">−8×1＋4×0＋2×1＋1×0＝−6</p>
+          <p>となります。</p>
+          <p>一般に、nビットの2の補数表現では、最上位ビットの重みが−2<sup>n−1</sup>になり、残りのビットには通常の2進数と同じ正の重みを与えます。</p>
+          <p>この方法では、ビットを反転することなく整数の値を求められます。</p>
+        </section>
+
+        <section>
+          <h2>2の補数を使った引き算</h2>
+          <p>2の補数を利用する大きな利点は、<strong>引き算を足し算に置き換えられること</strong>です。</p>
+          <p>例えば、10進数の5−3を考えます。</p>
+          <p class="term-formula">5−3＝5＋（−3）</p>
+          <p>と考えれば、引き算を足し算として計算できます。この考え方を4ビットの2進数に当てはめてみましょう。</p>
+          <p><strong>手順①　数を2進数で表す</strong></p>
+          <p class="term-formula">5 → 0101₂<br />3 → 0011₂</p>
+          <p><strong>手順②　引く数の2の補数を求める</strong></p>
+          <p>3の2進数である0011₂の2の補数を求めます。</p>
+          <p class="term-formula">0011 → 1100 → 1101</p>
+          <p>1101₂は、4ビットの2の補数表現では−3を表します。</p>
+          <p><strong>手順③　足し算をする</strong></p>
+          <p>5を表す0101₂に、−3を表す1101₂を加えます。</p>
+          <p class="term-formula">0101₂＋1101₂＝10010₂</p>
+          <figure class="term-note-figure">
+            <img src="./assets/08_subtraction_addition.svg" width="678" height="314" loading="lazy" decoding="async" alt="4ビットの0101（5）に1101（−3）を加えると10010になり、あふれた桁を捨てて0010（2）を得る。" />
+          </figure>
+          <p>4ビットを超えた左端の桁上がりを捨てると、0010₂が残ります。0010₂は10進数の2なので、</p>
+          <p class="term-formula">5−3＝2</p>
+          <p>という正しい結果が得られます。</p>
+
+          <h3>符号なし整数の引き算にも利用できる</h3>
+          <p>例えば、4ビットの符号なし整数で12−5を計算する場合も、同じ方法を利用できます。</p>
+          <p>12は1100₂、5は0101₂です。5の2の補数は1011₂なので、</p>
+          <p class="term-formula">1100₂＋1011₂＝10111₂</p>
+          <p>となります。左端の桁上がりを捨てると0111₂が残り、12−5＝7という結果が得られます。</p>
+          <p>ただし、この例の1100₂は、4ビットの符号なし整数として12を表しています。4ビットの2の補数表現では−4を表すため、区別が必要です。</p>
+        </section>
+
+        <section>
+          <h2>オーバフロー（桁あふれ）</h2>
+          <p>ここまで、ビット数を固定した計算では、上位にはみ出した桁を捨てることを説明しました。しかし、上位の桁を捨てた結果が、必ずしも本来の計算結果を正しく表すとは限りません。</p>
+          <p><strong>計算結果が、決められたビット数で表せる整数の範囲を超えることを、オーバフロー（overflow）といいます。</strong></p>
+          <p>例えば、4ビットの2の補数表現で5＋4を計算します。</p>
+          <p>5は0101₂、4は0100₂なので、</p>
+          <p class="term-formula">0101₂＋0100₂＝1001₂</p>
+          <figure class="term-note-figure">
+            <img src="./assets/09_signed_overflow.svg" width="696" height="325" loading="lazy" decoding="async" alt="4ビットで5＋4を計算すると1001となり、2の補数表現では−7と解釈される。本来の9は4ビットで表せる範囲−8から7を超えるため、オーバフローが起きる。" />
+          </figure>
+          <p>ところが、4ビットの2の補数表現で1001₂が表す整数は−7です。本来の計算結果は9ですが、4ビットの2の補数表現で表せる範囲は−8～7なので、9を表すことはできません。</p>
+          <p>このため、符号付きオーバフローが発生しています。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>補数 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>4ビットの2進数0110₂に対する2の補数として最も適切なものを、次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>1001₂</p></li>
+            <li><span>1</span><p>1010₂</p></li>
+            <li><span>2</span><p>0111₂</p></li>
+            <li><span>3</span><p>1110₂</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>1．1010₂</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>4ビットの2の補数は、各ビットの0と1を反転してから1を加えて求めます。0110₂の各ビットを反転すると1001₂であり、これに1を加えると1010₂となります。また、0110₂＋1010₂＝10000₂であり、4ビットの範囲では下位4ビットが0000₂になることからも、1010₂が2の補数だと確認できます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：補数／2進数</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">補数の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="補数"
+          data-limit="5"
+          data-exclude-stem="4ビットの2進数0110₂に対する2の補数として最も適切なものを、次から選べ。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=補数">補数の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"補数とは","description":"補数の意味と2の補数の求め方、2の補数表現による負の整数・減算・オーバフローを高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/complement/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"補数","item":"https://mei-chan-nel.com/terms/complement/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>

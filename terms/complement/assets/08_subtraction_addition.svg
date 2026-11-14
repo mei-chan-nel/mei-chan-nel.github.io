@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="678" height="314" viewBox="0 0 678 314" role="img" aria-label="5−3を2の補数による加算で計算">
+<title>5−3を2の補数による加算で計算</title>
+<rect x="0.8" y="0.8" width="676.4" height="312.4" rx="11" fill="none" stroke="#D8DEE5" stroke-width="1.5"/>
+<rect x="109" y="12" width="70" height="61" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="144.0" y="53.480000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="192" y="12" width="70" height="61" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="227.0" y="53.480000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="275" y="12" width="70" height="61" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="310.0" y="53.480000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="358" y="12" width="70" height="61" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="393.0" y="53.480000000000004" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<text x="486" y="52" text-anchor="start" font-size="23" font-weight="400" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">5</text>
+<text x="86" y="139.26" text-anchor="middle" font-size="34" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">+</text>
+<rect x="109" y="99" width="70" height="61" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="144.0" y="140.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="192" y="99" width="70" height="61" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="227.0" y="140.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="275" y="99" width="70" height="61" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="310.0" y="140.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="358" y="99" width="70" height="61" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="393.0" y="140.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<text x="486" y="140" text-anchor="start" font-size="23" font-weight="400" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">−3</text>
+<line x1="90" y1="174" x2="434" y2="174" stroke="#757A80" stroke-width="1.8" stroke-linecap="round"/>
+<rect x="38" y="191" width="56" height="63" rx="11" fill="#F5F6F7" stroke="#A5A9AD" stroke-width="1.8"/>
+<text x="66.0" y="233.84" text-anchor="middle" font-size="32" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="109" y="191" width="70" height="61" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="144.0" y="232.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="192" y="191" width="70" height="61" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="227.0" y="232.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<rect x="275" y="191" width="70" height="61" rx="11" fill="#E4F3E8" stroke="#7DB18A" stroke-width="1.8"/>
+<text x="310.0" y="232.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">1</text>
+<rect x="358" y="191" width="70" height="61" rx="11" fill="#E7F0FC" stroke="#8FAFE0" stroke-width="1.8"/>
+<text x="393.0" y="232.48000000000002" text-anchor="middle" font-size="31" font-weight="600" fill="#1E3D59" font-family="Noto Sans Mono CJK JP, monospace">0</text>
+<text x="486" y="230" text-anchor="start" font-size="24" font-weight="600" fill="#222B33" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">＝ 2</text>
+<text x="66" y="288" text-anchor="middle" font-size="18" font-weight="400" fill="#757A80" font-family="Noto Sans CJK JP, Yu Gothic, sans-serif">捨てる</text>
+<line x1="66" y1="278" x2="66" y2="258" stroke="#757A80" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="69.65881060251462" y1="263.96767165441656" x2="66" y2="258" stroke="#757A80" stroke-width="1.6" stroke-linecap="round"/>
+<line x1="62.34118939748539" y1="263.96767165441656" x2="66" y2="258" stroke="#757A80" stroke-width="1.6" stroke-linecap="round"/></svg>
