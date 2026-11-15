@@ -21,6 +21,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "HTML": {
     "url": "/terms/html/"
   },
+  "HTTPS": {
+    "url": "/terms/https/"
+  },
   "IPv4": {
     "url": "/terms/ipv4/"
   },
