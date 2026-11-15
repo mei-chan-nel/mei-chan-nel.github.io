@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 563" width="860" height="563" role="img" aria-label="04_kj_method.svg">
+ <style>text{font-family:'Noto Sans CJK JP','Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;}</style>
+ <rect x="1" y="1" width="858" height="561" rx="14" fill="none" stroke="#cfd5dc" stroke-width="1.5"/>
+ <text x="430" y="34" font-size="20" font-weight="650" fill="#5b6878" text-anchor="middle" >意見をカードに書き出す</text>
+<rect x="42" y="52" width="224" height="62" rx="7" fill="#fff3df"/>
+<text x="154" y="79" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >本を探すのに</text>
+<text x="154" y="100" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >時間がかかる</text>
+<rect x="318" y="52" width="224" height="62" rx="7" fill="#eaf1fb"/>
+<text x="430" y="79" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >貸出の列が長い</text>
+<rect x="594" y="52" width="224" height="62" rx="7" fill="#fff3df"/>
+<text x="706" y="79" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >分類が分かりにくい</text>
+<rect x="42" y="129" width="224" height="62" rx="7" fill="#eaf1fb"/>
+<text x="154" y="156" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >返却の窓口が少ない</text>
+<rect x="318" y="129" width="224" height="62" rx="7" fill="#fff3df"/>
+<text x="430" y="156" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >案内表示が</text>
+<text x="430" y="177" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >見つからない</text>
+<rect x="594" y="129" width="224" height="62" rx="7" fill="#eaf1fb"/>
+<text x="706" y="156" font-size="17" font-weight="550" fill="#263443" text-anchor="middle" >手続が遅い</text>
+<line x1="430" y1="200" x2="430" y2="240" stroke="#5b6878" stroke-width="2.3" stroke-linecap="round" />
+<path d="M421 230 L430 242 L439 230" stroke="#5b6878" stroke-width="2.3" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<text x="430" y="267" font-size="20" font-weight="650" fill="#5b6878" text-anchor="middle" >内容の近さで分類し、見出しを付ける</text>
+<rect x="42" y="293" width="376" height="252" rx="15" fill="none" stroke="#ba8740" stroke-width="2"/>
+<rect x="57" y="307" width="346" height="47" rx="8" fill="#fff3df"/>
+<text x="230" y="336" font-size="20" font-weight="700" fill="#263443" text-anchor="middle" >本を探しにくい</text>
+<rect x="67" y="368" width="326" height="42" rx="7" fill="#fff3df"/>
+<text x="230" y="395" font-size="17" font-weight="500" fill="#263443" text-anchor="middle" >本を探すのに時間がかかる</text>
+<rect x="67" y="423" width="326" height="42" rx="7" fill="#fff3df"/>
+<text x="230" y="450" font-size="17" font-weight="500" fill="#263443" text-anchor="middle" >分類が分かりにくい</text>
+<rect x="67" y="478" width="326" height="42" rx="7" fill="#fff3df"/>
+<text x="230" y="505" font-size="17" font-weight="500" fill="#263443" text-anchor="middle" >案内表示が見つからない</text>
+<rect x="442" y="293" width="376" height="252" rx="15" fill="none" stroke="#315f95" stroke-width="2"/>
+<rect x="457" y="307" width="346" height="47" rx="8" fill="#eaf1fb"/>
+<text x="630" y="336" font-size="20" font-weight="700" fill="#263443" text-anchor="middle" >手続に時間がかかる</text>
+<rect x="467" y="368" width="326" height="42" rx="7" fill="#eaf1fb"/>
+<text x="630" y="395" font-size="17" font-weight="500" fill="#263443" text-anchor="middle" >貸出の列が長い</text>
+<rect x="467" y="423" width="326" height="42" rx="7" fill="#eaf1fb"/>
+<text x="630" y="450" font-size="17" font-weight="500" fill="#263443" text-anchor="middle" >返却の窓口が少ない</text>
+<rect x="467" y="478" width="326" height="42" rx="7" fill="#eaf1fb"/>
+<text x="630" y="505" font-size="17" font-weight="500" fill="#263443" text-anchor="middle" >手続が遅い</text>
+</svg>

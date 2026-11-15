@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 430" width="800" height="430" role="img" aria-label="03_mind_map.svg">
+ <style>text{font-family:'Noto Sans CJK JP','Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;}</style>
+ <rect x="1" y="1" width="798" height="428" rx="14" fill="none" stroke="#cfd5dc" stroke-width="1.5"/>
+ <path d="M360 193 C270 173 274 106 187 100" stroke="#315f95" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M440 193 C535 166 545 105 617 98" stroke="#ba8740" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M359 233 C279 245 269 326 181 334" stroke="#57855f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M441 233 C535 258 542 327 614 334" stroke="#8b6ca8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M177 100 C123 93 119 56 80 55" stroke="#315f95" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M177 100 C122 113 120 146 79 149" stroke="#315f95" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M630 98 C673 91 679 54 720 53" stroke="#ba8740" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M630 98 C680 115 678 145 727 149" stroke="#ba8740" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M181 334 C126 322 114 287 80 286" stroke="#57855f" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M181 334 C121 351 114 389 80 388" stroke="#57855f" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M629 334 C669 314 675 287 720 285" stroke="#8b6ca8" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M629 334 C672 352 674 386 724 385" stroke="#8b6ca8" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="311" y="180" width="178" height="69" rx="24" fill="#315f95"/>
+<text x="400" y="223" font-size="25" font-weight="700" fill="white" text-anchor="middle" >新商品の企画</text>
+<rect x="134" y="82" width="95" height="38" rx="13" fill="#eaf1fb" stroke="#315f95" stroke-width="1.4"/>
+<text x="181.5" y="107" font-size="19" font-weight="700" fill="#263443" text-anchor="middle" >機能</text>
+<rect x="573" y="79" width="96" height="38" rx="13" fill="#fff3df" stroke="#ba8740" stroke-width="1.4"/>
+<text x="621.0" y="104" font-size="19" font-weight="700" fill="#263443" text-anchor="middle" >価格</text>
+<rect x="114" y="314" width="128" height="38" rx="13" fill="#ecf5ed" stroke="#57855f" stroke-width="1.4"/>
+<text x="178.0" y="339" font-size="19" font-weight="700" fill="#263443" text-anchor="middle" >デザイン</text>
+<rect x="571" y="314" width="99" height="38" rx="13" fill="#f1ebf7" stroke="#8b6ca8" stroke-width="1.4"/>
+<text x="620.5" y="339" font-size="19" font-weight="700" fill="#263443" text-anchor="middle" >利用者</text>
+<rect x="21" y="37" width="119" height="33" rx="11" fill="#ffffff" stroke="#315f95" stroke-width="1.4"/>
+<text x="80.5" y="59" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >使いやすさ</text>
+<rect x="24" y="132" width="103" height="33" rx="11" fill="#ffffff" stroke="#315f95" stroke-width="1.4"/>
+<text x="75.5" y="154" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >耐久性</text>
+<rect x="671" y="35" width="107" height="33" rx="11" fill="#ffffff" stroke="#ba8740" stroke-width="1.4"/>
+<text x="724.5" y="57" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >販売価格</text>
+<rect x="683" y="132" width="84" height="33" rx="11" fill="#ffffff" stroke="#ba8740" stroke-width="1.4"/>
+<text x="725.0" y="154" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >製造費</text>
+<rect x="19" y="270" width="98" height="33" rx="11" fill="#ffffff" stroke="#57855f" stroke-width="1.4"/>
+<text x="68.0" y="292" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >色・形</text>
+<rect x="26" y="369" width="91" height="33" rx="11" fill="#ffffff" stroke="#57855f" stroke-width="1.4"/>
+<text x="71.5" y="391" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >大きさ</text>
+<rect x="685" y="269" width="87" height="33" rx="11" fill="#ffffff" stroke="#8b6ca8" stroke-width="1.4"/>
+<text x="728.5" y="291" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >学生</text>
+<rect x="674" y="371" width="113" height="33" rx="11" fill="#ffffff" stroke="#8b6ca8" stroke-width="1.4"/>
+<text x="730.5" y="393" font-size="16" font-weight="500" fill="#263443" text-anchor="middle" >社会人</text>
+</svg>

@@ -180,6 +180,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "可用性": {
     "url": "/terms/availability/"
   },
+  "問題解決": {
+    "url": "/terms/problem-solving/"
+  },
   "圧縮": {
     "url": "/terms/compression/"
   },

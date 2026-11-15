@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 431" width="860" height="431" role="img" aria-label="05_fishbone_diagram.svg">
+ <style>text{font-family:'Noto Sans CJK JP','Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;}</style>
+ <rect x="1" y="1" width="858" height="429" rx="14" fill="none" stroke="#cfd5dc" stroke-width="1.5"/>
+ <path d="M60 225 H656" stroke="#263443" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M643 215 L658 225 L643 235" stroke="#263443" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M195 225 L103 99" stroke="#315f95" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M430 225 L338 99" stroke="#ba8740" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M195 225 L103 352" stroke="#57855f" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<path d="M430 225 L338 352" stroke="#8b6ca8" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<rect x="52" y="44" width="120" height="46" rx="10" fill="#eaf1fb" stroke="#315f95" stroke-width="1.4"/>
+<text x="112.0" y="74" font-size="18" font-weight="650" fill="#263443" text-anchor="middle" >人（Man）</text>
+<rect x="290" y="44" width="145" height="46" rx="10" fill="#fff3df" stroke="#ba8740" stroke-width="1.4"/>
+<text x="362.5" y="74" font-size="18" font-weight="650" fill="#263443" text-anchor="middle" >機械（Machine）</text>
+<rect x="40" y="359" width="149" height="46" rx="10" fill="#ecf5ed" stroke="#57855f" stroke-width="1.4"/>
+<text x="114.5" y="389" font-size="18" font-weight="650" fill="#263443" text-anchor="middle" >材料（Material）</text>
+<rect x="293" y="359" width="148" height="46" rx="10" fill="#f1ebf7" stroke="#8b6ca8" stroke-width="1.4"/>
+<text x="367.0" y="389" font-size="18" font-weight="650" fill="#263443" text-anchor="middle" >方法（Method）</text>
+<rect x="21" y="137" width="115" height="37" rx="8" fill="#eaf1fb" stroke="#315f95" stroke-width="1.1"/>
+<text x="78.5" y="162" font-size="16" font-weight="550" fill="#263443" text-anchor="middle" >確認不足</text>
+<rect x="391" y="137" width="152" height="37" rx="8" fill="#fff3df" stroke="#ba8740" stroke-width="1.1"/>
+<text x="467.0" y="162" font-size="16" font-weight="550" fill="#263443" text-anchor="middle" >設備の摩耗</text>
+<rect x="14" y="279" width="128" height="37" rx="8" fill="#ecf5ed" stroke="#57855f" stroke-width="1.1"/>
+<text x="78.0" y="304" font-size="16" font-weight="550" fill="#263443" text-anchor="middle" >品質のばらつき</text>
+<rect x="392" y="279" width="174" height="37" rx="8" fill="#f1ebf7" stroke="#8b6ca8" stroke-width="1.1"/>
+<text x="479.0" y="304" font-size="16" font-weight="550" fill="#263443" text-anchor="middle" >作業手順の不備</text>
+<rect x="665" y="173" width="164" height="103" rx="16" fill="#315f95"/>
+<text x="747" y="215" font-size="23" font-weight="650" fill="white" text-anchor="middle" >製品の</text>
+<text x="747" y="247" font-size="27" font-weight="750" fill="white" text-anchor="middle" >不良</text>
+</svg>

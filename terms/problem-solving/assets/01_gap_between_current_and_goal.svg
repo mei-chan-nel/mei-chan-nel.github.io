@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 260" width="720" height="260" role="img" aria-label="01_gap_between_current_and_goal.svg">
+ <style>text{font-family:'Noto Sans CJK JP','Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;}</style>
+ <rect x="1" y="1" width="718" height="258" rx="14" fill="none" stroke="#cfd5dc" stroke-width="1.5"/>
+ <rect x="35" y="30" width="318" height="105" rx="12" fill="#eaf1fb"/>
+<rect x="367" y="30" width="318" height="105" rx="12" fill="#e9f6f3"/>
+<text x="194" y="62" font-size="17" font-weight="500" fill="#5b6878" text-anchor="middle" >現状の平均待ち時間</text>
+<text x="527" y="62" font-size="17" font-weight="500" fill="#5b6878" text-anchor="middle" >目標の平均待ち時間</text>
+<text x="194" y="108" font-size="36" font-weight="700" fill="#315f95" text-anchor="middle" >20分</text>
+<text x="527" y="108" font-size="36" font-weight="700" fill="#2f8e80" text-anchor="middle" >5分</text>
+<rect x="54" y="167" width="612" height="20" rx="5" fill="#edf0f3"/>
+<rect x="54" y="167" width="153" height="20" rx="5" fill="#2f8e80"/>
+<rect x="207" y="167" width="459" height="20" rx="0" fill="#e2b975"/>
+<path d="M207 197 V209 H666 V197" stroke="#ba8740" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+<text x="437" y="239" font-size="23" font-weight="700" fill="#263443" text-anchor="middle" >解消すべき差：15分</text>
+</svg>

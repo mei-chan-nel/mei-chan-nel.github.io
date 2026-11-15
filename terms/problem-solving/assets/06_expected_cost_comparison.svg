@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 405" width="740" height="405" role="img" aria-label="06_expected_cost_comparison.svg">
+ <style>text{font-family:'Noto Sans CJK JP','Yu Gothic','Hiragino Kaku Gothic ProN',sans-serif;}</style>
+ <rect x="1" y="1" width="738" height="403" rx="14" fill="none" stroke="#cfd5dc" stroke-width="1.5"/>
+ <text x="36" y="47" font-size="18" font-weight="550" fill="#5b6878" text-anchor="start" >期待費用（円）</text>
+<line x1="149.0" y1="70" x2="149.0" y2="329" stroke="#cfd5dc" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="4 5"/>
+<text x="149.0" y="349" font-size="15" font-weight="500" fill="#5b6878" text-anchor="middle" >0</text>
+<line x1="269.0" y1="70" x2="269.0" y2="329" stroke="#cfd5dc" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="4 5"/>
+<text x="269.0" y="349" font-size="15" font-weight="500" fill="#5b6878" text-anchor="middle" >40</text>
+<line x1="389.0" y1="70" x2="389.0" y2="329" stroke="#cfd5dc" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="4 5"/>
+<text x="389.0" y="349" font-size="15" font-weight="500" fill="#5b6878" text-anchor="middle" >80</text>
+<line x1="509.0" y1="70" x2="509.0" y2="329" stroke="#cfd5dc" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="4 5"/>
+<text x="509.0" y="349" font-size="15" font-weight="500" fill="#5b6878" text-anchor="middle" >120</text>
+<line x1="629.0" y1="70" x2="629.0" y2="329" stroke="#cfd5dc" stroke-width="1.2" stroke-linecap="round" stroke-dasharray="4 5"/>
+<text x="629.0" y="349" font-size="15" font-weight="500" fill="#5b6878" text-anchor="middle" >160</text>
+<text x="107" y="111" font-size="20" font-weight="700" fill="#263443" text-anchor="middle" >案A</text>
+<rect x="149" y="85" width="450.0" height="38" rx="6" fill="#89a7ce"/>
+<text x="609.0" y="112" font-size="19" font-weight="700" fill="#263443" text-anchor="start" >150円</text>
+<text x="107" y="176" font-size="20" font-weight="700" fill="#263443" text-anchor="middle" >案B</text>
+<rect x="149" y="150" width="408.0" height="38" rx="6" fill="#89a7ce"/>
+<text x="567.0" y="177" font-size="19" font-weight="700" fill="#263443" text-anchor="start" >136円</text>
+<text x="107" y="241" font-size="20" font-weight="700" fill="#2f8e80" text-anchor="middle" >案C</text>
+<rect x="149" y="215" width="366.0" height="38" rx="6" fill="#2f8e80"/>
+<text x="525.0" y="242" font-size="19" font-weight="700" fill="#263443" text-anchor="start" >122円</text>
+<text x="107" y="306" font-size="20" font-weight="700" fill="#263443" text-anchor="middle" >案D</text>
+<rect x="149" y="280" width="384.0" height="38" rx="6" fill="#89a7ce"/>
+<text x="543.0" y="307" font-size="19" font-weight="700" fill="#263443" text-anchor="start" >128円</text>
+<text x="370" y="381" font-size="21" font-weight="700" fill="#2f8e80" text-anchor="middle" >期待費用が最も低いのは案C（122円）</text>
+</svg>
