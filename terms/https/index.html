@@ -88,7 +88,7 @@
           <p>TLSによって通信内容が暗号化されるため、第三者が通信データを取得しても、その内容を簡単には読み取れません。</p>
           <p>また、通信途中での改ざんを検出したり、電子証明書などを使って接続先を確認したりすることもできます。</p>
           <figure class="term-note-figure">
-            <img src="assets/01_http_https_comparison.svg" width="1200" height="500" loading="lazy" decoding="async" alt="HTTPでは通信内容が暗号化されない一方、HTTPSではTLSがブラウザとWebサーバ間の双方向通信を保護する比較図" />
+            <img src="assets/01_http_https_comparison.svg" width="1200" height="545" loading="lazy" decoding="async" alt="HTTPでは通信内容が暗号化されない一方、HTTPSではTLSがブラウザとWebサーバ間の双方向通信を保護する比較図。HTTPSはHTTPをTLSで保護する。" />
           </figure>
           <div class="term-table-wrap">
             <table>
@@ -124,7 +124,7 @@
           </ol>
           <p>このように、TLSは暗号化だけでなく、改ざんの検出や通信相手の確認も行っています。</p>
           <figure class="term-note-figure">
-            <img src="assets/02_tls_three_properties.svg" width="1200" height="400" loading="lazy" decoding="async" alt="TLSが提供する機密性、完全性、認証の三つの働きを示す図" />
+            <img src="assets/02_tls_three_properties.svg" width="1200" height="465" loading="lazy" decoding="async" alt="TLSが提供する機密性、完全性、認証の三つの働きと、それぞれが通信をどう守るかを示す図" />
           </figure>
 
           <h3>TLSによる暗号化通信の流れ</h3>
@@ -138,7 +138,7 @@
             <li>確立した鍵を使い、ブラウザとWebサーバの間で暗号化された通信を行います。</li>
           </ol>
           <figure class="term-note-figure">
-            <img src="assets/03_tls_handshake_flow.svg" width="1200" height="600" loading="lazy" decoding="async" alt="ブラウザとWebサーバが接続を調整し、証明書を検証して共通鍵を確立した後、HTTP通信をTLSで保護する流れ" />
+            <img src="assets/03_tls_handshake_flow.svg" width="1200" height="640" loading="lazy" decoding="async" alt="ブラウザとWebサーバがTLSの条件を調整し、証明書を検証して共通鍵を確立した後、HTTP通信の両方向をTLSで保護する流れ" />
           </figure>
           <p>実際のデータの暗号化には、主に<strong>共通鍵暗号方式</strong>が使われます。</p>
           <p>共通鍵暗号方式は、同じ鍵を使って暗号化と復号を行う方式で、大量のデータを高速に処理できるという特徴があります。</p>
@@ -175,7 +175,7 @@
           </ul>
           <p>これらの確認によって、ブラウザは接続先の正当性を判断します。</p>
           <figure class="term-note-figure">
-            <img src="assets/04_certificate_and_ca.svg" width="1200" height="450" loading="lazy" decoding="async" alt="認証局がドメインの管理権限などを確認して証明書を発行し、Webサーバが提示した証明書をブラウザが検証する流れ" />
+            <img src="assets/04_certificate_and_ca.svg" width="1200" height="500" loading="lazy" decoding="async" alt="認証局がドメイン管理権限を確認して署名付き証明書を発行し、Webサーバが提示した証明書の公開鍵、ドメイン名、発行者、有効期間などをブラウザが検証する流れ" />
           </figure>
           <p>電子証明書は、Webサイトに書かれている情報が正しいことや、そのサイトの運営者が必ず信頼できることまで保証するものではありません。この点は、HTTPSの限界を理解するうえで重要です。</p>
         </section>
@@ -184,7 +184,7 @@
           <h2>Webページが表示されるまで</h2>
           <p>Webページを表示する際には、DNSによる名前解決と、HTTPSによる通信の保護がそれぞれ働きます。</p>
           <figure class="term-note-figure">
-            <img src="assets/05_dns_and_https_flow.svg" width="1200" height="400" loading="lazy" decoding="async" alt="ブラウザがURLを受け取り、DNSで名前解決し、TLSで保護されたHTTPS通信を行うまでの流れ" />
+            <img src="assets/05_dns_and_https_flow.svg" width="1200" height="595" loading="lazy" decoding="async" alt="ブラウザがURLのホスト名をDNSでIPアドレスに変換し、TLSで接続先を検証して鍵を確立し、HTTPSで要求と応答を暗号化して送受信する流れ" />
           </figure>
           <p>DNSはホスト名に対応するIPアドレスを調べ、接続先を特定するために使われます。TLSは接続先を確認して通信を保護し、その上でHTTPの要求と応答がやり取りされます。</p>
           <p>つまり、<strong>DNSは接続先を調べる仕組み、HTTPSはWeb通信を保護する仕組み</strong>です。</p>
@@ -212,7 +212,7 @@
           <p>偽サイトもHTTPSを使用していれば、ブラウザと偽サイトの間の通信は暗号化されます。</p>
           <p>つまり、<strong>通信が暗号化されていることと、Webサイト自体が信頼できることは別の問題</strong>です。</p>
           <figure class="term-note-figure">
-            <img src="assets/06_https_and_phishing.svg" width="1200" height="400" loading="lazy" decoding="async" alt="正規サイトと偽サイトのどちらもHTTPS通信を使えるため、httpsという表示だけでは信頼性を判断できないことを示す図" />
+            <img src="assets/06_https_and_phishing.svg" width="1200" height="555" loading="lazy" decoding="async" alt="正規サイトと偽サイトのどちらもHTTPS通信を使えるが、偽サイトに入力した情報は攻撃者へ届くため、URLのドメイン名やリンク元も確認する必要がある図" />
           </figure>
           <p>HTTPSで接続できることを確認するだけでなく、URLのドメイン名やサイトの内容などを確認することも重要です。</p>
         </section>
