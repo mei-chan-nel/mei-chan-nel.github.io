@@ -124,7 +124,7 @@
           </ol>
           <p>このように、TLSは暗号化だけでなく、改ざんの検出や通信相手の確認も行っています。</p>
           <figure class="term-note-figure">
-            <img src="assets/02_tls_three_properties.svg" width="1200" height="465" loading="lazy" decoding="async" alt="TLSが提供する機密性、完全性、認証の三つの働きと、それぞれが通信をどう守るかを示す図" />
+            <img src="assets/02_tls_three_properties.svg" width="1200" height="400" loading="lazy" decoding="async" alt="TLSが提供する機密性、完全性、認証の三つの働きと、それぞれが通信をどう守るかを示す図" />
           </figure>
 
           <h3>TLSによる暗号化通信の流れ</h3>
@@ -175,7 +175,7 @@
           </ul>
           <p>これらの確認によって、ブラウザは接続先の正当性を判断します。</p>
           <figure class="term-note-figure">
-            <img src="assets/04_certificate_and_ca.svg" width="1200" height="500" loading="lazy" decoding="async" alt="認証局がドメイン管理権限を確認して署名付き証明書を発行し、Webサーバが提示した証明書の公開鍵、ドメイン名、発行者、有効期間などをブラウザが検証する流れ" />
+            <img src="assets/04_certificate_and_ca.svg" width="1200" height="450" loading="lazy" decoding="async" alt="認証局がドメイン管理権限を確認して署名付き証明書を発行し、Webサーバが提示した証明書の公開鍵、ドメイン名、発行者、有効期間などをブラウザが検証する流れ" />
           </figure>
           <p>電子証明書は、Webサイトに書かれている情報が正しいことや、そのサイトの運営者が必ず信頼できることまで保証するものではありません。この点は、HTTPSの限界を理解するうえで重要です。</p>
         </section>
@@ -184,7 +184,7 @@
           <h2>Webページが表示されるまで</h2>
           <p>Webページを表示する際には、DNSによる名前解決と、HTTPSによる通信の保護がそれぞれ働きます。</p>
           <figure class="term-note-figure">
-            <img src="assets/05_dns_and_https_flow.svg" width="1200" height="595" loading="lazy" decoding="async" alt="ブラウザがURLのホスト名をDNSでIPアドレスに変換し、TLSで接続先を検証して鍵を確立し、HTTPSで要求と応答を暗号化して送受信する流れ" />
+            <img src="assets/05_dns_and_https_flow.svg" width="1200" height="540" loading="lazy" decoding="async" alt="ブラウザがURLのホスト名をDNSでIPアドレスに変換し、TLSで接続先を検証して鍵を確立し、HTTPSで要求と応答を暗号化して送受信する流れ" />
           </figure>
           <p>DNSはホスト名に対応するIPアドレスを調べ、接続先を特定するために使われます。TLSは接続先を確認して通信を保護し、その上でHTTPの要求と応答がやり取りされます。</p>
           <p>つまり、<strong>DNSは接続先を調べる仕組み、HTTPSはWeb通信を保護する仕組み</strong>です。</p>
