@@ -799,3 +799,12 @@ body[data-section] .solution-topic {
 @media screen {
   html[data-interleaved-reading] :is(.page-body,.book) { padding:0!important; }
 }
+
+/* Use the manifest's input type, independent of each source's blank classes.
+   Filled answers may grow to fit the label/value without clipping. */
+html body[data-section] [data-field][data-input-type="text"] {
+  box-sizing: border-box !important;
+  min-width: 1.4em !important;
+  width: auto !important;
+  padding-inline: .14em !important;
+}

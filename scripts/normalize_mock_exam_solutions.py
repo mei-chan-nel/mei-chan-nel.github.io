@@ -1,4 +1,4 @@
-"""Shared solution headings. Keeps body text, reading anchors and scoring intact."""
+"""Shared headings and answer-field presentation; scoring stays unchanged."""
 from pathlib import Path
 from lxml import html, etree
 import json,re
@@ -54,7 +54,11 @@ def build(manifests=None):
  for manifest in manifests if manifests is not None else ROOT.glob('*/*/exam.json'):
   exam=json.loads(manifest.read_text())
   for section in exam['sections']:
-   for key in ['solution','screenSolution']:
-    path=manifest.parent/section[key];d=html.fromstring(path.read_bytes());normalize(d,exam)
+   for key in ['problem','screenProblem','solution','screenSolution']:
+    path=manifest.parent/section[key];d=html.fromstring(path.read_bytes())
+    if key in ['solution','screenSolution']:normalize(d,exam)
+    fields={f['id']:f for f in exam['fields']}
+    for node in d.xpath('//*[@data-field]'):
+     node.set('data-input-type',fields[node.get('data-field')]['type'])
     path.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'))
 if __name__=='__main__':build()
