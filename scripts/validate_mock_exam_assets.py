@@ -72,6 +72,7 @@ def validate(manifest, skip_pdf=False):
                 for node in d.xpath('//*[@data-field]'):
                     fid = node.get('data-field')
                     need(fid in wanted_fields, f'Unknown/cross-section HTML field: {fid}')
+                    need(node.get('data-input-type') == fields[fid]['type'], f'Missing/wrong input presentation type: {fid}/{key}')
                     bound.add(fid)
                     if node.get('data-part') is not None:
                         part = node.get('data-part')
