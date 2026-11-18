@@ -60,6 +60,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "アクセス制御": {
     "url": "/terms/access-control/"
   },
+  "アクセス権": {
+    "url": "/terms/access-rights/"
+  },
   "アルゴリズム": {
     "url": "/terms/algorithm/"
   },
