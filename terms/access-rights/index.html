@@ -112,7 +112,7 @@
           <p>また、図書管理システムで図書データの削除を許可する場合には、削除を業務上必要とする担当者だけに権限を与えることが望ましいです。</p>
           <p>つまり、<strong>必要な人に、必要な範囲の権限を、必要な期間だけ与える</strong>ことが基本です。</p>
           <figure class="term-note-figure">
-            <img src="assets/03_least_privilege.svg" width="880" height="286" loading="lazy" decoding="async" alt="商品検索アプリには参照だけを許可し、データの変更や削除は許可しないことで、不要な権限によるリスクを減らす図" />
+            <img src="assets/03_least_privilege.svg" width="880" height="220" loading="lazy" decoding="async" alt="商品検索アプリには参照だけを許可し、データの変更や削除は許可しない図" />
           </figure>
         </section>
 
@@ -123,7 +123,7 @@
           <p>退職者のアカウントを有効なままにしておくと、退職後もシステムにアクセスできる状態が残ります。本人だけでなく、認証情報を入手した第三者による不正アクセスにもつながるおそれがあります。</p>
           <p>そのため、退職時にはアカウントを速やかに無効化し、必要な業務データは、引継ぎ先の権限を確認したうえで適切に引き継ぎます。</p>
           <figure class="term-note-figure">
-            <img src="assets/04_account_offboarding.svg" width="880" height="267" loading="lazy" decoding="async" alt="在職中は業務に必要な権限を与え、退職時にアカウントを無効化し、引継ぎ先の権限を確認してデータを移管する流れ" />
+            <img src="assets/04_account_offboarding.svg" width="880" height="210" loading="lazy" decoding="async" alt="在職中は業務に必要な権限を与え、退職時にアカウントを無効化し、引継ぎ先の権限を確認してデータを移管する流れ" />
           </figure>
           <p>また、複数の利用者で同じアカウントとパスワードを共用することも避ける必要があります。</p>
           <p>共用アカウントでは、誰がどの操作を行ったのかを特定しにくくなります。原則として利用者ごとにアカウントを設け、それぞれの役割に応じたアクセス権を設定することが望ましいです。</p>
@@ -146,7 +146,7 @@
           <p>ログイン後、管理者専用画面を開こうとした際に、管理者権限があるかを調べる処理は認可です。</p>
           <p>利用者がいつ、どのような操作を行ったかをログに記録し、必要に応じて確認することは監査に関係します。</p>
           <figure class="term-note-figure">
-            <img src="assets/07_authentication_authorization_audit.svg" width="880" height="294" loading="lazy" decoding="async" alt="認証は本人確認、認可は操作の許可判断、監査は操作ログなどによる事後確認を表す図。認証に成功してもすべての操作が許可されるわけではない。" />
+            <img src="assets/07_authentication_authorization_audit.svg" width="880" height="260" loading="lazy" decoding="async" alt="認証は本人確認、認可は操作の許可判断、監査は操作ログなどによる事後確認を表す図" />
           </figure>
           <p><strong>認証に成功したからといって、すべての操作が許可されるわけではありません。</strong></p>
           <p>認証によって利用者を確認し、その利用者に与えられたアクセス権に基づいて、要求された操作を許可するかどうかを判断します。</p>
@@ -158,7 +158,7 @@
           <p><strong>ACL</strong>では、ファイルやデータなどの対象ごとに、利用者と許可する操作を設定します。例えば、ファイルAについて教員Aには読取りと更新を許可し、教員Bには読取りだけを許可します。</p>
           <p><strong>RBAC</strong>では、利用者に「編集担当」「閲覧担当」などの役割を割り当て、その役割に必要な権限をまとめて設定します。同じ役割の利用者には、同じ権限を割り当てられます。</p>
           <figure class="term-note-figure">
-            <img src="assets/09_acl_rbac.svg" width="880" height="339" loading="lazy" decoding="async" alt="ACLはファイルなどの対象ごとに利用者の権限を定め、RBACは編集担当や閲覧担当などの役割に権限を割り当てる方法を比較した図" />
+            <img src="assets/09_acl_rbac.svg" width="880" height="300" loading="lazy" decoding="async" alt="ACLはファイルなどの対象ごとに利用者の権限を定め、RBACは編集担当や閲覧担当などの役割に権限を割り当てる方法を比較した図" />
           </figure>
           <p>どちらの方法でも、業務に必要な人に必要な操作だけを許可するという最小権限の原則が基本です。</p>
         </section>
