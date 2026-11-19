@@ -16,7 +16,7 @@ for (let i = 0; i < args.length; i++) {
 }
 if (
   args.includes("--manifest") &&
-  !/^exams\/[0-9]{3}\/[1-9][0-9]*\/exam\.json$/.test(selectedManifest || "")
+  !/^exams\/(?:[0-9]{3}|20[0-9]{2}(?:Honshi|Tuishi))\/[1-9][0-9]*\/exam\.json$/.test(selectedManifest || "")
 )
   throw Error("Invalid manifest path");
 const kinds = selectedKind ? [selectedKind] : ["problem", "solution"];
@@ -34,7 +34,13 @@ const server = http.createServer((req, res) => {
   try {
     res.setHeader(
       "Content-Type",
-      file.endsWith(".css") ? "text/css" : "text/html; charset=utf-8",
+      ({
+        ".css": "text/css",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".webp": "image/webp",
+        ".svg": "image/svg+xml",
+      })[path.extname(file)] || "text/html; charset=utf-8",
     );
     res.end(fs.readFileSync(file));
   } catch {
@@ -58,6 +64,11 @@ const server = http.createServer((req, res) => {
         exam = JSON.parse(fs.readFileSync(path.join(root, entry.manifest)));
       const temp = fs.mkdtempSync("/tmp/atlas-mock-pdf-");
       for (const kind of kinds) {
+        if (exam.kind === "past" && kind === "problem") {
+          fs.copyFileSync(path.join(dir,exam.sections[0].sourceProblem),path.join(dir,"problem.pdf"));
+          console.log(`Original official problem PDF retained: ${exam.id}`);
+          continue;
+        }
         const files = [];
         for (const s of exam.sections) {
           const page = await browser.newPage({
@@ -90,6 +101,23 @@ const server = http.createServer((req, res) => {
             content:
               ".pagehead,.page-head,.running-head,.running-header,.sheet-header,.pagenum,.page-number,.page-foot,.page-footer,.footer{display:none!important}",
           });
+          if (kind === "problem")
+            await page.addStyleTag({
+              content: `
+                body[data-section] :is(.exam-section-heading,.exam-part-heading) {
+                  font-family: "Noto Serif CJK JP", "Yu Mincho", serif !important;
+                  font-size: calc(10.5pt / var(--print-page-scale,1)) !important;
+                  font-weight: 400 !important;
+                  line-height: 1.75 !important;
+                  text-align: left !important;
+                  text-indent: 0 !important;
+                }
+                body[data-section] .exam-section-number {
+                  font-size: calc(14pt / var(--print-page-scale,1)) !important;
+                }
+                body[data-section] .exam-part-heading { margin: 0 0 16px !important; }
+              `,
+            });
           if (kind === "problem" && s.id === "q1") {
             // PDF-only subject heading, following the common-test booklet.
             // Keep the answering/reading HTML and the exam content unchanged.
@@ -117,9 +145,8 @@ const server = http.createServer((req, res) => {
               if (match) {
                 const number = document.createElement("span");
                 number.textContent = match[1];
-                number.style.cssText = "font-size:14pt;font-weight:700";
-                question.style.cssText =
-                  "font-size:10.5pt;font-weight:400;line-height:1.75;margin:0 0 24px";
+                number.className = "exam-section-number";
+                question.classList.add("exam-section-heading");
                 question.replaceChildren(
                   number,
                   document.createTextNode("　" + match[2]),
@@ -135,15 +162,11 @@ const server = http.createServer((req, res) => {
                 const heading = document.createElement("h2");
                 heading.className = "exam-section-heading";
                 heading.innerHTML = `<span class="exam-section-number">第2問</span>　次の問い（A・B）に答えよ。（配点${points}）`;
-                heading.style.cssText =
-                  "font-size:12pt;font-weight:700;margin:0 0 24px;text-indent:0";
                 part.before(heading);
                 part.textContent = legacyIntro
                   ? `A　次の問い（問1～${questions}）に答えよ。（配点${partPoints}）`
                   : `A　次の文章を読み，後の問い（問1～問${questions}）に答えよ。（配点${partPoints}）`;
                 part.className = "exam-part-heading";
-                part.style.cssText =
-                  "font-size:10.5pt;font-weight:400;margin:0 0 16px";
               },
               {
                 questions: Math.max(
@@ -159,14 +182,20 @@ const server = http.createServer((req, res) => {
               },
             );
           }
-          if (kind === "problem" && s.id === "q2b" && !["001", "002"].includes(exam.id)) {
-            await page.evaluate(({questions, points}) => {
-              const part = [...document.querySelectorAll("h1,p")].find(e => /^(?:第2問B|B)[\s　]/.test(e.textContent.trim()));
+          if (kind === "problem" && s.id === "q2b") {
+            await page.evaluate(({ questions, points, legacyIntro }) => {
+              const part = [...document.querySelectorAll("h1,p")].find((node) =>
+                /^(?:第2問B|B)[\s　]/.test(node.textContent.trim()),
+              );
               if (!part) throw Error("Missing B heading");
-              part.textContent = `B　次の文章を読み，後の問い（問1～問${questions}）に答えよ。（配点${points}）`;
-              part.className = "exam-part-heading";
-              part.style.cssText = "font-size:10.5pt;font-weight:400;margin:0 0 16px";
-            }, {questions:Math.max(...exam.scoring.filter(u=>u.sectionId==="q2b").map(u=>u.question)),points:s.maxPoints});
+              if (!legacyIntro)
+                part.textContent = `B　次の文章を読み，後の問い（問1～問${questions}）に答えよ。（配点${points}）`;
+              part.classList.add("exam-part-heading");
+            }, {
+              questions: Math.max(...exam.scoring.filter((u) => u.sectionId === "q2b").map((u) => u.question)),
+              points: s.maxPoints,
+              legacyIntro: ["001", "002"].includes(exam.id),
+            });
           }
           // PDF only: emphasize just the "問n" label, not the question text.
           if (kind === "problem") {
@@ -217,9 +246,32 @@ const server = http.createServer((req, res) => {
           }
           if (kind === "solution")
             await page.addStyleTag({
-              content:
-                "@page{size:A4;margin:16mm 18mm 18mm} .sheet,.page,body[data-section] .sheet,body[data-section] .page{width:174mm!important;height:auto!important;min-height:0!important;padding:0!important;margin:0!important;break-after:page}.sheet:last-child,.page:last-child{break-after:auto}.pagehead,.pagenum,.page-foot,.footer{display:none!important}.solution{padding:0!important;width:auto!important;max-width:none!important}.card{box-shadow:none!important}",
+              content: `
+                @page { size: A4; margin: 16mm 18mm 18mm; }
+                .sheet,.page,body[data-section] .sheet,body[data-section] .page {
+                  width: 174mm !important;
+                  height: auto !important;
+                  min-height: 0 !important;
+                  padding: 0 !important;
+                  margin: 0 !important;
+                  break-after: page;
+                }
+                .sheet:last-child,.page:last-child { break-after: auto; }
+                .solution { padding: 0 !important; width: auto !important; max-width: none !important; }
+                .card { box-shadow: none !important; }
+                figure { break-inside: avoid; }
+                p { widows: 2; orphans: 2; }
+                body[data-section] .solution-unit-heading { margin-block: 18px 6px !important; }
+                body[data-section] .solution-unit-answer { margin-bottom: 10px !important; }
+              `,
             });
+          await page.evaluate(async () => {
+            await Promise.all([...document.images].map((image) => {
+              image.loading = "eager";
+              return image.decode();
+            }));
+            await document.fonts.ready;
+          });
           if (kind === "problem") {
             const fits = await page.evaluate(() =>
               Array.from(document.querySelectorAll(".sheet,.page")).map(
@@ -239,6 +291,7 @@ const server = http.createServer((req, res) => {
                     if (h <= available + 1) break;
                     scale *= available / h;
                     wrap.style.zoom = scale;
+                    wrap.style.setProperty("--print-page-scale", scale);
                   }
                   return {
                     scale,

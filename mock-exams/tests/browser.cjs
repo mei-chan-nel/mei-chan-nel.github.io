@@ -225,7 +225,7 @@ const server = http.createServer((req, res) => {
       .click();
     await p.getByRole("button", { name: "第2問B", exact: true }).click();
     await p
-      .locator("#exam-list")
+      .locator(`[data-exam-id="${exam.id}"]`)
       .getByRole("button", { name: "選択", exact: true })
       .click();
     await f.locator('[data-field="q2b-コ"]').first().waitFor();
@@ -236,66 +236,49 @@ const server = http.createServer((req, res) => {
     );
     console.log("PASS: section-only maximum 15");
     await p.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    await p.clock.install();
     await startFullExam(p, "timed");
     await f.locator('[data-field="q1-ア"]').first().waitFor();
-    // Simulate an interrupted timed exam already past its deadline, then reopen it.
-    const expired = await p.evaluate(() => {
-      const key = Object.keys(localStorage).find(
-        (k) => k.includes(location.hash.slice(1)) && !k.endsWith(":backup"),
+    await p.clock.fastForward("00:00:15");
+    const timedId = new URL(p.url()).hash.slice(1);
+    const savedTimed = () =>
+      p.evaluate(
+        (id) => JSON.parse(localStorage["study-atlas:mock-exams:v1:attempt:" + id]),
+        timedId,
       );
-      const a = JSON.parse(localStorage[key]);
-      a.startedAt = Date.now() - 3601000;
-      return { key, a };
-    });
-    await p.close();
-    const timed = await context.newPage();
-    await timed.goto(url);
-    // goto's load event can precede the module's awaited catalog fetch.
-    // Wait for the app before simulating a second, fragment-only navigation.
-    await timed.locator("#exam-list article").first().waitFor();
-    await timed.evaluate(({ key, a }) => {
-      a.updatedAt = Date.now();
-      localStorage.setItem(key, JSON.stringify(a));
-      localStorage.setItem(key + ":backup", JSON.stringify(a));
-    }, expired);
-    await timed.goto(url + "#" + expired.a.id);
-    // Fragment-only navigation does not reload a previously loaded document.
-    await timed.reload();
-    try {
-      await timed
-        .getByRole("heading", { name: "採点結果", exact: true })
-        .waitFor({ timeout: 10000 });
-    } catch (error) {
-      console.log(
-        "Deadline navigation diagnosis",
-        await timed.evaluate((id) => {
-          const a = JSON.parse(
-            localStorage["study-atlas:mock-exams:v1:attempt:" + id],
-          );
-          return {
-            url: location.href,
-            view: document.body.dataset.view,
-            state: history.state,
-            notice: document.querySelector("#notice").textContent,
-            heading: document.querySelector("#app h1")?.textContent,
-            status: a.status,
-            mode: a.mode,
-            elapsed: a.elapsedMs,
-            started: a.startedAt,
-            now: Date.now(),
-            points: a.result?.points,
-          };
-        }, expired.a.id),
-      );
-      throw error;
-    }
+    const resumeTimed = async () => {
+      await p
+        .locator(`[data-exam-id="${exam.id}"]`)
+        .getByRole("button", { name: "再開", exact: true })
+        .click();
+      await f.locator('[data-field="q1-ア"]').first().waitFor();
+      assert.equal(new URL(p.url()).hash.slice(1), timedId);
+    };
+    await p
+      .getByRole("button", { name: "一覧に戻る（問題末尾）", exact: true })
+      .click();
+    await p.locator("#exam-list").waitFor();
+    const paused = await savedTimed();
+    assert.equal(paused.status, "paused");
+    assert.equal(paused.result, null);
+    assert.equal(paused.startedAt, null);
+    await p.clock.fastForward("01:01:00");
+    assert.equal((await savedTimed()).elapsedMs, paused.elapsedMs);
+    await resumeTimed();
+
+    await p.reload();
+    await p.locator("#exam-list").waitFor();
+    assert.equal((await savedTimed()).status, "paused");
+    assert.equal((await savedTimed()).result, null);
+    await resumeTimed();
+    await p.clock.fastForward("01:01:00");
+    await p.getByRole("heading", { name: "採点結果", exact: true }).waitFor();
+    assert.equal((await savedTimed()).status, "graded");
     assert.equal(
-      (
-        await timed.locator(".summary-table tfoot td").first().textContent()
-      ).trim(),
+      (await p.locator(".summary-table tfoot td").first().textContent()).trim(),
       "0 / 100点",
     );
-    console.log("PASS: timed resume auto-grades at deadline");
+    console.log("PASS: timed exit and reload pause without grading; active deadline still grades");
 
     assert.deepEqual(errors, []);
     console.log("PASS: no page errors");

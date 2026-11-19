@@ -25,5 +25,45 @@
     "title": "情報Ⅰ 実戦演習 No.003",
     "manifest": "exams/003/1/exam.json",
     "publishedAt": "2026-11-09"
+  },
+  {
+    "id": "2025Honshi",
+    "version": 1,
+    "title": "共通テスト 情報Ⅰ 2025年度 本試験",
+    "kind": "past",
+    "year": 2025,
+    "session": "main",
+    "shortTitle": "2025年度 本試験",
+    "manifest": "exams/2025Honshi/1/exam.json"
+  },
+  {
+    "id": "2025Tuishi",
+    "version": 1,
+    "title": "共通テスト 情報Ⅰ 2025年度 追・再試験",
+    "kind": "past",
+    "year": 2025,
+    "session": "supp",
+    "shortTitle": "2025年度 追・再試験",
+    "manifest": "exams/2025Tuishi/1/exam.json"
+  },
+  {
+    "id": "2026Honshi",
+    "version": 1,
+    "title": "共通テスト 情報Ⅰ 2026年度 本試験",
+    "kind": "past",
+    "year": 2026,
+    "session": "main",
+    "shortTitle": "2026年度 本試験",
+    "manifest": "exams/2026Honshi/1/exam.json"
+  },
+  {
+    "id": "2026Tuishi",
+    "version": 1,
+    "title": "共通テスト 情報Ⅰ 2026年度 追・再試験",
+    "kind": "past",
+    "year": 2026,
+    "session": "supp",
+    "shortTitle": "2026年度 追・再試験",
+    "manifest": "exams/2026Tuishi/1/exam.json"
   }
 ]

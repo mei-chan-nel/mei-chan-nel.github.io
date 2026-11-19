@@ -9,7 +9,7 @@ const fs = require("node:fs"),
 const { startFullExam } = require("./catalog-helpers.cjs");
 const root = path.resolve(__dirname, "../.."),
   manifest = process.argv[2] || "exams/001/1/exam.json";
-if (!/^exams\/[0-9]{3}\/[1-9][0-9]*\/exam\.json$/.test(manifest))
+if (!/^exams\/(?:[0-9]{3}|20[0-9]{2}(?:Honshi|Tuishi))\/[1-9][0-9]*\/exam\.json$/.test(manifest))
   throw Error("Invalid manifest path");
 const exam = JSON.parse(
   fs.readFileSync(path.join(root, "mock-exams", manifest)),

@@ -54,14 +54,14 @@ test("discarded and old-version history do not mark current questions as taken",
     "採点済み",
   );
 });
-test("recommended puts unattempted and unfinished before graded, newest within status", () => {
+test("recommended puts unfinished first, then unattempted and graded, newest within status", () => {
   const h = [
     run("004", "timed", null, "graded"),
     run("002", "untimed", null, "paused"),
   ];
   assert.deepEqual(
     sortCatalog(entries, h, "full", "q1", "recommended").map((e) => e.id),
-    ["003", "001", "002", "004"],
+    ["002", "003", "001", "004"],
   );
   assert.deepEqual(
     entries.map((e) => e.id),
@@ -94,4 +94,18 @@ test("interim grading stays resumable even with a graded status", () => {
 test('recommended uses descending exam numbers even when publication dates disagree',()=>{
  const e=[{...entries[0],publishedAt:'2027-01-01'},{...entries[1],publishedAt:'2026-01-01'}];
  assert.deepEqual(sortCatalog(e,[],'full','q1','recommended').map(x=>x.id),['002','001']);
+});
+
+test('past paper filters, labels and original-first order within each status', async()=>{
+ const {filterExams,examLabel}=await import('../engine/catalog.mjs');
+ const e=[{id:'2026Honshi',version:1,kind:'past'},{id:'002',version:1},{id:'2025Tuishi',version:1,kind:'past'},{id:'001',version:1}];
+ assert.deepEqual(filterExams(e,'original').map(x=>x.id),['002','001']);
+ assert.deepEqual(filterExams(e,'past').map(x=>x.id),['2026Honshi','2025Tuishi']);
+ assert.equal(filterExams(e,'all').length,4);
+ assert.equal(examLabel(e[0]),'2026年度 本試験');
+ assert.equal(examLabel('2025Tuishi'),'2025年度 追・再試験');
+ assert.equal(examLabel(e[1]),'No.002');
+ assert.deepEqual(sortCatalog(e,[],'full','q1','recommended').map(x=>x.id),['002','001','2026Honshi','2025Tuishi']);
+ const h=[run('002','timed',null,'graded'),run('2026Honshi','timed',null,'paused')];
+ assert.deepEqual(sortCatalog(e,h,'full','q1','recommended').map(x=>x.id),['2026Honshi','001','2025Tuishi','002']);
 });

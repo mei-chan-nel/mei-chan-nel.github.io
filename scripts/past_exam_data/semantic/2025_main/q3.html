@@ -1,0 +1,259 @@
+<section class="page" data-source-page="19">
+<p class="exam-section-heading">第３問　次の文章を読み，後の問い（問１～３）に答えよ。（配点２５）</p>
+<p>K さんが所属する工芸部では毎年，文化祭に向けた集中製作合宿を開催し，複数の工芸品を部員全員で分担して製作している。K さんは今年，工芸品を製作する担当の割当て作業を行うことになった。</p>
+<p class="exam-question">問１　次の文章を読み，空欄 <span class="blank" data-field="q3-ア" data-original="ア">ア</span> ～ <span class="blank" data-field="q3-オ" data-original="オ">オ</span> に当てはまる数字をマークせよ。</p>
+<p>表1は今年製作する各工芸品（1から順に番号を振る。）の製作日数である。製作日数は部員によって変わることはなく，例えば工芸品1の製作日数はどの部員が製作しても4日である。なお，一つの工芸品の製作は一人の部員が担当し，完了するまでその部員は他の工芸品の製作には取り掛からない。</p>
+<div class="table-wrap"><table class="">
+<caption>表1　各工芸品の製作日数</caption>
+<thead><tr>
+<th scope="col">工芸品</th>
+<th scope="col">1</th>
+<th scope="col">2</th>
+<th scope="col">3</th>
+<th scope="col">4</th>
+<th scope="col">5</th>
+<th scope="col">6</th>
+<th scope="col">7</th>
+<th scope="col">8</th>
+<th scope="col">9</th>
+</tr></thead>
+<tbody><tr>
+<th scope="row">製作日数</th>
+<td>4</td>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>4</td>
+<td>2</td>
+<td>4</td>
+<td>3</td>
+</tr></tbody>
+</table></div>
+<p>K さんは図1の割当図を作成し，今年の工芸部の部員3名について，工芸品の番号順に割当てを決めていくことにした。</p>
+<figure class="past-diagram" data-pdf-page="19" data-pdf-clip="110 465 405 540"><figcaption>図1　割当図（工芸品4まで）</figcaption></figure>
+<p>図1では，最上段に日付を合宿初日から順に1日目，2日目，…と表して記載している。その下に各部員（1から順に番号を振る。）に割り当てた工芸品の番号を，その製作期間を表す矢印とともに記載している。例えば，工芸品4は部員 <span class="blank" data-field="q3-ア" data-original="ア">ア</span> が <span class="blank" data-field="q3-イ" data-original="イ">イ</span> 日目から1日間製作することが，図1から読み取れる。</p>
+</section>
+
+
+<section class="page" data-source-page="20">
+<p>図1では工芸品4までが割り当てられており，部員1が5日目で割当てがない。このことを，部員1は5日目で空きであるという。</p>
+<p>K さんは各工芸品の担当と期間を割り当てていく際，次の規則を用いた。</p>
+<div class="rules source-frame"><p>最も早く空きになる部員（複数いる場合はそのうち最小の番号の部員）が，空きになった日付から次の工芸品を担当する。</p></div>
+<p>K さんは，工芸品5以降についても上の規則を用いて割り当て，各工芸品の担当と期間を一覧にした図2のような文面のメールを部員全員に送信した。</p>
+<figure class="mail-example"><div class="mail-body source-frame">
+<p>工芸品1 … 部員1：1日目～4日目</p>
+<p>工芸品2 … 部員2：1日目～1日目</p>
+<p>工芸品3 … 部員3：1日目～3日目</p>
+<p>工芸品4 … 部員<span class="blank" data-field="q3-ア" data-original="ア">ア</span>：<span class="blank" data-field="q3-イ" data-original="イ">イ</span>日目～<span class="blank" data-field="q3-イ" data-original="イ">イ</span>日目</p>
+<p>工芸品5 … 部員<span class="blank" data-field="q3-ウ" data-original="ウ">ウ</span>：<span class="blank" data-field="q3-エ" data-original="エ">エ</span>日目～<span class="blank" data-field="q3-オ" data-original="オ">オ</span>日目</p>
+<p>…</p>
+<p>工芸品9 … 部員1：7日目～9日目</p>
+</div>
+<figcaption>図2　各工芸品の担当と期間を一覧にしたメールの文面</figcaption></figure>
+<p>以上を手作業で作成するのが手間だと感じたK さんは，図2のような文面を自動的に表示するプログラムを作成しようと考えた。</p>
+</section>
+
+
+<section class="page" data-source-page="21">
+<p class="exam-question">問２　次の文章を読み，空欄 <span class="blank" data-field="q3-カ" data-original="カ">カ</span> ， <span class="blank" data-field="q3-ク" data-original="ク">ク</span> に当てはまる数字をマークせよ。また，空欄 <span class="blank" data-field="q3-キ" data-original="キ">キ</span> に入れるのに最も適当なものを，後の解答群のうちから一つ選べ。</p>
+<p>K さんはまず，次の規則（再掲）に従い，いくつかの工芸品がすでに割り当てられた状況で，その次の工芸品の担当部員を表示するプログラムを作ることにした。</p>
+<div class="rules source-frame"><p>最も早く空きになる部員（複数いる場合はそのうち最小の番号の部員）が，空きになった日付から次の工芸品を担当する。</p></div>
+<p>最も早く空きになる部員の番号を求めるために，各部員が空きになる日付を管理する配列Akibi を用意する。この配列の添字（1から始まる。）は部員の番号であり，要素はその部員が空きになる日付である。</p>
+<p>例えば，図1の状況では，配列Akibi は図3のようになる。図1で部員1は5日目に空きになるため，図3で要素Akibi[1]は5となる。同様に要素Akibi[3]は <span class="blank" data-field="q3-カ" data-original="カ">カ</span> となる。</p>
+<figure class="past-diagram" data-pdf-page="21" data-pdf-clip="110 419 405 494"><figcaption>図1　割当図（工芸品4まで）（再掲）</figcaption></figure>
+<div class="table-wrap"><table class="">
+<caption>図3　図1の状況に対応する配列Akibi</caption>
+<thead><tr>
+<th scope="col">添字</th>
+<th scope="col">1</th>
+<th scope="col">2</th>
+<th scope="col">3</th>
+</tr></thead>
+<tbody><tr>
+<th scope="row">Akibi</th>
+<td>5</td>
+<td>3</td>
+<td><span class="blank" data-field="q3-カ" data-original="カ">カ</span></td>
+</tr></tbody>
+</table></div>
+<p>図3において，要素Akibi[  <span class="blank" data-field="q3-ウ" data-original="ウ">ウ</span> ]が配列Akibi の最小の要素であることから，部員 <span class="blank" data-field="q3-ウ" data-original="ウ">ウ</span> が最も早く空きになることがわかる。</p>
+</section>
+
+
+<section class="page" data-source-page="22">
+<p>この考え方に基づき，K さんは配列Akibi の要素と，部員数が代入された変数buinsu を用いて，次に割り当てる工芸品の担当部員を表示するプログラムを作成した（図4）。ここでは例として，(01)行目で図3のように配列Akibi を設定している。</p>
+<figure class="native-program"><div class="program"><div class="code">
+<div class="code-row" data-depth="0">
+<span class="ln">(01)</span><span class="src">Akibi = [5, 3, <span class="blank" data-field="q3-カ" data-original="カ">カ</span>]</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(02)</span><span class="src">buinsu = 3</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(03)</span><span class="src">tantou = 1</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(04)</span><span class="src">buin を 2 から buinsu まで 1 ずつ増やしながら繰り返す:</span>
+</div>
+<div class="code-row" data-depth="1">
+<span class="ln">(05)</span><span class="src">もし <span class="blank" data-field="q3-キ" data-original="キ">キ</span> ならば:</span>
+</div>
+<div class="code-row" data-depth="2">
+<span class="ln">(06)</span><span class="src">tantou = buin</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(07)</span><span class="src">表示する("次の工芸品の担当は部員", tantou, "です。")</span>
+</div>
+</div></div>
+<figcaption>図4　次に割り当てる工芸品の担当部員を表示するプログラム</figcaption></figure>
+<p>仮に部員数が変わったとしても，配列Akibi と変数buinsu を適切に設定すれば，このプログラムを用いることができる。部員が5名に増えた場合，(01)行目を例えばAkibi = [5, 6, 4, 4, 4] に，(02)行目をbuinsu = 5 に変更して図4のプログラムを実行すると，(06)行目の代入が <span class="blank" data-field="q3-ク" data-original="ク">ク</span> 回行われ，「次の工芸品の担当は部員3です。」と表示される。</p>
+<fieldset class="choices">
+<legend>
+<span class="blank" data-field="q3-キ" data-original="キ">キ</span>の解答群</legend>
+<div class="choice-grid">
+<div class="option" data-choice-fields="q3-キ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text"><code>buin &lt; tantou</code></span>
+</div>
+<div class="option" data-choice-fields="q3-キ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text"><code>Akibi[buin] &lt; Akibi[tantou]</code></span>
+</div>
+<div class="option" data-choice-fields="q3-キ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text"><code>buin &gt; tantou</code></span>
+</div>
+<div class="option" data-choice-fields="q3-キ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text"><code>Akibi[buin] &gt; Akibi[tantou]</code></span>
+</div>
+</div>
+</fieldset>
+</section>
+
+
+<section class="page" data-source-page="23">
+<p class="exam-question">問３　次の文章を読み，空欄 <span class="blank" data-field="q3-ケ" data-original="ケ">ケ</span> ～ <span class="blank" data-field="q3-シ" data-original="シ">シ</span> に入れるのに最も適当なものを，後の解答群のうちから一つずつ選べ。</p>
+<p>次にK さんは，工芸部の部員数と，表1のような各工芸品の製作日数を用いて，図2のような一覧を表示するプログラムを作ることにした。</p>
+<div class="table-wrap"><table class="">
+<caption>表1　各工芸品の製作日数（再掲）</caption>
+<thead><tr>
+<th scope="col">工芸品</th>
+<th scope="col">1</th>
+<th scope="col">2</th>
+<th scope="col">3</th>
+<th scope="col">4</th>
+<th scope="col">5</th>
+<th scope="col">6</th>
+<th scope="col">7</th>
+<th scope="col">8</th>
+<th scope="col">9</th>
+</tr></thead>
+<tbody><tr>
+<th scope="row">製作日数</th>
+<td>4</td>
+<td>1</td>
+<td>3</td>
+<td>1</td>
+<td>3</td>
+<td>4</td>
+<td>2</td>
+<td>4</td>
+<td>3</td>
+</tr></tbody>
+</table></div>
+<figure class="mail-example"><div class="mail-body source-frame">
+<p>工芸品1 … 部員1：1日目～4日目</p>
+<p>工芸品2 … 部員2：1日目～1日目</p>
+<p>工芸品3 … 部員3：1日目～3日目</p>
+<p>工芸品4 … 部員<span class="blank" data-field="q3-ア" data-original="ア">ア</span>：<span class="blank" data-field="q3-イ" data-original="イ">イ</span>日目～<span class="blank" data-field="q3-イ" data-original="イ">イ</span>日目</p>
+<p>工芸品5 … 部員<span class="blank" data-field="q3-ウ" data-original="ウ">ウ</span>：<span class="blank" data-field="q3-エ" data-original="エ">エ</span>日目～<span class="blank" data-field="q3-オ" data-original="オ">オ</span>日目</p>
+<p>…</p>
+<p>工芸品9 … 部員1：7日目～9日目</p>
+</div>
+<figcaption>図2　各工芸品の担当と期間を一覧にしたメールの文面（再掲）</figcaption></figure>
+<p>表1をプログラムで扱うために，K さんは工芸品の番号順に製作日数を並べた配列Nissu（添字は1から始まる。）を用意した。さらに，工芸品数9が代入された変数kougeihinsu，各部員が空きになる日付を管理する配列Akibi，部員数3が代入された変数buinsu を用いて，図2の一覧を表示するプログラムを作成した（図5）。最初はどの部員も合宿初日すなわち1日目で空きであるため，(03)行目で配列Akibi の各要素を1に設定している。</p>
+<p>工芸品の番号を表す変数kougeihin を用意し，(05)～(11)行目で各工芸品に対して順に担当と期間を求めていく。破線で囲まれた(06)～(09)行目は問２における図4の(03)～(06)行目と同じもので，次に割り当てる工芸品の担当部員の番号を変数tantou に代入する処理を行う。(10)行目で図2の1行分を表示し，(11)行目で担当部員が空きになる日付を更新する。</p>
+</section>
+
+
+<section class="page" data-source-page="24">
+<figure class="native-program"><div class="program"><div class="code">
+<div class="code-row" data-depth="0">
+<span class="ln">(01)</span><span class="src">Nissu = [4, 1, 3, 1, 3, 4, 2, 4, 3]</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(02)</span><span class="src">kougeihinsu = 9</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(03)</span><span class="src">Akibi = [1, 1, 1]</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(04)</span><span class="src">buinsu = 3</span>
+</div>
+<div class="code-row" data-depth="0">
+<span class="ln">(05)</span><span class="src"><span class="blank" data-field="q3-ケ" data-original="ケ">ケ</span> を 1 から <span class="blank" data-field="q3-コ" data-original="コ">コ</span> まで 1 ずつ増やしながら繰り返す:</span>
+</div>
+<div class="code-row source-box source-box-first" data-depth="1" data-source-box="selection">
+<span class="ln">(06)</span><span class="src">tantou = 1</span>
+</div>
+<div class="code-row source-box" data-depth="1" data-source-box="selection">
+<span class="ln">(07)</span><span class="src">buin を 2 から buinsu まで 1 ずつ増やしながら繰り返す:</span>
+</div>
+<div class="code-row source-box" data-depth="2" data-source-box="selection">
+<span class="ln">(08)</span><span class="src">もし <span class="blank" data-field="q3-キ" data-original="キ">キ</span> ならば:</span>
+</div>
+<div class="code-row source-box source-box-last" data-depth="3" data-source-box="selection">
+<span class="ln">(09)</span><span class="src">tantou = buin</span>
+</div>
+<div class="code-row" data-depth="1">
+<span class="ln">(10)</span><span class="src">表示する("工芸品", kougeihin, " … ", "部員", tantou, "：", Akibi[tantou], "日目～", Akibi[tantou] + <span class="blank" data-field="q3-サ" data-original="サ">サ</span>, "日目")</span>
+</div>
+<div class="code-row" data-depth="1">
+<span class="ln">(11)</span><span class="src">Akibi[tantou] = Akibi[tantou] + <span class="blank" data-field="q3-シ" data-original="シ">シ</span></span>
+</div>
+</div></div>
+<figcaption>図5　各工芸品の担当と期間の一覧を表示するプログラム</figcaption></figure>
+<fieldset class="choices">
+<legend>
+<span class="blank" data-field="q3-ケ" data-original="ケ">ケ</span>・<span class="blank" data-field="q3-コ" data-original="コ">コ</span>の解答群</legend>
+<div class="choice-grid">
+<div class="option" data-choice-fields="q3-ケ q3-コ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text"><code>buin</code></span>
+</div>
+<div class="option" data-choice-fields="q3-ケ q3-コ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text"><code>kougeihin</code></span>
+</div>
+<div class="option" data-choice-fields="q3-ケ q3-コ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text"><code>tantou</code></span>
+</div>
+<div class="option" data-choice-fields="q3-ケ q3-コ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text"><code>buinsu</code></span>
+</div>
+<div class="option" data-choice-fields="q3-ケ q3-コ" data-choice-value="4">
+<span class="option-number">④</span><span class="option-text"><code>kougeihinsu</code></span>
+</div>
+</div>
+</fieldset>
+<fieldset class="choices">
+<legend>
+<span class="blank" data-field="q3-サ" data-original="サ">サ</span>・<span class="blank" data-field="q3-シ" data-original="シ">シ</span>の解答群</legend>
+<div class="choice-grid">
+<div class="option" data-choice-fields="q3-サ q3-シ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text"><code>Nissu[kougeihin]</code></span>
+</div>
+<div class="option" data-choice-fields="q3-サ q3-シ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text"><code>Nissu[tantou]</code></span>
+</div>
+<div class="option" data-choice-fields="q3-サ q3-シ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text"><code>Nissu[kougeihin] − 1</code></span>
+</div>
+<div class="option" data-choice-fields="q3-サ q3-シ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text"><code>Nissu[tantou] − 1</code></span>
+</div>
+<div class="option" data-choice-fields="q3-サ q3-シ" data-choice-value="4">
+<span class="option-number">④</span><span class="option-text"><code>Nissu[kougeihin − 1]</code></span>
+</div>
+<div class="option" data-choice-fields="q3-サ q3-シ" data-choice-value="5">
+<span class="option-number">⑤</span><span class="option-text"><code>Nissu[tantou − 1]</code></span>
+</div>
+</div>
+</fieldset>
+</section>

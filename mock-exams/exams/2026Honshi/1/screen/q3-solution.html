@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>共通テスト 情報Ⅰ 2026年度 本試験 第3問 解説</title><link rel="stylesheet" href="../../../../booklet.css"><link rel="stylesheet" href="../past-exam.css"></head><body data-section="q3"><main class="solution"><h1 class="solution-section-title">2026年度 本試験　第3問　解説</h1><section class="explanation-unit" data-reading-units="q3-01" data-solution-heading="1"><section class="explanation-unit" id="2026_main-q3-01" data-solution-heading="1" data-answer-labels="ア イ ウ"><h2 class="solution-unit-heading">問1　ア・イ・ウ</h2>
+<p class="solution-unit-answer"><strong>正答　ア：9 ／ イ：2 ／ ウ：4（完答で3点）</strong></p>
+<p>開始できるのは，自分が到着し，かつ前の人の体験が終わった後である。体験時間3分を使って，順に表を完成させる。</p>
+<div class="table-wrap"><table class="trace">
+<thead><tr>
+<th scope="col">人目</th>
+<th scope="col">到着</th>
+<th scope="col">開始</th>
+<th scope="col">終了</th>
+<th scope="col">待ち時間</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+<td>6</td>
+<td>0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>6</td>
+<td>9</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>10</td>
+<td>10</td>
+<td>13</td>
+<td>0</td>
+</tr>
+<tr>
+<td>5</td>
+<td>11</td>
+<td>13</td>
+<td>16</td>
+<td>2</td>
+</tr>
+<tr>
+<td>6</td>
+<td>12</td>
+<td>16</td>
+<td>19</td>
+<td>4</td>
+</tr>
+</tbody>
+</table></div>
+<p>3人目の終了は9分，5人目の待ちは2分，6人目の待ちは4分となる。</p>
+<p>ア・イ・ウは選択肢番号ではなく、表を完成させて得た数字を直接答える。3欄すべての正解で3点となる。</p></section></section><section class="explanation-unit" data-reading-units="q3-02 q3-03" data-solution-heading="1"><section class="explanation-unit" id="2026_main-q3-02" data-solution-heading="1" data-answer-labels="エ"><h2 class="solution-unit-heading">問1　エ</h2>
+<p class="solution-unit-answer"><strong>正答　エ：③（1点）</strong></p>
+<p>前の来訪者が終わる前に到着した場合は，その終了時刻まで待つ。前の来訪者がすでに終わっていれば，自分の到着時刻から始められる。比較するエは「直前の来訪者の終了時刻」である。</p></section><section class="explanation-unit" id="2026_main-q3-03" data-solution-heading="1" data-answer-labels="オ"><h2 class="solution-unit-heading">問1　オ</h2>
+<p class="solution-unit-answer"><strong>正答　オ：⓪（1点）</strong></p>
+<p>前の人が終わった後に着けば，到着した時刻がそのまま開始時刻となる。また，待ち時間は「自分の開始時刻−自分の到着時刻」で求める。両方に当てはまるオは「来訪者本人の到着時刻」である。</p></section></section><section class="explanation-unit" data-reading-units="q3-04 q3-05 q3-06 q3-07" data-solution-heading="1"><section class="explanation-unit" id="2026_main-q3-04" data-solution-heading="1" data-answer-labels="カ キ"><h2 class="solution-unit-heading">問2　カ・キ</h2>
+<p class="solution-unit-answer"><strong>正答　カ・キ：①・②（順不同，各2点，計4点）</strong></p>
+<p>開始時刻は，「前の人の終了時刻」と「自分の到着時刻」の遅い方である。最大値を使えば二つの場合をまとめて表せる。</p>
+<pre class="pseudocode"><code>Kaishi[i] = 最大値(Shuryou[i - 1], Touchaku[i])</code></pre>
+<p>前の人が終わっていなければShuryou[i−1]を選び，すでに終わっていればTouchaku[i]を選ぶ。最大値の引数の順序はどちらでもよい。</p>
+<p>カとキの順序は問わない。①と②を一つずつ選べば4点、正しい項目が一つなら2点となる。同じ項目を二つ選んでも、一つの正答項目を重複して数えない。</p></section><section class="explanation-unit" id="2026_main-q3-05" data-solution-heading="1" data-answer-labels="ク"><h2 class="solution-unit-heading">問2　ク</h2>
+<p class="solution-unit-answer"><strong>正答　ク：⑤（2点）</strong></p>
+<p>終了時刻は，自分の開始時刻へ体験時間を足した値になる。</p>
+<pre class="pseudocode"><code>Shuryou[i] = Kaishi[i] + taiken</code></pre>
+<p>時刻に別の時刻を加える式では，体験を何分行うかを表せない。加えるのは時間の長さtaikenである。</p></section><section class="explanation-unit" id="2026_main-q3-06" data-solution-heading="1" data-answer-labels="ケ"><h2 class="solution-unit-heading">問2　ケ</h2>
+<p class="solution-unit-answer"><strong>正答　ケ：②（2点）</strong></p>
+<p>待ち時間の計算は「開始時刻−到着時刻」である。引き算の左側には，自分の開始時刻Kaishi[i]を入れる。</p></section><section class="explanation-unit" id="2026_main-q3-07" data-solution-heading="1" data-answer-labels="コ"><h2 class="solution-unit-heading">問2　コ</h2>
+<p class="solution-unit-answer"><strong>正答　コ：②（2点）</strong></p>
+<p>待ち時間の引き算の右側には，自分の到着時刻Touchaku[i]を入れる。</p>
+<pre class="pseudocode"><code>待ち時間 = Kaishi[i] - Touchaku[i]</code></pre>
+<p>前の人の到着時刻を使うと，来訪者同士が到着した間隔などが混ざり，本人が待った長さを求められない。</p></section></section><section class="explanation-unit" data-reading-units="q3-08 q3-09 q3-10 q3-11 q3-12" data-solution-heading="1"><section class="explanation-unit" id="2026_main-q3-08" data-solution-heading="1" data-answer-labels="サ"><h2 class="solution-unit-heading">問3　サ</h2>
+<p class="solution-unit-answer"><strong>正答　サ：③（2点）</strong></p>
+<p>saichouは，ここまでに調べた人の中で最も長い待ち時間を保存する。次の人を調べるたびに，これまでのsaichouと，その人の待ち時間を比べる。</p>
+<pre class="pseudocode"><code>saichou = 最大値(saichou, Kaishi[i] - Touchaku[i])</code></pre>
+<p>最初に0へ初期化し，最大値を更新し続ければ，全員を調べた後に最長待ち時間が残る。</p></section><section class="explanation-unit" id="2026_main-q3-09" data-solution-heading="1" data-answer-labels="シ"><h2 class="solution-unit-heading">問3　シ</h2>
+<p class="solution-unit-answer"><strong>正答　シ：②（2点）</strong></p>
+<p>表示する条件は「最長待ち時間が10分未満」である。したがってsaichou &lt; 10を使う。10分ちょうどは条件に含まれない。</p>
+<p>taikenは1人の体験時間，saichouは最大の待ち時間であり，比較する対象を混同しない。</p></section><section class="explanation-unit" id="2026_main-q3-10" data-solution-heading="1" data-answer-labels="ス"><h2 class="solution-unit-heading">問3　ス</h2>
+<p class="solution-unit-answer"><strong>正答　ス：⓪（2点）</strong></p>
+<p>while型の繰返しでは，最初の条件判定より前に，条件に使う変数を設定しておく必要がある。taiken＝1，saichou＝0は，外側の繰返しの直前にある位置⓪へ入れる。</p>
+<p>繰返しの中で毎回初期化すると，体験時間を1，2，3…と増やして調べる処理が進まなくなる。</p></section><section class="explanation-unit" id="2026_main-q3-11" data-solution-heading="1" data-answer-labels="セ"><h2 class="solution-unit-heading">問3　セ</h2>
+<p class="solution-unit-answer"><strong>正答　セ：②（2点）</strong></p>
+<p>taikenを1増やす処理は，今の体験時間の計算と必要な表示を終えた後，次の条件判定に戻る前に1回だけ行う。位置②なら，外側の繰返しの末尾に入る。</p>
+<p>表示するifの内側へ入れると，条件が偽のときに体験時間が増えない。位置③は繰返しの外なので，繰返し中に値を進められない。</p></section><section class="explanation-unit" id="2026_main-q3-12" data-solution-heading="1" data-answer-labels="ソ"><h2 class="solution-unit-heading">問3　ソ</h2>
+<p class="solution-unit-answer"><strong>正答　ソ：5（2点）</strong></p>
+<p>体験時間1～4分は，最長待ち時間が10分未満になる。しかし，その次の5分も実際に計算しなければ，条件を超えると分からない。</p>
+<div class="table-wrap"><table class="trace">
+<thead><tr>
+<th scope="col">体験時間</th>
+<th scope="col">最長待ち時間</th>
+<th scope="col">表示</th>
+</tr></thead>
+<tbody>
+<tr>
+<td>1分</td>
+<td>0分</td>
+<td>する</td>
+</tr>
+<tr>
+<td>2分</td>
+<td>2分</td>
+<td>する</td>
+</tr>
+<tr>
+<td>3分</td>
+<td>4分</td>
+<td>する</td>
+</tr>
+<tr>
+<td>4分</td>
+<td>8分</td>
+<td>する</td>
+</tr>
+<tr>
+<td>5分</td>
+<td>13分</td>
+<td>しない。次の条件判定で終了</td>
+</tr>
+</tbody>
+</table></div>
+<p>Kaishiの初期化は，各体験時間を調べる冒頭で行う。表示が4回でも，計算は5回行うので，初期化も5回となる。</p>
+<p>体験時間を増やすと各人の終了時刻と待ち時間は減らないので、最長待ち時間が10分以上になった後の体験時間を調べても表示対象は増えない。5分の回では13分を計算して表示を省き、taikenを6に更新する。その後の外側の条件判定で終了する。</p></section>
+</section></main></body></html>

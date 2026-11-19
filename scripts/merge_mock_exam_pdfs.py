@@ -1,6 +1,7 @@
 """Merge section PDFs; subset only the new footer font, preserving source fonts."""
 import fitz
 import sys
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -13,7 +14,8 @@ for file in files:
     with fitz.open(file) as part:
         doc.insert_pdf(part)
 font_path = subprocess.check_output(['fc-match', '-f', '%{file}', 'Noto Sans CJK JP']).decode()
-footer = f'情報Ⅰ StudyAtlas 実戦演習 No.{number}'
+past = re.fullmatch(r'(20[0-9]{2})(Honshi|Tuishi)', number)
+footer = (f'情報Ⅰ StudyAtlas 共通テスト {past[1]}年度 {"本試験" if past[2]=="Honshi" else "追・再試験"} 解説' if past else f'情報Ⅰ StudyAtlas 実戦演習 No.{number}')
 with tempfile.TemporaryDirectory(prefix='atlas-footer-') as folder:
     font = TTFont(font_path, fontNumber=0)
     # CID-keyed CFF fonts keep their original character IDs. Renumbering glyphs

@@ -26,6 +26,7 @@ try {
     id: exam.id,
     version: exam.version,
     title: exam.title,
+    ...Object.fromEntries(["kind", "year", "session", "shortTitle"].filter(k => exam[k] !== undefined).map(k => [k, exam[k]])),
     manifest,
   });
   for (const item of catalogVersions(after)) {

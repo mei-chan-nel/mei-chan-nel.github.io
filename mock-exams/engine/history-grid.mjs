@@ -1,5 +1,5 @@
 import { elapsed } from "./attempt.mjs";
-import { catalogSections, isInterrupted } from "./catalog.mjs";
+import { catalogSections, isInterrupted, examLabel } from "./catalog.mjs";
 const sectionTitle = (id) =>
   catalogSections.find((s) => s[0] === id)?.[1] || id;
 export const emptyGridState = () => ({
@@ -77,9 +77,9 @@ export const historyColumns = [
   },
   {
     key: "exam",
-    label: "模試No.",
+    label: "試験",
     kind: "text",
-    labelValue: (r) => "No." + r.exam,
+    labelValue: (r) => examLabel(r.exam),
   },
   { key: "scope", label: "受験方式・大問", kind: "text" },
   { key: "status", label: "状態", kind: "text" },

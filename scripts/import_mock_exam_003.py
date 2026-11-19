@@ -366,7 +366,8 @@ def build():
         if sid=='q2b':
             h=one(p,'//section[1]/div/p[1]');h.tag='h1';h.text=re.sub(r'^B\s*','第2問B　',text(h))
         if sid=='q3':
-            h=one(p,'//h1');h.text=unicodedata.normalize('NFKC',text(h))
+            h=one(p,'//h1')
+            h.text=h.text_content().strip().replace('第３問', '第3問', 1)
             for child in list(h):h.remove(child)
             drafts=studio(s)
             (OUT/'source/studio-drafts.json').write_text(json.dumps(drafts,ensure_ascii=False,indent=2)+'\n')

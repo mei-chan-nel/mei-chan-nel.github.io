@@ -25,11 +25,11 @@
 <p>方式Ⅰの関係はP＝A ⊕ B ⊕ C、Q＝B ⊕ C ⊕ Dである。欠落はAとC、届いているのはB、D、P、Q。</p>
 <p><strong>シ：3。</strong> この手順では、各段階でPとQのいずれか一方だけと、値が分かっている元のブロックを使う。Qには欠落したCだけが含まれるため、C＝Q ⊕ B ⊕ DでCを復元できる。次に、そのCを使い、A＝P ⊕ B ⊕ CでAを復元できる。</p>
 <div class="table-wrap"><table>
-<tr><th>選択肢</th><th>判断</th><th>理由</th></tr>
-<tr><td>0</td><td>誤り</td><td>最初のPには未知のAとCが両方含まれ，Aだけを求められないため，Aを先に復元するこの手順は誤りである。</td></tr>
-<tr><td>1</td><td>誤り</td><td>最初のPには未知のAとCが両方含まれ，Cだけを求められないため，Cを先に復元するこの手順は誤りである。</td></tr>
-<tr><td>2</td><td>誤り</td><td>Qの式にはAが含まれず，Qと既知のブロックからAを求められないため，誤りである。</td></tr>
-<tr><td>3</td><td>正しい</td><td>QでCを復元し、その結果をPに使えばAを復元できる</td></tr>
+<tr><th>選択肢</th><th>判断</th><th data-explanation-prose="">理由</th></tr>
+<tr><td>0</td><td>誤り</td><td data-explanation-prose="">最初のPには未知のAとCが両方含まれ，Aだけを求められないため，Aを先に復元するこの手順は誤りである。</td></tr>
+<tr><td>1</td><td>誤り</td><td data-explanation-prose="">最初のPには未知のAとCが両方含まれ，Cだけを求められないため，Cを先に復元するこの手順は誤りである。</td></tr>
+<tr><td>2</td><td>誤り</td><td data-explanation-prose="">Qの式にはAが含まれず，Qと既知のブロックからAを求められないため，誤りである。</td></tr>
+<tr><td>3</td><td>正しい</td><td data-explanation-prose="">QでCを復元し、その結果をPに使えばAを復元できる</td></tr>
 </table></div>
 <p><strong>ス：1。</strong> こちらはPとQの両方を使う。P ⊕ Q＝A ⊕ B ⊕ C ⊕ B ⊕ C ⊕ D＝A ⊕ D。これにDを演算するとAになる。Cの具体的な値を途中で求める必要はない。</p>
 <div class="table-wrap"><table>
@@ -57,22 +57,22 @@
 <p><strong>タ：1（Bだけ）。</strong> A～Dが全て欠落しても、PとRは届いている。P ⊕ R＝A ⊕ B ⊕ C ⊕ A ⊕ C＝Bなので、Bを復元できる。</p>
 <p>Bが分かっても、残る関係はA ⊕ C＝RとC ⊕ D＝Q ⊕ Bである。Cの値を一つ選ぶと、それに応じてAとDを決められるため、A、C、Dそれぞれの値は一意にならない。</p>
 <div class="table-wrap"><table>
-<tr><th>選択肢</th><th>判断</th><th>理由</th></tr>
-<tr><td>0：Aだけ</td><td>誤り</td><td>A・C・Dの同じ位置のビットを同時に反転してもP・Q・Rは変わらず，異なるAを区別できない。Aは一意に復元できないため，誤りである。</td></tr>
-<tr><td>1：Bだけ</td><td>正しい</td><td>B＝P ⊕ Rで一意に決まる。A、C、Dは個別に決まらない</td></tr>
-<tr><td>2：Cだけ</td><td>誤り</td><td>A・C・Dの同じ位置のビットを同時に反転してもP・Q・Rは変わらず，異なるCを区別できない。Cは一意に復元できないため，誤りである。</td></tr>
-<tr><td>3：Dだけ</td><td>誤り</td><td>A・C・Dの同じ位置のビットを同時に反転してもP・Q・Rは変わらず，異なるDを区別できない。Dは一意に復元できないため，誤りである。</td></tr>
+<tr><th>選択肢</th><th>判断</th><th data-explanation-prose="">理由</th></tr>
+<tr><td>0：Aだけ</td><td>誤り</td><td data-explanation-prose="">A・C・Dの同じ位置のビットを同時に反転してもP・Q・Rは変わらず，異なるAを区別できない。Aは一意に復元できないため，誤りである。</td></tr>
+<tr><td>1：Bだけ</td><td>正しい</td><td data-explanation-prose="">B＝P ⊕ Rで一意に決まる。A、C、Dは個別に決まらない</td></tr>
+<tr><td>2：Cだけ</td><td>誤り</td><td data-explanation-prose="">A・C・Dの同じ位置のビットを同時に反転してもP・Q・Rは変わらず，異なるCを区別できない。Cは一意に復元できないため，誤りである。</td></tr>
+<tr><td>3：Dだけ</td><td>誤り</td><td data-explanation-prose="">A・C・Dの同じ位置のビットを同時に反転してもP・Q・Rは変わらず，異なるDを区別できない。Dは一意に復元できないため，誤りである。</td></tr>
 </table></div>
 <p>例えばP＝Q＝R＝0000が届いた場合、元のA、B、C、Dが全て0000でも、A＝C＝D＝1111でB＝0000でも矛盾しない。Bだけは両方で0000と決まっている。</p>
 <p>一部を復元できることと、元のデータ全体を復元できることを区別する。元のブロックが届かなかった数だけで、復元の可否を決めることはできない。</p>
 <h2>問4b：復元用のデータも欠落する場合</h2>
 <p><strong>チ：1（A、C、Q）。</strong> 届いているのはB、D、P、R。Pから得られるのはA ⊕ C＝P ⊕ Bであり、R＝A ⊕ Cと同じ関係である。Dは届いていても、Dを使ったQが欠落しているため、AとCを区別する手掛かりを増やせない。</p>
 <div class="table-wrap"><table>
-<tr><th>選択肢・欠落</th><th>届いたブロック</th><th>復元の可否と根拠</th></tr>
-<tr><td>0：A、B、P</td><td>C、D、Q、R</td><td>A＝R ⊕ C、B＝Q ⊕ C ⊕ Dで復元できるため，「復元できない組合せ」としては不適である。</td></tr>
-<tr><td>1：A、C、Q</td><td>B、D、P、R</td><td>A ⊕ Cしか分からず復元できない</td></tr>
-<tr><td>2：B、C、P</td><td>A、D、Q、R</td><td>C＝R ⊕ A、B＝Q ⊕ C ⊕ Dで復元できるため，「復元できない組合せ」としては不適である。</td></tr>
-<tr><td>3：C、D、R</td><td>A、B、P、Q</td><td>C＝P ⊕ A ⊕ B、D＝Q ⊕ B ⊕ Cで復元できるため，「復元できない組合せ」としては不適である。</td></tr>
+<tr><th>選択肢・欠落</th><th>届いたブロック</th><th data-explanation-prose="">復元の可否と根拠</th></tr>
+<tr><td>0：A、B、P</td><td>C、D、Q、R</td><td data-explanation-prose="">A＝R ⊕ C、B＝Q ⊕ C ⊕ Dで復元できるため，「復元できない組合せ」としては不適である。</td></tr>
+<tr><td>1：A、C、Q</td><td>B、D、P、R</td><td data-explanation-prose="">A ⊕ Cしか分からず復元できない</td></tr>
+<tr><td>2：B、C、P</td><td>A、D、Q、R</td><td data-explanation-prose="">C＝R ⊕ A、B＝Q ⊕ C ⊕ Dで復元できるため，「復元できない組合せ」としては不適である。</td></tr>
+<tr><td>3：C、D、R</td><td>A、B、P、Q</td><td data-explanation-prose="">C＝P ⊕ A ⊕ B、D＝Q ⊕ B ⊕ Cで復元できるため，「復元できない組合せ」としては不適である。</td></tr>
 </table></div>
 <p>反例として、B＝D＝0000、P＝R＝1111が届いた場合を考える。元のA、Cが0000、1111でも、0101、1010でも、届いた四つのブロックは変わらない。欠落したQが元はどの値だったかを受信側は知ることができず、AとCは決まらない。</p>
 </main></body></html>

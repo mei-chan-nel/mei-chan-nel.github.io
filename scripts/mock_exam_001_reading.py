@@ -116,14 +116,14 @@ def prepare_reading(document, section_id, kind, scoring):
             [[i] for i in range(1, 7)],
         ),
         'q2b': (
-            ['main/section[1]/div/p[6]', 'main/section[1]/div/fieldset',
+            ['main/section[1]/div/p[6]',
              'main/section[2]/div/p[1]', 'main/section[2]/div/p[5]',
              'main/section[3]/div/p[1]', 'main/section[3]/div/p[3]',
              'main/section[4]/div/p[1]'],
-            ['main/h2[3]', 'main/p[starts-with(normalize-space(.),"サ：")]',
+            ['main/h2[3]',
              'main/h2[4]', 'main/p[starts-with(normalize-space(.),"ス：")]',
              'main/h2[5]', 'main/h2[6]', 'main/h2[7]'],
-            [[i] for i in range(1, 8)],
+            [[1, 2]] + [[i] for i in range(3, 8)],
         ),
         'q3': (
             ['section[2]/div/div/p[3]', 'section[2]/div/div/p[4]',

@@ -1,0 +1,2401 @@
+{
+  "schemaVersion": 1,
+  "id": "2025Tuishi",
+  "version": 1,
+  "kind": "past",
+  "year": 2025,
+  "session": "supp",
+  "shortTitle": "2025年度 追・再試験",
+  "title": "共通テスト 情報Ⅰ 2025年度 追・再試験",
+  "durationSeconds": 3600,
+  "maxPoints": 100,
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問",
+      "maxPoints": 20,
+      "problem": "q1.html",
+      "screenProblem": "screen/q1.html",
+      "solution": "q1-solution.html",
+      "screenSolution": "screen/q1-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q1-reviewed-solution.html",
+      "sourceSha256": "521fa8b7883259ca80e28e560cb231d74624c1d4f9915d39d4c82c758dea9105",
+      "solutionSha256": "3bab1fcfe14ef5208891bfcf52456b8ae3335bde69663ac822c45aea6d4d30f5"
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A",
+      "maxPoints": 15,
+      "problem": "q2a.html",
+      "screenProblem": "screen/q2a.html",
+      "solution": "q2a-solution.html",
+      "screenSolution": "screen/q2a-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q2a-reviewed-solution.html",
+      "sourceSha256": "521fa8b7883259ca80e28e560cb231d74624c1d4f9915d39d4c82c758dea9105",
+      "solutionSha256": "eeafe7ab0904fc8a58568c7d46ac9d98e6238bfe422f0432239355f382ddb15c"
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B",
+      "maxPoints": 15,
+      "problem": "q2b.html",
+      "screenProblem": "screen/q2b.html",
+      "solution": "q2b-solution.html",
+      "screenSolution": "screen/q2b-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q2b-reviewed-solution.html",
+      "sourceSha256": "521fa8b7883259ca80e28e560cb231d74624c1d4f9915d39d4c82c758dea9105",
+      "solutionSha256": "284fefc66a039973901330674c0ff5271a4cc00894a5b2ee8ade1a15670ff7d5"
+    },
+    {
+      "id": "q3",
+      "title": "第3問",
+      "maxPoints": 25,
+      "problem": "q3.html",
+      "screenProblem": "screen/q3.html",
+      "solution": "q3-solution.html",
+      "screenSolution": "screen/q3-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q3-reviewed-solution.html",
+      "sourceSha256": "521fa8b7883259ca80e28e560cb231d74624c1d4f9915d39d4c82c758dea9105",
+      "solutionSha256": "883451af65084d315cdb4f653e07a6670d38d9218c06e309f04d833e690f2f52"
+    },
+    {
+      "id": "q4",
+      "title": "第4問",
+      "maxPoints": 25,
+      "problem": "q4.html",
+      "screenProblem": "screen/q4.html",
+      "solution": "q4-solution.html",
+      "screenSolution": "screen/q4-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q4-reviewed-solution.html",
+      "sourceSha256": "521fa8b7883259ca80e28e560cb231d74624c1d4f9915d39d4c82c758dea9105",
+      "solutionSha256": "79867556b85ec72bda53af0c03d66a66b9513871d7fcf224058d0fa05062cf64"
+    }
+  ],
+  "fields": [
+    {
+      "label": "ア",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "自分が撮った有名人の写真を友達にあげると，著作者の権利を侵害する。"
+        },
+        {
+          "value": "1",
+          "text": "バッハ（1750年没）の曲を自分で演奏した動画を動画共有サイトに投稿すると，作曲者の権利を侵害する。"
+        },
+        {
+          "value": "2",
+          "text": "他人の著作物を許可なく自分のWebページに丸ごと転載しても，著作者の権利を侵害しない。"
+        },
+        {
+          "value": "3",
+          "text": "自分で購入した複数の問題集をコピーして自分が勉強するためのオリジナル問題集を作っても，著作者の権利を侵害しない。"
+        }
+      ],
+      "id": "q1-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図1のようなピクトグラムの画像は，一般的にベクタ形式よりラスタ形式の方がデータ量が少ない。"
+        },
+        {
+          "value": "1",
+          "text": "画像を拡大してもジャギー（ギザギザ）が生じないのはラスタ形式である。"
+        },
+        {
+          "value": "2",
+          "text": "図2のような写真の保存に適しているのは，ベクタ形式よりラスタ形式である。"
+        },
+        {
+          "value": "3",
+          "text": "ベクタ形式のフォントは，あらかじめ表示サイズごとにフォントデータを用意しなければならない。"
+        }
+      ],
+      "id": "q1-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "14"
+        },
+        {
+          "value": "1",
+          "text": "15"
+        },
+        {
+          "value": "2",
+          "text": "16"
+        },
+        {
+          "value": "3",
+          "text": "18"
+        },
+        {
+          "value": "4",
+          "text": "19"
+        },
+        {
+          "value": "5",
+          "text": "20"
+        }
+      ],
+      "id": "q1-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "1/8"
+        },
+        {
+          "value": "1",
+          "text": "7/8"
+        },
+        {
+          "value": "2",
+          "text": "1/16"
+        },
+        {
+          "value": "3",
+          "text": "15/16"
+        },
+        {
+          "value": "4",
+          "text": "1/17"
+        },
+        {
+          "value": "5",
+          "text": "16/17"
+        },
+        {
+          "value": "6",
+          "text": "1/32"
+        },
+        {
+          "value": "7",
+          "text": "31/32"
+        }
+      ],
+      "id": "q1-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "＜日付＞が「7月3日」"
+        },
+        {
+          "value": "1",
+          "text": "＜日付＞が「7月3日」，かつ，＜施設＞が「武道場」"
+        },
+        {
+          "value": "2",
+          "text": "＜部活動団体＞が「柔道部」"
+        },
+        {
+          "value": "3",
+          "text": "＜施設＞が「武道場」，かつ，＜部活動団体＞が「柔道部」"
+        },
+        {
+          "value": "4",
+          "text": "＜日付＞が「7月3日」，かつ，＜武道場＞が「柔道部」"
+        }
+      ],
+      "id": "q1-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "その行の＜日付＞のマス"
+        },
+        {
+          "value": "1",
+          "text": "その行の＜施設＞のマス"
+        },
+        {
+          "value": "2",
+          "text": "その行の＜部活動団体＞のマス"
+        },
+        {
+          "value": "3",
+          "text": "その行の＜武道場＞のマス"
+        },
+        {
+          "value": "4",
+          "text": "その行そのもの"
+        }
+      ],
+      "id": "q1-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "＜日付＞が「7月3日」"
+        },
+        {
+          "value": "1",
+          "text": "＜日付＞が「7月3日」，かつ，＜施設＞が「武道場」"
+        },
+        {
+          "value": "2",
+          "text": "＜部活動団体＞が「柔道部」"
+        },
+        {
+          "value": "3",
+          "text": "＜施設＞が「武道場」，かつ，＜部活動団体＞が「柔道部」"
+        },
+        {
+          "value": "4",
+          "text": "＜日付＞が「7月3日」，かつ，＜武道場＞が「柔道部」"
+        }
+      ],
+      "id": "q1-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "その行の＜日付＞のマス"
+        },
+        {
+          "value": "1",
+          "text": "その行の＜施設＞のマス"
+        },
+        {
+          "value": "2",
+          "text": "その行の＜部活動団体＞のマス"
+        },
+        {
+          "value": "3",
+          "text": "その行の＜武道場＞のマス"
+        },
+        {
+          "value": "4",
+          "text": "その行そのもの"
+        }
+      ],
+      "id": "q1-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "玉子:1，コーン:2，のり:3，メンマ:4"
+        },
+        {
+          "value": "1",
+          "text": "玉子:1，コーン:2，のり:3，メンマ:6"
+        },
+        {
+          "value": "2",
+          "text": "玉子:1，コーン:2，のり:4，メンマ:8"
+        },
+        {
+          "value": "3",
+          "text": "玉子:1，コーン:2，のり:98，メンマ:99"
+        }
+      ],
+      "id": "q1-ケ"
+    },
+    {
+      "label": "コ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "5"
+        },
+        {
+          "value": "1",
+          "text": "6"
+        },
+        {
+          "value": "2",
+          "text": "7"
+        },
+        {
+          "value": "3",
+          "text": "8"
+        },
+        {
+          "value": "4",
+          "text": "16"
+        },
+        {
+          "value": "5",
+          "text": "49"
+        },
+        {
+          "value": "6",
+          "text": "99"
+        }
+      ],
+      "id": "q1-コ"
+    },
+    {
+      "label": "ア",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "26"
+        },
+        {
+          "value": "1",
+          "text": "26²"
+        },
+        {
+          "value": "2",
+          "text": "26¹⁰"
+        },
+        {
+          "value": "3",
+          "text": "(10＋26)"
+        },
+        {
+          "value": "4",
+          "text": "(10＋26)²"
+        },
+        {
+          "value": "5",
+          "text": "(10＋26)¹⁰"
+        },
+        {
+          "value": "6",
+          "text": "(10＋26＋26)"
+        },
+        {
+          "value": "7",
+          "text": "(10＋26＋26)²"
+        },
+        {
+          "value": "8",
+          "text": "(10＋26＋26)¹⁰"
+        },
+        {
+          "value": "9",
+          "text": "10×26"
+        },
+        {
+          "value": "A",
+          "text": "(10×26)²"
+        },
+        {
+          "value": "B",
+          "text": "10×26×26"
+        },
+        {
+          "value": "C",
+          "text": "(10×26×26)²"
+        }
+      ],
+      "id": "q2a-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "26"
+        },
+        {
+          "value": "1",
+          "text": "26²"
+        },
+        {
+          "value": "2",
+          "text": "26¹⁰"
+        },
+        {
+          "value": "3",
+          "text": "(10＋26)"
+        },
+        {
+          "value": "4",
+          "text": "(10＋26)²"
+        },
+        {
+          "value": "5",
+          "text": "(10＋26)¹⁰"
+        },
+        {
+          "value": "6",
+          "text": "(10＋26＋26)"
+        },
+        {
+          "value": "7",
+          "text": "(10＋26＋26)²"
+        },
+        {
+          "value": "8",
+          "text": "(10＋26＋26)¹⁰"
+        },
+        {
+          "value": "9",
+          "text": "10×26"
+        },
+        {
+          "value": "A",
+          "text": "(10×26)²"
+        },
+        {
+          "value": "B",
+          "text": "10×26×26"
+        },
+        {
+          "value": "C",
+          "text": "(10×26×26)²"
+        }
+      ],
+      "id": "q2a-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "会員登録サイトにアクセスする際は，確実にインターネットに接続できるように，ショッピングモールなどの公衆無線LANを利用する。"
+        },
+        {
+          "value": "1",
+          "text": "会員登録を行う際は，個人のパソコンではなく，学校や図書館などに設置されている共有パソコンを利用する。"
+        },
+        {
+          "value": "2",
+          "text": "会員情報を入力する際は，自分の周囲で他人が登録画面をのぞき込んでいないか，注意を払いながら入力する。"
+        },
+        {
+          "value": "3",
+          "text": "会員登録が終わった後は，登録したユーザIDやパスワードを失念しないように紙に印刷し，目立つ場所に掲示する。"
+        }
+      ],
+      "id": "q2a-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "パスワード:知識認証，認証コード:所有物認証"
+        },
+        {
+          "value": "1",
+          "text": "パスワード:知識認証，認証コード:生体認証"
+        },
+        {
+          "value": "2",
+          "text": "パスワード:所有物認証，認証コード:知識認証"
+        },
+        {
+          "value": "3",
+          "text": "パスワード:所有物認証，認証コード:生体認証"
+        },
+        {
+          "value": "4",
+          "text": "パスワード:生体認証，認証コード:知識認証"
+        },
+        {
+          "value": "5",
+          "text": "パスワード:生体認証，認証コード:所有物認証"
+        }
+      ],
+      "id": "q2a-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "パスワードを設定するときに，辞書に載っている英単語のような脆弱なパスワードを禁止できる。"
+        },
+        {
+          "value": "1",
+          "text": "パスワードを入力するときに，入力した文字列が画面上に表示されないようにすることができる。"
+        },
+        {
+          "value": "2",
+          "text": "パスワードを失念してしまったときに，認証コードをもとに計算することでパスワードを復元できる。"
+        },
+        {
+          "value": "3",
+          "text": "パスワードが漏洩してしまったときに，不正ログインされるリスクを減らすことができる。"
+        }
+      ],
+      "id": "q2a-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "会員情報を格納しているICチップを搭載した，プラスチック製のカードによる方式"
+        },
+        {
+          "value": "1",
+          "text": "透かしやホログラムが入っている特殊な紙に印刷し，耐水加工をほどこした紙製のカードによる方式"
+        },
+        {
+          "value": "2",
+          "text": "スマートフォンやパソコンで表示できる，会員情報を埋め込んだ二次元コードが掲載されたPDFファイルによる方式"
+        },
+        {
+          "value": "3",
+          "text": "スマートフォンにインストールした会員専用アプリで，ユーザIDとパスワードを使ってログインしているときだけ会員証機能が有効となる方式"
+        }
+      ],
+      "id": "q2a-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Ⅰ:○，Ⅱ:○，Ⅲ:○"
+        },
+        {
+          "value": "1",
+          "text": "Ⅰ:○，Ⅱ:○，Ⅲ:×"
+        },
+        {
+          "value": "2",
+          "text": "Ⅰ:○，Ⅱ:×，Ⅲ:○"
+        },
+        {
+          "value": "3",
+          "text": "Ⅰ:×，Ⅱ:○，Ⅲ:○"
+        },
+        {
+          "value": "4",
+          "text": "Ⅰ:○，Ⅱ:×，Ⅲ:×"
+        },
+        {
+          "value": "5",
+          "text": "Ⅰ:×，Ⅱ:○，Ⅲ:×"
+        },
+        {
+          "value": "6",
+          "text": "Ⅰ:×，Ⅱ:×，Ⅲ:○"
+        },
+        {
+          "value": "7",
+          "text": "Ⅰ:×，Ⅱ:×，Ⅲ:×"
+        }
+      ],
+      "id": "q2a-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q2b-ク",
+      "maxLength": 1
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "キャラクターのいるマスの，二つのビットの両方が1"
+        },
+        {
+          "value": "1",
+          "text": "キャラクターのいるマスの，二つのビットのどちらかが1"
+        },
+        {
+          "value": "2",
+          "text": "キャラクターのいるマスの右のマスの，左端から1ビット目が1"
+        },
+        {
+          "value": "3",
+          "text": "キャラクターのいるマスの右のマスの，左端から2ビット目が1"
+        }
+      ],
+      "id": "q2b-ケ"
+    },
+    {
+      "label": "コ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "2N"
+        },
+        {
+          "value": "1",
+          "text": "2N²"
+        },
+        {
+          "value": "2",
+          "text": "2N²＋4N"
+        },
+        {
+          "value": "3",
+          "text": "4N"
+        },
+        {
+          "value": "4",
+          "text": "4N²"
+        },
+        {
+          "value": "5",
+          "text": "4N²＋2N"
+        },
+        {
+          "value": "6",
+          "text": "32N²"
+        },
+        {
+          "value": "7",
+          "text": "32N²＋64N"
+        }
+      ],
+      "id": "q2b-コ"
+    },
+    {
+      "label": "サ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "2N"
+        },
+        {
+          "value": "1",
+          "text": "2N²"
+        },
+        {
+          "value": "2",
+          "text": "2N²＋4N"
+        },
+        {
+          "value": "3",
+          "text": "4N"
+        },
+        {
+          "value": "4",
+          "text": "4N²"
+        },
+        {
+          "value": "5",
+          "text": "4N²＋2N"
+        },
+        {
+          "value": "6",
+          "text": "32N²"
+        },
+        {
+          "value": "7",
+          "text": "32N²＋64N"
+        }
+      ],
+      "id": "q2b-サ"
+    },
+    {
+      "label": "シ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q2b-シ",
+      "maxLength": 1
+    },
+    {
+      "label": "ス",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "左"
+        },
+        {
+          "value": "1",
+          "text": "上"
+        },
+        {
+          "value": "2",
+          "text": "右"
+        },
+        {
+          "value": "3",
+          "text": "下"
+        }
+      ],
+      "id": "q2b-ス"
+    },
+    {
+      "label": "セ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "←"
+        },
+        {
+          "value": "1",
+          "text": "↑"
+        },
+        {
+          "value": "2",
+          "text": "→"
+        },
+        {
+          "value": "3",
+          "text": "↓"
+        }
+      ],
+      "id": "q2b-セ"
+    },
+    {
+      "label": "ソ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q2b-ソ",
+      "maxLength": 1
+    },
+    {
+      "label": "ア",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Iremono[1]"
+        },
+        {
+          "value": "1",
+          "text": "Iremono[2]"
+        },
+        {
+          "value": "2",
+          "text": "Iremono[n]"
+        },
+        {
+          "value": "3",
+          "text": "Shurui[1]"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[2]"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[n]"
+        },
+        {
+          "value": "6",
+          "text": "Keiryou[1]"
+        },
+        {
+          "value": "7",
+          "text": "Keiryou[2]"
+        },
+        {
+          "value": "8",
+          "text": "Keiryou[n]"
+        }
+      ],
+      "id": "q3-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Iremono[1]"
+        },
+        {
+          "value": "1",
+          "text": "Iremono[2]"
+        },
+        {
+          "value": "2",
+          "text": "Iremono[n]"
+        },
+        {
+          "value": "3",
+          "text": "Shurui[1]"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[2]"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[n]"
+        },
+        {
+          "value": "6",
+          "text": "Keiryou[1]"
+        },
+        {
+          "value": "7",
+          "text": "Keiryou[2]"
+        },
+        {
+          "value": "8",
+          "text": "Keiryou[n]"
+        }
+      ],
+      "id": "q3-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "2"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "ninzu"
+        },
+        {
+          "value": "5",
+          "text": "kanen"
+        },
+        {
+          "value": "6",
+          "text": "funen"
+        },
+        {
+          "value": "7",
+          "text": "Iremono[i]"
+        },
+        {
+          "value": "8",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "9",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Iremono[i] == 1"
+        },
+        {
+          "value": "1",
+          "text": "Iremono[i] == 2"
+        },
+        {
+          "value": "2",
+          "text": "Iremono[i] == gomi"
+        },
+        {
+          "value": "3",
+          "text": "Shurui[i] == 1"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[i] == 2"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[i] == kanen"
+        }
+      ],
+      "id": "q3-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Iremono[i] == 1"
+        },
+        {
+          "value": "1",
+          "text": "Iremono[i] == 2"
+        },
+        {
+          "value": "2",
+          "text": "Iremono[i] == gomi"
+        },
+        {
+          "value": "3",
+          "text": "Shurui[i] == 1"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[i] == 2"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[i] == kanen"
+        }
+      ],
+      "id": "q3-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "2"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "ninzu"
+        },
+        {
+          "value": "5",
+          "text": "kanen"
+        },
+        {
+          "value": "6",
+          "text": "funen"
+        },
+        {
+          "value": "7",
+          "text": "Iremono[i]"
+        },
+        {
+          "value": "8",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "9",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "2"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "ninzu"
+        },
+        {
+          "value": "5",
+          "text": "kanen"
+        },
+        {
+          "value": "6",
+          "text": "funen"
+        },
+        {
+          "value": "7",
+          "text": "Iremono[i]"
+        },
+        {
+          "value": "8",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "9",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "j"
+        },
+        {
+          "value": "1",
+          "text": "shuruisu"
+        },
+        {
+          "value": "2",
+          "text": "meishou"
+        },
+        {
+          "value": "3",
+          "text": "Shurui[j]"
+        },
+        {
+          "value": "4",
+          "text": "Namae[j]"
+        },
+        {
+          "value": "5",
+          "text": "Namae[shuruisu]"
+        }
+      ],
+      "id": "q3-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "j"
+        },
+        {
+          "value": "1",
+          "text": "shuruisu"
+        },
+        {
+          "value": "2",
+          "text": "meishou"
+        },
+        {
+          "value": "3",
+          "text": "Shurui[j]"
+        },
+        {
+          "value": "4",
+          "text": "Namae[j]"
+        },
+        {
+          "value": "5",
+          "text": "Namae[shuruisu]"
+        }
+      ],
+      "id": "q3-ケ"
+    },
+    {
+      "label": "コ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "i"
+        },
+        {
+          "value": "1",
+          "text": "j"
+        },
+        {
+          "value": "2",
+          "text": "s"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[j]"
+        },
+        {
+          "value": "6",
+          "text": "Shurui[s]"
+        },
+        {
+          "value": "7",
+          "text": "Namae[i]"
+        },
+        {
+          "value": "8",
+          "text": "Namae[j]"
+        },
+        {
+          "value": "9",
+          "text": "Namae[s]"
+        },
+        {
+          "value": "A",
+          "text": "Goukei[i]"
+        },
+        {
+          "value": "B",
+          "text": "Goukei[j]"
+        },
+        {
+          "value": "C",
+          "text": "Goukei[s]"
+        },
+        {
+          "value": "D",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-コ"
+    },
+    {
+      "label": "サ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "i"
+        },
+        {
+          "value": "1",
+          "text": "j"
+        },
+        {
+          "value": "2",
+          "text": "s"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[j]"
+        },
+        {
+          "value": "6",
+          "text": "Shurui[s]"
+        },
+        {
+          "value": "7",
+          "text": "Namae[i]"
+        },
+        {
+          "value": "8",
+          "text": "Namae[j]"
+        },
+        {
+          "value": "9",
+          "text": "Namae[s]"
+        },
+        {
+          "value": "A",
+          "text": "Goukei[i]"
+        },
+        {
+          "value": "B",
+          "text": "Goukei[j]"
+        },
+        {
+          "value": "C",
+          "text": "Goukei[s]"
+        },
+        {
+          "value": "D",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-サ"
+    },
+    {
+      "label": "シ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "i"
+        },
+        {
+          "value": "1",
+          "text": "j"
+        },
+        {
+          "value": "2",
+          "text": "s"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[j]"
+        },
+        {
+          "value": "6",
+          "text": "Shurui[s]"
+        },
+        {
+          "value": "7",
+          "text": "Namae[i]"
+        },
+        {
+          "value": "8",
+          "text": "Namae[j]"
+        },
+        {
+          "value": "9",
+          "text": "Namae[s]"
+        },
+        {
+          "value": "A",
+          "text": "Goukei[i]"
+        },
+        {
+          "value": "B",
+          "text": "Goukei[j]"
+        },
+        {
+          "value": "C",
+          "text": "Goukei[s]"
+        },
+        {
+          "value": "D",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-シ"
+    },
+    {
+      "label": "ス",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "i"
+        },
+        {
+          "value": "1",
+          "text": "j"
+        },
+        {
+          "value": "2",
+          "text": "s"
+        },
+        {
+          "value": "3",
+          "text": "gomi"
+        },
+        {
+          "value": "4",
+          "text": "Shurui[i]"
+        },
+        {
+          "value": "5",
+          "text": "Shurui[j]"
+        },
+        {
+          "value": "6",
+          "text": "Shurui[s]"
+        },
+        {
+          "value": "7",
+          "text": "Namae[i]"
+        },
+        {
+          "value": "8",
+          "text": "Namae[j]"
+        },
+        {
+          "value": "9",
+          "text": "Namae[s]"
+        },
+        {
+          "value": "A",
+          "text": "Goukei[i]"
+        },
+        {
+          "value": "B",
+          "text": "Goukei[j]"
+        },
+        {
+          "value": "C",
+          "text": "Goukei[s]"
+        },
+        {
+          "value": "D",
+          "text": "Keiryou[i]"
+        }
+      ],
+      "id": "q3-ス"
+    },
+    {
+      "label": "ア",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "項目間の値が等しくなる確率を表している"
+        },
+        {
+          "value": "1",
+          "text": "絶対値が1に近い値になると，散布図を描いたとき，点の集まりが直線に近づく"
+        },
+        {
+          "value": "2",
+          "text": "正の値のときは，散布図を描いたとき，点が右上がりの直線上に並ぶ"
+        },
+        {
+          "value": "3",
+          "text": "負の値をとることがない"
+        }
+      ],
+      "id": "q4-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "都道府県ごとの，各年齢層の人口の総人口に対する割合は，すべて等しい"
+        },
+        {
+          "value": "1",
+          "text": "病院数は，各年齢層の人口と関係なく年々増えている"
+        },
+        {
+          "value": "2",
+          "text": "年齢層によらず，人口が多い都道府県では病院数も多い傾向にある"
+        },
+        {
+          "value": "3",
+          "text": "病院数が極端に多い都道府県が存在する"
+        }
+      ],
+      "id": "q4-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "各都道府県間での病院の分布の疎密の程度の比較"
+        },
+        {
+          "value": "1",
+          "text": "各都道府県内での人口が過疎になっている市区町村の特定"
+        },
+        {
+          "value": "2",
+          "text": "各都道府県間での一世帯あたりの病院数の比較"
+        },
+        {
+          "value": "3",
+          "text": "各都道府県内での病院が少ない市区町村の特定"
+        }
+      ],
+      "id": "q4-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Ａ:少なく，Ｂ:少なく"
+        },
+        {
+          "value": "1",
+          "text": "Ａ:少なく，Ｂ:多く"
+        },
+        {
+          "value": "2",
+          "text": "Ａ:多く，Ｂ:少なく"
+        },
+        {
+          "value": "3",
+          "text": "Ａ:多く，Ｂ:多く"
+        }
+      ],
+      "id": "q4-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Ｃ:過密化，Ｄ:多く"
+        },
+        {
+          "value": "1",
+          "text": "Ｃ:過密化，Ｄ:少なく"
+        },
+        {
+          "value": "2",
+          "text": "Ｃ:過疎化，Ｄ:多く"
+        },
+        {
+          "value": "3",
+          "text": "Ｃ:過疎化，Ｄ:少なく"
+        }
+      ],
+      "id": "q4-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "分布がほぼ左右対称になっている"
+        },
+        {
+          "value": "1",
+          "text": "分布に二つの大きな山がある"
+        },
+        {
+          "value": "2",
+          "text": "左側の階級に度数が集中している"
+        },
+        {
+          "value": "3",
+          "text": "右側の階級に度数が集中している"
+        }
+      ],
+      "id": "q4-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "「65歳以上割合」の平均値は，Oグループの方が大きい"
+        },
+        {
+          "value": "1",
+          "text": "「65歳以上割合」の範囲は，Xグループの方が大きい"
+        },
+        {
+          "value": "2",
+          "text": "「病院/面積」の平均値は，Xグループの方が大きい"
+        },
+        {
+          "value": "3",
+          "text": "「病院/面積」の分散は，Oグループの方が大きい"
+        }
+      ],
+      "id": "q4-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Xグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設以上である"
+        },
+        {
+          "value": "1",
+          "text": "Xグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設未満である"
+        },
+        {
+          "value": "2",
+          "text": "Oグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設以上である"
+        },
+        {
+          "value": "3",
+          "text": "Oグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設未満である"
+        }
+      ],
+      "id": "q4-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0.283"
+        },
+        {
+          "value": "1",
+          "text": "0.299"
+        },
+        {
+          "value": "2",
+          "text": "2.83"
+        },
+        {
+          "value": "3",
+          "text": "2.99"
+        }
+      ],
+      "id": "q4-ケ"
+    }
+  ],
+  "scoring": [
+    {
+      "id": "q1-01",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-02",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-03",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-ウ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-04",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-エ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-05",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-オ",
+        "q1-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-06",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-キ",
+        "q1-ク"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-07",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-08",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-コ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-01",
+      "sectionId": "q2a",
+      "question": 1,
+      "fields": [
+        "q2a-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "8"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-02",
+      "sectionId": "q2a",
+      "question": 1,
+      "fields": [
+        "q2a-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "7"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-03",
+      "sectionId": "q2a",
+      "question": 2,
+      "fields": [
+        "q2a-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-04",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-05",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-06",
+      "sectionId": "q2a",
+      "question": 4,
+      "fields": [
+        "q2a-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-07",
+      "sectionId": "q2a",
+      "question": 5,
+      "fields": [
+        "q2a-キ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-01",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-02",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-03",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-04",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-05",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-06",
+      "sectionId": "q2b",
+      "question": 2,
+      "fields": [
+        "q2b-ス",
+        "q2b-セ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-07",
+      "sectionId": "q2b",
+      "question": 2,
+      "fields": [
+        "q2b-ソ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-01",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-02",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "8"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-03",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-ウ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-04",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-05",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-06",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-07",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-キ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-08",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ク"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-09",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ケ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-10",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-11",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "C"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-12",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "8"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-13",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ス"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "B"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-01",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-02",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-イ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-03",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-ウ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-04",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-エ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-05",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-オ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-06",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-07",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-キ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-08",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-ク"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-09",
+      "sectionId": "q4",
+      "question": 5,
+      "fields": [
+        "q4-ケ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    }
+  ]
+}

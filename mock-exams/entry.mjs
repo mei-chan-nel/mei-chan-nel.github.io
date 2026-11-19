@@ -3,11 +3,10 @@ import { AttemptStore } from "./engine/attempt.mjs";
 import {
   defaultCatalogView,
   renderCatalogContents,
-} from "./ui/catalog-page.mjs?v=2026110905";
+} from "./ui/catalog-page.mjs?v=20261118-card-order";
 const target = document.querySelector("#app"),
   store = new AttemptStore();
 const entries = JSON.parse(document.querySelector("#exam-catalog").textContent);
-const key = "study-atlas:mock-exams:navigation:v1";
 // Opening the catalog starts at the top, without replaying a saved scroll offset.
 history.scrollRestoration = "manual";
 const view = defaultCatalogView();
@@ -16,15 +15,6 @@ const notify = (error) => {
   document.querySelector("#notice").textContent =
     error.message || "操作を完了できませんでした。もう一度お試しください。";
 };
-function savedNavigation() {
-  try {
-    return (
-      history.state?.studyAtlasMock || JSON.parse(sessionStorage.getItem(key))
-    );
-  } catch {
-    return null;
-  }
-}
 function sampleHistory() {
   if (!document.querySelector('meta[name="mock-exams-preview-samples"]'))
     return Promise.resolve();
@@ -37,7 +27,7 @@ async function launch(action) {
   application = (async () => {
     if (action?.kind === "history" || (!action && location.hash))
       await sampleHistory();
-    const { initializeApp } = await import("./app.mjs?v=2026110905");
+    const { initializeApp } = await import("./app.mjs?v=20261118-timed-pause");
     await initializeApp({ entries, view, action });
   })().catch((error) => {
     application = null;
@@ -45,7 +35,7 @@ async function launch(action) {
   });
   return application;
 }
-function render(persist = false) {
+function render() {
   if (application) return;
   document.body.dataset.view = "catalog";
   let records = [];
@@ -59,32 +49,18 @@ function render(persist = false) {
     catalog: entries,
     history: records,
     catalogView: view,
-    onChange: () => render(true),
+    onChange: render,
     onStart: (entry, mode, sectionId) =>
       launch({ kind: "begin", examId: entry.id, mode, sectionId }),
     onResume: (id) => launch({ kind: "resume", id }),
+    onResult: (id) => launch({ kind: "result", id }),
     onHistory: () => launch({ kind: "history" }),
     onError: notify,
   });
-  if (persist) {
-    const previous = savedNavigation();
-    const state = {
-      ...(previous?.view === "catalog" ? previous : {}),
-      view: "catalog",
-      id: null,
-      catalog: { ...view },
-      scrollY: scrollY,
-    };
-    history.replaceState({ studyAtlasMock: state }, "", location.href);
-    try {
-      sessionStorage.setItem(key, JSON.stringify(state));
-    } catch {}
-  }
 }
 if (location.hash) launch();
 else {
-  const saved = savedNavigation();
-  if (saved?.view === "catalog") Object.assign(view, saved.catalog);
+  // Fresh visits start with the catalog defaults. The full app handles in-page navigation.
   render();
   // Preview fixtures are unrelated to first paint. No exam documents or RPCs
   // are requested on the normal catalog path.

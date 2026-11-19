@@ -7,6 +7,15 @@ export const catalogSections = [
   ["q3", "第3問"],
   ["q4", "第4問"],
 ];
+export const examLabel = (entry) => {
+  const id = typeof entry === "string" ? entry : entry.id;
+  if (typeof entry === "object" && entry.shortTitle) return entry.shortTitle;
+  const past = /^(\d{4})(Honshi|Tuishi)$/.exec(id);
+  return past ? `${past[1]}年度 ${past[2] === "Honshi" ? "本試験" : "追・再試験"}` : `No.${id}`;
+};
+export const isPastExam = entry => entry.kind === "past" || /^\d{4}(Honshi|Tuishi)$/.test(entry.id);
+export const filterExams = (entries, type = "all") => entries.filter(e => type === "all" || (type === "past" ? isPastExam(e) : !isPastExam(e)));
+
 export const isInterrupted = (a) =>
   a.status !== "graded" || !a.result || a.gradingKind === "interim";
 
@@ -31,6 +40,7 @@ export function catalogProgress(entry, history, mode, sectionId) {
     status: unfinished ? "中断中" : runs.length ? "採点済み" : "未受験",
     resume: unfinished || null,
     latest: runs[0] || null,
+    latestResult: runs.find((run) => run.result) || null,
   };
 }
 
@@ -40,13 +50,14 @@ export function sortCatalog(entries, history, mode, sectionId, order) {
   const newest = (a, b) =>
     (Date.parse(b.publishedAt) || 0) - (Date.parse(a.publishedAt) || 0) ||
     numberOrder(b, a);
-  const rank = { 未受験: 0, 中断中: 1, 採点済み: 2 };
+  const rank = { 中断中: 0, 未受験: 1, 採点済み: 2 };
   return [...entries].sort((a, b) => {
-    if (order === "number") return numberOrder(a, b);
-    if (order === "newest") return newest(a, b);
+    if (order === "number") return Number(isPastExam(a))-Number(isPastExam(b)) || numberOrder(a, b);
+    if (order === "newest") return Number(isPastExam(a))-Number(isPastExam(b)) || newest(a, b);
     return (
       rank[catalogProgress(a, history, mode, sectionId).status] -
         rank[catalogProgress(b, history, mode, sectionId).status] ||
+      Number(isPastExam(a))-Number(isPastExam(b)) ||
       numberOrder(b, a)
     );
   });

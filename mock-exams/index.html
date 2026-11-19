@@ -18,9 +18,9 @@
       content="情報Ⅰの実戦演習。60分の通し受験、大問別演習、採点と復習に取り組めます。"
     />
     <link rel="stylesheet" href="../assets/site.css?v=2026110906" />
-    <link rel="stylesheet" href="app.css?v=20261101-release-002" />
+    <link rel="stylesheet" href="app.css?v=20261118-final-layout" />
     <script src="../assets/site-analytics.js?v=20261029-mock" defer></script>
-    <script type="module" src="entry.mjs?v=2026110905"></script>
+    <script type="module" src="entry.mjs?v=20261118-timed-pause"></script>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -42,7 +42,7 @@
       }
     </script>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <script id="exam-catalog" type="application/json">[{"id":"001","version":2,"title":"情報Ⅰ 実戦演習 No.001","publishedAt":"2026-10-29","manifest":"exams/001/2/exam.json","versions":[{"version":1,"manifest":"exams/001/1/exam.json"}]},{"id":"002","version":1,"title":"情報Ⅰ 実戦演習 No.002","manifest":"exams/002/1/exam.json","publishedAt":"2026-11-01"},{"id":"003","version":1,"title":"情報Ⅰ 実戦演習 No.003","manifest":"exams/003/1/exam.json","publishedAt":"2026-11-09"}]</script>
+  <script id="exam-catalog" type="application/json">[{"id":"001","version":2,"title":"情報Ⅰ 実戦演習 No.001","publishedAt":"2026-10-29","manifest":"exams/001/2/exam.json","versions":[{"version":1,"manifest":"exams/001/1/exam.json"}]},{"id":"002","version":1,"title":"情報Ⅰ 実戦演習 No.002","manifest":"exams/002/1/exam.json","publishedAt":"2026-11-01"},{"id":"003","version":1,"title":"情報Ⅰ 実戦演習 No.003","manifest":"exams/003/1/exam.json","publishedAt":"2026-11-09"},{"id":"2025Honshi","version":1,"title":"共通テスト 情報Ⅰ 2025年度 本試験","kind":"past","year":2025,"session":"main","shortTitle":"2025年度 本試験","manifest":"exams/2025Honshi/1/exam.json"},{"id":"2025Tuishi","version":1,"title":"共通テスト 情報Ⅰ 2025年度 追・再試験","kind":"past","year":2025,"session":"supp","shortTitle":"2025年度 追・再試験","manifest":"exams/2025Tuishi/1/exam.json"},{"id":"2026Honshi","version":1,"title":"共通テスト 情報Ⅰ 2026年度 本試験","kind":"past","year":2026,"session":"main","shortTitle":"2026年度 本試験","manifest":"exams/2026Honshi/1/exam.json"},{"id":"2026Tuishi","version":1,"title":"共通テスト 情報Ⅰ 2026年度 追・再試験","kind":"past","year":2026,"session":"supp","shortTitle":"2026年度 追・再試験","manifest":"exams/2026Tuishi/1/exam.json"}]</script>
 </head>
   <body data-view="catalog">
     <header class="site-header">
@@ -62,9 +62,13 @@
       <nav class="breadcrumb" aria-label="パンくずリスト"><a href="../">学習トップ</a><span aria-hidden="true">/</span><span aria-current="page">実戦演習</span></nav>
       <h1 class="visually-hidden">情報Ⅰ 実戦演習</h1>
       <nav id="exam-modes" class="mode-choices" aria-label="受験方式を選ぶ"><button class="mode-choice" data-mode="full" aria-pressed="true"><span class="mode-meta">1回分を通して</span><strong>回ごとに受験する</strong><span>60分・100点の本番形式で実力を確かめる。</span></button><button class="mode-choice" data-mode="section" aria-pressed="false"><span class="mode-meta">大問を選んで</span><strong>大問ごとに演習する</strong><span>取り組みたい大問を選んで重点的に練習する。</span></button></nav>
+      <section class="section-picker" aria-labelledby="exam-type-title">
+        <h2 id="exam-type-title">試験選択</h2>
+        <div id="catalog-type" class="time-options" role="group" aria-label="試験選択"><button data-exam-type="all" aria-pressed="true">すべて</button><button data-exam-type="original" aria-pressed="false"><span class="filter-label-full">オリジナル模試のみ</span><span class="filter-label-short">模試のみ</span></button><button data-exam-type="past" aria-pressed="false"><span class="filter-label-full">共通テスト過去問のみ</span><span class="filter-label-short">過去問のみ</span></button></div>
+      </section>
       <section id="time-picker" class="section-picker" aria-labelledby="time-picker-title" >
         <h2 id="time-picker-title">受験時間を選ぶ</h2>
-        <div class="time-options" id="catalog-time" role="group" aria-label="受験時間"><button data-time="timed" aria-pressed="true">60分で受験する</button><button data-time="untimed" aria-pressed="false">時間制限なしで解く</button></div>
+        <div class="time-options" id="catalog-time" role="group" aria-label="受験時間"><button data-time="untimed" aria-pressed="true">時間制限なしで解く</button><button data-time="timed" aria-pressed="false">60分で受験する</button></div>
       </section>
       <section id="section-picker" class="section-picker" aria-labelledby="section-picker-title" hidden>
         <h2 id="section-picker-title">大問を選ぶ</h2>
@@ -72,12 +76,18 @@
       </section>
       <section class="exam-picker" aria-labelledby="exam-picker-title">
         <div class="catalog-list-heading">
-          <div><p class="eyebrow" id="catalog-context">回ごとに受験 · 60分</p><h2 id="exam-picker-title">模試No.を選ぶ</h2></div>
-          <label class="catalog-sort">並び順<select id="catalog-sort"><option value="recommended" selected>おすすめ順</option><option value="newest" >新しい順</option><option value="number" >番号順</option></select></label>
+          <div><p class="eyebrow" id="catalog-context">回ごとに受験 · 時間制限なし</p><h2 id="exam-picker-title">試験を選ぶ</h2></div>
+          <div class="catalog-list-tools"><label class="catalog-sort">並び順<select id="catalog-sort"><option value="recommended" selected>おすすめ順</option><option value="newest" >新しい順</option><option value="number" >番号順</option></select></label><button id="open-history">学習履歴</button></div>
         </div>
-        <div id="exam-list"><article class="exam-card catalog-exam" data-exam-id="003"><div><div class="exam-card-title"><h3>No.003</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年11月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="003">選択</button><div class="pdf-links"><a href="exams/003/1/problem.pdf" download="情報Ⅰ_実戦演習_No.003_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/003/1/solution.pdf" download="情報Ⅰ_実戦演習_No.003_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="002"><div><div class="exam-card-title"><h3>No.002</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年11月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="002">選択</button><div class="pdf-links"><a href="exams/002/1/problem.pdf" download="情報Ⅰ_実戦演習_No.002_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/002/1/solution.pdf" download="情報Ⅰ_実戦演習_No.002_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="001"><div><div class="exam-card-title"><h3>No.001</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年10月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="001">選択</button><div class="pdf-links"><a href="exams/001/2/problem.pdf" download="情報Ⅰ_実戦演習_No.001_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/001/2/solution.pdf" download="情報Ⅰ_実戦演習_No.001_解答解説PDF.pdf">解答解説PDF</a></div></div></article></div>
+        <div id="exam-list"><article class="exam-card catalog-exam" data-exam-id="003"><div><div class="exam-card-title"><h3>No.003</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年11月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="003">選択</button><div class="pdf-links"><a href="exams/003/1/problem.pdf" download="情報Ⅰ_実戦演習_No.003_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/003/1/solution.pdf" download="情報Ⅰ_実戦演習_No.003_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="002"><div><div class="exam-card-title"><h3>No.002</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年11月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="002">選択</button><div class="pdf-links"><a href="exams/002/1/problem.pdf" download="情報Ⅰ_実戦演習_No.002_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/002/1/solution.pdf" download="情報Ⅰ_実戦演習_No.002_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="001"><div><div class="exam-card-title"><h3>No.001</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問 · 2026年10月</p></div><div class="actions exam-card-actions"><button class="primary" data-start="001">選択</button><div class="pdf-links"><a href="exams/001/2/problem.pdf" download="情報Ⅰ_実戦演習_No.001_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/001/2/solution.pdf" download="情報Ⅰ_実戦演習_No.001_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="2026Tuishi"><div><div class="exam-card-title"><h3>2026年度 追・再試験</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問</p></div><div class="actions exam-card-actions"><button class="primary" data-start="2026Tuishi">選択</button><div class="pdf-links"><a href="exams/2026Tuishi/1/problem.pdf" download="情報Ⅰ_実戦演習_2026年度 追・再試験_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/2026Tuishi/1/solution.pdf" download="情報Ⅰ_実戦演習_2026年度 追・再試験_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="2026Honshi"><div><div class="exam-card-title"><h3>2026年度 本試験</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問</p></div><div class="actions exam-card-actions"><button class="primary" data-start="2026Honshi">選択</button><div class="pdf-links"><a href="exams/2026Honshi/1/problem.pdf" download="情報Ⅰ_実戦演習_2026年度 本試験_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/2026Honshi/1/solution.pdf" download="情報Ⅰ_実戦演習_2026年度 本試験_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="2025Tuishi"><div><div class="exam-card-title"><h3>2025年度 追・再試験</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問</p></div><div class="actions exam-card-actions"><button class="primary" data-start="2025Tuishi">選択</button><div class="pdf-links"><a href="exams/2025Tuishi/1/problem.pdf" download="情報Ⅰ_実戦演習_2025年度 追・再試験_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/2025Tuishi/1/solution.pdf" download="情報Ⅰ_実戦演習_2025年度 追・再試験_解答解説PDF.pdf">解答解説PDF</a></div></div></article><article class="exam-card catalog-exam" data-exam-id="2025Honshi"><div><div class="exam-card-title"><h3>2025年度 本試験</h3><span class="exam-status ">未受験</span></div><p>1回分・全大問</p></div><div class="actions exam-card-actions"><button class="primary" data-start="2025Honshi">選択</button><div class="pdf-links"><a href="exams/2025Honshi/1/problem.pdf" download="情報Ⅰ_実戦演習_2025年度 本試験_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/2025Honshi/1/solution.pdf" download="情報Ⅰ_実戦演習_2025年度 本試験_解答解説PDF.pdf">解答解説PDF</a></div></div></article></div>
       </section>
-      <div class="catalog-history-actions"><button id="open-history">学習履歴</button></div>
+      <details class="past-exam-permission">
+        <summary>共通テスト過去問掲載について</summary>
+        <p>大学入学共通テストの過去問は、独立行政法人大学入試センターの許諾を得て掲載しています。</p>
+        <p>過去問の「問題冊子PDF」からは、大学入試センターが公表した本試験・追・再試験の問題冊子を原本のままダウンロードできます。サイトの画面では、解答・閲覧に合わせてレイアウトや解答欄などの体裁を整えています。</p>
+        <p>解説はStudy Atlasが独自に作成しています。</p>
+        <p>このサイトに掲載している過去問は、ダウンロードした問題冊子PDFを含め、再配布できません。二次利用については、大学入試センターへお問い合わせください。<a href="https://www.dnc.ac.jp/about_site.html">大学入試センター「試験問題の利用について」</a></p>
+      </details>
     </div></main>
     <p id="notice" role="status" aria-live="polite"></p>
     <dialog id="answer-dialog" aria-labelledby="answer-title">

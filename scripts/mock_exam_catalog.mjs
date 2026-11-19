@@ -18,7 +18,7 @@ export function catalogVersions(catalog) {
     out = [];
   for (const entry of catalog) {
     check(
-      /^\d{3}$/.test(entry.id) && entry.id !== "000" && !ids.has(entry.id),
+      /^(?:\d{3}|20\d{2}(?:Honshi|Tuishi))$/.test(entry.id) && entry.id !== "000" && !ids.has(entry.id),
       "Duplicate or invalid catalog No.",
     );
     ids.add(entry.id);
@@ -84,7 +84,7 @@ export function registerEntry(catalog, incoming) {
 
 export function checkManifest(relative, root = mockRoot) {
   check(
-    /^exams\/[0-9]{3}\/[1-9][0-9]*\/exam\.json$/.test(relative),
+    /^exams\/(?:[0-9]{3}|20[0-9]{2}(?:Honshi|Tuishi))\/[1-9][0-9]*\/exam\.json$/.test(relative),
     "Use exams/NNN/<integer>/exam.json",
   );
   const file = path.join(root, relative),

@@ -1,0 +1,2495 @@
+{
+  "schemaVersion": 1,
+  "id": "2026Tuishi",
+  "version": 1,
+  "kind": "past",
+  "year": 2026,
+  "session": "supp",
+  "shortTitle": "2026年度 追・再試験",
+  "title": "共通テスト 情報Ⅰ 2026年度 追・再試験",
+  "durationSeconds": 3600,
+  "maxPoints": 100,
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問",
+      "maxPoints": 20,
+      "problem": "q1.html",
+      "screenProblem": "screen/q1.html",
+      "solution": "q1-solution.html",
+      "screenSolution": "screen/q1-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q1-reviewed-solution.html",
+      "sourceSha256": "2f4636b5b2b13f288898bc62c1d1e37295231621718377e42afc29c03fbbfe9f",
+      "solutionSha256": "c95773ad33f15eadaeea058545f623a2a13622d371ba8771e0ac81f7a992b1bc"
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A",
+      "maxPoints": 15,
+      "problem": "q2a.html",
+      "screenProblem": "screen/q2a.html",
+      "solution": "q2a-solution.html",
+      "screenSolution": "screen/q2a-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q2a-reviewed-solution.html",
+      "sourceSha256": "2f4636b5b2b13f288898bc62c1d1e37295231621718377e42afc29c03fbbfe9f",
+      "solutionSha256": "8990361092a76150cc939011cf59ca543401833815ef9a3c3aab27082548ad27"
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B",
+      "maxPoints": 15,
+      "problem": "q2b.html",
+      "screenProblem": "screen/q2b.html",
+      "solution": "q2b-solution.html",
+      "screenSolution": "screen/q2b-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q2b-reviewed-solution.html",
+      "sourceSha256": "2f4636b5b2b13f288898bc62c1d1e37295231621718377e42afc29c03fbbfe9f",
+      "solutionSha256": "7428e089ba29fc2f878619e1bf6ecbc07a95245d4314c85728ccad0063d6d257"
+    },
+    {
+      "id": "q3",
+      "title": "第3問",
+      "maxPoints": 25,
+      "problem": "q3.html",
+      "screenProblem": "screen/q3.html",
+      "solution": "q3-solution.html",
+      "screenSolution": "screen/q3-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q3-reviewed-solution.html",
+      "sourceSha256": "2f4636b5b2b13f288898bc62c1d1e37295231621718377e42afc29c03fbbfe9f",
+      "solutionSha256": "89d5ddbd55b5a24cb06fb46655254a41765bd1d58888f8678f9e7fd46df74326"
+    },
+    {
+      "id": "q4",
+      "title": "第4問",
+      "maxPoints": 25,
+      "problem": "q4.html",
+      "screenProblem": "screen/q4.html",
+      "solution": "q4-solution.html",
+      "screenSolution": "screen/q4-solution.html",
+      "sourceProblem": "source/problem.pdf",
+      "sourceSolution": "source/q4-reviewed-solution.html",
+      "sourceSha256": "2f4636b5b2b13f288898bc62c1d1e37295231621718377e42afc29c03fbbfe9f",
+      "solutionSha256": "0e4607fdf4533102cbf6570a9eab930e60b78310119619a432d1c4b41220dc48"
+    }
+  ],
+  "fields": [
+    {
+      "label": "ア",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "9"
+        },
+        {
+          "value": "1",
+          "text": "10"
+        },
+        {
+          "value": "2",
+          "text": "11"
+        },
+        {
+          "value": "3",
+          "text": "12"
+        },
+        {
+          "value": "4",
+          "text": "13"
+        }
+      ],
+      "id": "q1-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "同一ネットワークにある複数のコンピュータ間で通信するためには，それらのコンピュータに同一のIPアドレスを割り当てる必要がある。"
+        },
+        {
+          "value": "1",
+          "text": "ルータ，ハブ，DNSサーバがそろっていなければ，LANを構築することはできない。"
+        },
+        {
+          "value": "2",
+          "text": "通信プロトコルの一つであるTCPには，通信経路においてデータが失われた場合，失われたデータを送り直す機能が備わっている。"
+        },
+        {
+          "value": "3",
+          "text": "パケット交換方式による通信では，データを結合してパケットという形式にすることで，回線を占有することを可能にしている。"
+        }
+      ],
+      "id": "q1-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "αααγγαβ"
+        },
+        {
+          "value": "1",
+          "text": "αααγγγ"
+        },
+        {
+          "value": "2",
+          "text": "ααβγγγ"
+        },
+        {
+          "value": "3",
+          "text": "ααγγγα"
+        },
+        {
+          "value": "4",
+          "text": "ααγγγβ"
+        },
+        {
+          "value": "5",
+          "text": "αγγγγ"
+        }
+      ],
+      "id": "q1-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "αα"
+        },
+        {
+          "value": "1",
+          "text": "αβ"
+        },
+        {
+          "value": "2",
+          "text": "βα"
+        },
+        {
+          "value": "3",
+          "text": "ββ"
+        },
+        {
+          "value": "4",
+          "text": "ααβ"
+        },
+        {
+          "value": "5",
+          "text": "αβα"
+        },
+        {
+          "value": "6",
+          "text": "βαα"
+        },
+        {
+          "value": "7",
+          "text": "αββ"
+        },
+        {
+          "value": "8",
+          "text": "βαβ"
+        },
+        {
+          "value": "9",
+          "text": "ββα"
+        }
+      ],
+      "id": "q1-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "*"
+        },
+        {
+          "value": "1",
+          "text": "**"
+        },
+        {
+          "value": "2",
+          "text": "‒"
+        },
+        {
+          "value": "3",
+          "text": "#"
+        },
+        {
+          "value": "4",
+          "text": "/"
+        }
+      ],
+      "id": "q1-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "*"
+        },
+        {
+          "value": "1",
+          "text": "**"
+        },
+        {
+          "value": "2",
+          "text": "‒"
+        },
+        {
+          "value": "3",
+          "text": "#"
+        },
+        {
+          "value": "4",
+          "text": "/"
+        }
+      ],
+      "id": "q1-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "行頭に「*」や「**」をつけた行に対して，文字サイズを大きくしたり太い書体にしたりして，他の部分よりも目立つようにする。"
+        },
+        {
+          "value": "1",
+          "text": "行頭に「‒」をつけた行に対して，文字の色を薄くしたり文字サイズを小さくしたりして，他の部分よりも目立たないようにする。"
+        },
+        {
+          "value": "2",
+          "text": "行頭に「#」をつけた行に対して，文字サイズを小さくしたり細い書体にしたりして，他の部分よりも目立たないようにする。"
+        },
+        {
+          "value": "3",
+          "text": "行頭に「/」をつけた行に対して，文字の色を変えたり太い書体にしたりして，他の部分よりも目立つようにする。"
+        }
+      ],
+      "id": "q1-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "行頭に「*」や「**」をつけた行に対して，文字サイズを大きくしたり太い書体にしたりして，他の部分よりも目立つようにする。"
+        },
+        {
+          "value": "1",
+          "text": "行頭に「‒」をつけた行に対して，文字の色を薄くしたり文字サイズを小さくしたりして，他の部分よりも目立たないようにする。"
+        },
+        {
+          "value": "2",
+          "text": "行頭に「#」をつけた行に対して，文字サイズを小さくしたり細い書体にしたりして，他の部分よりも目立たないようにする。"
+        },
+        {
+          "value": "3",
+          "text": "行頭に「/」をつけた行に対して，文字の色を変えたり太い書体にしたりして，他の部分よりも目立つようにする。"
+        }
+      ],
+      "id": "q1-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "多種類のフォントと文字色を使用し，華やかな見た目にする。"
+        },
+        {
+          "value": "1",
+          "text": "行間隔を狭くして，どんなに長い議事録でもA4用紙1ページ以内に収める。"
+        },
+        {
+          "value": "2",
+          "text": "すべての小見出しとその内容にインデント（字下げ）を設定する。"
+        },
+        {
+          "value": "3",
+          "text": "人物名などの固有名詞を伏せ字にして強調する。"
+        }
+      ],
+      "id": "q1-ケ"
+    },
+    {
+      "label": "コ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "より精密な分析を行う。"
+        },
+        {
+          "value": "1",
+          "text": "個人が特定されにくくする。"
+        },
+        {
+          "value": "2",
+          "text": "10年前のデータと比較しやすくする。"
+        },
+        {
+          "value": "3",
+          "text": "データベースでの問合せ結果を詳細にする。"
+        }
+      ],
+      "id": "q1-コ"
+    },
+    {
+      "label": "サ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "まとめた表では表1の行と表2の行を交互に混ぜる。"
+        },
+        {
+          "value": "1",
+          "text": "10年前のアンケート結果の年齢を切り捨てて年齢層に置き換える。"
+        },
+        {
+          "value": "2",
+          "text": "10年前のアンケート結果の住所の町名を削る。"
+        },
+        {
+          "value": "3",
+          "text": "列を一つ追加し，アンケートを実施した年を入力する。"
+        }
+      ],
+      "id": "q1-サ"
+    },
+    {
+      "label": "シ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "表全体のデータ量を削減できる。"
+        },
+        {
+          "value": "1",
+          "text": "表記ゆれを気にしないで内容の参照や入力ができる。"
+        },
+        {
+          "value": "2",
+          "text": "識別番号の平均や標準偏差を計算できる。"
+        },
+        {
+          "value": "3",
+          "text": "データの修正が容易になる。"
+        }
+      ],
+      "id": "q1-シ"
+    },
+    {
+      "label": "ア",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "(a) 正 ／ (b) 正 ／ (c) 正"
+        },
+        {
+          "value": "1",
+          "text": "(a) 正 ／ (b) 正 ／ (c) 誤"
+        },
+        {
+          "value": "2",
+          "text": "(a) 正 ／ (b) 誤 ／ (c) 正"
+        },
+        {
+          "value": "3",
+          "text": "(a) 誤 ／ (b) 正 ／ (c) 正"
+        },
+        {
+          "value": "4",
+          "text": "(a) 正 ／ (b) 誤 ／ (c) 誤"
+        },
+        {
+          "value": "5",
+          "text": "(a) 誤 ／ (b) 正 ／ (c) 誤"
+        },
+        {
+          "value": "6",
+          "text": "(a) 誤 ／ (b) 誤 ／ (c) 正"
+        },
+        {
+          "value": "7",
+          "text": "(a) 誤 ／ (b) 誤 ／ (c) 誤"
+        }
+      ],
+      "id": "q2a-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ（著作者人格権）"
+        },
+        {
+          "value": "1",
+          "text": "い（肖像権）"
+        },
+        {
+          "value": "2",
+          "text": "う（実用新案権）"
+        },
+        {
+          "value": "3",
+          "text": "あ，い"
+        },
+        {
+          "value": "4",
+          "text": "い，う"
+        },
+        {
+          "value": "5",
+          "text": "あ，う"
+        },
+        {
+          "value": "6",
+          "text": "あ，い，う"
+        },
+        {
+          "value": "7",
+          "text": "いずれも該当しない"
+        }
+      ],
+      "id": "q2a-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "家から千葉駅までの通学定期券を6か月分買った"
+        },
+        {
+          "value": "1",
+          "text": "今日はこのスーパーの特売日"
+        },
+        {
+          "value": "2",
+          "text": "学校の正門の向かい側"
+        },
+        {
+          "value": "3",
+          "text": "EOFコーヒーショップ"
+        },
+        {
+          "value": "4",
+          "text": "千葉県初，唯一の店"
+        },
+        {
+          "value": "5",
+          "text": "うちの町内の古民家が昨日重要文化財に指定された"
+        },
+        {
+          "value": "6",
+          "text": "部長"
+        },
+        {
+          "value": "7",
+          "text": "DNCホール"
+        },
+        {
+          "value": "8",
+          "text": "今日はここでいろんな大会がある"
+        },
+        {
+          "value": "9",
+          "text": "うちの部活から私も含め優秀賞に3人選ばれた"
+        },
+        {
+          "value": "A",
+          "text": "アナウンス部門での受賞はうちの学校から私だけ"
+        }
+      ],
+      "id": "q2a-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "家から千葉駅までの通学定期券を6か月分買った"
+        },
+        {
+          "value": "1",
+          "text": "今日はこのスーパーの特売日"
+        },
+        {
+          "value": "2",
+          "text": "学校の正門の向かい側"
+        },
+        {
+          "value": "3",
+          "text": "EOFコーヒーショップ"
+        },
+        {
+          "value": "4",
+          "text": "千葉県初，唯一の店"
+        },
+        {
+          "value": "5",
+          "text": "うちの町内の古民家が昨日重要文化財に指定された"
+        },
+        {
+          "value": "6",
+          "text": "部長"
+        },
+        {
+          "value": "7",
+          "text": "DNCホール"
+        },
+        {
+          "value": "8",
+          "text": "今日はここでいろんな大会がある"
+        },
+        {
+          "value": "9",
+          "text": "うちの部活から私も含め優秀賞に3人選ばれた"
+        },
+        {
+          "value": "A",
+          "text": "アナウンス部門での受賞はうちの学校から私だけ"
+        }
+      ],
+      "id": "q2a-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "家から千葉駅までの通学定期券を6か月分買った"
+        },
+        {
+          "value": "1",
+          "text": "今日はこのスーパーの特売日"
+        },
+        {
+          "value": "2",
+          "text": "学校の正門の向かい側"
+        },
+        {
+          "value": "3",
+          "text": "EOFコーヒーショップ"
+        },
+        {
+          "value": "4",
+          "text": "千葉県初，唯一の店"
+        },
+        {
+          "value": "5",
+          "text": "うちの町内の古民家が昨日重要文化財に指定された"
+        },
+        {
+          "value": "6",
+          "text": "部長"
+        },
+        {
+          "value": "7",
+          "text": "DNCホール"
+        },
+        {
+          "value": "8",
+          "text": "今日はここでいろんな大会がある"
+        },
+        {
+          "value": "9",
+          "text": "うちの部活から私も含め優秀賞に3人選ばれた"
+        },
+        {
+          "value": "A",
+          "text": "アナウンス部門での受賞はうちの学校から私だけ"
+        }
+      ],
+      "id": "q2a-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "家から千葉駅までの通学定期券を6か月分買った"
+        },
+        {
+          "value": "1",
+          "text": "今日はこのスーパーの特売日"
+        },
+        {
+          "value": "2",
+          "text": "学校の正門の向かい側"
+        },
+        {
+          "value": "3",
+          "text": "EOFコーヒーショップ"
+        },
+        {
+          "value": "4",
+          "text": "千葉県初，唯一の店"
+        },
+        {
+          "value": "5",
+          "text": "うちの町内の古民家が昨日重要文化財に指定された"
+        },
+        {
+          "value": "6",
+          "text": "部長"
+        },
+        {
+          "value": "7",
+          "text": "DNCホール"
+        },
+        {
+          "value": "8",
+          "text": "今日はここでいろんな大会がある"
+        },
+        {
+          "value": "9",
+          "text": "うちの部活から私も含め優秀賞に3人選ばれた"
+        },
+        {
+          "value": "A",
+          "text": "アナウンス部門での受賞はうちの学校から私だけ"
+        }
+      ],
+      "id": "q2a-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "データ通信速度が高速になった。"
+        },
+        {
+          "value": "1",
+          "text": "カメラが高解像度になった。"
+        },
+        {
+          "value": "2",
+          "text": "生体認証の性能が向上した。"
+        },
+        {
+          "value": "3",
+          "text": "実写に近い画像が生成できるようになった。"
+        }
+      ],
+      "id": "q2a-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "キャンペーンの真偽を確かめるために，メッセージに含まれるURLにアクセスする。"
+        },
+        {
+          "value": "1",
+          "text": "メッセージを受け取り，内容を確認したことを返信する。"
+        },
+        {
+          "value": "2",
+          "text": "送信者の悪意の有無を確認するために，送信者の公開鍵を確認する。"
+        },
+        {
+          "value": "3",
+          "text": "送信者に悪意がある場合を想定し，メッセージに反応しない。"
+        }
+      ],
+      "id": "q2a-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ：テキストマイニング ／ い：個人情報保護法"
+        },
+        {
+          "value": "1",
+          "text": "あ：フィッシング ／ い：個人情報保護法"
+        },
+        {
+          "value": "2",
+          "text": "あ：フィルタリング ／ い：個人情報保護法"
+        },
+        {
+          "value": "3",
+          "text": "あ：テキストマイニング ／ い：不正アクセス禁止法"
+        },
+        {
+          "value": "4",
+          "text": "あ：フィッシング ／ い：不正アクセス禁止法"
+        },
+        {
+          "value": "5",
+          "text": "あ：フィルタリング ／ い：不正アクセス禁止法"
+        }
+      ],
+      "id": "q2a-ケ"
+    },
+    {
+      "label": "コ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "24fpsの動画と比べて再生時間は変わらず，より高精細な動画となる。"
+        },
+        {
+          "value": "1",
+          "text": "24fpsの動画と比べて再生時間は変わらず，より粗い動画となる。"
+        },
+        {
+          "value": "2",
+          "text": "24fpsの動画と比べて再生時間が2.5倍になる。"
+        },
+        {
+          "value": "3",
+          "text": "24fpsの動画と比べて再生時間が0.4倍になる。"
+        }
+      ],
+      "id": "q2b-コ"
+    },
+    {
+      "label": "サ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "3"
+        },
+        {
+          "value": "1",
+          "text": "4"
+        },
+        {
+          "value": "2",
+          "text": "8"
+        },
+        {
+          "value": "3",
+          "text": "24"
+        },
+        {
+          "value": "4",
+          "text": "32"
+        },
+        {
+          "value": "5",
+          "text": "60"
+        }
+      ],
+      "id": "q2b-サ"
+    },
+    {
+      "label": "シ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "3"
+        },
+        {
+          "value": "1",
+          "text": "4"
+        },
+        {
+          "value": "2",
+          "text": "8"
+        },
+        {
+          "value": "3",
+          "text": "24"
+        },
+        {
+          "value": "4",
+          "text": "32"
+        },
+        {
+          "value": "5",
+          "text": "60"
+        }
+      ],
+      "id": "q2b-シ"
+    },
+    {
+      "label": "ス",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q2b-ス",
+      "maxLength": 1
+    },
+    {
+      "label": "セ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "画像全体"
+        },
+        {
+          "value": "1",
+          "text": "列車の部分"
+        },
+        {
+          "value": "2",
+          "text": "列車が通り過ぎて現れる背景の部分"
+        },
+        {
+          "value": "3",
+          "text": "列車を除いた部分"
+        },
+        {
+          "value": "4",
+          "text": "列車の部分と列車が通り過ぎて現れる背景の部分"
+        }
+      ],
+      "id": "q2b-セ"
+    },
+    {
+      "label": "ソ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "画像全体"
+        },
+        {
+          "value": "1",
+          "text": "列車の部分"
+        },
+        {
+          "value": "2",
+          "text": "列車が通り過ぎて現れる背景の部分"
+        },
+        {
+          "value": "3",
+          "text": "列車を除いた部分"
+        },
+        {
+          "value": "4",
+          "text": "列車の部分と列車が通り過ぎて現れる背景の部分"
+        }
+      ],
+      "id": "q2b-ソ"
+    },
+    {
+      "label": "タ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "画像全体"
+        },
+        {
+          "value": "1",
+          "text": "列車の部分"
+        },
+        {
+          "value": "2",
+          "text": "列車が通り過ぎて現れる背景の部分"
+        },
+        {
+          "value": "3",
+          "text": "列車を除いた部分"
+        },
+        {
+          "value": "4",
+          "text": "列車の部分と列車が通り過ぎて現れる背景の部分"
+        }
+      ],
+      "id": "q2b-タ"
+    },
+    {
+      "label": "チ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ＜い＜う"
+        },
+        {
+          "value": "1",
+          "text": "あ＜う＜い"
+        },
+        {
+          "value": "2",
+          "text": "い＜あ＜う"
+        },
+        {
+          "value": "3",
+          "text": "い＜う＜あ"
+        },
+        {
+          "value": "4",
+          "text": "う＜あ＜い"
+        },
+        {
+          "value": "5",
+          "text": "う＜い＜あ"
+        }
+      ],
+      "id": "q2b-チ"
+    },
+    {
+      "label": "ツ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0.5"
+        },
+        {
+          "value": "1",
+          "text": "2"
+        },
+        {
+          "value": "2",
+          "text": "500"
+        },
+        {
+          "value": "3",
+          "text": "2000"
+        }
+      ],
+      "id": "q2b-ツ"
+    },
+    {
+      "label": "テ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ：正 ／ い：正 ／ う：正"
+        },
+        {
+          "value": "1",
+          "text": "あ：正 ／ い：正 ／ う：誤"
+        },
+        {
+          "value": "2",
+          "text": "あ：正 ／ い：誤 ／ う：正"
+        },
+        {
+          "value": "3",
+          "text": "あ：誤 ／ い：正 ／ う：正"
+        },
+        {
+          "value": "4",
+          "text": "あ：正 ／ い：誤 ／ う：誤"
+        },
+        {
+          "value": "5",
+          "text": "あ：誤 ／ い：正 ／ う：誤"
+        },
+        {
+          "value": "6",
+          "text": "あ：誤 ／ い：誤 ／ う：正"
+        },
+        {
+          "value": "7",
+          "text": "あ：誤 ／ い：誤 ／ う：誤"
+        }
+      ],
+      "id": "q2b-テ"
+    },
+    {
+      "label": "ア",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q3-ア",
+      "maxLength": 1
+    },
+    {
+      "label": "イ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "番号5の問題のみ採用した"
+        },
+        {
+          "value": "1",
+          "text": "番号6の問題のみ採用した"
+        },
+        {
+          "value": "2",
+          "text": "両方とも採用した"
+        },
+        {
+          "value": "3",
+          "text": "両方とも採用しなかった"
+        }
+      ],
+      "id": "q3-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q3-ウ",
+      "maxLength": 1
+    },
+    {
+      "label": "エ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q3-エ",
+      "maxLength": 1
+    },
+    {
+      "label": "オ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q3-オ",
+      "maxLength": 1
+    },
+    {
+      "label": "カ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "saidai"
+        },
+        {
+          "value": "3",
+          "text": "saidai − 1"
+        },
+        {
+          "value": "4",
+          "text": "要素数(Mondaisu) − 1"
+        },
+        {
+          "value": "5",
+          "text": "要素数(Bunya) − 1"
+        },
+        {
+          "value": "6",
+          "text": "Mondaisu[b] − 1"
+        },
+        {
+          "value": "7",
+          "text": "Mondaisu[i] − 1"
+        },
+        {
+          "value": "8",
+          "text": "Mondaisu[b] + 1"
+        },
+        {
+          "value": "9",
+          "text": "Mondaisu[i] + 1"
+        }
+      ],
+      "id": "q3-カ"
+    },
+    {
+      "label": "キ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Mondaisu[b] == 0"
+        },
+        {
+          "value": "1",
+          "text": "Mondaisu[i] == 0"
+        },
+        {
+          "value": "2",
+          "text": "Mondaisu[b] > 0"
+        },
+        {
+          "value": "3",
+          "text": "Mondaisu[i] > 0"
+        },
+        {
+          "value": "4",
+          "text": "Mondaisu[b] < saidai"
+        },
+        {
+          "value": "5",
+          "text": "Mondaisu[i] < saidai"
+        }
+      ],
+      "id": "q3-キ"
+    },
+    {
+      "label": "ク",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "saidai"
+        },
+        {
+          "value": "3",
+          "text": "saidai − 1"
+        },
+        {
+          "value": "4",
+          "text": "要素数(Mondaisu) − 1"
+        },
+        {
+          "value": "5",
+          "text": "要素数(Bunya) − 1"
+        },
+        {
+          "value": "6",
+          "text": "Mondaisu[b] − 1"
+        },
+        {
+          "value": "7",
+          "text": "Mondaisu[i] − 1"
+        },
+        {
+          "value": "8",
+          "text": "Mondaisu[b] + 1"
+        },
+        {
+          "value": "9",
+          "text": "Mondaisu[i] + 1"
+        }
+      ],
+      "id": "q3-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q3-ケ",
+      "maxLength": 1
+    },
+    {
+      "label": "コ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "and"
+        },
+        {
+          "value": "1",
+          "text": "or"
+        }
+      ],
+      "id": "q3-コ"
+    },
+    {
+      "label": "サ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Saiyou[c] == 0"
+        },
+        {
+          "value": "1",
+          "text": "Saiyou[i] == 0"
+        },
+        {
+          "value": "2",
+          "text": "Saiyou[c] > 0"
+        },
+        {
+          "value": "3",
+          "text": "Saiyou[i] > 0"
+        },
+        {
+          "value": "4",
+          "text": "Saiyou[c] < saidai"
+        },
+        {
+          "value": "5",
+          "text": "Saiyou[i] < saidai"
+        }
+      ],
+      "id": "q3-サ"
+    },
+    {
+      "label": "シ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "b"
+        },
+        {
+          "value": "3",
+          "text": "c"
+        },
+        {
+          "value": "4",
+          "text": "i"
+        },
+        {
+          "value": "5",
+          "text": "Saiyou[i] + 1"
+        }
+      ],
+      "id": "q3-シ"
+    },
+    {
+      "label": "ス",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Saiyou[c] == 0"
+        },
+        {
+          "value": "1",
+          "text": "Saiyou[i] == 0"
+        },
+        {
+          "value": "2",
+          "text": "Saiyou[c] > 0"
+        },
+        {
+          "value": "3",
+          "text": "Saiyou[i] > 0"
+        },
+        {
+          "value": "4",
+          "text": "Saiyou[c] < saidai"
+        },
+        {
+          "value": "5",
+          "text": "Saiyou[i] < saidai"
+        }
+      ],
+      "id": "q3-ス"
+    },
+    {
+      "label": "ア",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "どの年においても他地点より飛散花粉数が多い"
+        },
+        {
+          "value": "1",
+          "text": "飛散花粉数が5000個/cm²を超えている年が半数以上ある"
+        },
+        {
+          "value": "2",
+          "text": "飛散花粉数が平均値より多い年が半数以上ある"
+        },
+        {
+          "value": "3",
+          "text": "飛散花粉数の最大値と最小値の平均は，20年間の平均値と同じ値になる"
+        }
+      ],
+      "id": "q4-ア"
+    },
+    {
+      "label": "イ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "B"
+        },
+        {
+          "value": "1",
+          "text": "G"
+        },
+        {
+          "value": "2",
+          "text": "H"
+        },
+        {
+          "value": "3",
+          "text": "J"
+        },
+        {
+          "value": "4",
+          "text": "K"
+        }
+      ],
+      "id": "q4-イ"
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "B"
+        },
+        {
+          "value": "1",
+          "text": "G"
+        },
+        {
+          "value": "2",
+          "text": "H"
+        },
+        {
+          "value": "3",
+          "text": "J"
+        },
+        {
+          "value": "4",
+          "text": "K"
+        }
+      ],
+      "id": "q4-ウ"
+    },
+    {
+      "label": "エ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ：○ ／ い：○ ／ う：○"
+        },
+        {
+          "value": "1",
+          "text": "あ：○ ／ い：○ ／ う：×"
+        },
+        {
+          "value": "2",
+          "text": "あ：○ ／ い：× ／ う：○"
+        },
+        {
+          "value": "3",
+          "text": "あ：× ／ い：○ ／ う：○"
+        },
+        {
+          "value": "4",
+          "text": "あ：○ ／ い：× ／ う：×"
+        },
+        {
+          "value": "5",
+          "text": "あ：× ／ い：○ ／ う：×"
+        },
+        {
+          "value": "6",
+          "text": "あ：× ／ い：× ／ う：○"
+        },
+        {
+          "value": "7",
+          "text": "あ：× ／ い：× ／ う：×"
+        }
+      ],
+      "id": "q4-エ"
+    },
+    {
+      "label": "オ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ"
+        },
+        {
+          "value": "1",
+          "text": "い"
+        },
+        {
+          "value": "2",
+          "text": "う"
+        },
+        {
+          "value": "3",
+          "text": "え"
+        }
+      ],
+      "id": "q4-オ"
+    },
+    {
+      "label": "カ",
+      "sectionId": "q4",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q4-カ",
+      "maxLength": 1
+    },
+    {
+      "label": "キ",
+      "sectionId": "q4",
+      "type": "text",
+      "allowed": "0123456789",
+      "id": "q4-キ",
+      "maxLength": 1
+    },
+    {
+      "label": "ク",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "6月15日"
+        },
+        {
+          "value": "1",
+          "text": "6月19日"
+        },
+        {
+          "value": "2",
+          "text": "6月24日"
+        },
+        {
+          "value": "3",
+          "text": "6月28日"
+        },
+        {
+          "value": "4",
+          "text": "7月3日"
+        },
+        {
+          "value": "5",
+          "text": "7月7日"
+        }
+      ],
+      "id": "q4-ク"
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "±10日"
+        },
+        {
+          "value": "1",
+          "text": "±15日"
+        },
+        {
+          "value": "2",
+          "text": "±20日"
+        }
+      ],
+      "id": "q4-ケ"
+    },
+    {
+      "label": "コ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "R10全体はR20に含まれるが，R15の一部はR20に含まれない"
+        },
+        {
+          "value": "1",
+          "text": "R15全体はR20に含まれるが，R10の一部はR20に含まれない"
+        },
+        {
+          "value": "2",
+          "text": "R10全体，R15全体の両方とも，R20に含まれる"
+        },
+        {
+          "value": "3",
+          "text": "R10の一部はR20に含まれず，R15の一部もR20に含まれない"
+        }
+      ],
+      "id": "q4-コ"
+    },
+    {
+      "label": "サ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "4500"
+        },
+        {
+          "value": "1",
+          "text": "5000"
+        },
+        {
+          "value": "2",
+          "text": "5500"
+        },
+        {
+          "value": "3",
+          "text": "6000"
+        },
+        {
+          "value": "4",
+          "text": "6500"
+        },
+        {
+          "value": "5",
+          "text": "7000"
+        },
+        {
+          "value": "6",
+          "text": "7500"
+        },
+        {
+          "value": "7",
+          "text": "8000"
+        }
+      ],
+      "id": "q4-サ"
+    },
+    {
+      "label": "シ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "点Pと点Qともに予測値を上回っている"
+        },
+        {
+          "value": "1",
+          "text": "点Pは予測値を上回っているが，点Qは下回っている"
+        },
+        {
+          "value": "2",
+          "text": "点Pは予測値を下回っているが，点Qは上回っている"
+        },
+        {
+          "value": "3",
+          "text": "点Pと点Qともに予測値を下回っている"
+        }
+      ],
+      "id": "q4-シ"
+    }
+  ],
+  "scoring": [
+    {
+      "id": "q1-01",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-02",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-03",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-04",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-05",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-オ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-06",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-カ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-07",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-キ",
+        "q1-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "unordered",
+        "patterns": [
+          [
+            "0",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-08",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-09",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-10",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-11",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-01",
+      "sectionId": "q2a",
+      "question": 1,
+      "fields": [
+        "q2a-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-02",
+      "sectionId": "q2a",
+      "question": 2,
+      "fields": [
+        "q2a-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-03",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-ウ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-04",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-エ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-05",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-オ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "A"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-06",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-カ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-07",
+      "sectionId": "q2a",
+      "question": 4,
+      "fields": [
+        "q2a-キ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-08",
+      "sectionId": "q2a",
+      "question": 5,
+      "fields": [
+        "q2a-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-09",
+      "sectionId": "q2a",
+      "question": 6,
+      "fields": [
+        "q2a-ケ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-01",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-02",
+      "sectionId": "q2b",
+      "question": 2,
+      "fields": [
+        "q2b-サ",
+        "q2b-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-03",
+      "sectionId": "q2b",
+      "question": 3,
+      "fields": [
+        "q2b-ス"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-04",
+      "sectionId": "q2b",
+      "question": 3,
+      "fields": [
+        "q2b-セ",
+        "q2b-ソ",
+        "q2b-タ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "4",
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-05",
+      "sectionId": "q2b",
+      "question": 4,
+      "fields": [
+        "q2b-チ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-06",
+      "sectionId": "q2b",
+      "question": 5,
+      "fields": [
+        "q2b-ツ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-07",
+      "sectionId": "q2b",
+      "question": 6,
+      "fields": [
+        "q2b-テ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-01",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-ア"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-02",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-イ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-03",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-04",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-エ",
+        "q3-オ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-05",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-06",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-キ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-07",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "8"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-08",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-ケ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "4"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-09",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-コ",
+        "q3-サ"
+      ],
+      "maxPoints": 4,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-10",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-シ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-11",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ス"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-01",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-ア"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-02",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-03",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-04",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-エ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-05",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-オ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-06",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-カ",
+        "q4-キ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-07",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-ク",
+        "q4-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-08",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-コ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-09",
+      "sectionId": "q4",
+      "question": 5,
+      "fields": [
+        "q4-サ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-10",
+      "sectionId": "q4",
+      "question": 5,
+      "fields": [
+        "q4-シ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    }
+  ]
+}
