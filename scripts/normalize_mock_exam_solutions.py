@@ -9,6 +9,24 @@ def clear(e):
  for child in list(e):e.remove(child)
  e.text=None
 
+def align_explanation_columns(document):
+ for table in document.xpath('//table'):
+  rows = table.xpath('./tr|./thead/tr|./tbody/tr|./tfoot/tr')
+  columns = set()
+  for row in rows:
+   index = 0
+   for cell in row.xpath('./th|./td'):
+    if re.search(r'根拠|理由', text(cell)) and (cell.tag == 'th' or row == rows[0]):
+     columns.add(index)
+    index += int(cell.get('colspan', '1'))
+  for row in rows:
+   index = 0
+   for cell in row.xpath('./th|./td'):
+    width = int(cell.get('colspan', '1'))
+    if any(col in range(index, index + width) for col in columns):
+     cell.set('data-explanation-prose', '')
+    index += width
+
 def normalize(document,exam):
  units={u['id']:u for u in exam['scoring']};fields={f['id']:f for f in exam['fields']}
  for anchor in list(document.xpath('//*[@data-reading-units]')):
@@ -56,7 +74,9 @@ def build(manifests=None):
   for section in exam['sections']:
    for key in ['problem','screenProblem','solution','screenSolution']:
     path=manifest.parent/section[key];d=html.fromstring(path.read_bytes())
-    if key in ['solution','screenSolution']:normalize(d,exam)
+    if key in ['solution','screenSolution']:
+     normalize(d,exam)
+     align_explanation_columns(d)
     fields={f['id']:f for f in exam['fields']}
     for node in d.xpath('//*[@data-field]'):
      node.set('data-input-type',fields[node.get('data-field')]['type'])

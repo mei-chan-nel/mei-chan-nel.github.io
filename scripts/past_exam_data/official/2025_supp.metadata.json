@@ -1,0 +1,18 @@
+{
+  "examId": "2025_supp",
+  "indexUrl": "https://www.dnc.ac.jp/kyotsu/kakomondai/r7/r7_tuisaisiken_seikai.html",
+  "pdfUrl": "https://www.dnc.ac.jp/albums/abm.php?d=741&f=abm00005248.pdf&n=R7%E8%BF%BD%E5%86%8D%E3%80%90%E6%83%85%E5%A0%B1%E2%85%A0%E3%80%91%E7%99%BA%E8%A1%A8%E7%94%A8%E6%AD%A3%E8%A7%A3.pdf",
+  "retrievedAt": "2026-11-17",
+  "method": "tools.mcp__codex_apps__search_service_web_run: open(index) → click(link 51) → screenshot(PDF page0)",
+  "toolReferences": {
+    "index": "turn836591view0",
+    "pdfText": "turn235916view0",
+    "pdfScreenshot": "turn175711view0"
+  },
+  "rawPdfDownloaded": false,
+  "rawPdfSha256": null,
+  "limitation": "Web tool returned parsed PDF text and a rendered screenshot, with no raw-PDF download artifact. A denied shell CONNECT route was not retried and no access bypass was attempted. No reconstructed PDF is presented as the original.",
+  "savedTextArtifact": "2025_supp.txt",
+  "savedTextSha256": "e4c4b4bdaabf7f24ce9d176f6cbb6c67d22a81acaa6128b7843f7e44a73c9652",
+  "textArtifactDescription": "Readable transcription of official table returned by the web tool, in question order; not original PDF bytes."
+}

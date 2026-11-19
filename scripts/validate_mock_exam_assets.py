@@ -67,7 +67,7 @@ def validate(manifest, skip_pdf=False):
                     for reference in re.findall(r'url\(\s*[\'"]?([^\)\'"\s]+)', style.text or ''):
                         local_file(file.parent, reference)
                 text = d.find('body').text_content()
-                need(not re.search(r'ⓐ|ⓑ|ⓒ|ⓓ|当てはまる文字をマークせよ', text), f'Obsolete letter instructions: {sid}/{key}')
+                need(not re.search(r'当てはまる文字をマークせよ' if exam.get('kind')=='past' else r'ⓐ|ⓑ|ⓒ|ⓓ|当てはまる文字をマークせよ', text), f'Obsolete letter instructions: {sid}/{key}')
                 bound = set()
                 for node in d.xpath('//*[@data-field]'):
                     fid = node.get('data-field')
@@ -77,6 +77,14 @@ def validate(manifest, skip_pdf=False):
                     if node.get('data-part') is not None:
                         part = node.get('data-part')
                         need(part.isdigit() and all(int(part) < len(c.get('parts', [])) for c in fields[fid].get('choices', [])), f'Invalid choice part: {fid}')
+                if kind == 'problem' and exam.get('kind') == 'past':
+                    need(not d.xpath('//*[contains(concat(" ",normalize-space(@class)," ")," past-line ") or contains(concat(" ",normalize-space(@class)," ")," past-choice-text ") or contains(concat(" ",normalize-space(@class)," ")," past-figure ")]'), f'Old PDF excerpt markup: {sid}/{key}')
+                    for anchor in d.xpath('//*[@data-reading-units]'):
+                        need(not set(anchor.get('class','').split()).intersection({'exam-subject','print-only','hidden-label'}) and 'hidden' not in anchor.attrib, f'Hidden problem reading anchor: {sid}/{key}')
+                    for figure in d.xpath('//figure[@data-pdf-clip]'):
+                        need(figure.find('figcaption') is not None, f'Missing native diagram caption: {sid}/{key}')
+                    for image in d.xpath('//img[@src]'):
+                        need('assets/diagram-p' in image.get('src'), f'Full-page image or non-diagram screenshot: {sid}/{key}')
                 if kind == 'problem':
                     need(bound == wanted_fields, f'Missing input bindings: {sid}/{key}: {wanted_fields-bound}')
                     choices = {fid: set() for fid in wanted_fields}
@@ -105,13 +113,32 @@ def validate(manifest, skip_pdf=False):
                 else:
                     print_documents[kind].append((sid, d))
         need(pairs['problem'] == pairs['solution'], f'Problem/solution groups differ: {sid}')
+    if exam.get('kind') == 'past':
+        import fitz
+        with fitz.open(folder/'source/problem.pdf') as original:
+            pages = [int(p.get('data-source-page')) for _, d in print_documents['problem'] for p in d.xpath('/html/body/section[@data-source-page]')]
+            need(pages == list(range(1,len(original)+1)), 'Original-page wrappers missing, duplicated or out of order')
     if not skip_pdf:
         import fitz
         for kind, documents in print_documents.items():
+            if exam.get('kind')=='past' and kind=='problem':
+                original=folder/'source/problem.pdf'
+                need((folder/'problem.pdf').read_bytes()==original.read_bytes(),'Original past-exam PDF was modified')
+                with fitz.open(original) as pdf:
+                    need(len(pdf)>0,'Empty original PDF')
+                    print(f'PASS {exam["id"]}: original problem PDF unchanged ({len(pdf)} pages)')
+                continue
             with fitz.open(folder / (kind + '.pdf')) as pdf:
                 need(len(pdf) > 0 and all(abs(p.rect.width-595.28) < 1 and abs(p.rect.height-841.89) < 1 for p in pdf), f'Not A4: {kind}.pdf')
+                if exam.get('kind') == 'past' and kind == 'solution':
+                    expected_figures = sum(
+                        len(d.xpath('//figure[contains(concat(" ",normalize-space(@class)," ")," source-figure ")]//img'))
+                        for _, d in documents
+                    )
+                    visible_images = sum(len(page.get_image_info()) for page in pdf)
+                    need(visible_images >= expected_figures, f'Missing figures in {kind}.pdf: {visible_images} of {expected_figures}')
                 text = norm(''.join(p.get_text() for p in pdf))
-                footer = norm(f'情報Ⅰ StudyAtlas 実戦演習 No.{exam["id"]}')
+                footer = norm(f'情報Ⅰ StudyAtlas 共通テスト {exam["shortTitle"]} 解説' if exam.get('kind')=='past' else f'情報Ⅰ StudyAtlas 実戦演習 No.{exam["id"]}')
                 need(all(norm(p.get_text()).count(footer) == 1 for p in pdf), f'Wrong/missing PDF footer on a page: {kind}')
                 need('実戦模試' not in text, f'Old PDF brand remains: {kind}')
                 text = re.sub(re.escape(footer) + r'[—―-]\d+[—―-]', '', text)

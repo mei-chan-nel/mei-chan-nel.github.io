@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>共通テスト 情報Ⅰ 2026年度 本試験 第2問B</title><link rel="stylesheet" href="../../../booklet.css"><link rel="stylesheet" href="past-exam.css"></head><body data-section="q2b"><section class="page" data-source-page="15"><p data-source-page="15" data-reading-units="q2b-01 q2b-02" data-reading-for="q2b-01 q2b-02">B　次の文章を読み，後の問い（問1～4）に答えよ。</p>
+<p data-source-page="15" data-reading-for="q2b-01 q2b-02">ゲームの画面などは一つの画像ではなく，背景の画像やキャラクターの画像など複数の画像を組み合わせて作られている。例えば，図5(A)の画像の上に，コンピュータを使って描いた図5(B)のようなゲームのキャラクター画像をそのまま重ねると，図5(C)のように図5(B)の白い背景が表示されてしまう。</p>
+<figure class="past-diagram" data-pdf-page="15" data-pdf-clip="65 214 455 333" style="--diagram-width:520.0px" data-source-page="15" data-reading-for="q2b-01 q2b-02"><div class="diagram-canvas" style="aspect-ratio:390.0/119.0"><img src="assets/diagram-p15-a42fb7d4c1.png" alt="図5　背景の画像にキャラクターの画像を重ねる様子" loading="eager" width="1170" height="357"></div><figcaption>図5　背景の画像にキャラクターの画像を重ねる様子</figcaption></figure><p data-source-page="15" data-reading-for="q2b-01 q2b-02">図5(B)の白い背景を透過させ，その部分に図5(A)の画像を表示させたい。これは，画像を重ね合わせ，画素単位のビット演算を組み合わせて実現することができる。ここでは1画素（点）を4ビットで表現した16階調のグレースケールとし，黒色の点の値は0000<sub>2</sub>，白色の点の値は1111<sub>2</sub>とする。</p>
+<p data-source-page="15" data-reading-for="q2b-01 q2b-02">最初に，図5(B)のキャラクターの部分をすべて白色，透過したい部分をすべて黒色にした図6の画像を作成しておく。</p>
+<figure class="past-diagram" data-pdf-page="15" data-pdf-clip="325 417 452 493" style="--diagram-width:169.3px" data-source-page="15" data-reading-for="q2b-01 q2b-02"><div class="diagram-canvas" style="aspect-ratio:127.0/76.0"><img src="assets/diagram-p15-d3ce49e9b7.png" alt="図6" loading="eager" width="600" height="359"></div><figcaption>図6</figcaption></figure><p data-source-page="15" data-reading-for="q2b-01 q2b-02">次に，図5(A)の画像に図6の画像を図5(C)と同様に重ねて，<u>(a) 重なる各点の4ビットについてビットごとにOR演算をすると図7の画像になる</u>。さらに，<u>(b) 図7の画像に図5(B)の画像を重ねて，重なる各点の4ビットについて，ビットごとに「ある演算」を行うと図8の画像になる</u>。</p></section>
+
+<section class="page" data-source-page="16"><div class="figure-row" data-source-page="16" data-reading-for="q2b-01 q2b-02">
+<figure class="past-diagram" data-pdf-page="16" data-pdf-clip="140 74 247 168" style="--diagram-width:142.7px"><div class="diagram-canvas" style="aspect-ratio:107.0/94.0"><img src="assets/diagram-p16-1223bcc165.png" alt="図7" loading="eager" width="600" height="527"></div><figcaption>図7</figcaption></figure><figure class="past-diagram" data-pdf-page="16" data-pdf-clip="267 74 378 168" style="--diagram-width:148.0px"><div class="diagram-canvas" style="aspect-ratio:111.0/94.0"><img src="assets/diagram-p16-e36d0de018.png" alt="図8" loading="eager" width="600" height="508"></div><figcaption>図8</figcaption></figure>
+</div>
+<p data-source-page="16" data-reading-for="q2b-01 q2b-02">なお，以降の問題で使用するOR 演算（論理和），AND 演算（論理積），NOT 演算（否定）の真理値表は表1のとおりである。</p>
+<h4 data-source-page="16" data-reading-for="q2b-01 q2b-02">表1　論理演算子の真理値表</h4>
+<div class="figure-row" data-source-page="16" data-reading-for="q2b-01 q2b-02">
+<div class="table-scroll"><table class="exam-table">
+<caption>OR演算（論理和）</caption>
+<thead><tr>
+<th scope="col">x</th>
+<th scope="col">y</th>
+<th scope="col">x OR y</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">0</th>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<th scope="row">0</th>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<th scope="row">1</th>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<th scope="row">1</th>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table class="exam-table">
+<caption>AND演算（論理積）</caption>
+<thead><tr>
+<th scope="col">x</th>
+<th scope="col">y</th>
+<th scope="col">x AND y</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">0</th>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<th scope="row">0</th>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<th scope="row">1</th>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<th scope="row">1</th>
+<td>1</td>
+<td>1</td>
+</tr>
+</tbody>
+</table></div>
+<div class="table-scroll"><table class="exam-table">
+<caption>NOT演算（否定）</caption>
+<thead><tr>
+<th scope="col">x</th>
+<th scope="col">NOT x</th>
+</tr></thead>
+<tbody>
+<tr>
+<th scope="row">0</th>
+<td>1</td>
+</tr>
+<tr>
+<th scope="row">1</th>
+<td>0</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p class="question-lead exam-question" data-source-page="16" data-reading-for="q2b-01 q2b-02"><strong data-question-number="true">問1</strong>　下線部(a)の操作について，図6の白色の点1111<sub>2</sub>と重なる図5(A)の点の値が1010<sub>2</sub>，図6の黒色の点0000<sub>2</sub>と重なる図5(A)の点の値が0110<sub>2</sub>であった場合のそれぞれについて，ビットごとにOR 演算した結果として最も適当なものを，後の解答群のうちから一つずつ選べ。</p>
+<p data-source-page="16" data-reading-for="q2b-01 q2b-02">点1111<sub>2</sub>と点1010<sub>2</sub>とのビットごとのOR 演算結果 <span class="blank" data-field="q2b-コ" data-original="コ" data-input-type="choice" aria-label="空欄コ">コ</span> </p>
+<p data-source-page="16" data-reading-for="q2b-01 q2b-02">点0000<sub>2</sub>と点0110<sub>2</sub>とのビットごとのOR 演算結果 <span class="blank" data-field="q2b-サ" data-original="サ" data-input-type="choice" aria-label="空欄サ">サ</span> </p>
+<fieldset class="choices compact-choices print-compact-choices short-options" data-choice-presentation="named" data-source-columns="4" style="--choice-columns:4" data-source-page="16" data-reading-for="q2b-01 q2b-02">
+<legend><span class="blank" data-field="q2b-コ" data-original="コ" data-input-type="choice" aria-label="空欄コ">コ</span>・<span class="blank" data-field="q2b-サ" data-original="サ" data-input-type="choice" aria-label="空欄サ">サ</span>の解答群</legend><div class="choice-grid">
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text">0000₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text">0011₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text">0101₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text">0110₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="4">
+<span class="option-number">④</span><span class="option-text">1001₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="5">
+<span class="option-number">⑤</span><span class="option-text">1010₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="6">
+<span class="option-number">⑥</span><span class="option-text">1100₂</span>
+</div>
+<div class="option" data-choice-fields="q2b-コ q2b-サ" data-choice-value="7">
+<span class="option-number">⑦</span><span class="option-text">1111₂</span>
+</div>
+</div>
+</fieldset></section>
+
+<section class="page" data-source-page="17"><p class="question-lead exam-question" data-source-page="17" data-reading-units="q2b-03" data-reading-for="q2b-03"><strong data-question-number="true">問2</strong>　下線部(b)「図7の画像に図5(B)の画像を重ねて，重なる各点の4ビットについて，ビットごとに「ある演算」を行うと図8の画像になる」における「ある演算」として最も適当なものを，後の解答群のうちから一つ選べ。 <span class="blank" data-field="q2b-シ" data-original="シ" data-input-type="choice" aria-label="空欄シ">シ</span> </p>
+<div class="figure-row" data-source-page="17" data-reading-for="q2b-03">
+<figure class="past-diagram" data-pdf-page="17" data-pdf-clip="95 153 174 247" style="--diagram-width:105.3px"><div class="diagram-canvas" style="aspect-ratio:79.0/94.0"><img src="assets/diagram-p17-da246ddae1.png" alt="図5(B)（再掲）" loading="eager" width="474" height="564"></div><figcaption>図5(B)（再掲）</figcaption></figure><figure class="past-diagram" data-pdf-page="17" data-pdf-clip="186 153 294 247" style="--diagram-width:144.0px"><div class="diagram-canvas" style="aspect-ratio:108.0/94.0"><img src="assets/diagram-p17-0092a15413.png" alt="図7（再掲）" loading="eager" width="600" height="522"></div><figcaption>図7（再掲）</figcaption></figure><figure class="past-diagram" data-pdf-page="17" data-pdf-clip="313 153 423 247" style="--diagram-width:146.7px"><div class="diagram-canvas" style="aspect-ratio:110.0/94.0"><img src="assets/diagram-p17-e490d25f32.png" alt="図8（再掲）" loading="eager" width="600" height="513"></div><figcaption>図8（再掲）</figcaption></figure>
+</div>
+<fieldset class="choices compact-choices print-compact-choices" data-choice-presentation="named" data-source-columns="2" style="--choice-columns:2" data-source-page="17" data-reading-for="q2b-03">
+<legend><span class="blank" data-field="q2b-シ" data-original="シ" data-input-type="choice" aria-label="空欄シ">シ</span>の解答群</legend><div class="choice-grid">
+<div class="option" data-choice-fields="q2b-シ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text">AND演算</span>
+</div>
+<div class="option" data-choice-fields="q2b-シ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text">OR演算</span>
+</div>
+<div class="option" data-choice-fields="q2b-シ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text">AND演算の後にNOT演算</span>
+</div>
+<div class="option" data-choice-fields="q2b-シ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text">OR演算の後にNOT演算</span>
+</div>
+</div>
+</fieldset></section>
+
+<section class="page" data-source-page="18"><p class="question-lead exam-question" data-source-page="18" data-reading-units="q2b-04" data-reading-for="q2b-04"><strong data-question-number="true">問3</strong>　図5(B)から図6を作成するには，図5(B)の背景色（白一色）を指定して背景の領域を選択すれば容易に実現できる。しかし，図9のような背景が一色でない画像から，図10の画像を作成することは容易ではない。そこで，色の範囲を指定して，その色から成る領域を選択することができる画像編集ソフトウェアを使って背景を選択することを考える。図11は画像編集ソフトウェアで表した図9の各階調の画素数を表したヒストグラムである。なお，図9の画像は1画素を8ビットで表現した256階調のグレースケールである。図9の背景（熊以外）だけを選択するには階調のどの範囲を指定すれば良いか。最も適当なものを，図11中の⓪～④のうちから一つ選べ。 <span class="blank" data-field="q2b-ス" data-original="ス" data-input-type="choice" aria-label="空欄ス">ス</span> </p>
+<div class="figure-row" data-source-page="18" data-reading-for="q2b-04">
+<figure class="past-diagram" data-pdf-page="18" data-pdf-clip="96 273 213 394" style="--diagram-width:156.0px"><div class="diagram-canvas" style="aspect-ratio:117.0/121.0"><img src="assets/diagram-p18-b67b279aca.png" alt="図9　一色でない背景と熊" loading="eager" width="600" height="621"></div><figcaption>図9　一色でない背景と熊</figcaption></figure><figure class="past-diagram" data-pdf-page="18" data-pdf-clip="96 418 182 510" style="--diagram-width:114.7px"><div class="diagram-canvas" style="aspect-ratio:86.0/92.0"><img src="assets/diagram-p18-2cb0473895.png" alt="図10" loading="eager" width="516" height="552"></div><figcaption>図10</figcaption></figure><figure class="past-diagram" data-pdf-page="18" data-pdf-clip="219 273 423 510" style="--diagram-width:272.0px"><div class="diagram-canvas" style="aspect-ratio:204.0/237.0"><img src="assets/diagram-p18-c8846979b8.png" alt="図11　図9の各階調のヒストグラム" loading="eager" width="612" height="711"></div><figcaption>図11　図9の各階調のヒストグラム</figcaption></figure>
+</div>
+<div class="choices inline-choices" data-choice-presentation="inline" role="group" aria-label="選択肢" data-source-columns="3" style="--choice-columns:3" data-source-page="18" data-reading-for="q2b-04">
+<div class="choice-grid">
+<div class="option" data-choice-fields="q2b-ス" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text">図11の⓪：左端の暗い階調の範囲</span>
+</div>
+<div class="option" data-choice-fields="q2b-ス" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text">図11の①：中央の階調の範囲</span>
+</div>
+<div class="option" data-choice-fields="q2b-ス" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text">図11の②：右端の明るい階調の範囲</span>
+</div>
+<div class="option" data-choice-fields="q2b-ス" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text">図11の③：中央から明るい山の途中までの範囲</span>
+</div>
+<div class="option" data-choice-fields="q2b-ス" data-choice-value="4">
+<span class="option-number">④</span><span class="option-text">図11の④：⓪を除く広い階調の範囲</span>
+</div>
+</div>
+</div></section>
+
+<section class="page" data-source-page="19"><p class="question-lead exam-question" data-source-page="19" data-reading-units="q2b-05 q2b-06 q2b-07" data-reading-for="q2b-05 q2b-06 q2b-07"><strong data-question-number="true">問4</strong>　次の文章を読み，空欄 <span class="blank" data-field="q2b-セ" data-original="セ" data-input-type="choice" aria-label="空欄セ">セ</span> ～ <span class="blank" data-field="q2b-チ" data-original="チ" data-input-type="choice" aria-label="空欄チ">チ</span> に入れるのに最も適当なものを，後の解答群のうちから一つずつ選べ。</p>
+<p data-source-page="19" data-reading-for="q2b-05 q2b-06 q2b-07">ポスターやパンフレットなどで，風景画像（図12左）に別の画像の一部分（図12中央の熊の部分）を切り抜いて重ねられたような合成画像（図12右）を見ることがある。</p>
+<figure class="past-diagram" data-pdf-page="19" data-pdf-clip="65 201 455 291" style="--diagram-width:520.0px" data-source-page="19" data-reading-for="q2b-05 q2b-06 q2b-07"><div class="diagram-canvas" style="aspect-ratio:390.0/90.0"><img src="assets/diagram-p19-d8fa771917.png" alt="図12　熊の部分のみ風景画像に合成する様子" loading="eager" width="1170" height="270"></div><figcaption>図12　熊の部分のみ風景画像に合成する様子</figcaption></figure><p data-source-page="19" data-reading-for="q2b-05 q2b-06 q2b-07">このように，画像の一部分を切り抜いて別の画像に重ねるには，背景の部分（ここでは図12中央の熊以外の部分）を透過させる必要がある。これは，図13で示した手順でビット演算を組み合わせれば実現できる。なお，ここでは，黒色の点の値は00000000<sub>2</sub>，白色の点の値は11111111<sub>2</sub>とする。</p>
+<fieldset class="choices graphic-choices" data-choice-presentation="named" data-source-columns="3" style="--choice-columns:3" data-source-page="19" data-reading-for="q2b-05 q2b-06 q2b-07">
+<legend><span class="blank" data-field="q2b-セ" data-original="セ" data-input-type="choice" aria-label="空欄セ">セ</span>・<span class="blank" data-field="q2b-ソ" data-original="ソ" data-input-type="choice" aria-label="空欄ソ">ソ</span>，<span class="blank" data-field="q2b-チ" data-original="チ" data-input-type="choice" aria-label="空欄チ">チ</span>の解答群</legend><div class="choice-grid">
+<div class="option" data-choice-fields="q2b-セ q2b-ソ q2b-チ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text"><figure class="past-diagram" data-pdf-page="19" data-pdf-clip="136 445 197 513" style="--diagram-width:81.3px"><div class="diagram-canvas" style="aspect-ratio:61.0/68.0"><img src="assets/diagram-p19-b3a8169063.png" alt="" loading="eager" width="366" height="408"></div><figcaption></figcaption></figure><span class="choice-caption">背景：黒</span></span>
+</div>
+<div class="option" data-choice-fields="q2b-セ q2b-ソ q2b-チ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text"><figure class="past-diagram" data-pdf-page="19" data-pdf-clip="247 445 309 513" style="--diagram-width:82.7px"><div class="diagram-canvas" style="aspect-ratio:62.0/68.0"><img src="assets/diagram-p19-de19c1a655.png" alt="" loading="eager" width="372" height="408"></div><figcaption></figcaption></figure><span class="choice-caption">背景：白</span></span>
+</div>
+<div class="option" data-choice-fields="q2b-セ q2b-ソ q2b-チ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text"><figure class="past-diagram" data-pdf-page="19" data-pdf-clip="359 445 420 513" style="--diagram-width:81.3px"><div class="diagram-canvas" style="aspect-ratio:61.0/68.0"><img src="assets/diagram-p19-f534ba7f0a.png" alt="" loading="eager" width="366" height="408"></div><figcaption></figcaption></figure><span class="choice-caption">熊：黒</span></span>
+</div>
+<div class="option" data-choice-fields="q2b-セ q2b-ソ q2b-チ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text"><figure class="past-diagram" data-pdf-page="19" data-pdf-clip="136 546 197 614" style="--diagram-width:81.3px"><div class="diagram-canvas" style="aspect-ratio:61.0/68.0"><img src="assets/diagram-p19-34b9dfd677.png" alt="" loading="eager" width="366" height="408"></div><figcaption></figcaption></figure><span class="choice-caption">背景：白／熊：黒</span></span>
+</div>
+<div class="option" data-choice-fields="q2b-セ q2b-ソ q2b-チ" data-choice-value="4">
+<span class="option-number">④</span><span class="option-text"><figure class="past-diagram" data-pdf-page="19" data-pdf-clip="247 546 309 614" style="--diagram-width:82.7px"><div class="diagram-canvas" style="aspect-ratio:62.0/68.0"><img src="assets/diagram-p19-474ebf9b7b.png" alt="" loading="eager" width="372" height="408"></div><figcaption></figcaption></figure><span class="choice-caption">熊：白</span></span>
+</div>
+<div class="option" data-choice-fields="q2b-セ q2b-ソ q2b-チ" data-choice-value="5">
+<span class="option-number">⑤</span><span class="option-text"><figure class="past-diagram" data-pdf-page="19" data-pdf-clip="359 546 420 614" style="--diagram-width:81.3px"><div class="diagram-canvas" style="aspect-ratio:61.0/68.0"><img src="assets/diagram-p19-f92de8e614.png" alt="" loading="eager" width="366" height="408"></div><figcaption></figcaption></figure><span class="choice-caption">背景：黒／熊：白</span></span>
+</div>
+</div>
+</fieldset></section>
+
+<section class="page" data-source-page="20"><figure class="past-diagram" data-pdf-page="20" data-pdf-clip="65 74 455 432" data-pdf-fields="q2b-セ q2b-ソ q2b-タ q2b-チ" style="--diagram-width:520.0px" data-source-page="20" data-reading-for="q2b-05 q2b-06 q2b-07"><div class="diagram-canvas" style="aspect-ratio:390.0/358.0"><img src="assets/diagram-p20-19e341b44c.png" alt="図13　風景画像に別の画像の一部を合成する手順" loading="eager" width="1170" height="1074"><span class="blank diagram-blank" data-field="q2b-セ" data-original="セ" data-input-type="choice" aria-label="空欄セ" style="left:34.40743%;top:10.54749%;font-size:clamp(11px,calc(100cqi * 10.0 / 390.0),16px)">セ</span><span class="blank diagram-blank" data-field="q2b-ソ" data-original="ソ" data-input-type="choice" aria-label="空欄ソ" style="left:62.35615%;top:10.54749%;font-size:clamp(11px,calc(100cqi * 10.0 / 390.0),16px)">ソ</span><span class="blank diagram-blank" data-field="q2b-タ" data-original="タ" data-input-type="choice" aria-label="空欄タ" style="left:73.89461%;top:27.19582%;font-size:clamp(11px,calc(100cqi * 10.0 / 390.0),16px)">タ</span><span class="blank diagram-blank" data-field="q2b-チ" data-original="チ" data-input-type="choice" aria-label="空欄チ" style="left:73.89461%;top:48.22626%;font-size:clamp(11px,calc(100cqi * 10.0 / 390.0),16px)">チ</span></div><figcaption>図13　風景画像に別の画像の一部を合成する手順</figcaption></figure><fieldset class="choices compact-choices print-compact-choices" data-choice-presentation="named" data-source-columns="2" style="--choice-columns:2" data-source-page="20" data-reading-for="q2b-05 q2b-06 q2b-07">
+<legend><span class="blank" data-field="q2b-タ" data-original="タ" data-input-type="choice" aria-label="空欄タ">タ</span>の解答群</legend><div class="choice-grid">
+<div class="option" data-choice-fields="q2b-タ" data-choice-value="0">
+<span class="option-number">⓪</span><span class="option-text">AND演算</span>
+</div>
+<div class="option" data-choice-fields="q2b-タ" data-choice-value="1">
+<span class="option-number">①</span><span class="option-text">OR演算</span>
+</div>
+<div class="option" data-choice-fields="q2b-タ" data-choice-value="2">
+<span class="option-number">②</span><span class="option-text">AND演算の後にNOT演算</span>
+</div>
+<div class="option" data-choice-fields="q2b-タ" data-choice-value="3">
+<span class="option-number">③</span><span class="option-text">OR演算の後にNOT演算</span>
+</div>
+</div>
+</fieldset></section>
+</body></html>

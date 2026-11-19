@@ -1,0 +1,120 @@
+[
+  {
+    "section": "q1",
+    "sourcePages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "fields": 15,
+    "nativeTables": 3,
+    "nativePrograms": 0,
+    "diagramPlaceholders": 7,
+    "intentionalLayoutMoves": [
+      {
+        "page": 1,
+        "kind": "points moved into native section heading",
+        "source": "次の問い（問１～４）に答えよ。（配点"
+      }
+    ],
+    "unmatchedSourceLines": []
+  },
+  {
+    "section": "q2a",
+    "sourcePages": [
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "fields": 9,
+    "nativeTables": 0,
+    "nativePrograms": 0,
+    "diagramPlaceholders": 4,
+    "intentionalLayoutMoves": [
+      {
+        "page": 9,
+        "kind": "points moved into native section heading",
+        "source": "次の問い（Ａ・Ｂ）に答えよ。（配点"
+      },
+      {
+        "page": 13,
+        "kind": "source masking square represented by native hidden-label span",
+        "source": "は，図の一部を⃞"
+      }
+    ],
+    "unmatchedSourceLines": []
+  },
+  {
+    "section": "q2b",
+    "sourcePages": [
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "fields": 8,
+    "nativeTables": 3,
+    "nativePrograms": 0,
+    "diagramPlaceholders": 18,
+    "intentionalLayoutMoves": [],
+    "unmatchedSourceLines": []
+  },
+  {
+    "section": "q3",
+    "sourcePages": [
+      21,
+      22,
+      23,
+      24,
+      25,
+      26
+    ],
+    "fields": 15,
+    "nativeTables": 1,
+    "nativePrograms": 2,
+    "diagramPlaceholders": 1,
+    "intentionalLayoutMoves": [
+      {
+        "page": 21,
+        "kind": "points moved into native section heading",
+        "source": "次の文章を読み，後の問い（問１～３）に答えよ。（配点"
+      }
+    ],
+    "unmatchedSourceLines": []
+  },
+  {
+    "section": "q4",
+    "sourcePages": [
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34
+    ],
+    "fields": 13,
+    "nativeTables": 4,
+    "nativePrograms": 0,
+    "diagramPlaceholders": 3,
+    "intentionalLayoutMoves": [
+      {
+        "page": 27,
+        "kind": "points moved into native section heading",
+        "source": "次の文章を読み，後の問い（問１～４）に答えよ。（配点"
+      }
+    ],
+    "unmatchedSourceLines": []
+  }
+]

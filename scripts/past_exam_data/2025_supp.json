@@ -1,0 +1,2187 @@
+{
+  "examId": "2025_supp",
+  "title": "2025年度（令和7年度）追・再試験 情報Ⅰ",
+  "maxPoints": 100,
+  "source": {
+    "questionPdf": "/workspace/attachments/c77d9286-7bee-40d3-aca4-6f84d6ba5383/2025_【情報Ⅰ】追試験.pdf",
+    "questionPdfSha256": "521fa8b7883259ca80e28e560cb231d74624c1d4f9915d39d4c82c758dea9105",
+    "aiExplanationHtml": "/workspace/attachments/dee3d61f-3931-4b61-bb5c-31c5cae72c02/StudyAtlas_共通テスト情報I_4回分_解説.html",
+    "aiExplanationHtmlSha256": "3e290746348d665ad9b43668c11ec0731b441bdaea785d3a355550f0ae8d6c83",
+    "officialAnswerIndexUrl": "https://www.dnc.ac.jp/kyotsu/kakomondai/r7/r7_tuisaisiken_seikai.html",
+    "officialAnswerPdfUrl": "https://www.dnc.ac.jp/albums/abm.php?d=741&f=abm00005248.pdf&n=R7%E8%BF%BD%E5%86%8D%E3%80%90%E6%83%85%E5%A0%B1%E2%85%A0%E3%80%91%E7%99%BA%E8%A1%A8%E7%94%A8%E6%AD%A3%E8%A7%A3.pdf",
+    "reviewedAt": "2026-11-17",
+    "officialAnswerRetrieval": "search_service_web_run open(index), click(情報Ⅰ, link 51), screenshot(PDF page 0). Raw PDF binary was not exposed by this tool."
+  },
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問（20点）",
+      "maxPoints": 20,
+      "units": [
+        {
+          "sourceUnitId": "q1-01",
+          "question": "問1 a　ア",
+          "labels": [
+            "ア"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "私的使用のための複製。選択肢コード3。"
+        },
+        {
+          "sourceUnitId": "q1-02",
+          "question": "問1 b　イ",
+          "labels": [
+            "イ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "写真の保存はラスタ形式。"
+        },
+        {
+          "sourceUnitId": "q1-03",
+          "question": "問2　ウ",
+          "labels": [
+            "ウ"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "タイルの一辺300mを4倍にするので17−2＝15。答えるのは選択肢1。"
+        },
+        {
+          "sourceUnitId": "q1-04",
+          "question": "問2　エ",
+          "labels": [
+            "エ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "同範囲のタイル数8/128＝1/16。選択肢2。"
+        },
+        {
+          "sourceUnitId": "q1-05",
+          "question": "問3　オ・カ",
+          "labels": [
+            "オ",
+            "カ"
+          ],
+          "answers": [
+            "0",
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "両欄一致で2点。オは日付の行，カは武道場列のマス。順序固定。"
+        },
+        {
+          "sourceUnitId": "q1-06",
+          "question": "問3　キ・ク",
+          "labels": [
+            "キ",
+            "ク"
+          ],
+          "answers": [
+            "1",
+            "4"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "両欄一致で3点。日付と施設で行を特定し，行全体を削除。順序固定。"
+        },
+        {
+          "sourceUnitId": "q1-07",
+          "question": "問4 a　ケ",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "1,2,4,8なら各部分集合の和が一意。"
+        },
+        {
+          "sourceUnitId": "q1-08",
+          "question": "問4 b　コ",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "2⁶＝64≦100＜128＝2⁷。最大6種類だが，入力は選択肢1。"
+        }
+      ],
+      "fields": [
+        {
+          "label": "ア",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "自分が撮った有名人の写真を友達にあげると，著作者の権利を侵害する。"
+            },
+            {
+              "value": "1",
+              "text": "バッハ（1750年没）の曲を自分で演奏した動画を動画共有サイトに投稿すると，作曲者の権利を侵害する。"
+            },
+            {
+              "value": "2",
+              "text": "他人の著作物を許可なく自分のWebページに丸ごと転載しても，著作者の権利を侵害しない。"
+            },
+            {
+              "value": "3",
+              "text": "自分で購入した複数の問題集をコピーして自分が勉強するためのオリジナル問題集を作っても，著作者の権利を侵害しない。"
+            }
+          ]
+        },
+        {
+          "label": "イ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "図1のようなピクトグラムの画像は，一般的にベクタ形式よりラスタ形式の方がデータ量が少ない。"
+            },
+            {
+              "value": "1",
+              "text": "画像を拡大してもジャギー（ギザギザ）が生じないのはラスタ形式である。"
+            },
+            {
+              "value": "2",
+              "text": "図2のような写真の保存に適しているのは，ベクタ形式よりラスタ形式である。"
+            },
+            {
+              "value": "3",
+              "text": "ベクタ形式のフォントは，あらかじめ表示サイズごとにフォントデータを用意しなければならない。"
+            }
+          ]
+        },
+        {
+          "label": "ウ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "14"
+            },
+            {
+              "value": "1",
+              "text": "15"
+            },
+            {
+              "value": "2",
+              "text": "16"
+            },
+            {
+              "value": "3",
+              "text": "18"
+            },
+            {
+              "value": "4",
+              "text": "19"
+            },
+            {
+              "value": "5",
+              "text": "20"
+            }
+          ]
+        },
+        {
+          "label": "エ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "1/8"
+            },
+            {
+              "value": "1",
+              "text": "7/8"
+            },
+            {
+              "value": "2",
+              "text": "1/16"
+            },
+            {
+              "value": "3",
+              "text": "15/16"
+            },
+            {
+              "value": "4",
+              "text": "1/17"
+            },
+            {
+              "value": "5",
+              "text": "16/17"
+            },
+            {
+              "value": "6",
+              "text": "1/32"
+            },
+            {
+              "value": "7",
+              "text": "31/32"
+            }
+          ]
+        },
+        {
+          "label": "オ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "＜日付＞が「7月3日」"
+            },
+            {
+              "value": "1",
+              "text": "＜日付＞が「7月3日」，かつ，＜施設＞が「武道場」"
+            },
+            {
+              "value": "2",
+              "text": "＜部活動団体＞が「柔道部」"
+            },
+            {
+              "value": "3",
+              "text": "＜施設＞が「武道場」，かつ，＜部活動団体＞が「柔道部」"
+            },
+            {
+              "value": "4",
+              "text": "＜日付＞が「7月3日」，かつ，＜武道場＞が「柔道部」"
+            }
+          ]
+        },
+        {
+          "label": "カ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "その行の＜日付＞のマス"
+            },
+            {
+              "value": "1",
+              "text": "その行の＜施設＞のマス"
+            },
+            {
+              "value": "2",
+              "text": "その行の＜部活動団体＞のマス"
+            },
+            {
+              "value": "3",
+              "text": "その行の＜武道場＞のマス"
+            },
+            {
+              "value": "4",
+              "text": "その行そのもの"
+            }
+          ]
+        },
+        {
+          "label": "キ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "＜日付＞が「7月3日」"
+            },
+            {
+              "value": "1",
+              "text": "＜日付＞が「7月3日」，かつ，＜施設＞が「武道場」"
+            },
+            {
+              "value": "2",
+              "text": "＜部活動団体＞が「柔道部」"
+            },
+            {
+              "value": "3",
+              "text": "＜施設＞が「武道場」，かつ，＜部活動団体＞が「柔道部」"
+            },
+            {
+              "value": "4",
+              "text": "＜日付＞が「7月3日」，かつ，＜武道場＞が「柔道部」"
+            }
+          ]
+        },
+        {
+          "label": "ク",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "その行の＜日付＞のマス"
+            },
+            {
+              "value": "1",
+              "text": "その行の＜施設＞のマス"
+            },
+            {
+              "value": "2",
+              "text": "その行の＜部活動団体＞のマス"
+            },
+            {
+              "value": "3",
+              "text": "その行の＜武道場＞のマス"
+            },
+            {
+              "value": "4",
+              "text": "その行そのもの"
+            }
+          ]
+        },
+        {
+          "label": "ケ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "玉子:1，コーン:2，のり:3，メンマ:4"
+            },
+            {
+              "value": "1",
+              "text": "玉子:1，コーン:2，のり:3，メンマ:6"
+            },
+            {
+              "value": "2",
+              "text": "玉子:1，コーン:2，のり:4，メンマ:8"
+            },
+            {
+              "value": "3",
+              "text": "玉子:1，コーン:2，のり:98，メンマ:99"
+            }
+          ]
+        },
+        {
+          "label": "コ",
+          "sectionId": "q1",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "5"
+            },
+            {
+              "value": "1",
+              "text": "6"
+            },
+            {
+              "value": "2",
+              "text": "7"
+            },
+            {
+              "value": "3",
+              "text": "8"
+            },
+            {
+              "value": "4",
+              "text": "16"
+            },
+            {
+              "value": "5",
+              "text": "49"
+            },
+            {
+              "value": "6",
+              "text": "99"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A（15点）",
+      "maxPoints": 15,
+      "units": [
+        {
+          "sourceUnitId": "q2a-01",
+          "question": "問1　ア",
+          "labels": [
+            "ア"
+          ],
+          "answers": [
+            "8"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "62¹⁰。選択肢8。"
+        },
+        {
+          "sourceUnitId": "q2a-02",
+          "question": "問1　イ",
+          "labels": [
+            "イ"
+          ],
+          "answers": [
+            "7"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "62¹⁰/62⁸＝62²＝3844。選択肢7。"
+        },
+        {
+          "sourceUnitId": "q2a-03",
+          "question": "問2　ウ",
+          "labels": [
+            "ウ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "のぞき見への注意。"
+        },
+        {
+          "sourceUnitId": "q2a-04",
+          "question": "問3 a　エ",
+          "labels": [
+            "エ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "知識認証と所有物認証の組合せ。"
+        },
+        {
+          "sourceUnitId": "q2a-05",
+          "question": "問3 b　オ",
+          "labels": [
+            "オ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "一つの認証情報が漏洩した場合の不正ログインを抑制。"
+        },
+        {
+          "sourceUnitId": "q2a-06",
+          "question": "問4　カ",
+          "labels": [
+            "カ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "設問は効果が「期待できない」方式を選ぶ。PDFの二次元コードは複製可能。"
+        },
+        {
+          "sourceUnitId": "q2a-07",
+          "question": "問5　キ",
+          "labels": [
+            "キ"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "Ⅰ○・Ⅱ○・Ⅲ×。"
+        }
+      ],
+      "fields": [
+        {
+          "label": "ア",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "26"
+            },
+            {
+              "value": "1",
+              "text": "26²"
+            },
+            {
+              "value": "2",
+              "text": "26¹⁰"
+            },
+            {
+              "value": "3",
+              "text": "(10＋26)"
+            },
+            {
+              "value": "4",
+              "text": "(10＋26)²"
+            },
+            {
+              "value": "5",
+              "text": "(10＋26)¹⁰"
+            },
+            {
+              "value": "6",
+              "text": "(10＋26＋26)"
+            },
+            {
+              "value": "7",
+              "text": "(10＋26＋26)²"
+            },
+            {
+              "value": "8",
+              "text": "(10＋26＋26)¹⁰"
+            },
+            {
+              "value": "9",
+              "text": "10×26"
+            },
+            {
+              "value": "A",
+              "text": "(10×26)²"
+            },
+            {
+              "value": "B",
+              "text": "10×26×26"
+            },
+            {
+              "value": "C",
+              "text": "(10×26×26)²"
+            }
+          ]
+        },
+        {
+          "label": "イ",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "26"
+            },
+            {
+              "value": "1",
+              "text": "26²"
+            },
+            {
+              "value": "2",
+              "text": "26¹⁰"
+            },
+            {
+              "value": "3",
+              "text": "(10＋26)"
+            },
+            {
+              "value": "4",
+              "text": "(10＋26)²"
+            },
+            {
+              "value": "5",
+              "text": "(10＋26)¹⁰"
+            },
+            {
+              "value": "6",
+              "text": "(10＋26＋26)"
+            },
+            {
+              "value": "7",
+              "text": "(10＋26＋26)²"
+            },
+            {
+              "value": "8",
+              "text": "(10＋26＋26)¹⁰"
+            },
+            {
+              "value": "9",
+              "text": "10×26"
+            },
+            {
+              "value": "A",
+              "text": "(10×26)²"
+            },
+            {
+              "value": "B",
+              "text": "10×26×26"
+            },
+            {
+              "value": "C",
+              "text": "(10×26×26)²"
+            }
+          ]
+        },
+        {
+          "label": "ウ",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "会員登録サイトにアクセスする際は，確実にインターネットに接続できるように，ショッピングモールなどの公衆無線LANを利用する。"
+            },
+            {
+              "value": "1",
+              "text": "会員登録を行う際は，個人のパソコンではなく，学校や図書館などに設置されている共有パソコンを利用する。"
+            },
+            {
+              "value": "2",
+              "text": "会員情報を入力する際は，自分の周囲で他人が登録画面をのぞき込んでいないか，注意を払いながら入力する。"
+            },
+            {
+              "value": "3",
+              "text": "会員登録が終わった後は，登録したユーザIDやパスワードを失念しないように紙に印刷し，目立つ場所に掲示する。"
+            }
+          ]
+        },
+        {
+          "label": "エ",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "パスワード:知識認証，認証コード:所有物認証"
+            },
+            {
+              "value": "1",
+              "text": "パスワード:知識認証，認証コード:生体認証"
+            },
+            {
+              "value": "2",
+              "text": "パスワード:所有物認証，認証コード:知識認証"
+            },
+            {
+              "value": "3",
+              "text": "パスワード:所有物認証，認証コード:生体認証"
+            },
+            {
+              "value": "4",
+              "text": "パスワード:生体認証，認証コード:知識認証"
+            },
+            {
+              "value": "5",
+              "text": "パスワード:生体認証，認証コード:所有物認証"
+            }
+          ]
+        },
+        {
+          "label": "オ",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "パスワードを設定するときに，辞書に載っている英単語のような脆弱なパスワードを禁止できる。"
+            },
+            {
+              "value": "1",
+              "text": "パスワードを入力するときに，入力した文字列が画面上に表示されないようにすることができる。"
+            },
+            {
+              "value": "2",
+              "text": "パスワードを失念してしまったときに，認証コードをもとに計算することでパスワードを復元できる。"
+            },
+            {
+              "value": "3",
+              "text": "パスワードが漏洩してしまったときに，不正ログインされるリスクを減らすことができる。"
+            }
+          ]
+        },
+        {
+          "label": "カ",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "会員情報を格納しているICチップを搭載した，プラスチック製のカードによる方式"
+            },
+            {
+              "value": "1",
+              "text": "透かしやホログラムが入っている特殊な紙に印刷し，耐水加工をほどこした紙製のカードによる方式"
+            },
+            {
+              "value": "2",
+              "text": "スマートフォンやパソコンで表示できる，会員情報を埋め込んだ二次元コードが掲載されたPDFファイルによる方式"
+            },
+            {
+              "value": "3",
+              "text": "スマートフォンにインストールした会員専用アプリで，ユーザIDとパスワードを使ってログインしているときだけ会員証機能が有効となる方式"
+            }
+          ]
+        },
+        {
+          "label": "キ",
+          "sectionId": "q2a",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Ⅰ:○，Ⅱ:○，Ⅲ:○"
+            },
+            {
+              "value": "1",
+              "text": "Ⅰ:○，Ⅱ:○，Ⅲ:×"
+            },
+            {
+              "value": "2",
+              "text": "Ⅰ:○，Ⅱ:×，Ⅲ:○"
+            },
+            {
+              "value": "3",
+              "text": "Ⅰ:×，Ⅱ:○，Ⅲ:○"
+            },
+            {
+              "value": "4",
+              "text": "Ⅰ:○，Ⅱ:×，Ⅲ:×"
+            },
+            {
+              "value": "5",
+              "text": "Ⅰ:×，Ⅱ:○，Ⅲ:×"
+            },
+            {
+              "value": "6",
+              "text": "Ⅰ:×，Ⅱ:×，Ⅲ:○"
+            },
+            {
+              "value": "7",
+              "text": "Ⅰ:×，Ⅱ:×，Ⅲ:×"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B（15点）",
+      "maxPoints": 15,
+      "units": [
+        {
+          "sourceUnitId": "q2b-01",
+          "question": "問1　ク",
+          "labels": [
+            "ク"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "数字を直接マークする欄。Xの下壁はYの上壁で，左から2ビット目。"
+        },
+        {
+          "sourceUnitId": "q2b-02",
+          "question": "問1　ケ",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "右隣のマスの左端から1ビット目を調べる。"
+        },
+        {
+          "sourceUnitId": "q2b-03",
+          "question": "問1　コ",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "4"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "4N²ビット。式そのものではなく選択肢4。"
+        },
+        {
+          "sourceUnitId": "q2b-04",
+          "question": "問1　サ",
+          "labels": [
+            "サ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "2(N²＋2N)＝2N²＋4Nビット。選択肢2。"
+        },
+        {
+          "sourceUnitId": "q2b-05",
+          "question": "問1　シ",
+          "labels": [
+            "シ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "数字を直接マークする欄。2N²＋4N＜4N²よりN＞2。"
+        },
+        {
+          "sourceUnitId": "q2b-06",
+          "question": "問2　ス・セ",
+          "labels": [
+            "ス",
+            "セ"
+          ],
+          "answers": [
+            "1",
+            "3"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "両欄一致で3点。上のマスに下向き矢印。順序固定。"
+        },
+        {
+          "sourceUnitId": "q2b-07",
+          "question": "問2　ソ",
+          "labels": [
+            "ソ"
+          ],
+          "answers": [
+            "6"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "数字を直接マークする欄。あ〜うの5辺を結ぶ経路の端点を含む6マス。"
+        }
+      ],
+      "fields": [
+        {
+          "label": "ク",
+          "sectionId": "q2b",
+          "type": "text",
+          "allowed": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+          ]
+        },
+        {
+          "label": "ケ",
+          "sectionId": "q2b",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "キャラクターのいるマスの，二つのビットの両方が1"
+            },
+            {
+              "value": "1",
+              "text": "キャラクターのいるマスの，二つのビットのどちらかが1"
+            },
+            {
+              "value": "2",
+              "text": "キャラクターのいるマスの右のマスの，左端から1ビット目が1"
+            },
+            {
+              "value": "3",
+              "text": "キャラクターのいるマスの右のマスの，左端から2ビット目が1"
+            }
+          ]
+        },
+        {
+          "label": "コ",
+          "sectionId": "q2b",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "2N"
+            },
+            {
+              "value": "1",
+              "text": "2N²"
+            },
+            {
+              "value": "2",
+              "text": "2N²＋4N"
+            },
+            {
+              "value": "3",
+              "text": "4N"
+            },
+            {
+              "value": "4",
+              "text": "4N²"
+            },
+            {
+              "value": "5",
+              "text": "4N²＋2N"
+            },
+            {
+              "value": "6",
+              "text": "32N²"
+            },
+            {
+              "value": "7",
+              "text": "32N²＋64N"
+            }
+          ]
+        },
+        {
+          "label": "サ",
+          "sectionId": "q2b",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "2N"
+            },
+            {
+              "value": "1",
+              "text": "2N²"
+            },
+            {
+              "value": "2",
+              "text": "2N²＋4N"
+            },
+            {
+              "value": "3",
+              "text": "4N"
+            },
+            {
+              "value": "4",
+              "text": "4N²"
+            },
+            {
+              "value": "5",
+              "text": "4N²＋2N"
+            },
+            {
+              "value": "6",
+              "text": "32N²"
+            },
+            {
+              "value": "7",
+              "text": "32N²＋64N"
+            }
+          ]
+        },
+        {
+          "label": "シ",
+          "sectionId": "q2b",
+          "type": "text",
+          "allowed": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+          ]
+        },
+        {
+          "label": "ス",
+          "sectionId": "q2b",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "左"
+            },
+            {
+              "value": "1",
+              "text": "上"
+            },
+            {
+              "value": "2",
+              "text": "右"
+            },
+            {
+              "value": "3",
+              "text": "下"
+            }
+          ]
+        },
+        {
+          "label": "セ",
+          "sectionId": "q2b",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "←"
+            },
+            {
+              "value": "1",
+              "text": "↑"
+            },
+            {
+              "value": "2",
+              "text": "→"
+            },
+            {
+              "value": "3",
+              "text": "↓"
+            }
+          ]
+        },
+        {
+          "label": "ソ",
+          "sectionId": "q2b",
+          "type": "text",
+          "allowed": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "title": "第3問（25点）",
+      "maxPoints": 25,
+      "units": [
+        {
+          "sourceUnitId": "q3-01",
+          "question": "問1　ア",
+          "labels": [
+            "ア"
+          ],
+          "answers": [
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Shurui[n]。"
+        },
+        {
+          "sourceUnitId": "q3-02",
+          "question": "問1　イ",
+          "labels": [
+            "イ"
+          ],
+          "answers": [
+            "8"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Keiryou[n]。"
+        },
+        {
+          "sourceUnitId": "q3-03",
+          "question": "問2　ウ",
+          "labels": [
+            "ウ"
+          ],
+          "answers": [
+            "4"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "ninzu。生徒番号iを1〜40で走査。"
+        },
+        {
+          "sourceUnitId": "q3-04",
+          "question": "問2　エ",
+          "labels": [
+            "エ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Iremono[i] == 1。バケツのみ350gを引く。"
+        },
+        {
+          "sourceUnitId": "q3-05",
+          "question": "問2　オ",
+          "labels": [
+            "オ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Shurui[i] == 1。可燃ごみかで振り分ける。"
+        },
+        {
+          "sourceUnitId": "q3-06",
+          "question": "問2　カ",
+          "labels": [
+            "カ"
+          ],
+          "answers": [
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "kanen。過去の可燃ごみ合計へ加算。"
+        },
+        {
+          "sourceUnitId": "q3-07",
+          "question": "問2　キ",
+          "labels": [
+            "キ"
+          ],
+          "answers": [
+            "6"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "funen。過去の不燃ごみ合計へ加算。"
+        },
+        {
+          "sourceUnitId": "q3-08",
+          "question": "問3　ク",
+          "labels": [
+            "ク"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "shuruisu。種類数7まで名称照合。"
+        },
+        {
+          "sourceUnitId": "q3-09",
+          "question": "問3　ケ",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "j。名称が一致した種類番号をShurui[n]へ格納。"
+        },
+        {
+          "sourceUnitId": "q3-10",
+          "question": "問3　コ",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "4"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Shurui[i]。今の生徒の種類番号。"
+        },
+        {
+          "sourceUnitId": "q3-11",
+          "question": "問3　サ",
+          "labels": [
+            "サ"
+          ],
+          "answers": [
+            "C"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Goukei[s]。入力Cは選択肢ⓒのコードであり，直接数値や16進数の回答ではない。"
+        },
+        {
+          "sourceUnitId": "q3-12",
+          "question": "問3　シ",
+          "labels": [
+            "シ"
+          ],
+          "answers": [
+            "8"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Namae[j]。表示用の種類名。"
+        },
+        {
+          "sourceUnitId": "q3-13",
+          "question": "問3　ス",
+          "labels": [
+            "ス"
+          ],
+          "answers": [
+            "B"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "Goukei[j]。入力Bは選択肢ⓑのコードであり，直接数値や16進数の回答ではない。"
+        }
+      ],
+      "fields": [
+        {
+          "label": "ア",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Iremono[1]"
+            },
+            {
+              "value": "1",
+              "text": "Iremono[2]"
+            },
+            {
+              "value": "2",
+              "text": "Iremono[n]"
+            },
+            {
+              "value": "3",
+              "text": "Shurui[1]"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[2]"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[n]"
+            },
+            {
+              "value": "6",
+              "text": "Keiryou[1]"
+            },
+            {
+              "value": "7",
+              "text": "Keiryou[2]"
+            },
+            {
+              "value": "8",
+              "text": "Keiryou[n]"
+            }
+          ]
+        },
+        {
+          "label": "イ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Iremono[1]"
+            },
+            {
+              "value": "1",
+              "text": "Iremono[2]"
+            },
+            {
+              "value": "2",
+              "text": "Iremono[n]"
+            },
+            {
+              "value": "3",
+              "text": "Shurui[1]"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[2]"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[n]"
+            },
+            {
+              "value": "6",
+              "text": "Keiryou[1]"
+            },
+            {
+              "value": "7",
+              "text": "Keiryou[2]"
+            },
+            {
+              "value": "8",
+              "text": "Keiryou[n]"
+            }
+          ]
+        },
+        {
+          "label": "ウ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "0"
+            },
+            {
+              "value": "1",
+              "text": "1"
+            },
+            {
+              "value": "2",
+              "text": "2"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "ninzu"
+            },
+            {
+              "value": "5",
+              "text": "kanen"
+            },
+            {
+              "value": "6",
+              "text": "funen"
+            },
+            {
+              "value": "7",
+              "text": "Iremono[i]"
+            },
+            {
+              "value": "8",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "9",
+              "text": "Keiryou[i]"
+            }
+          ]
+        },
+        {
+          "label": "エ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Iremono[i] == 1"
+            },
+            {
+              "value": "1",
+              "text": "Iremono[i] == 2"
+            },
+            {
+              "value": "2",
+              "text": "Iremono[i] == gomi"
+            },
+            {
+              "value": "3",
+              "text": "Shurui[i] == 1"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[i] == 2"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[i] == kanen"
+            }
+          ]
+        },
+        {
+          "label": "オ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Iremono[i] == 1"
+            },
+            {
+              "value": "1",
+              "text": "Iremono[i] == 2"
+            },
+            {
+              "value": "2",
+              "text": "Iremono[i] == gomi"
+            },
+            {
+              "value": "3",
+              "text": "Shurui[i] == 1"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[i] == 2"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[i] == kanen"
+            }
+          ]
+        },
+        {
+          "label": "カ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "0"
+            },
+            {
+              "value": "1",
+              "text": "1"
+            },
+            {
+              "value": "2",
+              "text": "2"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "ninzu"
+            },
+            {
+              "value": "5",
+              "text": "kanen"
+            },
+            {
+              "value": "6",
+              "text": "funen"
+            },
+            {
+              "value": "7",
+              "text": "Iremono[i]"
+            },
+            {
+              "value": "8",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "9",
+              "text": "Keiryou[i]"
+            }
+          ]
+        },
+        {
+          "label": "キ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "0"
+            },
+            {
+              "value": "1",
+              "text": "1"
+            },
+            {
+              "value": "2",
+              "text": "2"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "ninzu"
+            },
+            {
+              "value": "5",
+              "text": "kanen"
+            },
+            {
+              "value": "6",
+              "text": "funen"
+            },
+            {
+              "value": "7",
+              "text": "Iremono[i]"
+            },
+            {
+              "value": "8",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "9",
+              "text": "Keiryou[i]"
+            }
+          ]
+        },
+        {
+          "label": "ク",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "j"
+            },
+            {
+              "value": "1",
+              "text": "shuruisu"
+            },
+            {
+              "value": "2",
+              "text": "meishou"
+            },
+            {
+              "value": "3",
+              "text": "Shurui[j]"
+            },
+            {
+              "value": "4",
+              "text": "Namae[j]"
+            },
+            {
+              "value": "5",
+              "text": "Namae[shuruisu]"
+            }
+          ]
+        },
+        {
+          "label": "ケ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "j"
+            },
+            {
+              "value": "1",
+              "text": "shuruisu"
+            },
+            {
+              "value": "2",
+              "text": "meishou"
+            },
+            {
+              "value": "3",
+              "text": "Shurui[j]"
+            },
+            {
+              "value": "4",
+              "text": "Namae[j]"
+            },
+            {
+              "value": "5",
+              "text": "Namae[shuruisu]"
+            }
+          ]
+        },
+        {
+          "label": "コ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "i"
+            },
+            {
+              "value": "1",
+              "text": "j"
+            },
+            {
+              "value": "2",
+              "text": "s"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[j]"
+            },
+            {
+              "value": "6",
+              "text": "Shurui[s]"
+            },
+            {
+              "value": "7",
+              "text": "Namae[i]"
+            },
+            {
+              "value": "8",
+              "text": "Namae[j]"
+            },
+            {
+              "value": "9",
+              "text": "Namae[s]"
+            },
+            {
+              "value": "A",
+              "text": "Goukei[i]"
+            },
+            {
+              "value": "B",
+              "text": "Goukei[j]"
+            },
+            {
+              "value": "C",
+              "text": "Goukei[s]"
+            },
+            {
+              "value": "D",
+              "text": "Keiryou[i]"
+            }
+          ]
+        },
+        {
+          "label": "サ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "i"
+            },
+            {
+              "value": "1",
+              "text": "j"
+            },
+            {
+              "value": "2",
+              "text": "s"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[j]"
+            },
+            {
+              "value": "6",
+              "text": "Shurui[s]"
+            },
+            {
+              "value": "7",
+              "text": "Namae[i]"
+            },
+            {
+              "value": "8",
+              "text": "Namae[j]"
+            },
+            {
+              "value": "9",
+              "text": "Namae[s]"
+            },
+            {
+              "value": "A",
+              "text": "Goukei[i]"
+            },
+            {
+              "value": "B",
+              "text": "Goukei[j]"
+            },
+            {
+              "value": "C",
+              "text": "Goukei[s]"
+            },
+            {
+              "value": "D",
+              "text": "Keiryou[i]"
+            }
+          ]
+        },
+        {
+          "label": "シ",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "i"
+            },
+            {
+              "value": "1",
+              "text": "j"
+            },
+            {
+              "value": "2",
+              "text": "s"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[j]"
+            },
+            {
+              "value": "6",
+              "text": "Shurui[s]"
+            },
+            {
+              "value": "7",
+              "text": "Namae[i]"
+            },
+            {
+              "value": "8",
+              "text": "Namae[j]"
+            },
+            {
+              "value": "9",
+              "text": "Namae[s]"
+            },
+            {
+              "value": "A",
+              "text": "Goukei[i]"
+            },
+            {
+              "value": "B",
+              "text": "Goukei[j]"
+            },
+            {
+              "value": "C",
+              "text": "Goukei[s]"
+            },
+            {
+              "value": "D",
+              "text": "Keiryou[i]"
+            }
+          ]
+        },
+        {
+          "label": "ス",
+          "sectionId": "q3",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "i"
+            },
+            {
+              "value": "1",
+              "text": "j"
+            },
+            {
+              "value": "2",
+              "text": "s"
+            },
+            {
+              "value": "3",
+              "text": "gomi"
+            },
+            {
+              "value": "4",
+              "text": "Shurui[i]"
+            },
+            {
+              "value": "5",
+              "text": "Shurui[j]"
+            },
+            {
+              "value": "6",
+              "text": "Shurui[s]"
+            },
+            {
+              "value": "7",
+              "text": "Namae[i]"
+            },
+            {
+              "value": "8",
+              "text": "Namae[j]"
+            },
+            {
+              "value": "9",
+              "text": "Namae[s]"
+            },
+            {
+              "value": "A",
+              "text": "Goukei[i]"
+            },
+            {
+              "value": "B",
+              "text": "Goukei[j]"
+            },
+            {
+              "value": "C",
+              "text": "Goukei[s]"
+            },
+            {
+              "value": "D",
+              "text": "Keiryou[i]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "q4",
+      "title": "第4問（25点）",
+      "maxPoints": 25,
+      "units": [
+        {
+          "sourceUnitId": "q4-01",
+          "question": "問1　ア",
+          "labels": [
+            "ア"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "|r|が1に近づくほど点の並びは直線に近づく。"
+        },
+        {
+          "sourceUnitId": "q4-02",
+          "question": "問1　イ",
+          "labels": [
+            "イ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "0.97，0.98，0.95はいずれも強い正の相関。"
+        },
+        {
+          "sourceUnitId": "q4-03",
+          "question": "問2 a　ウ",
+          "labels": [
+            "ウ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "分母の面積は可住地面積。県間の病院密度の比較。"
+        },
+        {
+          "sourceUnitId": "q4-04",
+          "question": "問2 b　エ",
+          "labels": [
+            "エ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "相関係数+0.37と−0.59から，多く・少なく。"
+        },
+        {
+          "sourceUnitId": "q4-05",
+          "question": "問3　オ",
+          "labels": [
+            "オ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "−0.65と+0.99から，過疎化・少なく。因果の確定ではなく仮説。"
+        },
+        {
+          "sourceUnitId": "q4-06",
+          "question": "問4　カ",
+          "labels": [
+            "カ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "左の階級へ度数が集中し平均が高値に引かれやすい。"
+        },
+        {
+          "sourceUnitId": "q4-07",
+          "question": "問4　キ",
+          "labels": [
+            "キ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "縦軸の分散はOが大きい。"
+        },
+        {
+          "sourceUnitId": "q4-08",
+          "question": "問4　ク",
+          "labels": [
+            "ク"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "Xの全点が病院/面積1未満。"
+        },
+        {
+          "sourceUnitId": "q4-09",
+          "question": "問5　ケ",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "9.70×0.3−0.08＝2.83施設/km²。入力は選択肢2。"
+        }
+      ],
+      "fields": [
+        {
+          "label": "ア",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "項目間の値が等しくなる確率を表している"
+            },
+            {
+              "value": "1",
+              "text": "絶対値が1に近い値になると，散布図を描いたとき，点の集まりが直線に近づく"
+            },
+            {
+              "value": "2",
+              "text": "正の値のときは，散布図を描いたとき，点が右上がりの直線上に並ぶ"
+            },
+            {
+              "value": "3",
+              "text": "負の値をとることがない"
+            }
+          ]
+        },
+        {
+          "label": "イ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "都道府県ごとの，各年齢層の人口の総人口に対する割合は，すべて等しい"
+            },
+            {
+              "value": "1",
+              "text": "病院数は，各年齢層の人口と関係なく年々増えている"
+            },
+            {
+              "value": "2",
+              "text": "年齢層によらず，人口が多い都道府県では病院数も多い傾向にある"
+            },
+            {
+              "value": "3",
+              "text": "病院数が極端に多い都道府県が存在する"
+            }
+          ]
+        },
+        {
+          "label": "ウ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "各都道府県間での病院の分布の疎密の程度の比較"
+            },
+            {
+              "value": "1",
+              "text": "各都道府県内での人口が過疎になっている市区町村の特定"
+            },
+            {
+              "value": "2",
+              "text": "各都道府県間での一世帯あたりの病院数の比較"
+            },
+            {
+              "value": "3",
+              "text": "各都道府県内での病院が少ない市区町村の特定"
+            }
+          ]
+        },
+        {
+          "label": "エ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Ａ:少なく，Ｂ:少なく"
+            },
+            {
+              "value": "1",
+              "text": "Ａ:少なく，Ｂ:多く"
+            },
+            {
+              "value": "2",
+              "text": "Ａ:多く，Ｂ:少なく"
+            },
+            {
+              "value": "3",
+              "text": "Ａ:多く，Ｂ:多く"
+            }
+          ]
+        },
+        {
+          "label": "オ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Ｃ:過密化，Ｄ:多く"
+            },
+            {
+              "value": "1",
+              "text": "Ｃ:過密化，Ｄ:少なく"
+            },
+            {
+              "value": "2",
+              "text": "Ｃ:過疎化，Ｄ:多く"
+            },
+            {
+              "value": "3",
+              "text": "Ｃ:過疎化，Ｄ:少なく"
+            }
+          ]
+        },
+        {
+          "label": "カ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "分布がほぼ左右対称になっている"
+            },
+            {
+              "value": "1",
+              "text": "分布に二つの大きな山がある"
+            },
+            {
+              "value": "2",
+              "text": "左側の階級に度数が集中している"
+            },
+            {
+              "value": "3",
+              "text": "右側の階級に度数が集中している"
+            }
+          ]
+        },
+        {
+          "label": "キ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "「65歳以上割合」の平均値は，Oグループの方が大きい"
+            },
+            {
+              "value": "1",
+              "text": "「65歳以上割合」の範囲は，Xグループの方が大きい"
+            },
+            {
+              "value": "2",
+              "text": "「病院/面積」の平均値は，Xグループの方が大きい"
+            },
+            {
+              "value": "3",
+              "text": "「病院/面積」の分散は，Oグループの方が大きい"
+            }
+          ]
+        },
+        {
+          "label": "ク",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "Xグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設以上である"
+            },
+            {
+              "value": "1",
+              "text": "Xグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設未満である"
+            },
+            {
+              "value": "2",
+              "text": "Oグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設以上である"
+            },
+            {
+              "value": "3",
+              "text": "Oグループでは，「65歳以上割合」の大小によらず，面積1km²あたりの病院数が1施設未満である"
+            }
+          ]
+        },
+        {
+          "label": "ケ",
+          "sectionId": "q4",
+          "type": "choice",
+          "choices": [
+            {
+              "value": "0",
+              "text": "0.283"
+            },
+            {
+              "value": "1",
+              "text": "0.299"
+            },
+            {
+              "value": "2",
+              "text": "2.83"
+            },
+            {
+              "value": "3",
+              "text": "2.99"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

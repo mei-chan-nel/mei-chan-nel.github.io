@@ -3,7 +3,7 @@ import { fitBookFrame } from "./book-frame.mjs";
 
 // Partition by the same boundaries used for desktop alignment. Keep the
 // problem's figures/context once, and isolate each explanation's source CSS.
-export function interleavedProblemHTML(problemHTML) {
+export function interleavedProblemHTML(problemHTML, scoring = []) {
   const d = new DOMParser().parseFromString(problemHTML, "text/html");
   d.querySelectorAll(
     "header,footer,.book-source,.pagehead,.page-head,.page-foot,.page-footer,.footer,.running,.pagenum,.page-number,.version",
@@ -14,13 +14,23 @@ export function interleavedProblemHTML(problemHTML) {
     const previous = anchors[i - 1],
       currentIDs = anchor.dataset.readingUnits.split(" "),
       previousIDs = previous.dataset.readingUnits.split(" ");
+    const previousFields = new Set(
+      scoring.filter((u) => previousIDs.includes(u.id)).flatMap((u) => u.fields),
+    );
+    const follows = (a, b) => !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    // A shared-context marker may overlap the preceding question. Its answer
+    // box AND its choice group must stay before that question's explanation.
+    const previousContent = [...d.querySelectorAll("[data-field],[data-choice-fields]")]
+      .filter((e) => [e.dataset.field, ...(e.dataset.choiceFields || "").split(" ")]
+        .some((field) => previousFields.has(field)))
+      .filter((e) => follows(previous, e) && !anchor.contains(e) && follows(e, anchor));
     // Bring the next question's introductory text/figure with it, rather than
     // leaving that context above the preceding question's explanation.
     return (
       [...d.querySelectorAll("[data-reading-for]")].find((node) => {
         const units = node.dataset.readingFor.split(" ");
         return (
-          !node.contains(previous) &&
+          !node.contains(previous) && !previous.contains(node) &&
           !!(
             previous.compareDocumentPosition(node) &
             Node.DOCUMENT_POSITION_FOLLOWING
@@ -33,6 +43,7 @@ export function interleavedProblemHTML(problemHTML) {
             )) &&
           currentIDs.some((id) => units.includes(id)) &&
           !previousIDs.some((id) => units.includes(id))
+          && !previousContent.some((e) => node.contains(e) || follows(node, e))
         );
       }) || anchor
     );
@@ -46,6 +57,7 @@ export function interleavedProblemHTML(problemHTML) {
       else range.setEnd(d.body, d.body.childNodes.length);
       const section = d.createElement("section");
       section.className = "interleaved-problem";
+      section.dataset.problemUnits = anchor.dataset.readingUnits;
       section.append(range.cloneContents());
       const explanation = d.createElement("section");
       explanation.className = "interleaved-explanation";

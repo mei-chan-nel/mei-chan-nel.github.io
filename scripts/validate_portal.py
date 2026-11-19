@@ -436,6 +436,8 @@ def main() -> int:
         and not path.is_relative_to(ROOT / "lab" / "tools" / "templates")
         # Embedded mock booklets have their own source/HTML/PDF validators.
         and not path.is_relative_to(ROOT / "mock-exams" / "exams")
+        # Past-exam authoring fragments are inputs to the booklet generator.
+        and not path.is_relative_to(ROOT / "scripts" / "past_exam_data")
     )
     parsers: dict[Path, PageParser] = {}
     expected_nav_labels = ("トップページ", "学習アプリ", "実戦演習", "ラボ", "問題を探す", "用語一覧", "プログラムトレース", "解説動画", "講義ノート")
@@ -555,7 +557,7 @@ def main() -> int:
         for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実戦演習"), ("./lab/", "Interactive Lab")):
             if not re.search(r'<a class="home-action-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
                 errors.append(f"index.html: main content card/link mismatch: {label}")
-        if "共通テスト形式の模試を60分で通して受験するほか、大問ごとの演習もできます。" not in action_text:
+        if "共通テスト過去問およびオリジナル模試を受験できます。" not in action_text:
             errors.append("index.html: mock exam description is outdated")
         if "さまざまなアプリを操作し、実験や可視化を通して情報のしくみを学べます。" not in action_text:
             errors.append("index.html: interactive lab description is outdated")

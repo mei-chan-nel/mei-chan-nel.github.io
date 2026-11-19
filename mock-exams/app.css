@@ -237,6 +237,32 @@ button:disabled {
   color: var(--mock-ink);
   background: white;
 }
+.catalog-list-tools {
+  display: flex;
+  align-items: end;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+.catalog-list-tools > button {
+  min-height: 44px;
+  white-space: nowrap;
+}
+.past-exam-permission {
+  margin-top: 28px;
+  padding: 18px 0;
+  border-top: 1px solid var(--mock-line);
+  color: var(--mock-muted);
+  font-size: 14px;
+}
+.past-exam-permission summary {
+  cursor: pointer;
+  color: var(--mock-ink);
+}
+.past-exam-permission p {
+  max-width: 70em;
+  line-height: 1.8;
+}
 .catalog-exam {
   display: flex;
   justify-content: space-between;
@@ -278,8 +304,27 @@ button:disabled {
   color: var(--mock-muted);
 }
 .exam-card-actions {
+  display: grid;
+  grid-template-columns: 5rem 8rem 5rem 7rem;
+  gap: 8px;
   margin: 0;
   flex-shrink: 0;
+}
+.exam-card-actions > button {
+  grid-row: 1;
+  white-space: nowrap;
+  padding-inline: 4px;
+}
+.exam-card-actions > [data-resume] { grid-column: 1; }
+.exam-card-actions > [data-start] { grid-column: 2; }
+.exam-card-actions > [data-result] { grid-column: 3; }
+.exam-card-actions > .pdf-links {
+  grid-area: 1 / 4;
+  margin-left: 0;
+}
+@media (max-width: 800px) {
+  .catalog-exam { flex-wrap: wrap; }
+  .exam-card-actions { width: 100%; }
 }
 .time-options {
   display: flex;
@@ -328,25 +373,33 @@ button:disabled {
   }
   .catalog-list-heading {
     align-items: start;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .catalog-list-heading > div:first-child {
+    flex-basis: 100%;
+  }
+  .catalog-list-tools {
+    width: 100%;
+    flex-wrap: nowrap;
   }
   .catalog-sort {
-    flex-direction: column;
-    align-items: start;
-    gap: 4px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
   .catalog-exam {
     flex-wrap: wrap;
     gap: 15px;
   }
   .exam-card-actions {
-    width: 100%;
-    justify-content: space-between;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
   }
-  .exam-card-actions .primary {
-    min-width: 100px;
-  }
-  .pdf-links {
-    margin-left: auto;
+  .exam-card-actions > .pdf-links {
+    grid-area: 2 / 1 / 3 / -1;
+    grid-auto-flow: column;
+    justify-content: end;
+    column-gap: 14px;
   }
   .pdf-links a {
     min-height: 36px;
@@ -913,6 +966,9 @@ button.subtle-button {
 .results .summary-table tfoot {
   background: #f7f9f8;
 }
+.results .score-maximum {
+  white-space: nowrap;
+}
 .results #unit-table {
   font-size: 13px;
   width: 100%;
@@ -966,11 +1022,41 @@ button.subtle-button {
   .unit-heading {
     align-items: flex-start;
   }
-  .results #unit-table {
-    min-width: 560px;
+  .results .summary-table {
+    width: 100%;
+    table-layout: fixed;
   }
-  .summary-table {
-    min-width: 510px;
+  .results .summary-table thead th:first-child {
+    width: 16%;
+  }
+  .results .summary-table :is(th, td),
+  .results #unit-table:not(.with-history) :is(th, td) {
+    padding-inline: 3px;
+    overflow-wrap: anywhere;
+  }
+  .results .summary-table thead th {
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+  .results #unit-table:not(.with-history) {
+    min-width: 300px;
+    font-size: 12px;
+  }
+  .results #unit-table:not(.with-history) thead th {
+    padding-inline: 2px;
+    font-size: 12px;
+  }
+  .results #unit-table:not(.with-history) thead th:nth-child(1) {
+    width: 56px;
+  }
+  .results #unit-table:not(.with-history) thead th:nth-child(2) {
+    width: 30px;
+  }
+  .results #unit-table:not(.with-history) thead th:nth-child(3) {
+    width: 34px;
+  }
+  .results #unit-table:not(.with-history) thead th:nth-child(5) {
+    width: 34px;
   }
   .section-navigation {
     grid-template-columns: repeat(5, 1fr);
@@ -1368,4 +1454,29 @@ button.column-clear {
 /* Match the portal background while retaining the original catalog controls. */
 body[data-view="catalog"] {
   background: var(--paper);
+}
+
+#catalog-type,
+#catalog-time {
+  display: grid;
+}
+#catalog-type {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 36rem;
+}
+#catalog-time {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 24rem;
+}
+.filter-label-short { display: none; }
+@media (max-width: 600px) {
+  .filter-label-full { display: none; }
+  .filter-label-short { display: inline; }
+  #catalog-type button, #catalog-time button { padding-inline: 6px; }
+}
+
+#catalog-type { max-width: 42rem; }
+#catalog-type button {
+  white-space: nowrap;
+  padding-inline: min(2vw, 14px);
 }

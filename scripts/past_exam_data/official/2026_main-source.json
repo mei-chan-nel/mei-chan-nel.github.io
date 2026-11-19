@@ -1,0 +1,7 @@
+{
+  "sourceUrl": "https://www.dnc.ac.jp/albums/abm.php?d=2137&f=abm00006055.pdf&n=R8_%E3%80%90%E6%83%85%E5%A0%B1%E2%85%A0%E3%80%91%E7%99%BA%E8%A1%A8%E7%94%A8%E6%AD%A3%E8%A7%A3.pdf",
+  "retrievalRecord": "2026_main-dnc-retrieval.json",
+  "retrievalRecordSha256": "43503914d126ce6a79cef712454b3d3af207876aea5b214d34afdc24f5a18eb6",
+  "sha256AppliesTo": "saved web-tool retrieval JSON, NOT the original PDF",
+  "rawPdfAvailable": false
+}

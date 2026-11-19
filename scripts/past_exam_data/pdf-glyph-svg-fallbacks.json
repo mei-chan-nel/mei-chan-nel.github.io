@@ -1,0 +1,148 @@
+{
+  "EdiF-uSKQqEs5hBnZ4j-00j": {
+    "8": {
+      "shapeId": 19,
+      "description": "wavy underline assembly tile",
+      "glyphName": "c033",
+      "path": "M0 327V285C127 285 152 439 250 439C347 440 376 285 500 285C624 285 652 440 750 439C848 440 876 285 1000 285V327C899 328 873 482 750 482C626 482 600 328 500 327C399 328 374 482 250 482C127 482 100 328 0 327Z",
+      "bounds": [
+        0,
+        285,
+        1000,
+        482
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-20 -502 1040 237\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M0 327V285C127 285 152 439 250 439C347 440 376 285 500 285C624 285 652 440 750 439C848 440 876 285 1000 285V327C899 328 873 482 750 482C626 482 600 328 500 327C399 328 374 482 250 482C127 482 100 328 0 327Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    }
+  },
+  "EdiF-uSKRqEs5h5tMUx-01V": {
+    "2": {
+      "shapeId": 21,
+      "description": "curved bracket assembly end 1",
+      "glyphName": "c033",
+      "path": "M469 -122V446C469 568 445 691 411 750C390 787 357 811 293 837V807C381 758 415 654 415 446V-122H469Z",
+      "bounds": [
+        293,
+        -122,
+        469,
+        837
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"273 -857 216 999\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M469 -122V446C469 568 445 691 411 750C390 787 357 811 293 837V807C381 758 415 654 415 446V-122H469Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "4": {
+      "shapeId": 22,
+      "description": "curved bracket assembly end 2",
+      "glyphName": "c034",
+      "path": "M601 -122V-115C519 -99 469 -58 469 -11V882H415V-11C415 -63 476 -120 533 -122H601Z",
+      "bounds": [
+        415,
+        -122,
+        601,
+        882
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"395 -902 226 1044\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M601 -122V-115C519 -99 469 -58 469 -11V882H415V-11C415 -63 476 -120 533 -122H601Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "5": {
+      "shapeId": 23,
+      "description": "curved bracket assembly end 3",
+      "glyphName": "c035",
+      "path": "M601 880H533C476 880 415 822 415 770V-122H469V770C469 818 519 858 601 875V880Z",
+      "bounds": [
+        415,
+        -122,
+        601,
+        880
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"395 -900 226 1042\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M601 880H533C476 880 415 822 415 770V-122H469V770C469 818 519 858 601 875V880Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "6": {
+      "shapeId": 24,
+      "description": "curved bracket assembly end 4",
+      "glyphName": "c036",
+      "path": "M469 882H415V311C415 103 381 0 293 -49V-78C357 -53 390 -29 411 8C445 67 469 189 469 311V882Z",
+      "bounds": [
+        293,
+        -78,
+        469,
+        882
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"273 -902 216 1000\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M469 882H415V311C415 103 381 0 293 -49V-78C357 -53 390 -29 411 8C445 67 469 189 469 311V882Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "3": {
+      "shapeId": 25,
+      "description": "straight bracket assembly extender",
+      "glyphName": "c037",
+      "path": "M415 -122H469V882H415V-122Z",
+      "bounds": [
+        415,
+        -122,
+        469,
+        882
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"395 -902 94 1044\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M415 -122H469V882H415V-122Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    }
+  },
+  "EdiF-uSKRqEs5h6cXyv-00j": {
+    "2": {
+      "shapeId": 21,
+      "description": "curved bracket assembly end 1",
+      "glyphName": "c033",
+      "path": "M469 -122V446C469 568 445 691 411 750C390 787 357 811 293 837V807C381 758 415 654 415 446V-122H469Z",
+      "bounds": [
+        293,
+        -122,
+        469,
+        837
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"273 -857 216 999\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M469 -122V446C469 568 445 691 411 750C390 787 357 811 293 837V807C381 758 415 654 415 446V-122H469Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "4": {
+      "shapeId": 26,
+      "description": "curly bracket assembly middle",
+      "glyphName": "c034",
+      "path": "M415 -122H469V214C469 284 519 345 601 371V386C519 412 469 473 469 544V879H415V544C415 461 465 393 533 379C467 368 415 296 415 214V-122Z",
+      "bounds": [
+        415,
+        -122,
+        601,
+        879
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"395 -899 226 1041\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M415 -122H469V214C469 284 519 345 601 371V386C519 412 469 473 469 544V879H415V544C415 461 465 393 533 379C467 368 415 296 415 214V-122Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "5": {
+      "shapeId": 24,
+      "description": "curved bracket assembly end 4",
+      "glyphName": "c035",
+      "path": "M469 882H415V311C415 103 381 0 293 -49V-78C357 -53 390 -29 411 8C445 67 469 189 469 311V882Z",
+      "bounds": [
+        293,
+        -78,
+        469,
+        882
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"273 -902 216 1000\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M469 882H415V311C415 103 381 0 293 -49V-78C357 -53 390 -29 411 8C445 67 469 189 469 311V882Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    },
+    "3": {
+      "shapeId": 25,
+      "description": "straight bracket assembly extender",
+      "glyphName": "c036",
+      "path": "M415 -122H469V882H415V-122Z",
+      "bounds": [
+        415,
+        -122,
+        469,
+        882
+      ],
+      "svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"395 -902 94 1044\"><path fill=\"currentColor\" transform=\"scale(1,-1)\" d=\"M415 -122H469V882H415V-122Z\"/></svg>",
+      "note": "Natural font coordinates; retain source text span direction/transform. This is a geometric assembly piece, not an unknown numeral."
+    }
+  }
+}

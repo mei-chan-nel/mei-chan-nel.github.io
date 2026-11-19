@@ -1,0 +1,2247 @@
+{
+  "examId": "2026_main",
+  "title": "2026年度（令和8年度）情報Ⅰ 本試験",
+  "maxPoints": 100,
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問",
+      "maxPoints": 20,
+      "units": [
+        {
+          "sourceUnitId": "q1-01",
+          "question": 1,
+          "questionText": "問1 a",
+          "labels": [
+            "ア",
+            "イ"
+          ],
+          "answers": [
+            "0",
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。"
+        },
+        {
+          "sourceUnitId": "q1-02",
+          "question": 1,
+          "questionText": "問1 b",
+          "labels": [
+            "ウ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q1-03",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "エ",
+            "オ"
+          ],
+          "answers": [
+            "E",
+            "4"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。16進1桁の文字を直接入力。A～Fは大文字小文字を正規化する。"
+        },
+        {
+          "sourceUnitId": "q1-04",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "カ",
+            "キ",
+            "ク",
+            "ケ"
+          ],
+          "answers": [
+            "9",
+            "6",
+            "6",
+            "9"
+          ],
+          "maxPoints": 4,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。16進1桁の文字を直接入力。A～Fは大文字小文字を正規化する。"
+        },
+        {
+          "sourceUnitId": "q1-05",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q1-06",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "サ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q1-07",
+          "question": 4,
+          "questionText": "問4 a あ",
+          "labels": [
+            "シ"
+          ],
+          "answers": [
+            "5"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q1-08",
+          "question": 4,
+          "questionText": "問4 a い",
+          "labels": [
+            "ス"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q1-09",
+          "question": 4,
+          "questionText": "問4 a う",
+          "labels": [
+            "セ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q1-10",
+          "question": 4,
+          "questionText": "問4 b",
+          "labels": [
+            "ソ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        }
+      ]
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A",
+      "maxPoints": 15,
+      "units": [
+        {
+          "sourceUnitId": "q2a-01",
+          "question": 1,
+          "questionText": "問1",
+          "labels": [
+            "ア",
+            "イ"
+          ],
+          "answers": [
+            "2",
+            "4"
+          ],
+          "maxPoints": 3,
+          "kind": "unordered",
+          "notes": "公式に順不同。2項目がそろって3点、部分点なし。"
+        },
+        {
+          "sourceUnitId": "q2a-02",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "ウ",
+            "エ",
+            "オ"
+          ],
+          "answers": [
+            "4",
+            "8",
+            "1"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。"
+        },
+        {
+          "sourceUnitId": "q2a-03",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "カ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2a-04",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "キ"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2a-05",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "ク"
+          ],
+          "answers": [
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2a-06",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        }
+      ]
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B",
+      "maxPoints": 15,
+      "units": [
+        {
+          "sourceUnitId": "q2b-01",
+          "question": 1,
+          "questionText": "問1",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "7"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2b-02",
+          "question": 1,
+          "questionText": "問1",
+          "labels": [
+            "サ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2b-03",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "シ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2b-04",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "ス"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2b-05",
+          "question": 4,
+          "questionText": "問4",
+          "labels": [
+            "セ",
+            "ソ"
+          ],
+          "answers": [
+            "3",
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。"
+        },
+        {
+          "sourceUnitId": "q2b-06",
+          "question": 4,
+          "questionText": "問4",
+          "labels": [
+            "タ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q2b-07",
+          "question": 4,
+          "questionText": "問4",
+          "labels": [
+            "チ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        }
+      ]
+    },
+    {
+      "id": "q3",
+      "title": "第3問",
+      "maxPoints": 25,
+      "units": [
+        {
+          "sourceUnitId": "q3-01",
+          "question": 1,
+          "questionText": "問1",
+          "labels": [
+            "ア",
+            "イ",
+            "ウ"
+          ],
+          "answers": [
+            "9",
+            "2",
+            "4"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。数字の直接入力。"
+        },
+        {
+          "sourceUnitId": "q3-02",
+          "question": 1,
+          "questionText": "問1",
+          "labels": [
+            "エ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-03",
+          "question": 1,
+          "questionText": "問1",
+          "labels": [
+            "オ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-04",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "カ",
+            "キ"
+          ],
+          "answers": [
+            "1",
+            "2"
+          ],
+          "maxPoints": 4,
+          "kind": "unordered-partial",
+          "notes": "公式に順不同・各2点。異なる正答項目との最大一致数を数える。重複項目は二重に加点しない。",
+          "pointsByMatches": [
+            0,
+            2,
+            4
+          ]
+        },
+        {
+          "sourceUnitId": "q3-05",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "ク"
+          ],
+          "answers": [
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-06",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-07",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-08",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "サ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-09",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "シ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-10",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "ス"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-11",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "セ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q3-12",
+          "question": 3,
+          "questionText": "問3",
+          "labels": [
+            "ソ"
+          ],
+          "answers": [
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。数字の直接入力。"
+        }
+      ]
+    },
+    {
+      "id": "q4",
+      "title": "第4問",
+      "maxPoints": 25,
+      "units": [
+        {
+          "sourceUnitId": "q4-01",
+          "question": 1,
+          "questionText": "問1 a",
+          "labels": [
+            "ア"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-02",
+          "question": 1,
+          "questionText": "問1 b",
+          "labels": [
+            "イ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 1,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-03",
+          "question": 1,
+          "questionText": "問1 b",
+          "labels": [
+            "ウ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-04",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "エ",
+            "オ"
+          ],
+          "answers": [
+            "2",
+            "5"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。全欄が一致したときだけ満点。解答群のコード2・5であり、入力すべき値は数値2・−1ではない。"
+        },
+        {
+          "sourceUnitId": "q4-05",
+          "question": 2,
+          "questionText": "問2",
+          "labels": [
+            "カ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-06",
+          "question": 3,
+          "questionText": "問3 a",
+          "labels": [
+            "キ",
+            "ク"
+          ],
+          "answers": [
+            "1",
+            "4"
+          ],
+          "maxPoints": 4,
+          "kind": "unordered-partial",
+          "notes": "公式に順不同・各2点。異なる正答項目との最大一致数を数える。重複項目は二重に加点しない。",
+          "pointsByMatches": [
+            0,
+            2,
+            4
+          ]
+        },
+        {
+          "sourceUnitId": "q4-07",
+          "question": 3,
+          "questionText": "問3 b",
+          "labels": [
+            "ケ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-08",
+          "question": 3,
+          "questionText": "問3 b",
+          "labels": [
+            "コ"
+          ],
+          "answers": [
+            "0"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-09",
+          "question": 3,
+          "questionText": "問3 b",
+          "labels": [
+            "サ"
+          ],
+          "answers": [
+            "3"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-10",
+          "question": 4,
+          "questionText": "問4",
+          "labels": [
+            "シ"
+          ],
+          "answers": [
+            "2"
+          ],
+          "maxPoints": 3,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        },
+        {
+          "sourceUnitId": "q4-11",
+          "question": 4,
+          "questionText": "問4",
+          "labels": [
+            "ス"
+          ],
+          "answers": [
+            "1"
+          ],
+          "maxPoints": 2,
+          "kind": "exact",
+          "notes": "公式正解表の同一配点行に対応。単独採点。"
+        }
+      ]
+    }
+  ],
+  "fields": [
+    {
+      "label": "ア",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "低速"
+        },
+        {
+          "value": "1",
+          "text": "同程度"
+        },
+        {
+          "value": "2",
+          "text": "高速"
+        }
+      ]
+    },
+    {
+      "label": "イ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "容量が小さく、データの短期的な保存"
+        },
+        {
+          "value": "1",
+          "text": "容量が小さく、データの長期的な保存"
+        },
+        {
+          "value": "2",
+          "text": "容量が大きく、データの短期的な保存"
+        },
+        {
+          "value": "3",
+          "text": "容量が大きく、データの長期的な保存"
+        }
+      ]
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "犯罪につながる情報が公開されているWebサイトに日本国内からアクセスすると、不正アクセス禁止法違反になる。"
+        },
+        {
+          "value": "1",
+          "text": "ネットワークの通信速度を高速にすることにより、マルウェアによる被害を最小限に抑えることができる。"
+        },
+        {
+          "value": "2",
+          "text": "ソーシャルエンジニアリングによる被害を防ぐには、コンピュータの主記憶装置（メモリ）を増設することが有効である。"
+        },
+        {
+          "value": "3",
+          "text": "保有するデータをバックアップしておくことで、情報セキュリティの要素である「可用性」を高めることができる。"
+        },
+        {
+          "value": "4",
+          "text": "ファイアウォールを利用することによって、無線LANでの通信内容が盗聴されることを防ぐことができる。"
+        }
+      ]
+    },
+    {
+      "label": "エ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": "0123456789ABCDEF",
+      "maxLength": 1
+    },
+    {
+      "label": "オ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": "0123456789ABCDEF",
+      "maxLength": 1
+    },
+    {
+      "label": "カ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": "0123456789ABCDEF",
+      "maxLength": 1
+    },
+    {
+      "label": "キ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": "0123456789ABCDEF",
+      "maxLength": 1
+    },
+    {
+      "label": "ク",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": "0123456789ABCDEF",
+      "maxLength": 1
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": "0123456789ABCDEF",
+      "maxLength": 1
+    },
+    {
+      "label": "コ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "中央値"
+        },
+        {
+          "value": "1",
+          "text": "最頻値"
+        },
+        {
+          "value": "2",
+          "text": "範囲（1935〜2005）の中央の値"
+        },
+        {
+          "value": "3",
+          "text": "最大値"
+        }
+      ]
+    },
+    {
+      "label": "サ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "1にするとそれ以外にしたときよりも小さくなる"
+        },
+        {
+          "value": "1",
+          "text": "12にするとそれ以外にしたときよりも小さくなる"
+        },
+        {
+          "value": "2",
+          "text": "6か7のいずれかにするとそれら以外にしたときよりも小さくなる"
+        },
+        {
+          "value": "3",
+          "text": "どの月にしても変わらない"
+        }
+      ]
+    },
+    {
+      "label": "シ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "A：送信側のドメイン名が存在しない"
+        },
+        {
+          "value": "1",
+          "text": "B：送信側のドメイン名が存在しない"
+        },
+        {
+          "value": "2",
+          "text": "A：受信側のドメイン名が存在しない"
+        },
+        {
+          "value": "3",
+          "text": "B：受信側のドメイン名が存在しない"
+        },
+        {
+          "value": "4",
+          "text": "A：ユーザ名が存在しない"
+        },
+        {
+          "value": "5",
+          "text": "B：ユーザ名が存在しない"
+        },
+        {
+          "value": "6",
+          "text": "A：受信側のドメイン名とユーザ名の両方が存在しない"
+        },
+        {
+          "value": "7",
+          "text": "B：受信側のドメイン名とユーザ名の両方が存在しない"
+        }
+      ]
+    },
+    {
+      "label": "ス",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "A：送信側のドメイン名が存在しない"
+        },
+        {
+          "value": "1",
+          "text": "B：送信側のドメイン名が存在しない"
+        },
+        {
+          "value": "2",
+          "text": "A：受信側のドメイン名が存在しない"
+        },
+        {
+          "value": "3",
+          "text": "B：受信側のドメイン名が存在しない"
+        },
+        {
+          "value": "4",
+          "text": "A：ユーザ名が存在しない"
+        },
+        {
+          "value": "5",
+          "text": "B：ユーザ名が存在しない"
+        },
+        {
+          "value": "6",
+          "text": "A：受信側のドメイン名とユーザ名の両方が存在しない"
+        },
+        {
+          "value": "7",
+          "text": "B：受信側のドメイン名とユーザ名の両方が存在しない"
+        }
+      ]
+    },
+    {
+      "label": "セ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "A：送信側のドメイン名が存在しない"
+        },
+        {
+          "value": "1",
+          "text": "B：送信側のドメイン名が存在しない"
+        },
+        {
+          "value": "2",
+          "text": "A：受信側のドメイン名が存在しない"
+        },
+        {
+          "value": "3",
+          "text": "B：受信側のドメイン名が存在しない"
+        },
+        {
+          "value": "4",
+          "text": "A：ユーザ名が存在しない"
+        },
+        {
+          "value": "5",
+          "text": "B：ユーザ名が存在しない"
+        },
+        {
+          "value": "6",
+          "text": "A：受信側のドメイン名とユーザ名の両方が存在しない"
+        },
+        {
+          "value": "7",
+          "text": "B：受信側のドメイン名とユーザ名の両方が存在しない"
+        }
+      ]
+    },
+    {
+      "label": "ソ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "DNS"
+        },
+        {
+          "value": "1",
+          "text": "WWW"
+        },
+        {
+          "value": "2",
+          "text": "パケット通信"
+        },
+        {
+          "value": "3",
+          "text": "ルーティング"
+        }
+      ]
+    },
+    {
+      "label": "ア",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "デジタルデバイドが解消され、誰でも簡単に請求できる。"
+        },
+        {
+          "value": "1",
+          "text": "住民証明（電子データ）を入手するにはコンビニエンスストアを訪れる必要がある。"
+        },
+        {
+          "value": "2",
+          "text": "自宅や出先から住民証明（電子データ）を請求できる。"
+        },
+        {
+          "value": "3",
+          "text": "請求者が操作しなくても提出先は住民証明（電子データ）を入手できる。"
+        },
+        {
+          "value": "4",
+          "text": "入手した住民証明（電子データ）をインターネット経由で送ることができる。"
+        }
+      ]
+    },
+    {
+      "label": "イ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "デジタルデバイドが解消され、誰でも簡単に請求できる。"
+        },
+        {
+          "value": "1",
+          "text": "住民証明（電子データ）を入手するにはコンビニエンスストアを訪れる必要がある。"
+        },
+        {
+          "value": "2",
+          "text": "自宅や出先から住民証明（電子データ）を請求できる。"
+        },
+        {
+          "value": "3",
+          "text": "請求者が操作しなくても提出先は住民証明（電子データ）を入手できる。"
+        },
+        {
+          "value": "4",
+          "text": "入手した住民証明（電子データ）をインターネット経由で送ることができる。"
+        }
+      ]
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "5 コード要求"
+        },
+        {
+          "value": "1",
+          "text": "5 アクセスコード"
+        },
+        {
+          "value": "2",
+          "text": "5 住民証明（電子データ）"
+        },
+        {
+          "value": "3",
+          "text": "6 コード要求"
+        },
+        {
+          "value": "4",
+          "text": "6 アクセスコード"
+        },
+        {
+          "value": "5",
+          "text": "6 住民証明（電子データ）"
+        },
+        {
+          "value": "6",
+          "text": "7 コード要求"
+        },
+        {
+          "value": "7",
+          "text": "7 アクセスコード"
+        },
+        {
+          "value": "8",
+          "text": "7 住民証明（電子データ）"
+        }
+      ]
+    },
+    {
+      "label": "エ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "5 コード要求"
+        },
+        {
+          "value": "1",
+          "text": "5 アクセスコード"
+        },
+        {
+          "value": "2",
+          "text": "5 住民証明（電子データ）"
+        },
+        {
+          "value": "3",
+          "text": "6 コード要求"
+        },
+        {
+          "value": "4",
+          "text": "6 アクセスコード"
+        },
+        {
+          "value": "5",
+          "text": "6 住民証明（電子データ）"
+        },
+        {
+          "value": "6",
+          "text": "7 コード要求"
+        },
+        {
+          "value": "7",
+          "text": "7 アクセスコード"
+        },
+        {
+          "value": "8",
+          "text": "7 住民証明（電子データ）"
+        }
+      ]
+    },
+    {
+      "label": "オ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "5 コード要求"
+        },
+        {
+          "value": "1",
+          "text": "5 アクセスコード"
+        },
+        {
+          "value": "2",
+          "text": "5 住民証明（電子データ）"
+        },
+        {
+          "value": "3",
+          "text": "6 コード要求"
+        },
+        {
+          "value": "4",
+          "text": "6 アクセスコード"
+        },
+        {
+          "value": "5",
+          "text": "6 住民証明（電子データ）"
+        },
+        {
+          "value": "6",
+          "text": "7 コード要求"
+        },
+        {
+          "value": "7",
+          "text": "7 アクセスコード"
+        },
+        {
+          "value": "8",
+          "text": "7 住民証明（電子データ）"
+        }
+      ]
+    },
+    {
+      "label": "カ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "請求者が住民証明（電子データ）の内容を見ることができる"
+        },
+        {
+          "value": "1",
+          "text": "提出先が住民証明（電子データ）の内容を見ることができる"
+        },
+        {
+          "value": "2",
+          "text": "請求者が住民証明（電子データ）を送る必要がない"
+        },
+        {
+          "value": "3",
+          "text": "役所が住民証明（電子データ）を提供する必要がない"
+        }
+      ]
+    },
+    {
+      "label": "キ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "住民情報を入手"
+        },
+        {
+          "value": "1",
+          "text": "住民情報を提供"
+        },
+        {
+          "value": "2",
+          "text": "住民情報を削除"
+        },
+        {
+          "value": "3",
+          "text": "住民情報を電子化"
+        },
+        {
+          "value": "4",
+          "text": "住民情報の誤りを訂正"
+        },
+        {
+          "value": "5",
+          "text": "住民情報の正しさを証明"
+        }
+      ]
+    },
+    {
+      "label": "ク",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "住民情報を入手"
+        },
+        {
+          "value": "1",
+          "text": "住民情報を提供"
+        },
+        {
+          "value": "2",
+          "text": "住民情報を削除"
+        },
+        {
+          "value": "3",
+          "text": "住民情報を電子化"
+        },
+        {
+          "value": "4",
+          "text": "住民情報の誤りを訂正"
+        },
+        {
+          "value": "5",
+          "text": "住民情報の正しさを証明"
+        }
+      ]
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "コードのコピーを誰も作れない"
+        },
+        {
+          "value": "1",
+          "text": "コードだけを送信すれば住民情報を入手できる"
+        },
+        {
+          "value": "2",
+          "text": "コードだけを送信しても住民情報を入手できない"
+        },
+        {
+          "value": "3",
+          "text": "コードに住民情報が含まれる"
+        },
+        {
+          "value": "4",
+          "text": "コードに住民情報が含まれない"
+        }
+      ]
+    },
+    {
+      "label": "コ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0000₂"
+        },
+        {
+          "value": "1",
+          "text": "0011₂"
+        },
+        {
+          "value": "2",
+          "text": "0101₂"
+        },
+        {
+          "value": "3",
+          "text": "0110₂"
+        },
+        {
+          "value": "4",
+          "text": "1001₂"
+        },
+        {
+          "value": "5",
+          "text": "1010₂"
+        },
+        {
+          "value": "6",
+          "text": "1100₂"
+        },
+        {
+          "value": "7",
+          "text": "1111₂"
+        }
+      ]
+    },
+    {
+      "label": "サ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0000₂"
+        },
+        {
+          "value": "1",
+          "text": "0011₂"
+        },
+        {
+          "value": "2",
+          "text": "0101₂"
+        },
+        {
+          "value": "3",
+          "text": "0110₂"
+        },
+        {
+          "value": "4",
+          "text": "1001₂"
+        },
+        {
+          "value": "5",
+          "text": "1010₂"
+        },
+        {
+          "value": "6",
+          "text": "1100₂"
+        },
+        {
+          "value": "7",
+          "text": "1111₂"
+        }
+      ]
+    },
+    {
+      "label": "シ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "AND演算"
+        },
+        {
+          "value": "1",
+          "text": "OR演算"
+        },
+        {
+          "value": "2",
+          "text": "AND演算の後にNOT演算"
+        },
+        {
+          "value": "3",
+          "text": "OR演算の後にNOT演算"
+        }
+      ]
+    },
+    {
+      "label": "ス",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図11の⓪：左端の暗い階調の範囲"
+        },
+        {
+          "value": "1",
+          "text": "図11の①：中央の階調の範囲"
+        },
+        {
+          "value": "2",
+          "text": "図11の②：右端の明るい階調の範囲"
+        },
+        {
+          "value": "3",
+          "text": "図11の③：中央から明るい山の途中までの範囲"
+        },
+        {
+          "value": "4",
+          "text": "図11の④：⓪を除く広い階調の範囲"
+        }
+      ]
+    },
+    {
+      "label": "セ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "熊の濃淡を残し、背景を黒にした画像"
+        },
+        {
+          "value": "1",
+          "text": "熊の濃淡を残し、背景を白にした画像"
+        },
+        {
+          "value": "2",
+          "text": "熊を黒にし、元の背景を残した画像"
+        },
+        {
+          "value": "3",
+          "text": "背景：白／熊：黒"
+        },
+        {
+          "value": "4",
+          "text": "熊を白にし、元の背景を残した画像"
+        },
+        {
+          "value": "5",
+          "text": "背景：黒／熊：白"
+        }
+      ]
+    },
+    {
+      "label": "ソ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "熊の濃淡を残し、背景を黒にした画像"
+        },
+        {
+          "value": "1",
+          "text": "熊の濃淡を残し、背景を白にした画像"
+        },
+        {
+          "value": "2",
+          "text": "熊を黒にし、元の背景を残した画像"
+        },
+        {
+          "value": "3",
+          "text": "背景：白／熊：黒"
+        },
+        {
+          "value": "4",
+          "text": "熊を白にし、元の背景を残した画像"
+        },
+        {
+          "value": "5",
+          "text": "背景：黒／熊：白"
+        }
+      ]
+    },
+    {
+      "label": "タ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "AND演算"
+        },
+        {
+          "value": "1",
+          "text": "OR演算"
+        },
+        {
+          "value": "2",
+          "text": "AND演算の後にNOT演算"
+        },
+        {
+          "value": "3",
+          "text": "OR演算の後にNOT演算"
+        }
+      ]
+    },
+    {
+      "label": "チ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "熊の濃淡を残し、背景を黒にした画像"
+        },
+        {
+          "value": "1",
+          "text": "熊の濃淡を残し、背景を白にした画像"
+        },
+        {
+          "value": "2",
+          "text": "熊を黒にし、元の背景を残した画像"
+        },
+        {
+          "value": "3",
+          "text": "背景：白／熊：黒"
+        },
+        {
+          "value": "4",
+          "text": "熊を白にし、元の背景を残した画像"
+        },
+        {
+          "value": "5",
+          "text": "背景：黒／熊：白"
+        }
+      ]
+    },
+    {
+      "label": "ア",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "label": "イ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "label": "エ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "来訪者本人の到着時刻"
+        },
+        {
+          "value": "1",
+          "text": "直前の来訪者の到着時刻"
+        },
+        {
+          "value": "2",
+          "text": "来訪者本人の終了時刻"
+        },
+        {
+          "value": "3",
+          "text": "直前の来訪者の終了時刻"
+        }
+      ]
+    },
+    {
+      "label": "オ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "来訪者本人の到着時刻"
+        },
+        {
+          "value": "1",
+          "text": "直前の来訪者の到着時刻"
+        },
+        {
+          "value": "2",
+          "text": "来訪者本人の終了時刻"
+        },
+        {
+          "value": "3",
+          "text": "直前の来訪者の終了時刻"
+        }
+      ]
+    },
+    {
+      "label": "カ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Touchaku[i − 1]"
+        },
+        {
+          "value": "1",
+          "text": "Shuryou[i − 1]"
+        },
+        {
+          "value": "2",
+          "text": "Touchaku[i]"
+        },
+        {
+          "value": "3",
+          "text": "Shuryou[i]"
+        },
+        {
+          "value": "4",
+          "text": "Touchaku[i + 1]"
+        },
+        {
+          "value": "5",
+          "text": "Shuryou[i + 1]"
+        }
+      ]
+    },
+    {
+      "label": "キ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Touchaku[i − 1]"
+        },
+        {
+          "value": "1",
+          "text": "Shuryou[i − 1]"
+        },
+        {
+          "value": "2",
+          "text": "Touchaku[i]"
+        },
+        {
+          "value": "3",
+          "text": "Shuryou[i]"
+        },
+        {
+          "value": "4",
+          "text": "Touchaku[i + 1]"
+        },
+        {
+          "value": "5",
+          "text": "Shuryou[i + 1]"
+        }
+      ]
+    },
+    {
+      "label": "ク",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Kaishi[i − 1]"
+        },
+        {
+          "value": "1",
+          "text": "Kaishi[i] + Touchaku[i]"
+        },
+        {
+          "value": "2",
+          "text": "Kaishi[i]"
+        },
+        {
+          "value": "3",
+          "text": "Kaishi[i] + Shuryou[i]"
+        },
+        {
+          "value": "4",
+          "text": "Kaishi[i + 1]"
+        },
+        {
+          "value": "5",
+          "text": "Kaishi[i] + taiken"
+        }
+      ]
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Kaishi[i − 1]"
+        },
+        {
+          "value": "1",
+          "text": "Kaishi[i] + Touchaku[i]"
+        },
+        {
+          "value": "2",
+          "text": "Kaishi[i]"
+        },
+        {
+          "value": "3",
+          "text": "Kaishi[i] + Shuryou[i]"
+        },
+        {
+          "value": "4",
+          "text": "Kaishi[i + 1]"
+        },
+        {
+          "value": "5",
+          "text": "Kaishi[i] + taiken"
+        }
+      ]
+    },
+    {
+      "label": "コ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Touchaku[i − 1]"
+        },
+        {
+          "value": "1",
+          "text": "Shuryou[i − 1]"
+        },
+        {
+          "value": "2",
+          "text": "Touchaku[i]"
+        },
+        {
+          "value": "3",
+          "text": "Shuryou[i]"
+        },
+        {
+          "value": "4",
+          "text": "Touchaku[i + 1]"
+        },
+        {
+          "value": "5",
+          "text": "Shuryou[i + 1]"
+        }
+      ]
+    },
+    {
+      "label": "サ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Touchaku[i]"
+        },
+        {
+          "value": "1",
+          "text": "Kaishi[i]"
+        },
+        {
+          "value": "2",
+          "text": "Shuryou[i]"
+        },
+        {
+          "value": "3",
+          "text": "saichou"
+        }
+      ]
+    },
+    {
+      "label": "シ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "saichou > 10"
+        },
+        {
+          "value": "1",
+          "text": "taiken > 10"
+        },
+        {
+          "value": "2",
+          "text": "saichou < 10"
+        },
+        {
+          "value": "3",
+          "text": "taiken < 10"
+        }
+      ]
+    },
+    {
+      "label": "ス",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図3の⓪：外側の繰返しの直前"
+        },
+        {
+          "value": "1",
+          "text": "図3の①：外側の繰返しの先頭"
+        },
+        {
+          "value": "2",
+          "text": "図3の②：外側の繰返しの末尾（if文の外）"
+        },
+        {
+          "value": "3",
+          "text": "図3の③：外側の繰返しの直後"
+        }
+      ]
+    },
+    {
+      "label": "セ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図3の⓪：外側の繰返しの直前"
+        },
+        {
+          "value": "1",
+          "text": "図3の①：外側の繰返しの先頭"
+        },
+        {
+          "value": "2",
+          "text": "図3の②：外側の繰返しの末尾（if文の外）"
+        },
+        {
+          "value": "3",
+          "text": "図3の③：外側の繰返しの直後"
+        }
+      ]
+    },
+    {
+      "label": "ソ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "label": "ア",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "A：正／B：正"
+        },
+        {
+          "value": "1",
+          "text": "A：正／B：誤"
+        },
+        {
+          "value": "2",
+          "text": "A：誤／B：正"
+        },
+        {
+          "value": "3",
+          "text": "A：誤／B：誤"
+        }
+      ]
+    },
+    {
+      "label": "イ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "補数"
+        },
+        {
+          "value": "1",
+          "text": "乱数"
+        },
+        {
+          "value": "2",
+          "text": "代表値"
+        },
+        {
+          "value": "3",
+          "text": "欠損値"
+        }
+      ]
+    },
+    {
+      "label": "ウ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "横軸を月、縦軸を2023年の各月に開花した観測点の数"
+        },
+        {
+          "value": "1",
+          "text": "横軸を月、縦軸を10年間分の各月に開花した観測点の総数"
+        },
+        {
+          "value": "2",
+          "text": "横軸を年、縦軸を各年の3月末までに開花した観測点の数"
+        },
+        {
+          "value": "3",
+          "text": "横軸を年、縦軸を各年の4月に開花した観測点の数"
+        }
+      ]
+    },
+    {
+      "label": "エ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "2"
+        },
+        {
+          "value": "3",
+          "text": "3"
+        },
+        {
+          "value": "4",
+          "text": "4"
+        },
+        {
+          "value": "5",
+          "text": "−1"
+        },
+        {
+          "value": "6",
+          "text": "−2"
+        },
+        {
+          "value": "7",
+          "text": "−3"
+        },
+        {
+          "value": "8",
+          "text": "−4"
+        }
+      ]
+    },
+    {
+      "label": "オ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0"
+        },
+        {
+          "value": "1",
+          "text": "1"
+        },
+        {
+          "value": "2",
+          "text": "2"
+        },
+        {
+          "value": "3",
+          "text": "3"
+        },
+        {
+          "value": "4",
+          "text": "4"
+        },
+        {
+          "value": "5",
+          "text": "−1"
+        },
+        {
+          "value": "6",
+          "text": "−2"
+        },
+        {
+          "value": "7",
+          "text": "−3"
+        },
+        {
+          "value": "8",
+          "text": "−4"
+        }
+      ]
+    },
+    {
+      "label": "カ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "新潟と奈良の両方とも、400度開花推定日の方が近い"
+        },
+        {
+          "value": "1",
+          "text": "新潟と奈良の両方とも、600度開花推定日の方が近い"
+        },
+        {
+          "value": "2",
+          "text": "新潟は400度開花推定日の方が近く、奈良は600度開花推定日の方が近い"
+        },
+        {
+          "value": "3",
+          "text": "新潟は600度開花推定日の方が近く、奈良は400度開花推定日の方が近い"
+        },
+        {
+          "value": "4",
+          "text": "新潟と奈良の両方とも、表3だけではどちらの開花推定日が近いか判断できない"
+        }
+      ]
+    },
+    {
+      "label": "キ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "400度開花差よりも600度開花差の方が、散布図の点の集まりが直線に近い。"
+        },
+        {
+          "value": "1",
+          "text": "開花推定日と実際の開花日が一致する観測点の数は、400度開花推定日よりも600度開花推定日の方が多い。"
+        },
+        {
+          "value": "2",
+          "text": "緯度が最も高い観測点で、それぞれの開花差の値が最大となっている。"
+        },
+        {
+          "value": "3",
+          "text": "任意の二つの観測点を比較して、緯度が高い観測点の方が、400度開花差の値か600度開花差の値の少なくとも一方が必ず大きい。"
+        },
+        {
+          "value": "4",
+          "text": "緯度の値が40以上のすべての観測点で、400度開花推定日は600度開花推定日から一週間以上遅い。"
+        }
+      ]
+    },
+    {
+      "label": "ク",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "400度開花差よりも600度開花差の方が、散布図の点の集まりが直線に近い。"
+        },
+        {
+          "value": "1",
+          "text": "開花推定日と実際の開花日が一致する観測点の数は、400度開花推定日よりも600度開花推定日の方が多い。"
+        },
+        {
+          "value": "2",
+          "text": "緯度が最も高い観測点で、それぞれの開花差の値が最大となっている。"
+        },
+        {
+          "value": "3",
+          "text": "任意の二つの観測点を比較して、緯度が高い観測点の方が、400度開花差の値か600度開花差の値の少なくとも一方が必ず大きい。"
+        },
+        {
+          "value": "4",
+          "text": "緯度の値が40以上のすべての観測点で、400度開花推定日は600度開花推定日から一週間以上遅い。"
+        }
+      ]
+    },
+    {
+      "label": "ケ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "5"
+        },
+        {
+          "value": "1",
+          "text": "10"
+        },
+        {
+          "value": "2",
+          "text": "15"
+        },
+        {
+          "value": "3",
+          "text": "20"
+        }
+      ]
+    },
+    {
+      "label": "コ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図1だけで"
+        },
+        {
+          "value": "1",
+          "text": "図2だけで"
+        },
+        {
+          "value": "2",
+          "text": "図1もしくは図2のいずれからも"
+        },
+        {
+          "value": "3",
+          "text": "図1と図2の両方を組み合わせることで"
+        }
+      ]
+    },
+    {
+      "label": "サ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図1だけで"
+        },
+        {
+          "value": "1",
+          "text": "図2だけで"
+        },
+        {
+          "value": "2",
+          "text": "図1もしくは図2のいずれからも"
+        },
+        {
+          "value": "3",
+          "text": "図1と図2の両方を組み合わせることで"
+        }
+      ]
+    },
+    {
+      "label": "シ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "すべての氷点下観測点でうまく補正できる"
+        },
+        {
+          "value": "1",
+          "text": "散布図上にある点Aで示した氷点下観測点を除いたすべての氷点下観測点でうまく補正できる"
+        },
+        {
+          "value": "2",
+          "text": "氷点下日数が1日である氷点下観測点の一部を除いたすべての氷点下観測点でうまく補正できる"
+        },
+        {
+          "value": "3",
+          "text": "回帰直線上または回帰直線よりも上側に点がある氷点下観測点だけうまく補正できる"
+        },
+        {
+          "value": "4",
+          "text": "回帰直線上または回帰直線よりも下側に点がある氷点下観測点だけうまく補正できる"
+        }
+      ]
+    },
+    {
+      "label": "ス",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "4月5日"
+        },
+        {
+          "value": "1",
+          "text": "4月8日"
+        },
+        {
+          "value": "2",
+          "text": "4月12日"
+        },
+        {
+          "value": "3",
+          "text": "4月15日"
+        }
+      ]
+    }
+  ],
+  "review": {
+    "status": "verified",
+    "officialAnswerUrl": "https://www.dnc.ac.jp/albums/abm.php?d=2137&f=abm00006055.pdf&n=R8_%E3%80%90%E6%83%85%E5%A0%B1%E2%85%A0%E3%80%91%E7%99%BA%E8%A1%A8%E7%94%A8%E6%AD%A3%E8%A7%A3.pdf",
+    "officialRetrievedAt": "2026-11-17",
+    "problemPdf": "/workspace/attachments/49a7ee0a-115a-487b-8729-daca604f8e96/2026_【情報Ⅰ】本試験.pdf",
+    "answerCorrections": [],
+    "scoreCorrections": [],
+    "notes": "全46採点単位の正解・配点を大学入試センター公式正解表と照合。問題PDF全34ページと各図・プログラムを独立確認。"
+  }
+}

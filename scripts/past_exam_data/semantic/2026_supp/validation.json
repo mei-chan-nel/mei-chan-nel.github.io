@@ -1,0 +1,42 @@
+{
+  "q1": {
+    "pages": 8,
+    "fields": 12,
+    "nativeTables": 3,
+    "programs": 0,
+    "diagramCrops": 0,
+    "options": 50
+  },
+  "q2a": {
+    "pages": 7,
+    "fields": 9,
+    "nativeTables": 2,
+    "programs": 0,
+    "diagramCrops": 1,
+    "options": 41
+  },
+  "q2b": {
+    "pages": 5,
+    "fields": 10,
+    "nativeTables": 1,
+    "programs": 0,
+    "diagramCrops": 9,
+    "options": 33
+  },
+  "q3": {
+    "pages": 6,
+    "fields": 13,
+    "nativeTables": 5,
+    "programs": 2,
+    "diagramCrops": 0,
+    "options": 34
+  },
+  "q4": {
+    "pages": 10,
+    "fields": 12,
+    "nativeTables": 6,
+    "programs": 0,
+    "diagramCrops": 8,
+    "options": 46
+  }
+}

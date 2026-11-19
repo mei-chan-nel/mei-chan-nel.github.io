@@ -1,4 +1,4 @@
-import { renderCatalogContents } from "./ui/catalog-page.mjs?v=2026110905";
+import { defaultCatalogView, renderCatalogContents } from "./ui/catalog-page.mjs?v=20261118-card-order";
 import {
   grade,
   normalize,
@@ -34,7 +34,7 @@ import {
 import { sendUnsentUnits } from "./engine/submission.mjs";
 import { fetchStats } from "./engine/stats.mjs";
 import { trackExamAction } from "./analytics.mjs";
-import { catalogSections, isInterrupted } from "./engine/catalog.mjs";
+import { catalogSections, isInterrupted, examLabel } from "./engine/catalog.mjs";
 const $ = (s) => document.querySelector(s),
   app = $("#app"),
   store = new AttemptStore();
@@ -58,13 +58,8 @@ let activeAnchor = null,
   readingMode = false,
   secondaryObserver = null,
   readingAlignment = null;
-const catalogView = {
-  mode: "full",
-  timeMode: "timed",
-  sectionId: "q1",
-  order: "recommended",
-};
-const circle = (value) => "⓪①②③④⑤⑥⑦⑧⑨"[Number(value)] || value;
+const catalogView = defaultCatalogView();
+const circle = (value) => "⓪①②③④⑤⑥⑦⑧⑨ⓐⓑⓒⓓⓔⓕ"[parseInt(value,16)] || value;
 const resetTop = () =>
   window.scrollTo({ top: 0, left: 0, behavior: "instant" });
 let reviewState = null;
@@ -296,12 +291,11 @@ async function restoreNavigation(state) {
   navigationReplay = true;
   try {
     closeAnswer();
+    $("#action-dialog").close();
+    $("#figure-dialog").close();
     frameObserver?.disconnect();
     secondaryObserver?.disconnect();
-    if (attempt?.status === "active" && !reviewing && !readingMode) {
-      pause(attempt);
-      persist();
-    }
+    pauseActiveAttempt(attempt?.mode === "timed");
     releaseLock?.();
     releaseLock = null;
     attempt = null;
@@ -333,8 +327,18 @@ async function restoreNavigation(state) {
           historyGrids[mode] = structuredClone(state.grids[mode]);
     if (["full", "section"].includes(state?.catalog?.mode))
       Object.assign(catalogView, state.catalog);
-    if (state?.view === "history") renderHistory();
-    else if (state?.id && store.load(state.id)) {
+    const savedAttempt = state?.id ? store.load(state.id) : null;
+    const interruptedTimedWorkspace =
+      state?.view === "workspace" &&
+      savedAttempt?.mode === "timed" &&
+      savedAttempt.status === "paused";
+    if (
+      state?.view === "history" ||
+      (interruptedTimedWorkspace && navigationContext.origin === "history")
+    )
+      renderHistory();
+    else if (interruptedTimedWorkspace) renderCatalog();
+    else if (savedAttempt) {
       await openAttempt(
         state.id,
         state.view === "review"
@@ -428,6 +432,13 @@ function persist() {
     notify("保存できません。ブラウザの保存容量や設定を確認してください。");
     return false;
   }
+}
+function pauseActiveAttempt(reportPause = false) {
+  if (attempt?.status !== "active" || reviewing || readingMode) return false;
+  pause(attempt);
+  persist();
+  if (reportPause) trackExamAction("pause", exam, attempt, "ungraded");
+  return true;
 }
 function archivedEdition(id, version) {
   return catalog.some(
@@ -601,14 +612,11 @@ async function lockAttempt(id) {
 function leave(destination = navigationContext.origin) {
   if (!["catalog", "history"].includes(destination))
     destination = navigationContext.origin;
+  pauseActiveAttempt(attempt?.mode === "timed");
   if (returnToParent(destination)) return;
   closeAnswer();
   frameObserver?.disconnect();
   secondaryObserver?.disconnect();
-  if (attempt?.status === "active" && !reviewing && !readingMode) {
-    pause(attempt);
-    persist();
-  }
   releaseLock?.();
   releaseLock = null;
   attempt = null;
@@ -637,6 +645,7 @@ async function renderCatalog() {
     onChange: renderCatalog,
     onStart: begin,
     onResume: (id) => openAttempt(id, "resume"),
+    onResult: (id) => openAttempt(id, "result"),
     onHistory: renderHistory,
     onError: (error) => notify(error.message),
   });
@@ -813,7 +822,7 @@ function renderWorkspace() {
     split = reading && !readingUnit && innerWidth >= 1000,
     interleaved = reading && !readingUnit && !split;
   if (reading && !readingUnit) solution = true;
-  app.innerHTML = `<div class="topline"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : " 問題・解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin allow-scripts"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin allow-scripts"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
+  app.innerHTML = `<div class="topline"><div><p class="eyebrow">${esc(examLabel(exam))}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / ${reading ? "解説" : reviewing ? "復習" : "受験"}</p><h1>${reading ? exam.sections.find((s) => s.id === sectionId).title + (readingUnit ? " " + readingUnit.fields.map((id) => exam.fields.find((f) => f.id === id).label).join("・") + "の問題" : " 問題・解説") : esc(exam.title)}</h1></div></div><div class="workspace-toolbar ${reading ? "reading-toolbar" : reviewing ? "" : "answering-toolbar"}"><nav ${reading ? 'id="section-navigation"' : ""} class="book-nav" aria-label="大問を選ぶ"></nav><button id="back-list">${reading ? readingBackLabel() : reviewing ? reviewBackLabel() : navigationContext.origin === "history" ? "学習履歴に戻る" : "一覧に戻る"}</button></div><div class="workspace ${reading ? "reading-layout" : ""}"><div class="book">${split ? '<div class="explanation-panes"><section><h2>問題</h2><iframe id="paired-problem" title="問題（比較表示）" sandbox="allow-same-origin allow-scripts"></iframe></section><section><h2>解説</h2>' : ""}<iframe id="book-frame" title="${reading ? (solution ? "正答・解説" : "問題") : "問題冊子"}" sandbox="allow-same-origin allow-scripts"></iframe>${split ? "</section></div>" : ""}<div id="book-next" class="book-next"></div></div>${reading ? "" : `<aside class="sidebar"><div id="run-actions" class="actions"></div>${reading || reviewing ? "" : `<p>${attempt.mode === "timed" ? "残り時間" : "解答時間"}</p><div id="timer" class="timer"></div>`}<nav id="section-navigation" class="section-navigation" aria-label="大問へ移動"></nav>${reading ? "" : `<details ${innerWidth > 850 ? "open" : ""}><summary>解答状況・見直し</summary><div id="answer-status"></div></details>`}</aside>`}</div>`;
   $("#back-list").onclick = reading
     ? backFromReading
     : reviewing
@@ -919,7 +928,7 @@ function renderWorkspace() {
           base,
         ).href;
         explanationHTML = await documentText(explanationURL);
-        html = interleavedProblemHTML(html);
+        html = interleavedProblemHTML(html, exam.scoring);
       }
       if (readingUnit) html = readingProblemHTML(html, readingUnit);
       if (seq !== uiSequence) return resolve();
@@ -1342,13 +1351,14 @@ $("#answer-dialog").addEventListener("keydown", (e) => {
 });
 function requestPause(toList) {
   if (reviewing || readingMode) return;
+  if (toList && attempt.mode === "timed") {
+    return leave();
+  }
   ask("中断のしかたを選ぶ", [
     [
       "採点せずに中断",
       () => {
-        pause(attempt);
-        persist();
-        trackExamAction("pause", exam, attempt, "ungraded");
+        pauseActiveAttempt(true);
         leave();
       },
     ],
@@ -1356,8 +1366,14 @@ function requestPause(toList) {
   ]);
 }
 function doGrade(kind = "final") {
+  if (
+    documentLeaving ||
+    attempt?.status !== "active" ||
+    reviewing ||
+    readingMode
+  )
+    return;
   if ($("#answer-dialog").open) $("#answer-dialog").close();
-  if (reviewing || readingMode) return;
   submit(exam, attempt);
   attempt.gradingKind = kind === "interim" ? "interim" : "final";
   persist();
@@ -1371,7 +1387,7 @@ function doGrade(kind = "final") {
   renderResults({ record: true });
 }
 function tick() {
-  if (!attempt || !$("#timer")) return;
+  if (documentLeaving || !attempt || !$("#timer")) return;
   const ms = elapsed(attempt);
   const label = reviewing
     ? "成績には反映しません"
@@ -1400,11 +1416,25 @@ setInterval(tick, 1000);
 window.addEventListener("beforeunload", () => {
   documentLeaving = true;
 });
-window.addEventListener("pageshow", () => {
+window.addEventListener("pageshow", (event) => {
   documentLeaving = false;
+  const state = window.history.state?.studyAtlasMock;
+  if (
+    event.persisted &&
+    state?.view === "workspace" &&
+    attempt?.mode === "timed" &&
+    attempt.status === "paused"
+  )
+    restoreNavigation(state).catch(() => leave());
 });
 window.addEventListener("pagehide", () => {
   documentLeaving = true;
+  if (attempt?.mode === "timed") {
+    if (pauseActiveAttempt(true)) {
+      releaseLock?.();
+      releaseLock = null;
+    }
+  } else if (attempt?.status === "active" && !reviewing && !readingMode) persist();
   const current = window.history.state?.studyAtlasMock;
   if (current) {
     const saved = {
@@ -1420,7 +1450,6 @@ window.addEventListener("pagehide", () => {
       sessionStorage.setItem(navigationKey, JSON.stringify(saved));
     } catch {}
   }
-  if (attempt?.status === "active" && !reviewing && !readingMode) persist();
 });
 document.addEventListener("visibilitychange", () => {
   if (
@@ -1574,7 +1603,7 @@ function renderResults({ record = false } = {}) {
   const current = attempt,
     r = sliceResult(current.result, navigationContext.scopeSectionId);
   if (!r) return renderWorkspace();
-  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">No.${esc(exam.id)}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの得点</th><th>あなたの得点率</th><th>平均得点</th><th>平均得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / ${r.maxPoints}点</td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
+  app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">${esc(examLabel(exam))}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの<wbr>得点</th><th>あなたの<wbr>得点率</th><th>平均<wbr>得点</th><th>平均<wbr>得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / <span class="score-maximum">${r.maxPoints}点</span></td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
   if (isInterrupted(current))
     $("#result-actions").append(button("解答を再開", () => resumeGraded()));
   $("#result-actions").append(
@@ -1597,7 +1626,7 @@ function renderResults({ record = false } = {}) {
   for (const section of r.sections)
     $("#section-results").insertAdjacentHTML(
       "beforeend",
-      `<tr><th>${esc(section.title)}</th><td>${section.points} / ${section.maxPoints}点</td><td>${((section.points / section.maxPoints) * 100).toFixed(1)}%</td><td id="avg-${section.id}">—</td><td id="rate-${section.id}">—</td></tr>`,
+      `<tr><th>${esc(section.title)}</th><td>${section.points} / <span class="score-maximum">${section.maxPoints}点</span></td><td>${((section.points / section.maxPoints) * 100).toFixed(1)}%</td><td id="avg-${section.id}">—</td><td id="rate-${section.id}">—</td></tr>`,
     );
   const runs = store
     .list()
@@ -1699,17 +1728,22 @@ export async function initializeApp({ entries, view, action } = {}) {
         action.sectionId,
       );
     else if (action?.kind === "resume") await openAttempt(action.id, "resume");
+    else if (action?.kind === "result") await openAttempt(action.id, "result");
     else if (action?.kind === "history") renderHistory();
     else if (
       saved &&
       ((fragment === "history" && saved.view === "history") ||
-        (fragment && fragment === saved.id) ||
-        (!fragment && saved.view === "catalog"))
+        (fragment && fragment === saved.id))
     )
       await restoreNavigation(saved);
     else if (fragment === "history") renderHistory();
-    else if (fragment && store.load(fragment)) await openAttempt(fragment);
-    else await renderCatalog();
+    else {
+      const stored = fragment ? store.load(fragment) : null;
+      if (stored?.mode === "timed" && stored.status === "paused" && !stored.result)
+        await renderCatalog();
+      else if (stored) await openAttempt(fragment);
+      else await renderCatalog();
+    }
     window.addEventListener("popstate", (event) => {
       const fragment = location.hash.slice(1);
       const stored =

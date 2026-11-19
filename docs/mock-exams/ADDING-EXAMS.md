@@ -151,3 +151,9 @@ PDFの片方だけを更新する場合は`build_mock_exam_pdfs.cjs solution --m
 - `python3 scripts/build_mock_exam_sites_preview.py`で既存Sitesへ配信するファイルを生成し、同じ本人専用Siteを更新する。公開手順は[SITES-PREVIEW.md](SITES-PREVIEW.md)。
 - 実通信の試験は`connection-check.html`または公開確認スクリプトの`qa_mock_...` IDを使用する。通常のNo.001等の統計へテスト回答を混ぜない。
 - ユーザーが公開を指示した変更は、PRの統合検証を通してmainへマージする。公開後のファイル・PDF・RPCの確認は[RELEASE.md](RELEASE.md)を参照。模試の追加に既存学習アプリのコードや追加SQLは不要。
+
+## 共通テスト過去問
+
+過去問のIDは `2025Honshi`（本試験）、`2025Tuishi`（追・再試験）の形式とする。版は整数。manifest/catalogへ `kind:"past", year:2025, session:"main"または"supp", shortTitle:"2025年度 本試験"` を追加する。原本PDFの保持、外字・図表の扱い、公式正解表との照合・再生成は [PAST-EXAMS.md](PAST-EXAMS.md) を参照。
+
+狭幅の交互表示の回帰検査は `PLAYWRIGHT_MODULE=<playwrightのパス> node mock-exams/tests/browser-interleaved-order.cjs`。導入文を次の設問へ移す際、前の単位の回答欄・解答群が解説の後ろに回らないことを全教材で確認する。選択肢を分離できない複数単位は同じ対応グループにまとめる。

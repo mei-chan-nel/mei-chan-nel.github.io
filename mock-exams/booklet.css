@@ -808,3 +808,7 @@ html body[data-section] [data-field][data-input-type="text"] {
   width: auto !important;
   padding-inline: .14em !important;
 }
+
+body[data-section] table [data-explanation-prose] {
+  text-align: left !important;
+}

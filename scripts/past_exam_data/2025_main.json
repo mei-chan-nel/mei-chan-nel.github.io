@@ -1,0 +1,1972 @@
+{
+  "examId": "2025_main",
+  "title": "2025年度（令和7年度）本試験 情報Ⅰ",
+  "maxPoints": 100,
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問",
+      "maxPoints": 20
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A",
+      "maxPoints": 15
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B",
+      "maxPoints": 15
+    },
+    {
+      "id": "q3",
+      "title": "第3問",
+      "maxPoints": 25
+    },
+    {
+      "id": "q4",
+      "title": "第4問",
+      "maxPoints": 25
+    }
+  ],
+  "units": [
+    {
+      "sourceUnitId": "q1-01",
+      "sectionId": "q1",
+      "question": 1,
+      "labels": [
+        "ア"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q1-02",
+      "sectionId": "q1",
+      "question": 1,
+      "labels": [
+        "イ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q1-03",
+      "sectionId": "q1",
+      "question": 2,
+      "labels": [
+        "ウ",
+        "エ",
+        "オ"
+      ],
+      "answers": [
+        "1",
+        "2",
+        "8"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": "複数欄をすべて正解して初めて所定の配点。欄の順序は固定。"
+    },
+    {
+      "sourceUnitId": "q1-04",
+      "sectionId": "q1",
+      "question": 2,
+      "labels": [
+        "カ"
+      ],
+      "answers": [
+        "5"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q1-05",
+      "sectionId": "q1",
+      "question": 3,
+      "labels": [
+        "キ"
+      ],
+      "answers": [
+        "7"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q1-06",
+      "sectionId": "q1",
+      "question": 3,
+      "labels": [
+        "ク"
+      ],
+      "answers": [
+        "3"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q1-07",
+      "sectionId": "q1",
+      "question": 4,
+      "labels": [
+        "ケ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q1-08",
+      "sectionId": "q1",
+      "question": 4,
+      "labels": [
+        "コ",
+        "サ"
+      ],
+      "answers": [
+        "0",
+        "1"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": "複数欄をすべて正解して初めて所定の配点。欄の順序は固定。"
+    },
+    {
+      "sourceUnitId": "q2a-01",
+      "sectionId": "q2a",
+      "question": 1,
+      "labels": [
+        "ア"
+      ],
+      "answers": [
+        "5"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2a-02",
+      "sectionId": "q2a",
+      "question": 1,
+      "labels": [
+        "イ",
+        "ウ"
+      ],
+      "answers": [
+        "3",
+        "4"
+      ],
+      "maxPoints": 2,
+      "kind": "unordered",
+      "notes": "解答順不同。2欄そろって正解した場合のみ2点。"
+    },
+    {
+      "sourceUnitId": "q2a-03",
+      "sectionId": "q2a",
+      "question": 2,
+      "labels": [
+        "エ"
+      ],
+      "answers": [
+        "0"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2a-04",
+      "sectionId": "q2a",
+      "question": 3,
+      "labels": [
+        "オ",
+        "カ"
+      ],
+      "answers": [
+        "3",
+        "5"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": "複数欄をすべて正解して初めて所定の配点。欄の順序は固定。"
+    },
+    {
+      "sourceUnitId": "q2a-05",
+      "sectionId": "q2a",
+      "question": 4,
+      "labels": [
+        "キ"
+      ],
+      "answers": [
+        "0"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2a-06",
+      "sectionId": "q2a",
+      "question": 4,
+      "labels": [
+        "ク"
+      ],
+      "answers": [
+        "6"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2a-07",
+      "sectionId": "q2a",
+      "question": 4,
+      "labels": [
+        "ケ"
+      ],
+      "answers": [
+        "3"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2b-01",
+      "sectionId": "q2b",
+      "question": 1,
+      "labels": [
+        "コ"
+      ],
+      "answers": [
+        "5"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2b-02",
+      "sectionId": "q2b",
+      "question": 1,
+      "labels": [
+        "サ",
+        "シ"
+      ],
+      "answers": [
+        "1",
+        "2"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": "複数欄をすべて正解して初めて所定の配点。欄の順序は固定。"
+    },
+    {
+      "sourceUnitId": "q2b-03",
+      "sectionId": "q2b",
+      "question": 1,
+      "labels": [
+        "ス",
+        "セ"
+      ],
+      "answers": [
+        "1",
+        "8"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": "複数欄をすべて正解して初めて所定の配点。欄の順序は固定。"
+    },
+    {
+      "sourceUnitId": "q2b-04",
+      "sectionId": "q2b",
+      "question": 2,
+      "labels": [
+        "ソ"
+      ],
+      "answers": [
+        "1"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q2b-05",
+      "sectionId": "q2b",
+      "question": 3,
+      "labels": [
+        "タ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-01",
+      "sectionId": "q3",
+      "question": 1,
+      "labels": [
+        "ア"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 1,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-02",
+      "sectionId": "q3",
+      "question": 1,
+      "labels": [
+        "イ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 1,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-03",
+      "sectionId": "q3",
+      "question": 1,
+      "labels": [
+        "ウ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-04",
+      "sectionId": "q3",
+      "question": 1,
+      "labels": [
+        "エ"
+      ],
+      "answers": [
+        "3"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-05",
+      "sectionId": "q3",
+      "question": 1,
+      "labels": [
+        "オ"
+      ],
+      "answers": [
+        "5"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-06",
+      "sectionId": "q3",
+      "question": 2,
+      "labels": [
+        "カ"
+      ],
+      "answers": [
+        "4"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-07",
+      "sectionId": "q3",
+      "question": 2,
+      "labels": [
+        "キ"
+      ],
+      "answers": [
+        "1"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-08",
+      "sectionId": "q3",
+      "question": 2,
+      "labels": [
+        "ク"
+      ],
+      "answers": [
+        "1"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-09",
+      "sectionId": "q3",
+      "question": 3,
+      "labels": [
+        "ケ"
+      ],
+      "answers": [
+        "1"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-10",
+      "sectionId": "q3",
+      "question": 3,
+      "labels": [
+        "コ"
+      ],
+      "answers": [
+        "4"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-11",
+      "sectionId": "q3",
+      "question": 3,
+      "labels": [
+        "サ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q3-12",
+      "sectionId": "q3",
+      "question": 3,
+      "labels": [
+        "シ"
+      ],
+      "answers": [
+        "0"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q4-01",
+      "sectionId": "q4",
+      "question": 1,
+      "labels": [
+        "ア",
+        "イ"
+      ],
+      "answers": [
+        "3",
+        "0"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": "複数欄をすべて正解して初めて所定の配点。欄の順序は固定。"
+    },
+    {
+      "sourceUnitId": "q4-02",
+      "sectionId": "q4",
+      "question": 1,
+      "labels": [
+        "ウ",
+        "エ"
+      ],
+      "answers": [
+        "0",
+        "2"
+      ],
+      "maxPoints": 4,
+      "kind": "unordered-partial",
+      "notes": "解答順不同。異なる正答1個につき2点。同じ正答を2欄に重複しても1個分だけ採点する。",
+      "pointsByMatches": [
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "sourceUnitId": "q4-03",
+      "sectionId": "q4",
+      "question": 2,
+      "labels": [
+        "オ",
+        "カ"
+      ],
+      "answers": [
+        "1",
+        "3"
+      ],
+      "maxPoints": 4,
+      "kind": "unordered-partial",
+      "notes": "解答順不同。異なる正答1個につき2点。同じ正答を2欄に重複しても1個分だけ採点する。",
+      "pointsByMatches": [
+        0,
+        2,
+        4
+      ]
+    },
+    {
+      "sourceUnitId": "q4-04",
+      "sectionId": "q4",
+      "question": 3,
+      "labels": [
+        "キ"
+      ],
+      "answers": [
+        "0"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q4-05",
+      "sectionId": "q4",
+      "question": 3,
+      "labels": [
+        "ク"
+      ],
+      "answers": [
+        "3"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q4-06",
+      "sectionId": "q4",
+      "question": 4,
+      "labels": [
+        "ケ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q4-07",
+      "sectionId": "q4",
+      "question": 4,
+      "labels": [
+        "コ"
+      ],
+      "answers": [
+        "3"
+      ],
+      "maxPoints": 3,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q4-08",
+      "sectionId": "q4",
+      "question": 4,
+      "labels": [
+        "サ"
+      ],
+      "answers": [
+        "2"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    },
+    {
+      "sourceUnitId": "q4-09",
+      "sectionId": "q4",
+      "question": 4,
+      "labels": [
+        "シ"
+      ],
+      "answers": [
+        "4"
+      ],
+      "maxPoints": 2,
+      "kind": "exact",
+      "notes": ""
+    }
+  ],
+  "fields": [
+    {
+      "id": "q1-ア",
+      "label": "ア",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "複製されていないか"
+        },
+        {
+          "value": "1",
+          "text": "暗号化されているか"
+        },
+        {
+          "value": "2",
+          "text": "改ざんされていないか"
+        },
+        {
+          "value": "3",
+          "text": "どのような経路で届いたか"
+        },
+        {
+          "value": "4",
+          "text": "盗聴されていないか"
+        }
+      ]
+    },
+    {
+      "id": "q1-イ",
+      "label": "イ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "有線LANだけでなく無線LANにも対応するため。"
+        },
+        {
+          "value": "1",
+          "text": "大容量データの送受信に対応するため。"
+        },
+        {
+          "value": "2",
+          "text": "インターネットに直接接続する機器の増加に対応するため。"
+        },
+        {
+          "value": "3",
+          "text": "漢字など英数字以外の文字で表されるドメイン名に対応するため。"
+        },
+        {
+          "value": "4",
+          "text": "HTMLの仕様変更に対応するため。"
+        }
+      ]
+    },
+    {
+      "id": "q1-ウ",
+      "label": "ウ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q1-エ",
+      "label": "エ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q1-オ",
+      "label": "オ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q1-カ",
+      "label": "カ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q1-キ",
+      "label": "キ",
+      "sectionId": "q1",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q1-ク",
+      "label": "ク",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "奇数桁の数字を二つ間違える"
+        },
+        {
+          "value": "1",
+          "text": "連続する二つの桁の数字をそれぞれ間違える"
+        },
+        {
+          "value": "2",
+          "text": "奇数桁のうちの二つの桁の数字の順序を逆にする"
+        },
+        {
+          "value": "3",
+          "text": "連続する二つの桁の数字の順序を逆にする"
+        }
+      ]
+    },
+    {
+      "id": "q1-ケ",
+      "label": "ケ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図5の対象物⓪"
+        },
+        {
+          "value": "1",
+          "text": "図5の対象物①"
+        },
+        {
+          "value": "2",
+          "text": "図5の対象物②"
+        },
+        {
+          "value": "3",
+          "text": "図5の対象物③"
+        }
+      ]
+    },
+    {
+      "id": "q1-コ",
+      "label": "コ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "低い"
+        },
+        {
+          "value": "1",
+          "text": "同程度の"
+        },
+        {
+          "value": "2",
+          "text": "高い"
+        }
+      ]
+    },
+    {
+      "id": "q1-サ",
+      "label": "サ",
+      "sectionId": "q1",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "メニューの中で一番目立つ場所"
+        },
+        {
+          "value": "1",
+          "text": "マウスカーソルの位置から遠い場所"
+        },
+        {
+          "value": "2",
+          "text": "マウスで素早く選択できる場所"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ア",
+      "label": "ア",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "店コード"
+        },
+        {
+          "value": "1",
+          "text": "レジの番号"
+        },
+        {
+          "value": "2",
+          "text": "担当店員名"
+        },
+        {
+          "value": "3",
+          "text": "商品コード，購入商品名"
+        },
+        {
+          "value": "4",
+          "text": "購入した商品の個数"
+        },
+        {
+          "value": "5",
+          "text": "購入した商品の合計金額"
+        },
+        {
+          "value": "6",
+          "text": "購入した商品の個数の合計"
+        },
+        {
+          "value": "7",
+          "text": "お預かり合計金額"
+        },
+        {
+          "value": "8",
+          "text": "ポイントカードの利用可能ポイント数"
+        }
+      ]
+    },
+    {
+      "id": "q2a-イ",
+      "label": "イ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "店コード"
+        },
+        {
+          "value": "1",
+          "text": "レジの番号"
+        },
+        {
+          "value": "2",
+          "text": "担当店員名"
+        },
+        {
+          "value": "3",
+          "text": "商品コード，購入商品名"
+        },
+        {
+          "value": "4",
+          "text": "購入した商品の個数"
+        },
+        {
+          "value": "5",
+          "text": "購入した商品の合計金額"
+        },
+        {
+          "value": "6",
+          "text": "購入した商品の個数の合計"
+        },
+        {
+          "value": "7",
+          "text": "お預かり合計金額"
+        },
+        {
+          "value": "8",
+          "text": "ポイントカードの利用可能ポイント数"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ウ",
+      "label": "ウ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "店コード"
+        },
+        {
+          "value": "1",
+          "text": "レジの番号"
+        },
+        {
+          "value": "2",
+          "text": "担当店員名"
+        },
+        {
+          "value": "3",
+          "text": "商品コード，購入商品名"
+        },
+        {
+          "value": "4",
+          "text": "購入した商品の個数"
+        },
+        {
+          "value": "5",
+          "text": "購入した商品の合計金額"
+        },
+        {
+          "value": "6",
+          "text": "購入した商品の個数の合計"
+        },
+        {
+          "value": "7",
+          "text": "お預かり合計金額"
+        },
+        {
+          "value": "8",
+          "text": "ポイントカードの利用可能ポイント数"
+        }
+      ]
+    },
+    {
+      "id": "q2a-エ",
+      "label": "エ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "顧客が商品を購入した理由。"
+        },
+        {
+          "value": "1",
+          "text": "同じ顧客に，繰り返し購入される傾向がある商品。"
+        },
+        {
+          "value": "2",
+          "text": "ある商品を多く購入している顧客の年齢層。"
+        },
+        {
+          "value": "3",
+          "text": "年齢や性別の違いによる，来店する時間帯の傾向。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-オ",
+      "label": "オ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ"
+        },
+        {
+          "value": "1",
+          "text": "い"
+        },
+        {
+          "value": "2",
+          "text": "う"
+        },
+        {
+          "value": "3",
+          "text": "あ，い"
+        },
+        {
+          "value": "4",
+          "text": "あ，う"
+        },
+        {
+          "value": "5",
+          "text": "い，う"
+        },
+        {
+          "value": "6",
+          "text": "あ，い，う"
+        }
+      ]
+    },
+    {
+      "id": "q2a-カ",
+      "label": "カ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ"
+        },
+        {
+          "value": "1",
+          "text": "い"
+        },
+        {
+          "value": "2",
+          "text": "う"
+        },
+        {
+          "value": "3",
+          "text": "あ，い"
+        },
+        {
+          "value": "4",
+          "text": "あ，う"
+        },
+        {
+          "value": "5",
+          "text": "い，う"
+        },
+        {
+          "value": "6",
+          "text": "あ，い，う"
+        }
+      ]
+    },
+    {
+      "id": "q2a-キ",
+      "label": "キ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ"
+        },
+        {
+          "value": "1",
+          "text": "い"
+        },
+        {
+          "value": "2",
+          "text": "う"
+        },
+        {
+          "value": "3",
+          "text": "あ，い"
+        },
+        {
+          "value": "4",
+          "text": "あ，う"
+        },
+        {
+          "value": "5",
+          "text": "い，う"
+        },
+        {
+          "value": "6",
+          "text": "あ，い，う"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ク",
+      "label": "ク",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ"
+        },
+        {
+          "value": "1",
+          "text": "い"
+        },
+        {
+          "value": "2",
+          "text": "う"
+        },
+        {
+          "value": "3",
+          "text": "あ，い"
+        },
+        {
+          "value": "4",
+          "text": "あ，う"
+        },
+        {
+          "value": "5",
+          "text": "い，う"
+        },
+        {
+          "value": "6",
+          "text": "あ，い，う"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ケ",
+      "label": "ケ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "あ"
+        },
+        {
+          "value": "1",
+          "text": "い"
+        },
+        {
+          "value": "2",
+          "text": "う"
+        },
+        {
+          "value": "3",
+          "text": "あ，い"
+        },
+        {
+          "value": "4",
+          "text": "あ，う"
+        },
+        {
+          "value": "5",
+          "text": "い，う"
+        },
+        {
+          "value": "6",
+          "text": "あ，い，う"
+        }
+      ]
+    },
+    {
+      "id": "q2b-コ",
+      "label": "コ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q2b-サ",
+      "label": "サ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q2b-シ",
+      "label": "シ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q2b-ス",
+      "label": "ス",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q2b-セ",
+      "label": "セ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q2b-ソ",
+      "label": "ソ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "全員が一万円札で支払うケースはなかった。"
+        },
+        {
+          "value": "1",
+          "text": "最後まで千円札が不足しなかったのは，全回数の1割以下である。"
+        },
+        {
+          "value": "2",
+          "text": "別の乱数を使って10,000回シミュレーションを行っても，最終的な結果のグラフはまったく同じになる。"
+        },
+        {
+          "value": "3",
+          "text": "全員が千円札でお金を支払ったケースが1回以上ある。"
+        }
+      ]
+    },
+    {
+      "id": "q2b-タ",
+      "label": "タ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "最初の1人が千円札で支払ったとしても，途中でおつりの千円札が不足するケース。"
+        },
+        {
+          "value": "1",
+          "text": "用意された千円札をまったく使うことなく全員からの集金を終えるケース。"
+        },
+        {
+          "value": "2",
+          "text": "千円札で支払った人が5人いて，途中でおつりの千円札が不足するケース。"
+        },
+        {
+          "value": "3",
+          "text": "一万円札で支払った人が8人いて，途中でおつりの千円札が不足せず全員からの集金を終えるケース。"
+        }
+      ]
+    },
+    {
+      "id": "q3-ア",
+      "label": "ア",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-イ",
+      "label": "イ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-ウ",
+      "label": "ウ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-エ",
+      "label": "エ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-オ",
+      "label": "オ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-カ",
+      "label": "カ",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-キ",
+      "label": "キ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "buin < tantou"
+        },
+        {
+          "value": "1",
+          "text": "Akibi[buin] < Akibi[tantou]"
+        },
+        {
+          "value": "2",
+          "text": "buin > tantou"
+        },
+        {
+          "value": "3",
+          "text": "Akibi[buin] > Akibi[tantou]"
+        }
+      ]
+    },
+    {
+      "id": "q3-ク",
+      "label": "ク",
+      "sectionId": "q3",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q3-ケ",
+      "label": "ケ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "buin"
+        },
+        {
+          "value": "1",
+          "text": "kougeihin"
+        },
+        {
+          "value": "2",
+          "text": "tantou"
+        },
+        {
+          "value": "3",
+          "text": "buinsu"
+        },
+        {
+          "value": "4",
+          "text": "kougeihinsu"
+        }
+      ]
+    },
+    {
+      "id": "q3-コ",
+      "label": "コ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "buin"
+        },
+        {
+          "value": "1",
+          "text": "kougeihin"
+        },
+        {
+          "value": "2",
+          "text": "tantou"
+        },
+        {
+          "value": "3",
+          "text": "buinsu"
+        },
+        {
+          "value": "4",
+          "text": "kougeihinsu"
+        }
+      ]
+    },
+    {
+      "id": "q3-サ",
+      "label": "サ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Nissu[kougeihin]"
+        },
+        {
+          "value": "1",
+          "text": "Nissu[tantou]"
+        },
+        {
+          "value": "2",
+          "text": "Nissu[kougeihin] − 1"
+        },
+        {
+          "value": "3",
+          "text": "Nissu[tantou] − 1"
+        },
+        {
+          "value": "4",
+          "text": "Nissu[kougeihin − 1]"
+        },
+        {
+          "value": "5",
+          "text": "Nissu[tantou − 1]"
+        }
+      ]
+    },
+    {
+      "id": "q3-シ",
+      "label": "シ",
+      "sectionId": "q3",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Nissu[kougeihin]"
+        },
+        {
+          "value": "1",
+          "text": "Nissu[tantou]"
+        },
+        {
+          "value": "2",
+          "text": "Nissu[kougeihin] − 1"
+        },
+        {
+          "value": "3",
+          "text": "Nissu[tantou] − 1"
+        },
+        {
+          "value": "4",
+          "text": "Nissu[kougeihin − 1]"
+        },
+        {
+          "value": "5",
+          "text": "Nissu[tantou − 1]"
+        }
+      ]
+    },
+    {
+      "id": "q4-ア",
+      "label": "ア",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "比例尺度"
+        },
+        {
+          "value": "1",
+          "text": "間隔尺度"
+        },
+        {
+          "value": "2",
+          "text": "順序尺度"
+        },
+        {
+          "value": "3",
+          "text": "名義尺度"
+        }
+      ]
+    },
+    {
+      "id": "q4-イ",
+      "label": "イ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "比例尺度"
+        },
+        {
+          "value": "1",
+          "text": "間隔尺度"
+        },
+        {
+          "value": "2",
+          "text": "順序尺度"
+        },
+        {
+          "value": "3",
+          "text": "名義尺度"
+        }
+      ]
+    },
+    {
+      "id": "q4-ウ",
+      "label": "ウ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "帰省等を目的とする旅行者数が最も多い地方は関東である"
+        },
+        {
+          "value": "1",
+          "text": "観光等を目的とする旅行者数が最も多い地方は沖縄である"
+        },
+        {
+          "value": "2",
+          "text": "地方ごとの旅行者数の合計に対する出張等の旅行者数の割合は，関東よりも東北の方が高い"
+        },
+        {
+          "value": "3",
+          "text": "地方ごとの旅行者数の合計に対する観光等の旅行者数の割合は，中部よりも近畿の方が高い"
+        }
+      ]
+    },
+    {
+      "id": "q4-エ",
+      "label": "エ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "帰省等を目的とする旅行者数が最も多い地方は関東である"
+        },
+        {
+          "value": "1",
+          "text": "観光等を目的とする旅行者数が最も多い地方は沖縄である"
+        },
+        {
+          "value": "2",
+          "text": "地方ごとの旅行者数の合計に対する出張等の旅行者数の割合は，関東よりも東北の方が高い"
+        },
+        {
+          "value": "3",
+          "text": "地方ごとの旅行者数の合計に対する観光等の旅行者数の割合は，中部よりも近畿の方が高い"
+        }
+      ]
+    },
+    {
+      "id": "q4-オ",
+      "label": "オ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "二つの都道府県を比較して，観光等の旅行者数が多い方の都道府県は帰省等の旅行者数も必ず多い"
+        },
+        {
+          "value": "1",
+          "text": "すべての都道府県で，出張等の旅行者数は帰省等の旅行者数の1.5倍を下回る"
+        },
+        {
+          "value": "2",
+          "text": "それぞれの散布図で最も上に位置する都道府県は異なる"
+        },
+        {
+          "value": "3",
+          "text": "各都道府県について，ある目的の旅行者数が多くなるほど，他の目的の旅行者数も多くなる傾向にある"
+        },
+        {
+          "value": "4",
+          "text": "各都道府県で観光地をアピールすることで観光等の旅行者数を増やすことができれば，帰省等と出張等のいずれの旅行者数も増える"
+        }
+      ]
+    },
+    {
+      "id": "q4-カ",
+      "label": "カ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "二つの都道府県を比較して，観光等の旅行者数が多い方の都道府県は帰省等の旅行者数も必ず多い"
+        },
+        {
+          "value": "1",
+          "text": "すべての都道府県で，出張等の旅行者数は帰省等の旅行者数の1.5倍を下回る"
+        },
+        {
+          "value": "2",
+          "text": "それぞれの散布図で最も上に位置する都道府県は異なる"
+        },
+        {
+          "value": "3",
+          "text": "各都道府県について，ある目的の旅行者数が多くなるほど，他の目的の旅行者数も多くなる傾向にある"
+        },
+        {
+          "value": "4",
+          "text": "各都道府県で観光地をアピールすることで観光等の旅行者数を増やすことができれば，帰省等と出張等のいずれの旅行者数も増える"
+        }
+      ]
+    },
+    {
+      "id": "q4-キ",
+      "label": "キ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "両方の図で同じ二つの都道府県を示している"
+        },
+        {
+          "value": "1",
+          "text": "一つは両方の図で同じ都道府県を示し，もう一つは異なる都道府県を示している"
+        },
+        {
+          "value": "2",
+          "text": "両方の図で異なる二つの都道府県を示している"
+        },
+        {
+          "value": "3",
+          "text": "これらの図からだけでは，同じ都道府県であるかはわからない"
+        }
+      ]
+    },
+    {
+      "id": "q4-ク",
+      "label": "ク",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "出張等の旅行者数が多い"
+        },
+        {
+          "value": "1",
+          "text": "観光等の旅行者数と出張等の旅行者数の差が大きい"
+        },
+        {
+          "value": "2",
+          "text": "観光等の旅行者数を出張等の旅行者数で割った値が小さい"
+        },
+        {
+          "value": "3",
+          "text": "人口が少ない"
+        }
+      ]
+    },
+    {
+      "id": "q4-ケ",
+      "label": "ケ",
+      "sectionId": "q4",
+      "type": "text",
+      "allowed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9"
+      ],
+      "maxLength": 1,
+      "inputMode": "numeric"
+    },
+    {
+      "id": "q4-コ",
+      "label": "コ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "出張等も観光等も多めの都道府県"
+        },
+        {
+          "value": "1",
+          "text": "出張等は多めではないが観光等は多めの都道府県"
+        },
+        {
+          "value": "2",
+          "text": "出張等は多めだが観光等は多めではない都道府県"
+        },
+        {
+          "value": "3",
+          "text": "出張等も観光等も多めではない都道府県"
+        }
+      ]
+    },
+    {
+      "id": "q4-サ",
+      "label": "サ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Aの都道府県"
+        },
+        {
+          "value": "1",
+          "text": "Bの都道府県"
+        },
+        {
+          "value": "2",
+          "text": "Cの都道府県"
+        },
+        {
+          "value": "3",
+          "text": "Dの都道府県"
+        },
+        {
+          "value": "4",
+          "text": "Eの都道府県"
+        },
+        {
+          "value": "5",
+          "text": "Fの都道府県"
+        }
+      ]
+    },
+    {
+      "id": "q4-シ",
+      "label": "シ",
+      "sectionId": "q4",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Aの都道府県"
+        },
+        {
+          "value": "1",
+          "text": "Bの都道府県"
+        },
+        {
+          "value": "2",
+          "text": "Cの都道府県"
+        },
+        {
+          "value": "3",
+          "text": "Dの都道府県"
+        },
+        {
+          "value": "4",
+          "text": "Eの都道府県"
+        },
+        {
+          "value": "5",
+          "text": "Fの都道府県"
+        }
+      ]
+    }
+  ],
+  "reviewStatus": "question-pdf-and-official-answer-verified",
+  "sources": {
+    "questionPdf": "2025_【情報Ⅰ】本試験.pdf",
+    "explanationHtml": "StudyAtlas_共通テスト情報I_4回分_解説.html",
+    "officialAnswerPage": "https://www.dnc.ac.jp/kyotsu/kakomondai/r7/r7_honsiken_seikai.html",
+    "officialAnswerPdf": "https://www.dnc.ac.jp/albums/abm.php?d=740&f=abm00005172.pdf&n=R7_%E3%80%90%E6%83%85%E5%A0%B1%E2%85%A0%E3%80%91%E6%9C%AC%E8%A9%A6%E9%A8%93%E3%81%AE%E6%AD%A3%E8%A7%A3.pdf"
+  },
+  "scoringSemantics": {
+    "exact": "Fixed field order; all answers must match.",
+    "unordered": "One-to-one unordered multiset match; full credit only when all expected answers occur.",
+    "unordered-partial": "One-to-one unordered multiset match; pointsByMatches[matchCount]. Blank/wrong/duplicate extra occurrences do not add matches."
+  }
+}
