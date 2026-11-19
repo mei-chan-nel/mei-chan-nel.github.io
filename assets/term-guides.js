@@ -81,6 +81,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "ソートアルゴリズム": {
     "url": "/terms/sort-algorithm/"
   },
+  "チェックディジット": {
+    "url": "/terms/check-digit/"
+  },
   "デジタルデバイド": {
     "url": "/terms/digital-divide/"
   },

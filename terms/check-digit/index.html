@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>チェックディジットとは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="チェックディジットの意味と基本的な計算方法、重み付きの和、ISBNでの利用、誤り検出の限界を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="チェックディジット" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="チェックディジットとは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="チェックディジットの意味と基本的な計算方法、重み付きの和、ISBNでの利用、誤り検出の限界を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/check-digit/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/check-digit/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026110706" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+    <script src="../../assets/term-state.js?v=2026110706" defer></script>
+    <script src="../../assets/term-reader.js?v=2026110706" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">チェックディジット</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · DIGITAL</p>
+        <h1 id="term-heading">チェックディジット</h1>
+        <!-- term-learning:start -->
+        <div class="term-page-state" data-term-page-state hidden>
+          <button class="term-read-status" type="button" data-term-read-status aria-pressed="false" aria-label="既読にする">未読</button>
+          <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
+        </div>
+        <p class="term-storage-message" data-term-storage-message role="status"></p>
+        <!-- term-learning:end -->
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「チェックディジット」とは</h2>
+          <p><strong>チェックディジット（Check Digit）</strong>とは、商品コードや会員番号などに付け加える、<strong>入力ミスや読み取りミスを検出するための数字</strong>です。</p>
+          <p>チェックディジットは、元の番号から決められた計算規則に従って求めます。番号が入力されたときは同じ規則で計算し直し、付けられているチェックディジットと一致するかを確認します。</p>
+          <p>例えば、商品のバーコードに使われるJANコードや、書籍を識別するISBNなどに利用されています。</p>
+          <p>チェックディジットは誤りを見つけるための仕組みであり、番号を正しい値に直したり、入力した人が本人であることを証明したりするものではありません。</p>
+        </section>
+
+        <section>
+          <h2>チェックディジットの基本的な仕組み</h2>
+          <p>まず、「元の番号の各桁を合計し、その1の位をチェックディジットにする」という簡単な規則を考えます。</p>
+          <p>元の番号が「57」の場合、</p>
+          <p class="term-formula">5＋7＝12</p>
+          <p>となるので、チェックディジットは2です。末尾に付け加えると、番号は「572」になります。</p>
+          <p>番号を検査するときは、チェックディジットを除いた「57」から値を計算し直し、計算結果の2と、末尾の2を比べます。</p>
+          <ul>
+            <li><strong>「572」</strong>と入力した場合：計算結果の2と末尾の2が一致し、検査に合格します。</li>
+            <li><strong>「582」</strong>と入力した場合：先頭2桁の計算結果は3ですが、末尾は2なので一致せず、入力ミスを検出できます。</li>
+          </ul>
+          <p>このように、<strong>番号に付けられた検査用の数字と、同じ規則で計算し直した数字を比較する</strong>のが基本です。ただし、検査に合格しても、必ず正しい番号だとは限りません。</p>
+        </section>
+
+        <section>
+          <h2>重み付きの和を使う計算</h2>
+          <p>実際のチェックディジットでは、各桁に決められた数を掛けてから合計する方式がよく使われます。</p>
+          <p>計算の基本的な流れは次のとおりです。</p>
+          <ol>
+            <li>元の番号の各桁を取り出す。</li>
+            <li>各桁に決められた数を掛ける。</li>
+            <li>掛けた結果を合計する。</li>
+            <li>合計を指定された数で割った余りなどから、チェックディジットを求める。</li>
+          </ol>
+          <p>各桁に掛ける数を<strong>重み</strong>といい、各桁に重みを掛けてから合計した値を<strong>重み付きの和</strong>といいます。</p>
+          <p>例えば、番号「4816」の各桁に、左から順に「2、1、2、1」という重みを掛けると、次のようになります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>番号「4816」の重み付きの和</caption>
+              <thead><tr><th scope="col">桁</th><th scope="col">1桁目</th><th scope="col">2桁目</th><th scope="col">3桁目</th><th scope="col">4桁目</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">数字</th><td>4</td><td>8</td><td>1</td><td>6</td></tr>
+                <tr><th scope="row">重み</th><td>2</td><td>1</td><td>2</td><td>1</td></tr>
+                <tr><th scope="row">掛けた結果</th><td>8</td><td>8</td><td>2</td><td>6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>したがって、重み付きの和は、</p>
+          <p class="term-formula">8＋8＋2＋6＝24</p>
+          <p>となります。</p>
+        </section>
+
+        <section>
+          <h2>10で割った余りから求める方法</h2>
+          <p>重み付きの和を10で割った余りを <var>r</var> とし、次の式でチェックディジット <var>C</var> を求める方式を考えます。</p>
+          <p class="term-formula"><strong>C＝（10−r）mod 10</strong></p>
+          <p>ここで、<strong>mod 10</strong>は10で割った余りを求める演算です。余りが0のときにチェックディジットも0になるよう、この式では最後にもう一度10で割った余りを求めます。</p>
+          <p>先ほどの「4816」では、重み付きの和が24なので、</p>
+          <p class="term-formula">24÷10＝2 余り4</p>
+          <p>です。したがって、</p>
+          <p class="term-formula">C＝（10−4）mod 10＝6</p>
+          <p>となります。重み付きの和にチェックディジットを加えると、</p>
+          <p class="term-formula">24＋6＝30</p>
+          <p>となり、10の倍数になります。</p>
+        </section>
+
+        <section>
+          <h2>桁ごとに重みを変える方法</h2>
+          <p>奇数番目と偶数番目の桁で異なる重みを使う方式もあります。左から奇数番目には3、偶数番目には1を掛ける場合、番号「22609」は次のようになります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>番号「22609」に重み「3、1、3、1、3」を掛ける</caption>
+              <thead><tr><th scope="col">桁</th><th scope="col">1桁目</th><th scope="col">2桁目</th><th scope="col">3桁目</th><th scope="col">4桁目</th><th scope="col">5桁目</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">数字</th><td>2</td><td>2</td><td>6</td><td>0</td><td>9</td></tr>
+                <tr><th scope="row">重み</th><td>3</td><td>1</td><td>3</td><td>1</td><td>3</td></tr>
+                <tr><th scope="row">掛けた結果</th><td>6</td><td>2</td><td>18</td><td>0</td><td>27</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>重み付きの和は、</p>
+          <p class="term-formula">6＋2＋18＋0＋27＝53</p>
+          <p>で、53を10で割った余りは3です。余りが0でなければ10から引く規則なので、チェックディジットは、</p>
+          <p class="term-formula">10−3＝7</p>
+          <p>となります。</p>
+          <p>このように、桁の位置によって重みを変えると、数字だけでなく<strong>数字が並んでいる位置</strong>も計算結果に反映されます。</p>
+        </section>
+
+        <section>
+          <h2>重みを変える理由と検出できる誤り</h2>
+          <p>チェックディジットは、数字を一つ間違える誤りだけでなく、隣り合う桁の順序を入れ替える誤りの検出にも使われます。</p>
+          <h3>すべての桁に同じ重みを使う場合</h3>
+          <p>番号「25」の各桁を単純に合計すると、</p>
+          <p class="term-formula">2＋5＝7</p>
+          <p>です。数字を入れ替えた「52」でも、5＋2＝7となります。すべての桁に同じ重みを掛けても、入替え前後の合計が変わらないため、この計算では桁の入替えを検出できません。</p>
+          <h3>桁ごとに異なる重みを使う場合</h3>
+          <p>左の桁に1、右の桁に3を掛けると、「25」の重み付きの和は、</p>
+          <p class="term-formula">2×1＋5×3＝17</p>
+          <p>となります。一方、「52」では、</p>
+          <p class="term-formula">5×1＋2×3＝11</p>
+          <p>です。10で割った余りもそれぞれ7と1で異なるため、この入替えを検出できます。</p>
+          <p>ただし、重みを変えればすべての入替えを検出できるわけではありません。例えば「1、3、1、3、……」という重みでは、同じ重みを持つ位置の数字を入れ替えても、重み付きの和が変わらないことがあります。計算結果が異なっても、指定した数で割った余りが同じになる場合もあります。</p>
+        </section>
+
+        <section>
+          <h2>チェックディジットの計算規則</h2>
+          <p>チェックディジットの計算方法には、いくつかの種類があります。問題を解くときは、各桁に掛ける重み、割る数、余りから数字を決める規則を確認します。</p>
+          <h3>各桁の和の1の位を使う方式</h3>
+          <p>「57」の場合、5＋7＝12なので、合計の1の位である2をチェックディジットにします。</p>
+          <h3>10で割った余りを使う方式</h3>
+          <p>重み付きの和を10で割った余りを <var>r</var> とし、</p>
+          <p class="term-formula">C＝（10−r）mod 10</p>
+          <p>で求めます。例えば重み付きの和が24なら余りは4なので、チェックディジットは6です。</p>
+          <h3>11で割った余りを使う方式</h3>
+          <p>番号「7394」に、左から「1、2、3、4」の重みを掛ける場合を考えます。</p>
+          <p class="term-formula">7×1＋3×2＋9×3＋4×4＝56</p>
+          <p>56を11で割った余りは1です。「11から余りを引き、その値の1の位をチェックディジットにする」という規則なら、11−1＝10なのでチェックディジットは0となり、番号は「73940」になります。</p>
+        </section>
+
+        <section>
+          <h2>ISBNでの利用例</h2>
+          <p><strong>ISBN（International Standard Book Number）</strong>は、書籍を識別するための番号です。13桁のISBNでは、先頭12桁を使って最後の1桁のチェックディジットを求めます。</p>
+          <p>左から順に「1、3、1、3、……」という重みを使います。先頭12桁が「978410109205」の場合、重みは次のようになります。</p>
+          <div class="term-table-wrap">
+            <table class="term-scale-table">
+              <caption>ISBNの先頭12桁と計算に使う重み</caption>
+              <thead><tr><th scope="col">数字</th><th scope="col">9</th><th scope="col">7</th><th scope="col">8</th><th scope="col">4</th><th scope="col">1</th><th scope="col">0</th><th scope="col">1</th><th scope="col">0</th><th scope="col">9</th><th scope="col">2</th><th scope="col">0</th><th scope="col">5</th></tr></thead>
+              <tbody><tr><th scope="row">重み</th><td>1</td><td>3</td><td>1</td><td>3</td><td>1</td><td>3</td><td>1</td><td>3</td><td>1</td><td>3</td><td>1</td><td>3</td></tr></tbody>
+            </table>
+          </div>
+          <p>重み付きの和は、</p>
+          <p class="term-formula">9×1＋7×3＋8×1＋4×3＋1×1＋0×3＋1×1＋0×3＋9×1＋2×3＋0×1＋5×3＝82</p>
+          <p>です。82を10で割った余りは2なので、</p>
+          <p class="term-formula">C＝（10−2）mod 10＝8</p>
+          <p>となります。したがって、完成したISBNは<strong>9784101092058</strong>です。</p>
+          <p>なお、10桁のISBNには、ここで説明した13桁の場合とは異なる計算規則が使われます。</p>
+        </section>
+
+        <section>
+          <h2>チェックディジットの限界</h2>
+          <p>チェックディジットの検査に合格したことは、番号が規則に合っていることを示すものであり、番号の全桁が元の値と一致している保証にはなりません。方式によっては、複数の桁が変わっても、計算結果の余りが同じになり、誤りを検出できないことがあります。</p>
+          <p>また、チェックディジットは、番号の誤りを自動で訂正したり、番号を暗号化して第三者から隠したりするものではありません。計算規則に合う番号を作ること自体は、規則を知っていれば誰でもできるため、入力者本人を確認する認証の仕組みでもありません。</p>
+          <p>つまり、チェックディジットは<strong>決められた計算規則に合わない番号を見つけやすくする仕組み</strong>であり、検出できる誤りの種類や範囲は方式によって異なります。</p>
+        </section>
+      </div>
+
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>チェックディジット · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>4桁のデータ4816に、左から順に2、1、2、1の重みを掛ける。重み付きの和に加えると10の倍数になるチェックディジットCはどれか。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>0</p></li>
+            <li><span>1</span><p>4</p></li>
+            <li><span>2</span><p>6</p></li>
+            <li><span>3</span><p>8</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>2．6</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>重み付きの和は4×2＋8×1＋1×2＋6×1＝24です。24を10で割った余りは4なので、チェックディジットは（10−4）mod 10＝6です。24＋6＝30となり、10の倍数になることも確認できます。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：チェックディジット／ISBN／入力ミス</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">チェックディジットの問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button
+          class="button button-primary term-challenge-button"
+          type="button"
+          data-term-challenge-button
+          data-tag="チェックディジット"
+          data-limit="5"
+          data-exclude-stem="4桁のデータ4816に、左から順に2、1、2、1の重みを掛ける。重み付きの和に加えると10の倍数になるチェックディジットCはどれか。"
+        >アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=チェックディジット">チェックディジットの問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"チェックディジットとは","description":"チェックディジットの意味と基本的な計算方法、重み付きの和、ISBNでの利用、誤り検出の限界を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/check-digit/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"チェックディジット","item":"https://mei-chan-nel.com/terms/check-digit/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../../terms/">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>
