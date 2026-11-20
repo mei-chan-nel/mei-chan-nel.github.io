@@ -1,4 +1,4 @@
-import { defaultCatalogView, renderCatalogContents } from "./ui/catalog-page.mjs?v=20261118-card-order";
+import { defaultCatalogView, renderCatalogContents } from "./ui/catalog-page.mjs?v=20261120-mobile-catalog";
 import {
   grade,
   normalize,

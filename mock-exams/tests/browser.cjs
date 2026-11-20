@@ -1,5 +1,6 @@
 const {
   startFullExam,
+  examActions,
   gradeInterim,
   reviewFromResults,
   exitReviewToCatalog,
@@ -224,8 +225,7 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: /大問ごとに演習する/ })
       .click();
     await p.getByRole("button", { name: "第2問B", exact: true }).click();
-    await p
-      .locator(`[data-exam-id="${exam.id}"]`)
+    await (await examActions(p, exam.id))
       .getByRole("button", { name: "選択", exact: true })
       .click();
     await f.locator('[data-field="q2b-コ"]').first().waitFor();
@@ -247,8 +247,7 @@ const server = http.createServer((req, res) => {
         timedId,
       );
     const resumeTimed = async () => {
-      await p
-        .locator(`[data-exam-id="${exam.id}"]`)
+      await (await examActions(p, exam.id))
         .getByRole("button", { name: "再開", exact: true })
         .click();
       await f.locator('[data-field="q1-ア"]').first().waitFor();

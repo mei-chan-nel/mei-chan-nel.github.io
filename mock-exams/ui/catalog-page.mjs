@@ -104,7 +104,15 @@ export function catalogMarkup(
             `<a href="${esc(pageURL ? new URL(kind + ".pdf", new URL(".", new URL(entry.manifest, pageURL))).href : entry.manifest.replace("exam.json", kind + ".pdf"))}" download="情報Ⅰ_実戦演習_${esc(examLabel(entry))}_${title}.pdf">${title}</a>`,
         )
         .join("");
-      return `<article class="exam-card catalog-exam" data-exam-id="${esc(entry.id)}"><div><div class="exam-card-title"><h3>${esc(examLabel(entry))}${catalogView.mode === "section" ? "の" + esc(sectionTitle) : ""}</h3><span class="exam-status ${statusClass}">${progress.status}</span></div><p>${catalogView.mode === "section" ? esc(sectionTitle) + "の演習" : "1回分・全大問"}${entry.publishedAt ? " · " + esc(entry.publishedAt.slice(0, 7).replace("-", "年")) + "月" : ""}</p></div><div class="actions exam-card-actions">${resume}${fresh}${result}<div class="pdf-links">${links}</div></div></article>`;
+      const cardId = "catalog-exam-" + esc(entry.id);
+      return `<article class="exam-card catalog-exam" data-exam-id="${esc(entry.id)}">
+        <div class="exam-card-title">
+          <h3 id="${cardId}-title">${esc(examLabel(entry))}${catalogView.mode === "section" ? "の" + esc(sectionTitle) : ""}</h3>
+          <span id="${cardId}-status" class="exam-status ${statusClass}">${progress.status}</span>
+        </div>
+        <button type="button" class="exam-card-trigger" aria-haspopup="dialog" aria-controls="catalog-exam-dialog" aria-labelledby="${cardId}-title ${cardId}-status"></button>
+        <div class="actions exam-card-actions">${resume}${fresh}${result}<div class="pdf-links">${links}</div></div>
+      </article>`;
     })
     .join("");
   return `
@@ -131,6 +139,9 @@ export function catalogMarkup(
         </div>
         <div id="exam-list">${cards}</div>
       </section>
+      <dialog id="catalog-exam-dialog" aria-labelledby="catalog-exam-dialog-title">
+        <header><h2 id="catalog-exam-dialog-title"></h2><button type="button" class="exam-dialog-close" autofocus>閉じる</button></header>
+      </dialog>
       <details class="past-exam-permission">
         <summary>共通テスト過去問掲載について</summary>
         <p>大学入学共通テストの過去問は、独立行政法人大学入試センターの許諾を得て掲載しています。</p>
@@ -154,6 +165,32 @@ export function renderCatalogContents({
   pageURL = location.href,
 }) {
   target.innerHTML = catalogMarkup(catalog, history, catalogView, pageURL);
+  const dialog = target.querySelector("#catalog-exam-dialog");
+  let openCard;
+  dialog.addEventListener("close", () => {
+    openCard?.append(dialog.querySelector(".exam-card-actions"));
+    openCard = null;
+  });
+  dialog.querySelector(".exam-dialog-close").onclick = () => dialog.close();
+  dialog.addEventListener("click", (event) => {
+    if (event.target !== dialog) return;
+    const { left, right, top, bottom } = dialog.getBoundingClientRect();
+    if (
+      event.clientX < left || event.clientX > right ||
+      event.clientY < top || event.clientY > bottom
+    )
+      dialog.close();
+  });
+  for (const trigger of target.querySelectorAll(".exam-card-trigger")) {
+    trigger.onclick = () => {
+      if (openCard) return;
+      openCard = trigger.closest(".catalog-exam");
+      dialog.querySelector("h2").textContent = openCard.querySelector("h3").textContent;
+      dialog.append(openCard.querySelector(".exam-card-actions"));
+      trigger.focus({ preventScroll: true });
+      dialog.showModal();
+    };
+  }
   const change = (key, value, focus) => {
     catalogView[key] = value;
     onChange();
@@ -163,6 +200,7 @@ export function renderCatalogContents({
     for (const b of target.querySelectorAll(selector))
       b.onclick = async () => {
         if (b.disabled) return;
+        if (dialog.contains(b)) dialog.close();
         b.disabled = true;
         try {
           await fn(b);

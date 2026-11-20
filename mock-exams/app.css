@@ -298,10 +298,8 @@ button:disabled {
   background: #e8f3ed;
   color: #32664c;
 }
-.catalog-exam p {
-  margin: 7px 0 0;
-  font-size: 14px;
-  color: var(--mock-muted);
+.exam-card-trigger {
+  display: none;
 }
 .exam-card-actions {
   display: grid;
@@ -323,8 +321,46 @@ button:disabled {
   margin-left: 0;
 }
 @media (max-width: 800px) {
-  .catalog-exam { flex-wrap: wrap; }
-  .exam-card-actions { width: 100%; }
+  .exam-card.catalog-exam {
+    position: relative;
+    margin: 6px 0;
+    padding: 10px 32px 10px 14px;
+    min-height: 50px;
+    border-radius: 10px;
+  }
+  .catalog-exam .exam-card-title {
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .exam-card-title h3 {
+    font-size: 17px;
+    line-height: 1.35;
+  }
+  .catalog-exam > .exam-card-actions {
+    display: none;
+  }
+  button.exam-card-trigger {
+    display: block;
+    position: absolute;
+    inset: 0;
+    border: 0;
+    border-radius: inherit;
+    padding: 0;
+    background: transparent;
+  }
+  .exam-card-trigger::after {
+    content: "";
+    position: absolute;
+    inset-inline-end: 13px;
+    top: calc(50% - 4px);
+    width: 7px;
+    height: 7px;
+    border: solid var(--mock-muted);
+    border-width: 1.5px 1.5px 0 0;
+    transform: rotate(45deg);
+  }
 }
 .time-options {
   display: flex;
@@ -387,24 +423,6 @@ button:disabled {
     flex-direction: row;
     align-items: center;
     gap: 8px;
-  }
-  .catalog-exam {
-    flex-wrap: wrap;
-    gap: 15px;
-  }
-  .exam-card-actions {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
-  }
-  .exam-card-actions > .pdf-links {
-    grid-area: 2 / 1 / 3 / -1;
-    grid-auto-flow: column;
-    justify-content: end;
-    column-gap: 14px;
-  }
-  .pdf-links a {
-    min-height: 36px;
-    display: flex;
-    align-items: center;
   }
   .time-options {
     gap: 8px;
@@ -538,6 +556,38 @@ dialog header {
 dialog h2 {
   font-size: 19px;
   margin: 0 0 12px;
+}
+#catalog-exam-dialog {
+  max-width: 400px;
+  padding: 18px;
+}
+#catalog-exam-dialog header {
+  gap: 12px;
+}
+#catalog-exam-dialog h2 {
+  margin: 0;
+}
+#catalog-exam-dialog .exam-dialog-close {
+  white-space: nowrap;
+  padding-inline: 12px;
+}
+#catalog-exam-dialog .exam-card-actions {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 16px;
+}
+#catalog-exam-dialog .exam-card-actions > :is(button, .pdf-links) {
+  grid-area: auto;
+}
+#catalog-exam-dialog .pdf-links {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  text-align: center;
+  margin-top: 4px;
+  border-top: 1px solid var(--mock-line);
+}
+#catalog-exam-dialog .pdf-links a {
+  display: grid;
+  align-items: center;
+  min-height: 44px;
 }
 #answer-options {
   display: grid;

@@ -1,4 +1,5 @@
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
+const { examActions } = require("./catalog-helpers.cjs");
 const http = require("node:http"),
   fs = require("node:fs"),
   path = require("node:path"),
@@ -80,9 +81,8 @@ const server = http.createServer((req, res) => {
         name: section ? /大問ごとに演習する/ : /回ごとに受験する/,
       })
       .click();
-  const choose = (p) =>
-    p
-      .locator('[data-exam-id="001"]')
+  const choose = async (p) =>
+    (await examActions(p, "001"))
       .getByRole("button", { name: "選択", exact: true })
       .click();
   const noOverflow = async (p) =>
@@ -113,7 +113,7 @@ const server = http.createServer((req, res) => {
     assert.equal(await p.locator("#time-picker").isVisible(), true);
     assert.equal(
       await p.locator('#catalog-time [aria-pressed="true"]').textContent(),
-      "60分で受験する",
+      "時間制限なしで解く",
     );
     assert.equal(await p.locator(".exam-detail").count(), 0);
     // Both are true same-origin downloads, rather than links to a PDF viewer.
@@ -285,6 +285,30 @@ const server = http.createServer((req, res) => {
     const mobile = await newPage(390);
     await mobile.goto(origin + "/mock-exams/");
     await mobile.locator("#exam-list").waitFor();
+    const mobileCard = mobile.locator('[data-exam-id="001"]');
+    assert.equal(await mobileCard.locator(".exam-status").textContent(), "未受験");
+    assert.equal(await mobile.locator("#exam-list .exam-card-actions:visible").count(), 0);
+    assert.equal(await mobile.locator("#exam-list .exam-card p").count(), 0);
+    const menu = await examActions(mobile, "001");
+    await menu.waitFor();
+    await mobile.screenshot({ path: path.join(output, "catalog-mobile-actions.png") });
+    assert.equal(await menu.getByRole("heading").textContent(), "No.001");
+    assert.equal(await menu.getByRole("button", { name: "再開", exact: true }).count(), 0);
+    assert.equal(await menu.getByRole("button", { name: "結果", exact: true }).count(), 0);
+    const pdf = menu.getByRole("link", { name: "問題冊子PDF", exact: true });
+    const pendingDownload = mobile.waitForEvent("download");
+    await pdf.click();
+    assert.equal(await (await pendingDownload).failure(), null);
+    assert.equal(await menu.getByRole("link", { name: "解答解説PDF", exact: true }).count(), 1);
+    await mobile.keyboard.press("Escape");
+    await menu.waitFor({ state: "hidden" });
+    assert.equal(await mobileCard.locator(".exam-card-trigger:focus").count(), 1);
+    await examActions(mobile, "001");
+    await mobile.mouse.click(5, 5);
+    await menu.waitFor({ state: "hidden" });
+    await mobile.setViewportSize({ width: 320, height: 740 });
+    await noOverflow(mobile);
+    await mobile.setViewportSize({ width: 390, height: 1000 });
     await noOverflow(mobile);
     await mobile.screenshot({
       path: path.join(output, "catalog-mobile.png"),
@@ -306,8 +330,22 @@ const server = http.createServer((req, res) => {
       .locator('[data-field="q2b-コ"]')
       .first()
       .waitFor();
-    assert.deepEqual((await attempt(mobile)).sectionIds, ["q2b"]);
+    const mobileSection = await attempt(mobile);
+    assert.deepEqual(mobileSection.sectionIds, ["q2b"]);
     await pause(mobile);
+    assert.equal(await mobileCard.locator(".exam-status").textContent(), "中断中");
+    await examActions(mobile, "001");
+    assert.equal(await menu.getByRole("button", { name: "最初から解く", exact: true }).count(), 1);
+    await menu.getByRole("button", { name: "再開", exact: true }).click();
+    await mobile.frameLocator("#book-frame").locator('[data-field="q2b-コ"]').first().waitFor();
+    assert.equal((await attempt(mobile)).id, mobileSection.id);
+    await mobile.getByRole("button", { name: "採点する", exact: true }).click();
+    await mobile.getByRole("button", { name: "一覧に戻る", exact: true }).click();
+    assert.equal(await mobileCard.locator(".exam-status").textContent(), "採点済み");
+    await examActions(mobile, "001");
+    await menu.getByRole("button", { name: "結果", exact: true }).click();
+    await mobile.getByRole("heading", { name: "採点結果", exact: true }).waitFor();
+    await mobile.getByRole("button", { name: "一覧に戻る", exact: true }).click();
     await mode(mobile);
     await mobile
       .getByRole("button", { name: "60分で受験する", exact: true })

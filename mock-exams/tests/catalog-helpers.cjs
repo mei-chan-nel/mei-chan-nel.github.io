@@ -14,6 +14,17 @@ exports.loadCurrentExam = (root, id = "001") => {
   };
 };
 
+exports.examActions = async (page, id) => {
+  const card = page.locator(`[data-exam-id="${id}"]`);
+  await card.waitFor();
+  const trigger = card.locator(".exam-card-trigger");
+  if (await trigger.isVisible()) {
+    await trigger.click();
+    return page.locator("#catalog-exam-dialog");
+  }
+  return card;
+};
+
 // Start a fresh run, including when a different run is paused.
 exports.startFullExam = async (page, mode = "untimed", id = "001") => {
   await page
@@ -27,12 +38,12 @@ exports.startFullExam = async (page, mode = "untimed", id = "001") => {
       exact: true,
     })
     .click();
-  const card = page.locator(`[data-exam-id="${id}"]`);
-  const fresh = card.getByRole("button", { name: "最初から解く", exact: true });
+  const actions = await exports.examActions(page, id);
+  const fresh = actions.getByRole("button", { name: "最初から解く", exact: true });
   await (
     (await fresh.count())
       ? fresh
-      : card.getByRole("button", { name: "選択", exact: true })
+      : actions.getByRole("button", { name: "選択", exact: true })
   ).click();
 };
 exports.gradeInterim = async (page) => {
