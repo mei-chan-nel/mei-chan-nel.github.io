@@ -43,7 +43,7 @@ exports.startFullExam = async (page, mode = "untimed", id = "001") => {
   await (
     (await fresh.count())
       ? fresh
-      : actions.getByRole("button", { name: "選択", exact: true })
+      : actions.getByRole("button", { name: /^(選択|始める)$/ })
   ).click();
 };
 exports.gradeInterim = async (page) => {

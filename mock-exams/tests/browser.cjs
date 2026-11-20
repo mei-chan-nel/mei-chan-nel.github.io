@@ -226,7 +226,7 @@ const server = http.createServer((req, res) => {
       .click();
     await p.getByRole("button", { name: "第2問B", exact: true }).click();
     await (await examActions(p, exam.id))
-      .getByRole("button", { name: "選択", exact: true })
+      .getByRole("button", { name: /^(選択|始める)$/ })
       .click();
     await f.locator('[data-field="q2b-コ"]').first().waitFor();
     await p.getByRole("button", { name: "採点する", exact: true }).click();

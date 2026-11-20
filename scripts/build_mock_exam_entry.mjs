@@ -25,7 +25,7 @@ export function buildEntry() {
   else content = content.replace("</head>", embedded + "\n</head>");
   content = content.replace(
     /src="(?:app|entry)\.mjs[^\"]*"/,
-    'src="entry.mjs?v=20261120-mobile-catalog"',
+    'src="entry.mjs?v=20261120-mobile-confirm"',
   );
   content = content.replace(
     /<body(?: data-view="catalog")?>/,
