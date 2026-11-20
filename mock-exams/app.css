@@ -567,6 +567,16 @@ dialog h2 {
 #catalog-exam-dialog h2 {
   margin: 0;
 }
+#catalog-exam-confirm {
+  margin: 12px 0 0;
+}
+.exam-start-confirm-label,
+#catalog-exam-dialog .exam-start-list-label {
+  display: none;
+}
+#catalog-exam-dialog .exam-start-confirm-label {
+  display: inline;
+}
 #catalog-exam-dialog .exam-dialog-close {
   white-space: nowrap;
   padding-inline: 12px;

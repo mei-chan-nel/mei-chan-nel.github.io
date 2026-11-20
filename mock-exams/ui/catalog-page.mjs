@@ -88,7 +88,10 @@ export function catalogMarkup(
           : progress.status === "採点済み"
             ? "completed"
             : "";
-      const fresh = `<button class="primary" data-start="${esc(entry.id)}">${progress.resume ? "最初から解く" : "選択"}</button>`;
+      const startLabel = progress.status === "未受験"
+        ? '<span class="exam-start-list-label">選択</span><span class="exam-start-confirm-label">始める</span>'
+        : progress.resume ? "最初から解く" : "選択";
+      const fresh = `<button class="primary" data-start="${esc(entry.id)}">${startLabel}</button>`;
       const resume = progress.resume
         ? `<button class="primary" data-resume="${esc(progress.resume.id)}">再開</button>`
         : "";
@@ -141,6 +144,7 @@ export function catalogMarkup(
       </section>
       <dialog id="catalog-exam-dialog" aria-labelledby="catalog-exam-dialog-title">
         <header><h2 id="catalog-exam-dialog-title"></h2><button type="button" class="exam-dialog-close" autofocus>閉じる</button></header>
+        <p id="catalog-exam-confirm" hidden>${catalogView.mode === "section" ? "演習" : "受験"}を始めますか？</p>
       </dialog>
       <details class="past-exam-permission">
         <summary>共通テスト過去問掲載について</summary>
@@ -166,12 +170,14 @@ export function renderCatalogContents({
 }) {
   target.innerHTML = catalogMarkup(catalog, history, catalogView, pageURL);
   const dialog = target.querySelector("#catalog-exam-dialog");
+  const confirmText = dialog.querySelector("#catalog-exam-confirm");
+  const closeButton = dialog.querySelector(".exam-dialog-close");
   let openCard;
   dialog.addEventListener("close", () => {
     openCard?.append(dialog.querySelector(".exam-card-actions"));
     openCard = null;
   });
-  dialog.querySelector(".exam-dialog-close").onclick = () => dialog.close();
+  closeButton.onclick = () => dialog.close();
   dialog.addEventListener("click", (event) => {
     if (event.target !== dialog) return;
     const { left, right, top, bottom } = dialog.getBoundingClientRect();
@@ -186,7 +192,13 @@ export function renderCatalogContents({
       if (openCard) return;
       openCard = trigger.closest(".catalog-exam");
       dialog.querySelector("h2").textContent = openCard.querySelector("h3").textContent;
-      dialog.append(openCard.querySelector(".exam-card-actions"));
+      const actions = openCard.querySelector(".exam-card-actions");
+      const confirm = Boolean(actions.querySelector(".exam-start-confirm-label"));
+      confirmText.hidden = !confirm;
+      closeButton.textContent = confirm ? "キャンセル" : "閉じる";
+      if (confirm) dialog.setAttribute("aria-describedby", confirmText.id);
+      else dialog.removeAttribute("aria-describedby");
+      dialog.append(actions);
       trigger.focus({ preventScroll: true });
       dialog.showModal();
     };

@@ -3,7 +3,7 @@ import { AttemptStore } from "./engine/attempt.mjs";
 import {
   defaultCatalogView,
   renderCatalogContents,
-} from "./ui/catalog-page.mjs?v=20261120-mobile-catalog";
+} from "./ui/catalog-page.mjs?v=20261120-mobile-confirm";
 const target = document.querySelector("#app"),
   store = new AttemptStore();
 const entries = JSON.parse(document.querySelector("#exam-catalog").textContent);
@@ -27,7 +27,7 @@ async function launch(action) {
   application = (async () => {
     if (action?.kind === "history" || (!action && location.hash))
       await sampleHistory();
-    const { initializeApp } = await import("./app.mjs?v=20261120-mobile-catalog");
+    const { initializeApp } = await import("./app.mjs?v=20261120-mobile-confirm");
     await initializeApp({ entries, view, action });
   })().catch((error) => {
     application = null;

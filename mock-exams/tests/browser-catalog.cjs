@@ -83,7 +83,7 @@ const server = http.createServer((req, res) => {
       .click();
   const choose = async (p) =>
     (await examActions(p, "001"))
-      .getByRole("button", { name: "選択", exact: true })
+      .getByRole("button", { name: /^(選択|始める)$/ })
       .click();
   const noOverflow = async (p) =>
     assert.ok(
@@ -293,6 +293,13 @@ const server = http.createServer((req, res) => {
     await menu.waitFor();
     await mobile.screenshot({ path: path.join(output, "catalog-mobile-actions.png") });
     assert.equal(await menu.getByRole("heading").textContent(), "No.001");
+    assert.equal(await menu.locator("#catalog-exam-confirm").innerText(), "受験を始めますか？");
+    assert.ok(await menu.getByRole("button", { name: "始める", exact: true }).isVisible());
+    await menu.getByRole("button", { name: "キャンセル", exact: true }).click();
+    await menu.waitFor({ state: "hidden" });
+    assert.equal(await mobileCard.locator(".exam-status").innerText(), "未受験");
+    assert.equal(await mobile.evaluate(() => location.hash), "");
+    await examActions(mobile, "001");
     assert.equal(await menu.getByRole("button", { name: "再開", exact: true }).count(), 0);
     assert.equal(await menu.getByRole("button", { name: "結果", exact: true }).count(), 0);
     const pdf = menu.getByRole("link", { name: "問題冊子PDF", exact: true });
@@ -336,6 +343,8 @@ const server = http.createServer((req, res) => {
     assert.equal(await mobileCard.locator(".exam-status").textContent(), "中断中");
     await examActions(mobile, "001");
     assert.equal(await menu.getByRole("button", { name: "最初から解く", exact: true }).count(), 1);
+    assert.equal(await menu.locator("#catalog-exam-confirm").isVisible(), false);
+    assert.ok(await menu.getByRole("button", { name: "閉じる", exact: true }).isVisible());
     await menu.getByRole("button", { name: "再開", exact: true }).click();
     await mobile.frameLocator("#book-frame").locator('[data-field="q2b-コ"]').first().waitFor();
     assert.equal((await attempt(mobile)).id, mobileSection.id);

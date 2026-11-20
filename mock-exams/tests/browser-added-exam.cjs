@@ -299,7 +299,7 @@ const server = http.createServer((req, res) => {
       .getByRole("button", { name: exam.sections[1].title, exact: true })
       .click();
     await (await examActions(page, exam.id))
-      .getByRole("button", { name: "選択", exact: true })
+      .getByRole("button", { name: /^(選択|始める)$/ })
       .click();
     await page.locator("[data-run-timer]").waitFor();
     assert.equal(
