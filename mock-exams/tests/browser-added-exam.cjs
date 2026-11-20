@@ -6,7 +6,7 @@ const fs = require("node:fs"),
   path = require("node:path"),
   http = require("node:http"),
   assert = require("node:assert/strict");
-const { startFullExam } = require("./catalog-helpers.cjs");
+const { startFullExam, examActions } = require("./catalog-helpers.cjs");
 const root = path.resolve(__dirname, "../.."),
   manifest = process.argv[2] || "exams/001/1/exam.json";
 if (!/^exams\/(?:[0-9]{3}|20[0-9]{2}(?:Honshi|Tuishi))\/[1-9][0-9]*\/exam\.json$/.test(manifest))
@@ -298,8 +298,7 @@ const server = http.createServer((req, res) => {
       .locator("#catalog-sections")
       .getByRole("button", { name: exam.sections[1].title, exact: true })
       .click();
-    await page
-      .locator(`[data-exam-id="${exam.id}"]`)
+    await (await examActions(page, exam.id))
       .getByRole("button", { name: "選択", exact: true })
       .click();
     await page.locator("[data-run-timer]").waitFor();

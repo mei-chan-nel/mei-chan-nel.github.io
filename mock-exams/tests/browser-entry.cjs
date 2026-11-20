@@ -51,7 +51,10 @@ const server = http.createServer((req, res) => {
     });
     const staticPage = await staticContext.newPage();
     await staticPage.goto(url);
-    assert.equal(await staticPage.locator(".catalog-exam").count(), 2);
+    assert.equal(
+      await staticPage.locator(".catalog-exam").count(),
+      JSON.parse(fs.readFileSync(path.join(root, "mock-exams/catalog.json"))).length,
+    );
     assert.equal(
       await staticPage.getByText("模試を読み込んでいます…").count(),
       0,
@@ -97,11 +100,11 @@ const server = http.createServer((req, res) => {
     );
     await page.reload();
     assert.equal(
-      await page
-        .locator('#catalog-sections [aria-pressed="true"]')
-        .textContent(),
-      "第2問A",
+      await page.locator('#catalog-time [aria-pressed="true"]').textContent(),
+      "時間制限なしで解く",
     );
+    await page.getByRole("button", { name: /大問ごとに演習する/ }).click();
+    await page.locator("#catalog-sections").getByRole("button", { name: "第2問A", exact: true }).click();
     // Losing the first manifest response must leave a usable catalog and retry.
     await page.locator('[data-exam-id="002"] [data-start]').click();
     await page
@@ -124,7 +127,7 @@ const server = http.createServer((req, res) => {
     );
     assert.deepEqual(errors, []);
     console.log(
-      "PASS: static first paint; modes without app/manifests/RPCs; selection survives reload; failed start retries; solutions deferred",
+      "PASS: static first paint; modes without app/manifests/RPCs; defaults after reload; failed start retries; solutions deferred",
       JSON.stringify(paints),
     );
   } finally {
