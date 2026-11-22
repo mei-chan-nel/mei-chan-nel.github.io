@@ -23,7 +23,7 @@
 .term-copy .term-formula {
   margin: 22px 0;
   padding: 18px 22px;
-  border-left: 3px solid var(--atlas-blue);
+  border-left: 3px solid var(--atlas-accent);
   background: var(--white);
   color: var(--ink);
   font-family: "Cascadia Code", "BIZ UDGothic", Consolas, monospace;
@@ -141,7 +141,7 @@
 
 .term-list-item a:hover,
 .term-list-item a:focus-visible {
-  color: var(--atlas-blue);
+  color: var(--atlas-accent);
   text-decoration: underline;
 }
 
@@ -182,7 +182,7 @@
 }
 
 .term-question-source dt {
-  color: var(--atlas-blue);
+  color: var(--atlas-accent);
   font-size: .69rem;
   font-weight: 800;
   letter-spacing: .06em;
@@ -295,7 +295,7 @@
 .term-list-item[hidden], .term-controls[hidden], .term-page-state[hidden] { display: none; }
 .term-read-status { color: var(--ink-soft); font-size: .75rem; white-space: nowrap; }
 .term-favorite { display: inline-grid; place-items: center; width: 44px; min-width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--ink-soft); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.term-favorite[aria-pressed="true"] { color: var(--atlas-blue); }
+.term-favorite[aria-pressed="true"] { color: var(--atlas-accent); }
 .term-favorite:hover { background: var(--paper-deep); }
 .term-favorite:focus-visible, .term-controls input:focus-visible, .term-controls button:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }

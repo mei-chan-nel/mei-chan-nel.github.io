@@ -12,7 +12,7 @@
 .global-nav { min-width: 0; display: flex; align-items: center; gap: clamp(10px, 1.1vw, 18px); overflow-x: auto; scrollbar-width: none; }
 .global-nav::-webkit-scrollbar { display: none; }
 .global-nav a { position: relative; display: inline-flex; align-items: center; min-height: 44px; padding: 7px 0; color: var(--atlas-muted); font-size: .875rem; font-weight: 700; text-decoration: none; white-space: nowrap; }
-.global-nav a::after { content: ""; position: absolute; right: 0; bottom: 4px; left: 0; height: 2px; background: var(--atlas-blue); transform: scaleX(0); transition: transform .2s ease; }
+.global-nav a::after { content: ""; position: absolute; right: 0; bottom: 4px; left: 0; height: 2px; background: var(--atlas-accent); transform: scaleX(0); transition: transform .2s ease; }
 .global-nav a:hover::after, .global-nav a[aria-current="page"]::after { transform: scaleX(1); }
 .global-nav a[aria-current="page"] { color: var(--atlas-ink); }
 .horizontal-scroll-cue { position: relative; min-width: 0; }

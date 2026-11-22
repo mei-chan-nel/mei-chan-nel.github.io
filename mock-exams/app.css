@@ -1,16 +1,16 @@
 :root {
-  --mock-ink: var(--atlas-ink, #18394b);
-  --mock-accent: var(--atlas-blue, #386698);
-  --mock-line: var(--atlas-line, #d8e0e3);
+  --mock-ink: var(--atlas-ink, #263e35);
+  --mock-accent: var(--atlas-accent, #356459);
+  --mock-line: var(--atlas-line, #d9ded1);
   --mock-paper: var(--atlas-surface, white);
-  --mock-muted: var(--atlas-muted, #536979);
+  --mock-muted: var(--atlas-muted, #526354);
 }
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  background: var(--atlas-bg, #f8fafb);
+  background: var(--atlas-bg, #f8f6f0);
   color: var(--mock-ink);
   font-family: var(--atlas-font, "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif);
 }
@@ -33,7 +33,7 @@ button,
 }
 button:hover,
 .mock-button:hover {
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
 }
 button:focus-visible,
 a:focus-visible,
@@ -193,7 +193,7 @@ button:disabled {
 .mode-choice[aria-pressed="true"] {
   border-color: var(--mock-accent);
   box-shadow: inset 0 0 0 1px var(--mock-accent);
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
 }
 .mode-choice[aria-pressed="true"]::after {
   content: "✓";
@@ -320,7 +320,7 @@ button:disabled {
   padding: 3px 10px;
   border-radius: 20px;
   color: var(--mock-muted);
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -698,7 +698,7 @@ dialog h2 {
 }
 .stat-note {
   padding: 14px;
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
   font-size: 13px;
   line-height: 1.7;
 }
@@ -784,7 +784,7 @@ dialog h2 {
     position: sticky;
     top: 0;
     z-index: 3;
-    background: var(--atlas-bg, #f8fafb);
+    background: var(--atlas-bg, #f8f6f0);
     padding: 5px 0;
   }
   .book-nav button {
@@ -1015,7 +1015,7 @@ button.subtle-button {
   padding: 6px 10px;
   min-height: 34px;
   color: var(--mock-muted);
-  background: var(--atlas-bg, #f8fafb);
+  background: var(--atlas-bg, #f8f6f0);
 }
 .result-actions .back-to-catalog {
   margin-left: 24px;
@@ -1052,11 +1052,11 @@ button.subtle-button {
 }
 .results .summary-table thead th,
 .results #unit-table thead th {
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
   font-weight: 600;
 }
 .results .summary-table tfoot {
-  background: var(--atlas-bg, #f8fafb);
+  background: var(--atlas-bg, #f8f6f0);
 }
 .results .score-maximum {
   white-space: nowrap;
@@ -1264,7 +1264,7 @@ body[data-view="workspace"] > .preview-banner {
   line-height: 1.6;
 }
 .history-table thead th {
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1286,7 +1286,7 @@ body[data-view="workspace"] > .preview-banner {
   min-height: 36px;
 }
 .history-table tbody tr:hover {
-  background: var(--atlas-bg, #f8fafb);
+  background: var(--atlas-bg, #f8f6f0);
 }
 .result-actions > button:not(.subtle-danger) {
   font-size: 13px;
@@ -1296,7 +1296,7 @@ body[data-view="workspace"] > .preview-banner {
   margin: 0 0 16px;
   padding: 10px 14px;
   border-left: 3px solid var(--mock-accent);
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
   color: var(--mock-ink);
   font-size: 13px;
   line-height: 1.7;
@@ -1322,7 +1322,7 @@ body[data-view="workspace"] > .preview-banner {
     position: sticky;
     top: 0;
     z-index: 6;
-    background: var(--atlas-bg, #f8fafb);
+    background: var(--atlas-bg, #f8f6f0);
     padding: 5px 0;
     gap: 8px;
   }
@@ -1385,7 +1385,7 @@ button.filter-chip {
   font-size: 12px;
   padding: 4px 9px;
   min-height: 30px;
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
 }
 .history-table thead th {
   padding: 0;
@@ -1409,7 +1409,7 @@ button.filter-chip {
 }
 .history-table thead button:hover,
 .history-table thead button.filtered {
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
 }
 .column-indicator {
   position: absolute;
@@ -1463,7 +1463,7 @@ button.filter-chip {
   font-size: 13px;
 }
 .column-sort-actions [aria-pressed="true"] {
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
   border-color: var(--mock-accent);
 }
 .column-range {
@@ -1517,7 +1517,7 @@ button.filter-chip {
   margin-bottom: 10px;
 }
 .column-value-list label:hover {
-  background: var(--atlas-soft, #edf4fa);
+  background: var(--atlas-soft, #edf2e9);
 }
 #history-column-menu input[type="checkbox"] {
   accent-color: var(--mock-accent);

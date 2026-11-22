@@ -11,7 +11,7 @@
   letter-spacing: -0.025em;
 }
 .db-hero .eyebrow {
-  color: var(--atlas-blue);
+  color: var(--atlas-accent);
   margin-bottom: 8px;
 }
 .db-hero p:last-child {

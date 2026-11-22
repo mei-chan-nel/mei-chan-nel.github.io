@@ -1,6 +1,6 @@
 .studio-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0 25px; }
 .studio-heading h1 { margin: 0; font: 500 clamp(1.7rem, 3vw, 2.6rem)/1.4 var(--serif); letter-spacing: -.04em; }
-.studio-heading h1 em { display: inline-block; color: var(--atlas-blue); font-style: normal; }
+.studio-heading h1 em { display: inline-block; color: var(--atlas-accent); font-style: normal; }
 .studio-guide { max-width: 960px; }
 .guide-article { padding: 25px 30px; font-size: 1rem; }
 .guide-article h2 { margin-top: 30px; font: 600 1.2rem var(--serif); }

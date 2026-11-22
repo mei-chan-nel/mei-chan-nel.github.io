@@ -1,11 +1,11 @@
-:root { --sim-accent: var(--atlas-blue); }
+:root { --sim-accent: var(--atlas-accent); }
 [hidden] { display: none !important; }
 button, input, select { font: inherit; }
 button, select { color: var(--ink); }
 button, .file-button, .text-file-label { cursor: pointer; }
 button { border: 1px solid var(--line); background: var(--white); }
 button:disabled { opacity: .4; cursor: default; }
-button:focus-visible, select:focus-visible, input:focus-visible, .viewport:focus-visible, .file-button:has(+ input:focus-visible) { outline: 3px solid var(--atlas-blue); outline-offset: 3px; }
+button:focus-visible, select:focus-visible, input:focus-visible, .viewport:focus-visible, .file-button:has(+ input:focus-visible) { outline: 3px solid var(--atlas-accent); outline-offset: 3px; }
 .simulator { width: min(1560px, calc(100% - 48px)); margin: auto; }
 .sim-hero { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 5px 0 16px; }
 .sim-eyebrow { margin: 0 0 8px; color: var(--sim-accent); font: 700 10px Arial,sans-serif; letter-spacing: .16em; }
@@ -99,7 +99,7 @@ input[type="checkbox"] { accent-color: var(--sim-accent); width: 15px; height: 1
 .learning-points { margin: 0 0 22px; border: 1px solid var(--line); border-radius: 9px; background: var(--white); }
 .learning-points > summary { cursor: pointer; padding: 15px 18px; font-size: 14px; font-weight: 700; }
 .learning-points > summary span { margin-left: 12px; font-size: 11px; font-weight: 400; color: var(--ink-soft); }
-.learning-points > summary:focus-visible { outline: 3px solid var(--atlas-blue); outline-offset: 3px; }
+.learning-points > summary:focus-visible { outline: 3px solid var(--atlas-accent); outline-offset: 3px; }
 .learning-points-body { padding: 0 18px 16px; font-size: 12px; line-height: 1.85; }
 .learning-points-body > p { max-width: 1000px; }
 .learning-points table { width: 100%; border-collapse: collapse; table-layout: fixed; }
@@ -169,7 +169,7 @@ dialog h2 { font: 600 24px/1.5 "Yu Mincho",serif; }dialog h3 { margin: 24px 0 7p
 .image-info { margin: 8px 0 0; color: var(--ink-soft); font-size: 11px; overflow-wrap: anywhere; }
 .simulation-method { margin-top: 18px; border-top: 1px solid var(--line); }
 .simulation-method > summary { cursor: pointer; padding: 14px 0; font-weight: 700; }
-.simulation-method > summary:focus-visible { outline: 3px solid var(--atlas-blue); outline-offset: 3px; }
+.simulation-method > summary:focus-visible { outline: 3px solid var(--atlas-accent); outline-offset: 3px; }
 .method-content { max-width: 1000px; }
 .method-content h3 { margin: 20px 0 6px; font-size: 13px; }
 .method-content p, .method-content li { overflow-wrap: anywhere; }

@@ -19,7 +19,7 @@
   letter-spacing: -0.04em;
 }
 .thinking-hero h1 em {
-  color: var(--atlas-blue);
+  color: var(--atlas-accent);
   font-style: normal;
 }
 .hero-copy {

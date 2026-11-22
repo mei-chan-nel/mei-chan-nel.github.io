@@ -8,7 +8,7 @@
   --surface: var(--atlas-surface);
   --line: var(--atlas-line);
   --navy: var(--atlas-ink);
-  --accent: var(--atlas-blue);
+  --accent: var(--atlas-accent);
   --accent-soft: var(--atlas-soft);
   --warm: #c77a28;
   --warm-soft: #fff4e6;

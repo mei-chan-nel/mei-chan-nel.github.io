@@ -2,7 +2,7 @@
 .home-page {
   --home-width: min(72rem, calc(100% - clamp(2.25rem, 8vw, 7rem)));
   --home-serif: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", "Noto Serif JP", serif;
-  background: var(--atlas-surface);
+  background: var(--atlas-bg);
 }
 
 .hero {
@@ -21,11 +21,11 @@
   font: 600 clamp(2.55rem, 4.7vw, 4.35rem)/1.32 var(--home-serif);
   letter-spacing: -.065em;
 }
-.hero-slogan em { color: var(--atlas-blue); font-style: normal; }
+.hero-slogan em { color: var(--atlas-terracotta); font-style: normal; }
 .hero-copy p { max-width: 32rem; }
 .hero-lead { margin: 1.25rem 0 0; color: var(--atlas-muted); font-size: 1rem; line-height: 1.95; }
 .hero-about-link { margin: .9rem 0 0; }
-.hero-about-link a { display: inline-block; padding: .45rem 0; color: var(--atlas-blue); font-size: .9rem; font-weight: 650; text-underline-offset: .35em; }
+.hero-about-link a { display: inline-block; padding: .45rem 0; color: var(--atlas-accent); font-size: .9rem; font-weight: 650; text-underline-offset: .35em; }
 
 .hero-visual { min-width: 0; display: grid; justify-items: center; gap: 18px; }
 .hero-map { position: relative; width: min(100%, 540px); aspect-ratio: 1; margin: auto; }
@@ -60,12 +60,15 @@
   border: 1px solid var(--atlas-line);
   transition: border-color .16s ease, background-color .16s ease;
 }
+.home-action-card.accent-mint { --accent: var(--atlas-action); }
+.home-action-card.accent-coral { --accent: var(--atlas-terracotta); }
+.home-action-card.accent-amber { --accent: var(--atlas-ochre); }
 .home-action-card {
   display: flex;
   flex-direction: column;
   padding: clamp(1.1rem, 2.2vw, 1.65rem);
   border-radius: .4rem;
-  border-top: 3px solid var(--atlas-blue);
+  border-top: 3px solid var(--accent);
   background: var(--atlas-surface);
 }
 .home-action-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .8rem; }
@@ -80,12 +83,13 @@
   height: 1.5rem;
   display: grid;
   place-items: center;
-  color: var(--atlas-blue);
+  color: var(--atlas-accent);
 }
 .home-action-heading .home-action-icon {
   width: 2.6rem;
   height: 2.6rem;
-  background: var(--atlas-soft);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, white);
   border-radius: .35rem;
 }
 .home-action-icon::before {
@@ -120,8 +124,8 @@
 .home-other-grid { display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
 .home-other-card { padding: .55rem .85rem; min-height: 44px; border-width: 1px; border-radius: .35rem; }
 .home-other-card .home-action-icon { transform: scale(.82); }
-.home-action-card:hover, .home-misc-card:hover { border-color: var(--atlas-blue); background-color: var(--atlas-soft); }
-.home-action-card:focus-visible, .home-misc-card:focus-visible, .hero-about-link a:focus-visible { outline: 3px solid var(--atlas-blue); outline-offset: 3px; }
+.home-action-card:hover, .home-misc-card:hover { border-color: var(--atlas-accent); background-color: var(--atlas-soft); }
+.home-action-card:focus-visible, .home-misc-card:focus-visible, .hero-about-link a:focus-visible { outline: 3px solid var(--atlas-accent); outline-offset: 3px; }
 
 @media (max-width: 58rem) {
   .home-action-heading { flex-direction: column; align-items: flex-start; }
@@ -135,7 +139,7 @@
   .home-action-grid, .home-misc-grid { grid-template-columns: 1fr; }
   .home-action-grid { gap: .65rem; }
   .home-action-heading { flex-direction: row; align-items: center; }
-  .home-action-card { border-width: 1px 1px 1px 3px; border-color: var(--atlas-line) var(--atlas-line) var(--atlas-line) var(--atlas-blue); }
+  .home-action-card { border-width: 1px 1px 1px 3px; border-color: var(--atlas-line) var(--atlas-line) var(--atlas-line) var(--accent); }
   .home-action-card p { margin-top: .6rem; }
   .home-other-grid { gap: .5rem; }
 }

@@ -11,14 +11,14 @@
 .lab-help .lab-help__button {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   min-height: 44px; padding: 10px 16px; margin: 0; border: 1px solid var(--atlas-line);
-  border-radius: var(--atlas-radius); background: var(--atlas-surface); color: var(--atlas-blue);
+  border-radius: var(--atlas-radius); background: var(--atlas-surface); color: var(--atlas-accent);
   font: 700 14px/1.4 var(--atlas-font); white-space: nowrap;
   cursor: pointer;
 }
-.lab-help .lab-help__button:hover { border-color: var(--atlas-blue); background: var(--atlas-soft); }
+.lab-help .lab-help__button:hover { border-color: var(--atlas-accent); background: var(--atlas-soft); }
 .lab-help .lab-help__button:disabled { opacity: .65; cursor: wait; }
 .lab-help__button:focus-visible, .lab-help-feedback :is(button, summary, textarea):focus-visible {
-  outline: 3px solid var(--atlas-blue); outline-offset: 3px;
+  outline: 3px solid var(--atlas-accent); outline-offset: 3px;
 }
 .lab-help__button svg { flex: 0 0 20px; }
 .lab-help-feedback { font: 14px/1.7 var(--atlas-font); color: var(--atlas-ink); }
@@ -29,6 +29,6 @@
 .lab-help__recovery label { display: block; font-weight: 700; }
 .lab-help__recovery textarea { display: block; width: 100%; min-width: 0; box-sizing: border-box; padding: 12px; margin: 8px 0; border: 1px solid var(--atlas-muted); border-radius: 6px; font: 16px/1.6 var(--atlas-font); background: var(--atlas-surface); color: var(--atlas-ink); resize: vertical; }
 .lab-help__actions { display: flex; flex-wrap: wrap; gap: 10px; }
-.lab-help__actions button { padding: 10px 14px; min-height: 44px; border: 1px solid var(--atlas-line); border-radius: 8px; background: var(--atlas-surface); color: var(--atlas-blue); font: inherit; cursor: pointer; }
+.lab-help__actions button { padding: 10px 14px; min-height: 44px; border: 1px solid var(--atlas-line); border-radius: 8px; background: var(--atlas-surface); color: var(--atlas-accent); font: inherit; cursor: pointer; }
 .lab-help__copy-status:empty { display: none; }
 @media print { .lab-help, .lab-help-feedback { display: none !important; } }
