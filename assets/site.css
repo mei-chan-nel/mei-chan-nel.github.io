@@ -258,7 +258,11 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .facet-link span { overflow-wrap: anywhere; }
 .facet-link small { flex: 0 0 auto; color: var(--ink-soft); font-size: .61rem; }
 .facet-link:hover { border-color: var(--atlas-accent); color: var(--ink); }
-.facet-link.is-selected { border-color: var(--ink); color: var(--white); background: var(--ink); }
+.facet-link.is-selected {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+}
 .facet-link.is-selected small { color: rgb(255 255 255 / 75%); }
 .facet-link[hidden] { display: none; }
 .filter-results { margin-top: 48px; scroll-margin-top: 18px; }

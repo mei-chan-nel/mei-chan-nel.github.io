@@ -106,6 +106,17 @@
 .icon-help { --icon-position: 90%; }
 .icon-book { --icon-position: 100%; }
 
+.home-misc-grid .home-action-card {
+  padding: .875rem 1rem;
+  border-inline-start: 1px solid var(--atlas-line);
+}
+.home-misc-grid h3 { font-size: 1rem; }
+.home-misc-grid p {
+  margin: .25rem 0 0 2.15rem;
+  font-size: .875rem;
+  line-height: 1.6;
+}
+
 .home-other-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .home-other-card {
   display: inline-flex;
@@ -137,5 +148,6 @@
   .hero-lead { margin-top: .9rem; }
   .hero-visual { display: none; }
   .home-action-grid, .home-misc-grid { grid-template-columns: 1fr; gap: .65rem; }
+  .home-misc-grid p { display: none; }
   .home-other-grid { gap: .5rem; }
 }

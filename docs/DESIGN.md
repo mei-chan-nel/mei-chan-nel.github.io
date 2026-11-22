@@ -11,6 +11,7 @@
 | 補足背景 | --atlas-soft | #EDF2E9 |
 | 見出し・本文 | --atlas-ink | #263E35 |
 | 補助文 | --atlas-muted | #526354 |
+| 選択中のボタン | --atlas-selected | #18394B |
 | 開始・再開・再挑戦 | --atlas-action | #306653 |
 | 次へ・採点などの操作 | --atlas-control | #526456 |
 | リンク・フォーカス | --atlas-accent | #356459 |

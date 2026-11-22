@@ -9,10 +9,13 @@
 .routing-lab button:hover { border-color: var(--atlas-accent); background: var(--atlas-soft); }
 .routing-lab button:disabled { opacity: .5; cursor: default; }
 .routing-lab button.primary { background: var(--ink); color: var(--white); border-color: var(--ink); }
-.routing-lab button.primary:hover { background: var(--atlas-accent); }
+.routing-lab button.primary:hover:not([aria-pressed="true"]) { background: var(--atlas-accent); }
 .routing-lab button.danger { color: var(--coral-strong); border-color: #dfb3a9; background: #fff2ed; }
-.routing-lab button[aria-pressed="true"] { background: var(--atlas-soft); border-color: var(--atlas-accent); color: var(--atlas-ink); }
-.routing-lab button.primary[aria-pressed="true"] { background: var(--atlas-accent); color: white; }
+.routing-lab button[aria-pressed="true"] {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+}
 .routing-lab select, .routing-lab input:not([type="checkbox"]) { min-width: 0; width: 100%; min-height: 40px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font-size: .82rem; }
 .routing-lab :is(button, select, input, summary, a, svg):focus-visible { outline: 3px solid var(--atlas-accent); outline-offset: 3px; }
 .routing-lab input[type="checkbox"] { accent-color: var(--atlas-accent); width: 17px; height: 17px; }
