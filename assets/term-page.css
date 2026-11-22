@@ -2,8 +2,10 @@
   max-width: 1040px;
 }
 
+.term-page :is(h1, h2) { text-wrap: balance; }
+
 .term-hero h1 {
-  font-size: clamp(3.6rem, 9vw, 6.4rem);
+  font-size: clamp(2rem, 4.6vw, 3.5rem);
 }
 
 .term-copy {
@@ -21,7 +23,7 @@
 .term-copy .term-formula {
   margin: 22px 0;
   padding: 18px 22px;
-  border-left: 3px solid var(--coral);
+  border-left: 3px solid var(--atlas-blue);
   background: var(--white);
   color: var(--ink);
   font-family: "Cascadia Code", "BIZ UDGothic", Consolas, monospace;
@@ -87,6 +89,8 @@
 }
 
 .term-list-item a {
+  font-weight: 700;
+  text-underline-offset: 4px;
   min-height: 56px;
   padding: 15px 2px;
   display: flex;
@@ -135,20 +139,15 @@
   text-align: center;
 }
 
-.term-list-item a {
-  font-weight: 800;
-  text-underline-offset: 4px;
-}
-
 .term-list-item a:hover,
 .term-list-item a:focus-visible {
-  color: var(--coral-strong);
+  color: var(--atlas-blue);
   text-decoration: underline;
 }
 
 .term-practice-section {
   max-width: 900px;
-  margin: 76px auto 0;
+  margin: 48px auto 0;
 }
 
 .term-section-heading {
@@ -172,7 +171,7 @@
 }
 
 .term-example-card {
-  box-shadow: 0 14px 44px rgb(16 47 53 / 6%);
+  box-shadow: var(--atlas-shadow);
 }
 
 .term-question-source {
@@ -183,7 +182,7 @@
 }
 
 .term-question-source dt {
-  color: var(--coral-strong);
+  color: var(--atlas-blue);
   font-size: .69rem;
   font-weight: 800;
   letter-spacing: .06em;
@@ -204,7 +203,7 @@
   justify-content: space-between;
   gap: 28px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--atlas-radius);
   background: var(--white);
 }
 
@@ -281,12 +280,11 @@
 }
 
 /* Shared learning controls; the static list remains usable without JavaScript. */
-.term-controls { margin: 0 0 20px; }
+.term-controls { margin: 0 0 20px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--atlas-line); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
 .term-controls fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 16px; padding: 0; border: 0; }
 .term-controls label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; cursor: pointer; font-size: .9rem; }
-.term-controls input[type="radio"] { accent-color: var(--ink); width: 18px; height: 18px; margin: 0; }
 .term-controls .term-search-label { display: block; min-height: 0; margin-bottom: 6px; font-weight: 700; }
-#term-search { display: block; width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--ink-soft); border-radius: 6px; color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
+#term-search { display: block; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--atlas-muted); border-radius: var(--atlas-radius); color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
 .term-data-message, .term-storage-message, .term-result-count { color: var(--ink-soft); font-size: .85rem; }
 .term-data-message:has(span:empty):has(button[hidden]), .term-storage-message:empty { display: none; }
 .term-data-message button { margin: 6px; min-height: 44px; padding: 6px 12px; font: inherit; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
@@ -294,7 +292,7 @@
 .term-list-item[hidden], .term-controls[hidden], .term-page-state[hidden] { display: none; }
 .term-read-status { color: var(--ink-soft); font-size: .75rem; white-space: nowrap; }
 .term-favorite { display: inline-grid; place-items: center; width: 44px; min-width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--ink-soft); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.term-favorite[aria-pressed="true"] { color: #527d86; }
+.term-favorite[aria-pressed="true"] { color: var(--atlas-blue); }
 .term-favorite:hover { background: var(--paper-deep); }
 .term-favorite:focus-visible, .term-controls input:focus-visible, .term-controls button:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }
@@ -309,7 +307,6 @@
 .term-controls input[type="radio"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .term-controls label:has(input:focus-visible) { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-controls label:hover { background: var(--white); }
-#term-search { border-color: var(--line); border-radius: 10px; padding: 13px 16px; box-shadow: 0 2px 6px rgb(16 47 53 / 3%); }
 #term-search:focus { border-color: var(--blue-strong); }
 .term-result-count { margin: 24px 0 12px; font-variant-numeric: tabular-nums; }
 .term-list-item .term-excerpt-link { display: block; min-height: 44px; padding: 0 2px 8px; font-size: .84rem; line-height: 1.8; font-weight: 400; color: var(--ink-soft); text-decoration: none; }

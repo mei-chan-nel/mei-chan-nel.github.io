@@ -12,7 +12,7 @@
 }
 .page-heading .eyebrow {
   margin-bottom: 8px;
-  color: var(--violet-strong);
+  color: var(--atlas-blue);
 }
 .page-heading h1 {
   margin: 0;
@@ -23,7 +23,7 @@
   letter-spacing: -0.04em;
 }
 .page-heading h1 span {
-  color: var(--violet-strong);
+  color: var(--atlas-blue);
 }
 .page-heading > p {
   font-size: 0.82rem;

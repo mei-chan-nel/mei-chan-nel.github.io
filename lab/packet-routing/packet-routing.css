@@ -1,21 +1,21 @@
 .routing-lab { width: min(1560px, calc(100% - 40px)); margin: auto; padding-bottom: 24px; }
 .routing-lab [hidden], .palette-preview[hidden] { display: none !important; }
 .routing-title { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 22px; }
-.routing-title .eyebrow { color: var(--mint-strong); margin: 0 0 7px; font-size: .65rem; }
+.routing-title .eyebrow { color: var(--atlas-blue); margin: 0 0 7px; font-size: .65rem; }
 .routing-title h1 { font-size: clamp(1.35rem, 2.5vw, 2.2rem); margin: 0; font-weight: 700; line-height: 1.4; letter-spacing: -.03em; }
 .routing-title p:last-child { margin: 6px 0 0; color: var(--ink-soft); font-size: .84rem; }
 .routing-lab button, .routing-lab select, .routing-lab input { font: inherit; color: var(--ink); }
 .routing-lab button { border: 1px solid var(--line); border-radius: 8px; background: var(--white); min-height: 40px; padding: 7px 13px; font-size: .78rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
-.routing-lab button:hover { border-color: var(--mint-strong); background: #eef6f1; }
+.routing-lab button:hover { border-color: var(--atlas-blue); background: var(--atlas-soft); }
 .routing-lab button:disabled { opacity: .5; cursor: default; }
 .routing-lab button.primary { background: var(--ink); color: var(--white); border-color: var(--ink); }
-.routing-lab button.primary:hover { background: var(--mint-strong); }
+.routing-lab button.primary:hover { background: var(--atlas-blue); }
 .routing-lab button.danger { color: var(--coral-strong); border-color: #dfb3a9; background: #fff2ed; }
-.routing-lab button[aria-pressed="true"] { background: #e0efe7; border-color: var(--mint-strong); color: #1d5f51; }
-.routing-lab button.primary[aria-pressed="true"] { background: var(--mint-strong); color: white; }
+.routing-lab button[aria-pressed="true"] { background: var(--atlas-soft); border-color: var(--atlas-blue); color: var(--atlas-ink); }
+.routing-lab button.primary[aria-pressed="true"] { background: var(--atlas-blue); color: white; }
 .routing-lab select, .routing-lab input:not([type="checkbox"]) { min-width: 0; width: 100%; min-height: 40px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); font-size: .82rem; }
-.routing-lab :is(button, select, input, summary, a, svg):focus-visible { outline: 3px solid var(--mint-strong); outline-offset: 3px; }
-.routing-lab input[type="checkbox"] { accent-color: var(--mint-strong); width: 17px; height: 17px; }
+.routing-lab :is(button, select, input, summary, a, svg):focus-visible { outline: 3px solid var(--atlas-blue); outline-offset: 3px; }
+.routing-lab input[type="checkbox"] { accent-color: var(--atlas-blue); width: 17px; height: 17px; }
 .help { position: relative; flex: 0 0 auto; font-size: .8rem; }
 .help summary { padding: 8px 13px; cursor: pointer; border: 1px solid var(--line); border-radius: 8px; }
 .help-content { position: absolute; z-index: 40; right: 0; top: 48px; width: min(460px, calc(100vw - 40px)); max-height: 65vh; overflow: auto; padding: 20px 24px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); box-shadow: var(--shadow); }

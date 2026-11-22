@@ -1,34 +1,7 @@
 .lab-content-page {
   padding-bottom: 28px;
 }
-.circuit-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 14px;
-}
-.circuit-heading h1 {
-  font-size: clamp(1.2rem, 3vw, 1.75rem);
-  margin: 0;
-}
-.circuit-lab button,
-.circuit-heading button,
-.circuit-lab select,
-.circuit-dialog button {
-  font: inherit;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  background: var(--white);
-  border-radius: 7px;
-  cursor: pointer;
-}
-.circuit-heading button {
-  font-size: 0.75rem;
-  padding: 6px 10px;
-  white-space: nowrap;
-  min-height: 32px;
-}
+.circuit-heading button { white-space: nowrap; }
 .circuit-workspace {
   display: grid;
   grid-template-columns: 140px minmax(0, 1fr);

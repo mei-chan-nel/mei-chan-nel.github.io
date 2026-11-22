@@ -1,0 +1,21 @@
+/* Shared interface values. Figures and grading own their semantic palettes. */
+:root {
+  --atlas-bg: #f8fafb;
+  --atlas-surface: #fff;
+  --atlas-soft: #edf4f9;
+  --atlas-ink: #18394b;
+  --atlas-muted: #495f70;
+  --atlas-blue: #326596;
+  --atlas-line: #d4dfe7;
+  --atlas-radius: .625rem;
+  --atlas-shadow: 0 2px 8px rgb(24 57 75 / 5%);
+  --atlas-font: "Hiragino Sans", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  --atlas-title: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
+  --atlas-gutter: clamp(1rem, 3.6vw, 3rem);
+  --atlas-page: 74rem;
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--atlas-blue);
+  outline-offset: 3px;
+}

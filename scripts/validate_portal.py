@@ -600,9 +600,14 @@ def main() -> int:
     if "info1LearningRecord:v1" not in home_learning or "summarizeQuestionRecord" not in home_learning or "これまで延べ${attempts}問に回答" not in home_learning or "StudyAtlasLecture" in home_learning:
         errors.append("home-learning.js: safe question-history summary is missing or lecture state leaked")
     site_css = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
-    for marker in (".home-action-grid", ".home-action-heading", ".home-misc-grid", ".video-genre-back-link"):
-        if marker not in site_css:
-            errors.append(f"site.css: required reorganized layout style is missing: {marker}")
+    home_css = (ROOT / "assets" / "home.css").read_text(encoding="utf-8")
+    if 'href="./assets/home.css"' not in top_text:
+        errors.append("index.html: missing home stylesheet")
+    for marker in (".home-action-grid", ".home-action-heading", ".home-misc-grid"):
+        if marker not in home_css:
+            errors.append(f"home.css: required homepage layout style is missing: {marker}")
+    if ".video-genre-back-link" not in site_css:
+        errors.append("site.css: video genre back link style is missing")
     for marker in (".archive-genre-section", ".archive-genre-links", ".archive-genre-link", ".page-numbers", ".page-ellipsis", ".pagination-top", ".field-grid", ".field-card", ".topic-list", ".key-advice"):
         if marker in site_css:
             errors.append(f"site.css: obsolete reorganized-page style remains: {marker}")

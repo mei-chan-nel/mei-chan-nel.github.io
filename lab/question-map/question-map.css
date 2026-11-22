@@ -1,9 +1,9 @@
 .map-hero { padding: 38px 0 28px; }
-.map-hero .eyebrow { color: var(--pink-strong); margin-bottom: 16px; }
+.map-hero .eyebrow { color: var(--atlas-blue); margin-bottom: 16px; }
 .map-hero h1 { margin: 0; font: 500 clamp(2rem, 4.7vw, 3.8rem)/1.4 Georgia, "Yu Mincho", serif; letter-spacing: -.04em; }
-.map-hero h1 em { display: inline-block; color: var(--pink-strong); font-style: normal; }
+.map-hero h1 em { display: inline-block; color: var(--atlas-blue); font-style: normal; }
 .map-hero > p:last-child { color: var(--ink-soft); font-size: .9rem; margin: 14px 0 0; }
-.map-exhibit { border: 1px solid var(--line); border-radius: 22px; background: var(--white); overflow: hidden; }
+.map-exhibit { border: 1px solid var(--line); border-radius: var(--atlas-radius); background: var(--white); overflow: hidden; }
 .map-exhibit button { cursor: pointer; color: var(--ink); font: inherit; }
 .map-layer-controls { padding: 9px 20px; display: flex; justify-content: flex-end; gap: 6px; align-items: center; border-top: 1px solid var(--line); font-size: .77rem; }
 .map-layer-controls button { padding: 7px 16px; min-height: 40px; background: transparent; border: 1px solid transparent; border-radius: 7px; white-space: nowrap; }
