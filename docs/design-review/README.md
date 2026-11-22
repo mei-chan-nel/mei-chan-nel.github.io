@@ -43,4 +43,15 @@
 | 375px | [スマートフォン・改修前](home-baseline-375.webp) | [スマートフォン・改修後](home-after-375.webp) |
 | 1280px | [PC・改修前](home-baseline-1280.webp) | [PC・改修後](home-after-1280.webp) |
 
+## 主要画面の改修後キャプチャ
+
+| 画面 | スマートフォン（375px） | PC（1280px） |
+| --- | --- | --- |
+| 学習アプリ | [375px](quiz-375.webp) | [1280px](quiz-1280.webp) |
+| 実戦演習 | [375px](exam-375.webp) | [1280px](exam-1280.webp) |
+| 用語一覧 | [375px](terms-375.webp) | [1280px](terms-1280.webp) |
+| 講義ノート「情報社会」 | [375px](lecture-375.webp) | [1280px](lecture-1280.webp) |
+| Interactive Lab | [375px](lab-375.webp) | [1280px](lab-1280.webp) |
+| プログラムトレース | [375px](trace-375.webp) | [1280px](trace-1280.webp) |
+
 [デザインガイド](../DESIGN.md)
