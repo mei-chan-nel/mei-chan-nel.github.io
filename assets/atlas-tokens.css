@@ -1,6 +1,6 @@
 /* Shared interface values. Figures and grading own their semantic palettes. */
 :root {
-  --atlas-bg: #f8f6f0;
+  --atlas-bg: #f7f8f8;
   --atlas-surface: #fff;
   --atlas-soft: #edf2e9;
   --atlas-ink: #263e35;
@@ -8,7 +8,6 @@
   --atlas-blue: #326596;
   --atlas-accent: #356459;
   --atlas-terracotta: #b94732;
-  --atlas-ochre: #855f27;
   --atlas-action: #306653;
   --atlas-action-hover: #234e40;
   --atlas-control: #526456;

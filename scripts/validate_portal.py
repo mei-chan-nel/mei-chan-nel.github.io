@@ -555,7 +555,7 @@ def main() -> int:
         if any(position < 0 for position in action_positions) or action_positions != sorted(action_positions):
             errors.append("index.html: main content cards are missing or out of order")
         for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実戦演習"), ("./lab/", "Interactive Lab")):
-            if not re.search(r'<a class="home-action-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
+            if not re.search(r'<a class="home-action-card" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
                 errors.append(f"index.html: main content card/link mismatch: {label}")
         if "共通テスト過去問およびオリジナル模試を受験できます。" not in action_text:
             errors.append("index.html: mock exam description is outdated")
@@ -572,7 +572,7 @@ def main() -> int:
         if any(position < 0 for position in sub_positions) or sub_positions != sorted(sub_positions):
             errors.append("index.html: sub content cards are missing or out of order")
         for href, label in (("./info1-quiz-app/questions/", "問題を探す"), ("./terms/", "用語を調べる"), ("./program-trace/", "プログラムを実行する"), ("./archive/", "解説動画を見る"), ("./LectureNote/", "講義ノートを読む")):
-            if not re.search(r'<a class="home-misc-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<h3>' + re.escape(label) + r'</h3>', sub_text):
+            if not re.search(r'<a class="home-action-card" href="' + re.escape(href) + r'">[^\n]*<h3>' + re.escape(label) + r'</h3>', sub_text):
                 errors.append(f"index.html: sub content card/link mismatch: {label}")
     misc_match = re.search(r'<section class="section home-misc-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
     if misc_match is None:

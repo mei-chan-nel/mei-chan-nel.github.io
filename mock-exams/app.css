@@ -10,7 +10,7 @@
 }
 body {
   margin: 0;
-  background: var(--atlas-bg, #f8f6f0);
+  background: var(--atlas-bg, #f7f8f8);
   color: var(--mock-ink);
   font-family: var(--atlas-font, "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif);
 }
@@ -784,7 +784,7 @@ dialog h2 {
     position: sticky;
     top: 0;
     z-index: 3;
-    background: var(--atlas-bg, #f8f6f0);
+    background: var(--atlas-bg, #f7f8f8);
     padding: 5px 0;
   }
   .book-nav button {
@@ -1015,7 +1015,7 @@ button.subtle-button {
   padding: 6px 10px;
   min-height: 34px;
   color: var(--mock-muted);
-  background: var(--atlas-bg, #f8f6f0);
+  background: var(--atlas-bg, #f7f8f8);
 }
 .result-actions .back-to-catalog {
   margin-left: 24px;
@@ -1056,7 +1056,7 @@ button.subtle-button {
   font-weight: 600;
 }
 .results .summary-table tfoot {
-  background: var(--atlas-bg, #f8f6f0);
+  background: var(--atlas-bg, #f7f8f8);
 }
 .results .score-maximum {
   white-space: nowrap;
@@ -1286,7 +1286,7 @@ body[data-view="workspace"] > .preview-banner {
   min-height: 36px;
 }
 .history-table tbody tr:hover {
-  background: var(--atlas-bg, #f8f6f0);
+  background: var(--atlas-bg, #f7f8f8);
 }
 .result-actions > button:not(.subtle-danger) {
   font-size: 13px;
@@ -1322,7 +1322,7 @@ body[data-view="workspace"] > .preview-banner {
     position: sticky;
     top: 0;
     z-index: 6;
-    background: var(--atlas-bg, #f8f6f0);
+    background: var(--atlas-bg, #f7f8f8);
     padding: 5px 0;
     gap: 8px;
   }
