@@ -1,11 +1,13 @@
 // Catalog only: exam data, grading, history tables and reading UI load on demand.
-import { mountCompactNav } from "../assets/atlas-compact-nav.mjs";
+import { bindHeaderScroll, mountCompactNav } from "../assets/atlas-compact-nav.mjs";
 import { AttemptStore } from "./engine/attempt.mjs";
 import {
   defaultCatalogView,
   renderCatalogContents,
 } from "./ui/catalog-page.mjs?v=20261120-mobile-confirm";
-mountCompactNav(document.querySelector(".site-header"));
+const siteHeader = document.querySelector(".site-header");
+mountCompactNav(siteHeader);
+bindHeaderScroll(siteHeader, { mobileOnly: true });
 
 const target = document.querySelector("#app"),
   store = new AttemptStore();

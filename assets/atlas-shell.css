@@ -2,7 +2,7 @@
 .skip-link { position: fixed; z-index: 100; top: 10px; left: 10px; padding: 10px 16px; color: white; background: var(--atlas-ink); border-radius: 8px; transform: translateY(-150%); }
 .skip-link:focus { transform: none; }
 .site-header { position: sticky; z-index: 50; top: 0; border-bottom: 1px solid var(--atlas-line); background: var(--atlas-surface); transform: translateY(0); transition: transform .24s ease, box-shadow .24s ease; will-change: transform; }
-.site-header.is-header-hidden { transform: translateY(calc(-100% - 2px)); }
+:is(.site-header, body > .app-mini-nav).is-header-hidden { transform: translateY(calc(-100% - 2px)); }
 .header-inner { width: min(var(--atlas-page), calc(100% - 2 * var(--atlas-gutter))); min-height: 72px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .brand { flex-shrink: 0; display: flex; align-items: center; gap: 12px; color: var(--atlas-ink); text-decoration: none; }
 .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; color: transparent; background: url("./favicon.svg") center / contain no-repeat; font-size: 0; }
@@ -38,6 +38,7 @@
   border-bottom: 1px solid rgba(23, 48, 66, .14);
   box-shadow: 0 3px 14px rgba(24, 32, 42, .05);
   backdrop-filter: blur(12px);
+  transition: transform .24s ease;
 }
 .app-mini-nav__brand { min-height: 44px; display: inline-flex; align-items: center; gap: 8px; color: inherit; text-decoration: none; }
 .app-mini-nav__brand > span {
@@ -74,7 +75,7 @@
 .site-header > .app-mini-nav { display: none; }
 
 @media (max-width: 767px) {
-  .site-header.has-compact-nav { transform: none; border-bottom: 0; }
+  .site-header.has-compact-nav { border-bottom: 0; }
   .site-header.has-compact-nav > .header-inner { display: none; }
   .site-header.has-compact-nav > .app-mini-nav { display: flex; position: relative; }
 }
@@ -107,5 +108,5 @@
   .footer-grid nav { justify-content: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .site-header, .horizontal-scroll-cue__edge { transition: none; }
+  .site-header, .app-mini-nav, .horizontal-scroll-cue__edge { transition: none; }
 }

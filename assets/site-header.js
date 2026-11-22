@@ -141,12 +141,17 @@
   );
   syncNavigation(document.querySelector(".app-mini-nav__menu"), navItems);
 
-  if (!document.querySelector("body > .app-mini-nav")) {
-    import(new URL("./atlas-compact-nav.mjs", sharedScript.src))
-      .then(({ mountCompactNav }) => mountCompactNav(header))
-      .catch(() => { /* The static site navigation remains available. */ });
-  }
-
+  import(new URL("./atlas-compact-nav.mjs", sharedScript.src))
+    .then(({ mountCompactNav, bindHeaderScroll }) => {
+      const appHeader = document.querySelector("body > .app-mini-nav");
+      if (appHeader) {
+        bindHeaderScroll(appHeader, { mobileOnly: true });
+      } else {
+        mountCompactNav(header);
+        bindHeaderScroll(header);
+      }
+    })
+    .catch(() => { /* The static site navigation remains available. */ });
 
   const initHorizontalScrollCue = (scroller, options = {}) => {
     if (!scroller || scroller.closest(".horizontal-scroll-cue")) return;
@@ -213,15 +218,8 @@
   if (!header) return;
 
   const root = document.documentElement;
-  const directionThreshold = 10;
-  let lastY = 0;
-  let directionAnchor = lastY;
-  let direction = 0;
-  let ticking = false;
-  let headerHeight = 86;
   const readHeaderHeight = () => {
-    headerHeight = header.getBoundingClientRect().height;
-    root.style.setProperty("--site-header-height", `${headerHeight}px`);
+    root.style.setProperty("--site-header-height", `${header.getBoundingClientRect().height}px`);
   };
   readHeaderHeight();
   if ("ResizeObserver" in window) {
@@ -229,8 +227,7 @@
       const borderBox = entries[0]?.borderBoxSize;
       const size = Array.isArray(borderBox) ? borderBox[0]?.blockSize : borderBox?.blockSize;
       if (size > 0) {
-        headerHeight = size;
-        root.style.setProperty("--site-header-height", `${headerHeight}px`);
+        root.style.setProperty("--site-header-height", `${size}px`);
       }
     }).observe(header);
   } else {
@@ -239,49 +236,4 @@
     window.addEventListener("resize", scheduleHeaderHeightRead, { passive: true });
   }
 
-  const showHeader = () => {
-    header.classList.remove("is-header-hidden");
-    root.classList.remove("header-is-hidden");
-  };
-
-  const hideHeader = () => {
-    if (header.contains(document.activeElement)) return;
-    header.classList.add("is-header-hidden");
-    root.classList.add("header-is-hidden");
-  };
-
-  const updateHeader = () => {
-    const currentY = Math.max(window.scrollY, 0);
-    const delta = currentY - lastY;
-
-    if (currentY <= headerHeight) {
-      showHeader();
-      direction = 0;
-      directionAnchor = currentY;
-    } else if (delta > 0) {
-      if (direction !== 1) {
-        direction = 1;
-        directionAnchor = currentY;
-      }
-      if (currentY - directionAnchor >= directionThreshold) hideHeader();
-    } else if (delta < 0) {
-      if (direction !== -1) {
-        direction = -1;
-        directionAnchor = currentY;
-      }
-      if (directionAnchor - currentY >= directionThreshold) showHeader();
-    }
-
-    lastY = currentY;
-    ticking = false;
-  };
-
-  window.addEventListener("scroll", () => {
-    if (ticking) return;
-    ticking = true;
-    window.requestAnimationFrame(updateHeader);
-  }, { passive: true });
-
-  header.addEventListener("focusin", showHeader);
-  window.addEventListener("pageshow", showHeader);
 })();

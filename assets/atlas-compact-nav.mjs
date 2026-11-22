@@ -37,3 +37,55 @@ export function mountCompactNav(header) {
   window.addEventListener("pageshow", () => setOpen(false));
   window.matchMedia("(max-width: 767px)").addEventListener("change", () => setOpen(false));
 }
+
+// Keep small scroll adjustments from flickering the header.
+export function bindHeaderScroll(header, { mobileOnly = false, onVisibilityChange } = {}) {
+  if (!header) return;
+  const viewport = window.matchMedia("(max-width: 767px)");
+  const root = document.documentElement;
+  const threshold = 10;
+  const position = () => Math.max(0, window.scrollY);
+  let last = position();
+  let anchor = last;
+  let direction = 0;
+  let frame = 0;
+
+  const setHidden = (hidden) => {
+    const changed = header.classList.contains("is-header-hidden") !== hidden;
+    header.classList.toggle("is-header-hidden", hidden);
+    root.classList.toggle("header-is-hidden", hidden);
+    if (changed) onVisibilityChange?.();
+  };
+  const reset = () => {
+    anchor = last = position();
+    direction = 0;
+    setHidden(false);
+  };
+  const update = () => {
+    frame = 0;
+    const current = position();
+    const nextDirection = Math.sign(current - last);
+    const active = document.activeElement;
+    const menuOpen = header.querySelector(".app-mini-nav__menu:not([hidden])");
+    const keyboardFocus = header.contains(active) && active.matches(":focus-visible");
+    const height = header.offsetHeight;
+
+    if ((mobileOnly && !viewport.matches) || height === 0 ||
+        current <= height || keyboardFocus || menuOpen) {
+      reset();
+      return;
+    }
+    if (nextDirection && nextDirection !== direction) {
+      direction = nextDirection;
+      anchor = last;
+    }
+    if (Math.abs(current - anchor) >= threshold) setHidden(direction > 0);
+    last = current;
+  };
+  window.addEventListener("scroll", () => {
+    if (!frame) frame = window.requestAnimationFrame(update);
+  }, { passive: true });
+  window.addEventListener("pageshow", reset);
+  viewport.addEventListener("change", reset);
+  header.addEventListener("focusin", reset);
+}

@@ -1,13 +1,12 @@
 // Lab pages keep their static navigation and independent canvas layout.
-import { mountCompactNav } from "../assets/atlas-compact-nav.mjs";
+import { bindHeaderScroll, mountCompactNav } from "../assets/atlas-compact-nav.mjs";
 
 const header = document.querySelector(".site-header");
 mountCompactNav(header);
-const compactViewport = window.matchMedia("(max-width: 767px)");
 const offset = () =>
   document.documentElement.style.setProperty(
     "--lab-header-offset",
-    `${!compactViewport.matches && header?.classList.contains("is-header-hidden") ? 0 : (header?.getBoundingClientRect().height ?? 0)}px`,
+    `${header?.classList.contains("is-header-hidden") ? 0 : (header?.getBoundingClientRect().height ?? 0)}px`,
   );
 if (header) new ResizeObserver(offset).observe(header);
 offset();
@@ -43,25 +42,4 @@ if (nav) {
   new ResizeObserver(update).observe(nav);
   update();
 }
-let last = window.scrollY;
-window.addEventListener(
-  "scroll",
-  () => {
-    const current = window.scrollY;
-    if (Math.abs(current - last) < 8) return;
-    header?.classList.toggle(
-      "is-header-hidden",
-      !compactViewport.matches &&
-        current > 180 &&
-        current > last &&
-        !header.contains(document.activeElement),
-    );
-    offset();
-    last = current;
-  },
-  { passive: true },
-);
-header?.addEventListener("focusin", () => {
-  header.classList.remove("is-header-hidden");
-  offset();
-});
+bindHeaderScroll(header, { onVisibilityChange: offset });
