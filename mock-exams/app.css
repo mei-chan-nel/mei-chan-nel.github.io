@@ -161,6 +161,7 @@ button:disabled {
   flex-direction: column;
   gap: 9px;
   padding: 24px;
+  border-inline-start: var(--atlas-card-edge);
   border-radius: var(--atlas-radius, 8px);
   text-align: left;
   line-height: 1.7;
@@ -359,6 +360,7 @@ button:disabled {
   .exam-card.catalog-exam {
     position: relative;
     padding: .85rem 2rem .85rem 1rem;
+    border-inline-start: var(--atlas-card-edge);
     min-height: 50px;
   }
   .catalog-exam .exam-card-title {

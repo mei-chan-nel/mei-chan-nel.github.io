@@ -5,6 +5,7 @@ a:is(.home-action-card, .home-other-card, .archive-field-card, .archive-course-c
   color: var(--atlas-ink);
   background: var(--atlas-surface);
   border: 1px solid var(--atlas-line);
+  border-inline-start: var(--atlas-card-edge);
   border-radius: var(--atlas-radius);
   text-decoration: none;
 }
