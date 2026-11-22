@@ -122,7 +122,7 @@ function draw() {
     ]
       .map(
         ([id, title, question, slug], i) =>
-          `<article class="project-method"><a class="archive-field-card" href="../${slug}/?dataset=project${id === "correlation" ? "" : "&field=y"}"><span aria-hidden="true">0${i + 1}</span><div><h2>${title}</h2><p>${question}</p><small>${id === "correlation" ? esc(dataset.xLabel) + " × " : ""}${esc(dataset.yLabel)}</small></div><b aria-hidden="true">→</b></a>${id !== "correlation" ? `<a class="text-link" href="../${slug}/?dataset=project&field=x">${esc(dataset.xLabel)}で調べる →</a>` : ""}</article>`,
+          `<article class="project-method"><a class="archive-field-card" href="../${slug}/?dataset=project${id === "correlation" ? "" : "&field=y"}"><span aria-hidden="true">0${i + 1}</span><div><h2>${title}</h2><p>${question}</p><small>${id === "correlation" ? esc(dataset.xLabel) + " × " : ""}${esc(dataset.yLabel)}</small></div></a>${id !== "correlation" ? `<a class="text-link" href="../${slug}/?dataset=project&field=x">${esc(dataset.xLabel)}で調べる →</a>` : ""}</article>`,
       )
       .join(
         "",

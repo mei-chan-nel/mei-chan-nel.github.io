@@ -37,7 +37,6 @@ h1:focus { outline: none; }
 .studio-entry-card h3 { margin: 0 0 8px; font: 600 1.3rem var(--serif); }
 .studio-entry-card p { margin: 0; color: var(--ink-soft); font-size: .9375rem; }
 .studio-entry-card strong { display: flex; align-items: center; gap: 10px; margin-left: auto; color: var(--atlas-accent); font-size: .75rem; white-space: nowrap; }
-.studio-entry-card .card-arrow { color: var(--atlas-accent); border-color: var(--atlas-accent); }
 @media (max-width: 800px) { .studio-entry-card { flex-wrap: wrap; gap: 14px; padding: 20px; } .studio-entry-card > div { flex: 1 1 230px; } .studio-entry-card strong { width: 100%; justify-content: flex-end; } }
 .example-card { --accent: var(--atlas-accent); position: relative; display: flex; flex-direction: column; grid-column: span 4; padding: 23px 24px 18px; min-width: 0; }
 .example-card:nth-child(n+4) { grid-column: span 6; }
@@ -57,7 +56,6 @@ h1:focus { outline: none; }
 .token-branch { color: #7d9088; }
 .card-bottom { margin-top: auto; padding-top: 12px; display: flex; align-items: center; justify-content: flex-end; border-top: 1px solid var(--line); }
 .card-bottom strong { color: var(--accent); font-size: .73rem; display: flex; align-items: center; gap: 9px; }
-.card-arrow { display: grid; place-items: center; align-self: auto; margin-top: 0; width: 28px; height: 28px; border: 1px solid var(--accent); border-radius: 50%; background: transparent; color: var(--accent); font-size: .9rem; }
 .runner-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 0 25px; }
 .runner-heading .eyebrow { margin-bottom: 8px; }
 .runner-heading h1 { margin: 0; font: 600 clamp(1.6rem, 2.2vw, 2rem)/1.5 var(--serif); letter-spacing: -.025em; }
