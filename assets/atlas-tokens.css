@@ -2,18 +2,20 @@
 :root {
   --atlas-bg: #f7f8f8;
   --atlas-surface: #fff;
-  --atlas-soft: #edf2e9;
-  --atlas-ink: #263e35;
-  --atlas-muted: #526354;
+  --atlas-soft: #edf3f9;
+  --atlas-ink: #18394b;
+  --atlas-muted: #495f70;
   --atlas-blue: #326596;
-  --atlas-accent: #356459;
+  --atlas-accent: #326596;
   --atlas-terracotta: #b94732;
   --atlas-selected: #18394b;
   --atlas-action: #306653;
   --atlas-action-hover: #234e40;
-  --atlas-control: #526456;
-  --atlas-control-hover: #394e40;
-  --atlas-line: #d9ded1;
+  --atlas-control: #4b6371;
+  --atlas-control-hover: #374e5a;
+  --atlas-note: #f7f9fc;
+  --atlas-note-line: #aabfd1;
+  --atlas-line: #d5e0e8;
   --atlas-radius: .625rem;
   --atlas-shadow: 0 2px 8px rgb(24 57 75 / 5%);
   --atlas-font: "Hiragino Sans", "Yu Gothic", Meiryo, system-ui, sans-serif;

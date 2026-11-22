@@ -10,7 +10,7 @@ manifest=json.loads((target/'.openai/hosting.json').read_text())
 assert manifest['project_id']=='appgprj_6ae110a637e08191bc9ddecdd9bb6571'
 origin='https://study-atlas-mock-exams-preview.hal2718.chatgpt.site'
 dist=target/'dist'
-for name in ['site.css','atlas-tokens.css','atlas-shell.css','home.css','home-icons.png','site-header.js','home-learning.js','favicon.svg']:
+for name in ['site.css','atlas-tokens.css','atlas-shell.css','atlas-components.css','home.css','home-icons.png','site-header.js','home-learning.js','favicon.svg']:
  (dist/'assets').mkdir(exist_ok=True);shutil.copyfile(root/'assets'/name,dist/'assets'/name)
 # Keep dynamic shared navigation consistent with the rewritten static links.
 # Other portal pages live on Study Atlas, while the home and mock stay here.

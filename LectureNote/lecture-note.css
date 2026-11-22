@@ -1,5 +1,6 @@
 @import url("../assets/atlas-tokens.css");
 @import url("../assets/atlas-shell.css");
+@import url("../assets/atlas-components.css");
 
 :root {
   --ink: var(--atlas-ink);
@@ -80,9 +81,6 @@ button { font: inherit; }
 .lecture-learning-guide {
   margin: 0 0 20px;
   padding: clamp(20px, 3vw, 30px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
 }
 .lecture-learning-guide__heading p { margin: 0 0 3px; color: var(--accent); font-size: 10px; font-weight: 900; letter-spacing: .15em; }
 .lecture-learning-guide__heading h2 { margin: 0; font-size: clamp(19px, 2.4vw, 26px); line-height: 1.45; }
@@ -93,14 +91,7 @@ button { font: inherit; }
   display: grid;
   align-content: center;
   gap: 3px;
-  color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  text-decoration: none;
-  transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
 }
-.lecture-learning-choice:hover { border-color: var(--accent); box-shadow: 0 8px 20px rgba(20, 48, 63, .07); transform: translateY(-1px); }
 .lecture-learning-choice strong { font-size: 14px; }
 .lecture-learning-choice span { color: var(--muted); font-size: .875rem; }
 .lecture-learning-choice:focus-visible, .lecture-keyword-index summary:focus-visible, .lecture-keyword-index a:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 38%, white); outline-offset: 3px; }
@@ -210,10 +201,6 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .lecture-section {
   margin: 0 0 30px;
   padding: clamp(24px, 4vw, 48px);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
   scroll-margin-top: 104px;
 }
 .section-heading {
@@ -293,28 +280,14 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .concept-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .compare-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .three-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.concept-card {
-  padding: 20px;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  background: #fbfcfc;
-}
 .concept-card > :first-child { margin-top: 0; }
 .concept-card h3, .concept-card h4 { margin: 0 0 8px; color: var(--accent); }
 .concept-card p:last-child { margin-bottom: 0; }
-.concept-card.warm,
-.concept-card.green,
-.concept-card.violet { background: #fff; border-color: var(--line); }
 
 .key-point, .warning, .practice {
   margin: 24px 0;
   padding: 18px 20px;
-  border-left: 5px solid var(--accent);
-  border-radius: 0 14px 14px 0;
-  background: var(--accent-soft);
 }
-.warning { border-left-color: var(--warm); background: var(--warm-soft); }
-.practice { border-left-color: var(--green); background: var(--green-soft); }
 .key-point > :last-child, .warning > :last-child, .practice > :last-child { margin-bottom: 0; }
 .notation-example { margin: 24px 0; }
 .notation-example > strong { display: block; margin-bottom: 10px; color: var(--accent); font-weight: 800; }
@@ -933,9 +906,6 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .mini-quiz {
   margin-top: 26px;
   padding: 20px;
-  border: 1px dashed var(--accent);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--accent-soft) 55%, white);
 }
 .mini-quiz b { color: var(--accent); }
 
@@ -983,7 +953,7 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 
 .deep-dive[open] summary {
   border-bottom: 1px solid var(--line);
-  background: var(--accent-soft);
+  background: var(--atlas-note);
 }
 
 .deep-dive[open] summary::after { content: "−"; }
@@ -998,14 +968,7 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
   padding: 16px 48px 16px 17px;
   display: grid;
   gap: 3px;
-  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--line));
-  border-radius: 13px;
-  color: var(--ink);
-  background: color-mix(in srgb, var(--accent-soft) 55%, white);
-  text-decoration: none;
 }
-.official-link:hover { border-color: var(--accent); background: var(--accent-soft); }
-.official-link:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 30%, white); outline-offset: 3px; }
 .official-link-kicker { color: var(--accent); font-size: 10px; font-weight: 900; letter-spacing: 0.12em; }
 .official-link strong { line-height: 1.45; }
 .official-link small { color: var(--muted); font-size: 12px; line-height: 1.55; }

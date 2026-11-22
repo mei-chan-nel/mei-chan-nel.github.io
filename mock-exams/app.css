@@ -1,9 +1,9 @@
 :root {
-  --mock-ink: var(--atlas-ink, #263e35);
-  --mock-accent: var(--atlas-accent, #356459);
-  --mock-line: var(--atlas-line, #d9ded1);
+  --mock-ink: var(--atlas-ink, #18394b);
+  --mock-accent: var(--atlas-accent, #326596);
+  --mock-line: var(--atlas-line, #d5e0e8);
   --mock-paper: var(--atlas-surface, white);
-  --mock-muted: var(--atlas-muted, #526354);
+  --mock-muted: var(--atlas-muted, #495f70);
 }
 * {
   box-sizing: border-box;
@@ -33,7 +33,7 @@ button,
 }
 button:hover,
 .mock-button:hover {
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
 }
 button:focus-visible,
 a:focus-visible,
@@ -321,7 +321,7 @@ button:disabled {
   padding: 3px 10px;
   border-radius: 20px;
   color: var(--mock-muted);
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
   font-size: 12px;
   white-space: nowrap;
 }
@@ -699,7 +699,7 @@ dialog h2 {
 }
 .stat-note {
   padding: 14px;
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
   font-size: 13px;
   line-height: 1.7;
 }
@@ -1053,7 +1053,7 @@ button.subtle-button {
 }
 .results .summary-table thead th,
 .results #unit-table thead th {
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
   font-weight: 600;
 }
 .results .summary-table tfoot {
@@ -1266,7 +1266,7 @@ body[data-view="workspace"] > .preview-banner {
   line-height: 1.6;
 }
 .history-table thead th {
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -1298,7 +1298,7 @@ body[data-view="workspace"] > .preview-banner {
   margin: 0 0 16px;
   padding: 10px 14px;
   border-left: 3px solid var(--mock-accent);
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
   color: var(--mock-ink);
   font-size: 13px;
   line-height: 1.7;
@@ -1387,7 +1387,7 @@ button.filter-chip {
   font-size: 12px;
   padding: 4px 9px;
   min-height: 30px;
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
 }
 .history-table thead th {
   padding: 0;
@@ -1411,7 +1411,7 @@ button.filter-chip {
 }
 .history-table thead button:hover,
 .history-table thead button.filtered {
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
 }
 .column-indicator {
   position: absolute;
@@ -1520,7 +1520,7 @@ button.filter-chip {
   margin-bottom: 10px;
 }
 .column-value-list label:hover {
-  background: var(--atlas-soft, #edf2e9);
+  background: var(--atlas-soft, #edf3f9);
 }
 #history-column-menu input[type="checkbox"] {
   accent-color: var(--mock-accent);

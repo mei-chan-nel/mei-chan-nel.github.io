@@ -59,19 +59,13 @@
   gap: 1rem;
 }
 
-.home-action-card, .home-other-card {
-  color: var(--atlas-ink);
-  text-decoration: none;
-  background: var(--atlas-surface);
-  border: 1px solid var(--atlas-line);
-  border-radius: .4rem;
-}
 
-.home-action-card {
+
+.home-page a.home-action-card {
   display: flex;
   flex-direction: column;
   padding: clamp(1rem, 2vw, 1.55rem);
-  border-inline-start: 3px solid var(--atlas-action);
+  border-inline-start: 3px solid var(--atlas-selected);
 }
 
 .home-action-heading { display: flex; align-items: center; gap: .65rem; }
@@ -106,7 +100,7 @@
 .icon-help { --icon-position: 90%; }
 .icon-book { --icon-position: 100%; }
 
-.home-misc-grid .home-action-card {
+.home-misc-grid a.home-action-card {
   padding: .875rem 1rem;
   border-inline-start: 1px solid var(--atlas-line);
 }
@@ -127,16 +121,9 @@
   gap: 9px;
 }
 .home-other-card h3 { font-size: .9rem; }
-.home-action-card:focus-visible, .home-other-card:focus-visible, .hero-about-link a:focus-visible {
+.hero-about-link a:focus-visible {
   outline: 3px solid var(--atlas-accent);
   outline-offset: 3px;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  :is(.home-action-card, .home-other-card):hover h3 {
-    text-decoration: underline;
-    text-underline-offset: .2em;
-  }
 }
 
 @media (max-width: 58rem) {

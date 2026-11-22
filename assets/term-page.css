@@ -23,8 +23,6 @@
 .term-copy .term-formula {
   margin: 22px 0;
   padding: 18px 22px;
-  border-left: 3px solid var(--atlas-accent);
-  background: var(--white);
   color: var(--ink);
   font-family: "Cascadia Code", "BIZ UDGothic", Consolas, monospace;
   font-size: .9rem;
