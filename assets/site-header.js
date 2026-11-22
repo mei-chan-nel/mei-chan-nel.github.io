@@ -141,6 +141,13 @@
   );
   syncNavigation(document.querySelector(".app-mini-nav__menu"), navItems);
 
+  if (!document.querySelector("body > .app-mini-nav")) {
+    import(new URL("./atlas-compact-nav.mjs", sharedScript.src))
+      .then(({ mountCompactNav }) => mountCompactNav(header))
+      .catch(() => { /* The static site navigation remains available. */ });
+  }
+
+
   const initHorizontalScrollCue = (scroller, options = {}) => {
     if (!scroller || scroller.closest(".horizontal-scroll-cue")) return;
     const shell = document.createElement("div");

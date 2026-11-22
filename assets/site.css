@@ -390,3 +390,7 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .archive-field-section > .section-heading { margin-bottom: 14px; }
 .archive-field-section > .archive-field-grid { margin-top: 0; }
 .archive-field-section + .archive-field-section { margin-top: 48px; }
+
+@media (max-width: 767px) {
+  html:has(.site-header.has-compact-nav) { scroll-padding-top: 56px; }
+}

@@ -1,9 +1,13 @@
 // Lab pages keep their static navigation and independent canvas layout.
+import { mountCompactNav } from "../assets/atlas-compact-nav.mjs";
+
 const header = document.querySelector(".site-header");
+mountCompactNav(header);
+const compactViewport = window.matchMedia("(max-width: 767px)");
 const offset = () =>
   document.documentElement.style.setProperty(
     "--lab-header-offset",
-    `${header?.classList.contains("is-header-hidden") ? 0 : (header?.getBoundingClientRect().height ?? 0)}px`,
+    `${!compactViewport.matches && header?.classList.contains("is-header-hidden") ? 0 : (header?.getBoundingClientRect().height ?? 0)}px`,
   );
 if (header) new ResizeObserver(offset).observe(header);
 offset();
@@ -47,7 +51,8 @@ window.addEventListener(
     if (Math.abs(current - last) < 8) return;
     header?.classList.toggle(
       "is-header-hidden",
-      current > 180 &&
+      !compactViewport.matches &&
+        current > 180 &&
         current > last &&
         !header.contains(document.activeElement),
     );

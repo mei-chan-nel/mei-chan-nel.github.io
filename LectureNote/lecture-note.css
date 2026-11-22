@@ -1149,3 +1149,8 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
   .lecture-back-to-top { transition: none; }
   .lecture-learning-choice, .section-bookmark, .keyword-target { transition: none; }
 }
+
+@media (max-width: 767px) {
+  html:has(.site-header.has-compact-nav) { scroll-padding-top: 56px; }
+  .has-compact-nav ~ main .lecture-section { scroll-margin-top: 0; }
+}
