@@ -35,7 +35,8 @@ img { max-width: 100%; }
 .page-hero h1 { margin: 0; font-family: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif; font-weight: 500; letter-spacing: -.035em; line-height: 1.18; }
 .button { min-height: 52px; padding: 12px 24px; display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--ink); border-radius: var(--atlas-radius); font-size: 1rem; font-weight: 700; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
 .button:hover { box-shadow: var(--atlas-shadow); text-decoration: underline; text-underline-offset: .2em; }
-.button-primary { color: var(--white); background: var(--ink); }
+.button-primary { color: var(--white); background: var(--atlas-control); border-color: var(--atlas-control); }
+.button-primary:hover { background: var(--atlas-control-hover); }
 .button-ghost { background: transparent; }
 .button-light { border-color: var(--white); color: var(--ink); background: var(--white); }
 
@@ -275,7 +276,8 @@ ins.adsbygoogle[data-ad-status="unfilled"] { display: none !important; }
 .tag-challenge-stepper-button { width: 38px; min-height: 28px; padding: 0; border: 1px solid rgb(16 47 53 / 28%); border-radius: 7px; color: var(--ink); background: var(--white); cursor: pointer; font: inherit; font-size: .72rem; font-weight: 900; line-height: 1; }
 .tag-challenge-stepper-button:hover:not(:disabled), .tag-challenge-stepper-button:focus-visible { border-color: var(--atlas-blue); background: #f9e8e2; }
 .tag-challenge-stepper-button:disabled { opacity: .4; cursor: not-allowed; }
-.tag-challenge-start { min-width: 260px; border: 1px solid var(--ink); cursor: pointer; font: inherit; }
+.tag-challenge-start { min-width: 260px; color: white; background: var(--atlas-action); border: 1px solid var(--atlas-action); cursor: pointer; font: inherit; }
+.tag-challenge-start:hover:not(:disabled) { background: var(--atlas-action-hover); }
 .tag-challenge-start:disabled { opacity: .48; cursor: not-allowed; transform: none; box-shadow: none; }
 .filter-result-list { display: block; }
 .filtered-question-shell { margin: 0; padding: 0; border: 0; }

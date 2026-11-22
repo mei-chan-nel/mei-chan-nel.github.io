@@ -6,6 +6,10 @@
   --atlas-ink: #18394b;
   --atlas-muted: #495f70;
   --atlas-blue: #326596;
+  --atlas-action: #306653;
+  --atlas-action-hover: #234e40;
+  --atlas-control: #4b6371;
+  --atlas-control-hover: #374e5a;
   --atlas-line: #d4dfe7;
   --atlas-radius: .625rem;
   --atlas-shadow: 0 2px 8px rgb(24 57 75 / 5%);

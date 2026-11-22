@@ -44,10 +44,17 @@ summary:focus-visible {
   outline-offset: 3px;
 }
 button.primary {
-  background: var(--mock-accent);
+  background: var(--atlas-control);
   color: white;
-  border-color: var(--mock-accent);
+  border-color: var(--atlas-control);
 }
+button.primary:hover { background: var(--atlas-control-hover); }
+button:is([data-start], [data-resume], .resume-action) {
+  color: white;
+  background: var(--atlas-action);
+  border-color: var(--atlas-action);
+}
+button:is([data-start], [data-resume], .resume-action):hover { background: var(--atlas-action-hover); }
 button:disabled {
   cursor: default;
   opacity: 0.6;

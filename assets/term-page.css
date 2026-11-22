@@ -219,10 +219,13 @@
 .term-challenge-button {
   flex: 0 0 auto;
   min-width: 220px;
-  border: 1px solid var(--ink);
+  background: var(--atlas-action);
+  border: 1px solid var(--atlas-action);
   cursor: pointer;
   font: inherit;
 }
+
+.term-challenge-button:hover:not(:disabled) { background: var(--atlas-action-hover); }
 
 .term-challenge-button:disabled {
   opacity: .55;
