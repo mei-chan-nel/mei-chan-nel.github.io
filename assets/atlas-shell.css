@@ -3,7 +3,7 @@
 .skip-link:focus { transform: none; }
 .site-header { position: sticky; z-index: 50; top: 0; border-bottom: 1px solid var(--atlas-line); background: var(--atlas-surface); transform: translateY(0); transition: transform .24s ease, box-shadow .24s ease; will-change: transform; }
 :is(.site-header, body > .app-mini-nav).is-header-hidden { transform: translateY(calc(-100% - 2px)); }
-.header-inner { width: min(var(--atlas-page), calc(100% - 2 * var(--atlas-gutter))); min-height: 72px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.header-inner { width: var(--atlas-frame); min-height: 72px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
 .brand { flex-shrink: 0; display: flex; align-items: center; gap: 12px; color: var(--atlas-ink); text-decoration: none; }
 .brand-mark { width: 42px; height: 42px; display: grid; place-items: center; color: transparent; background: url("./favicon.svg") center / contain no-repeat; font-size: 0; }
 .brand strong, .brand small { display: block; line-height: 1.25; }
@@ -91,6 +91,25 @@
 .footer-grid nav a { color: rgb(255 255 255 / 88%); font-size: .875rem; text-underline-offset: 5px; }
 .copyright { width: min(1180px, calc(100% - 40px)); margin: 32px auto 0; padding-top: 17px; border-top: 1px solid rgb(255 255 255 / 20%); color: rgb(255 255 255 / 74%); }
 
+
+/* Desktop pages share their outer frame. Reading columns and tools set their own inner layout. */
+@media screen and (min-width: 64rem) {
+  html { scrollbar-gutter: stable; }
+
+  body:not(.home-page) > main:is(#main-content, #main, #app) {
+    width: var(--atlas-frame);
+    max-width: none;
+    margin-inline: auto;
+  }
+
+  .footer-grid, .copyright { width: var(--atlas-frame); }
+  body > .app-mini-nav {
+    padding-inline: max(var(--atlas-gutter), calc((100% - var(--atlas-page)) / 2));
+  }
+  body > .app-mini-nav .app-mini-nav__menu {
+    right: max(var(--atlas-gutter), calc((100% - var(--atlas-page)) / 2));
+  }
+}
 
 @media (max-width: 68rem) {
   .header-inner { flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 9px; }

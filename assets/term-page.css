@@ -72,6 +72,10 @@
   margin: 18px auto 90px;
 }
 
+@media screen and (min-width: 64rem) {
+  .term-list-section { max-width: none; }
+}
+
 .term-list {
   margin: 0;
   padding: 0;

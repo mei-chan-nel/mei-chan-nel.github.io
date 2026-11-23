@@ -1569,3 +1569,8 @@ button.column-clear {
   white-space: nowrap;
   padding-inline: min(2vw, 14px);
 }
+
+@media screen and (min-width: 64rem) {
+  #app { padding-inline: 0; }
+  .catalog-page, .history-page, .results { max-width: none; }
+}

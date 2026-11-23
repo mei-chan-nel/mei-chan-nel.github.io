@@ -218,6 +218,9 @@
 .history-row summary { color: var(--amber-strong); cursor: pointer; }
 .model-note { max-width: 1050px; font-size: .7rem; color: var(--ink-soft); margin: 16px 0 0; }
 .lab-footer { width: min(1560px, calc(100% - 40px)); margin: auto; border-top: 1px solid var(--line); padding: 20px 0 30px; display: flex; justify-content: space-between; gap: 16px; font-size: .72rem; color: var(--ink-soft); }
+@media screen and (min-width: 64rem) {
+  .lab-footer { width: var(--atlas-frame); }
+}
 @media (max-width: 1150px) {
   .network-heading-tools { gap: 7px; }
   .legend { gap: 7px; }

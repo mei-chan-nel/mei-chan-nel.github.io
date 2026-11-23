@@ -24,6 +24,7 @@
   --atlas-title: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
   --atlas-gutter: clamp(1rem, 3.6vw, 3rem);
   --atlas-page: 74rem;
+  --atlas-frame: min(var(--atlas-page), calc(100% - 2 * var(--atlas-gutter)));
 }
 
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
