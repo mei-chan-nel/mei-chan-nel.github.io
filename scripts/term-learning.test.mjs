@@ -100,6 +100,19 @@ test('single-word relevance ranks exact, prefix, substring, body regardless of r
   assert.equal(scores.get('body'),4);
 });
 
+test('comma alternatives retain relevance and highlight only matched groups', () => {
+  const terms = ['both', 'other', 'missing'].map(tag => ({ tag }));
+  const searchData = {
+    both: {title: 'Alpha', body: 'beta with alpha'},
+    other: {title: 'Gamma', body: ''},
+    missing: {title: 'Alpha', body: 'other'},
+  };
+  for (const comma of [',', '，', '、', '､']) {
+    const results = model.selectTerms(terms, {view:'all', filter:'all', query:`alpha beta ${comma} Gamma ${comma}`, scores:new Map(), states:{}, searchData});
+    assert.deepEqual(plain(results.map(({tag, matchedWords}) => [tag, matchedWords])), [['other', ['gamma']], ['both', ['alpha', 'beta']]]);
+  }
+});
+
 test('multi-keyword AND, title match count, width/case normalization, and excerpts', () => {
   const searchTerms = ['body','one','both','none'].map(tag=>({tag}));
   const searchData = {body:{title:'Example',body:'alpha with beta'},one:{title:'alpha',body:'beta'},both:{title:'Beta plus Alpha',body:''},none:{title:'alpha',body:''}};

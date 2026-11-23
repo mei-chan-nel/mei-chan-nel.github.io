@@ -84,7 +84,7 @@
     for (const term of selected) {
       term.node.hidden = false;
       term.snippet.replaceChildren();
-      const words = model.keywords(search.value);
+      const words = term.matchedWords;
       term.link.href = `./${new URL(term.link.href).pathname.split("/").filter(Boolean).at(-1)}/${ready ? "#term-find=" + encodeURIComponent(words.join(" ")) : ""}`;
       if (term.excerpt) {
         const jump = document.createElement("a");

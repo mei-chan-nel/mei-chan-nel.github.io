@@ -123,7 +123,7 @@ img { max-width: 100%; }
 .next-action p:not(.eyebrow) { margin: 8px 0 0; color: var(--ink-soft); font-size: .82rem; }
 
 .prose-page { max-width: 1000px; }
-.prose-content { max-width: 790px; margin: 60px auto 0; }
+.prose-content { max-width: var(--atlas-prose); margin: 60px auto 0; }
 .prose-content section { padding: 0 0 48px; }
 .prose-content h2 { margin: 0 0 18px; padding-bottom: 9px; border-bottom: 1px solid var(--line); font-family: Georgia, "Yu Mincho", serif; font-size: 1.65rem; font-weight: 500; }
 .prose-content p, .prose-content li { color: var(--ink-soft); font-size: 1rem; }
@@ -188,7 +188,7 @@ img { max-width: 100%; }
 .video-genre-back-link a { display: inline-block; padding-bottom: 1px; color: var(--atlas-accent); font-size: .72rem; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--atlas-accent); }
 .video-genre-back-link a:hover, .video-genre-back-link a:focus-visible { color: var(--ink); border-color: var(--ink); }
 html:has(.video-question-list) { scroll-behavior: auto; }
-.video-question-list { display: grid; gap: 18px; }
+.video-question-list { display: grid; gap: 18px; max-width: var(--atlas-prose); margin-inline: auto; }
 .manual-ad-slot { width: min(100%, 920px); min-width: 0; margin: 40px auto; overflow: visible; }
 .manual-ad-slot[hidden] { display: none !important; }
 .manual-ad-slot--article { width: 100%; }

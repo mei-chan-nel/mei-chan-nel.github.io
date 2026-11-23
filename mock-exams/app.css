@@ -1576,12 +1576,9 @@ button.column-clear {
   .catalog-page .section-picker {
     padding-inline: max(0px, calc((100% - var(--catalog-content)) / 2));
   }
-  .catalog-list-heading {
+  .catalog-list-heading, #exam-list {
     max-inline-size: var(--catalog-content);
     margin-inline: auto;
-  }
-  .catalog-exam {
-    padding-inline: max(1.25rem, calc((100% - var(--catalog-content)) / 2));
   }
   .mode-choices { max-inline-size: 46rem; margin-inline: auto; }
   .catalog-exam > .exam-card-actions {

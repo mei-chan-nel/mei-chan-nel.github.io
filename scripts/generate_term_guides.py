@@ -17,6 +17,7 @@ DEFAULT_TAG_LIST_PATH = ROOT / "data" / "term-tag-list.json"
 SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
 FEATURE_VERSION = "2026110706"
+TERM_SEARCH_VERSION = "20261123-search"
 
 
 class ExplanationParser(HTMLParser):
@@ -266,8 +267,8 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026110906" />
     <link rel="stylesheet" href="../assets/term-page.css?v={FEATURE_VERSION}" />
-    <script src="../assets/term-state.js?v={FEATURE_VERSION}" defer></script>
-    <script src="../assets/term-index.js?v={FEATURE_VERSION}" defer></script>
+    <script src="../assets/term-state.js?v={TERM_SEARCH_VERSION}" defer></script>
+    <script src="../assets/term-index.js?v={TERM_SEARCH_VERSION}" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main-content">本文へ移動</a>
@@ -312,7 +313,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
             <label><input type="radio" name="term-filter" value="read" />既読</label>
             <label><input type="radio" name="term-filter" value="favorite" />お気に入り</label>
           </fieldset>
-          <label class="term-search-label" for="term-search">キーワード検索</label>
+          <label class="term-search-label" for="term-search">キーワード検索（空白で区切るとAND検索，カンマで区切るとOR検索）</label>
           <input id="term-search" type="search" enterkeyhint="search" placeholder="タイトル・解説本文を検索" autocomplete="off" aria-controls="term-results" aria-describedby="term-search-message" />
           <div class="term-data-message"><span id="term-search-message" role="status"></span><button type="button" data-search-retry hidden>検索データを再読み込み</button></div>
           <div class="term-data-message"><span data-recommendation-message role="status"></span><button type="button" data-recommendation-retry hidden>おすすめを再読み込み</button></div>
