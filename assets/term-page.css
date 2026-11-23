@@ -285,11 +285,20 @@
 }
 
 /* Shared learning controls; the static list remains usable without JavaScript. */
-.term-controls { margin: 0 0 20px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--atlas-line); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
-.term-controls fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 16px; padding: 0; border: 0; }
+.term-controls {
+  display: grid;
+  grid-template-columns: minmax(0, var(--atlas-search-field));
+  justify-content: center;
+  margin: 0 0 20px;
+  padding: clamp(14px, 3vw, 24px);
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+}
+.term-controls fieldset { display: grid; min-inline-size: 0; margin: 0 0 16px; padding: 0; border: 0; }
 .term-controls label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; cursor: pointer; font-size: .9rem; }
 .term-controls .term-search-label { display: block; min-height: 0; margin-bottom: 6px; font-weight: 700; }
-#term-search { display: block; width: 100%; max-inline-size: var(--atlas-search-field); min-height: 48px; padding: 12px 16px; border: 1px solid var(--atlas-muted); border-radius: var(--atlas-radius); color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
+#term-search { display: block; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--atlas-muted); border-radius: var(--atlas-radius); color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
 .term-data-message, .term-storage-message, .term-result-count { color: var(--ink-soft); font-size: .85rem; }
 .term-data-message:has(span:empty):has(button[hidden]), .term-storage-message:empty { display: none; }
 .term-data-message button { margin: 6px; min-height: 44px; padding: 6px 12px; font: inherit; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
@@ -303,15 +312,16 @@
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }
 .term-page-state { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 
-.term-controls fieldset:first-child { max-inline-size: 22rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
-.term-controls fieldset:first-child label { justify-content: center; border: 0; border-radius: 9px; font-weight: 700; padding: 10px 8px; }
+.term-controls fieldset:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
+.term-controls fieldset label { justify-content: center; text-align: center; }
+.term-controls fieldset:first-child label { border: 0; border-radius: 9px; font-weight: 700; padding: 10px 8px; }
 .term-controls fieldset:first-child label:has(:checked) {
   background: var(--atlas-selected, #18394b);
   color: #fff;
   border-color: var(--atlas-selected, #18394b);
 }
-.term-controls fieldset:nth-child(2) { gap: 8px; }
-.term-controls fieldset:nth-child(2) label { padding: 5px 16px; border: 1px solid var(--line); border-radius: 24px; color: var(--ink-soft); }
+.term-controls fieldset:nth-child(2) { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(max-content, 1fr); gap: 8px; }
+.term-controls fieldset:nth-child(2) label { padding: 5px 8px; border: 1px solid var(--line); border-radius: 24px; color: var(--ink-soft); }
 .term-controls fieldset:nth-child(2) label:has(:checked) {
   background: var(--atlas-selected, #18394b);
   color: #fff;
@@ -330,7 +340,7 @@
 @media (max-width: 420px) {
   .term-controls fieldset:first-child label { font-size: .8rem; }
   .term-controls fieldset:nth-child(2) { gap: 6px; }
-  .term-controls fieldset:nth-child(2) label { padding: 5px 12px; font-size: .82rem; }
+  .term-controls fieldset:nth-child(2) label { padding-inline: 5px; font-size: .82rem; }
 }
 
 button.term-read-status { min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink-soft); font: inherit; font-size: .75rem; cursor: pointer; }
@@ -340,11 +350,3 @@ button.term-read-status:focus-visible { outline: 3px solid var(--blue-strong); o
 .term-excerpt-link { white-space: pre-line; }
 
 .term-list.is-searching a:hover, .term-list.is-searching a:focus-visible { text-decoration: none; }
-
-@media screen and (min-width: 64rem) {
-  .term-controls {
-    padding-inline: max(24px, calc((100% - var(--atlas-search-field)) / 2));
-  }
-  .term-controls fieldset:first-child { margin-inline: auto; }
-  .term-controls fieldset:nth-child(2) { justify-content: center; }
-}

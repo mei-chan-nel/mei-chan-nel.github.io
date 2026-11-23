@@ -18,6 +18,7 @@ SITE_ORIGIN = "https://mei-chan-nel.com"
 TAG_META = "study-atlas-term-tag"
 FEATURE_VERSION = "2026110706"
 TERM_SEARCH_VERSION = "20261123-search"
+TERM_CONTROLS_VERSION = "2026112301"
 
 
 class ExplanationParser(HTMLParser):
@@ -266,7 +267,7 @@ def render_term_list(tags: list[str], pages: list[TermPage]) -> str:
     <link rel="canonical" href="{SITE_ORIGIN}/terms/" />
     <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="../assets/site.css?v=2026110906" />
-    <link rel="stylesheet" href="../assets/term-page.css?v={FEATURE_VERSION}" />
+    <link rel="stylesheet" href="../assets/term-page.css?v={TERM_CONTROLS_VERSION}" />
     <script src="../assets/term-state.js?v={TERM_SEARCH_VERSION}" defer></script>
     <script src="../assets/term-index.js?v={TERM_SEARCH_VERSION}" defer></script>
   </head>

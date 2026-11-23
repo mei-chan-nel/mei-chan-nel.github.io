@@ -175,7 +175,8 @@ img { max-width: 100%; }
 .archive-course-card { margin-top: 34px; padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
 .archive-course-card h2, .archive-course-card h3 { margin: 0; font-family: Georgia, "Yu Mincho", serif; font-size: 1.45rem; font-weight: 500; }
 .archive-course-card p { margin: 4px 0 0; color: var(--ink-soft); font-size: .78rem; }
-.video-genre-navigation { margin: 22px 0 34px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--atlas-radius); background: var(--white); }
+.video-genre-navigation, .video-question-list { max-width: var(--atlas-prose); margin-inline: auto; }
+.video-genre-navigation { margin-block: 22px 34px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--atlas-radius); background: var(--white); }
 .video-genre-navigation p { margin: 0 0 8px; color: var(--ink-soft); font-size: .7rem; font-weight: 800; }
 .video-genre-links { display: flex; flex-wrap: wrap; gap: 7px; }
 .video-genre-links a { padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); font-size: .7rem; text-decoration: none; }
@@ -188,7 +189,7 @@ img { max-width: 100%; }
 .video-genre-back-link a { display: inline-block; padding-bottom: 1px; color: var(--atlas-accent); font-size: .72rem; font-weight: 800; text-decoration: none; border-bottom: 1px solid var(--atlas-accent); }
 .video-genre-back-link a:hover, .video-genre-back-link a:focus-visible { color: var(--ink); border-color: var(--ink); }
 html:has(.video-question-list) { scroll-behavior: auto; }
-.video-question-list { display: grid; gap: 18px; max-width: var(--atlas-prose); margin-inline: auto; }
+.video-question-list { display: grid; gap: 18px; }
 .manual-ad-slot { width: min(100%, 920px); min-width: 0; margin: 40px auto; overflow: visible; }
 .manual-ad-slot[hidden] { display: none !important; }
 .manual-ad-slot--article { width: 100%; }
