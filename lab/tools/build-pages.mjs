@@ -14,13 +14,12 @@ const esc = (text) =>
 const cards = (group) =>
   contents
     .filter((content) => content.group === group.id)
-    .map(
-      (content, i) =>
-        `<a class="archive-field-card" href="./${esc(content.id)}/"><span aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(content.name)}</h3><p>${esc(content.description)}</p></div><b aria-hidden="true">→</b></a>`,
-    )
+    .map((content) =>
+      `<a class="exhibit-link" href="./${esc(content.id)}/"><h3>${esc(content.name)}</h3><p>${esc(content.description)}</p></a>`)
     .join("\n");
-const home = `<h1 id="lab-title" class="visually-hidden">Interactive Lab</h1>
-${groups.map((g, i) => `<section class="lab-category" id="${g.id}" aria-labelledby="heading-${g.id}" style="--lab-accent:var(--${g.color}-strong)"><div class="section-heading lab-category-heading"><div class="category-title"><span class="category-number" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span><h2 id="heading-${g.id}">${g.name}</h2></div><p>${g.hint}</p></div><div class="archive-field-grid lab-content-grid">${cards(g)}</div></section>`).join("\n")}`;
+const home = `<header class="lab-directory-heading"><h1 id="lab-title">Interactive Lab</h1>
+<nav aria-label="ラボの分野">${groups.map((g) => `<a href="#${g.id}">${esc(g.name)}</a>`).join("")}</nav></header>
+${groups.map((g) => `<section class="lab-category exhibit-group" id="${g.id}" aria-labelledby="heading-${g.id}"><header><h2 id="heading-${g.id}">${esc(g.name)}</h2><p>${esc(g.hint)}</p></header><div class="exhibit-list">${cards(g)}</div></section>`).join("\n")}`;
 const pages = new Map([
   [
     "index.html",

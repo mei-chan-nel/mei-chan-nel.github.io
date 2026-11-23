@@ -555,7 +555,7 @@ def main() -> int:
         if any(position < 0 for position in action_positions) or action_positions != sorted(action_positions):
             errors.append("index.html: main content cards are missing or out of order")
         for href, label in (("./info1-quiz-app/app/", "学習アプリ"), ("./mock-exams/", "実戦演習"), ("./lab/", "Interactive Lab")):
-            if not re.search(r'<a class="home-action-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
+            if not re.search(r'<a class="home-action-card" href="' + re.escape(href) + r'">[^\n]*<div class="home-action-heading">[^\n]*<h3>' + re.escape(label) + r'</h3></div>', action_text):
                 errors.append(f"index.html: main content card/link mismatch: {label}")
         if "共通テスト過去問およびオリジナル模試を受験できます。" not in action_text:
             errors.append("index.html: mock exam description is outdated")
@@ -572,7 +572,7 @@ def main() -> int:
         if any(position < 0 for position in sub_positions) or sub_positions != sorted(sub_positions):
             errors.append("index.html: sub content cards are missing or out of order")
         for href, label in (("./info1-quiz-app/questions/", "問題を探す"), ("./terms/", "用語を調べる"), ("./program-trace/", "プログラムを実行する"), ("./archive/", "解説動画を見る"), ("./LectureNote/", "講義ノートを読む")):
-            if not re.search(r'<a class="home-misc-card [^"]+" href="' + re.escape(href) + r'">[^\n]*<h3>' + re.escape(label) + r'</h3>', sub_text):
+            if not re.search(r'<a class="home-action-card" href="' + re.escape(href) + r'">[^\n]*<h3>' + re.escape(label) + r'</h3>', sub_text):
                 errors.append(f"index.html: sub content card/link mismatch: {label}")
     misc_match = re.search(r'<section class="section home-misc-section"[^>]*>(.*?)</section>', main_text, flags=re.DOTALL)
     if misc_match is None:
@@ -600,9 +600,14 @@ def main() -> int:
     if "info1LearningRecord:v1" not in home_learning or "summarizeQuestionRecord" not in home_learning or "これまで延べ${attempts}問に回答" not in home_learning or "StudyAtlasLecture" in home_learning:
         errors.append("home-learning.js: safe question-history summary is missing or lecture state leaked")
     site_css = (ROOT / "assets" / "site.css").read_text(encoding="utf-8")
-    for marker in (".home-action-grid", ".home-action-heading", ".home-misc-grid", ".video-genre-back-link"):
-        if marker not in site_css:
-            errors.append(f"site.css: required reorganized layout style is missing: {marker}")
+    home_css = (ROOT / "assets" / "home.css").read_text(encoding="utf-8")
+    if 'href="./assets/home.css"' not in top_text:
+        errors.append("index.html: missing home stylesheet")
+    for marker in (".home-action-grid", ".home-action-heading", ".home-misc-grid"):
+        if marker not in home_css:
+            errors.append(f"home.css: required homepage layout style is missing: {marker}")
+    if ".video-genre-back-link" not in site_css:
+        errors.append("site.css: video genre back link style is missing")
     for marker in (".archive-genre-section", ".archive-genre-links", ".archive-genre-link", ".page-numbers", ".page-ellipsis", ".pagination-top", ".field-grid", ".field-card", ".topic-list", ".key-advice"):
         if marker in site_css:
             errors.append(f"site.css: obsolete reorganized-page style remains: {marker}")

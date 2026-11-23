@@ -1,0 +1,35 @@
+/* Shared interface values. Figures and grading own their semantic palettes. */
+:root {
+  --atlas-bg: #f7f8f8;
+  --atlas-surface: #fff;
+  --atlas-soft: #edf3f9;
+  --atlas-ink: #18394b;
+  --atlas-muted: #495f70;
+  --atlas-blue: #326596;
+  --atlas-accent: #326596;
+  --atlas-terracotta: #b94732;
+  --atlas-selected: #18394b;
+  --atlas-action: #234c71;
+  --atlas-action-hover: #18394b;
+  --atlas-footer: #0d2233;
+  --atlas-control: #4b6371;
+  --atlas-control-hover: #374e5a;
+  --atlas-note: #f7f9fc;
+  --atlas-note-line: #aabfd1;
+  --atlas-line: #d5e0e8;
+  --atlas-card-edge: 3px solid var(--atlas-selected);
+  --atlas-radius: .625rem;
+  --atlas-shadow: 0 2px 8px rgb(24 57 75 / 5%);
+  --atlas-font: "Hiragino Sans", "Yu Gothic", Meiryo, system-ui, sans-serif;
+  --atlas-title: Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", serif;
+  --atlas-gutter: clamp(1rem, 3.6vw, 3rem);
+  --atlas-page: 74rem;
+  --atlas-prose: 49.375rem;
+  --atlas-search-field: 34rem;
+  --atlas-frame: min(var(--atlas-page), calc(100% - 2 * var(--atlas-gutter)));
+}
+
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--atlas-accent);
+  outline-offset: 3px;
+}

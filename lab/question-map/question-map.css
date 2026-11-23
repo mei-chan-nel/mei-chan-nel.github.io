@@ -1,15 +1,19 @@
 .map-hero { padding: 38px 0 28px; }
-.map-hero .eyebrow { color: var(--pink-strong); margin-bottom: 16px; }
+.map-hero .eyebrow { color: var(--atlas-accent); margin-bottom: 16px; }
 .map-hero h1 { margin: 0; font: 500 clamp(2rem, 4.7vw, 3.8rem)/1.4 Georgia, "Yu Mincho", serif; letter-spacing: -.04em; }
-.map-hero h1 em { display: inline-block; color: var(--pink-strong); font-style: normal; }
+.map-hero h1 em { display: inline-block; color: var(--atlas-accent); font-style: normal; }
 .map-hero > p:last-child { color: var(--ink-soft); font-size: .9rem; margin: 14px 0 0; }
-.map-exhibit { border: 1px solid var(--line); border-radius: 22px; background: var(--white); overflow: hidden; }
+.map-exhibit { border: 1px solid var(--line); border-radius: var(--atlas-radius); background: var(--white); overflow: hidden; }
 .map-exhibit button { cursor: pointer; color: var(--ink); font: inherit; }
 .map-layer-controls { padding: 9px 20px; display: flex; justify-content: flex-end; gap: 6px; align-items: center; border-top: 1px solid var(--line); font-size: .77rem; }
 .map-layer-controls button { padding: 7px 16px; min-height: 40px; background: transparent; border: 1px solid transparent; border-radius: 7px; white-space: nowrap; }
-.map-layer-controls button[aria-pressed="true"] { color: var(--white); background: var(--ink); border-color: var(--ink); }
+.map-layer-controls button[aria-pressed="true"] {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+}
 .map-layer-controls #layers-mode { margin-left: 8px; border-color: var(--line); }
-.map-layer-controls #layers-mode[aria-pressed="true"] { border-color: var(--ink); }
+.map-layer-controls #layers-mode[aria-pressed="true"] { border-color: var(--atlas-selected); }
 
 /* ブラウザの全画面APIを使わず、地図だけを表示領域いっぱいに広げる。 */
 .map-layer-controls #map-fullscreen { margin-right: auto; border-color: var(--line); }
@@ -49,7 +53,11 @@ html.question-map-expanded { overflow: hidden; }
 .heat-range { display: inline-flex; flex-shrink: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; font-size: .68rem; }
 .heat-range button { padding: 4px 8px; min-height: 30px; line-height: 1.3; white-space: nowrap; border: 0; background: transparent; }
 .heat-range button + button { border-left: 1px solid var(--line); }
-.heat-range button[aria-pressed="true"] { background: var(--ink); color: var(--white); }
+.heat-range button[aria-pressed="true"] {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+}
 .history-summary { margin: 0; padding: 0 20px 13px; font-size: .73rem; color: var(--ink-soft); }
 .map-exhibit .map-card { position: absolute; top: 0; left: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--card-lines, 7); overflow: hidden; padding: var(--card-padding, 12px); border: 1px solid rgb(145 165 152 / 65%); background: rgb(255 255 255 / var(--card-alpha, .84)); border-radius: 6px; box-shadow: 0 3px 12px rgb(16 47 53 / 8%); color: #17201c; font-weight: 500; line-height: var(--card-leading, 1.6); text-align: left; white-space: pre-wrap; overflow-wrap: anywhere; pointer-events: auto; touch-action: none; cursor: grab; transform-origin: 0 0; transition: opacity .22s linear; will-change: transform, opacity; }
 .map-exhibit .map-card.is-selected { border-color: var(--mint-strong); }
@@ -83,11 +91,15 @@ html.question-detail-open { overflow: hidden; }
 .card-explanation summary { cursor: pointer; color: var(--mint-strong); padding: 8px 0; font-weight: 700; }
 .card-source { color: var(--ink-soft); font-size: .68rem; margin: 12px 0; }
 .card-tags { font-size: .7rem; color: var(--pink-strong); margin: 10px 0 0; }
-.card-practice { display: inline-block; padding: 10px 0; margin-top: 10px; font-size: .84rem; font-weight: 700; color: var(--mint-strong); text-underline-offset: 4px; }
+.card-practice { display: inline-block; padding: 10px 0; margin-top: 10px; font-size: .84rem; font-weight: 700; color: var(--atlas-action); text-underline-offset: 4px; }
 .score-source { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 0 20px 10px; font-size: .75rem; }
 .score-source button { padding: 7px 12px; min-height: 40px; border: 1px solid var(--line); border-radius: 7px; background: transparent; }
-.score-source button[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
-.score-source .region-practice { margin-left: 16px; border-color: var(--mint-strong); color: var(--mint-strong); font-weight: 600; white-space: nowrap; }
+.score-source button[aria-pressed="true"] {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+}
+.score-source .region-practice { margin-left: 16px; border-color: var(--atlas-action); color: var(--atlas-action); font-weight: 600; white-space: nowrap; }
 .score-source .region-practice:disabled { opacity: .45; cursor: default; }
 .region-dialog { box-sizing: border-box; width: min(560px, calc(100% - 24px)); max-height: 88svh; padding: 22px; overflow: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 16px; background: var(--white); color: var(--ink); }
 .region-dialog::backdrop { background: rgb(16 47 53 / 45%); }
@@ -98,7 +110,7 @@ html.question-detail-open { overflow: hidden; }
 .region-zoom { position: absolute; right: 8px; top: 8px; display: flex; flex-direction: column; gap: 4px; }
 .region-zoom button { width: 40px; height: 40px; padding: 0; border: 1px solid var(--line); border-radius: 7px; background: rgb(255 255 255 / 95%); color: var(--ink); font: inherit; font-size: 1.2rem; cursor: pointer; }
 #region-hint { font-size: .7rem; line-height: 1.6; }
-.region-start { display: block; padding: 12px; border-radius: 9px; background: var(--mint-strong); color: var(--white); text-align: center; text-decoration: none; font-size: .9rem; font-weight: 600; }
+.region-start { display: block; padding: 12px; border-radius: 9px; background: var(--atlas-action); color: var(--white); text-align: center; text-decoration: none; font-size: .9rem; font-weight: 600; }
 .region-start[aria-disabled="true"] { background: #e8efed; color: var(--ink-soft); cursor: default; }
 .region-dialog :focus-visible { outline: 3px solid var(--mint-strong); outline-offset: 3px; }
 #score-status { color: var(--ink-soft); }

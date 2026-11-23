@@ -14,7 +14,10 @@
     ratioCoefficient: 0.5,
   });
   const normalize = (text) => String(text || "").normalize("NFKC").toLowerCase().replace(/\s+/gu, " ").trim();
-  const keywords = (query) => [...new Set(normalize(query).split(" ").filter(Boolean))];
+  const searchGroups = (query) => normalize(query).split(/[,、､]/u)
+    .map((group) => [...new Set(group.split(" ").filter(Boolean))])
+    .filter((group) => group.length > 0);
+  const keywords = (query) => [...new Set(searchGroups(query).flat())];
   const object = (value) => value && typeof value === "object" && !Array.isArray(value);
   const count = (value) => Number.isFinite(Number(value)) ? Math.max(0, Math.floor(Number(value))) : 0;
 
@@ -114,23 +117,31 @@
     return `${start ? "…" : ""}${body.slice(start, end)}${end < body.length ? "…" : ""}`;
   }
 
+  function compareSearchRanks(left, right) {
+    for (let i = 0; i < left.length; i++) {
+      if (left[i] !== right[i]) return right[i] - left[i];
+    }
+    return 0;
+  }
+
   function selectTerms(terms, { view, filter, query, scores, states, searchData }) {
-    const words = keywords(query);
+    const groups = searchGroups(query);
     return terms.flatMap((term, order) => {
       const state = states[term.tag] || {};
       const score = scores.get(term.tag) || 0;
       if (view === "recommended" && score <= 0) return [];
       if (filter === "unread" && state.read || filter === "read" && !state.read || filter === "favorite" && !state.favorite) return [];
       const article = searchData?.[term.tag];
-      const rank = words.length ? searchRank([term.tag, article?.title || term.tag], article?.body || "", words) : [];
-      if (rank === null) return [];
-      return [{ ...term, order, score, rank, excerpt: words.length ? excerpt(article?.body || "", words) : "" }];
-    }).sort((left, right) => {
-      for (let index = 0; index < left.rank.length; index += 1) {
-        if (left.rank[index] !== right.rank[index]) return right.rank[index] - left.rank[index];
-      }
-      return (view === "recommended" ? right.score - left.score : 0) || left.order - right.order;
-    });
+      const titles = [term.tag, article?.title || term.tag];
+      const body = article?.body || "";
+      const matches = groups.map((words) => ({ words, rank: searchRank(titles, body, words) }))
+        .filter(({ rank }) => rank !== null);
+      if (groups.length && !matches.length) return [];
+      const rank = matches.map((match) => match.rank).sort(compareSearchRanks)[0] || [];
+      const matchedWords = [...new Set(matches.flatMap(({ words }) => words))];
+      return [{ ...term, order, score, rank, matchedWords, excerpt: matchedWords.length ? excerpt(body, matchedWords) : "" }];
+    }).sort((left, right) => compareSearchRanks(left.rank, right.rank)
+      || (view === "recommended" ? right.score - left.score : 0) || left.order - right.order);
   }
 
   function mergeCoverage(ranges) {

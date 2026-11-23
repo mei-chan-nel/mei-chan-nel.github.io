@@ -2,6 +2,8 @@
 
 `https://mei-chan-nel.com/` の入口、用語解説、講義ノート、解説動画、書籍案内、サイト情報を管理するリポジトリです。学習アプリとタグ検索のデータ・ページ生成は、隣接する [`info1-quiz-app`](https://github.com/mei-chan-nel/info1-quiz-app) で管理します。
 
+配色と共通UIの使い方は[デザインガイド](docs/DESIGN.md)、表示検証とCSSの一覧は[改修記録](docs/design-review/README.md)を参照してください。
+
 ## 現在の公開構成
 
 - トップページ：ファーストビュー、学習アプリ・ラボを含む7つの学習導線、使い方・書籍案内。

@@ -1605,7 +1605,7 @@ function renderResults({ record = false } = {}) {
   if (!r) return renderWorkspace();
   app.innerHTML = `<section class="results"><div class="result-heading"><div><p class="eyebrow">${esc(examLabel(exam))}${archivedEdition(exam.id, exam.version) ? "（改訂前）" : ""} / RESULT</p><h1>採点結果</h1></div></div><div class="summary-block"><div class="actions result-actions" id="result-actions"></div><div class="table-wrap"><table class="summary-table"><thead><tr><th>大問</th><th>あなたの<wbr>得点</th><th>あなたの<wbr>得点率</th><th>平均<wbr>得点</th><th>平均<wbr>得点率</th></tr></thead><tbody id="section-results"></tbody><tfoot><tr><th>合計</th><td>${r.points} / <span class="score-maximum">${r.maxPoints}点</span></td><td>${((r.points / r.maxPoints) * 100).toFixed(1)}%</td><td id="avg-total">—</td><td id="rate-total">—</td></tr></tfoot></table></div></div><div class="unit-block" id="unit-block"><div class="unit-heading"><h2>解答・採点</h2><button id="toggle-history" class="subtle-button">過去の成績も表示する</button></div><div class="table-wrap unit-table-wrap"><table id="unit-table"><thead id="unit-head"></thead><tbody id="unit-results"></tbody></table></div><p class="muted score-footnote">＊は複数の解答欄をまとめて採点します。</p></div></section>`;
   if (isInterrupted(current))
-    $("#result-actions").append(button("解答を再開", () => resumeGraded()));
+    $("#result-actions").append(button("解答を再開", () => resumeGraded(), "resume-action"));
   $("#result-actions").append(
     button("解説を読む", openReading),
     button("一覧に戻る", () => leave("catalog"), "back-to-catalog"),

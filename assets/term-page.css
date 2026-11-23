@@ -2,8 +2,10 @@
   max-width: 1040px;
 }
 
+.term-page :is(h1, h2) { text-wrap: balance; }
+
 .term-hero h1 {
-  font-size: clamp(3.6rem, 9vw, 6.4rem);
+  font-size: clamp(2rem, 4.6vw, 3.5rem);
 }
 
 .term-copy {
@@ -21,8 +23,6 @@
 .term-copy .term-formula {
   margin: 22px 0;
   padding: 18px 22px;
-  border-left: 3px solid var(--coral);
-  background: var(--white);
   color: var(--ink);
   font-family: "Cascadia Code", "BIZ UDGothic", Consolas, monospace;
   font-size: .9rem;
@@ -72,6 +72,10 @@
   margin: 18px auto 90px;
 }
 
+@media screen and (min-width: 64rem) {
+  .term-list-section { max-width: none; }
+}
+
 .term-list {
   margin: 0;
   padding: 0;
@@ -87,6 +91,8 @@
 }
 
 .term-list-item a {
+  font-weight: 700;
+  text-underline-offset: 4px;
   min-height: 56px;
   padding: 15px 2px;
   display: flex;
@@ -135,20 +141,15 @@
   text-align: center;
 }
 
-.term-list-item a {
-  font-weight: 800;
-  text-underline-offset: 4px;
-}
-
 .term-list-item a:hover,
 .term-list-item a:focus-visible {
-  color: var(--coral-strong);
+  color: var(--atlas-accent);
   text-decoration: underline;
 }
 
 .term-practice-section {
   max-width: 900px;
-  margin: 76px auto 0;
+  margin: 48px auto 0;
 }
 
 .term-section-heading {
@@ -172,7 +173,7 @@
 }
 
 .term-example-card {
-  box-shadow: 0 14px 44px rgb(16 47 53 / 6%);
+  box-shadow: var(--atlas-shadow);
 }
 
 .term-question-source {
@@ -183,7 +184,7 @@
 }
 
 .term-question-source dt {
-  color: var(--coral-strong);
+  color: var(--atlas-accent);
   font-size: .69rem;
   font-weight: 800;
   letter-spacing: .06em;
@@ -204,7 +205,7 @@
   justify-content: space-between;
   gap: 28px;
   border: 1px solid var(--line);
-  border-radius: 20px;
+  border-radius: var(--atlas-radius);
   background: var(--white);
 }
 
@@ -220,10 +221,13 @@
 .term-challenge-button {
   flex: 0 0 auto;
   min-width: 220px;
-  border: 1px solid var(--ink);
+  background: var(--atlas-action);
+  border: 1px solid var(--atlas-action);
   cursor: pointer;
   font: inherit;
 }
+
+.term-challenge-button:hover:not(:disabled) { background: var(--atlas-action-hover); }
 
 .term-challenge-button:disabled {
   opacity: .55;
@@ -281,12 +285,20 @@
 }
 
 /* Shared learning controls; the static list remains usable without JavaScript. */
-.term-controls { margin: 0 0 20px; }
-.term-controls fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 16px; padding: 0; border: 0; }
+.term-controls {
+  display: grid;
+  grid-template-columns: minmax(0, var(--atlas-search-field));
+  justify-content: center;
+  margin: 0 0 20px;
+  padding: clamp(14px, 3vw, 24px);
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+}
+.term-controls fieldset { display: grid; min-inline-size: 0; margin: 0 0 16px; padding: 0; border: 0; }
 .term-controls label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; cursor: pointer; font-size: .9rem; }
-.term-controls input[type="radio"] { accent-color: var(--ink); width: 18px; height: 18px; margin: 0; }
 .term-controls .term-search-label { display: block; min-height: 0; margin-bottom: 6px; font-weight: 700; }
-#term-search { display: block; width: 100%; min-height: 48px; padding: 10px 14px; border: 1px solid var(--ink-soft); border-radius: 6px; color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
+#term-search { display: block; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--atlas-muted); border-radius: var(--atlas-radius); color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
 .term-data-message, .term-storage-message, .term-result-count { color: var(--ink-soft); font-size: .85rem; }
 .term-data-message:has(span:empty):has(button[hidden]), .term-storage-message:empty { display: none; }
 .term-data-message button { margin: 6px; min-height: 44px; padding: 6px 12px; font: inherit; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
@@ -294,22 +306,31 @@
 .term-list-item[hidden], .term-controls[hidden], .term-page-state[hidden] { display: none; }
 .term-read-status { color: var(--ink-soft); font-size: .75rem; white-space: nowrap; }
 .term-favorite { display: inline-grid; place-items: center; width: 44px; min-width: 44px; height: 44px; padding: 0; border: 0; border-radius: 6px; background: transparent; color: var(--ink-soft); font-size: 1.7rem; line-height: 1; cursor: pointer; }
-.term-favorite[aria-pressed="true"] { color: #527d86; }
+.term-favorite[aria-pressed="true"] { color: var(--atlas-accent); }
 .term-favorite:hover { background: var(--paper-deep); }
 .term-favorite:focus-visible, .term-controls input:focus-visible, .term-controls button:focus-visible { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }
 .term-page-state { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 
-.term-controls fieldset:first-child { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
-.term-controls fieldset:first-child label { justify-content: center; border: 0; border-radius: 9px; font-weight: 700; padding: 10px 8px; }
-.term-controls fieldset:first-child label:has(:checked) { background: var(--ink); color: var(--white); box-shadow: 0 2px 5px rgb(16 47 53 / 12%); }
-.term-controls fieldset:nth-child(2) { gap: 8px; }
-.term-controls fieldset:nth-child(2) label { padding: 5px 16px; border: 1px solid var(--line); border-radius: 24px; color: var(--ink-soft); }
-.term-controls fieldset:nth-child(2) label:has(:checked) { border-color: var(--ink); color: var(--ink); background: var(--white); font-weight: 700; }
+.term-controls fieldset:first-child { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
+.term-controls fieldset label { justify-content: center; text-align: center; }
+.term-controls fieldset:first-child label { border: 0; border-radius: 9px; font-weight: 700; padding: 10px 8px; }
+.term-controls fieldset:first-child label:has(:checked) {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+}
+.term-controls fieldset:nth-child(2) { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(max-content, 1fr); gap: 8px; }
+.term-controls fieldset:nth-child(2) label { padding: 5px 8px; border: 1px solid var(--line); border-radius: 24px; color: var(--ink-soft); }
+.term-controls fieldset:nth-child(2) label:has(:checked) {
+  background: var(--atlas-selected, #18394b);
+  color: #fff;
+  border-color: var(--atlas-selected, #18394b);
+  font-weight: 700;
+}
 .term-controls input[type="radio"] { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .term-controls label:has(input:focus-visible) { outline: 3px solid var(--blue-strong); outline-offset: 3px; }
 .term-controls label:hover { background: var(--white); }
-#term-search { border-color: var(--line); border-radius: 10px; padding: 13px 16px; box-shadow: 0 2px 6px rgb(16 47 53 / 3%); }
 #term-search:focus { border-color: var(--blue-strong); }
 .term-result-count { margin: 24px 0 12px; font-variant-numeric: tabular-nums; }
 .term-list-item .term-excerpt-link { display: block; min-height: 44px; padding: 0 2px 8px; font-size: .84rem; line-height: 1.8; font-weight: 400; color: var(--ink-soft); text-decoration: none; }
@@ -319,7 +340,7 @@
 @media (max-width: 420px) {
   .term-controls fieldset:first-child label { font-size: .8rem; }
   .term-controls fieldset:nth-child(2) { gap: 6px; }
-  .term-controls fieldset:nth-child(2) label { padding: 5px 12px; font-size: .82rem; }
+  .term-controls fieldset:nth-child(2) label { padding-inline: 5px; font-size: .82rem; }
 }
 
 button.term-read-status { min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); color: var(--ink-soft); font: inherit; font-size: .75rem; cursor: pointer; }

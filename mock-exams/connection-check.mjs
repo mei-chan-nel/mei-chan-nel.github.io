@@ -1,3 +1,4 @@
+import { bindHeaderScroll, mountCompactNav } from "../assets/atlas-compact-nav.mjs";
 import { runRpcVerification } from "./tests/rpc-scenario.mjs";
 const $ = (s) => document.querySelector(s),
   logs = [];
@@ -80,3 +81,7 @@ $("#download-check").onclick = () => {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 };
+
+const siteHeader = document.querySelector(".site-header");
+mountCompactNav(siteHeader);
+bindHeaderScroll(siteHeader, { mobileOnly: true });

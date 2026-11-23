@@ -18,7 +18,7 @@
 .stat-related a,
 .academic a,
 .text-link {
-  color: #176455;
+  color: var(--atlas-accent);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

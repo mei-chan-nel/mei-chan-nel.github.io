@@ -1,34 +1,75 @@
 .lab-shell {
   width: min(1180px, calc(100% - 40px));
-  margin: auto;
-  padding-bottom: 80px;
+  margin-inline: auto;
+  padding-bottom: 4rem;
 }
-.lab-hero { padding: 48px 0 42px; }
-.lab-hero h1 {
-  margin: 0;
-  font: 500 clamp(3.1rem, 7vw, 6.5rem)/1.05 Georgia, serif;
-  letter-spacing: -0.045em;
+
+.lab-directory-heading { padding: 1rem 0 2rem; }
+.lab-directory-heading h1 {
+  margin: 0 0 1.5rem;
+  color: var(--atlas-ink);
+  font: 500 clamp(2.75rem, 5.5vw, 4.5rem)/1.12 Georgia, serif;
+  letter-spacing: -.045em;
 }
-.lab-hero h1 em { color: var(--mint-strong); }
-.lab-tagline { margin: 22px 0 0; font-size: 1.1rem; color: var(--ink-soft); }
-.lab-category {
-  padding: 34px 0;
-  border-top: 1px solid var(--line);
+.lab-directory-heading nav { display: flex; flex-wrap: wrap; gap: .45rem; }
+.lab-directory-heading a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: .4rem .85rem;
+  border: 1px solid var(--atlas-line);
+  border-radius: var(--atlas-radius);
+  background: var(--atlas-surface);
+  color: var(--atlas-accent);
+  font-size: .875rem;
+  text-decoration: none;
 }
-.lab-category-heading { margin-bottom: 0; }
-.category-title { display: flex; align-items: center; gap: 18px; }
-.category-title h2 { margin: 0; font-size: 1.5rem; }
-.category-number { font: italic 1.6rem Georgia, serif; color: var(--lab-accent); }
-.lab-category-heading > p { font-size: .85rem; }
+.lab-directory-heading a:hover { border-color: var(--atlas-accent); background: var(--atlas-soft); }
+.lab-category { padding: 2rem 0; border-top: 1px solid var(--atlas-line); }
+.exhibit-group { display: grid; grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr); gap: 2rem; }
+.exhibit-group header h2 { margin: 0; font-size: 1.3rem; color: var(--atlas-ink); }
+.exhibit-group header p, .exhibit-link p { color: var(--atlas-muted); margin: .6rem 0 0; line-height: 1.75; }
+.exhibit-group header p { font-size: .9375rem; }
+.exhibit-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-content: start; gap: .75rem; }
+.exhibit-link { padding: 1.15rem 1.25rem; }
+.exhibit-link h3 { color: var(--atlas-accent); font-size: 1.05rem; line-height: 1.5; margin: 0; }
 .lab-content-grid:empty { display: none; }
-.lab-content-grid .archive-field-card > span { color: var(--lab-accent); }
-.lab-shell a:focus-visible { outline: 3px solid var(--mint-strong); outline-offset: 4px; }
+.lab-content-grid .archive-field-card > span { color: var(--atlas-accent); }
+.lab-shell a:focus-visible { outline: 3px solid var(--atlas-accent); outline-offset: 3px; }
+
+/* Image, audio and circuit tools share control surfaces; each tool owns its canvas. */
+:is(.image-heading, .audio-heading, .circuit-heading) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: .875rem;
+}
+:is(.image-heading, .audio-heading, .circuit-heading) h1 {
+  margin: 0;
+  color: var(--atlas-ink);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.4;
+}
+:is(.image-actions, .image-lab, .audio-lab, .audio-heading, .circuit-lab, .circuit-heading, .circuit-dialog) button,
+#image-zoom button, .circuit-lab select {
+  font: inherit;
+  color: var(--atlas-ink);
+  border: 1px solid var(--atlas-line);
+  border-radius: 6px;
+  background: var(--atlas-surface);
+  cursor: pointer;
+}
+:is(.image-actions, .audio-heading, .circuit-heading) button {
+  min-height: 40px;
+  padding: .35rem .7rem;
+  font-size: .875rem;
+}
+@media (max-width: 850px) {
+  .exhibit-group { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
+}
 @media (max-width: 600px) {
-  .lab-shell { width: calc(100% - 32px); padding-bottom: 48px; }
-  .lab-hero { padding: 30px 0; }
-  .lab-hero h1 { font-size: clamp(2.75rem, 12vw, 4.3rem); }
-  .lab-tagline { font-size: .9rem; margin-top: 16px; }
-  .lab-category { padding: 26px 0; }
-  .category-title { gap: 14px; }
-  .category-title h2 { font-size: 1.25rem; }
+  .lab-shell { width: calc(100% - 32px); padding-bottom: 3rem; }
+  .lab-category { padding-block: 1.5rem; }
+  .exhibit-list { grid-template-columns: minmax(0, 1fr); }
 }

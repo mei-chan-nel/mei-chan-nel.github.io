@@ -380,12 +380,12 @@ def archive_index(fields: list[dict[str, object]], course: dict[str, object]) ->
         for genre_index, genre in enumerate(field["genres"], start=1):
             cards.append(
                 f'''          <a class="archive-field-card" href="{page_href(str(genre['id']))}">
-            <span>{genre_index:02d}</span><div><h3>{e(genre['label'])}</h3><p>{e(genre['description'])}</p><small>{len(genre['questions'])}問・解説動画つき</small></div><b aria-hidden="true">→</b>
+            <span>{genre_index:02d}</span><div><h3>{e(genre['label'])}</h3><p>{e(genre['description'])}</p><small>{len(genre['questions'])}問・解説動画つき</small></div>
           </a>'''
             )
         course_card = ""
         if field["id"] == "programming":
-            course_card = f'''<a class="archive-course-card" href="{page_href(str(course['id']))}"><div><h3>{e(course['label'])}</h3><p>{e(course['description'])}</p><small>{len(course['questions'])}問・指定順で学習</small></div><span class="card-arrow" aria-hidden="true">→</span></a>'''
+            course_card = f'''<a class="archive-course-card" href="{page_href(str(course['id']))}"><div><h3>{e(course['label'])}</h3><p>{e(course['description'])}</p><small>{len(course['questions'])}問・指定順で学習</small></div></a>'''
         field_sections.append(
             f'''      <section class="archive-field-section" id="{e(field['id'])}" aria-labelledby="{e(field['id'])}-heading">
         <div class="section-heading"><div><h2 id="{e(field['id'])}-heading">{e(field['label'])}</h2></div><p>{e(field['description'])}</p></div>

@@ -1,37 +1,11 @@
 .lab-content-page {
   padding-bottom: 24px;
 }
-.image-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 0 0 14px;
-}
-.image-heading h1 {
-  margin: 0;
-  font-size: clamp(1.25rem, 3vw, 1.75rem);
-}
 .image-actions {
   display: flex;
   gap: 6px;
 }
-.image-actions button,
-.image-lab button,
-#image-zoom button {
-  font: inherit;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: var(--white);
-  cursor: pointer;
-}
-.image-actions button {
-  min-height: 32px;
-  padding: 5px 10px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-}
+.image-actions button { white-space: nowrap; }
 .short-label {
   display: none;
 }

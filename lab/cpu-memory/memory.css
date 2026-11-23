@@ -10,7 +10,7 @@
   --time-cpu: #0072b2;
   --time-cache: #b36500;
   --time-ram: #7a5195;
-  --muted: #627674;
+  --muted: var(--atlas-muted);
   --mono: "Cascadia Code", "Consolas", "Hiragino Sans", "Meiryo", monospace;
   --serif: Georgia, "Yu Mincho", "Hiragino Mincho ProN", serif;
 }

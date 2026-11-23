@@ -245,7 +245,7 @@ export function renderHistoryGrid(
     for (const [title, enabled, action, cls] of [
       ["採点結果", !!a.result, () => onOpen(r, "result"), ""],
       ["復習", !!a.result, () => onOpen(r, "review"), ""],
-      ["再開", isInterrupted(a), () => onOpen(r, "resume"), ""],
+      ["再開", isInterrupted(a), () => onOpen(r, "resume"), "resume-action"],
       ["削除", true, () => onDelete(r), "subtle-danger"],
     ]) {
       if (enabled) {

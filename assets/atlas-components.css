@@ -1,0 +1,41 @@
+/* Whole-card links share the same frame and keyboard and pointer affordances. */
+a:is(.home-action-card, .home-other-card, .archive-field-card, .archive-course-card,
+  .resource-card, .lecture-learning-choice, .official-link, .exhibit-link,
+  .studio-entry-card, .example-card) {
+  color: var(--atlas-ink);
+  background: var(--atlas-surface);
+  border: 1px solid var(--atlas-line);
+  border-inline-start: var(--atlas-card-edge);
+  border-radius: var(--atlas-radius);
+  text-decoration: none;
+}
+
+a:is(.home-action-card, .home-other-card, .archive-field-card, .archive-course-card,
+  .resource-card, .lecture-learning-choice, .official-link, .exhibit-link,
+  .studio-entry-card, .example-card):focus-visible {
+  outline: 3px solid var(--atlas-accent);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:is(.home-action-card, .home-other-card, .archive-field-card, .archive-course-card,
+    .resource-card, .lecture-learning-choice, .official-link, .exhibit-link,
+    .studio-entry-card, .example-card):hover :is(h2, h3, strong) {
+    text-decoration: underline;
+    text-underline-offset: .2em;
+  }
+}
+
+/* Supporting text uses a quiet callout without a complete frame. */
+:where(blockquote, .concept-card, .key-point, .warning, .practice, .mini-quiz,
+  .content-note, .editorial-note, .study-plan article, .term-formula) {
+  border: 0;
+  border-inline-start: 3px solid var(--atlas-note-line);
+  border-radius: 0;
+  background: var(--atlas-note);
+  padding: .875rem 1rem;
+}
+
+blockquote { margin-inline: 0; }
+blockquote > :first-child { margin-top: 0; }
+blockquote > :last-child { margin-bottom: 0; }

@@ -1,5 +1,8 @@
 // Lab pages keep their static navigation and independent canvas layout.
+import { bindHeaderScroll, mountCompactNav } from "../assets/atlas-compact-nav.mjs";
+
 const header = document.querySelector(".site-header");
+mountCompactNav(header);
 const offset = () =>
   document.documentElement.style.setProperty(
     "--lab-header-offset",
@@ -39,24 +42,4 @@ if (nav) {
   new ResizeObserver(update).observe(nav);
   update();
 }
-let last = window.scrollY;
-window.addEventListener(
-  "scroll",
-  () => {
-    const current = window.scrollY;
-    if (Math.abs(current - last) < 8) return;
-    header?.classList.toggle(
-      "is-header-hidden",
-      current > 180 &&
-        current > last &&
-        !header.contains(document.activeElement),
-    );
-    offset();
-    last = current;
-  },
-  { passive: true },
-);
-header?.addEventListener("focusin", () => {
-  header.classList.remove("is-header-hidden");
-  offset();
-});
+bindHeaderScroll(header, { onVisibilityChange: offset });
