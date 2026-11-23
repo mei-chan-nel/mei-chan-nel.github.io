@@ -285,11 +285,11 @@
 }
 
 /* Shared learning controls; the static list remains usable without JavaScript. */
-.term-controls { margin: 0 0 20px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--atlas-line); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
+.term-controls { max-inline-size: var(--atlas-filter-panel); margin: 0 0 20px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--atlas-line); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
 .term-controls fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 16px; padding: 0; border: 0; }
 .term-controls label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; cursor: pointer; font-size: .9rem; }
 .term-controls .term-search-label { display: block; min-height: 0; margin-bottom: 6px; font-weight: 700; }
-#term-search { display: block; width: 100%; min-height: 48px; padding: 12px 16px; border: 1px solid var(--atlas-muted); border-radius: var(--atlas-radius); color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
+#term-search { display: block; width: 100%; max-inline-size: var(--atlas-search-field); min-height: 48px; padding: 12px 16px; border: 1px solid var(--atlas-muted); border-radius: var(--atlas-radius); color: var(--ink); background: var(--white); font: inherit; font-size: 1rem; }
 .term-data-message, .term-storage-message, .term-result-count { color: var(--ink-soft); font-size: .85rem; }
 .term-data-message:has(span:empty):has(button[hidden]), .term-storage-message:empty { display: none; }
 .term-data-message button { margin: 6px; min-height: 44px; padding: 6px 12px; font: inherit; color: var(--ink); background: var(--white); border: 1px solid var(--line); border-radius: 4px; cursor: pointer; }
@@ -303,7 +303,7 @@
 .term-search-excerpt { grid-column: 1 / -1; margin: -2px 0 14px; color: var(--ink-soft); font-size: .8rem; line-height: 1.7; overflow-wrap: anywhere; }
 .term-page-state { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
 
-.term-controls fieldset:first-child { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
+.term-controls fieldset:first-child { max-inline-size: 22rem; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 12px; background: var(--paper-deep); margin-bottom: 22px; }
 .term-controls fieldset:first-child label { justify-content: center; border: 0; border-radius: 9px; font-weight: 700; padding: 10px 8px; }
 .term-controls fieldset:first-child label:has(:checked) {
   background: var(--atlas-selected, #18394b);

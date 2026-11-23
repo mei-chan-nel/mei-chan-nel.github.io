@@ -1572,5 +1572,17 @@ button.column-clear {
 
 @media screen and (min-width: 64rem) {
   #app { padding-inline: 0; }
-  .catalog-page, .history-page, .results { max-width: none; }
+  .catalog-page {
+    max-width: 50rem;
+    margin-inline: 0 auto;
+  }
+  .mode-choices { max-inline-size: 46rem; }
+  .catalog-exam > .exam-card-actions {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+  .catalog-exam .exam-card-actions > button { padding-inline: .75rem; }
+  .catalog-exam [data-start] { min-inline-size: 6rem; }
+  .history-page, .results { max-width: none; }
 }
