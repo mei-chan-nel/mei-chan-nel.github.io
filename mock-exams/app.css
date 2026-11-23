@@ -1572,11 +1572,18 @@ button.column-clear {
 
 @media screen and (min-width: 64rem) {
   #app { padding-inline: 0; }
-  .catalog-page {
-    max-width: 50rem;
-    margin-inline: 0 auto;
+  .catalog-page { --catalog-content: 50rem; max-width: none; }
+  .catalog-page .section-picker {
+    padding-inline: max(0px, calc((100% - var(--catalog-content)) / 2));
   }
-  .mode-choices { max-inline-size: 46rem; }
+  .catalog-list-heading {
+    max-inline-size: var(--catalog-content);
+    margin-inline: auto;
+  }
+  .catalog-exam {
+    padding-inline: max(1.25rem, calc((100% - var(--catalog-content)) / 2));
+  }
+  .mode-choices { max-inline-size: 46rem; margin-inline: auto; }
   .catalog-exam > .exam-card-actions {
     display: flex;
     align-items: center;

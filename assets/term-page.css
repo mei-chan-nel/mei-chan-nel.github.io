@@ -285,7 +285,7 @@
 }
 
 /* Shared learning controls; the static list remains usable without JavaScript. */
-.term-controls { max-inline-size: var(--atlas-filter-panel); margin: 0 0 20px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--atlas-line); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
+.term-controls { margin: 0 0 20px; padding: clamp(14px, 3vw, 24px); border: 1px solid var(--atlas-line); border-radius: var(--atlas-radius); background: var(--atlas-surface); }
 .term-controls fieldset { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 16px; padding: 0; border: 0; }
 .term-controls label { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; cursor: pointer; font-size: .9rem; }
 .term-controls .term-search-label { display: block; min-height: 0; margin-bottom: 6px; font-weight: 700; }
@@ -340,3 +340,11 @@ button.term-read-status:focus-visible { outline: 3px solid var(--blue-strong); o
 .term-excerpt-link { white-space: pre-line; }
 
 .term-list.is-searching a:hover, .term-list.is-searching a:focus-visible { text-decoration: none; }
+
+@media screen and (min-width: 64rem) {
+  .term-controls {
+    padding-inline: max(24px, calc((100% - var(--atlas-search-field)) / 2));
+  }
+  .term-controls fieldset:first-child { margin-inline: auto; }
+  .term-controls fieldset:nth-child(2) { justify-content: center; }
+}
