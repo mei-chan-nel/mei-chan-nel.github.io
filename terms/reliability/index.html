@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="../../assets/site-analytics.js?v=2026101201" defer></script>
+    <title>信頼性とは｜用語解説｜情報Ⅰ Study Atlas</title>
+    <meta name="description" content="情報の信頼性を評価する方法、システムの信頼性と稼働率、冗長化、TCPによる通信の信頼性を高校「情報Ⅰ」向けに解説します。" />
+    <meta name="study-atlas-term-tag" content="信頼性" />
+    <meta name="theme-color" content="#102f35" />
+    <meta property="og:type" content="article" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta property="og:site_name" content="情報Ⅰ Study Atlas" />
+    <meta property="og:title" content="信頼性とは｜用語解説｜情報Ⅰ Study Atlas" />
+    <meta property="og:description" content="情報の信頼性を評価する方法、システムの信頼性と稼働率、冗長化、TCPによる通信の信頼性を高校「情報Ⅰ」向けに解説します。" />
+    <meta property="og:url" content="https://mei-chan-nel.com/terms/reliability/" />
+    <meta property="og:image" content="https://mei-chan-nel.com/assets/og/study-atlas-home-og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="canonical" href="https://mei-chan-nel.com/terms/reliability/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="../../assets/site.css?v=2026110906" />
+    <link rel="stylesheet" href="../../assets/term-page.css?v=2026110706" />
+    <link rel="stylesheet" href="reliability.css?v=20261125" />
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6257644709224446" crossorigin="anonymous"></script>
+    <script src="../../assets/manual-ads.js?v=2026080901" defer></script>
+    <script src="../../assets/term-challenge.js?v=2026090602" defer></script>
+    <script src="../../assets/term-state.js?v=2026110706" defer></script>
+    <script src="../../assets/term-reader.js?v=2026110706" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">本文へ移動</a>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ">
+          <span class="brand-mark" aria-hidden="true">I</span>
+          <span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span>
+        </a>
+        <nav class="global-nav" aria-label="メインナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../" aria-current="page">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="subpage term-page term-page--reliability">
+      <nav class="breadcrumb" aria-label="パンくずリスト">
+        <a href="../../">学習トップ</a><span aria-hidden="true">/</span><a href="../../terms/">用語一覧</a><span aria-hidden="true">/</span><span aria-current="page">信頼性</span>
+      </nav>
+
+      <section class="page-hero compact-hero term-hero" aria-labelledby="term-heading">
+        <p class="eyebrow">TERM GUIDE · SECURITY</p>
+        <h1 id="term-heading">信頼性</h1>
+        <!-- term-learning:start -->
+        <div class="term-page-state" data-term-page-state hidden>
+          <button class="term-read-status" type="button" data-term-read-status aria-pressed="false" aria-label="既読にする">未読</button>
+          <button class="term-favorite" type="button" data-term-favorite aria-pressed="false" aria-label="お気に入りに登録"><span aria-hidden="true">☆</span></button>
+        </div>
+        <p class="term-storage-message" data-term-storage-message role="status"></p>
+        <!-- term-learning:end -->
+      </section>
+
+      <div class="prose-content term-copy" id="term-explanation">
+        <section>
+          <h2>「信頼性」とは</h2>
+          <p><strong>信頼性（reliability）</strong>とは、情報や機器、システムなどが、期待される正しさや働きをどの程度維持できるかを表す概念です。</p>
+          <div class="term-table-wrap">
+            <table>
+              <thead><tr><th scope="col">対象</th><th scope="col">信頼性の意味</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">情報</th><td>内容が正確で、十分な根拠に基づいていること</td></tr>
+                <tr><th scope="row">システム</th><td>定められた条件の下で、期待される機能を正常に果たし続けること</td></tr>
+                <tr><th scope="row">通信</th><td>データの欠落や順序の乱れなどに対処し、正しくデータを届けること</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>どの対象についても、ただ信じるだけではなく、根拠や信頼性を保つ仕組みを確かめることが大切です。</p>
+        </section>
+
+        <section>
+          <h2>情報の信頼性</h2>
+          <p>インターネット上には、正確な情報だけでなく、誤った情報、古くなった情報、意図的に偏りを持たせた情報もあります。情報を収集・活用するときは、内容をそのまま受け入れず、信頼性を評価します。</p>
+          <h3>情報の信頼性を評価する観点</h3>
+          <p>情報を判断するときは、発信者の知名度だけでなく、次のような点を確認します。</p>
+          <div class="term-table-wrap">
+            <table>
+              <thead><tr><th scope="col">確認する事項</th><th scope="col">確認する内容</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">発信者・立場</th><td>誰が、どのような立場で発信しているか</td></tr>
+                <tr><th scope="row">発信目的</th><td>報告、教育、広告、販売、意見表明など、何を目的としているか</td></tr>
+                <tr><th scope="row">出典・根拠</th><td>どの資料や調査に基づき、主張を裏付ける証拠があるか</td></tr>
+                <tr><th scope="row">発信時期</th><td>いつ発信され、いつの時点の情報を扱っているか</td></tr>
+                <tr><th scope="row">調査方法</th><td>誰を対象に、どのような方法で調べたか</td></tr>
+                <tr><th scope="row">引用の正確さ</th><td>元資料の内容や条件が正しく伝えられているか</td></tr>
+                <tr><th scope="row">客観性・検証可能性</th><td>特定の利益や立場による偏りがなく、他の人も根拠を確かめられるか</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>公的機関や専門家による情報は有力な情報源ですが、所属や知名度だけで内容の正しさが保証されるわけではありません。情報そのものの根拠をたどることが重要です。</p>
+
+          <h3>一次情報と二次情報</h3>
+          <p><strong>一次情報</strong>とは、調査、観察、実験、取材などによって直接得られた情報や、その結果を直接記録・公表した情報です。<strong>二次情報</strong>とは、一次情報を基に編集、要約、分析、解説などを行った情報です。</p>
+          <p>例えば、政府が実施した調査の統計資料は一次情報であり、その資料を基に書かれた解説記事は二次情報です。情報が伝わる過程で、元資料の条件が省かれたり、発信者の解釈が加わったりすることがあります。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/01_primary_secondary_information.svg" width="680" height="476" loading="lazy" decoding="async" alt="政府が公表した統計資料を一次情報とし、新聞記事、ニュースサイト、SNSの投稿へ情報が編集・要約されながら伝わる流れ" />
+          </figure>
+          <p>そのため、情報の信頼性を確かめるときは、引用元をたどり、可能な範囲で一次情報を確認します。ただし、一次情報でも調査方法に問題があったり、測定に誤りがあったりする可能性はあります。</p>
+
+          <h3>複数の情報源による照合</h3>
+          <p>主張が事実に基づいているか、根拠を調べて確かめることを<strong>ファクトチェック（事実確認）</strong>といいます。一つの情報源だけに頼らず、独立した複数の情報源を比較すると、誤りや偏りを見つけやすくなります。</p>
+          <h3>統計情報の信頼性</h3>
+          <p>統計情報は数値によって客観的な印象を与えますが、数値が示されているだけで正しいとは限りません。例えば「利用者の90％が効果を実感した」という調査結果なら、次のような条件を確かめます。</p>
+          <div class="term-table-wrap">
+            <table>
+              <thead><tr><th scope="col">確認する事項</th><th scope="col">確認する理由</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">母集団</th><td>どの集団について結論を得ようとしているかを確かめる</td></tr>
+                <tr><th scope="row">標本の大きさ</th><td>何人を対象とした調査かを確かめる</td></tr>
+                <tr><th scope="row">標本の選び方</th><td>対象者の選び方に偏りがないかを確かめる</td></tr>
+                <tr><th scope="row">質問文・比較対象</th><td>回答を誘導していないか、他の要因と区別できているかを確かめる</td></tr>
+                <tr><th scope="row">調査時期・調査主体</th><td>いつの状況か、結果に関係する利益や立場がないかを確かめる</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>10人中9人も、1,000人中900人も割合は90％ですが、適切な方法で標本を選んでいるなら、一般に標本数が大きいほど偶然によるばらつきは小さくなります。一方で、人数が多くても、対象者の選び方に偏りがあれば、母集団の特徴を正しく表せないことがあります。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/03_sample_size.svg" width="680" height="292" loading="lazy" decoding="async" alt="10人中9人と1,000人中900人はいずれも90％だが、調査人数の違いを点の数で示す図。右図の1点は10人を表す" />
+          </figure>
+          <p>統計を評価するときは、割合だけでなく、母集団、標本の大きさと選び方、質問や比較の条件を確認します。</p>
+
+          <h3>検索エンジンとSNS</h3>
+          <p>検索エンジンの順位は、検索語との関連性、ページの構成や有用性など、さまざまな要因で決まります。検索結果の上位にあることや、広告として表示されていることは、内容の正しさを保証しません。</p>
+          <p>SNSの共有回数、閲覧回数、評価数も注目度を表すものであり、信頼性を直接示すものではありません。誤った情報でも多くの人に拡散されることがあります。</p>
+          <p>人には、自分の考えに合う情報を受け入れ、反する情報を軽視しやすい傾向があります。これを<strong>確証バイアス</strong>といいます。SNSの情報を再発信する前に、発信者や一次情報を確認し、独立した資料とも照合します。既存の報道機関が取り上げていないという理由だけで誤りと断定せず、十分な根拠がないときは判断を保留することも大切です。</p>
+
+          <h3>生成AIと情報の信頼性</h3>
+          <p>生成AIは、情報の収集、文章の要約、調査方針の検討などに活用できます。しかし、出力が常に正しいとは限りません。生成AIが事実に基づかない内容をもっともらしく出力する現象を<strong>ハルシネーション（hallucination）</strong>といいます。</p>
+          <p>例えば、実在しない文献やURLを示す、資料にない説明をその資料に基づく内容として述べる、古い情報を現在の情報として示す、調査条件を省く、根拠が十分でないのに断定する、といった誤りが起こることがあります。</p>
+          <p>生成AIの出力は調査の手掛かりとして扱い、証拠そのものとは区別します。提示された資料が実在するか、発行日や内容が主張を裏付けているかを確認し、別の情報源とも照合します。レポートでは出典を示し、学校や組織のルールに従ってAIの利用方法を記録します。</p>
+        </section>
+
+        <section>
+          <h2>システムの信頼性</h2>
+          <p>情報システムにおける<strong>信頼性</strong>とは、定められた条件の下で、一定の期間にわたり、要求された機能を正常に果たす性質です。機器やソフトウェアには故障や障害が起こり得るため、障害を防ぐだけでなく、発生時の影響を抑え、復旧しやすくする設計が必要です。</p>
+          <h3>信頼性・可用性・保守性</h3>
+          <p>システムの評価では、信頼性と関係の深い<strong>可用性</strong>と<strong>保守性</strong>も考えます。これらを英語の頭文字から<strong>RAS</strong>と総称することがあります。</p>
+          <div class="term-table-wrap">
+            <table>
+              <thead><tr><th scope="col">用語</th><th scope="col">意味</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">信頼性（Reliability）</th><td>故障が起こりにくく、正常に動作し続ける性質</td></tr>
+                <tr><th scope="row">可用性（Availability）</th><td>必要なときにシステムを利用できる性質</td></tr>
+                <tr><th scope="row">保守性（Serviceability）</th><td>障害の修理や復旧を行いやすい性質</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>信頼性が高いシステムは故障しにくい一方、可用性は故障の発生頻度だけでなく、復旧までの時間にも左右されます。故障が起きても短時間で復旧できれば、故障しにくいシステムと同じ稼働率を保つ場合があります。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/05_reliability_availability.svg" width="680" height="370" loading="lazy" decoding="async" alt="故障が少ないシステムと故障後すぐ復旧するシステムを時間軸で比べ、故障頻度と稼働率の違いを示す図" />
+          </figure>
+
+          <h3>MTBF・MTTRと稼働率</h3>
+          <p>システムの信頼性、可用性、保守性を評価する指標として、<strong>MTBF</strong>、<strong>MTTR</strong>、稼働率などが用いられます。</p>
+          <div class="term-table-wrap">
+            <table>
+              <thead><tr><th scope="col">指標</th><th scope="col">名称</th><th scope="col">意味</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">MTBF</th><td>平均故障間隔</td><td>修復後に稼働を再開してから、次に故障するまでの平均稼働時間</td></tr>
+                <tr><th scope="row">MTTR</th><td>平均修復時間</td><td>故障が発生してから、修復して再び稼働するまでの平均時間</td></tr>
+                <tr><th scope="row">稼働率</th><td>―</td><td>全体の時間のうち、システムを利用できる時間の割合</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>MTBFが大きいほど故障が発生しにくく、MTTRが小さいほど短時間で復旧できると考えられます。故障と修復を繰り返すシステムの長期的な稼働率は、次の式で求められます。</p>
+          <p class="term-formula"><strong>稼働率 ＝ MTBF ÷（MTBF ＋ MTTR）</strong></p>
+          <p>例えば、MTBFが990時間、MTTRが10時間なら、990 ÷（990 ＋ 10）＝ 0.99 となり、稼働率は99％です。可用性を高めるには、故障を減らしてMTBFを大きくすることと、復旧を早めてMTTRを小さくすることの両方が有効です。</p>
+
+          <h3>障害に対する設計の考え方</h3>
+          <p>故障や操作ミスへの備えには、異なる考え方があります。</p>
+          <div class="term-table-wrap">
+            <table>
+              <thead><tr><th scope="col">用語</th><th scope="col">考え方</th><th scope="col">具体例</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">フォールトアボイダンス</th><td>故障や障害の原因となる不具合を発生させない</td><td>品質の高い部品を使い、十分に試験する</td></tr>
+                <tr><th scope="row">フォールトトレランス</th><td>障害が起きても、要求された機能を維持する</td><td>予備サーバへ自動で切り替える</td></tr>
+                <tr><th scope="row">フェイルセーフ</th><td>障害時に安全な状態へ移る</td><td>異常を検知した機械を停止する</td></tr>
+                <tr><th scope="row">フェイルソフト</th><td>機能や性能を制限して、可能な範囲で処理を続ける</td><td>一部のサーバが故障しても残りで処理を続ける</td></tr>
+                <tr><th scope="row">フールプルーフ</th><td>利用者の誤操作による問題を防ぐ</td><td>危険な操作を実行できないように制御する</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/06_fail_safe_fail_soft.svg" width="680" height="428" loading="lazy" decoding="async" alt="障害後に安全な状態へ移るフェイルセーフと、機能や性能を制限して処理を続けるフェイルソフトの違い" />
+          </figure>
+        </section>
+
+        <section>
+          <h2>冗長化と稼働率</h2>
+          <p><strong>冗長化</strong>とは、必要最低限の構成に予備の機器や回線などを加え、一部に障害が起きてもシステム全体の機能を保てるようにすることです。予備サーバ、複数の通信経路、予備電源などを用意する方法があります。</p>
+          <p>機器や回線の稼働・故障が互いに独立し、利用可能な経路があれば通信できると仮定すると、接続方法と各部分の稼働率から全体の稼働率を計算できます。</p>
+
+          <h3>直列構成</h3>
+          <p>必要な機器や回線がすべて正常に動作している場合だけ、システム全体を利用できる構成を<strong>直列構成</strong>といいます。稼働率がそれぞれa、bの二つの要素を直列につなぐと、全体の稼働率は両方が正常である確率です。</p>
+          <p class="term-formula"><strong>R ＝ a × b</strong></p>
+          <p>例えば、二つの回線の稼働率がどちらも0.9なら、R＝0.9 × 0.9＝0.81、つまり81％です。一つでも故障すると全体が使えないため、直列に必要な要素が増えるほど、稼働率は低下するか同じ値にとどまります。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/07_series_configuration.svg" width="640" height="220" loading="lazy" decoding="async" alt="稼働率0.9の回線を2本直列につなぎ、両方が正常でなければ通信できない構成" />
+          </figure>
+
+          <h3>並列構成</h3>
+          <p>複数の機器や回線のうち、少なくとも一つが正常なら全体を利用できる構成を<strong>並列構成</strong>といいます。稼働率がa、bの二つの要素を並列につなぐ場合、全体が使えないのは両方が停止したときです。</p>
+          <p class="term-formula"><strong>R ＝ 1 −（1 − a）（1 − b）</strong></p>
+          <p>二つの回線がどちらも0.9なら、R＝1−（1−0.9）（1−0.9）＝0.99、つまり99％です。予備の回線を加えると、一方が故障してももう一方で通信を続けられます。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/08_parallel_configuration.svg" width="640" height="306" loading="lazy" decoding="async" alt="稼働率0.9の回線を2本並列につなぎ、少なくとも一方が正常なら通信できる構成" />
+          </figure>
+
+          <h3>直列・並列を組み合わせた構成</h3>
+          <p>実際のシステムでは、直列と並列を組み合わせます。例えば、稼働率0.9の直接経路と、稼働率0.9の回線を二つ直列につないだ予備経路が並列になっている場合を考えます。</p>
+          <p>予備経路の稼働率は0.9 × 0.9＝0.81です。二つの経路が独立なら、全体は、</p>
+          <p class="term-formula"><strong>R ＝ 1 −（1 − 0.9）（1 − 0.81）＝ 0.981</strong></p>
+          <p>となり、稼働率は98.1％です。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/09_combined_configuration.svg" width="640" height="340" loading="lazy" decoding="async" alt="稼働率0.9の直接経路と、稼働率0.9の回線2本からなる予備経路を並列にした構成" />
+          </figure>
+
+          <h3>目標稼働率から必要な予備回線を求める</h3>
+          <p>予備回線の稼働率を、目標を満たすように求めることもできます。図のように、稼働率0.9の直接経路と、稼働率0.8の回線および稼働率pの予備回線を直列につないだ経路が並列になっている場合、全体の稼働率は次のように表せます。</p>
+          <p class="term-formula"><strong>R ＝ 1 −（1 − 0.9）（1 − 0.8p）<br />　 ＝ 0.9 ＋ 0.08p</strong></p>
+          <p>全体の稼働率を95％以上にするには、0.9＋0.08p＝0.95を満たすpを求めます。p＝0.625なので、予備回線の稼働率が62.5％以上なら、計算上は目標の95％に達します。</p>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/10_target_availability.svg" width="640" height="340" loading="lazy" decoding="async" alt="稼働率0.9の直接経路と、稼働率0.8およびpの回線を直列につないだ予備経路の構成" />
+          </figure>
+          <figure class="term-note-figure term-note-figure--framed">
+            <img src="assets/11_availability_graph_static.svg" width="680" height="710" loading="lazy" decoding="async" alt="R＝0.9＋0.08pの式をグラフ化し、予備回線の稼働率が62.5％のとき全体の稼働率が95％になることを示す図" />
+          </figure>
+          <p>実際には、予備機器が主系統と同じ電源、建物、通信経路などを共有すると、同じ原因で同時に停止することがあります。独立性の仮定が成り立たない場合、単純な式で計算した値より全体の稼働率が低くなることがあります。</p>
+        </section>
+
+        <section>
+          <h2>ネットワーク通信の信頼性</h2>
+          <p>ネットワーク通信では、データが小さな単位に分割されて送られます。通信経路の混雑や機器の障害などによって、一部のデータが失われたり、到着順が入れ替わったりすることがあります。</p>
+          <h3>IPとTCPの役割</h3>
+          <p><strong>IP（Internet Protocol）</strong>は、IPアドレスを用いて、IPデータグラムを宛先まで配送するためのプロトコルです。IPは各データグラムを届ける仕組みを提供しますが、すべてが確実に到着することや、送信した順序どおりに到着することまでは保証しません。このような方式を<strong>ベストエフォート型</strong>といいます。</p>
+          <p><strong>TCP（Transmission Control Protocol）</strong>はトランスポート層のプロトコルで、IPの上で信頼性のあるデータ通信を実現します。</p>
+        </section>
+      </div>
+      <section class="term-practice-section" aria-labelledby="term-example-heading">
+        <div class="term-section-heading">
+          <p class="eyebrow">EXAMPLE</p>
+          <h2 id="term-example-heading">例題</h2>
+        </div>
+
+        <article class="question-card term-example-card">
+          <div class="question-meta"><span>信頼性 · EXAMPLE</span><span>オリジナル</span></div>
+          <h3>Web記事が引用する統計値の信頼性を確かめたい。検証方法として最も適当なものを次から選べ。</h3>
+          <ol class="choice-list">
+            <li><span>0</span><p>検索結果の先頭に出た記事なので、本文と出典を読まず正しいと判断する</p></li>
+            <li><span>1</span><p>投稿者の知名度だけを根拠に、引用元の調査条件を確認しない</p></li>
+            <li><span>2</span><p>見出しが自分の考えと一致すれば、数値の母集団や調査時期を確認しない</p></li>
+            <li><span>3</span><p>引用リンクをたどって調査主体・方法・原データを確認し、独立した資料とも照合する</p></li>
+          </ol>
+          <details class="answer-panel">
+            <summary><span>解答・解説を確認</span><span class="detail-icon" aria-hidden="true"></span></summary>
+            <div class="answer-content">
+              <p class="correct-answer"><span>正解</span><strong>3．引用リンクをたどって調査主体・方法・原データを確認し、独立した資料とも照合する</strong></p>
+              <div class="explanation">
+                <h3>解説</h3>
+                <p>一次資料へ遡り、誰がどの母集団をどの方法・時期で調べたかを確認し、独立した資料とも照合します。検索順位は関連性やページの有用性など多くの要因で決まり、内容の正確さを保証しません。</p>
+              </div>
+              <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
+              <p class="term-related-keywords">関連キーワード：信頼性／一次情報</p>
+            </div>
+          </details>
+        </article>
+      </section>
+
+      <section class="term-challenge-section" data-term-challenge aria-labelledby="term-challenge-heading">
+        <div>
+          <p class="eyebrow">PRACTICE</p>
+          <h2 id="term-challenge-heading">信頼性の問題に挑戦</h2>
+          <p class="term-challenge-message" data-term-challenge-message aria-live="polite"></p>
+        </div>
+        <button class="button button-primary term-challenge-button" type="button" data-term-challenge-button data-tag="信頼性" data-limit="5" data-exclude-stem="Web記事が引用する統計値の信頼性を確かめたい。検証方法として最も適当なものを次から選べ。">アプリで解く</button>
+      </section>
+
+      <p class="term-back-link"><a href="../../info1-quiz-app/questions/#tag=信頼性">信頼性の問題を見る</a></p>
+      <div class="manual-ad-slot manual-ad-slot--article" data-manual-ad="article" hidden></div>
+
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"信頼性とは","description":"情報の信頼性を評価する方法、システムの信頼性と稼働率、冗長化、TCPによる通信の信頼性を高校「情報Ⅰ」向けに解説します。","url":"https://mei-chan-nel.com/terms/reliability/","inLanguage":"ja","isPartOf":{"@type":"WebSite","name":"情報Ⅰ Study Atlas","url":"https://mei-chan-nel.com/"}}</script>
+      <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"学習トップ","item":"https://mei-chan-nel.com/"},{"@type":"ListItem","position":2,"name":"用語一覧","item":"https://mei-chan-nel.com/terms/"},{"@type":"ListItem","position":3,"name":"信頼性","item":"https://mei-chan-nel.com/terms/reliability/"}]}</script>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <a class="brand footer-brand" href="../../" aria-label="情報Ⅰ Study Atlas トップ"><span><strong>情報Ⅰ Study Atlas</strong><small>知識を、ひろげ、つなげる</small></span></a>
+        <nav aria-label="フッターナビゲーション">
+          <a href="../../">トップページ</a>
+          <a href="../../info1-quiz-app/app/">学習アプリ</a>
+          <a href="../../mock-exams/">実戦演習</a>
+          <a href="../../lab/">ラボ</a>
+          <a href="../../info1-quiz-app/questions/">問題を探す</a>
+          <a href="../">用語一覧</a>
+          <a href="../../program-trace/">プログラムトレース</a>
+          <a href="../../archive/">解説動画</a>
+          <a href="../../LectureNote/">講義ノート</a>
+          <a href="../../about.html">このサイトについて</a>
+          <a href="../../study-guide.html">使い方</a>
+          <a href="../../books/">書籍案内</a>
+          <a href="../../privacy.html">プライバシーポリシー</a>
+          <a href="../../sitemap.html">サイトマップ</a>
+        </nav>
+      </div>
+      <p class="copyright"><small>&copy; 2026 めいちゃんねる</small></p>
+    </footer>
+    <script src="../../assets/site-header.js?v=20261101-nav-order"></script>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+.term-page--reliability .term-note-figure--framed {
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
