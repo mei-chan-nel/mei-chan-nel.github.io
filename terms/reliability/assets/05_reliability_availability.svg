@@ -26,5 +26,5 @@
 <text x="25" y="159" text-anchor="start" font-size="11" font-weight="400" fill="#334155">正常動作</text>
 <rect x="130" y="150" width="10" height="10" rx="1" fill="#e89c72" stroke="none"/>
 <text x="145" y="159" text-anchor="start" font-size="11" font-weight="400" fill="#334155">故障・復旧</text>
-<text x="170" y="178" text-anchor="middle" font-size="10" font-weight="400" fill="#334155">故障回数が異なっても、稼働率は同じ場合がある</text>
+<text x="170" y="178" text-anchor="middle" font-size="10" font-weight="400" fill="#334155">故障が多くても、短時間で復旧すれば高い稼働率を保てる場合がある</text>
 </g></svg>
