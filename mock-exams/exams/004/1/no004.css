@@ -1,0 +1,70 @@
+/* The five submitted sections have different source layouts. Keep the reading
+   and print typography consistent while preserving their diagrams and tables. */
+body[data-section] .exam-question {
+  font: inherit;
+  text-align: left;
+  text-indent: 0;
+  margin: 1em 0 .65em;
+}
+body[data-section] [data-field] {
+  display: inline-flex !important;
+  box-sizing: border-box !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 2.3em !important;
+  width: auto !important;
+  height: 1.7em !important;
+  padding: 0 .4em !important;
+  margin-inline: 0 !important;
+  border: 2px solid #222 !important;
+  border-radius: 0 !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+  text-indent: 0 !important;
+  white-space: nowrap;
+  font-family: inherit;
+  font-weight: 500;
+  font-style: normal;
+}
+body[data-section] .code [data-field] {
+  height: 1.5em !important;
+}
+body [data-column-align="left"] { text-align: left !important; }
+body [data-column-align="center"] { text-align: center !important; }
+body[data-section] .explanation-unit p {
+  text-align: left;
+  text-indent: 0;
+}
+.solution-unit-heading, .solution-unit-answer, .solution-section-heading { break-after: avoid; }
+@media screen {
+  main.solution { width: 100%; max-width: none; margin: 0; padding: 16px; }
+  .explanation-unit { display: flow-root; }
+}
+@media print {
+  body[data-section] {
+    font: 11pt/1.7 "Noto Serif CJK JP", "Yu Mincho", serif !important;
+    color: #111 !important;
+  }
+  body[data-section] .exam-question { font-size: 11pt !important; }
+  body[data-section] .sheet { display: block !important; }
+  .program, .code { font-family: "Noto Sans Mono CJK JP", monospace; }
+  .solution-section-heading {
+    margin: 0 0 5mm;
+    text-align: left;
+    font-size: 14pt;
+  }
+  .explanation-unit { margin-bottom: 5mm; }
+  .explanation-unit p { widows: 2; orphans: 2; }
+  .studio-program-link { display: none; }
+}
+/* Figure 3 refers back to two earlier answers using the source's thin frame. */
+body[data-section="q3"] .code .reference-blank[data-field] { border-width: 1px !important; }
+.choice-reasons { width: 100%; }
+.choice-reasons tr > :nth-child(-n+2) {
+  width: 1%;
+  white-space: nowrap;
+}
+.sheet, .page, main.solution, .interleaved-explanation { box-sizing: border-box; }
+@media print {
+  .explanation-unit, .sources { break-inside: avoid; }
+}

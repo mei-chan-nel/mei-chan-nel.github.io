@@ -1,0 +1,1833 @@
+{
+  "schemaVersion": 1,
+  "id": "004",
+  "version": 1,
+  "title": "情報Ⅰ 実戦演習 No.004",
+  "durationSeconds": 3600,
+  "maxPoints": 100,
+  "sections": [
+    {
+      "id": "q1",
+      "title": "第1問",
+      "maxPoints": 20,
+      "sourceVersion": "1.7.0",
+      "problem": "q1.html",
+      "screenProblem": "screen/q1.html",
+      "sourceProblem": "source/Q1_004_problem.htm",
+      "sourceSha256": "da2066f47f710ba28a301a1739ecb1f97609175efdd46bd343e1826f34149111",
+      "solution": "q1-solution.html",
+      "screenSolution": "screen/q1-solution.html",
+      "sourceSolution": "source/Q1_004_answers.htm",
+      "solutionSha256": "111fb9b318f4b659177f8832977c5a1ba55aa6f95cebd4592efc0c97934345f4"
+    },
+    {
+      "id": "q2a",
+      "title": "第2問A",
+      "maxPoints": 15,
+      "problem": "q2a.html",
+      "screenProblem": "screen/q2a.html",
+      "sourceProblem": "source/Q2A_No004_problem.htm",
+      "sourceSha256": "db96b0280cc012066564fd78170471eae340b8516c40a5abb9806358240c03b6",
+      "solution": "q2a-solution.html",
+      "screenSolution": "screen/q2a-solution.html",
+      "sourceSolution": "source/Q2A_No004_answers.htm",
+      "solutionSha256": "7fedb959259467157bfd2a12c0bfcc2106b74626222d07a17ee3f2812f3a2bb4"
+    },
+    {
+      "id": "q2b",
+      "title": "第2問B",
+      "maxPoints": 15,
+      "sourceVersion": "1.2.7",
+      "problem": "q2b.html",
+      "screenProblem": "screen/q2b.html",
+      "sourceProblem": "source/Q2B_004_problem_v1.2.7.html",
+      "sourceSha256": "e8fc3840e4d42eb0823cd0fe4636072ed0de9cdfdb9cd3a931f65a8a192a873b",
+      "solution": "q2b-solution.html",
+      "screenSolution": "screen/q2b-solution.html",
+      "sourceSolution": "source/Q2B_004_answers_v1.2.7.html",
+      "solutionSha256": "c496cefa4b5f6d55dc7953b86c1a54f652108beb60e46041a335efdfdac1cc10"
+    },
+    {
+      "id": "q3",
+      "title": "第3問",
+      "maxPoints": 25,
+      "sourceVersion": "3.3.2",
+      "problem": "q3.html",
+      "screenProblem": "screen/q3.html",
+      "sourceProblem": "source/Q3_004_problem_v3.3.2.html",
+      "sourceSha256": "d64cbc29b3fbdbdd0cd1a57dc49b27fc4efaf17cd99ce4a7ecf8e5c2bded3c1d",
+      "solution": "q3-solution.html",
+      "screenSolution": "screen/q3-solution.html",
+      "sourceSolution": "source/Q3_004_solution_v3.3.2.html",
+      "solutionSha256": "d0e95ae9e64bf851356c058f276e88a01777cafd014f4348741b8c6b799cba58"
+    },
+    {
+      "id": "q4",
+      "title": "第4問",
+      "maxPoints": 25,
+      "sourceVersion": "3.4.6",
+      "problem": "q4.html",
+      "screenProblem": "screen/q4.html",
+      "sourceProblem": "source/Q4_004_problem_v3.4.6.html",
+      "sourceSha256": "8cd904778d337ce7060c7cfb572f4478917bf08f34bfac87d0bbf4659633391a",
+      "solution": "q4-solution.html",
+      "screenSolution": "screen/q4-solution.html",
+      "sourceSolution": "source/Q4_004_explanation_v3.4.6.html",
+      "solutionSha256": "c71f936a556f79aa435eaccd1973189677057a533596ba8ad3e7f1d2dce7e915"
+    }
+  ],
+  "fields": [
+    {
+      "id": "q1-ア",
+      "sectionId": "q1",
+      "label": "ア",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "実行に必要なプログラムを主記憶装置からSSDへ読み込み，CPUが命令を実行する。"
+        },
+        {
+          "value": "1",
+          "text": "実行に必要なプログラムを主記憶装置からCPUへ読み込み，SSDが命令を実行する。"
+        },
+        {
+          "value": "2",
+          "text": "実行に必要なプログラムをSSDから主記憶装置へ読み込み，CPUが命令を実行する。"
+        },
+        {
+          "value": "3",
+          "text": "実行に必要なプログラムをSSDからCPUへ読み込み，主記憶装置が命令を実行する。"
+        }
+      ]
+    },
+    {
+      "id": "q1-イ",
+      "sectionId": "q1",
+      "label": "イ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "A社が暗号化に使う鍵：A社の公開鍵、B社が復号に使う鍵：A社の秘密鍵"
+        },
+        {
+          "value": "1",
+          "text": "A社が暗号化に使う鍵：A社の公開鍵、B社が復号に使う鍵：B社の秘密鍵"
+        },
+        {
+          "value": "2",
+          "text": "A社が暗号化に使う鍵：A社の秘密鍵、B社が復号に使う鍵：A社の公開鍵"
+        },
+        {
+          "value": "3",
+          "text": "A社が暗号化に使う鍵：A社の秘密鍵、B社が復号に使う鍵：B社の公開鍵"
+        },
+        {
+          "value": "4",
+          "text": "A社が暗号化に使う鍵：B社の公開鍵、B社が復号に使う鍵：A社の秘密鍵"
+        },
+        {
+          "value": "5",
+          "text": "A社が暗号化に使う鍵：B社の公開鍵、B社が復号に使う鍵：B社の秘密鍵"
+        },
+        {
+          "value": "6",
+          "text": "A社が暗号化に使う鍵：B社の秘密鍵、B社が復号に使う鍵：A社の公開鍵"
+        },
+        {
+          "value": "7",
+          "text": "A社が暗号化に使う鍵：B社の秘密鍵、B社が復号に使う鍵：B社の公開鍵"
+        }
+      ]
+    },
+    {
+      "id": "q1-ウ",
+      "sectionId": "q1",
+      "label": "ウ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q1-エ",
+      "sectionId": "q1",
+      "label": "エ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q1-オ",
+      "sectionId": "q1",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "場面Ⅰ：P、場面Ⅱ：R"
+        },
+        {
+          "value": "1",
+          "text": "場面Ⅰ：Q、場面Ⅱ：Q"
+        },
+        {
+          "value": "2",
+          "text": "場面Ⅰ：R、場面Ⅱ：P"
+        },
+        {
+          "value": "3",
+          "text": "場面Ⅰ：Q、場面Ⅱ：R"
+        }
+      ]
+    },
+    {
+      "id": "q1-カ",
+      "sectionId": "q1",
+      "label": "カ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q1-キ",
+      "sectionId": "q1",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "商品の行：同じ、行の中のボタン：異なる"
+        },
+        {
+          "value": "1",
+          "text": "商品の行：異なる、行の中のボタン：同じ"
+        },
+        {
+          "value": "2",
+          "text": "商品の行：異なる、行の中のボタン：異なる"
+        },
+        {
+          "value": "3",
+          "text": "商品の行：同じ、行の中のボタン：同じ"
+        }
+      ]
+    },
+    {
+      "id": "q1-ク",
+      "sectionId": "q1",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "選ぶ案：B、割合の差：10ポイント"
+        },
+        {
+          "value": "1",
+          "text": "選ぶ案：B、割合の差：5ポイント"
+        },
+        {
+          "value": "2",
+          "text": "選ぶ案：D、割合の差：10ポイント"
+        },
+        {
+          "value": "3",
+          "text": "選ぶ案：D、割合の差：5ポイント"
+        }
+      ]
+    },
+    {
+      "id": "q1-ケ",
+      "sectionId": "q1",
+      "label": "ケ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "ルータ機能R"
+        },
+        {
+          "value": "1",
+          "text": "ハブ機能H"
+        },
+        {
+          "value": "2",
+          "text": "無線AP W"
+        },
+        {
+          "value": "3",
+          "text": "ハブJ"
+        }
+      ]
+    },
+    {
+      "id": "q1-コ",
+      "sectionId": "q1",
+      "label": "コ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "端末Tと無線AP Wの接続"
+        },
+        {
+          "value": "1",
+          "text": "ハブHとハブJの間の接続"
+        },
+        {
+          "value": "2",
+          "text": "ハブJと共有保存装置の接続"
+        },
+        {
+          "value": "3",
+          "text": "家庭用ルータとインターネットの接続"
+        }
+      ]
+    },
+    {
+      "id": "q1-サ",
+      "sectionId": "q1",
+      "label": "サ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "元のケーブルには異常があるが，元の端子の状態はH側もJ側も特定できない。"
+        },
+        {
+          "value": "1",
+          "text": "元のケーブルは正常で，H側の元の端子には異常があるが，J側の元の端子の状態は特定できない。"
+        },
+        {
+          "value": "2",
+          "text": "元のケーブルは正常で，H側とJ側の元の端子はどちらも異常である。"
+        },
+        {
+          "value": "3",
+          "text": "元のケーブルは正常で，H側とJ側の元の端子の少なくとも一方に異常があるが，異常があると断定できる端子はない。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ア",
+      "label": "ア",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "混雑の報告を受信した施設だけを地図に表示し，施設名と混雑区分を示す。開設だけが報告された施設は表示しない。"
+        },
+        {
+          "value": "1",
+          "text": "全施設を地図に残し，開設済みで混雑の報告がない施設は「空きあり」，開設の報告がない施設は「未確認」と示す。"
+        },
+        {
+          "value": "2",
+          "text": "全施設を地図に残し，開設状況と混雑状況を別の項目で示して，報告を受信していない項目は「未確認」と示す。"
+        },
+        {
+          "value": "3",
+          "text": "全施設を地図に残し，開設状況と混雑状況を別の項目で示して，開設の報告がない施設は「未開設」と示す。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-イ",
+      "label": "イ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "9時14分から9時20分の直前まで"
+        },
+        {
+          "value": "1",
+          "text": "9時20分から9時22分の直前まで"
+        },
+        {
+          "value": "2",
+          "text": "9時22分から9時29分の直前まで"
+        },
+        {
+          "value": "3",
+          "text": "9時29分から9時33分の直前まで"
+        }
+      ]
+    },
+    {
+      "id": "q2a-ウ",
+      "label": "ウ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "確認時刻が新しければ表示を更新し，区分が同じときも確認時刻を更新する。"
+        },
+        {
+          "value": "1",
+          "text": "確認時刻が新しく，かつ区分が変わったときに，区分と確認時刻を更新する。"
+        },
+        {
+          "value": "2",
+          "text": "受信時刻が新しければ区分を更新し，時刻欄にはその報告の確認時刻を表示する。"
+        },
+        {
+          "value": "3",
+          "text": "確認時刻が新しければ区分を更新し，時刻欄にはその報告の受信時刻を表示する。"
+        }
+      ]
+    },
+    {
+      "id": "q2a-エ",
+      "label": "エ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "調査時刻に画面に表示されていた混雑区分と，表示のもとになった報告の混雑区分"
+        },
+        {
+          "value": "1",
+          "text": "調査時刻に画面に表示されていた混雑区分と，同じ時刻に現地の職員が記録した混雑区分"
+        },
+        {
+          "value": "2",
+          "text": "調査時刻に現地の職員が記録した混雑区分と，その後に最初に届いた報告の混雑区分"
+        },
+        {
+          "value": "3",
+          "text": "調査時刻の直前に届いた報告の混雑区分と，直後に届いた報告の混雑区分"
+        }
+      ]
+    },
+    {
+      "id": "q2a-オ",
+      "label": "オ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "0分"
+        },
+        {
+          "value": "1",
+          "text": "10分"
+        },
+        {
+          "value": "2",
+          "text": "15分"
+        },
+        {
+          "value": "3",
+          "text": "20分"
+        }
+      ]
+    },
+    {
+      "id": "q2a-カ",
+      "label": "カ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "16時2分：空きあり、16時28分：空きあり"
+        },
+        {
+          "value": "1",
+          "text": "16時2分：混雑は未確認、16時28分：やや混雑"
+        },
+        {
+          "value": "2",
+          "text": "16時2分：混雑は未確認、16時28分：空きあり"
+        },
+        {
+          "value": "3",
+          "text": "16時2分：空きあり、16時28分：やや混雑"
+        }
+      ]
+    },
+    {
+      "id": "q2a-キ",
+      "label": "キ",
+      "sectionId": "q2a",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "再開設後に最初に受信した報告を，確認時刻にかかわらず更新の対象から外してしまう。"
+        },
+        {
+          "value": "1",
+          "text": "再開設後に受信した報告をすべて更新の対象にし，受信するたびにその内容で混雑欄を上書きしてしまう。"
+        },
+        {
+          "value": "2",
+          "text": "再開設後に更新の対象となった報告のうち，最初に受信した報告だけを混雑欄に表示してしまう。"
+        },
+        {
+          "value": "3",
+          "text": "再開設時刻を更新対象の判定に使わず，閉鎖前に確認した報告も対象にしてしまう。"
+        }
+      ]
+    },
+    {
+      "id": "q2b-コ",
+      "label": "コ",
+      "sectionId": "q2b",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q2b-サ",
+      "label": "サ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "誤隔離率は28％となり，検出率は96％となる"
+        },
+        {
+          "value": "1",
+          "text": "誤隔離率は28％となり，検出率は56％となる"
+        },
+        {
+          "value": "2",
+          "text": "誤隔離率は14％となり，検出率は48％となる"
+        },
+        {
+          "value": "3",
+          "text": "誤隔離率は8％となり，検出率は76％となる"
+        }
+      ]
+    },
+    {
+      "id": "q2b-シ",
+      "label": "シ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "2点だけである"
+        },
+        {
+          "value": "1",
+          "text": "3点だけである"
+        },
+        {
+          "value": "2",
+          "text": "2点と3点である"
+        },
+        {
+          "value": "3",
+          "text": "一つもない"
+        }
+      ]
+    },
+    {
+      "id": "q2b-ス",
+      "label": "ス",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "件名に「当選」を含み，さらに，件名に「無料」を含むか本文にURLを含む"
+        },
+        {
+          "value": "1",
+          "text": "件名に「当選」を含むか，又は件名に「無料」を含みかつ本文にURLを含む"
+        },
+        {
+          "value": "2",
+          "text": "件名に「当選」を含む"
+        },
+        {
+          "value": "3",
+          "text": "件名に「無料」を含むか，本文にURLを含む"
+        }
+      ]
+    },
+    {
+      "id": "q2b-セ",
+      "label": "セ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "通常メールと迷惑メールの通数がそろっていないからである"
+        },
+        {
+          "value": "1",
+          "text": "隔離の基準値が低く，両方とも隔離されるからである"
+        },
+        {
+          "value": "2",
+          "text": "両方にURLが含まれ，新しい特徴を追加しても区別できないからである"
+        },
+        {
+          "value": "3",
+          "text": "四つの特徴が全て同じため，2通の振り分け先が同じになるからである"
+        }
+      ]
+    },
+    {
+      "id": "q2b-ソ",
+      "label": "ソ",
+      "sectionId": "q2b",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "送信元アドレスが連絡先に登録されている迷惑メールを必ず受信箱に入れる"
+        },
+        {
+          "value": "1",
+          "text": "送信元アドレスが連絡先に登録されている通常メールを隔離することがある"
+        },
+        {
+          "value": "2",
+          "text": "未登録で，問3では隔離される迷惑メールを受信箱に入れることがある"
+        },
+        {
+          "value": "3",
+          "text": "未登録で，問3では受信箱に入る通常メールを隔離することがある"
+        }
+      ]
+    },
+    {
+      "id": "q3-ア",
+      "sectionId": "q3",
+      "label": "ア",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-イ",
+      "sectionId": "q3",
+      "label": "イ",
+      "type": "text",
+      "allowed": "0123456789",
+      "maxLength": 1
+    },
+    {
+      "id": "q3-ウ",
+      "sectionId": "q3",
+      "label": "ウ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Jun[i]"
+        },
+        {
+          "value": "1",
+          "text": "Jun[r]"
+        },
+        {
+          "value": "2",
+          "text": "Goukei[i]"
+        },
+        {
+          "value": "3",
+          "text": "Goukei[r]"
+        }
+      ]
+    },
+    {
+      "id": "q3-エ",
+      "sectionId": "q3",
+      "label": "エ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Haiten[i]"
+        },
+        {
+          "value": "1",
+          "text": "Jun[r]"
+        },
+        {
+          "value": "2",
+          "text": "Haiten[r]"
+        },
+        {
+          "value": "3",
+          "text": "Jun[i]"
+        }
+      ]
+    },
+    {
+      "id": "q3-オ",
+      "sectionId": "q3",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Goukei[r] + Haiten[k]"
+        },
+        {
+          "value": "1",
+          "text": "Goukei[k] + Haiten[k]"
+        },
+        {
+          "value": "2",
+          "text": "Goukei[r] + Haiten[r]"
+        },
+        {
+          "value": "3",
+          "text": "Goukei[k] + Haiten[r]"
+        }
+      ]
+    },
+    {
+      "id": "q3-カ",
+      "sectionId": "q3",
+      "label": "カ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "４回，４回，４回"
+        },
+        {
+          "value": "1",
+          "text": "16回，16回，４回"
+        },
+        {
+          "value": "2",
+          "text": "16回，４回，16回"
+        },
+        {
+          "value": "3",
+          "text": "４回，16回，16回"
+        }
+      ]
+    },
+    {
+      "id": "q3-キ",
+      "sectionId": "q3",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "(01)行目の前"
+        },
+        {
+          "value": "1",
+          "text": "(02)行目の後・(03)行目の前"
+        },
+        {
+          "value": "2",
+          "text": "(03)行目の繰り返しの中"
+        },
+        {
+          "value": "3",
+          "text": "(03)行目の繰り返しを終えた後・(05)行目の前"
+        }
+      ]
+    },
+    {
+      "id": "q3-ク",
+      "sectionId": "q3",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Namae[j] == kyogi"
+        },
+        {
+          "value": "1",
+          "text": "Namae[i] != kyogi"
+        },
+        {
+          "value": "2",
+          "text": "Namae[j] != kyogi"
+        },
+        {
+          "value": "3",
+          "text": "Namae[i] == kyogi"
+        }
+      ]
+    },
+    {
+      "id": "q3-ケ",
+      "sectionId": "q3",
+      "label": "ケ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Bairitsu[i]"
+        },
+        {
+          "value": "1",
+          "text": "Bairitsu[j]"
+        },
+        {
+          "value": "2",
+          "text": "Haiten[i]"
+        },
+        {
+          "value": "3",
+          "text": "Haiten[j]"
+        }
+      ]
+    },
+    {
+      "id": "q3-コ",
+      "sectionId": "q3",
+      "label": "コ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Goukei[k] + Haiten[r] * b"
+        },
+        {
+          "value": "1",
+          "text": "(Goukei[k] + Haiten[r]) * b"
+        },
+        {
+          "value": "2",
+          "text": "Goukei[r] + Haiten[k] * b"
+        },
+        {
+          "value": "3",
+          "text": "(Goukei[r] + Haiten[k]) * b"
+        }
+      ]
+    },
+    {
+      "id": "q3-サ",
+      "sectionId": "q3",
+      "label": "サ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "Goukei[k] + Relay[k] * (b - mae)"
+        },
+        {
+          "value": "1",
+          "text": "Goukei[k] + Relay[b] * (b - mae)"
+        },
+        {
+          "value": "2",
+          "text": "Goukei[k] + Relay[k] * b"
+        },
+        {
+          "value": "3",
+          "text": "Goukei[k] + Relay[b] * b"
+        }
+      ]
+    },
+    {
+      "id": "q3-シ",
+      "sectionId": "q3",
+      "label": "シ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "(03)行目の後・(04)行目の前"
+        },
+        {
+          "value": "1",
+          "text": "(05)行目の後・(06)行目の前"
+        },
+        {
+          "value": "2",
+          "text": "(08)行目の後・(09)行目の前"
+        },
+        {
+          "value": "3",
+          "text": "全学級の処理後・(10)行目の前"
+        }
+      ]
+    },
+    {
+      "id": "q4-ア",
+      "sectionId": "q4",
+      "label": "ア",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "噴出間隔が72分前後の回が最も多いため，多くの回で実際の開始時刻に近い案内になる"
+        },
+        {
+          "value": "1",
+          "text": "平均を境に回数が半分ずつに分かれるため，予測より早く始まる回と遅く始まる回は同数になる"
+        },
+        {
+          "value": "2",
+          "text": "平均から離れた二つの集まりがあるため，短い側と長い側のどちらでも実際の開始時刻からずれやすい"
+        },
+        {
+          "value": "3",
+          "text": "平均は長い側の集まりの中心よりも大きいため，長い側の多くの回でも実際の開始より遅い案内になる"
+        }
+      ]
+    },
+    {
+      "id": "q4-イ",
+      "sectionId": "q4",
+      "label": "イ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "直前の噴出間隔：71分、継続時間：2分9秒、直後の噴出間隔：57分"
+        },
+        {
+          "value": "1",
+          "text": "直前の噴出間隔：57分、継続時間：2分9秒、直後の噴出間隔：71分"
+        },
+        {
+          "value": "2",
+          "text": "直前の噴出間隔：71分、継続時間：4分1秒、直後の噴出間隔：57分"
+        },
+        {
+          "value": "3",
+          "text": "直前の噴出間隔：57分、継続時間：4分1秒、直後の噴出間隔：71分"
+        }
+      ]
+    },
+    {
+      "id": "q4-ウ",
+      "sectionId": "q4",
+      "label": "ウ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "直前の噴出間隔が短く，継続時間も短い"
+        },
+        {
+          "value": "1",
+          "text": "直前の噴出間隔が短く，継続時間が長い"
+        },
+        {
+          "value": "2",
+          "text": "直前の噴出間隔が長く，継続時間も長い"
+        },
+        {
+          "value": "3",
+          "text": "直前の噴出間隔が長く，継続時間が短い"
+        }
+      ]
+    },
+    {
+      "id": "q4-エ",
+      "sectionId": "q4",
+      "label": "エ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "短時間群では5％以下であり，長時間群では5％を超える"
+        },
+        {
+          "value": "1",
+          "text": "短時間群では5％を超え，長時間群では5％以下である"
+        },
+        {
+          "value": "2",
+          "text": "短時間群・長時間群のどちらも5％を超える"
+        },
+        {
+          "value": "3",
+          "text": "短時間群・長時間群のどちらも5％以下である"
+        }
+      ]
+    },
+    {
+      "id": "q4-オ",
+      "sectionId": "q4",
+      "label": "オ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "各群の回数が200回より少なくなったため，相関係数の絶対値が小さくなった"
+        },
+        {
+          "value": "1",
+          "text": "全体と各群で相関係数の符号が一致しているため，同じ回帰直線を用いて予測できる"
+        },
+        {
+          "value": "2",
+          "text": "群の位置の違いも全体の相関に影響するため，群内の関係は分けて確かめる必要がある"
+        },
+        {
+          "value": "3",
+          "text": "全体の相関係数は二群の係数を平均した値であるため，二群の回数が違っても同じ重みでまとめて読み取ればよい"
+        }
+      ]
+    },
+    {
+      "id": "q4-カ",
+      "sectionId": "q4",
+      "label": "カ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "両群とも少なくとも半数の回でずれが5分以内に収まり，長時間群でもずれは全て15分以内である"
+        },
+        {
+          "value": "1",
+          "text": "両群とも少なくとも半数の回でずれが5分以内に収まるが，長時間群には30分を超えてずれる回もある"
+        },
+        {
+          "value": "2",
+          "text": "両群とも少なくとも4分の3の回でずれが5分以内に収まり，長時間群でもずれは全て15分以内である"
+        },
+        {
+          "value": "3",
+          "text": "両群とも少なくとも4分の3の回でずれが5分以内に収まるが，長時間群には30分を超えてずれる回もある"
+        }
+      ]
+    },
+    {
+      "id": "q4-キ",
+      "sectionId": "q4",
+      "label": "キ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "図3のPはQより残差が大きいので，実際の直後の噴出間隔はPの方が約28分短かったと考えられる"
+        },
+        {
+          "value": "1",
+          "text": "方法Bは継続時間だけを使っているので，直前の噴出間隔も加えれば，PとQのずれを両方とも小さくできる可能性がある"
+        },
+        {
+          "value": "2",
+          "text": "PとQの実際の直後の間隔は約28分離れているため，この二項目だけの予測では，少なくとも一方のずれが10分を超える"
+        },
+        {
+          "value": "3",
+          "text": "PとQの実際の直後の噴出間隔の中間を共通の予測値にすれば，両方のずれは10分以内に収まる"
+        }
+      ]
+    },
+    {
+      "id": "q4-ク",
+      "sectionId": "q4",
+      "label": "ク",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "方法Cで5分以内の回は方法Bより10回多く，この差は，方法Bで5分を超え，方法Cで5分以内となった回数を表す。"
+        },
+        {
+          "value": "1",
+          "text": "方法Cの5分以内の割合は方法Bより約10ポイント大きく，10分以内の割合も方法Bより約10ポイント大きい。"
+        },
+        {
+          "value": "2",
+          "text": "三つの方法とも10分以内の割合は約9割であるが，5分を超え10分以内に収まる割合は方法Cが最も大きい。"
+        },
+        {
+          "value": "3",
+          "text": "5分以内に収まる割合は方法Cが最も大きいが，10分を超える割合は三つの方法とも約1割である。"
+        }
+      ]
+    },
+    {
+      "id": "q4-ケ",
+      "sectionId": "q4",
+      "label": "ケ",
+      "type": "choice",
+      "choices": [
+        {
+          "value": "0",
+          "text": "11時11分から11時31分まで"
+        },
+        {
+          "value": "1",
+          "text": "11時08分から11時28分まで"
+        },
+        {
+          "value": "2",
+          "text": "11時06分から11時26分まで"
+        },
+        {
+          "value": "3",
+          "text": "11時10分から11時30分まで"
+        }
+      ]
+    }
+  ],
+  "scoring": [
+    {
+      "id": "q1-01",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-02",
+      "sectionId": "q1",
+      "question": 1,
+      "fields": [
+        "q1-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-03",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-ウ",
+        "q1-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1",
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-04",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-05",
+      "sectionId": "q1",
+      "question": 2,
+      "fields": [
+        "q1-カ"
+      ],
+      "maxPoints": 1,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "5"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-06",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-キ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-07",
+      "sectionId": "q1",
+      "question": 3,
+      "fields": [
+        "q1-ク"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-08",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-09",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q1-10",
+      "sectionId": "q1",
+      "question": 4,
+      "fields": [
+        "q1-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-01",
+      "sectionId": "q2a",
+      "question": 1,
+      "fields": [
+        "q2a-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-02",
+      "sectionId": "q2a",
+      "question": 2,
+      "fields": [
+        "q2a-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-03",
+      "sectionId": "q2a",
+      "question": 2,
+      "fields": [
+        "q2a-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-04",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-05",
+      "sectionId": "q2a",
+      "question": 3,
+      "fields": [
+        "q2a-オ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-06",
+      "sectionId": "q2a",
+      "question": 4,
+      "fields": [
+        "q2a-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2a-07",
+      "sectionId": "q2a",
+      "question": 4,
+      "fields": [
+        "q2a-キ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-01",
+      "sectionId": "q2b",
+      "question": 1,
+      "fields": [
+        "q2b-コ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-02",
+      "sectionId": "q2b",
+      "question": 2,
+      "fields": [
+        "q2b-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-03",
+      "sectionId": "q2b",
+      "question": 2,
+      "fields": [
+        "q2b-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-04",
+      "sectionId": "q2b",
+      "question": 3,
+      "fields": [
+        "q2b-ス"
+      ],
+      "maxPoints": 4,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-05",
+      "sectionId": "q2b",
+      "question": 4,
+      "fields": [
+        "q2b-セ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q2b-06",
+      "sectionId": "q2b",
+      "question": 4,
+      "fields": [
+        "q2b-ソ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-01",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-02",
+      "sectionId": "q3",
+      "question": 1,
+      "fields": [
+        "q3-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "6"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-03",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-ウ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-04",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-エ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-05",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-オ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-06",
+      "sectionId": "q3",
+      "question": 2,
+      "fields": [
+        "q3-カ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-07",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-キ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-08",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ク"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-09",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-ケ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-10",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-コ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-11",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-サ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q3-12",
+      "sectionId": "q3",
+      "question": 3,
+      "fields": [
+        "q3-シ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-01",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-ア"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-02",
+      "sectionId": "q4",
+      "question": 1,
+      "fields": [
+        "q4-イ"
+      ],
+      "maxPoints": 2,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "0"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-03",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-ウ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-04",
+      "sectionId": "q4",
+      "question": 2,
+      "fields": [
+        "q4-エ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-05",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-オ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-06",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-カ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "1"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-07",
+      "sectionId": "q4",
+      "question": 3,
+      "fields": [
+        "q4-キ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-08",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-ク"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "3"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "q4-09",
+      "sectionId": "q4",
+      "question": 4,
+      "fields": [
+        "q4-ケ"
+      ],
+      "maxPoints": 3,
+      "rule": {
+        "kind": "exact",
+        "patterns": [
+          [
+            "2"
+          ]
+        ]
+      }
+    }
+  ]
+}

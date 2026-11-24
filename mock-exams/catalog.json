@@ -65,5 +65,11 @@
     "session": "supp",
     "shortTitle": "2026年度 追・再試験",
     "manifest": "exams/2026Tuishi/1/exam.json"
+  },
+  {
+    "id": "004",
+    "version": 1,
+    "title": "情報Ⅰ 実戦演習 No.004",
+    "manifest": "exams/004/1/exam.json"
   }
 ]

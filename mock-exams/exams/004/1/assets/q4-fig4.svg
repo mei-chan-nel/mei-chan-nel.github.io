@@ -1,0 +1,203 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="残差の絶対値の箱ひげ図。中央値と，外れ値も含めた最小値から最大値までの幅を比較する。" width="487.625pt" height="190.31pt" viewBox="0 0 487.625 190.31" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="f40_figure_1">
+  <g id="f40_patch_1">
+   <path d="M 0 190.31  L 487.625 190.31  L 487.625 0  L 0 0  z " style="fill: #ffffff"/>
+  </g>
+  <g id="f40_axes_1">
+   <g id="f40_patch_2">
+    <path d="M 109.515 149.56  L 480.425 149.56  L 480.425 7.2  L 109.515 7.2  z " style="fill: #ffffff"/>
+   </g>
+   <g id="f40_matplotlib.axis_1">
+    <g id="f40_xtick_1">
+     <g id="f40_line2d_1">
+      <path d="M 115.05097 149.56  L 115.05097 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_2">
+      <defs>
+       <path id="f40_mbd4f587672" d="M 0 0  L 0 3.5  " style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="115.05097" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_1">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="115.05097" y="165.315313" transform="rotate(-0 115.05097 165.315313)">0</text>
+     </g>
+    </g>
+    <g id="f40_xtick_2">
+     <g id="f40_line2d_3">
+      <path d="M 170.410672 149.56  L 170.410672 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_4">
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="170.410672" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_2">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="170.410672" y="165.315313" transform="rotate(-0 170.410672 165.315313)">5</text>
+     </g>
+    </g>
+    <g id="f40_xtick_3">
+     <g id="f40_line2d_5">
+      <path d="M 225.770373 149.56  L 225.770373 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_6">
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="225.770373" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_3">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="225.770373" y="165.315313" transform="rotate(-0 225.770373 165.315313)">10</text>
+     </g>
+    </g>
+    <g id="f40_xtick_4">
+     <g id="f40_line2d_7">
+      <path d="M 281.130075 149.56  L 281.130075 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_8">
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="281.130075" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_4">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="281.130075" y="165.315313" transform="rotate(-0 281.130075 165.315313)">15</text>
+     </g>
+    </g>
+    <g id="f40_xtick_5">
+     <g id="f40_line2d_9">
+      <path d="M 336.489776 149.56  L 336.489776 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_10">
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="336.489776" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_5">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="336.489776" y="165.315313" transform="rotate(-0 336.489776 165.315313)">20</text>
+     </g>
+    </g>
+    <g id="f40_xtick_6">
+     <g id="f40_line2d_11">
+      <path d="M 391.849478 149.56  L 391.849478 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_12">
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="391.849478" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_6">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="391.849478" y="165.315313" transform="rotate(-0 391.849478 165.315313)">25</text>
+     </g>
+    </g>
+    <g id="f40_xtick_7">
+     <g id="f40_line2d_13">
+      <path d="M 447.209179 149.56  L 447.209179 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #b0b0b0; stroke-opacity: 0.18; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="f40_line2d_14">
+      <g>
+       <use xlink:href="#f40_mbd4f587672" x="447.209179" y="149.56" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_7">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="447.209179" y="165.315313" transform="rotate(-0 447.209179 165.315313)">30</text>
+     </g>
+    </g>
+    <g id="f40_text_8">
+     <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: middle" x="294.97" y="180.590313" transform="rotate(-0 294.97 180.590313)">予測時刻とのずれの絶対値（分）</text>
+    </g>
+   </g>
+   <g id="f40_matplotlib.axis_2">
+    <g id="f40_ytick_1">
+     <g id="f40_line2d_15">
+      <defs>
+       <path id="f40_m8fba721f7c" d="M 0 0  L -3.5 0  " style="stroke: #000000; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#f40_m8fba721f7c" x="109.515" y="44.484762" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_9">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: end" x="102.515" y="48.862418" transform="rotate(-0 102.515 48.862418)">短時間群（73回）</text>
+     </g>
+    </g>
+    <g id="f40_ytick_2">
+     <g id="f40_line2d_16">
+      <g>
+       <use xlink:href="#f40_m8fba721f7c" x="109.515" y="112.275238" style="stroke: #000000; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="f40_text_10">
+      <text style="font-size: 11px; font-family: 'Noto Sans CJK JP','Yu Gothic','Hiragino Sans',sans-serif; text-anchor: end" x="102.515" y="116.652894" transform="rotate(-0 102.515 116.652894)">長時間群（127回）</text>
+     </g>
+    </g>
+   </g>
+   <g id="f40_patch_3">
+    <path d="M 141.07003 60.754476  L 141.07003 28.215048  L 182.329615 28.215048  L 182.329615 60.754476  L 141.07003 60.754476  z " clip-path="url(#f40_pdb038b0e1d)" style="fill: #e3e8e7; stroke: #263e42; stroke-linejoin: miter"/>
+   </g>
+   <g id="f40_line2d_17">
+    <path d="M 141.07003 44.484762  L 116.68224 44.484762  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_18">
+    <path d="M 182.329615 44.484762  L 242.880215 44.484762  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_19">
+    <path d="M 116.68224 52.619619  L 116.68224 36.349905  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_20">
+    <path d="M 242.880215 52.619619  L 242.880215 36.349905  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_21">
+    <defs>
+     <path id="f40_mfbfc46bfd9" d="M 0 2  C 0.530406 2 1.03916 1.789267 1.414214 1.414214  C 1.789267 1.03916 2 0.530406 2 0  C 2 -0.530406 1.789267 -1.03916 1.414214 -1.414214  C 1.03916 -1.789267 0.530406 -2 0 -2  C -0.530406 -2 -1.03916 -1.789267 -1.414214 -1.414214  C -1.789267 -1.03916 -2 -0.530406 -2 0  C -2 0.530406 -1.789267 1.03916 -1.414214 1.414214  C -1.03916 1.789267 -0.530406 2 0 2  z " style="stroke: #263e42"/>
+    </defs>
+    <g clip-path="url(#f40_pdb038b0e1d)">
+     <use xlink:href="#f40_mfbfc46bfd9" x="366.922845" y="44.484762" style="fill-opacity: 0; stroke: #263e42"/>
+    </g>
+   </g>
+   <g id="f40_patch_4">
+    <path d="M 132.898011 128.544952  L 132.898011 96.005524  L 197.711308 96.005524  L 197.711308 128.544952  L 132.898011 128.544952  z " clip-path="url(#f40_pdb038b0e1d)" style="fill: #e3e8e7; stroke: #263e42; stroke-linejoin: miter"/>
+   </g>
+   <g id="f40_line2d_22">
+    <path d="M 132.898011 112.275238  L 115.349913 112.275238  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_23">
+    <path d="M 197.711308 112.275238  L 274.154752 112.275238  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_24">
+    <path d="M 115.349913 120.410095  L 115.349913 104.140381  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_25">
+    <path d="M 274.154752 120.410095  L 274.154752 104.140381  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #263e42; stroke-linecap: square"/>
+   </g>
+   <g id="f40_line2d_26">
+    <g clip-path="url(#f40_pdb038b0e1d)">
+     <use xlink:href="#f40_mfbfc46bfd9" x="451.305797" y="112.275238" style="fill-opacity: 0; stroke: #263e42"/>
+     <use xlink:href="#f40_mfbfc46bfd9" x="325.334796" y="112.275238" style="fill-opacity: 0; stroke: #263e42"/>
+    </g>
+   </g>
+   <g id="f40_line2d_27">
+    <path d="M 170.410672 149.56  L 170.410672 7.2  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke-dasharray: 3.7,1.6; stroke-dashoffset: 0; stroke: #445e63"/>
+   </g>
+   <g id="f40_line2d_28">
+    <path d="M 165.692184 60.754476  L 165.692184 28.215048  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #111111; stroke-width: 1.8"/>
+   </g>
+   <g id="f40_line2d_29">
+    <path d="M 156.543066 128.544952  L 156.543066 96.005524  " clip-path="url(#f40_pdb038b0e1d)" style="fill: none; stroke: #111111; stroke-width: 1.8"/>
+   </g>
+   <g id="f40_patch_5">
+    <path d="M 109.515 149.56  L 109.515 7.2  " style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="f40_patch_6">
+    <path d="M 109.515 149.56  L 480.425 149.56  " style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="f40_pdb038b0e1d">
+   <rect x="109.515" y="7.2" width="370.91" height="142.36"/>
+  </clipPath>
+ </defs>
+</svg>

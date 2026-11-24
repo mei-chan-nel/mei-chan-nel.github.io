@@ -12,8 +12,25 @@ export function prepareBookDocument(document) {
     table.before(wrapper);
     wrapper.append(table);
   }
+  enableReadingLinks(document);
   setBookLayout(document);
   updateTableHints(document);
+}
+
+// The parent opens learner-selected references and Studio exercises. The
+// embedded documents keep their existing sandbox on both reading layouts.
+export function enableReadingLinks(document) {
+  for (const link of document.querySelectorAll(".studio-program-link a[href], .sources a[href]")) {
+    const url = new URL(link.href);
+    if (!["http:", "https:"].includes(url.protocol)) continue;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.addEventListener("click", (event) => {
+      if (event.defaultPrevented || !event.isTrusted) return;
+      event.preventDefault();
+      window.open(url.href, "_blank", "noopener");
+    });
+  }
 }
 
 export function updateTableHints(document) {

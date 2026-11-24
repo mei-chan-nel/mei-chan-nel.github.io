@@ -194,6 +194,18 @@ const server = http.createServer((req, res) => {
     }
     assert.equal(writes[0].p_results.length, exam.scoring.length);
     await page.getByRole("button", { name: "解説を読む", exact: true }).click();
+    async function checkStudioLaunch(link) {
+      const [studio] = await Promise.all([
+        context.waitForEvent("page", { timeout: 5000 }),
+        link.click(),
+      ]);
+      try {
+        await studio.locator("#runner-view:not([hidden])").waitFor();
+        assert.equal(await studio.locator("#status-text").textContent(), "準備できました");
+      } finally {
+        await studio.close();
+      }
+    }
     for (const section of exam.sections) {
       await page
         .locator("#section-navigation")
@@ -208,6 +220,8 @@ const server = http.createServer((req, res) => {
         .frameLocator("#paired-problem")
         .locator(`[data-reading-units~="${id}"]`)
         .waitFor();
+      const link = page.frameLocator("#book-frame").locator("a[data-studio-program]").first();
+      if (await link.count()) await checkStudioLaunch(link);
     }
     for (const width of [390, 900]) {
       await page.setViewportSize({ width, height: 844 });
@@ -266,6 +280,18 @@ const server = http.createServer((req, res) => {
           ),
         );
         metrics.boxes.forEach((b) => assert.equal(b.ids, b.actual));
+        if (width === 390) {
+          const part = page.frameLocator("#book-frame").locator(
+            ".interleaved-explanation iframe",
+          );
+          for (const frame of await part.all()) {
+            const link = frame.contentFrame().locator("a[data-studio-program]").first();
+            if (await link.count()) {
+              await checkStudioLaunch(link);
+              break;
+            }
+          }
+        }
         if (process.env.READING_SCREENSHOTS) {
           await page.frameLocator("#book-frame").locator(".interleaved-explanation").first().scrollIntoViewIfNeeded();
           await page.screenshot({

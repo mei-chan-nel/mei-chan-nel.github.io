@@ -117,6 +117,8 @@ No.001の例は`mock_exam_001_studio.py`。図2・図4のHTMLからコードを�
 
 リポジトリ直下で実行する。新しい回はまだcatalog.jsonにない状態で検査できる。
 
+No.004の受領原稿から問題・解説・採点定義を再生成するには `python3 scripts/import_mock_exam_004.py` を実行する。大問別の編集と対応箇所は `scripts/mock_exam_004_q*.py`、原稿の正答表から照合した検査データは `mock-exams/exams/004/1/source/qa.json` にある。PDF生成・検査の対象には `exams/004/1/exam.json` を指定する。
+
 ```sh
 # 対象原稿のアダプターで教材とexam.jsonを生成（例）
 python3 scripts/import_mock_exam_002.py
