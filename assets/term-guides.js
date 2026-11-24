@@ -219,6 +219,9 @@ window.StudyAtlasTermGuides = Object.freeze({
   "正規化": {
     "url": "/terms/normalization/"
   },
+  "産業財産権": {
+    "url": "/terms/industrial-property-rights/"
+  },
   "画像": {
     "url": "/terms/image/"
   },
