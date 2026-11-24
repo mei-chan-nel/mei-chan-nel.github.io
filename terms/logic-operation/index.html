@@ -68,14 +68,14 @@
       <div class="prose-content term-copy" id="term-explanation">
         <section>
           <h2>「論理演算」とは</h2>
-          <p><strong>論理演算</strong>とは、<strong>真・偽や0・1を組み合わせて、新しい真・偽や0・1を求める演算</strong>です。</p>
-          <p>コンピュータでは、条件が成り立つことを1、成り立たないことを0として扱うことが多くあります。また、2進数の各ビットも0または1なので、論理演算をビットごとに行うことができます。</p>
-          <p>代表的な論理演算には、AND、OR、NOT、XORがあります。</p>
+          <p><strong>論理演算</strong>とは、<strong>真・偽や0・1を組み合わせて、新しい真・偽や0・1を求める演算</strong>である。</p>
+          <p>コンピュータでは、条件が成り立つことを1、成り立たないことを0として扱うことが多くある。また、2進数の各ビットも0または1なので、論理演算をビットごとに行うことができる。</p>
+          <p>代表的な論理演算には、AND、OR、NOT、XORがある。</p>
         </section>
 
         <section>
           <h2>AND（論理積）</h2>
-          <p>ANDは、<strong>両方が1のときだけ1になる</strong>演算です。</p>
+          <p>ANDは、<strong>両方が1のときだけ1になる</strong>演算である。</p>
           <div class="term-table-wrap">
             <table class="term-scale-table">
               <caption>ANDの真理値表</caption>
@@ -90,27 +90,27 @@
               </tbody>
             </table>
           </div>
-          <p>条件を表す場合には「かつ」に対応します。</p>
+          <p>条件を表す場合には「かつ」に対応する。</p>
           <p>例えば、</p>
           <p class="term-formula"><strong>2024年でありかつ、最高気温が35℃以上である</strong><br />→ 年=2024 AND 最高気温&gt;=35</p>
-          <p>という条件を表せます。</p>
+          <p>という条件を表せる。</p>
           <p>ビット演算では、対応するビットごとにANDを計算して、</p>
           <p class="term-formula"><strong>1010 AND 1100 ＝ 1000</strong></p>
-          <p>のようになります。</p>
-          <p>ANDには、Xを0または1とすると、次の性質があります。</p>
+          <p>のようになる。</p>
+          <p>ANDには、Xを0または1とすると、次の性質がある。</p>
           <p class="term-formula"><strong>X AND 1 ＝ X</strong><br /><strong>X AND 0 ＝ 0</strong></p>
-          <p>この性質を利用すると、必要なビットだけを残す<strong>マスク処理</strong>ができます。</p>
-          <p>例えば、8ビットの値abcdefghの下位4ビットだけを残したい場合、00001111とのANDをとります。</p>
+          <p>この性質を利用すると、必要なビットだけを残す<strong>マスク処理</strong>ができる。</p>
+          <p>例えば、8ビットの値abcdefghの下位4ビットだけを残したい場合、00001111とのANDをとる。</p>
           <pre class="question-code" aria-label="ANDによるマスク処理"><code>    abcdefgh
 AND 00001111
 ------------
     0000efgh</code></pre>
-          <p>この計算では、マスク側が0の部分では元のビット（abcd）が0だったか1だったかにかかわらず、結果を0にして隠せます。マスク側が1の部分では、元のビットをそのまま残せます。</p>
+          <p>この計算では、マスク側が0の部分では元のビット（abcd）が0だったか1だったかにかかわらず、結果を0にして隠せる。マスク側が1の部分では、元のビットをそのまま残せる。</p>
         </section>
 
         <section>
           <h2>OR（論理和）</h2>
-          <p>ORは、<strong>少なくとも一方が1なら1になる</strong>演算です。</p>
+          <p>ORは、<strong>少なくとも一方が1なら1になる</strong>演算である。</p>
           <div class="term-table-wrap">
             <table class="term-scale-table">
               <caption>ORの真理値表</caption>
@@ -125,16 +125,16 @@ AND 00001111
               </tbody>
             </table>
           </div>
-          <p>条件を表す場合には「または」に対応します。</p>
+          <p>条件を表す場合には「または」に対応する。</p>
           <p>例えば、</p>
           <p class="term-formula"><strong>7月または8月</strong><br />→ 月=7 OR 月=8</p>
-          <p>という条件を表せます。</p>
-          <p>ただし、日常的な「または」とは異なり、両方という場合も含まれます。例えば、「食後に、コーヒーまたは紅茶が付きます」という条件を論理的に考えると、「両方ください」という場合も排除されません。</p>
+          <p>という条件を表せる。</p>
+          <p>ただし、日常的な「または」とは異なり、両方という場合も含まれる。例えば、「食後に、コーヒーまたは紅茶が付きます」という条件を論理的に考えると、「両方ください」という場合も排除されない。</p>
         </section>
 
         <section>
           <h2>NOT（否定）</h2>
-          <p>NOTは、<strong>0と1を反転する</strong>演算です。</p>
+          <p>NOTは、<strong>0と1を反転する</strong>演算である。</p>
           <div class="term-table-wrap">
             <table class="term-scale-table">
               <caption>NOTの真理値表</caption>
@@ -151,12 +151,12 @@ AND 00001111
           <p class="term-formula">1110</p>
           <p>を反転（NOT）すると、</p>
           <p class="term-formula"><strong>0001</strong></p>
-          <p>となります。</p>
+          <p>となる。</p>
         </section>
 
         <section>
           <h2>XOR（排他的論理和）</h2>
-          <p>XORは、<strong>二つの入力が異なるときだけ1になる</strong>演算です。EORと表記されることもあります。</p>
+          <p>XORは、<strong>二つの入力が異なるときだけ1になる</strong>演算である。EORと表記されることもある。</p>
           <div class="term-table-wrap">
             <table class="term-scale-table">
               <caption>XORの真理値表</caption>
@@ -176,12 +176,12 @@ AND 00001111
 XOR 0110
 --------
     1100</code></pre>
-          <p>となります。</p>
+          <p>となる。</p>
         </section>
 
         <section>
           <h2>AND・OR・XORの違い</h2>
-          <p>AND、OR、XORは混同しやすいですが、次のように考えると区別しやすくなります。</p>
+          <p>AND、OR、XORは混同しやすいが、次のように考えると区別しやすくなる。</p>
           <div class="term-table-wrap">
             <table class="term-scale-table">
               <caption>各演算が1になる条件</caption>
@@ -199,45 +199,45 @@ XOR 0110
 
         <section>
           <h2>論理演算と検索条件</h2>
-          <p>データベースや検索では、論理演算を使って条件を組み合わせます。</p>
+          <p>データベースや検索では、論理演算を使って条件を組み合わせる。</p>
           <p>例えば、</p>
           <p class="term-formula"><strong>札幌または函館にある日本料理店</strong><br />→ (札幌 OR 函館) AND 日本料理</p>
-          <p>と表せます。</p>
+          <p>と表せる。</p>
           <p>また、</p>
           <p class="term-formula"><strong>男性で、20歳未満または65歳以上</strong><br />→ 男性 AND (20歳未満 OR 65歳以上)</p>
-          <p>となります。</p>
-          <p>ANDとORが混在するときは、どの条件をまとめるかを括弧で明確にすることが重要です。</p>
+          <p>となる。</p>
+          <p>ANDとORが混在するときは、どの条件をまとめるかを括弧で明確にすることが重要である。</p>
         </section>
 
         <section>
           <h2>表計算での論理演算</h2>
-          <p>表計算ソフトでもANDやORは条件判定に利用されます。</p>
+          <p>表計算ソフトでもANDやORは条件判定に利用される。</p>
           <p>例えば、</p>
           <p class="term-formula"><strong>A2とB2の合計が120点以上で、A2とB2がどちらも50点以上なら合格</strong></p>
-          <p>という条件は、次のように表せます。</p>
+          <p>という条件は、次のように表せる。</p>
           <pre class="question-code" aria-label="表計算での論理演算"><code>=IF(AND(A2+B2&gt;=120,A2&gt;=50,B2&gt;=50),&quot;合格&quot;,&quot;不合格&quot;)</code></pre>
-          <p>ANDはすべての条件を満たす必要がある場合、ORはいずれか一つでも満たせばよい場合に使います。</p>
+          <p>ANDはすべての条件を満たす必要がある場合、ORはいずれか一つでも満たせばよい場合に使う。</p>
         </section>
 
         <section>
           <h2>ド・モルガンの法則</h2>
-          <p>論理式では、NOTとAND・ORを変形できます。代表的な関係が<strong>ド・モルガンの法則</strong>です。</p>
+          <p>論理式では、NOTとAND・ORを変形できる。代表的な関係が<strong>ド・モルガンの法則</strong>である。</p>
           <p class="term-formula"><strong>NOT(A AND B)<br />＝ (NOT A) OR (NOT B)</strong></p>
           <p>また、</p>
           <p class="term-formula"><strong>NOT(A OR B)<br />＝ (NOT A) AND (NOT B)</strong></p>
-          <p>も成り立ちます。</p>
-          <p>例えば、NOT(A AND B)は、「AとBがともに1の場合だけ0」です。一方、(NOT A) OR (NOT B)も、AとBがともに1の場合だけ0になるので、二つの式の真理値表は一致します。</p>
+          <p>も成り立つ。</p>
+          <p>例えば、NOT(A AND B)は、「AとBがともに1の場合だけ0」である。一方、(NOT A) OR (NOT B)も、AとBがともに1の場合だけ0になるので、二つの式の真理値表は一致する。</p>
         </section>
 
         <section>
           <h2>XORをAND・OR・NOTで表す</h2>
-          <p>XORは「どちらか一方だけが1」です。</p>
+          <p>XORは「どちらか一方だけが1」である。</p>
           <p>したがって、「少なくとも一方が1」であり、なおかつ「両方が1ではない」と考えると、</p>
           <p class="term-formula"><strong>(A OR B) AND NOT(A AND B)</strong></p>
-          <p>と表せます。</p>
+          <p>と表せる。</p>
           <p>別の表し方として、</p>
           <p class="term-formula"><strong>(A AND NOT B) OR (NOT A AND B)</strong></p>
-          <p>も同じ結果になります。</p>
+          <p>も同じ結果になる。</p>
         </section>
       </div>
 
@@ -262,7 +262,7 @@ XOR 0110
               <p class="correct-answer"><span>正解</span><strong>0．1100</strong></p>
               <div class="explanation">
                 <h3>解説</h3>
-                <p>XORは対応するビットが異なるときだけ1になります。同じ値を2回XORすると元に戻る性質があり、ビットの反転にも利用できます。</p>
+                <p>XORは対応するビットが異なるときだけ1になる。同じ値を2回XORすると元に戻る性質があり、ビットの反転にも利用できる。</p>
               </div>
               <dl class="term-question-source"><dt>出典</dt><dd>オリジナル</dd></dl>
               <p class="term-related-keywords">関連キーワード：2進数／論理演算／ビット</p>
