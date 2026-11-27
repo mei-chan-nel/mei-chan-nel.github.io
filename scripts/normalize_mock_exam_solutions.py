@@ -2,6 +2,7 @@
 from pathlib import Path
 from lxml import html, etree
 import json,re
+from mock_exam_blank_labels import normalize_second_question, replace_blank_references
 ROOT=Path(__file__).resolve().parents[1]/'mock-exams/exams'
 CIRCLES='⓪①②③④⑤⑥⑦⑧⑨'
 def text(e):return ' '.join(''.join(e.itertext()).split())
@@ -71,9 +72,12 @@ def normalize(document,exam):
 def build(manifests=None):
  for manifest in manifests if manifests is not None else ROOT.glob('*/*/exam.json'):
   exam=json.loads(manifest.read_text())
+  changes = normalize_second_question(exam)
   for section in exam['sections']:
    for key in ['problem','screenProblem','solution','screenSolution']:
     path=manifest.parent/section[key];d=html.fromstring(path.read_bytes())
+    if section['id'] in changes:
+     replace_blank_references(d, changes[section['id']])
     if key in ['solution','screenSolution']:
      normalize(d,exam)
      align_explanation_columns(d)
@@ -81,4 +85,6 @@ def build(manifests=None):
     for node in d.xpath('//*[@data-field]'):
      node.set('data-input-type',fields[node.get('data-field')]['type'])
     path.write_text('<!doctype html>\n'+html.tostring(d,encoding='unicode'))
+  if changes:
+   manifest.write_text(json.dumps(exam, ensure_ascii=False, indent=2)+'\n')
 if __name__=='__main__':build()

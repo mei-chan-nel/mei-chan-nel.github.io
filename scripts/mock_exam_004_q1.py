@@ -107,11 +107,6 @@ def make_problem(fields):
     assign_context(list(pages[6])[:4], 8, 9, 10)
     assign_context(list(pages[7])[:2], 9, 10)
 
-    # Both branches of 問1 fit together on the first A4 page with the subject
-    # heading. Keep the remaining question starts on their own sheets.
-    pages[0].extend(list(pages[1]))
-    body.remove(pages[1])
-
     # Keep the source's two illustrated app screens legible and the marker on
     # the same baseline as its option. The circle is part of the numeral.
     style = etree.SubElement(d.find("head"), "style")

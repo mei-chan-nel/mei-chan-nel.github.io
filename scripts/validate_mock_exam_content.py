@@ -3,6 +3,7 @@ from pathlib import Path
 from lxml import html
 import re,unicodedata,json,fitz
 from mock_exam_001_reading import trim_solution
+from mock_exam_blank_labels import replace_blank_references
 from mock_exam_editorial import learner_wording
 from mock_exam_001_editorial import revise_solution
 from normalize_mock_exam_solutions import normalize as normalize_solution_headings
@@ -15,13 +16,17 @@ def body(path):
  d=html.fromstring(path.read_bytes())
  for el in d.xpath('//script|//style|//*[contains(concat(" ",@class," ")," toolbar ") or contains(concat(" ",@class," ")," site-bar ")]'):el.drop_tree()
  return d.find('body')
+exam=json.loads((root/'exam.json').read_text())
+q2b_labels={f['id'].split('-',1)[1]:f['label'] for f in exam['fields'] if f['sectionId']=='q2b'}
 missing=[]
 for kind,col in [('problem',1),('solution',2)]:
  pdf=fitz.open(root/(kind+'.pdf'));pdftext=norm(''.join(p.get_text() for p in pdf));pdftext=re.sub(r'情報IStudyAtlas実戦演習No\.001[—―-]\d+[—―-]','',pdftext)
  for row in pairs:
   original=body(root/'source'/row[col]);imported=body(root/(row[0]+('-solution' if kind=='solution' else '')+'.html'))
   if kind=='solution':
-   trim_solution(original,row[0]);revise_solution(original,row[0]);normalize_solution_headings(original,json.loads((root/'exam.json').read_text()))
+   trim_solution(original,row[0]);revise_solution(original,row[0])
+  if row[0]=='q2b':replace_blank_references(original,q2b_labels)
+  if kind=='solution':normalize_solution_headings(original,exam)
   assert norm(original.text_content())==norm(imported.text_content()),f'Text changed: {row[0]} {kind}'
   assert len(original.xpath('.//img|.//svg'))==len(imported.xpath('.//img|.//svg'))
   for el in imported.iter():
