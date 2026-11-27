@@ -42,7 +42,7 @@
       }
     </script>
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <script id="exam-catalog" type="application/json">[{"id":"001","version":2,"title":"情報Ⅰ 実戦演習 No.001","publishedAt":"2026-10-29","manifest":"exams/001/2/exam.json","versions":[{"version":1,"manifest":"exams/001/1/exam.json"}]},{"id":"002","version":1,"title":"情報Ⅰ 実戦演習 No.002","manifest":"exams/002/1/exam.json","publishedAt":"2026-11-01"},{"id":"003","version":1,"title":"情報Ⅰ 実戦演習 No.003","manifest":"exams/003/1/exam.json","publishedAt":"2026-11-09"},{"id":"2025Honshi","version":1,"title":"共通テスト 情報Ⅰ 2025年度 本試験","kind":"past","year":2025,"session":"main","shortTitle":"2025年度 本試験","manifest":"exams/2025Honshi/1/exam.json"},{"id":"2025Tuishi","version":1,"title":"共通テスト 情報Ⅰ 2025年度 追・再試験","kind":"past","year":2025,"session":"supp","shortTitle":"2025年度 追・再試験","manifest":"exams/2025Tuishi/1/exam.json"},{"id":"2026Honshi","version":1,"title":"共通テスト 情報Ⅰ 2026年度 本試験","kind":"past","year":2026,"session":"main","shortTitle":"2026年度 本試験","manifest":"exams/2026Honshi/1/exam.json"},{"id":"2026Tuishi","version":1,"title":"共通テスト 情報Ⅰ 2026年度 追・再試験","kind":"past","year":2026,"session":"supp","shortTitle":"2026年度 追・再試験","manifest":"exams/2026Tuishi/1/exam.json"}]</script>
+  <script id="exam-catalog" type="application/json">[{"id":"001","version":2,"title":"情報Ⅰ 実戦演習 No.001","publishedAt":"2026-10-29","manifest":"exams/001/2/exam.json","versions":[{"version":1,"manifest":"exams/001/1/exam.json"}]},{"id":"002","version":1,"title":"情報Ⅰ 実戦演習 No.002","manifest":"exams/002/1/exam.json","publishedAt":"2026-11-01"},{"id":"003","version":1,"title":"情報Ⅰ 実戦演習 No.003","manifest":"exams/003/1/exam.json","publishedAt":"2026-11-09"},{"id":"2025Honshi","version":1,"title":"共通テスト 情報Ⅰ 2025年度 本試験","kind":"past","year":2025,"session":"main","shortTitle":"2025年度 本試験","manifest":"exams/2025Honshi/1/exam.json"},{"id":"2025Tuishi","version":1,"title":"共通テスト 情報Ⅰ 2025年度 追・再試験","kind":"past","year":2025,"session":"supp","shortTitle":"2025年度 追・再試験","manifest":"exams/2025Tuishi/1/exam.json"},{"id":"2026Honshi","version":1,"title":"共通テスト 情報Ⅰ 2026年度 本試験","kind":"past","year":2026,"session":"main","shortTitle":"2026年度 本試験","manifest":"exams/2026Honshi/1/exam.json"},{"id":"2026Tuishi","version":1,"title":"共通テスト 情報Ⅰ 2026年度 追・再試験","kind":"past","year":2026,"session":"supp","shortTitle":"2026年度 追・再試験","manifest":"exams/2026Tuishi/1/exam.json"},{"id":"004","version":1,"title":"情報Ⅰ 実戦演習 No.004","manifest":"exams/004/1/exam.json"}]</script>
 </head>
   <body data-view="catalog">
     <header class="site-header">
@@ -79,7 +79,14 @@
           <div><p class="eyebrow" id="catalog-context">回ごとに受験 · 時間制限なし</p><h2 id="exam-picker-title">試験を選ぶ</h2></div>
           <div class="catalog-list-tools"><label class="catalog-sort">並び順<select id="catalog-sort"><option value="recommended" selected>おすすめ順</option><option value="newest" >新しい順</option><option value="number" >番号順</option></select></label><button id="open-history">学習履歴</button></div>
         </div>
-        <div id="exam-list"><article class="exam-card catalog-exam" data-exam-id="003">
+        <div id="exam-list"><article class="exam-card catalog-exam" data-exam-id="004">
+        <div class="exam-card-title">
+          <h3 id="catalog-exam-004-title">No.004</h3>
+          <span id="catalog-exam-004-status" class="exam-status ">未受験</span>
+        </div>
+        <button type="button" class="exam-card-trigger" aria-haspopup="dialog" aria-controls="catalog-exam-dialog" aria-labelledby="catalog-exam-004-title catalog-exam-004-status"></button>
+        <div class="actions exam-card-actions"><button class="primary" data-start="004"><span class="exam-start-list-label">選択</span><span class="exam-start-confirm-label">始める</span></button><div class="pdf-links"><a href="exams/004/1/problem.pdf" download="情報Ⅰ_実戦演習_No.004_問題冊子PDF.pdf">問題冊子PDF</a><a href="exams/004/1/solution.pdf" download="情報Ⅰ_実戦演習_No.004_解答解説PDF.pdf">解答解説PDF</a></div></div>
+      </article><article class="exam-card catalog-exam" data-exam-id="003">
         <div class="exam-card-title">
           <h3 id="catalog-exam-003-title">No.003</h3>
           <span id="catalog-exam-003-status" class="exam-status ">未受験</span>

@@ -1,4 +1,5 @@
 import { bookFrameSrcdoc } from "./book-srcdoc.mjs";
+import { enableReadingLinks } from "./book-document.mjs";
 import { fitBookFrame } from "./book-frame.mjs";
 
 // Partition by the same boundaries used for desktop alignment. Keep the
@@ -128,6 +129,7 @@ export function mountInterleavedExplanations(
         a.target = "_blank";
         a.rel = "noopener";
       });
+      enableReadingLinks(content);
       const resize = () => {
         if (closed) return;
         fitBookFrame(frame);
