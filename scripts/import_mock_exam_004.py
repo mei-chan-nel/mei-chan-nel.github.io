@@ -67,6 +67,12 @@ def prepare(document, sid, title, kind):
 
 def write_material(document, name, kind, title, screen):
     d = copy.deepcopy(document)
+    if screen and name == "q1.html":
+        # The booklet starts branch b on a new page. Keep the existing
+        # on-screen grouping of the two branches of question 1.
+        first, second = d.findall("body/section")[:2]
+        first.extend(list(second))
+        second.getparent().remove(second)
     base = "../" if screen else ""
     for attr in ("src", "href"):
         for e in d.xpath(f"//*[@{attr}]"):

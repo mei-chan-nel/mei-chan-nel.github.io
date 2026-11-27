@@ -68,10 +68,3 @@ body[data-section="q3"] .code .reference-blank[data-field] { border-width: 1px !
 @media print {
   .explanation-unit, .sources { break-inside: avoid; }
 }
-
-/* Give the two branches of Q1's first question an empty line in the booklet. */
-@media print {
-  body[data-section="q1"] .sheet:first-of-type p.stem[data-reading-units="q1-02"] {
-    margin-top: 10mm;
-  }
-}
