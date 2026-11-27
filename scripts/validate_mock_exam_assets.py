@@ -11,6 +11,8 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 from lxml import html
 
+from mock_exam_blank_labels import KANA_ORDER, second_question_fields
+
 
 def norm(text):
     return re.sub(r'\s', '', unicodedata.normalize('NFKC', text or ''))
@@ -36,6 +38,11 @@ def validate(manifest, skip_pdf=False):
         file = (base / unquote(url.path)).resolve()
         need(file.is_relative_to(root) and file.is_file(), f'Missing/outside resource: {reference[:120]}')
         return file
+
+    if exam.get('kind') != 'past':
+        q2_fields = second_question_fields(exam)
+        need(''.join(f['label'] for f in q2_fields) == KANA_ORDER[:len(q2_fields)],
+             'Question 2 answer labels must follow kana order across A and B')
 
     for section in exam['sections']:
         sid = section['id']
@@ -73,6 +80,10 @@ def validate(manifest, skip_pdf=False):
                     fid = node.get('data-field')
                     need(fid in wanted_fields, f'Unknown/cross-section HTML field: {fid}')
                     need(node.get('data-input-type') == fields[fid]['type'], f'Missing/wrong input presentation type: {fid}/{key}')
+                    if sid in ('q2a', 'q2b') and exam.get('kind') != 'past':
+                        label = fields[fid]['label']
+                        need(node.get('data-original') == label and node.text_content().strip() == label,
+                             f'Mismatched question 2 answer label: {fid}/{key}')
                     bound.add(fid)
                     if node.get('data-part') is not None:
                         part = node.get('data-part')

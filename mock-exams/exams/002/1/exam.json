@@ -545,7 +545,7 @@
     {
       "id": "q2b-コ",
       "sectionId": "q2b",
-      "label": "コ",
+      "label": "ケ",
       "type": "choice",
       "choices": [
         {
@@ -569,7 +569,7 @@
     {
       "id": "q2b-サ",
       "sectionId": "q2b",
-      "label": "サ",
+      "label": "コ",
       "type": "text",
       "allowed": "0123456789",
       "maxLength": 1
@@ -577,7 +577,7 @@
     {
       "id": "q2b-シ",
       "sectionId": "q2b",
-      "label": "シ",
+      "label": "サ",
       "type": "choice",
       "choices": [
         {
@@ -601,7 +601,7 @@
     {
       "id": "q2b-ス",
       "sectionId": "q2b",
-      "label": "ス",
+      "label": "シ",
       "type": "choice",
       "choices": [
         {
@@ -625,7 +625,7 @@
     {
       "id": "q2b-セ",
       "sectionId": "q2b",
-      "label": "セ",
+      "label": "ス",
       "type": "choice",
       "choices": [
         {
@@ -649,7 +649,7 @@
     {
       "id": "q2b-ソ",
       "sectionId": "q2b",
-      "label": "ソ",
+      "label": "セ",
       "type": "choice",
       "choices": [
         {
@@ -673,7 +673,7 @@
     {
       "id": "q2b-タ",
       "sectionId": "q2b",
-      "label": "タ",
+      "label": "ソ",
       "type": "choice",
       "choices": [
         {
@@ -697,7 +697,7 @@
     {
       "id": "q2b-チ",
       "sectionId": "q2b",
-      "label": "チ",
+      "label": "タ",
       "type": "text",
       "allowed": "0123456789",
       "maxLength": 1
@@ -705,7 +705,7 @@
     {
       "id": "q2b-ツ",
       "sectionId": "q2b",
-      "label": "ツ",
+      "label": "チ",
       "type": "text",
       "allowed": "0123456789",
       "maxLength": 1

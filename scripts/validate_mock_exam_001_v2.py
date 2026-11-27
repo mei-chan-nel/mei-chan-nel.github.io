@@ -7,6 +7,7 @@ import re
 import unicodedata
 from mock_exam_editorial import learner_wording
 from mock_exam_001_reading import trim_solution
+from mock_exam_blank_labels import replace_blank_references
 from mock_exam_001_editorial import revise_solution
 from normalize_mock_exam_solutions import normalize as normalize_solution_headings
 from import_mock_exam_001_v2 import revise_q1
@@ -119,6 +120,9 @@ for section, original_section in zip(exam['sections'], old['sections']):
             if kind == 'solution' and sid != 'q2a':
                 trim_solution(source, sid); revise_solution(source, sid)
         generated = doc(V2 / section[kind])
+        if sid == 'q2b':
+            labels = {f['id'].split('-', 1)[1]: f['label'] for f in exam['fields'] if f['sectionId'] == sid}
+            replace_blank_references(source, labels)
         if kind == 'solution': normalize_solution_headings(source, exam)
         assert norm(source.find('body').text_content()) == norm(generated.find('body').text_content()), (sid, kind)
         assert len(source.xpath('//svg|//img')) == len(generated.xpath('//svg|//img')), (sid, kind)
